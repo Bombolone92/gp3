@@ -1,0 +1,713 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import { defaultRangeExtractor, useVirtualizer, type Range as VirtualRange } from '@tanstack/react-virtual'
+import { ArrowDownToLine, AudioLines, Play } from 'lucide-react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { m } from '~/paraglide/messages.js'
+import { getLocale, getTextDirection } from '~/paraglide/runtime.js'
+import { Button } from '~/components/ui/button'
+import { formatTimestamp, type Segment, type SpeakerNames } from '~/lib/transcript'
+import { cn } from '~/lib/style'
+import { usePreferenceProvider } from '~/providers/preference'
+import { useSession } from '../session'
+import type { Job } from '../hooks/use-transcribe-queue'
+import { textSizeClass, type TranscriptTab, type TranscriptViewOptions } from '../hooks/use-transcript-view'
+import { PLAYER_SEEK_EVENT, PLAYER_TOGGLE_EVENT, PLAYER_TIME_EVENT, type PlayerTimeDetail } from './player-bar'
+import { ProjectNameEditor } from './project-name-editor'
+import QuietRow from './quiet-row'
+import { SpeakerLabel } from './speaker-label'
+import SummaryView from './summary-view'
+
+/** Segment timestamps are centiseconds (see `formatTimestamp` / `asJson` in lib/transcript). */
+const CENTISECONDS_PER_SECOND = 100
+
+/** Keys that scroll the transcript, so pressing one means the reader is steering. */
+const SCROLL_KEYS = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End']
+
+/** How close to the tail counts as being back at the bottom, in pixels. */
+const BOTTOM_STICK_PX = 96
+
+/** Where an edit should put the caret when the editor opens. */
+type CaretIntent = { start: number; end: number } | 'start' | 'end'
+
+interface EditTarget {
+	index: number
+	caret: CaretIntent
+}
+
+function Highlight({ text, query }: { text: string; query: string }) {
+	if (!query) return <>{text}</>
+	const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig'))
+	return (
+		<>
+			{parts.map((part, index) =>
+				part.toLowerCase() === query.toLowerCase() ? (
+					<mark key={index} className="rounded bg-primary/20 text-foreground">
+						{part}
+					</mark>
+				) : (
+					<span key={index}>{part}</span>
+				),
+			)}
+		</>
+	)
+}
+
+/**
+ * Character offset inside `element` for a viewport point — this is what makes a click land the caret
+ * where the pointer is instead of at the end of the line.
+ */
+function offsetFromPoint(element: HTMLElement, x: number, y: number): number | null {
+	const document_ = element.ownerDocument
+	let container: Node | null = null
+	let offset = 0
+	// caretRangeFromPoint is the WebKit/Chromium spelling, caretPositionFromPoint the standard one.
+	const legacy = (document_ as Document & { caretRangeFromPoint?: (x: number, y: number) => Range | null }).caretRangeFromPoint
+	if (legacy) {
+		const range = legacy.call(document_, x, y)
+		if (range) {
+			container = range.startContainer
+			offset = range.startOffset
+		}
+	} else if (document_.caretPositionFromPoint) {
+		const position = document_.caretPositionFromPoint(x, y)
+		if (position) {
+			container = position.offsetNode
+			offset = position.offset
+		}
+	}
+	if (!container || !element.contains(container)) return null
+	const measure = document_.createRange()
+	measure.selectNodeContents(element)
+	try {
+		measure.setEnd(container, offset)
+	} catch {
+		return null
+	}
+	return measure.toString().length
+}
+
+/** The selection the user dragged inside `element`, as offsets into its text. */
+function selectionRangeIn(element: HTMLElement): { start: number; end: number } | null {
+	const selection = element.ownerDocument.getSelection()
+	if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return null
+	const range = selection.getRangeAt(0)
+	if (!element.contains(range.startContainer) || !element.contains(range.endContainer)) return null
+	const measure = element.ownerDocument.createRange()
+	measure.selectNodeContents(element)
+	try {
+		measure.setEnd(range.startContainer, range.startOffset)
+		const start = measure.toString().length
+		measure.setEnd(range.endContainer, range.endOffset)
+		const end = measure.toString().length
+		return { start, end }
+	} catch {
+		return null
+	}
+}
+
+interface SegmentEditorProps {
+	initialText: string
+	caret: CaretIntent
+	textSizeClassName: string
+	onCommit: (text: string, then?: 'next' | 'previous') => void
+	onCancel: () => void
+	onMove: (direction: 1 | -1, caret: CaretIntent) => void
+}
+
+/**
+ * Mounted only while a line is being edited, so every edit starts from the segment's current text —
+ * and the caret lands where the click did instead of at the end.
+ */
+function SegmentEditor({ initialText, caret, textSizeClassName, onCommit, onCancel, onMove }: SegmentEditorProps) {
+	const textareaRef = useRef<HTMLTextAreaElement>(null)
+	// Set once the edit ended, so the blur that follows a commit or a cancel does not commit again.
+	const settledRef = useRef(false)
+	const [draft, setDraft] = useState(initialText)
+
+	useEffect(() => {
+		const textarea = textareaRef.current
+		if (!textarea) return
+		const length = textarea.value.length
+		const range = caret === 'start' ? { start: 0, end: 0 } : caret === 'end' ? { start: length, end: length } : caret
+		textarea.focus({ preventScroll: true })
+		textarea.setSelectionRange(Math.min(range.start, length), Math.min(range.end, length))
+		return () => {
+			// Closed from the outside (file switch, search): whatever blur follows must not commit.
+			settledRef.current = true
+		}
+	}, [])
+
+	// The editor grows with the text instead of scrolling inside a fixed box.
+	useEffect(() => {
+		const textarea = textareaRef.current
+		if (!textarea) return
+		textarea.style.height = 'auto'
+		textarea.style.height = `${textarea.scrollHeight}px`
+	}, [draft])
+
+	function commit(then?: 'next' | 'previous') {
+		if (settledRef.current) return
+		settledRef.current = true
+		const next = draft.trim()
+		// An empty segment would be lost text, not an edit: fall back to what was there.
+		if (next && next !== initialText) onCommit(next, then)
+		else if (then) onMove(then === 'next' ? 1 : -1, then === 'next' ? 'start' : 'end')
+		else onCancel()
+	}
+
+	function cancel() {
+		if (settledRef.current) return
+		settledRef.current = true
+		onCancel()
+	}
+
+	function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+		const textarea = event.currentTarget
+		if (event.key === 'Escape') {
+			event.preventDefault()
+			cancel()
+			return
+		}
+		// Enter moves to the next line the way a list editor does; Shift+Enter breaks the line.
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault()
+			commit('next')
+			return
+		}
+		if (event.key === 'Tab') {
+			event.preventDefault()
+			commit(event.shiftKey ? 'previous' : 'next')
+			return
+		}
+		const atStart = textarea.selectionStart === 0 && textarea.selectionEnd === 0
+		const atEnd = textarea.selectionStart === textarea.value.length && textarea.selectionEnd === textarea.value.length
+		if (event.key === 'ArrowUp' && atStart) {
+			event.preventDefault()
+			commit('previous')
+			return
+		}
+		if (event.key === 'ArrowDown' && atEnd) {
+			event.preventDefault()
+			commit('next')
+		}
+	}
+
+	return (
+		<textarea
+			ref={textareaRef}
+			value={draft}
+			rows={1}
+			autoComplete="off"
+			autoCorrect="off"
+			autoCapitalize="none"
+			spellCheck={false}
+			aria-label={m.editLine()}
+			onChange={(event) => setDraft(event.target.value)}
+			onBlur={() => commit()}
+			onKeyDown={onKeyDown}
+			className={cn(
+				'block w-full resize-none overflow-hidden rounded-md border-0 bg-transparent p-0 text-foreground outline-none focus:outline-none focus:ring-0',
+				textSizeClassName,
+			)}
+		/>
+	)
+}
+
+interface SegmentBlockProps {
+	segment: Segment
+	/** index inside `job.segments` — search filtering means it is not the render index */
+	index: number
+	query: string
+	animate: boolean
+	editable: boolean
+	editing: EditTarget | null
+	active: boolean
+	options: TranscriptViewOptions
+	speakerNames?: SpeakerNames
+	/** Every speaker index the transcript knows, so a line can be moved to one of them. */
+	speakers: number[]
+	onStartEdit: (index: number, caret: CaretIntent) => void
+	onCancel: () => void
+	onCommit: (index: number, text: string, then?: 'next' | 'previous') => void
+	onMove: (index: number, direction: 1 | -1, caret: CaretIntent) => void
+	onRenameSpeaker: (speaker: number, name: string) => void
+	onAssignSpeaker: (index: number, speaker: number) => void
+}
+
+const SegmentBlock = memo(function SegmentBlock({
+	segment,
+	index,
+	query,
+	animate,
+	editable,
+	editing,
+	active,
+	options,
+	speakerNames,
+	speakers,
+	onStartEdit,
+	onCancel,
+	onCommit,
+	onMove,
+	onRenameSpeaker,
+	onAssignSpeaker,
+}: SegmentBlockProps) {
+	const textRef = useRef<HTMLSpanElement>(null)
+
+	const text = segment.text.trim()
+	const isEditing = editing !== null
+
+	const beginEditFromPointer = useCallback(
+		(event: React.MouseEvent) => {
+			if (!editable || isEditing) return
+			const node = textRef.current
+			if (!node) return
+			// A drag-selection carries into the editor; a plain click drops the caret where it landed.
+			const selected = selectionRangeIn(node)
+			const at = selected ?? offsetFromPoint(node, event.clientX, event.clientY)
+			onStartEdit(index, typeof at === 'number' ? { start: at, end: at } : (at ?? 'end'))
+		},
+		[editable, index, isEditing, onStartEdit],
+	)
+
+	const seek = useCallback(() => {
+		window.dispatchEvent(new CustomEvent(PLAYER_SEEK_EVENT, { detail: { seconds: segment.start / CENTISECONDS_PER_SECOND } }))
+	}, [segment.start])
+
+	const timestamp = formatTimestamp(segment.start, false, '', false)
+
+	return (
+		<motion.div
+			data-segment-index={index}
+			initial={animate ? { opacity: 0, y: 4 } : false}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.15, ease: 'easeOut' }}
+			className={cn(
+				'group relative -mx-3 flex gap-3 rounded-xl px-3 py-2 transition-colors duration-150',
+				!active && editable && !isEditing && 'hover:bg-muted/40',
+			)}>
+			{/*
+			 * The line being spoken gets a wash that fades out along the text instead of a block of
+			 * colour with a hard edge — it reads as lighting rather than selection, and it can cross-fade.
+			 */}
+			<span
+				aria-hidden
+				className={cn(
+					'pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-foreground/[0.07] via-foreground/[0.04] to-transparent transition-opacity duration-500 ease-out rtl:bg-gradient-to-l',
+					active ? 'opacity-100' : 'opacity-0',
+				)}
+			/>
+
+			{/* Gutter: the timestamp doubles as the play button, so playing a line is one click. */}
+			<button
+				type="button"
+				onClick={seek}
+				aria-label={m.playFromHere()}
+				title={timestamp}
+				className={cn(
+					'group/play relative z-10 mt-[3px] flex h-5 shrink-0 cursor-pointer items-center justify-end rounded-sm font-mono text-[11px] tracking-tight tabular-nums transition-colors duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/80',
+					options.showTimestamps ? 'w-[52px]' : 'w-4',
+					active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+				)}>
+				{options.showTimestamps && <span className="transition-opacity duration-150 group-hover/play:opacity-0">{timestamp}</span>}
+				<Play
+					aria-hidden
+					className={cn(
+						'h-3 w-3 fill-current transition-opacity duration-150',
+						options.showTimestamps ? 'absolute end-0 opacity-0 group-hover/play:opacity-100' : 'opacity-0 group-hover:opacity-100',
+					)}
+				/>
+			</button>
+
+			<div className="relative min-w-0 flex-1">
+				{options.showSpeakers && (
+					<SpeakerLabel
+						speaker={segment.speaker}
+						speakers={speakers}
+						speakerNames={speakerNames}
+						editable={editable}
+						onRename={onRenameSpeaker}
+						onAssign={(speaker) => onAssignSpeaker(index, speaker)}
+					/>
+				)}
+
+				{editing ? (
+					<SegmentEditor
+						initialText={text}
+						caret={editing.caret}
+						textSizeClassName={textSizeClass[options.textSize]}
+						onCommit={(next, then) => onCommit(index, next, then)}
+						onCancel={onCancel}
+						onMove={(direction, caret) => onMove(index, direction, caret)}
+					/>
+				) : (
+					<span
+						ref={textRef}
+						role={editable ? 'textbox' : undefined}
+						tabIndex={editable ? 0 : undefined}
+						onClick={editable ? beginEditFromPointer : undefined}
+						onKeyDown={(event) => {
+							if (!editable) return
+							if (event.key === 'Enter') {
+								event.preventDefault()
+								onStartEdit(index, 'end')
+							}
+						}}
+						className={cn(
+							'block whitespace-pre-wrap text-foreground',
+							textSizeClass[options.textSize],
+							editable && 'cursor-text rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60',
+						)}>
+						<Highlight text={text} query={query} />
+					</span>
+				)}
+			</div>
+		</motion.div>
+	)
+})
+
+export default function TranscriptView({
+	job,
+	query,
+	options,
+	tab = 'transcript',
+}: {
+	job: Job
+	query: string
+	options: TranscriptViewOptions
+	tab?: TranscriptTab
+}) {
+	const preference = usePreferenceProvider()
+	const interfaceDirection = getTextDirection(getLocale())
+	const { queue } = useSession()
+	const scrollRef = useRef<HTMLDivElement>(null)
+	const listRef = useRef<HTMLDivElement>(null)
+	const running = job.status === 'running'
+	const editable = !running && (job.status === 'done' || job.hydrated === true)
+
+	const [editing, setEditing] = useState<EditTarget | null>(null)
+	const [activeIndex, setActiveIndex] = useState(-1)
+	const [playing, setPlaying] = useState(false)
+	const [following, setFollowing] = useState(true)
+	const [scrollMargin, setScrollMargin] = useState(0)
+	// The jump pill is a reaction to scrolling away, so it fades out again shortly after.
+	const [jumpVisible, setJumpVisible] = useState(false)
+	const jumpTimer = useRef(0)
+	const followingRef = useRef(following)
+	const playingRef = useRef(playing)
+	followingRef.current = following
+	playingRef.current = playing
+
+	// Filtering keeps the original index so an edit lands on the right segment.
+	const visible = useMemo(() => {
+		const all = job.segments.map((segment, index) => ({ segment, index }))
+		if (!query) return all
+		return all.filter(({ segment }) => segment.text.toLowerCase().includes(query.toLowerCase()))
+	}, [job.segments, query])
+
+	const editingVisibleIndex = useMemo(() => (editing ? visible.findIndex((entry) => entry.index === editing.index) : -1), [editing, visible])
+	const extractRange = useCallback(
+		(range: VirtualRange) => {
+			const indexes = defaultRangeExtractor(range)
+			if (editingVisibleIndex >= 0 && !indexes.includes(editingVisibleIndex)) indexes.push(editingVisibleIndex)
+			return indexes.sort((a, b) => a - b)
+		},
+		[editingVisibleIndex],
+	)
+	const rowVirtualizer = useVirtualizer({
+		count: visible.length,
+		getScrollElement: () => scrollRef.current,
+		estimateSize: () => 48,
+		getItemKey: (position) => {
+			const entry = visible[position]
+			return entry ? `${entry.segment.start}-${entry.index}` : position
+		},
+		measureElement: (element) => element.getBoundingClientRect().height,
+		overscan: 8,
+		gap: 4,
+		rangeExtractor: extractRange,
+		scrollMargin,
+	})
+
+	// The list starts below a variable-height heading/error/empty state. Virtual row offsets are
+	// relative to the scroll element, so keep that margin current as those blocks change.
+	useLayoutEffect(() => {
+		const list = listRef.current
+		if (!list) return
+		const update = () => setScrollMargin((current) => (current === list.offsetTop ? current : list.offsetTop))
+		update()
+		const observer = new ResizeObserver(update)
+		if (list.parentElement) observer.observe(list.parentElement)
+		return () => observer.disconnect()
+	}, [job.id, job.status, query, visible.length])
+
+	// Switching file, searching or a new run must never leave an editor open over other text.
+	useEffect(() => {
+		setEditing(null)
+		setActiveIndex(-1)
+		setPlaying(false)
+		setFollowing(true)
+	}, [job.id])
+
+	useEffect(() => {
+		setEditing(null)
+	}, [query])
+
+	useEffect(() => {
+		if (!editable) setEditing(null)
+	}, [editable])
+
+	// The line being spoken, from the player's position broadcast.
+	useEffect(() => {
+		function onTime(event: Event) {
+			const detail = (event as CustomEvent<PlayerTimeDetail>).detail
+			if (!detail || !Number.isFinite(detail.seconds)) return
+			setPlaying(detail.playing)
+			if (!detail.playing) setJumpVisible(false)
+			const at = detail.seconds * CENTISECONDS_PER_SECOND
+			const segments = job.segments
+			let found = -1
+			for (let index = 0; index < segments.length; index += 1) {
+				if (segments[index].start <= at) found = index
+				else break
+			}
+			// Past the end of a segment with a gap before the next one, nothing is being spoken.
+			if (found >= 0 && segments[found].stop && at > segments[found].stop) found = -1
+			setActiveIndex((previous) => (previous === found ? previous : found))
+		}
+		window.addEventListener(PLAYER_TIME_EVENT, onTime)
+		return () => window.removeEventListener(PLAYER_TIME_EVENT, onTime)
+	}, [job.segments])
+
+	// Follow along, unless the reader has scrolled away or is editing a line.
+	useEffect(() => {
+		if (!following || activeIndex < 0 || editing) return
+		const position = visible.findIndex((entry) => entry.index === activeIndex)
+		if (position < 0) return
+		rowVirtualizer.scrollToIndex(position, { align: 'center' })
+	}, [activeIndex, following, editing, rowVirtualizer, visible])
+
+	// Ride the tail of a running transcription — but only while the reader is still following.
+	useEffect(() => {
+		if (!running || !following || editing || visible.length === 0) return
+		rowVirtualizer.scrollToIndex(visible.length - 1, { align: 'end' })
+	}, [job.segments.length, editing, following, rowVirtualizer, running, visible.length])
+
+	// Spacebar plays and pauses while reading — never while typing into the transcript.
+	useEffect(() => {
+		function onKeyDown(event: KeyboardEvent) {
+			if (event.key !== ' ' && event.code !== 'Space') return
+			if (event.metaKey || event.ctrlKey || event.altKey) return
+			const target = event.target as HTMLElement | null
+			if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
+			event.preventDefault()
+			window.dispatchEvent(new CustomEvent(PLAYER_TOGGLE_EVENT))
+		}
+		window.addEventListener('keydown', onKeyDown)
+		return () => window.removeEventListener('keydown', onKeyDown)
+	}, [])
+
+	/**
+	 * Hand the scroll position to the reader. Driven by input events rather than by `scroll`: while a
+	 * transcription streams in, our own scrolls fire faster than any "was that us?" window could tell
+	 * them apart, and a reader looking back would keep being dragged to the tail.
+	 */
+	const releaseFollow = useCallback(() => {
+		if (followingRef.current) {
+			followingRef.current = false
+			setFollowing(false)
+		}
+		if (!playingRef.current) return
+		setJumpVisible(true)
+		window.clearTimeout(jumpTimer.current)
+		jumpTimer.current = window.setTimeout(() => setJumpVisible(false), 3000)
+	}, [])
+
+	useEffect(() => {
+		const element = scrollRef.current
+		if (!element) return
+		const onPointerDown = (event: PointerEvent) => {
+			// Only the scrollbar targets the scroll container; a click on a line targets the line.
+			if (event.target === element) releaseFollow()
+		}
+		// Keys land on the document until something inside the list has focus, so listen there.
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (!SCROLL_KEYS.includes(event.key)) return
+			const target = event.target as HTMLElement | null
+			if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
+			if (target && target !== document.body && !element.contains(target)) return
+			releaseFollow()
+		}
+		element.addEventListener('wheel', releaseFollow, { passive: true })
+		element.addEventListener('touchmove', releaseFollow, { passive: true })
+		element.addEventListener('pointerdown', onPointerDown)
+		window.addEventListener('keydown', onKeyDown)
+		return () => {
+			element.removeEventListener('wheel', releaseFollow)
+			element.removeEventListener('touchmove', releaseFollow)
+			element.removeEventListener('pointerdown', onPointerDown)
+			window.removeEventListener('keydown', onKeyDown)
+		}
+		// The summary tab renders no scroll container, so re-attach when the transcript comes back.
+	}, [releaseFollow, tab])
+
+	// Coming back to the tail re-arms the follow, the way a log view sticks to the bottom again.
+	// Measured here rather than in a later frame: by then the streamed rows have already grown the
+	// list out from under the reader, and a landing at the bottom would no longer look like one.
+	const onScroll = useCallback(() => {
+		const element = scrollRef.current
+		if (!running || followingRef.current || !element) return
+		if (element.scrollHeight - element.scrollTop - element.clientHeight > BOTTOM_STICK_PX) return
+		followingRef.current = true
+		setFollowing(true)
+	}, [running])
+
+	useEffect(() => () => window.clearTimeout(jumpTimer.current), [])
+
+	const jumpToPlaying = useCallback(() => {
+		setFollowing(true)
+		followingRef.current = true
+		setJumpVisible(false)
+		window.clearTimeout(jumpTimer.current)
+		const position = visible.findIndex((entry) => entry.index === activeIndex)
+		if (position >= 0) rowVirtualizer.scrollToIndex(position, { align: 'center' })
+	}, [activeIndex, rowVirtualizer, visible])
+
+	const startEdit = useCallback(
+		(index: number, caret: CaretIntent) => {
+			setEditing({ index, caret })
+			const position = visible.findIndex((entry) => entry.index === index)
+			if (position >= 0) rowVirtualizer.scrollToIndex(position, { align: 'auto' })
+		},
+		[rowVirtualizer, visible],
+	)
+	const cancelEdit = useCallback(() => setEditing(null), [])
+
+	/** Move the editor to the neighbouring visible line, so a transcript can be fixed without the mouse. */
+	const moveEdit = useCallback(
+		(index: number, direction: 1 | -1, caret: CaretIntent) => {
+			const position = visible.findIndex((entry) => entry.index === index)
+			const next = visible[position + direction]
+			setEditing(next ? { index: next.index, caret } : null)
+			if (next) rowVirtualizer.scrollToIndex(position + direction, { align: 'auto' })
+		},
+		[rowVirtualizer, visible],
+	)
+
+	const commitEdit = useCallback(
+		(index: number, text: string, then?: 'next' | 'previous') => {
+			queue.updateSegmentText(job.id, index, text)
+			if (then) moveEdit(index, then === 'next' ? 1 : -1, then === 'next' ? 'start' : 'end')
+			else setEditing(null)
+		},
+		[job.id, moveEdit, queue],
+	)
+
+	const renameSpeaker = useCallback((speaker: number, name: string) => queue.setSpeakerName(job.id, speaker, name), [job.id, queue])
+	const assignSpeaker = useCallback((index: number, speaker: number) => queue.setSegmentSpeaker(job.id, index, speaker), [job.id, queue])
+	const speakers = useMemo(
+		() => [...new Set(job.segments.flatMap((segment) => (segment.speaker != null ? [segment.speaker] : [])))].sort((a, b) => a - b),
+		[job.segments],
+	)
+
+	const showJump = playing && jumpVisible && !following && activeIndex >= 0 && tab === 'transcript'
+	const canTranscribeSaved =
+		job.hydrated === true && ['done', 'error', 'cancelled'].includes(job.status) && job.segments.length === 0 && Boolean(job.savedPath && job.path)
+
+	if (tab === 'summary') return <SummaryView job={job} options={options} />
+
+	return (
+		<div className="relative h-full min-h-0">
+			<div ref={scrollRef} onScroll={onScroll} className="transcript-editor h-full min-h-0 overflow-x-hidden overflow-y-auto">
+				<div dir={preference.textAreaDirection} className="mx-auto w-full max-w-[86ch] px-8 py-10 xl:max-w-[96ch]">
+					<ProjectNameEditor
+						name={job.name}
+						disabled={job.status === 'queued' || job.status === 'running'}
+						onDraftChange={(name) => queue.previewJobName(job.id, name)}
+						onRename={(name) => queue.renameJob(job.id, name)}
+					/>
+
+					{job.status === 'error' && <p className="mb-8 text-sm text-destructive">{job.error}</p>}
+
+					{canTranscribeSaved && !query ? (
+						<div className="flex min-h-[46vh] items-center justify-center py-10">
+							<div
+								dir={interfaceDirection}
+								className="flex w-full max-w-md flex-col items-center rounded-2xl border border-border/60 bg-card/55 px-8 py-10 text-center shadow-xs">
+								<div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-muted text-muted-foreground">
+									<AudioLines className="h-5 w-5" />
+								</div>
+								<h2 className="text-base font-semibold text-foreground">{m.recordingReady()}</h2>
+								<p className="mt-1.5 max-w-sm text-sm leading-6 text-muted-foreground">{m.recordingReadyInfo()}</p>
+								<div className="mt-5">
+									<QuietRow />
+								</div>
+								<Button type="button" className="mt-3 min-w-32" disabled={!preference.modelPath} onClick={() => queue.transcribeJob(job.id)}>
+									<AudioLines className="h-4 w-4" />
+									{m.transcribe()}
+								</Button>
+							</div>
+						</div>
+					) : visible.length === 0 ? (
+						<p className="text-sm text-muted-foreground">
+							{query ? m.noMatchingLines() : running ? m.transcriptWillDisplayedShortly() : job.status === 'queued' ? m.loading() : ''}
+						</p>
+					) : null}
+
+					<div ref={listRef} className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+						{rowVirtualizer.getVirtualItems().map((virtualRow) => {
+							const { segment, index } = visible[virtualRow.index]
+							return (
+								<div
+									key={virtualRow.key}
+									ref={rowVirtualizer.measureElement}
+									data-index={virtualRow.index}
+									className="absolute top-0 left-0 w-full"
+									style={{ transform: `translateY(${virtualRow.start - rowVirtualizer.options.scrollMargin}px)` }}>
+									<SegmentBlock
+										segment={segment}
+										index={index}
+										query={query}
+										animate={running}
+										editable={editable}
+										editing={editing?.index === index ? editing : null}
+										active={activeIndex === index}
+										options={options}
+										speakerNames={job.speakerNames}
+										speakers={speakers}
+										onStartEdit={startEdit}
+										onCancel={cancelEdit}
+										onCommit={commitEdit}
+										onMove={moveEdit}
+										onRenameSpeaker={renameSpeaker}
+										onAssignSpeaker={assignSpeaker}
+									/>
+								</div>
+							)
+						})}
+					</div>
+
+					{running && <div className={cn('mt-8 h-4 w-24 animate-pulse rounded-full bg-muted')} />}
+				</div>
+			</div>
+
+			{/* Scrolling away stops the follow; this brings it back instead of hunting for the line. */}
+			{/* AnimatePresence keeps the pill mounted long enough to fade back out. */}
+			<AnimatePresence>
+				{showJump && (
+					<motion.button
+						type="button"
+						initial={{ opacity: 0, y: 6 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: 6 }}
+						transition={{ duration: 0.2, ease: 'easeOut' }}
+						onClick={jumpToPlaying}
+						className="absolute bottom-4 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card/95 px-3 py-1.5 text-[12px] font-medium text-foreground shadow-sm backdrop-blur transition-colors duration-150 hover:bg-muted">
+						<ArrowDownToLine className="h-3.5 w-3.5 text-muted-foreground" />
+						{m.jumpToPlaying()}
+					</motion.button>
+				)}
+			</AnimatePresence>
+		</div>
+	)
+}

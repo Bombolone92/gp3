@@ -1,0 +1,373 @@
+/**
+ * Editor state: the open project plus selection, playhead and editing
+ * toggles. Every project edit goes through update() so it is undoable,
+ * autosaved and broadcast to the views.
+ *
+ * Events:
+ *   change  { label, structural }   project edited (or undo/redo)
+ *   select  { ids }                 selection changed
+ *   time    { time }                playhead moved
+ *   toggles {}                      ripple/snap/linkOverlays/hover preview changed
+ *   nest    { depth }               a compound clip was opened or closed
+ *   timeline { id }                 another of the project's timelines was opened
+ *   history { label }               undo steps were regrouped (endBatch)
+ */
+import { Emitter } from '../lib/emitter.js';
+import { History } from './history.js';
+import { projectDuration, findClip, pruneTracks, cleanupTransitions, resolveOverlaps, MIN_CLIP, sequenceLength, rippleResize } from './timeline.js';
+import { switchTimeline } from './timelines.js';
+
+/** Projects up to this much JSON keep a copy to roll back a failed step of a drag to. */
+const ROLLBACK_MAX = 1_000_000;
+
+/** Fields a compound clip being edited has of its own; the rest (name, media, settings...) is the project's. */
+const NEST_FIELDS = new Set(['tracks', 'markers', 'range', 'transcript', 'guides']);
+
+/** Copy the project-wide fields of from onto to (a compound clip's edits to media, name or settings). */
+function adoptProjectFields(to, from) {
+  for (const k of Object.keys(to)) if (!NEST_FIELDS.has(k) && !Object.hasOwn(from, k)) delete to[k];
+  for (const k of Object.keys(from)) if (!NEST_FIELDS.has(k)) to[k] = structuredClone(from[k]);
+}
+
+export class EditorStore extends Emitter {
+  constructor(project, { toggles } = {}) {
+    super();
+    this.project = project;
+    this.history = new History();
+    this.selection = new Set();
+    this.transition = null; // clip id whose outgoing transition is selected
+    this.time = 0;
+    this.toggles = { ripple: true, snap: true, linkOverlays: true, hoverPreview: false, ...toggles };
+    this.revision = 0;
+    this.savedRevision = 0;
+    this._coalesce = null;
+    // Compound clips opened for editing, outermost first: { outer, history, id, time }.
+    this.nest = [];
+    // Playhead of each timeline left, to come back to.
+    this._timelineTimes = new Map();
+  }
+
+  /**
+   * Open another of the project's timelines. Compound clips being edited
+   * are closed first. Opening isn't an undo step: undo keeps one history for
+   * the whole project and goes back to the timeline an edit was made on.
+   */
+  openTimeline(id) {
+    while (this.nest.length) this.closeCompound();
+    const from = this.project.timelineId;
+    if (!id || id === from) return false;
+    if (!switchTimeline(this.project, id)) return false;
+    this._timelineTimes.set(from, this.time);
+    this.project.modified = Date.now();
+    this._afterSwap(this._timelineTimes.get(id) || 0, 'Open timeline');
+    this.emit('timeline', { id });
+    return true;
+  }
+
+  /** Name of the compound clip being edited (innermost), or null. */
+  get compoundName() {
+    const f = this.nest.at(-1);
+    return f ? findClip(f.outer, f.id)?.clip.name || 'Compound clip' : null;
+  }
+
+  /**
+   * Edit a compound clip's own timeline: the editor switches to its tracks
+   * with a history of its own. It gets a copy of the project's media and
+   * settings; changes to them go back to the project when it closes.
+   */
+  openCompound(id) {
+    const f = findClip(this.project, id);
+    if (!f || f.clip.type !== 'compound') return false;
+    const outer = this.project;
+    const c = f.clip;
+    this.nest.push({ outer, history: this.history, id, time: this.time });
+    const inner = { tracks: structuredClone(c.sequence.tracks), markers: [] };
+    adoptProjectFields(inner, outer);
+    this.project = inner;
+    this.history = new History();
+    this._afterSwap(Math.max(0, this.time - c.start + c.in));
+    return true;
+  }
+
+  /** Back to the timeline holding the compound clip; edits made inside become one undo step there. */
+  closeCompound() {
+    const frame = this.nest.pop();
+    if (!frame) return false;
+    const inner = this.project;
+    const changed = this.history.canUndo();
+    this.project = frame.outer;
+    this.history = frame.history;
+    const c = findClip(this.project, frame.id)?.clip;
+    let t = frame.time;
+    if (c) t = c.start + Math.max(0, Math.min(c.duration, this.time - c.in));
+    if (changed && c) {
+      this.update('Edit compound clip', (p) => {
+        const cc = findClip(p, frame.id)?.clip;
+        if (!cc) return false;
+        const ripple = rippleResize(p, frame.id, this.opts);
+        cc.sequence = { tracks: structuredClone(inner.tracks) };
+        adoptProjectFields(p, inner);
+        const len = sequenceLength(cc.sequence);
+        cc.in = Math.min(cc.in, Math.max(0, len - MIN_CLIP));
+        cc.duration = Math.max(MIN_CLIP, Math.min(cc.duration, len - cc.in));
+        ripple();
+      });
+    }
+    this._afterSwap(t);
+    return true;
+  }
+
+  /** The whole project to save: compounds being edited get their current contents. */
+  projectForSave() {
+    if (!this.nest.length) return structuredClone(this.project);
+    let inner = this.project;
+    for (let i = this.nest.length - 1; i >= 0; i--) {
+      const outer = structuredClone(this.nest[i].outer);
+      const c = findClip(outer, this.nest[i].id)?.clip;
+      if (c) c.sequence = { tracks: structuredClone(inner.tracks) };
+      adoptProjectFields(outer, inner);
+      inner = outer;
+    }
+    return inner;
+  }
+
+  _afterSwap(time, label = 'Open compound clip') {
+    this._coalesce = null;
+    this.selection.clear();
+    this.transition = null;
+    this.revision++;
+    this.emit('change', { label, structural: true, restore: true });
+    this.emit('select', { ids: [] });
+    this.emit('nest', { depth: this.nest.length });
+    this.time = -1;
+    this.seek(time);
+  }
+
+  get duration() {
+    return projectDuration(this.project);
+  }
+
+  get fps() {
+    return this.project.settings.fps;
+  }
+
+  /** Options timeline operations need. */
+  get opts() {
+    return { ripple: this.toggles.ripple, linkOverlays: this.toggles.linkOverlays };
+  }
+
+  /**
+   * Apply an edit. fn(project) mutates the project; return false to cancel
+   * (nothing is recorded). opts.coalesce merges consecutive edits with the
+   * same key (slider drags) into one undo step.
+   */
+  update(label, fn, opts = {}) {
+    const now = performance.now();
+    const merge = opts.coalesce && this._coalesce && this._coalesce.key === opts.coalesce && now - this._coalesce.at < 1200;
+    const before = merge ? null : structuredClone(this.project);
+    // A merged step records no snapshot, but still needs one to roll back to (JSON is the cheap
+    // copy). Copying a very big project on every step of a drag would slow the drag down, so
+    // its size is checked once per run and big projects go without.
+    let rollback = null;
+    if (merge && this._coalesce.small !== false) {
+      rollback = JSON.stringify(this.project);
+      this._coalesce.small ??= rollback.length <= ROLLBACK_MAX;
+    }
+    // A cancelled edit is undone in place, so views holding the project, its tracks or clips stay valid.
+    const cancel = () => {
+      if (before || rollback) restoreInto(this.project, before || JSON.parse(rollback));
+    };
+    let result;
+    try {
+      result = fn(this.project);
+    } catch (err) {
+      cancel();
+      throw err;
+    }
+    if (result === false) {
+      cancel();
+      return false;
+    }
+    if (opts.structural !== false) {
+      cleanupTransitions(this.project);
+      if (!opts.keepEmptyTracks) {
+        resolveOverlaps(this.project);
+        pruneTracks(this.project);
+      }
+    }
+    if (before) this.history.push(before, label);
+    this._coalesce = !opts.coalesce ? null : merge ? Object.assign(this._coalesce, { at: now }) : { key: opts.coalesce, at: now };
+    this.project.modified = Date.now();
+    this.revision++;
+    // Drop selected ids that no longer exist.
+    this._dropStaleSelection();
+    this.emit('change', { label, structural: opts.structural !== false });
+    return result === undefined ? true : result;
+  }
+
+  /** End a coalescing run so the next edit starts a new undo step. */
+  seal() {
+    this._coalesce = null;
+  }
+
+  /**
+   * Start grouping edits: everything recorded until endBatch(mark, label)
+   * becomes one undo step. Returns the mark to pass to endBatch.
+   */
+  beginBatch() {
+    this.seal();
+    return this.history.mark();
+  }
+
+  /** Fold the edits since beginBatch() into one undo step; returns that step or null. */
+  endBatch(mark, label) {
+    this.seal();
+    const entry = this.history.fold(mark, label);
+    if (entry) this.emit('history', { label: entry.label });
+    return entry;
+  }
+
+  /** Undo one step, or several at once (views hear about it once). Returns the last step's label. */
+  undo(steps = 1) {
+    return this._travel('undo', steps);
+  }
+
+  redo(steps = 1) {
+    return this._travel('redo', steps);
+  }
+
+  _travel(dir, steps) {
+    let entry = null;
+    for (let i = 0; i < steps; i++) {
+      // Only the live project needs a copy; a step's snapshot passes straight to the other stack.
+      const next = this.history[dir](entry ? this.project : structuredClone(this.project));
+      if (!next) break;
+      entry = next;
+      this.project = entry.snapshot;
+    }
+    if (!entry) return null;
+    this._afterRestore(entry.label);
+    return entry.label;
+  }
+
+  _afterRestore(label) {
+    this._coalesce = null;
+    this.revision++;
+    this.project.modified = Date.now();
+    this._dropStaleSelection();
+    this.emit('change', { label, structural: true, restore: true });
+    this.emit('select', { ids: [...this.selection] });
+  }
+
+  /** Forget selected clips and the selected transition when they no longer exist. */
+  _dropStaleSelection() {
+    if (this.selection.size > 1) {
+      // One pass for big selections instead of a search per id.
+      const live = new Set();
+      for (const t of this.project.tracks) for (const c of t.clips) live.add(c.id);
+      for (const id of this.selection) if (!live.has(id)) this.selection.delete(id);
+    } else for (const id of this.selection) if (!findClip(this.project, id)) this.selection.delete(id);
+    if (this.transition && !findClip(this.project, this.transition)?.clip.transition) this.transition = null;
+  }
+
+  /** Replace the whole project (open or import); clears history. */
+  load(project) {
+    this.project = project;
+    this.history.clear();
+    this.selection.clear();
+    this.transition = null;
+    this.time = 0;
+    this.revision++;
+    this.savedRevision = this.revision;
+    this.emit('change', { label: 'Open', structural: true, restore: true });
+    this.emit('select', { ids: [] });
+    this.emit('time', { time: 0 });
+  }
+
+  get dirty() {
+    return this.revision !== this.savedRevision;
+  }
+
+  /** Select the transition after clipId (shown in the details panel). */
+  selectTransition(clipId) {
+    this.selection.clear();
+    this.transition = clipId;
+    this.emit('select', { ids: [], transition: clipId });
+  }
+
+  select(ids, { add = false, toggle = false } = {}) {
+    this.transition = null;
+    const list = Array.isArray(ids) ? ids : ids ? [ids] : [];
+    if (!add && !toggle) this.selection.clear();
+    for (const id of list) {
+      if (toggle && this.selection.has(id)) this.selection.delete(id);
+      else this.selection.add(id);
+    }
+    this.emit('select', { ids: [...this.selection] });
+  }
+
+  clearSelection() {
+    if (!this.selection.size && !this.transition) return;
+    this.selection.clear();
+    this.transition = null;
+    this.emit('select', { ids: [] });
+  }
+
+  /** The single selected clip, or null. */
+  get selected() {
+    if (this.selection.size !== 1) return null;
+    const [id] = this.selection;
+    return findClip(this.project, id);
+  }
+
+  get selectedIds() {
+    return [...this.selection];
+  }
+
+  seek(t) {
+    const max = Math.max(0, this.duration);
+    const time = Math.round(Math.min(Math.max(0, t), max));
+    if (time === this.time) return;
+    this.time = time;
+    this.emit('time', { time });
+  }
+
+  setToggle(name, value) {
+    this.toggles[name] = value;
+    this.emit('toggles', { name, value });
+  }
+}
+
+const isObject = (v) => v !== null && typeof v === 'object';
+
+/**
+ * Make target's contents equal to src's while keeping target's objects:
+ * array items are matched by id (or by position), so the project, its
+ * tracks and its clips keep their identity. src's own objects are used for
+ * anything target no longer has.
+ */
+function restoreInto(target, src) {
+  if (Array.isArray(src)) {
+    const byId = new Map();
+    for (const x of target) if (isObject(x) && x.id !== undefined) byId.set(x.id, x);
+    const next = src.map((v, i) => {
+      const cur = isObject(v) && v.id !== undefined ? byId.get(v.id) : target[i];
+      return restoreValue(cur, v);
+    });
+    target.length = next.length;
+    for (let i = 0; i < next.length; i++) target[i] = next[i];
+    return;
+  }
+  for (const k of Object.keys(target)) if (!(k in src)) delete target[k];
+  for (const k of Object.keys(src)) {
+    const v = restoreValue(target[k], src[k]);
+    if (target[k] !== v) target[k] = v;
+  }
+}
+
+function restoreValue(cur, src) {
+  const plain = (v) => Array.isArray(v) || Object.getPrototypeOf(v) === Object.prototype;
+  if (!isObject(src) || !isObject(cur) || !plain(src) || Array.isArray(cur) !== Array.isArray(src) || !plain(cur)) return src;
+  restoreInto(cur, src);
+  return cur;
+}

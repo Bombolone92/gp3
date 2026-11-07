@@ -1,0 +1,37 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync, strFromU8 } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { layoutDocument, hitTest } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(() => { dom=new JSDOM(); globalThis.DOMParser=dom.window.DOMParser; globalThis.XMLSerializer=dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const cases=[['inline',1,0,1,48],['terminal',1,0,1,64],['leading',1,0,1,48],['repeated',2,1,0,48],['single',2,1,undefined,48],['terminal-single',2,1,undefined,64]];
+for(const [name,pages,page,column,y] of cases) it(`places and round trips ${name} column breaks`,async()=>{
+ const pkg=await DocxPackage.open(readFileSync(`tests/fixtures/column-breaks/${name}.docx`));
+ const doc=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets);
+ expect(doc.text).toContain('\u000e');
+ const layout=layoutDocument(doc.paragraphs,text=>({width:text.length*6,ascent:12,descent:4}),pageGeometry(doc.pageSettings),doc.numbering,doc.tables);
+ expect(layout.pageCount).toBe(pages);
+ const after=layout.lines.find(l=>l.fragments.some(f=>f.text==='After'));
+ expect(after).toMatchObject({page,y}); expect(after.column).toBe(column);
+ expect(hitTest(layout,page,after.stops[0].x,after.y+5)).toBe(after.start);
+ const save=async()=>new Uint8Array(await pkg.export(doc.paragraphs,doc.pageSettings,doc.numbering,doc.styles,doc.tables,doc.assets).arrayBuffer());
+ expect(unzipSync(await save())).toEqual(pkg.parts);
+ doc.select(doc.text.indexOf('After'));doc.replace('Edited ');
+ const edited=await save(),parts=unzipSync(edited),reopened=await DocxPackage.open(edited);
+ expect(new TextDocument(reopened.paragraphs).text).toContain('\u000e');
+ expect(strFromU8(parts['word/document.xml'])).not.toContain('\u000e');
+ for(const key of Object.keys(pkg.parts))if(key!=='word/document.xml')expect(parts[key],key).toEqual(pkg.parts[key]);
+ doc.undo();expect(unzipSync(await save())).toEqual(pkg.parts);
+});
+it('inserts and removes a column break without changing neighboring text or formatting',async()=>{
+ const pkg=await DocxPackage.open(readFileSync('tests/fixtures/column-breaks/inline.docx'));
+ const doc=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets),original=structuredClone(doc.paragraphs);
+ doc.select(2);doc.insertColumnBreak();expect(doc.text).toBe('Be\u000efore\u000eAfter');
+ doc.undo();expect(doc.paragraphs).toEqual(original);
+ doc.select(6,7);doc.replace('');expect(doc.text).toBe('BeforeAfter');doc.undo();expect(doc.paragraphs).toEqual(original);
+});

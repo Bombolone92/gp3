@@ -1,0 +1,348 @@
+/* Control bar, tool drawer, document arrangement, screen modes, presentation, proofing. */
+
+/* ---- Control bar ---- */
+.app.has-control-bar {
+  grid-template-rows: var(--topbar-h) auto minmax(0, 1fr);
+}
+
+.control-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 2px 10px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  white-space: nowrap;
+}
+
+.control-bar[hidden],
+.control-bar [hidden] {
+  display: none;
+}
+
+.cb-kind {
+  font-weight: 600;
+  min-width: 72px;
+}
+
+.cb-group,
+.cb-specific,
+.cb-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.cb-label {
+  color: var(--text-2);
+}
+
+.cb-swatch .paint-swatch {
+  width: 20px;
+  height: 20px;
+}
+
+.control-bar .transform-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-bar .tf-grid,
+.control-bar .tf-fields,
+.control-bar .tf-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.control-bar .tf-fields .num-input {
+  width: 64px;
+}
+
+.control-bar .ref-grid {
+  transform: scale(0.8);
+}
+
+/* ---- Tools panel ---- */
+.hide-toolbar .workspace {
+  grid-template-columns: 0 minmax(0, 1fr) auto;
+}
+
+.hide-toolbar .toolbar {
+  display: none;
+}
+
+.toolbar.drop-target {
+  outline: 2px dashed var(--accent);
+  outline-offset: -3px;
+}
+
+.tool-drawer {
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(70vh, 560px);
+  overflow: auto;
+}
+
+.tool-drawer-hint {
+  margin: 0 0 8px;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  white-space: normal;
+}
+
+.tool-drawer-title {
+  margin: 8px 0 4px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.tool-drawer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.tool-drawer-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  cursor: grab;
+}
+
+.tool-drawer-item:hover {
+  background: var(--bg-hover);
+}
+
+.tool-drawer-item.in-toolbar .tool-drawer-name {
+  color: var(--text-2);
+}
+
+.tool-drawer-icon {
+  display: inline-flex;
+}
+
+/* ---- Document arrangement ---- */
+.canvas-host.arrange-tile,
+.canvas-host.arrange-stack {
+  display: grid;
+  gap: 2px;
+  background: var(--border);
+}
+
+.canvas-host.arrange-tile {
+  grid-template-columns: repeat(var(--tile-cols, 2), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.canvas-host.arrange-stack {
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.canvas-host.arrange-tile > .view-host,
+.canvas-host.arrange-stack > .view-host {
+  position: relative;
+  inset: auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.view-host.active-pane {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.canvas-host > .view-host.floating {
+  position: absolute;
+  inset: auto;
+  z-index: 3;
+  min-width: 160px;
+  min-height: 120px;
+  resize: both;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-float);
+  background: var(--pasteboard);
+}
+
+.float-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 4px 0 8px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  cursor: move;
+  font-size: var(--fs-sm);
+}
+
+.float-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rulers and the task bar follow one view; with several on screen they step aside. */
+.arrange-tiled .canvas-wrap.has-rulers {
+  grid-template-columns: 0 minmax(0, 1fr);
+  grid-template-rows: 0 minmax(0, 1fr);
+}
+
+.arrange-tiled .ruler,
+.arrange-tiled .ruler-corner,
+.arrange-tiled .taskbar {
+  display: none !important;
+}
+
+/* ---- Screen modes ---- */
+.screen-menu .doc-tabs {
+  display: none;
+}
+
+.app.screen-full {
+  grid-template-rows: 0 0 minmax(0, 1fr);
+  padding: 0;
+}
+
+.screen-full .topbar,
+.screen-full .control-bar,
+.screen-full .toolbar,
+.screen-full .panels-area,
+.screen-full .doc-tabs,
+.screen-full .statusbar,
+.screen-full .isolation-bar,
+.screen-full .pattern-bar {
+  display: none !important;
+}
+
+.screen-full .workspace {
+  grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+
+/* ---- Proofing: the canvas gets the filter in script; paint previews here. ---- */
+.proof-colors .paint-swatch,
+.proof-colors .swatch-cell,
+.proof-colors .cp-preview {
+  filter: var(--proof-filter);
+}
+
+/* ---- Saved views and workspaces lists ---- */
+.ev-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 2px;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-width: min(320px, 80vw);
+}
+
+.ev-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  cursor: default;
+}
+
+.ev-item[aria-selected='true'] {
+  background: var(--bg-selected);
+}
+
+.ev-meta {
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.ev-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* ---- Presentation ---- */
+dialog.presentation {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #000000;
+  color: #ffffff;
+  outline: none;
+}
+
+dialog.presentation::backdrop {
+  background: #000000;
+}
+
+.pres-canvas {
+  display: block;
+  cursor: pointer;
+}
+
+.pres-counter,
+.pres-close {
+  position: absolute;
+  opacity: 0;
+  transition: opacity var(--t) var(--ease);
+}
+
+.pres-counter {
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  font-variant-numeric: tabular-nums;
+}
+
+.pres-close {
+  top: 12px;
+  right: 12px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.presentation.show-chrome .pres-counter,
+.presentation.show-chrome .pres-close,
+.pres-close:focus-visible {
+  opacity: 1;
+}
+
+@media (max-width: 760px) {
+  .control-bar .cb-transform,
+  .control-bar .cb-aligns {
+    display: none;
+  }
+
+  .canvas-host.arrange-tile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

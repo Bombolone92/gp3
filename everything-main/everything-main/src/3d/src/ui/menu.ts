@@ -1,0 +1,947 @@
+// Popup menus, submenus, pie menus, search popups and tooltips.
+import { h, patch, clearRoot, type VNode, type Child } from './h';
+import { menuAccelerators } from './menuaccel';
+import { icon } from './icons';
+import { app, operators } from '../app/app';
+import { prefs } from '../app/prefs';
+
+export interface MenuItem {
+  label?: string;
+  icon?: string;
+  /** operator idname to run */
+  op?: string;
+  props?: Record<string, unknown>;
+  /** custom action */
+  action?: () => void;
+  shortcut?: string;
+  submenu?: () => MenuItem[];
+  separator?: boolean;
+  /** section heading */
+  heading?: string;
+  checked?: boolean;
+  disabled?: boolean;
+  /** radio-like enum item */
+  active?: boolean;
+  description?: string;
+  /** keep menu open after click (e.g. toggles) */
+  keepOpen?: boolean;
+  /** custom inline content (sliders etc) */
+  custom?: () => VNode;
+  /** a search row at the top of the menu: opens a search over every entry, submenus included */
+  search?: boolean;
+  /** the menu's title row (see openMenu's `title`) */
+  title?: boolean;
+  /** start a new column at this entry (menus with column breaks are laid out side by side) */
+  columnBreak?: boolean;
+}
+
+let layer: HTMLElement;
+function ensureLayer() {
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.className = 'popup-layer';
+    document.body.append(layer);
+  }
+  return layer;
+}
+
+interface OpenMenu {
+  el: HTMLElement;
+  items: MenuItem[];
+  index: number;
+  parent?: OpenMenu;
+  child?: OpenMenu;
+  owner?: HTMLElement;
+  /** typing a character hands it to this (e.g. to start a search) instead of jumping to an item */
+  onType?: (ch: string) => void;
+  /** Space is typed into onType too (instead of activating the highlighted entry) */
+  typeSpace?: boolean;
+}
+
+const stack: OpenMenu[] = [];
+let closeCallbacks: (() => void)[] = [];
+
+export function anyPopupOpen() {
+  return stack.length > 0 || !!document.querySelector('.popup-layer > .popover');
+}
+
+export function closeMenus() {
+  clearTimeout(submenuTimer);
+  while (stack.length) {
+    const m = stack.pop()!;
+    clearRoot(m.el);
+    m.el.remove();
+  }
+  document.querySelectorAll('.popup-layer > .popover').forEach((p) => p.remove());
+  const cbs = closeCallbacks;
+  closeCallbacks = [];
+  cbs.forEach((f) => f());
+}
+
+export function onMenusClosed(fn: () => void) {
+  closeCallbacks.push(fn);
+}
+
+/**
+ * Default menu icons of operators, so an operator shows the same icon in every menu that lists it
+ * without an icon of its own. Keys are operator ids; a function picks by the entry's properties.
+ */
+export const opIcons: Record<string, string | ((props: Record<string, unknown>) => string | undefined)> = {};
+const viewSelectedOps = ['view3d.view_selected', 'node.view_selected', 'image.view_selected', 'uv.view_selected', 'nla.view_selected', 'sequencer.view_selected', 'clip.view_selected', 'anim.channels_view_selected', 'graph.view_selected', 'action.view_selected'];
+for (const op of viewSelectedOps) opIcons[op] = 'zoom_selected';
+for (const op of ['view3d.snap_selected_to_grid', 'view3d.snap_selected_to_cursor', 'view3d.snap_selected_to_active', 'uv.snap_selected']) opIcons[op] = 'restrict_select_off';
+for (const op of ['view3d.snap_cursor_to_selected', 'view3d.snap_cursor_to_center', 'view3d.snap_cursor_to_grid', 'view3d.snap_cursor_to_active', 'uv.snap_cursor']) opIcons[op] = 'cursor';
+Object.assign(opIcons, {
+  'mesh.mark_seam': 'edge_seam',
+  'uv.mark_seam': 'edge_seam',
+  'mesh.mark_sharp': 'edge_sharp',
+  'transform.edge_crease': 'edge_crease',
+  'view3d.copybuffer': 'copydown',
+  'view3d.pastebuffer': 'pastedown',
+  'wm.recover_last_session': 'recover_last',
+  'render.render': (p: Record<string, unknown>) => (p.animation ? 'render_animation' : 'render'),
+  'render.opengl': (p: Record<string, unknown>) => (p.animation ? 'render_animation' : 'render'),
+  'render.opengl_animation': 'render_animation',
+  'font.text_copy': 'copydown',
+  'font.text_paste': 'pastedown',
+  'text.copy': 'copydown',
+  'text.paste': 'pastedown',
+});
+Object.assign(opIcons, {
+  'object.vertex_group_mirror': 'arrow_leftright',
+  'object.vertex_group_lock': (p: Record<string, unknown>) => (p.action === 'UNLOCK' ? 'unlocked' : p.action === 'INVERT' ? 'arrow_leftright' : 'locked'),
+  'image.invert': (p: Record<string, unknown>) => {
+    const n = [p.invert_r, p.invert_g, p.invert_b].filter(Boolean).length;
+    return n > 1 ? 'image_rgb' : p.invert_r ? 'rgb_red' : p.invert_g ? 'rgb_green' : p.invert_b ? 'rgb_blue' : p.invert_a ? 'image_alpha' : undefined;
+  },
+});
+for (const ed of ['action', 'graph']) {
+  opIcons[`${ed}.copy`] = 'copydown';
+  opIcons[`${ed}.paste`] = (p: Record<string, unknown>) => (p.flipped ? 'pasteflipdown' : 'pastedown');
+}
+
+/** The icon a menu entry shows: its own, or its operator's default. */
+export function menuItemIcon(item: MenuItem): string | undefined {
+  return itemIcon(item);
+}
+
+function itemIcon(item: MenuItem): string | undefined {
+  if (item.icon) return item.icon;
+  if (!item.op) return undefined;
+  const d = opIcons[item.op];
+  return typeof d === 'function' ? d(item.props ?? {}) : d;
+}
+
+function shortcutFor(item: MenuItem): string {
+  if (item.shortcut !== undefined) return item.shortcut;
+  return '';
+}
+
+function itemLabel(item: MenuItem) {
+  if (item.label) return item.label;
+  if (item.op) return operators.get(item.op)?.label ?? item.op;
+  return '';
+}
+
+/** Accelerator letters of a menu's entries (see menuaccel.ts). */
+function accelOf(items: MenuItem[]): (number | undefined)[] {
+  return menuAccelerators(items.map((it) => (it.separator || it.heading || it.custom || it.search ? null : itemLabel(it))));
+}
+
+/** A label with its accelerator letter underlined. */
+function accelLabel(label: string, at: number | undefined): Child {
+  if (at === undefined || !label[at]) return label;
+  return [label.slice(0, at), h('u', { class: 'mi-accel' }, label[at]), label.slice(at + 1)];
+}
+
+function isDisabled(item: MenuItem) {
+  if (item.disabled) return true;
+  if (item.op && !app.poll(item.op)) return true;
+  return false;
+}
+
+/** Tooltip text of a menu entry: its name, what it does, its shortcut and its scripting call. */
+function itemTip(item: MenuItem, desc?: string): string | null {
+  const lines = [itemLabel(item)];
+  if (desc) lines.push(desc);
+  const sc = shortcutFor(item);
+  if (sc) lines.push(`Shortcut: ${sc}`);
+  if (item.op && !item.action) lines.push(`Python: bpy.ops.${item.op}()`);
+  return lines.length > 1 ? lines.join('\n') : null;
+}
+
+/** Every runnable entry of a menu and its submenus, with the submenu path, for the menu's search row. */
+function menuSearchEntries(items: MenuItem[], path: string[] = [], depth = 0): SearchEntry[] {
+  const out: SearchEntry[] = [];
+  for (const it of items) {
+    if (it.separator || it.heading || it.custom || it.search) continue;
+    if (it.submenu) {
+      if (depth < 3) {
+        let sub: MenuItem[] = [];
+        try {
+          sub = it.submenu();
+        } catch {
+          sub = [];
+        }
+        out.push(...menuSearchEntries(sub, [...path, itemLabel(it)], depth + 1));
+      }
+      continue;
+    }
+    if (!it.op && !it.action) continue;
+    out.push({
+      label: itemLabel(it),
+      path: path.length ? path.join(' ▸ ') : undefined,
+      shortcut: shortcutFor(it) || undefined,
+      icon: itemIcon(it),
+      disabled: isDisabled(it),
+      run: () => (it.action ? it.action() : app.run(it.op!, it.props ?? {})),
+    });
+  }
+  return out;
+}
+
+function openMenuSearch(m: OpenMenu, initial = '') {
+  let root = m;
+  while (root.parent) root = root.parent;
+  const r = root.el.getBoundingClientRect();
+  const entries = menuSearchEntries(root.items);
+  openSearch(() => entries, r.left, r.top, 'Search…', initial);
+}
+
+function activate(m: OpenMenu, item: MenuItem, e?: MouseEvent) {
+  if (item.search) {
+    openMenuSearch(m);
+    return;
+  }
+  if (isDisabled(item)) return;
+  if (item.submenu) {
+    openSubmenu(m, item);
+    return;
+  }
+  if (!item.keepOpen) closeMenus();
+  if (item.action) item.action();
+  else if (item.op) app.run(item.op, item.props ?? {}, { event: e ? { x: e.clientX, y: e.clientY } : undefined });
+  if (item.keepOpen) redrawMenus();
+}
+
+function redrawMenus() {
+  for (const m of stack) renderMenu(m);
+}
+
+let submenuTimer = 0;
+
+function renderMenu(m: OpenMenu) {
+  const accel = accelOf(m.items);
+  const vnodes: Child[] = m.items.map((item, i) => {
+    if (item.separator) return h('div', { class: 'menu-sep' });
+    if (item.heading) return h('div', { class: { 'menu-heading': true, 'menu-title': !!item.title, 'col-break': !!item.columnBreak } }, item.heading);
+    if (item.custom) return h('div', { class: 'menu-custom' }, item.custom());
+    if (item.search)
+      return h(
+        'div',
+        {
+          class: { 'menu-item': true, 'menu-search': true, hl: i === m.index },
+          role: 'menuitem',
+          onpointerenter: () => {
+            m.index = i;
+            closeChild(m);
+            renderMenu(m);
+          },
+          onpointerup: (e: PointerEvent) => {
+            if (pressStart.time <= openedAt.time && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) < 6) return;
+            activate(m, item, e);
+          },
+        },
+        h('span', { class: 'mi-icon' }, icon('search')),
+        h('span', { class: 'mi-label' }, 'Search…'),
+      );
+    const disabled = isDisabled(item);
+    const desc = item.description ?? (item.op ? operators.get(item.op)?.description : undefined);
+    return h(
+      'div',
+      {
+        class: { 'menu-item': true, hl: i === m.index, disabled, 'has-sub': !!item.submenu, current: !!item.active, 'col-break': !!item.columnBreak },
+        role: 'menuitem',
+        'data-tip': item.submenu ? null : itemTip(item, desc),
+        'aria-disabled': disabled ? 'true' : null,
+        onpointerenter: () => {
+          m.index = i;
+          clearTimeout(submenuTimer);
+          if (item.submenu && !disabled) {
+            if (menuSettings.submenuDelay > 0 && !m.child) submenuTimer = window.setTimeout(() => stack.includes(m) && m.index === i && openSubmenu(m, item), menuSettings.submenuDelay);
+            else openSubmenu(m, item);
+          } else closeChild(m);
+          renderMenu(m);
+        },
+        onpointerup: (e: PointerEvent) => {
+          // releasing the press that opened any menu (e.g. a header menu opened on pointerdown) without dragging does not pick an item
+          if (pressStart.time <= openedAt.time && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) < 6) return;
+          // the release of the press that opened a context menu picks an item only after a drag
+          const p = openPress;
+          const opening = !!p && pressCount === p.presses;
+          if (opening && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 6) return;
+          // right button: only that press-drag-release picks; other right clicks open the item's own menu
+          if (e.button === 0 || (e.button === 2 && opening)) activate(m, item, e);
+        },
+        oncontextmenu: (e: MouseEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!disabled && !item.submenu) openItemContext(m, item, e.clientX, e.clientY);
+        },
+      },
+      h('span', { class: 'mi-icon' }, item.checked !== undefined ? icon(item.checked ? 'checkbox_hlt' : 'checkbox_dehlt') : itemIcon(item) ? icon(itemIcon(item)!) : item.active ? icon('dot') : null),
+      h('span', { class: 'mi-label' }, accelLabel(itemLabel(item), accel[i])),
+      h('span', { class: 'mi-key' }, shortcutFor(item)),
+      item.submenu ? h('span', { class: 'mi-arrow' }) : null,
+    );
+  });
+  patch(m.el, vnodes);
+}
+
+function openItemContext(m: OpenMenu, item: MenuItem, x: number, y: number) {
+  const items = itemContextHooks.flatMap((f) => {
+    try {
+      return f(item);
+    } catch {
+      return [];
+    }
+  });
+  if (!items.length) return;
+  closeChild(m);
+  m.child = createMenu(items, x + 2, y - 4, m);
+}
+
+function closeChild(m: OpenMenu) {
+  if (m.child) {
+    closeChild(m.child);
+    const i = stack.indexOf(m.child);
+    if (i >= 0) stack.splice(i, 1);
+    clearRoot(m.child.el);
+    m.child.el.remove();
+    m.child = undefined;
+  }
+}
+
+function openSubmenu(m: OpenMenu, item: MenuItem) {
+  const rowEl = m.el.children[m.items.indexOf(item)] as HTMLElement | undefined;
+  if (m.child && m.child.owner === rowEl) return;
+  closeChild(m);
+  if (!rowEl) return;
+  const r = rowEl.getBoundingClientRect();
+  const sub = createMenu(item.submenu!(), r.right - 2, r.top - 4, m);
+  sub.owner = rowEl;
+  m.child = sub;
+}
+
+/** When the last top-level menu opened, and where/when the last press started (see item pointerup). */
+const openedAt = { time: 0 };
+const pressStart = { time: -1, x: 0, y: 0 };
+if (typeof addEventListener === 'function')
+  addEventListener(
+    'pointerdown',
+    (e) => {
+      pressStart.time = performance.now();
+      pressStart.x = e.clientX;
+      pressStart.y = e.clientY;
+    },
+    true,
+  );
+
+function createMenu(items: MenuItem[], x: number, y: number, parent?: OpenMenu, title?: string): OpenMenu {
+  if (!parent) openedAt.time = performance.now();
+  const el = document.createElement('div');
+  el.className = 'menu';
+  el.setAttribute('role', 'menu');
+  ensureLayer().append(el);
+  const m: OpenMenu = { el, items, index: -1, parent };
+  if (title) el.dataset.title = title;
+  const cols = items.filter((it) => it.columnBreak).length;
+  if (cols) {
+    el.classList.add('menu-cols');
+    el.style.columnCount = String(cols + 1);
+  }
+  renderMenu(m);
+  stack.push(m);
+  // position within viewport
+  const rect = el.getBoundingClientRect();
+  let left = x,
+    top = y;
+  if (left + rect.width > innerWidth - 4) left = parent ? parent.el.getBoundingClientRect().left - rect.width + 2 : innerWidth - rect.width - 4;
+  if (top + rect.height > innerHeight - 4) top = Math.max(4, innerHeight - rect.height - 4);
+  el.style.left = `${Math.max(4, left)}px`;
+  el.style.top = `${Math.max(4, top)}px`;
+  return m;
+}
+
+/** Shows the help card of a menu entry (F1 while a menu is open); set by ui/buttonops. */
+export const menuHelpHook: { show?: (item: MenuItem, at: { x: number; y: number }) => void } = {};
+
+/** Builders of the right-click menu of a menu item (e.g. Add to Quick Favorites). */
+export const itemContextHooks: ((item: MenuItem) => MenuItem[])[] = [];
+
+let capturing: MenuItem[][] | null = null;
+/** Where the last context menu was opened at the pointer, and the press count then. */
+let openPress: { presses: number; x: number; y: number } | null = null;
+let pressCount = 0;
+if (typeof addEventListener === 'function') addEventListener('pointerdown', () => pressCount++, { capture: true, passive: true });
+
+/**
+ * Run `open` (code that would open a menu, e.g. a header button's pointer handler) and return the
+ * menu's items instead of showing it. Used for collapsed header menus and menu search.
+ */
+export function captureMenuItems(open: () => void): MenuItem[] {
+  const prev = capturing;
+  // the synthetic press must not make its area the active / hovered one or count as a user press
+  const { activeArea, hoverArea } = app;
+  const presses = pressCount;
+  capturing = [];
+  try {
+    open();
+    return capturing[0] ?? [];
+  } catch {
+    return [];
+  } finally {
+    capturing = prev;
+    app.activeArea = activeArea;
+    app.hoverArea = hoverArea;
+    pressCount = presses;
+  }
+}
+
+/** Open a popup menu at a screen position (or below an element). */
+export function openMenu(items: MenuItem[], at: { x: number; y: number } | HTMLElement, opts: { title?: string; under?: boolean; onType?: (ch: string) => void; typeSpace?: boolean; search?: boolean } = {}) {
+  if (capturing) {
+    capturing.push(items);
+    return null;
+  }
+  closeMenus();
+  let x: number, y: number;
+  if (at instanceof HTMLElement) {
+    const r = at.getBoundingClientRect();
+    x = r.left;
+    y = r.bottom + 1;
+    at.classList.add('menu-open');
+    onMenusClosed(() => at.classList.remove('menu-open'));
+  } else {
+    x = at.x;
+    y = at.y;
+  }
+  const searchRow: MenuItem[] = opts.search ? [{ search: true }, { separator: true }] : [];
+  const withTitle = opts.title ? [{ heading: opts.title, title: true }, ...searchRow, ...items] : [...searchRow, ...items];
+  const m = createMenu(withTitle, x, y, undefined, opts.title);
+  if (opts.onType) {
+    m.onType = opts.onType;
+    m.typeSpace = !!opts.typeSpace;
+  }
+  else if (opts.search) m.onType = (ch) => openMenuSearch(m, ch);
+  openPress = at instanceof HTMLElement ? null : { presses: pressCount, x: at.x, y: at.y };
+  // context menus open with the pointer over the first actionable item
+  if (!(at instanceof HTMLElement) && !opts.under) {
+    const firstIdx = withTitle.findIndex((i) => !i.heading && !i.separator && !i.search);
+    const row = m.el.children[firstIdx] as HTMLElement | undefined;
+    if (row) {
+      const rr = row.getBoundingClientRect();
+      const dx = x - (rr.left + 30),
+        dy = y - (rr.top + rr.height / 2);
+      const left = parseFloat(m.el.style.left) + dx,
+        top = parseFloat(m.el.style.top) + dy;
+      m.el.style.left = `${Math.max(4, Math.min(innerWidth - m.el.offsetWidth - 4, left))}px`;
+      m.el.style.top = `${Math.max(4, Math.min(innerHeight - m.el.offsetHeight - 4, top))}px`;
+    }
+  }
+  return m;
+}
+
+// ---------------------------------------------------------------------------
+// Pie menus
+
+export interface PieItem {
+  label: string;
+  icon?: string;
+  op?: string;
+  props?: Record<string, unknown>;
+  action?: () => void;
+  active?: boolean;
+}
+
+/** Pie menu item order: W, E, S, N, NW, NE, SW, SE. */
+const PIE_DIRS = [180, 0, 270, 90, 135, 45, 225, 315];
+/** Number keys that pick each direction (laid out like a numeric keypad). */
+const PIE_KEYS = [4, 6, 2, 8, 7, 9, 1, 3];
+
+/** Menu and pie behaviour (Preferences ▸ Interface ▸ Menus sets these). Distances in px, times in ms. */
+export const menuSettings = {
+  pieRadius: 104,
+  /** pointer distance from the center before a direction is highlighted */
+  pieThreshold: 20,
+  /** moving this far confirms the highlighted item at once (0 = off) */
+  pieConfirm: 0,
+  /** releasing the invoking key later than this after opening picks the highlighted item */
+  pieTapTimeout: 250,
+  /** open animation of pie items (0 = none) */
+  pieAnimation: 0,
+  /** delay before a submenu opens on hover */
+  submenuDelay: 0,
+  /** tooltips show operator calls and data paths for scripting */
+  pythonTips: true,
+};
+
+let pie: { el: HTMLElement; items: (PieItem | null)[]; cx: number; cy: number; hl: number; opened: number; key?: string } | null = null;
+
+export function pieOpen() {
+  return !!pie;
+}
+
+export function openPie(title: string, items: (PieItem | null)[], x: number, y: number, key?: string) {
+  closeMenus();
+  closePie();
+  const el = document.createElement('div');
+  el.className = 'pie';
+  ensureLayer().append(el);
+  pie = { el, items, cx: x, cy: y, hl: -1, opened: performance.now(), key };
+  renderPie(title);
+  const move = (e: PointerEvent) => {
+    if (!pie) return;
+    const dx = e.clientX - pie.cx,
+      dy = pie.cy - e.clientY;
+    const dist = Math.hypot(dx, dy);
+    let hl = -1;
+    if (dist > menuSettings.pieThreshold) {
+      const ang = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
+      let best = 999;
+      pie.items.forEach((it, i) => {
+        if (!it) return;
+        const d = Math.abs(((ang - PIE_DIRS[i] + 540) % 360) - 180);
+        if (d < best) {
+          best = d;
+          hl = i;
+        }
+      });
+    }
+    if (hl !== pie.hl) {
+      pie.hl = hl;
+      renderPie(title);
+    }
+    if (menuSettings.pieConfirm > 0 && hl >= 0 && dist > menuSettings.pieConfirm) choosePie();
+  };
+  const up = (e: PointerEvent) => {
+    if (!pie) return;
+    if (e.button !== 0) return;
+    choosePie();
+  };
+  const keyup = (e: KeyboardEvent) => {
+    // release of the invoking key after a drag selects the highlighted item
+    if (!pie || !pie.key || e.code !== pie.key) return;
+    if (performance.now() - pie.opened > menuSettings.pieTapTimeout && pie.hl >= 0) choosePie();
+  };
+  const keydown = (e: KeyboardEvent) => {
+    if (!pie) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      closePie();
+      return;
+    }
+    const n = Number(e.key);
+    if (n >= 1 && n <= 9) {
+      // numpad-style direction picking
+      const map: Record<number, number> = { 4: 0, 6: 1, 2: 2, 8: 3, 7: 4, 9: 5, 1: 6, 3: 7 };
+      if (map[n] !== undefined && pie.items[map[n]]) {
+        pie.hl = map[n];
+        e.preventDefault();
+        e.stopPropagation();
+        choosePie();
+      }
+    }
+  };
+  addEventListener('pointermove', move, true);
+  addEventListener('pointerup', up, true);
+  addEventListener('keyup', keyup, true);
+  addEventListener('keydown', keydown, true);
+  (pie as unknown as { dispose: () => void }).dispose = () => {
+    removeEventListener('pointermove', move, true);
+    removeEventListener('pointerup', up, true);
+    removeEventListener('keyup', keyup, true);
+    removeEventListener('keydown', keydown, true);
+  };
+}
+
+function choosePie() {
+  if (!pie) return;
+  const it = pie.hl >= 0 ? pie.items[pie.hl] : null;
+  closePie();
+  if (!it) return;
+  if (it.action) it.action();
+  else if (it.op) app.run(it.op, it.props ?? {});
+}
+
+export function closePie() {
+  if (!pie) return;
+  (pie as unknown as { dispose?: () => void }).dispose?.();
+  clearRoot(pie.el);
+  pie.el.remove();
+  pie = null;
+}
+
+function renderPie(title: string) {
+  if (!pie) return;
+  const R = menuSettings.pieRadius;
+  const p = pie;
+  p.el.style.setProperty('--pie-anim', `${menuSettings.pieAnimation}ms`);
+  p.el.classList.toggle('pie-animate', menuSettings.pieAnimation > 0);
+  patch(p.el, [
+    h('div', { class: 'pie-center', style: { left: `${p.cx}px`, top: `${p.cy}px` } }, h('div', { class: 'pie-ring' }), p.hl >= 0 ? h('div', { class: 'pie-dir', style: { transform: `rotate(${90 - PIE_DIRS[p.hl]}deg)` } }) : null),
+    h('div', { class: 'pie-title', style: { left: `${p.cx}px`, top: `${p.cy - 44}px` } }, title),
+    ...p.items.map((it, i) => {
+      if (!it) return null;
+      const a = (PIE_DIRS[i] * Math.PI) / 180;
+      const x = p.cx + Math.cos(a) * R,
+        y = p.cy - Math.sin(a) * R * 1.1;
+      const align = Math.abs(Math.cos(a)) < 0.2 ? 'center' : Math.cos(a) > 0 ? 'left' : 'right';
+      return h(
+        'div',
+        {
+          class: { 'pie-item': true, hl: i === p.hl, active: !!it.active, [align]: true },
+          style: { left: `${x}px`, top: `${y}px` },
+          onpointerenter: () => {
+            p.hl = i;
+            renderPie(title);
+          },
+        },
+        it.icon ? icon(it.icon) : null,
+        h('span', { class: 'pie-label' }, it.label),
+        h('span', { class: 'pie-num' }, String(PIE_KEYS[i])),
+      );
+    }),
+  ]);
+}
+
+// ---------------------------------------------------------------------------
+// Popovers (panels that float under a button)
+
+export function openPopover(anchor: HTMLElement | { x: number; y: number }, render: () => Child, opts: { width?: number; className?: string } = {}) {
+  // collecting menu items (captureMenuItems) never opens popovers
+  if (capturing) return { el: document.createElement('div'), redraw: () => {} };
+  closeMenus();
+  const el = document.createElement('div');
+  el.className = `popover ${opts.className ?? ''}`;
+  if (opts.width) el.style.width = `${opts.width}px`;
+  ensureLayer().append(el);
+  const draw = () => patch(el, render());
+  draw();
+  const r = anchor instanceof HTMLElement ? anchor.getBoundingClientRect() : { left: anchor.x, bottom: anchor.y, right: anchor.x };
+  const rect = el.getBoundingClientRect();
+  // popovers of buttons in the right half of the window hang to the left of their button
+  let left = r.left;
+  if (anchor instanceof HTMLElement && (r.left + (r as DOMRect).right) / 2 > innerWidth / 2) left = Math.max(4, (r as DOMRect).right - rect.width);
+  if (left + rect.width > innerWidth - 4) left = Math.max(4, (r as DOMRect).right - rect.width);
+  let top = r.bottom + 2;
+  if (top + rect.height > innerHeight - 4) top = Math.max(4, innerHeight - rect.height - 4);
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
+  const unsub = app.subscribe(() => el.isConnected && draw());
+  onMenusClosed(() => unsub());
+  // close when the pointer leaves the popover by a margin
+  const leave = (e: PointerEvent) => {
+    if (!el.isConnected) return removeEventListener('pointermove', leave);
+    if (document.activeElement && el.contains(document.activeElement) && (document.activeElement as HTMLElement).tagName === 'INPUT') return;
+    if (dragging) return;
+    const b = el.getBoundingClientRect();
+    const anchorRect = anchor instanceof HTMLElement ? anchor.getBoundingClientRect() : null;
+    const inAnchor = anchorRect && e.clientX >= anchorRect.left - 4 && e.clientX <= anchorRect.right + 4 && e.clientY >= anchorRect.top - 4 && e.clientY <= anchorRect.bottom + 4;
+    const m = 60;
+    if (!inAnchor && (e.clientX < b.left - m || e.clientX > b.right + m || e.clientY < b.top - m || e.clientY > b.bottom + m)) {
+      removeEventListener('pointermove', leave);
+      closeMenus();
+    }
+  };
+  addEventListener('pointermove', leave);
+  if (anchor instanceof HTMLElement) {
+    anchor.classList.add('menu-open');
+    onMenusClosed(() => anchor.classList.remove('menu-open'));
+  }
+  return { el, redraw: draw };
+}
+
+let dragging = false;
+export function setWidgetDragging(v: boolean) {
+  dragging = v;
+}
+
+// ---------------------------------------------------------------------------
+// Search popup (F3 menu search / operator search)
+
+export interface SearchEntry {
+  label: string;
+  path?: string;
+  shortcut?: string;
+  icon?: string;
+  run: () => void;
+  disabled?: boolean;
+}
+
+export function openSearch(entries: () => SearchEntry[], x = innerWidth / 2 - 200, y = 120, placeholder = 'Search…', initial = '') {
+  closeMenus();
+  const el = document.createElement('div');
+  el.className = 'menu search-popup';
+  ensureLayer().append(el);
+  stack.push({ el, items: [], index: 0 });
+  el.style.left = `${Math.max(4, Math.min(innerWidth - 420, x))}px`;
+  el.style.top = `${Math.max(4, y)}px`;
+  let query = initial,
+    hl = 0;
+  const all = entries();
+  const results = () => {
+    const q = query.trim().toLowerCase();
+    if (!q) return all.slice(0, 30);
+    const words = q.split(/\s+/);
+    return all
+      .map((e) => {
+        const text = `${e.path ?? ''} ${e.label}`.toLowerCase();
+        // a word may also span the spaces of a name ("icosph" finds "Ico Sphere")
+        const flat = text.replace(/\s+/g, '');
+        if (!words.every((w) => text.includes(w) || flat.includes(w))) return null;
+        // unavailable entries sort last so Enter runs the best available match
+        const score = (e.disabled ? 2 : 0) + (e.label.toLowerCase().startsWith(words[0]) ? 0 : 1) + text.length / 1000;
+        return { e, score };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a!.score - b!.score)
+      .slice(0, 40)
+      .map((x) => x!.e);
+  };
+  const draw = () => {
+    const list = results();
+    hl = Math.max(0, Math.min(hl, list.length - 1));
+    patch(el, [
+      h('div', { class: 'search-field' }, icon('search'), h('input', { class: 'search-input', placeholder, value: query, oninput: (e: Event) => ((query = (e.target as HTMLInputElement).value), (hl = 0), draw()), onkeydown: key })),
+      ...list.map((e, i) =>
+        h(
+          'div',
+          { class: { 'menu-item': true, hl: i === hl, disabled: !!e.disabled }, onpointerenter: () => ((hl = i), draw()), onpointerup: () => !e.disabled && (closeMenus(), e.run()) },
+          h('span', { class: 'mi-icon' }, e.icon ? icon(e.icon) : null),
+          h('span', { class: 'mi-label' }, e.path ? h('span', { class: 'mi-path' }, `${e.path} ▸ `) : null, e.label),
+          h('span', { class: 'mi-key' }, e.shortcut ?? ''),
+        ),
+      ),
+      list.length ? null : h('div', { class: 'menu-heading' }, 'No results'),
+    ]);
+  };
+  const key = (e: KeyboardEvent) => {
+    const list = results();
+    if (e.key === 'ArrowDown') hl = Math.min(list.length - 1, hl + 1);
+    else if (e.key === 'ArrowUp') hl = Math.max(0, hl - 1);
+    else if (e.key === 'Enter') {
+      const it = list[hl];
+      if (it && !it.disabled) {
+        closeMenus();
+        it.run();
+      }
+      return;
+    } else if (e.key === 'Escape') {
+      closeMenus();
+      return;
+    } else return;
+    e.preventDefault();
+    draw();
+  };
+  draw();
+  const input = el.querySelector('input') as HTMLInputElement | null;
+  input?.focus();
+  if (input && initial) input.setSelectionRange(initial.length, initial.length);
+}
+
+// ---------------------------------------------------------------------------
+// Tooltips
+
+let tipTimer = 0;
+let tipEl: HTMLElement | null = null;
+
+export function installTooltips(root: HTMLElement) {
+  root.addEventListener('pointerover', (e) => {
+    const t = (e.target as HTMLElement).closest('[data-tip]') as HTMLElement | null;
+    clearTimeout(tipTimer);
+    hideTip();
+    if (!t) return;
+    tipTimer = window.setTimeout(() => showTip(t), 650);
+  });
+  root.addEventListener('pointerdown', () => {
+    clearTimeout(tipTimer);
+    hideTip();
+  });
+}
+
+/** Extra tooltip content for an element: an optional title (when it has no tip text) and lines (e.g. the data path). */
+export const tooltipHooks: ((el: HTMLElement) => { title?: string; lines: string[] } | null)[] = [];
+
+function showTip(t: HTMLElement) {
+  if (!t.isConnected || (anyPopupOpen() && !t.closest('.menu, .popover'))) return;
+  let text = t.dataset.tip ?? '';
+  for (const hk of tooltipHooks) {
+    const x = hk(t);
+    if (!x) continue;
+    if (!text && x.title) text = x.title;
+    if (text && x.lines.length) text += `\n${x.lines.join('\n')}`;
+  }
+  if (!text) return;
+  tipEl = document.createElement('div');
+  tipEl.className = 'tooltip';
+  let [title, ...rest] = text.split('\n');
+  // "Name (Shift Tab)" titles show their key on the shortcut line like every other tooltip
+  const keyInTitle = /^(.+?) \(((?:Ctrl|Shift|Alt|Cmd|Numpad|F\d+|Space|Tab|Home|Del|Esc|Enter)\b[^)]*|[A-Z0-9])\)$/.exec(title);
+  if (keyInTitle && !rest.some((l) => l.startsWith('Shortcut:'))) {
+    title = keyInTitle[1];
+    const meta = rest.findIndex((l) => l.startsWith('Python:'));
+    rest.splice(meta < 0 ? rest.length : meta, 0, `Shortcut: ${keyInTitle[2]}`);
+  }
+  const tt = document.createElement('div');
+  tt.className = 'tt-title';
+  tt.textContent = title;
+  tipEl.append(tt);
+  for (const line of rest) {
+    if (line.startsWith('Python:') && !prefs.show_tooltips_python) continue;
+    const d = document.createElement('div');
+    d.className = line.startsWith('Python:') || line.startsWith('Shortcut:') ? 'tt-meta' : 'tt-desc';
+    d.textContent = line;
+    tipEl.append(d);
+  }
+  ensureLayer().append(tipEl);
+  const r = t.getBoundingClientRect(),
+    tr = tipEl.getBoundingClientRect();
+  // menu entries get their tooltip beside the menu so it doesn't cover the next entries
+  const menuEl = t.closest('.menu') as HTMLElement | null;
+  if (menuEl) {
+    const mr = menuEl.getBoundingClientRect();
+    const right = mr.right + 4 + tr.width <= innerWidth - 4;
+    tipEl.style.left = `${right ? mr.right + 4 : Math.max(4, mr.left - tr.width - 4)}px`;
+    tipEl.style.top = `${Math.max(4, Math.min(innerHeight - tr.height - 4, r.top))}px`;
+    return;
+  }
+  tipEl.style.left = `${Math.max(4, Math.min(innerWidth - tr.width - 4, r.left))}px`;
+  tipEl.style.top = `${r.bottom + tr.height + 8 > innerHeight ? r.top - tr.height - 6 : r.bottom + 6}px`;
+}
+
+function hideTip() {
+  tipEl?.remove();
+  tipEl = null;
+}
+
+// ---------------------------------------------------------------------------
+// Keyboard navigation for menus
+
+export function menuKey(e: KeyboardEvent): boolean {
+  if (pie) return true;
+  // Escape also dismisses a popover (unless a text field inside it is being edited)
+  if (!stack.length && e.key === 'Escape' && document.querySelector('.popup-layer > .popover') && !(document.activeElement as HTMLElement | null)?.closest?.('.popover input, .popover textarea')) {
+    closeMenus();
+    return true;
+  }
+  if (!stack.length) return false;
+  const m = stack[stack.length - 1];
+  // text popups (search, rename prompt) handle their own keys; swallowing them here would block typing
+  if (m.el.classList.contains('search-popup') || m.el.classList.contains('prompt-popup')) return false;
+  const actionable = m.items.map((it, i) => (!it.separator && !it.heading && !it.custom ? i : -1)).filter((i) => i >= 0);
+  if (e.key === 'Escape') {
+    closeMenus();
+    return true;
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    const pos = actionable.indexOf(m.index);
+    const next = e.key === 'ArrowDown' ? actionable[(pos + 1) % actionable.length] : actionable[(pos - 1 + actionable.length) % actionable.length];
+    m.index = next;
+    renderMenu(m);
+    return true;
+  }
+  if (e.key === 'ArrowRight' && m.items[m.index]?.submenu) {
+    openSubmenu(m, m.items[m.index]);
+    if (m.child) {
+      m.child.index = m.child.items.findIndex((it) => !it.separator && !it.heading);
+      renderMenu(m.child);
+    }
+    return true;
+  }
+  if (e.key === 'ArrowLeft' && m.parent) {
+    closeChild(m.parent);
+    return true;
+  }
+  if (e.key === 'Enter' && m.index >= 0) {
+    activate(m, m.items[m.index]);
+    return true;
+  }
+  // F1: help for the highlighted entry
+  if (e.key === 'F1' && m.index >= 0 && menuHelpHook.show && m.items[m.index]?.op) {
+    const item = m.items[m.index];
+    const row = m.el.children[m.index]?.getBoundingClientRect();
+    closeMenus();
+    menuHelpHook.show(item, row ? { x: row.right, y: row.top } : { x: app.pointer.x, y: app.pointer.y });
+    return true;
+  }
+  let root = m;
+  while (root.parent) root = root.parent;
+  if (root.onType && e.key.length === 1 && (e.key !== ' ' || root.typeSpace) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const fn = root.onType;
+    closeMenus();
+    fn(e.key);
+    return true;
+  }
+  // accelerators: the underlined letter of an entry
+  if (e.key.length === 1 && /[a-z0-9]/i.test(e.key)) {
+    const k = e.key.toLowerCase();
+    const acc = accelOf(m.items);
+    const found = actionable.find((i) => acc[i] !== undefined && itemLabel(m.items[i])[acc[i]!].toLowerCase() === k) ?? actionable.find((i) => itemLabel(m.items[i]).toLowerCase().startsWith(k));
+    if (found !== undefined) {
+      m.index = found;
+      activate(m, m.items[found]);
+    }
+    return true;
+  }
+  return true;
+}
+
+export function pointerDownOutsideMenus(target: EventTarget | null) {
+  // synthetic presses used to collect menu items (captureMenuItems) never close menus
+  if (capturing) return false;
+  if (!stack.length && !document.querySelector('.popup-layer > .popover')) return false;
+  const t = target as HTMLElement;
+  if (t?.closest?.('.menu, .popover, .pie')) return false;
+  closeMenus();
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Small text prompt popup (rename etc.), positioned at the pointer.
+
+export function promptText(title: string, value: string, done: (v: string) => void, at?: { x: number; y: number }) {
+  closeMenus();
+  const el = document.createElement('div');
+  el.className = 'menu prompt-popup';
+  ensureLayer().append(el);
+  stack.push({ el, items: [], index: 0 });
+  const p = at ?? { x: app.pointer.x - 120, y: app.pointer.y - 20 };
+  el.style.left = `${Math.max(4, Math.min(innerWidth - 260, p.x))}px`;
+  el.style.top = `${Math.max(4, Math.min(innerHeight - 80, p.y))}px`;
+  let current = value;
+  const finish = (ok: boolean) => {
+    closeMenus();
+    if (ok) done(current.trim());
+  };
+  patch(el, [
+    h('div', { class: 'menu-heading' }, title),
+    h('input', {
+      class: 'prompt-input',
+      value,
+      spellcheck: 'false',
+      ref: (i: HTMLInputElement) =>
+        requestAnimationFrame(() => {
+          i.focus();
+          i.select();
+        }),
+      oninput: (e: Event) => (current = (e.target as HTMLInputElement).value),
+      onkeydown: (e: KeyboardEvent) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') finish(true);
+        else if (e.key === 'Escape') finish(false);
+      },
+    }),
+  ]);
+}

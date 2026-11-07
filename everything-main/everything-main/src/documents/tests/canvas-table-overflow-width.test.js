@@ -1,0 +1,20 @@
+import {beforeAll,afterAll,it,expect} from 'vitest';
+import {JSDOM} from 'jsdom';
+import {readFileSync} from 'node:fs';
+import {unzipSync} from 'fflate';
+import {DocxPackage} from '../src/engine/docx.js';
+import {TextDocument} from '../src/engine/model.js';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>{dom.window.close();delete globalThis.DOMParser;delete globalThis.XMLSerializer;});
+for(const suffix of ['','-modern'])it(`retains overflow width preferences, nested tables and exact undo${suffix}`,async()=>{
+ const p=await DocxPackage.open(readFileSync(`public/fixtures/table-overflow-width${suffix}.docx`));
+ expect(p.tables).toHaveLength(13);expect(p.tables[0].width).toEqual({type:'dxa',value:10080});
+ const d=new TextDocument(p.paragraphs,p.pageSettings,p.numbering,p.styles,p.tables,p.assets);
+ const save=async()=>new Uint8Array(await p.export(d.paragraphs,d.pageSettings,d.numbering,d.styles,d.tables,d.assets).arrayBuffer());
+ expect(unzipSync(await save())).toEqual(p.parts);d.select(0);d.replace('Edited ');
+ const stable=tables=>JSON.parse(JSON.stringify(tables,(key,value)=>key==='id'?undefined:key==='parentCellId'?!!value:value));
+ const edited=await save();expect(stable((await DocxPackage.open(edited)).tables)).toEqual(stable(p.tables));
+ for(const [n,bytes]of Object.entries(unzipSync(edited)))if(n!=='word/document.xml')expect(bytes).toEqual(p.parts[n]);
+ d.undo();expect(unzipSync(await save())).toEqual(p.parts);
+});

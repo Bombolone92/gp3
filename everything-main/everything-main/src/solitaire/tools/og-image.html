@@ -1,0 +1,275 @@
+<!doctype html>
+<!--
+  Source for public/og-image.png (the social share card).
+
+  It is a real 1200x630 page rather than a hand-drawn image so it stays in
+  the app's own design language: same felt gradient as src/styles/base.css,
+  same system font stack, and real card faces rendered by the vendored deck
+  (src/vendor/cardmeister.js) -- the same element the game itself uses in
+  rich mode, not a mockup drawn in CSS. Edit here, then re-render with:
+
+    npm run dev
+    node tools/render-og.mjs
+
+  Facebook, LinkedIn, and Slack cache share images per URL, so after
+  changing the picture either re-scrape it in their debuggers or bump the
+  filename.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>og:image source — 1200x630</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0d3b2e;
+      }
+
+      /* Exactly the OG canvas: 1200x630 (1.91:1), same felt gradient as
+         src/styles/base.css's html,body rule. */
+      .card {
+        width: 1200px;
+        height: 630px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 64px;
+        padding: 0 76px;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        color: #f5f5f5;
+        background: radial-gradient(ellipse at top, #16604a 0%, #124e3c 60%, #0d3b2e 100%);
+      }
+
+      .copy {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 30px;
+      }
+
+      .brand img {
+        width: 44px;
+        height: 44px;
+        display: block;
+      }
+
+      .brand span {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(245, 245, 245, 0.6);
+      }
+
+      h1 {
+        margin: 0 0 20px;
+        font-size: 62px;
+        line-height: 1.08;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+      }
+
+      .sub {
+        margin: 0 0 34px;
+        font-size: 24px;
+        line-height: 1.45;
+        font-weight: 400;
+        color: rgba(245, 245, 245, 0.72);
+      }
+
+      .pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        padding: 9px 17px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 16px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: rgba(255, 255, 255, 0.88);
+      }
+
+      /* --- Mini board scene ------------------------------------------- */
+      /* Real card art via cardmeister, laid out to read as an in-progress
+         Klondike game (stock, waste, two started foundations, a played-into
+         tableau) -- not an empty table and not a solved one. Built in JS
+         below rather than hand-written markup, since each pile is a
+         repeated shape. */
+
+      .scene {
+        flex: 0 0 auto;
+        width: 560px;
+      }
+
+      .row {
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .top-row {
+        gap: 14px;
+        margin-bottom: 26px;
+      }
+
+      .spacer {
+        flex: 1 1 auto;
+      }
+
+      .slot {
+        width: 62px;
+        height: 87px;
+        border-radius: 6px;
+        border: 2px dashed rgba(255, 255, 255, 0.28);
+        box-sizing: border-box;
+      }
+
+      .tableau-row {
+        gap: 10px;
+      }
+
+      .col {
+        position: relative;
+        width: 62px;
+        height: 210px;
+      }
+
+      .col playing-card,
+      .top-row playing-card {
+        display: block;
+        width: 62px;
+        height: 87px;
+        position: absolute;
+        left: 0;
+        border-radius: 5px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+      }
+
+      .col playing-card img,
+      .top-row playing-card img {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .top-row .pile {
+        position: relative;
+        width: 62px;
+        height: 87px;
+      }
+
+      .top-row .pile playing-card {
+        top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="copy">
+        <div class="brand">
+          <img src="/icon-128.png" alt="" />
+          <span>solitaire.puter.com</span>
+        </div>
+        <h1>Play Klondike Solitaire Online</h1>
+        <p class="sub">Draw one card at a time, undo any move. Free in your browser, no sign-up.</p>
+        <div class="pills">
+          <div class="pill">Draw-One Klondike</div>
+          <div class="pill">Undo Any Move</div>
+          <div class="pill">Plays Offline</div>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="row top-row">
+          <div class="pile" id="stock"></div>
+          <div class="pile" id="waste"></div>
+          <div class="spacer"></div>
+          <div class="pile" id="f0"></div>
+          <div class="pile" id="f1"></div>
+          <div class="pile" id="f2"></div>
+          <div class="pile" id="f3"></div>
+        </div>
+        <div class="row tableau-row" id="tableau"></div>
+      </div>
+    </div>
+
+    <script src="/src/vendor/cardmeister.js"></script>
+    <script type="module">
+      // Same suit-letter mapping as src/ui/cardview.js's CID_SUIT.
+      function card(cid, top = 0) {
+        const pc = document.createElement('playing-card');
+        pc.setAttribute('cid', cid);
+        pc.style.top = top + 'px';
+        return pc;
+      }
+      function back(top = 0) {
+        const pc = document.createElement('playing-card');
+        pc.setAttribute('cid', 'back');
+        pc.setAttribute('backcolor', '#2c5e8f'); // src/styles/base.css --back-color
+        pc.style.top = top + 'px';
+        return pc;
+      }
+      function slot() {
+        const d = document.createElement('div');
+        d.className = 'slot';
+        return d;
+      }
+
+      // Stock: a couple of face-down cards left to draw.
+      document.getElementById('stock').append(back(0), back(2));
+      // Waste: the card just drawn.
+      document.getElementById('waste').appendChild(card('5D'));
+
+      // Foundations: two suits started, two not -- an in-progress game,
+      // not a freshly dealt or solved one.
+      document.getElementById('f0').appendChild(card('AS'));
+      document.getElementById('f1').appendChild(card('AH'));
+      document.getElementById('f2').appendChild(slot());
+      document.getElementById('f3').appendChild(slot());
+
+      // Tableau: seven columns, each a few face-down cards fanned under one
+      // face-up card, the shape a real played-into board actually has.
+      const FAN = 20;
+      const COLUMNS = [
+        { backs: 0, up: '7H' },
+        { backs: 1, up: '9C' },
+        { backs: 2, up: '4S' },
+        { backs: 1, up: 'KD' },
+        { backs: 2, up: '6C' },
+        { backs: 0, up: '10H' },
+        { backs: 1, up: '3D' },
+      ];
+      const tableau = document.getElementById('tableau');
+      for (const { backs, up } of COLUMNS) {
+        const col = document.createElement('div');
+        col.className = 'col';
+        for (let i = 0; i < backs; i++) col.appendChild(back(i * FAN));
+        col.appendChild(card(up, backs * FAN));
+        tableau.appendChild(col);
+      }
+
+      // cardmeister.js (a blocking classic script, loaded above this module
+      // script) has already defined <playing-card> by the time this module
+      // runs, so every element appended above built its <img> synchronously
+      // on connection -- see src/ui/animate.js's atlas-builder comment for
+      // the case where that ISN'T true (elements built before the element
+      // is defined). render-og.mjs still waits on image decode before the
+      // shutter; this flag just marks that the DOM itself is finished.
+      document.body.dataset.sceneBuilt = 'true';
+    </script>
+  </body>
+</html>

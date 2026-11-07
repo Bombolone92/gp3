@@ -1,0 +1,2644 @@
+{
+  "application": "16.113",
+  "method": "426 Evaluate controls repeated as worksheet matrices; each stored formula/result verified, and initially empty range cleared with COUNTA zero. Native results are the oracle except 43 existing native convergence/accuracy failures, retained alongside independent high-precision references. No control is omitted.",
+  "referenceMethod": "mpmath 1.3.0, 80 digits; logarithmic inversion of regularized incomplete gamma, using estimates derived from shape and probability independently of native/app outputs. Chi-square result is twice the unit gamma quantile.",
+  "provenance": {
+    "gamma-inverse-scale-native.js": "ccdbb536b4fa85a7f9b0e51c92f515e806e5bff8b808664b2bda238d0a0185e3",
+    "gamma-inverse-scale-native.json": "16f26adc73fd167f0174972e057a1acdf9f0674d4eb306cadff43fa22b5d2bb5",
+    "gamma-inverse-scale-worksheet.applescript": "7a8b3c2f91edf81e339ade2495a4a2103aee66a126a2c75bc621b1520e951fbc",
+    "gamma-inverse-scale-worksheet-native.txt": "77dda212ccd1a030eb30cb80333a543839349aec46fca65d141218c4b1c9cdfa",
+    "gamma-inverse-high-precision.py": "f5ce747d11a30f830d5ef8b0aa65b12044ce9cd7e4c21d548bf04e187d408f2e",
+    "gamma-inverse-high-precision.json": "1a441be511c7fbfbd95dbb8db160bace5c8e6e7bfa44fe2a8124075904a38bf1"
+  },
+  "cases": [
+    {
+      "expression": "GAMMA.INV(1e-153,0.25,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.25,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.25,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.25,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.25,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.5,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.5,1)",
+      "group": "small-tail scale",
+      "native": "7.8539816339745E-307",
+      "expected": 7.8539816339745e-307
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.5,2)",
+      "group": "small-tail scale",
+      "native": "1.5707963267949E-306",
+      "expected": 1.5707963267949e-306
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.5,1000)",
+      "group": "small-tail scale",
+      "native": "7.8539816339745E-304",
+      "expected": 7.8539816339745e-304
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.5,1e100)",
+      "group": "small-tail scale",
+      "native": "7.8539816339745E-207",
+      "expected": 7.8539816339745e-207
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,1,0.001)",
+      "group": "small-tail scale",
+      "native": "1E-156",
+      "expected": 1e-156
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,1,1)",
+      "group": "small-tail scale",
+      "native": "1E-153",
+      "expected": 1e-153
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,1,2)",
+      "group": "small-tail scale",
+      "native": "2E-153",
+      "expected": 2e-153
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,1,1000)",
+      "group": "small-tail scale",
+      "native": "1E-150",
+      "expected": 1e-150
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,1,1e100)",
+      "group": "small-tail scale",
+      "native": "1E-53",
+      "expected": 1e-53
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,2,0.001)",
+      "group": "small-tail scale",
+      "native": "4.47213595499955E-80",
+      "expected": 4.47213595499955e-80
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,2,1)",
+      "group": "small-tail scale",
+      "native": "4.47213595499955E-77",
+      "expected": 4.47213595499955e-77
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,2,2)",
+      "group": "small-tail scale",
+      "native": "8.94427190999909E-77",
+      "expected": 8.94427190999909e-77
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,2,1000)",
+      "group": "small-tail scale",
+      "native": "4.47213595499955E-74",
+      "expected": 4.47213595499955e-74
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,2,1e100)",
+      "group": "small-tail scale",
+      "native": "4.47213595499955E+23",
+      "expected": 4.47213595499955e+23
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,10,0.001)",
+      "group": "small-tail scale",
+      "native": "2.26974100304571E-18",
+      "expected": 2.26974100304571e-18
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,10,1)",
+      "group": "small-tail scale",
+      "native": "2.26974100304571E-15",
+      "expected": 2.26974100304571e-15
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,10,2)",
+      "group": "small-tail scale",
+      "native": "4.53948200609141E-15",
+      "expected": 4.53948200609141e-15
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,10,1000)",
+      "group": "small-tail scale",
+      "native": "2.26974100304571E-12",
+      "expected": 2.26974100304571e-12
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,10,1e100)",
+      "group": "small-tail scale",
+      "native": "2.26974100304571E+85",
+      "expected": 2.26974100304571e+85
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.25,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.25,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.25,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.25,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.25,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.5,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.5,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.5,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.5,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,0.5,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,1,0.001)",
+      "group": "small-tail scale",
+      "native": "1E-157",
+      "expected": 1e-157
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,1,1)",
+      "group": "small-tail scale",
+      "native": "1E-154",
+      "expected": 1e-154
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,1,2)",
+      "group": "small-tail scale",
+      "native": "2E-154",
+      "expected": 2e-154
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,1,1000)",
+      "group": "small-tail scale",
+      "native": "1E-151",
+      "expected": 1e-151
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,1,1e100)",
+      "group": "small-tail scale",
+      "native": "1E-54",
+      "expected": 1e-54
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,2,0.001)",
+      "group": "small-tail scale",
+      "native": "1.41421356237309E-80",
+      "expected": 1.41421356237309e-80
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,2,1)",
+      "group": "small-tail scale",
+      "native": "1.41421356237309E-77",
+      "expected": 1.41421356237309e-77
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,2,2)",
+      "group": "small-tail scale",
+      "native": "2.82842712474618E-77",
+      "expected": 2.82842712474618e-77
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,2,1000)",
+      "group": "small-tail scale",
+      "native": "1.41421356237309E-74",
+      "expected": 1.41421356237309e-74
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,2,1e100)",
+      "group": "small-tail scale",
+      "native": "1.41421356237309E+23",
+      "expected": 1.41421356237309e+23
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,10,0.001)",
+      "group": "small-tail scale",
+      "native": "1.80291936423062E-18",
+      "expected": 1.80291936423062e-18
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,10,1)",
+      "group": "small-tail scale",
+      "native": "1.80291936423062E-15",
+      "expected": 1.80291936423062e-15
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,10,2)",
+      "group": "small-tail scale",
+      "native": "3.60583872846123E-15",
+      "expected": 3.60583872846123e-15
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,10,1000)",
+      "group": "small-tail scale",
+      "native": "1.80291936423062E-12",
+      "expected": 1.80291936423062e-12
+    },
+    {
+      "expression": "GAMMA.INV(1e-154,10,1e100)",
+      "group": "small-tail scale",
+      "native": "1.80291936423061E+85",
+      "expected": 1.80291936423061e+85
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.25,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.25,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.25,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.25,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.25,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.5,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.5,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.5,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.5,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,0.5,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,1,0.001)",
+      "group": "small-tail scale",
+      "native": "1.5E-157",
+      "expected": 1.5e-157
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,1,1)",
+      "group": "small-tail scale",
+      "native": "1.5E-154",
+      "expected": 1.5e-154
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,1,2)",
+      "group": "small-tail scale",
+      "native": "3E-154",
+      "expected": 3e-154
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,1,1000)",
+      "group": "small-tail scale",
+      "native": "1.5E-151",
+      "expected": 1.5e-151
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,1,1e100)",
+      "group": "small-tail scale",
+      "native": "1.5E-54",
+      "expected": 1.5e-54
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,2,0.001)",
+      "group": "small-tail scale",
+      "native": "1.73205080756887E-80",
+      "expected": 1.73205080756887e-80
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,2,1)",
+      "group": "small-tail scale",
+      "native": "1.73205080756887E-77",
+      "expected": 1.73205080756887e-77
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,2,2)",
+      "group": "small-tail scale",
+      "native": "3.46410161513774E-77",
+      "expected": 3.46410161513774e-77
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,2,1000)",
+      "group": "small-tail scale",
+      "native": "1.73205080756887E-74",
+      "expected": 1.73205080756887e-74
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,2,1e100)",
+      "group": "small-tail scale",
+      "native": "1.73205080756887E+23",
+      "expected": 1.73205080756887e+23
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,10,0.001)",
+      "group": "small-tail scale",
+      "native": "1.87752370596144E-18",
+      "expected": 1.87752370596144e-18
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,10,1)",
+      "group": "small-tail scale",
+      "native": "1.87752370596144E-15",
+      "expected": 1.87752370596144e-15
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,10,2)",
+      "group": "small-tail scale",
+      "native": "3.75504741192287E-15",
+      "expected": 3.75504741192287e-15
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,10,1000)",
+      "group": "small-tail scale",
+      "native": "1.87752370596144E-12",
+      "expected": 1.87752370596144e-12
+    },
+    {
+      "expression": "GAMMA.INV(1.5e-154,10,1e100)",
+      "group": "small-tail scale",
+      "native": "1.87752370596144E+85",
+      "expected": 1.87752370596144e+85
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.25,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.25,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.25,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.25,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.25,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.5,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.5,1)",
+      "group": "small-tail scale",
+      "native": "3.1415926535898E-308",
+      "expected": 3.1415926535898e-308
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.5,2)",
+      "group": "small-tail scale",
+      "native": "6.2831853071796E-308",
+      "expected": 6.2831853071796e-308
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.5,1000)",
+      "group": "small-tail scale",
+      "native": "3.1415926535898E-305",
+      "expected": 3.1415926535898e-305
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,0.5,1e100)",
+      "group": "small-tail scale",
+      "native": "3.1415926535898E-208",
+      "expected": 3.1415926535898e-208
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,1,0.001)",
+      "group": "small-tail scale",
+      "native": "2E-157",
+      "expected": 2e-157
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,1,1)",
+      "group": "small-tail scale",
+      "native": "2E-154",
+      "expected": 2e-154
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,1,2)",
+      "group": "small-tail scale",
+      "native": "4E-154",
+      "expected": 4e-154
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,1,1000)",
+      "group": "small-tail scale",
+      "native": "2E-151",
+      "expected": 2e-151
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,1,1e100)",
+      "group": "small-tail scale",
+      "native": "2E-54",
+      "expected": 2e-54
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,2,0.001)",
+      "group": "small-tail scale",
+      "native": "2E-80",
+      "expected": 2e-80
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,2,1)",
+      "group": "small-tail scale",
+      "native": "2E-77",
+      "expected": 2e-77
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,2,2)",
+      "group": "small-tail scale",
+      "native": "3.99999999999999E-77",
+      "expected": 3.99999999999999e-77
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,2,1000)",
+      "group": "small-tail scale",
+      "native": "2E-74",
+      "expected": 2e-74
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,2,1e100)",
+      "group": "small-tail scale",
+      "native": "2E+23",
+      "expected": 2e+23
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,10,0.001)",
+      "group": "small-tail scale",
+      "native": "1.93232112967518E-18",
+      "expected": 1.93232112967518e-18
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,10,1)",
+      "group": "small-tail scale",
+      "native": "1.93232112967518E-15",
+      "expected": 1.93232112967518e-15
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,10,2)",
+      "group": "small-tail scale",
+      "native": "3.86464225935036E-15",
+      "expected": 3.86464225935036e-15
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,10,1000)",
+      "group": "small-tail scale",
+      "native": "1.93232112967518E-12",
+      "expected": 1.93232112967518e-12
+    },
+    {
+      "expression": "GAMMA.INV(2e-154,10,1e100)",
+      "group": "small-tail scale",
+      "native": "1.93232112967518E+85",
+      "expected": 1.93232112967518e+85
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.25,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.25,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.25,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.25,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.25,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.5,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.5,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.5,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.5,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,0.5,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,1,0.001)",
+      "group": "small-tail scale",
+      "native": "1E-203",
+      "expected": 1e-203
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,1,1)",
+      "group": "small-tail scale",
+      "native": "1E-200",
+      "expected": 1e-200
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,1,2)",
+      "group": "small-tail scale",
+      "native": "2E-200",
+      "expected": 2e-200
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,1,1000)",
+      "group": "small-tail scale",
+      "native": "1E-197",
+      "expected": 1e-197
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,1,1e100)",
+      "group": "small-tail scale",
+      "native": "1E-100",
+      "expected": 1e-100
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,2,0.001)",
+      "group": "small-tail scale",
+      "native": "1.4142135623731E-103",
+      "expected": 1.4142135623731e-103
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,2,1)",
+      "group": "small-tail scale",
+      "native": "1.4142135623731E-100",
+      "expected": 1.4142135623731e-100
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,2,2)",
+      "group": "small-tail scale",
+      "native": "2.8284271247462E-100",
+      "expected": 2.8284271247462e-100
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,2,1000)",
+      "group": "small-tail scale",
+      "native": "1.41421356237308E-97",
+      "expected": 1.41421356237308e-97
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,2,1e100)",
+      "group": "small-tail scale",
+      "native": "1.41421356237308",
+      "expected": 1.41421356237308
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,10,0.001)",
+      "group": "small-tail scale",
+      "native": "4.52872868811677E-23",
+      "expected": 4.52872868811677e-23
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,10,1)",
+      "group": "small-tail scale",
+      "native": "4.52872868811677E-20",
+      "expected": 4.52872868811677e-20
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,10,2)",
+      "group": "small-tail scale",
+      "native": "9.05745737623354E-20",
+      "expected": 9.05745737623354e-20
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,10,1000)",
+      "group": "small-tail scale",
+      "native": "4.52872868811677E-17",
+      "expected": 4.52872868811677e-17
+    },
+    {
+      "expression": "GAMMA.INV(1e-200,10,1e100)",
+      "group": "small-tail scale",
+      "native": "4.52872868811677E+80",
+      "expected": 4.52872868811677e+80
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.25,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.25,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.25,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.25,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.25,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.5,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.5,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.5,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.5,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,0.5,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,1,0.001)",
+      "group": "small-tail scale",
+      "native": "1E-303",
+      "expected": 1e-303
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,1,1)",
+      "group": "small-tail scale",
+      "native": "1E-300",
+      "expected": 1e-300
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,1,2)",
+      "group": "small-tail scale",
+      "native": "2E-300",
+      "expected": 2e-300
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,1,1000)",
+      "group": "small-tail scale",
+      "native": "1E-297",
+      "expected": 1e-297
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,1,1e100)",
+      "group": "small-tail scale",
+      "native": "1E-200",
+      "expected": 1e-200
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,2,0.001)",
+      "group": "small-tail scale",
+      "native": "1.4142135623731E-153",
+      "expected": 1.4142135623731e-153
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,2,1)",
+      "group": "small-tail scale",
+      "native": "1.4142135623731E-150",
+      "expected": 1.4142135623731e-150
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,2,2)",
+      "group": "small-tail scale",
+      "native": "2.8284271247462E-150",
+      "expected": 2.8284271247462e-150
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,2,1000)",
+      "group": "small-tail scale",
+      "native": "1.4142135623731E-147",
+      "expected": 1.4142135623731e-147
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,2,1e100)",
+      "group": "small-tail scale",
+      "native": "1.41421356237307E-50",
+      "expected": 1.41421356237307e-50
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,10,0.001)",
+      "group": "small-tail scale",
+      "native": "4.52872868811676E-33",
+      "expected": 4.52872868811676e-33
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,10,1)",
+      "group": "small-tail scale",
+      "native": "4.52872868811676E-30",
+      "expected": 4.52872868811676e-30
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,10,2)",
+      "group": "small-tail scale",
+      "native": "9.05745737623352E-30",
+      "expected": 9.05745737623352e-30
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,10,1000)",
+      "group": "small-tail scale",
+      "native": "4.52872868811676E-27",
+      "expected": 4.52872868811676e-27
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,10,1e100)",
+      "group": "small-tail scale",
+      "native": "4.52872868811676E+70",
+      "expected": 4.52872868811676e+70
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.25,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.25,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.25,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.25,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.25,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.5,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.5,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.5,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.5,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),0.5,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),1,0.001)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),1,1)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),1,2)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),1,1000)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),1,1e100)",
+      "group": "small-tail scale",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),2,0.001)",
+      "group": "small-tail scale",
+      "native": "1.5599876606072E-157",
+      "expected": 1.5599876606072e-157
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),2,1)",
+      "group": "small-tail scale",
+      "native": "1.5599876606072E-154",
+      "expected": 1.5599876606072e-154
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),2,2)",
+      "group": "small-tail scale",
+      "native": "3.1199753212144E-154",
+      "expected": 3.1199753212144e-154
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),2,1000)",
+      "group": "small-tail scale",
+      "native": "1.5599876606072E-151",
+      "expected": 1.5599876606072e-151
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),2,1e100)",
+      "group": "small-tail scale",
+      "native": "1.5599876606072E-54",
+      "expected": 1.5599876606072e-54
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),10,0.001)",
+      "group": "small-tail scale",
+      "native": "7.31977170849606E-34",
+      "expected": 7.31977170849606e-34
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),10,1)",
+      "group": "small-tail scale",
+      "native": "7.31977170849606E-31",
+      "expected": 7.31977170849606e-31
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),10,2)",
+      "group": "small-tail scale",
+      "native": "1.46395434169921E-30",
+      "expected": 1.46395434169921e-30
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),10,1000)",
+      "group": "small-tail scale",
+      "native": "7.31977170849606E-28",
+      "expected": 7.31977170849606e-28
+    },
+    {
+      "expression": "GAMMA.INV(EXP(-709),10,1e100)",
+      "group": "small-tail scale",
+      "native": "7.31977170849606E+69",
+      "expected": 7.31977170849606e+69
+    },
+    {
+      "expression": "GAMMA.INV(0.05,0.5,1e-307)",
+      "group": "wide-scale tail",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(0.05,0.5,1)",
+      "group": "wide-scale tail",
+      "native": "0.00196607000000976",
+      "expected": 0.00196607000000976
+    },
+    {
+      "expression": "GAMMA.INV(0.05,0.5,1e100)",
+      "group": "wide-scale tail",
+      "native": "1.96607000000976E+97",
+      "expected": 1.96607000000976e+97
+    },
+    {
+      "expression": "GAMMA.INV(0.05,0.5,1e307)",
+      "group": "wide-scale tail",
+      "native": "1.9660700000098E+304",
+      "expected": 1.9660700000098e+304
+    },
+    {
+      "expression": "GAMMA.INV(0.05,1,1e-307)",
+      "group": "wide-scale tail",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(0.05,1,1)",
+      "group": "wide-scale tail",
+      "native": "0.0512932943875505",
+      "expected": 0.0512932943875505
+    },
+    {
+      "expression": "GAMMA.INV(0.05,1,1e100)",
+      "group": "wide-scale tail",
+      "native": "5.12932943875505E+98",
+      "expected": 5.12932943875505e+98
+    },
+    {
+      "expression": "GAMMA.INV(0.05,1,1e307)",
+      "group": "wide-scale tail",
+      "native": "5.1293294387551E+305",
+      "expected": 5.1293294387551e+305
+    },
+    {
+      "expression": "GAMMA.INV(0.05,2,1e-307)",
+      "group": "wide-scale tail",
+      "native": "3.5536151069866E-308",
+      "expected": 3.5536151069866e-308
+    },
+    {
+      "expression": "GAMMA.INV(0.05,2,1)",
+      "group": "wide-scale tail",
+      "native": "0.355361510698662",
+      "expected": 0.355361510698662
+    },
+    {
+      "expression": "GAMMA.INV(0.05,2,1e100)",
+      "group": "wide-scale tail",
+      "native": "3.5536151069866E+99",
+      "expected": 3.5536151069866e+99
+    },
+    {
+      "expression": "GAMMA.INV(0.05,2,1e307)",
+      "group": "wide-scale tail",
+      "native": "3.5536151069866E+306",
+      "expected": 3.5536151069866e+306
+    },
+    {
+      "expression": "GAMMA.INV(0.05,10,1e-307)",
+      "group": "wide-scale tail",
+      "native": "5.4254056970913E-307",
+      "expected": 5.4254056970913e-307
+    },
+    {
+      "expression": "GAMMA.INV(0.05,10,1)",
+      "group": "wide-scale tail",
+      "native": "5.42540569709129",
+      "expected": 5.42540569709129
+    },
+    {
+      "expression": "GAMMA.INV(0.05,10,1e100)",
+      "group": "wide-scale tail",
+      "native": "5.4254056970913E+100",
+      "expected": 5.4254056970913e+100
+    },
+    {
+      "expression": "GAMMA.INV(0.05,10,1e307)",
+      "group": "wide-scale tail",
+      "native": "5.4254056970913E+307",
+      "expected": 5.4254056970913e+307
+    },
+    {
+      "expression": "GAMMA.INV(0.05,100,1e-307)",
+      "group": "wide-scale tail",
+      "native": "8.4139277218314E-306",
+      "expected": 8.4139277218314e-306
+    },
+    {
+      "expression": "GAMMA.INV(0.05,100,1)",
+      "group": "wide-scale tail",
+      "native": "84.1392772183142",
+      "expected": 84.1392772183142
+    },
+    {
+      "expression": "GAMMA.INV(0.05,100,1e100)",
+      "group": "wide-scale tail",
+      "native": "8.4139277218314E+101",
+      "expected": 8.4139277218314e+101
+    },
+    {
+      "expression": "GAMMA.INV(0.05,100,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(0.5,0.5,1e-307)",
+      "group": "wide-scale tail",
+      "native": "2.2746821155979E-308",
+      "expected": 2.2746821155979e-308
+    },
+    {
+      "expression": "GAMMA.INV(0.5,0.5,1)",
+      "group": "wide-scale tail",
+      "native": "0.227468211559786",
+      "expected": 0.227468211559786
+    },
+    {
+      "expression": "GAMMA.INV(0.5,0.5,1e100)",
+      "group": "wide-scale tail",
+      "native": "2.2746821155979E+99",
+      "expected": 2.2746821155979e+99
+    },
+    {
+      "expression": "GAMMA.INV(0.5,0.5,1e307)",
+      "group": "wide-scale tail",
+      "native": "2.2746821155979E+306",
+      "expected": 2.2746821155979e+306
+    },
+    {
+      "expression": "GAMMA.INV(0.5,1,1e-307)",
+      "group": "wide-scale tail",
+      "native": "6.9314718055995E-308",
+      "expected": 6.9314718055995e-308
+    },
+    {
+      "expression": "GAMMA.INV(0.5,1,1)",
+      "group": "wide-scale tail",
+      "native": "0.693147180559945",
+      "expected": 0.693147180559945
+    },
+    {
+      "expression": "GAMMA.INV(0.5,1,1e100)",
+      "group": "wide-scale tail",
+      "native": "6.9314718055995E+99",
+      "expected": 6.9314718055995e+99
+    },
+    {
+      "expression": "GAMMA.INV(0.5,1,1e307)",
+      "group": "wide-scale tail",
+      "native": "6.9314718055995E+306",
+      "expected": 6.9314718055995e+306
+    },
+    {
+      "expression": "GAMMA.INV(0.5,2,1e-307)",
+      "group": "wide-scale tail",
+      "native": "1.6783469900167E-307",
+      "expected": 1.6783469900167e-307
+    },
+    {
+      "expression": "GAMMA.INV(0.5,2,1)",
+      "group": "wide-scale tail",
+      "native": "1.67834699001666",
+      "expected": 1.67834699001666
+    },
+    {
+      "expression": "GAMMA.INV(0.5,2,1e100)",
+      "group": "wide-scale tail",
+      "native": "1.6783469900167E+100",
+      "expected": 1.6783469900167e+100
+    },
+    {
+      "expression": "GAMMA.INV(0.5,2,1e307)",
+      "group": "wide-scale tail",
+      "native": "1.6783469900167E+307",
+      "expected": 1.6783469900167e+307
+    },
+    {
+      "expression": "GAMMA.INV(0.5,10,1e-307)",
+      "group": "wide-scale tail",
+      "native": "9.6687146147141E-307",
+      "expected": 9.6687146147141e-307
+    },
+    {
+      "expression": "GAMMA.INV(0.5,10,1)",
+      "group": "wide-scale tail",
+      "native": "9.66871461471413",
+      "expected": 9.66871461471413
+    },
+    {
+      "expression": "GAMMA.INV(0.5,10,1e100)",
+      "group": "wide-scale tail",
+      "native": "9.6687146147141E+100",
+      "expected": 9.6687146147141e+100
+    },
+    {
+      "expression": "GAMMA.INV(0.5,10,1e307)",
+      "group": "wide-scale tail",
+      "native": "9.6687146147141E+307",
+      "expected": 9.6687146147141e+307
+    },
+    {
+      "expression": "GAMMA.INV(0.5,100,1e-307)",
+      "group": "wide-scale tail",
+      "native": "9.9666864919316E-306",
+      "expected": 9.9666864919316e-306
+    },
+    {
+      "expression": "GAMMA.INV(0.5,100,1)",
+      "group": "wide-scale tail",
+      "native": "99.6668649193155",
+      "expected": 99.6668649193155
+    },
+    {
+      "expression": "GAMMA.INV(0.5,100,1e100)",
+      "group": "wide-scale tail",
+      "native": "9.9666864919316E+101",
+      "expected": 9.9666864919316e+101
+    },
+    {
+      "expression": "GAMMA.INV(0.5,100,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(0.99,0.5,1e-307)",
+      "group": "wide-scale tail",
+      "native": "3.3174483005106E-307",
+      "expected": 3.3174483005106e-307
+    },
+    {
+      "expression": "GAMMA.INV(0.99,0.5,1)",
+      "group": "wide-scale tail",
+      "native": "3.31744830051061",
+      "expected": 3.31744830051061
+    },
+    {
+      "expression": "GAMMA.INV(0.99,0.5,1e100)",
+      "group": "wide-scale tail",
+      "native": "3.3174483005106E+100",
+      "expected": 3.3174483005106e+100
+    },
+    {
+      "expression": "GAMMA.INV(0.99,0.5,1e307)",
+      "group": "wide-scale tail",
+      "native": "3.3174483005106E+307",
+      "expected": 3.3174483005106e+307
+    },
+    {
+      "expression": "GAMMA.INV(0.99,1,1e-307)",
+      "group": "wide-scale tail",
+      "native": "4.6051701859881E-307",
+      "expected": 4.6051701859881e-307
+    },
+    {
+      "expression": "GAMMA.INV(0.99,1,1)",
+      "group": "wide-scale tail",
+      "native": "4.60517018598809",
+      "expected": 4.60517018598809
+    },
+    {
+      "expression": "GAMMA.INV(0.99,1,1e100)",
+      "group": "wide-scale tail",
+      "native": "4.6051701859881E+100",
+      "expected": 4.6051701859881e+100
+    },
+    {
+      "expression": "GAMMA.INV(0.99,1,1e307)",
+      "group": "wide-scale tail",
+      "native": "4.6051701859881E+307",
+      "expected": 4.6051701859881e+307
+    },
+    {
+      "expression": "GAMMA.INV(0.99,2,1e-307)",
+      "group": "wide-scale tail",
+      "native": "6.6383520679938E-307",
+      "expected": 6.6383520679938e-307
+    },
+    {
+      "expression": "GAMMA.INV(0.99,2,1)",
+      "group": "wide-scale tail",
+      "native": "6.63835206799381",
+      "expected": 6.63835206799381
+    },
+    {
+      "expression": "GAMMA.INV(0.99,2,1e100)",
+      "group": "wide-scale tail",
+      "native": "6.6383520679938E+100",
+      "expected": 6.6383520679938e+100
+    },
+    {
+      "expression": "GAMMA.INV(0.99,2,1e307)",
+      "group": "wide-scale tail",
+      "native": "6.6383520679938E+307",
+      "expected": 6.6383520679938e+307
+    },
+    {
+      "expression": "GAMMA.INV(0.99,10,1e-307)",
+      "group": "wide-scale tail",
+      "native": "1.8783117393313E-306",
+      "expected": 1.8783117393313e-306
+    },
+    {
+      "expression": "GAMMA.INV(0.99,10,1)",
+      "group": "wide-scale tail",
+      "native": "18.7831173933125",
+      "expected": 18.7831173933125
+    },
+    {
+      "expression": "GAMMA.INV(0.99,10,1e100)",
+      "group": "wide-scale tail",
+      "native": "1.8783117393313E+101",
+      "expected": 1.8783117393313e+101
+    },
+    {
+      "expression": "GAMMA.INV(0.99,10,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(0.99,100,1e-307)",
+      "group": "wide-scale tail",
+      "native": "1.2472256149072E-305",
+      "expected": 1.2472256149072e-305
+    },
+    {
+      "expression": "GAMMA.INV(0.99,100,1)",
+      "group": "wide-scale tail",
+      "native": "124.722561490721",
+      "expected": 124.722561490721
+    },
+    {
+      "expression": "GAMMA.INV(0.99,100,1e100)",
+      "group": "wide-scale tail",
+      "native": "1.2472256149072E+102",
+      "expected": 1.2472256149072e+102
+    },
+    {
+      "expression": "GAMMA.INV(0.99,100,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,0.5,1e-307)",
+      "group": "wide-scale tail",
+      "native": "2.0910728101491E-306",
+      "expected": 2.0910728101491e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,0.5,1)",
+      "group": "wide-scale tail",
+      "native": "20.9107281014914",
+      "expected": 20.9107281014914
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,0.5,1e100)",
+      "group": "wide-scale tail",
+      "native": "2.0910728101491E+101",
+      "expected": 2.0910728101491e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,0.5,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,1,1e-307)",
+      "group": "wide-scale tail",
+      "native": "2.30258508472E-306",
+      "expected": 2.30258508472e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,1,1)",
+      "group": "wide-scale tail",
+      "native": "23.0258508472001",
+      "expected": 23.0258508472001
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,1,1e100)",
+      "group": "wide-scale tail",
+      "native": "2.30258508472E+101",
+      "expected": 2.30258508472e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,1,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,2,1e-307)",
+      "group": "wide-scale tail",
+      "native": "2.6333981519649E-306",
+      "expected": 2.6333981519649e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,2,1)",
+      "group": "wide-scale tail",
+      "native": "26.3339815196485",
+      "expected": 26.3339815196485
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,2,1e100)",
+      "group": "wide-scale tail",
+      "native": "2.6333981519649E+101",
+      "expected": 2.6333981519649e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,2,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,10,1e-307)",
+      "group": "wide-scale tail",
+      "native": "4.4627857114102E-306",
+      "expected": 4.4627857114102e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,10,1)",
+      "group": "wide-scale tail",
+      "native": "44.6278571141015",
+      "expected": 44.6278571141015
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,10,1e100)",
+      "group": "wide-scale tail",
+      "native": "4.4627857114102E+101",
+      "expected": 4.4627857114102e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,10,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,100,1e-307)",
+      "group": "wide-scale tail",
+      "native": "1.773005045211E-305",
+      "expected": 1.773005045211e-305
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,100,1)",
+      "group": "wide-scale tail",
+      "native": "177.300504521103",
+      "expected": 177.300504521103
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,100,1e100)",
+      "group": "wide-scale tail",
+      "native": "1.773005045211E+102",
+      "expected": 1.773005045211e+102
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-10,100,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,0.5,1e-307)",
+      "group": "wide-scale tail",
+      "native": "2.994883105586E-306",
+      "expected": 2.994883105586e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,0.5,1)",
+      "group": "wide-scale tail",
+      "native": "29.9488310558602",
+      "expected": 29.9488310558602
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,0.5,1e100)",
+      "group": "wide-scale tail",
+      "native": "2.994883105586E+101",
+      "expected": 2.994883105586e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,0.5,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,1,1e-307)",
+      "group": "wide-scale tail",
+      "native": "3.2236990899347E-306",
+      "expected": 3.2236990899347e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,1,1)",
+      "group": "wide-scale tail",
+      "native": "32.2369908993468",
+      "expected": 32.2369908993468
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,1,1e100)",
+      "group": "wide-scale tail",
+      "native": "3.2236990899347E+101",
+      "expected": 3.2236990899347e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,1,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,2,1e-307)",
+      "group": "wide-scale tail",
+      "native": "3.5843674857594E-306",
+      "expected": 3.5843674857594e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,2,1)",
+      "group": "wide-scale tail",
+      "native": "35.8436748575939",
+      "expected": 35.8436748575939
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,2,1e100)",
+      "group": "wide-scale tail",
+      "native": "3.5843674857594E+101",
+      "expected": 3.5843674857594e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,2,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,10,1e-307)",
+      "group": "wide-scale tail",
+      "native": "5.5803694663297E-306",
+      "expected": 5.5803694663297e-306
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,10,1)",
+      "group": "wide-scale tail",
+      "native": "55.8036946632969",
+      "expected": 55.8036946632969
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,10,1e100)",
+      "group": "wide-scale tail",
+      "native": "5.5803694663297E+101",
+      "expected": 5.5803694663297e+101
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,10,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,100,1e-307)",
+      "group": "wide-scale tail",
+      "native": "1.9665799468115E-305",
+      "expected": 1.9665799468115e-305
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,100,1)",
+      "group": "wide-scale tail",
+      "native": "196.657994681149",
+      "expected": 196.657994681149
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,100,1e100)",
+      "group": "wide-scale tail",
+      "native": "1.9665799468115E+102",
+      "expected": 1.9665799468115e+102
+    },
+    {
+      "expression": "GAMMA.INV(1-1e-14,100,1e307)",
+      "group": "wide-scale tail",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "CHISQ.INV(1e-154,1)",
+      "group": "chi-square",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-154,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 702.1875871786705,
+      "reference": "702.18758717867047970276293211701997516039170365690083885450265542"
+    },
+    {
+      "expression": "CHIINV(1e-154,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 702.1875871786705,
+      "reference": "702.18758717867047970276293211701997516039170365690083885450265542"
+    },
+    {
+      "expression": "CHISQ.INV(1e-154,2)",
+      "group": "chi-square",
+      "native": "2E-154",
+      "expected": 2e-154
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-154,2)",
+      "group": "chi-square",
+      "native": "709.196208642166",
+      "expected": 709.196208642166
+    },
+    {
+      "expression": "CHIINV(1e-154,2)",
+      "group": "chi-square",
+      "native": "709.196208642166",
+      "expected": 709.196208642166
+    },
+    {
+      "expression": "CHISQ.INV(1e-154,3)",
+      "group": "chi-square",
+      "native": "5.209397078678E-103",
+      "expected": 5.209397078678e-103
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-154,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 715.3201462477607,
+      "reference": "715.3201462477606582118390294464233867081140557293981826535110427"
+    },
+    {
+      "expression": "CHIINV(1e-154,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 715.3201462477607,
+      "reference": "715.3201462477606582118390294464233867081140557293981826535110427"
+    },
+    {
+      "expression": "CHISQ.INV(1e-154,4)",
+      "group": "chi-square",
+      "native": "2.82842712474618E-77",
+      "expected": 2.82842712474618e-77
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-154,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 720.9766681826421,
+      "reference": "720.97666818264217527677806236518975414665382593172506452960924052"
+    },
+    {
+      "expression": "CHIINV(1e-154,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 720.9766681826421,
+      "reference": "720.97666818264217527677806236518975414665382593172506452960924052"
+    },
+    {
+      "expression": "CHISQ.INV(1e-154,10)",
+      "group": "chi-square",
+      "native": "8.25783583466674E-31",
+      "expected": 8.25783583466674e-31
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-154,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 750.2798760965868,
+      "reference": "750.27987609658684249419800201159335405463377989406264113220055993"
+    },
+    {
+      "expression": "CHIINV(1e-154,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 750.2798760965868,
+      "reference": "750.27987609658684249419800201159335405463377989406264113220055993"
+    },
+    {
+      "expression": "CHISQ.INV(1e-154,100)",
+      "group": "chi-square",
+      "native": "0.0324212336079756",
+      "expected": 0.0324212336079756
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-154,100)",
+      "group": "chi-square",
+      "native": "1032.42230009076",
+      "expected": 1032.42230009076
+    },
+    {
+      "expression": "CHIINV(1e-154,100)",
+      "group": "chi-square",
+      "native": "1032.42230009076",
+      "expected": 1032.42230009076
+    },
+    {
+      "expression": "CHISQ.INV(1.5e-154,1)",
+      "group": "chi-square",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "CHISQ.INV.RT(1.5e-154,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 701.3778075866809,
+      "reference": "701.37780758668094159059401657739880749315876799858552490261802014"
+    },
+    {
+      "expression": "CHIINV(1.5e-154,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 701.3778075866809,
+      "reference": "701.37780758668094159059401657739880749315876799858552490261802014"
+    },
+    {
+      "expression": "CHISQ.INV(1.5e-154,2)",
+      "group": "chi-square",
+      "native": "3E-154",
+      "expected": 3e-154
+    },
+    {
+      "expression": "CHISQ.INV.RT(1.5e-154,2)",
+      "group": "chi-square",
+      "native": "708.38527842595",
+      "expected": 708.38527842595
+    },
+    {
+      "expression": "CHIINV(1.5e-154,2)",
+      "group": "chi-square",
+      "native": "708.38527842595",
+      "expected": 708.38527842595
+    },
+    {
+      "expression": "CHISQ.INV(1.5e-154,3)",
+      "group": "chi-square",
+      "native": "6.8262412814812E-103",
+      "expected": 6.8262412814812e-103
+    },
+    {
+      "expression": "CHISQ.INV.RT(1.5e-154,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 714.5080833070551,
+      "reference": "714.50808330705516127397282382892382137293212822246540412232079636"
+    },
+    {
+      "expression": "CHIINV(1.5e-154,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 714.5080833070551,
+      "reference": "714.50808330705516127397282382892382137293212822246540412232079636"
+    },
+    {
+      "expression": "CHISQ.INV(1.5e-154,4)",
+      "group": "chi-square",
+      "native": "3.46410161513774E-77",
+      "expected": 3.46410161513774e-77
+    },
+    {
+      "expression": "CHISQ.INV.RT(1.5e-154,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 720.1634871643813,
+      "reference": "720.16348716438127397076158685041753593985976085193192623158700617"
+    },
+    {
+      "expression": "CHIINV(1.5e-154,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 720.1634871643813,
+      "reference": "720.16348716438127397076158685041753593985976085193192623158700617"
+    },
+    {
+      "expression": "CHISQ.INV(1.5e-154,10)",
+      "group": "chi-square",
+      "native": "8.9553898538808E-31",
+      "expected": 8.9553898538808e-31
+    },
+    {
+      "expression": "CHISQ.INV.RT(1.5e-154,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 749.4602248645893,
+      "reference": "749.46022486458933783558956854982148978635627126085152445011545478"
+    },
+    {
+      "expression": "CHIINV(1.5e-154,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 749.4602248645893,
+      "reference": "749.46022486458933783558956854982148978635627126085152445011545478"
+    },
+    {
+      "expression": "CHISQ.INV(1.5e-154,100)",
+      "group": "chi-square",
+      "native": "0.032685300716146",
+      "expected": 0.032685300716146
+    },
+    {
+      "expression": "CHISQ.INV.RT(1.5e-154,100)",
+      "group": "chi-square",
+      "native": "1031.52648097658",
+      "expected": 1031.52648097658
+    },
+    {
+      "expression": "CHIINV(1.5e-154,100)",
+      "group": "chi-square",
+      "native": "1031.52648097658",
+      "expected": 1031.52648097658
+    },
+    {
+      "expression": "CHISQ.INV(2e-154,1)",
+      "group": "chi-square",
+      "native": "6.2831853071796E-308",
+      "expected": 6.2831853071796e-308
+    },
+    {
+      "expression": "CHISQ.INV.RT(2e-154,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 700.8032606251844,
+      "reference": "700.80326062518445490406114539765527907675148552163858087309764752"
+    },
+    {
+      "expression": "CHIINV(2e-154,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 700.8032606251844,
+      "reference": "700.80326062518445490406114539765527907675148552163858087309764752"
+    },
+    {
+      "expression": "CHISQ.INV(2e-154,2)",
+      "group": "chi-square",
+      "native": "4E-154",
+      "expected": 4e-154
+    },
+    {
+      "expression": "CHISQ.INV.RT(2e-154,2)",
+      "group": "chi-square",
+      "native": "707.809914281046",
+      "expected": 707.809914281046
+    },
+    {
+      "expression": "CHIINV(2e-154,2)",
+      "group": "chi-square",
+      "native": "707.809914281046",
+      "expected": 707.809914281046
+    },
+    {
+      "expression": "CHISQ.INV(2e-154,3)",
+      "group": "chi-square",
+      "native": "8.2694024028136E-103",
+      "expected": 8.2694024028136e-103
+    },
+    {
+      "expression": "CHISQ.INV.RT(2e-154,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 713.9319147014069,
+      "reference": "713.93191470140684135333014449102059936548318923270126063635812012"
+    },
+    {
+      "expression": "CHIINV(2e-154,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 713.9319147014069,
+      "reference": "713.93191470140684135333014449102059936548318923270126063635812012"
+    },
+    {
+      "expression": "CHISQ.INV(2e-154,4)",
+      "group": "chi-square",
+      "native": "3.99999999999999E-77",
+      "expected": 3.99999999999999e-77
+    },
+    {
+      "expression": "CHISQ.INV.RT(2e-154,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 719.5865245081502,
+      "reference": "719.58652450815018163953086283362913373364439505040648102612115819"
+    },
+    {
+      "expression": "CHIINV(2e-154,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 719.5865245081502,
+      "reference": "719.58652450815018163953086283362913373364439505040648102612115819"
+    },
+    {
+      "expression": "CHISQ.INV(2e-154,10)",
+      "group": "chi-square",
+      "native": "9.4857624391172E-31",
+      "expected": 9.4857624391172e-31
+    },
+    {
+      "expression": "CHISQ.INV.RT(2e-154,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 748.8786672278144,
+      "reference": "748.87866722781439739262684061489189923839198880438055230983553939"
+    },
+    {
+      "expression": "CHIINV(2e-154,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 748.8786672278144,
+      "reference": "748.87866722781439739262684061489189923839198880438055230983553939"
+    },
+    {
+      "expression": "CHISQ.INV(2e-154,100)",
+      "group": "chi-square",
+      "native": "0.0328739630739516",
+      "expected": 0.0328739630739516
+    },
+    {
+      "expression": "CHISQ.INV.RT(2e-154,100)",
+      "group": "chi-square",
+      "native": "1030.89083790873",
+      "expected": 1030.89083790873
+    },
+    {
+      "expression": "CHIINV(2e-154,100)",
+      "group": "chi-square",
+      "native": "1030.89083790873",
+      "expected": 1030.89083790873
+    },
+    {
+      "expression": "CHISQ.INV(1e-300,1)",
+      "group": "chi-square",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-300,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1373.8726312223941,
+      "reference": "1373.8726312223941371433909465482112143441130776342993338802795776"
+    },
+    {
+      "expression": "CHIINV(1e-300,1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1373.8726312223941,
+      "reference": "1373.8726312223941371433909465482112143441130776342993338802795776"
+    },
+    {
+      "expression": "CHISQ.INV(1e-300,2)",
+      "group": "chi-square",
+      "native": "2E-300",
+      "expected": 2e-300
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-300,2)",
+      "group": "chi-square",
+      "native": "1381.55105579643",
+      "expected": 1381.55105579643
+    },
+    {
+      "expression": "CHIINV(1e-300,2)",
+      "group": "chi-square",
+      "native": "1381.55105579643",
+      "expected": 1381.55105579643
+    },
+    {
+      "expression": "CHISQ.INV(1e-300,3)",
+      "group": "chi-square",
+      "native": "2.4179879310248E-200",
+      "expected": 2.4179879310248e-200
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-300,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1388.3367738546858,
+      "reference": "1388.3367738546857732517400016330875773821231580464526209062692111"
+    },
+    {
+      "expression": "CHIINV(1e-300,3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1388.3367738546858,
+      "reference": "1388.3367738546857732517400016330875773821231580464526209062692111"
+    },
+    {
+      "expression": "CHISQ.INV(1e-300,4)",
+      "group": "chi-square",
+      "native": "2.8284271247462E-150",
+      "expected": 2.8284271247462e-150
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-300,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1394.6484227587052,
+      "reference": "1394.6484227587051692966887351264392367246236298650788997328475175"
+    },
+    {
+      "expression": "CHIINV(1e-300,4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1394.6484227587052,
+      "reference": "1394.6484227587051692966887351264392367246236298650788997328475175"
+    },
+    {
+      "expression": "CHISQ.INV(1e-300,10)",
+      "group": "chi-square",
+      "native": "5.21034216939475E-60",
+      "expected": 5.21034216939475e-60
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-300,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1427.7719561298886,
+      "reference": "1427.7719561298886120952549332207261652137990330487961523360931282"
+    },
+    {
+      "expression": "CHIINV(1e-300,10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1427.7719561298886,
+      "reference": "1427.7719561298886120952549332207261652137990330487961523360931282"
+    },
+    {
+      "expression": "CHISQ.INV(1e-300,100)",
+      "group": "chi-square",
+      "native": "3.89665233401356E-05",
+      "expected": 0.0000389665233401356
+    },
+    {
+      "expression": "CHISQ.INV.RT(1e-300,100)",
+      "group": "chi-square",
+      "native": "1756.78753318388",
+      "expected": 1756.78753318388
+    },
+    {
+      "expression": "CHIINV(1e-300,100)",
+      "group": "chi-square",
+      "native": "1756.78753318388",
+      "expected": 1756.78753318388
+    },
+    {
+      "expression": "CHISQ.INV(EXP(-709),1)",
+      "group": "chi-square",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "CHISQ.INV.RT(EXP(-709),1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1410.295447158894,
+      "reference": "1410.2954471588938982580200768075142753928415983975942828575500096"
+    },
+    {
+      "expression": "CHIINV(EXP(-709),1)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1410.295447158894,
+      "reference": "1410.2954471588938982580200768075142753928415983975942828575500096"
+    },
+    {
+      "expression": "CHISQ.INV(EXP(-709),2)",
+      "group": "chi-square",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "CHISQ.INV.RT(EXP(-709),2)",
+      "group": "chi-square",
+      "native": "1418",
+      "expected": 1418
+    },
+    {
+      "expression": "CHIINV(EXP(-709),2)",
+      "group": "chi-square",
+      "native": "1418",
+      "expected": 1418
+    },
+    {
+      "expression": "CHISQ.INV(EXP(-709),3)",
+      "group": "chi-square",
+      "native": "1.2791722102579E-205",
+      "expected": 1.2791722102579e-205
+    },
+    {
+      "expression": "CHISQ.INV.RT(EXP(-709),3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1424.8116143978107,
+      "reference": "1424.8116143978107445544717703536303447702531469038061586368339409"
+    },
+    {
+      "expression": "CHIINV(EXP(-709),3)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1424.8116143978107,
+      "reference": "1424.8116143978107445544717703536303447702531469038061586368339409"
+    },
+    {
+      "expression": "CHISQ.INV(EXP(-709),4)",
+      "group": "chi-square",
+      "native": "3.1199753212144E-154",
+      "expected": 3.1199753212144e-154
+    },
+    {
+      "expression": "CHISQ.INV.RT(EXP(-709),4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1431.1489643893688,
+      "reference": "1431.1489643893686528032314371205325801111558473353756802286753553"
+    },
+    {
+      "expression": "CHIINV(EXP(-709),4)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1431.1489643893688,
+      "reference": "1431.1489643893686528032314371205325801111558473353756802286753553"
+    },
+    {
+      "expression": "CHISQ.INV(EXP(-709),10)",
+      "group": "chi-square",
+      "native": "1.3611585359049E-61",
+      "expected": 1.3611585359049e-61
+    },
+    {
+      "expression": "CHISQ.INV.RT(EXP(-709),10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1464.4233904353875,
+      "reference": "1464.4233904353875176764821915077903810236790495428681700079451931"
+    },
+    {
+      "expression": "CHIINV(EXP(-709),10)",
+      "group": "chi-square",
+      "native": "ERR6",
+      "expected": 1464.4233904353875,
+      "reference": "1464.4233904353875176764821915077903810236790495428681700079451931"
+    },
+    {
+      "expression": "CHISQ.INV(EXP(-709),100)",
+      "group": "chi-square",
+      "native": "2.70642339985551E-05",
+      "expected": 0.000027064241179663497,
+      "reference": "0.000027064241179663497127800502122672569805196411763467458447554244375"
+    },
+    {
+      "expression": "CHISQ.INV.RT(EXP(-709),100)",
+      "group": "chi-square",
+      "native": "1794.46550707346",
+      "expected": 1795.3625148315552,
+      "reference": "1795.3625148315551654850087656220664707937245566675100578075929483"
+    },
+    {
+      "expression": "CHIINV(EXP(-709),100)",
+      "group": "chi-square",
+      "native": "1794.46550707346",
+      "expected": 1795.3625148315552,
+      "reference": "1795.3625148315551654850087656220664707937245566675100578075929483"
+    },
+    {
+      "expression": "CHISQ.INV(0.05,1)",
+      "group": "chi-square",
+      "native": "0.00393214000001952",
+      "expected": 0.00393214000001952
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.05,1)",
+      "group": "chi-square",
+      "native": "3.84145882069412",
+      "expected": 3.84145882069412
+    },
+    {
+      "expression": "CHIINV(0.05,1)",
+      "group": "chi-square",
+      "native": "3.84145882069412",
+      "expected": 3.84145882069412
+    },
+    {
+      "expression": "CHISQ.INV(0.05,2)",
+      "group": "chi-square",
+      "native": "0.102586588775101",
+      "expected": 0.102586588775101
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.05,2)",
+      "group": "chi-square",
+      "native": "5.99146454710798",
+      "expected": 5.99146454710798
+    },
+    {
+      "expression": "CHIINV(0.05,2)",
+      "group": "chi-square",
+      "native": "5.99146454710798",
+      "expected": 5.99146454710798
+    },
+    {
+      "expression": "CHISQ.INV(0.05,3)",
+      "group": "chi-square",
+      "native": "0.351846317749271",
+      "expected": 0.351846317749271
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.05,3)",
+      "group": "chi-square",
+      "native": "7.81472790325118",
+      "expected": 7.81472790325118
+    },
+    {
+      "expression": "CHIINV(0.05,3)",
+      "group": "chi-square",
+      "native": "7.81472790325118",
+      "expected": 7.81472790325118
+    },
+    {
+      "expression": "CHISQ.INV(0.05,4)",
+      "group": "chi-square",
+      "native": "0.710723021397324",
+      "expected": 0.710723021397324
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.05,4)",
+      "group": "chi-square",
+      "native": "9.48772903678116",
+      "expected": 9.48772903678116
+    },
+    {
+      "expression": "CHIINV(0.05,4)",
+      "group": "chi-square",
+      "native": "9.48772903678116",
+      "expected": 9.48772903678116
+    },
+    {
+      "expression": "CHISQ.INV(0.05,10)",
+      "group": "chi-square",
+      "native": "3.94029913611906",
+      "expected": 3.94029913611906
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.05,10)",
+      "group": "chi-square",
+      "native": "18.3070380532751",
+      "expected": 18.3070380532751
+    },
+    {
+      "expression": "CHIINV(0.05,10)",
+      "group": "chi-square",
+      "native": "18.3070380532751",
+      "expected": 18.3070380532751
+    },
+    {
+      "expression": "CHISQ.INV(0.05,100)",
+      "group": "chi-square",
+      "native": "77.9294651650173",
+      "expected": 77.9294651650173
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.05,100)",
+      "group": "chi-square",
+      "native": "124.342113404004",
+      "expected": 124.342113404004
+    },
+    {
+      "expression": "CHIINV(0.05,100)",
+      "group": "chi-square",
+      "native": "124.342113404004",
+      "expected": 124.342113404004
+    },
+    {
+      "expression": "CHISQ.INV(0.5,1)",
+      "group": "chi-square",
+      "native": "0.454936423119573",
+      "expected": 0.454936423119573
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.5,1)",
+      "group": "chi-square",
+      "native": "0.454936423119573",
+      "expected": 0.454936423119573
+    },
+    {
+      "expression": "CHIINV(0.5,1)",
+      "group": "chi-square",
+      "native": "0.454936423119573",
+      "expected": 0.454936423119573
+    },
+    {
+      "expression": "CHISQ.INV(0.5,2)",
+      "group": "chi-square",
+      "native": "1.38629436111989",
+      "expected": 1.38629436111989
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.5,2)",
+      "group": "chi-square",
+      "native": "1.38629436111989",
+      "expected": 1.38629436111989
+    },
+    {
+      "expression": "CHIINV(0.5,2)",
+      "group": "chi-square",
+      "native": "1.38629436111989",
+      "expected": 1.38629436111989
+    },
+    {
+      "expression": "CHISQ.INV(0.5,3)",
+      "group": "chi-square",
+      "native": "2.36597388437534",
+      "expected": 2.36597388437534
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.5,3)",
+      "group": "chi-square",
+      "native": "2.36597388437534",
+      "expected": 2.36597388437534
+    },
+    {
+      "expression": "CHIINV(0.5,3)",
+      "group": "chi-square",
+      "native": "2.36597388437534",
+      "expected": 2.36597388437534
+    },
+    {
+      "expression": "CHISQ.INV(0.5,4)",
+      "group": "chi-square",
+      "native": "3.35669398003332",
+      "expected": 3.35669398003332
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.5,4)",
+      "group": "chi-square",
+      "native": "3.35669398003332",
+      "expected": 3.35669398003332
+    },
+    {
+      "expression": "CHIINV(0.5,4)",
+      "group": "chi-square",
+      "native": "3.35669398003332",
+      "expected": 3.35669398003332
+    },
+    {
+      "expression": "CHISQ.INV(0.5,10)",
+      "group": "chi-square",
+      "native": "9.34181776559197",
+      "expected": 9.34181776559197
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.5,10)",
+      "group": "chi-square",
+      "native": "9.34181776559197",
+      "expected": 9.34181776559197
+    },
+    {
+      "expression": "CHIINV(0.5,10)",
+      "group": "chi-square",
+      "native": "9.34181776559197",
+      "expected": 9.34181776559197
+    },
+    {
+      "expression": "CHISQ.INV(0.5,100)",
+      "group": "chi-square",
+      "native": "99.3341292359885",
+      "expected": 99.3341292359885
+    },
+    {
+      "expression": "CHISQ.INV.RT(0.5,100)",
+      "group": "chi-square",
+      "native": "99.3341292359885",
+      "expected": 99.3341292359885
+    },
+    {
+      "expression": "CHIINV(0.5,100)",
+      "group": "chi-square",
+      "native": "99.3341292359885",
+      "expected": 99.3341292359885
+    },
+    {
+      "expression": "CHISQ.INV(1-1e-14,1)",
+      "group": "chi-square",
+      "native": "59.8976621117203",
+      "expected": 59.8976621117203
+    },
+    {
+      "expression": "CHISQ.INV.RT(1-1e-14,1)",
+      "group": "chi-square",
+      "native": "1.56828632490835E-28",
+      "expected": 1.56828632490835e-28
+    },
+    {
+      "expression": "CHIINV(1-1e-14,1)",
+      "group": "chi-square",
+      "native": "1.56828632490835E-28",
+      "expected": 1.56828632490835e-28
+    },
+    {
+      "expression": "CHISQ.INV(1-1e-14,2)",
+      "group": "chi-square",
+      "native": "64.4739817986937",
+      "expected": 64.4739817986937
+    },
+    {
+      "expression": "CHISQ.INV.RT(1-1e-14,2)",
+      "group": "chi-square",
+      "native": "1.99840144432529E-14",
+      "expected": 1.99840144432529e-14
+    },
+    {
+      "expression": "CHIINV(1-1e-14,2)",
+      "group": "chi-square",
+      "native": "1.99840144432529E-14",
+      "expected": 1.99840144432529e-14
+    },
+    {
+      "expression": "CHISQ.INV(1-1e-14,3)",
+      "group": "chi-square",
+      "native": "68.2746125386517",
+      "expected": 68.2746125386517
+    },
+    {
+      "expression": "CHISQ.INV.RT(1-1e-14,3)",
+      "group": "chi-square",
+      "native": "1.12173246263119E-09",
+      "expected": 1.12173246263119e-9
+    },
+    {
+      "expression": "CHIINV(1-1e-14,3)",
+      "group": "chi-square",
+      "native": "1.12173246263119E-09",
+      "expected": 1.12173246263119e-9
+    },
+    {
+      "expression": "CHISQ.INV(1-1e-14,4)",
+      "group": "chi-square",
+      "native": "71.6873497151877",
+      "expected": 71.6873497151877
+    },
+    {
+      "expression": "CHISQ.INV.RT(1-1e-14,4)",
+      "group": "chi-square",
+      "native": "2.82729668245912E-07",
+      "expected": 2.82729668245912e-7
+    },
+    {
+      "expression": "CHIINV(1-1e-14,4)",
+      "group": "chi-square",
+      "native": "2.82729668245912E-07",
+      "expected": 2.82729668245912e-7
+    },
+    {
+      "expression": "CHISQ.INV(1-1e-14,10)",
+      "group": "chi-square",
+      "native": "88.633278956242",
+      "expected": 88.633278956242
+    },
+    {
+      "expression": "CHISQ.INV.RT(1-1e-14,10)",
+      "group": "chi-square",
+      "native": "0.00826220177868503",
+      "expected": 0.00826220177868503
+    },
+    {
+      "expression": "CHIINV(1-1e-14,10)",
+      "group": "chi-square",
+      "native": "0.00826220177868503",
+      "expected": 0.00826220177868503
+    },
+    {
+      "expression": "CHISQ.INV(1-1e-14,100)",
+      "group": "chi-square",
+      "native": "249.177203266915",
+      "expected": 249.177203266915
+    },
+    {
+      "expression": "CHISQ.INV.RT(1-1e-14,100)",
+      "group": "chi-square",
+      "native": "26.4945391909571",
+      "expected": 26.4945391909571
+    },
+    {
+      "expression": "CHIINV(1-1e-14,100)",
+      "group": "chi-square",
+      "native": "26.4945391909571",
+      "expected": 26.4945391909571
+    },
+    {
+      "expression": "GAMMAINV(1e-154,0.5,1e100)",
+      "group": "domain and intermediate",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMAINV(0.9999999999,1,1e100)",
+      "group": "domain and intermediate",
+      "native": "2.30258508472E+101",
+      "expected": 2.30258508472e+101
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,100,1e307)",
+      "group": "domain and intermediate",
+      "native": "3.8006988916942E+305",
+      "expected": 3.8006988916942e+305
+    },
+    {
+      "expression": "GAMMA.INV(0.99,1,EXP(-709))",
+      "group": "domain and intermediate",
+      "native": "5.6034824356552E-308",
+      "expected": 5.6034824356552e-308
+    },
+    {
+      "expression": "GAMMA.INV(0.99,1,EXP(-720))",
+      "group": "domain and intermediate",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(0,2,1e100)",
+      "group": "domain and intermediate",
+      "native": "0",
+      "expected": 0
+    },
+    {
+      "expression": "GAMMA.INV(1,2,1)",
+      "group": "domain and intermediate",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    }
+  ]
+}

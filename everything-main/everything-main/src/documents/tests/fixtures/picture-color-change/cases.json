@@ -1,0 +1,313 @@
+{
+  "colors": [
+    [
+      255,
+      255,
+      255,
+      255
+    ],
+    [
+      254,
+      254,
+      254,
+      255
+    ],
+    [
+      253,
+      253,
+      253,
+      255
+    ],
+    [
+      250,
+      250,
+      250,
+      255
+    ],
+    [
+      255,
+      255,
+      254,
+      255
+    ],
+    [
+      0,
+      0,
+      0,
+      255
+    ],
+    [
+      255,
+      0,
+      0,
+      255
+    ],
+    [
+      0,
+      255,
+      0,
+      255
+    ],
+    [
+      0,
+      0,
+      255,
+      255
+    ],
+    [
+      200,
+      40,
+      80,
+      255
+    ],
+    [
+      200,
+      40,
+      80,
+      128
+    ],
+    [
+      200,
+      40,
+      80,
+      64
+    ],
+    [
+      200,
+      40,
+      80,
+      0
+    ],
+    [
+      17,
+      119,
+      221,
+      255
+    ],
+    [
+      255,
+      255,
+      255,
+      128
+    ],
+    [
+      255,
+      255,
+      255,
+      64
+    ],
+    [
+      255,
+      255,
+      255,
+      254
+    ],
+    [
+      255,
+      255,
+      255,
+      253
+    ],
+    [
+      200,
+      40,
+      80,
+      254
+    ],
+    [
+      200,
+      40,
+      80,
+      253
+    ],
+    [
+      199,
+      39,
+      79,
+      255
+    ],
+    [
+      201,
+      41,
+      81,
+      255
+    ],
+    [
+      198,
+      38,
+      78,
+      255
+    ],
+    [
+      200,
+      40,
+      82,
+      255
+    ],
+    [
+      200,
+      39,
+      80,
+      255
+    ],
+    [
+      200,
+      41,
+      80,
+      255
+    ],
+    [
+      200,
+      41,
+      81,
+      255
+    ],
+    [
+      200,
+      40,
+      81,
+      255
+    ],
+    [
+      255,
+      253,
+      255,
+      255
+    ],
+    [
+      254,
+      255,
+      255,
+      255
+    ],
+    [
+      254,
+      0,
+      0,
+      255
+    ],
+    [
+      253,
+      0,
+      0,
+      255
+    ]
+  ],
+  "cases": [
+    {
+      "id": "C00",
+      "label": "Original",
+      "effect": ""
+    },
+    {
+      "id": "C01",
+      "label": "White transparent default",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"FFFFFF\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"FFFFFF\"><a:alpha val=\"0\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C02",
+      "label": "White transparent useA false",
+      "effect": "<a:clrChange useA=\"0\"><a:clrFrom><a:srgbClr val=\"FFFFFF\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"FFFFFF\"><a:alpha val=\"0\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C03",
+      "label": "White transparent useA true",
+      "effect": "<a:clrChange useA=\"1\"><a:clrFrom><a:srgbClr val=\"FFFFFF\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"FFFFFF\"><a:alpha val=\"0\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C04",
+      "label": "Color replace",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"C82850\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C05",
+      "label": "Color replace half alpha",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"C82850\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"50000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C06",
+      "label": "Half alpha useA false",
+      "effect": "<a:clrChange useA=\"0\"><a:clrFrom><a:srgbClr val=\"C82850\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"50000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C07",
+      "label": "Change then gray",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"FFFFFF\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"FFFFFF\"><a:alpha val=\"0\"/></a:srgbClr></a:clrTo></a:clrChange><a:grayscl/>"
+    },
+    {
+      "id": "C08",
+      "label": "Gray then change",
+      "effect": "<a:grayscl/><a:clrChange><a:clrFrom><a:srgbClr val=\"FFFFFF\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"FFFFFF\"><a:alpha val=\"0\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C09",
+      "label": "Alpha then change",
+      "effect": "<a:alphaModFix amt=\"50000\"/><a:clrChange><a:clrFrom><a:srgbClr val=\"C82850\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"50000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C10",
+      "label": "Change then alpha",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"C82850\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"50000\"/></a:srgbClr></a:clrTo></a:clrChange><a:alphaModFix amt=\"50000\"/>"
+    },
+    {
+      "id": "C11",
+      "label": "Red to blue then gray",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange><a:grayscl/>"
+    },
+    {
+      "id": "C12",
+      "label": "Gray then red to blue",
+      "effect": "<a:grayscl/><a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C13",
+      "label": "Partial source alpha",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"C82850\"><a:alpha val=\"50000\"/></a:srgbClr></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C14",
+      "label": "Partial source alpha useA false",
+      "effect": "<a:clrChange useA=\"0\"><a:clrFrom><a:srgbClr val=\"C82850\"><a:alpha val=\"50000\"/></a:srgbClr></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C15",
+      "label": "Red blue green chain",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange><a:clrChange><a:clrFrom><a:srgbClr val=\"0000FF\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"00FF00\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C16",
+      "label": "Reverse chain",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"0000FF\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"00FF00\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange><a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C17",
+      "label": "Lum then change",
+      "effect": "<a:lum bright=\"-50000\"/><a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C18",
+      "label": "Change then lum",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange><a:lum bright=\"-50000\"/>"
+    },
+    {
+      "id": "C19",
+      "label": "Duotone then change",
+      "effect": "<a:duotone><a:srgbClr val=\"000000\"/><a:srgbClr val=\"FFFFFF\"/></a:duotone><a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C20",
+      "label": "Change then duotone",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"FF0000\"/></a:clrFrom><a:clrTo><a:srgbClr val=\"0000FF\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange><a:duotone><a:srgbClr val=\"000000\"/><a:srgbClr val=\"FFFFFF\"/></a:duotone>"
+    },
+    {
+      "id": "C21",
+      "label": "Transparent source colored key",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"C82850\"><a:alpha val=\"0\"/></a:srgbClr></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    },
+    {
+      "id": "C22",
+      "label": "Transparent source black key",
+      "effect": "<a:clrChange><a:clrFrom><a:srgbClr val=\"000000\"><a:alpha val=\"0\"/></a:srgbClr></a:clrFrom><a:clrTo><a:srgbClr val=\"1177DD\"><a:alpha val=\"100000\"/></a:srgbClr></a:clrTo></a:clrChange>"
+    }
+  ]
+}

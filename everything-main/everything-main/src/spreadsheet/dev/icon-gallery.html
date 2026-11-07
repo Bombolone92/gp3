@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command icons</title>
+<!-- Every command icon at ribbon sizes, light and dark, for review: npm run dev, then open /dev/icon-gallery.html -->
+<style>
+  body { margin: 0; font: 11px system-ui, sans-serif; }
+  .app { display: grid; grid-template-columns: 1fr 1fr; }
+  .sheet { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+  .sheet.dark { background: #1f1f1f; color: #ddd; }
+  .cell { display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: 4px; }
+  .cell span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+<script type="module">
+  import '../src/styles/icons.css';
+  import { COMMAND_ICONS, commandIcon } from '../src/ui/command-icons.js';
+  const app = document.querySelector('.app');
+  for (const theme of ['light', 'dark']) {
+    const sheet = document.createElement('div');
+    sheet.className = `sheet ${theme}`;
+    if (theme === 'dark') sheet.dataset.iconTheme = 'dark';
+    for (const name of Object.keys(COMMAND_ICONS)) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.innerHTML = `${commandIcon(name, 16)}${commandIcon(name, 20)}${commandIcon(name, 32)}<span>${name}</span>`;
+      sheet.append(cell);
+    }
+    app.append(sheet);
+  }
+</script>
+</head>
+<body><div class="app"></div></body>
+</html>

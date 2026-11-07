@@ -1,0 +1,23 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {unzipSync} from 'fflate';
+import {showAllTools} from './helpers/editor-tools.js';
+import {reopenDocx} from './helpers/reopen-docx.js';
+test('edits retained orphan note marks and preserves original elements through formatting and undo',async({page},info)=>{
+ test.setTimeout(180000);const source='tests/fixtures/inactive-note-marks/numbering-decimalZero.docx',errors=[];
+ page.on('pageerror',e=>errors.push(e.message));await page.goto('/playground.html');await showAllTools(page);await page.getByLabel('Open DOCX file').setInputFiles(source);
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/footnoteRef: A01B/);await expect(input).toHaveJSProperty('readOnly',false);
+ const original=await input.inputValue(),at=original.indexOf('A01B')+1,parts=unzipSync(readFileSync(source));
+ const choose=async pos=>input.evaluate((el,pos)=>{el.focus();el.setSelectionRange(pos,pos);el.dispatchEvent(new Event('select',{bubbles:true}));},pos);
+ const save=async name=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(name+'.docx');await(await pending).saveAs(path);return path;};
+ const reopen=async(path,text)=>{page.removeAllListeners('dialog');await reopenDocx(page,input,path,text);await expect(input).toHaveJSProperty('readOnly',false);};
+ await choose(at);await input.press('ArrowRight');expect(await input.evaluate(el=>el.selectionStart)).toBe(at+2);
+ await input.press('Shift+ArrowLeft');expect(await input.evaluate(el=>[el.selectionStart,el.selectionEnd])).toEqual([at,at+2]);
+ await page.getByRole('button',{name:'Bold',exact:true}).click();const formatted=await save('formatted');await reopen(formatted,original);await choose(at+1);
+ await expect(page.getByRole('button',{name:'Bold',exact:true})).toHaveAttribute('aria-pressed','true');
+ await page.keyboard.insertText('Note');const replaced=original.slice(0,at)+'Note'+original.slice(at+2);await expect(input).toHaveValue(replaced);const output=await save('replaced');await reopen(output,replaced);
+ await reopen(source,original);await choose(at+1);await input.press('Delete');await expect(input).toHaveValue(original.slice(0,at)+original.slice(at+2));
+ await page.getByRole('button',{name:'Undo',exact:true}).click();expect(unzipSync(readFileSync(await save('undo')))).toEqual(parts);
+ for(const path of [formatted,output])for(const[name,bytes]of Object.entries(parts))if(name!=='word/document.xml')expect(unzipSync(readFileSync(path))[name]).toEqual(bytes);
+ expect(errors).toEqual([]);
+});

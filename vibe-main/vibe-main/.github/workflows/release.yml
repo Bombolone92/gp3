@@ -1,0 +1,120 @@
+name: Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            sign-windows:
+                description: 'Sign Windows binaries via remote YubiKey'
+                type: boolean
+                default: false
+            sign-macos:
+                description: 'Sign and notarize macOS binaries with Apple Developer ID'
+                type: boolean
+                default: false
+
+jobs:
+    publish-tauri:
+        timeout-minutes: 120
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - platform: "macos-latest"
+                      args: "--target aarch64-apple-darwin"
+                      target_triple: "aarch64-apple-darwin"
+                    - platform: "macos-latest"
+                      args: "--target x86_64-apple-darwin"
+                      target_triple: "x86_64-apple-darwin"
+                    - platform: "ubuntu-22.04"
+                      args: "--target x86_64-unknown-linux-gnu"
+                      target_triple: "x86_64-unknown-linux-gnu"
+                    - platform: "ubuntu-22.04-arm"
+                      args: "--target aarch64-unknown-linux-gnu"
+                      target_triple: "aarch64-unknown-linux-gnu"
+                    - platform: "windows-latest"
+                      args: "--target x86_64-pc-windows-msvc"
+                      target_triple: "x86_64-pc-windows-msvc"
+
+        runs-on: ${{ matrix.platform }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: desktop/package.json
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: desktop/pnpm-lock.yaml
+
+            - name: setup uv
+              uses: astral-sh/setup-uv@v5
+
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.6.0
+
+            - name: Rust cache
+              uses: swatinem/rust-cache@v2
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+                  targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+            - name: Install frontend dependencies
+              run: pnpm install
+              working-directory: ./desktop
+
+            - name: Install Linux build dependencies
+              if: runner.os == 'Linux'
+              run: chore linux-deps
+
+            - name: Require release notes for this version
+              shell: bash
+              run: |
+                  version=$(python3 -c 'import json; print(json.load(open("desktop/src-tauri/tauri.conf.json"))["version"])')
+                  test -f "i18n/changelog/$version.md" || { echo "::error::i18n/changelog/$version.md is missing; write the release notes before releasing"; exit 1; }
+            - name: Fetch the sidecars for ${{ matrix.target_triple }}
+              run: chore setup ${{ matrix.target_triple }}
+
+            - name: Setup macOS signing env
+              if: matrix.platform == 'macos-latest' && inputs.sign-macos
+              run: |
+                  echo "APPLE_CERTIFICATE=${{ secrets.APPLE_CERTIFICATE }}" >> "$GITHUB_ENV"
+                  echo "APPLE_CERTIFICATE_PASSWORD=${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" >> "$GITHUB_ENV"
+                  echo "APPLE_SIGNING_IDENTITY=${{ secrets.APPLE_SIGNING_IDENTITY }}" >> "$GITHUB_ENV"
+                  echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> "$GITHUB_ENV"
+                  echo "APPLE_PASSWORD=${{ secrets.APPLE_PASSWORD }}" >> "$GITHUB_ENV"
+                  echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> "$GITHUB_ENV"
+
+            - name: Build
+              uses: tauri-apps/tauri-action@v0
+              env:
+                  GITHUB_TOKEN: ${{ github.token }}
+                  # Tauri Updater
+                  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+                  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+                  # Analytics (Aptabase)
+                  APTABASE_APP_KEY: ${{ secrets.APTABASE_APP_KEY }}
+                  APTABASE_BASE_URL: ${{ secrets.APTABASE_BASE_URL }}
+                  # Windows signing (remote YubiKey sign server)
+                  SIGN_ENABLED: ${{ matrix.platform == 'windows-latest' && inputs.sign-windows && 'true' || 'false' }}
+                  SIGN_TUNNEL_URL: ${{ secrets.SIGN_TUNNEL_URL }}
+                  SIGN_TUNNEL_SECRET: ${{ secrets.SIGN_TUNNEL_SECRET }}
+              with:
+                  tagName: v__VERSION__ # the action automatically replaces __VERSION__ with the app version.
+                  releaseName: "v__VERSION__"
+                  releaseBody: "Release notes: https://thewh1teagle.github.io/vibe/changelog/__VERSION__\n\nSigned and notarized on macOS and Windows."
+                  prerelease: true
+                  args: ${{ matrix.args }} ${{ matrix.platform == 'windows-latest' && inputs.sign-windows && '--config src-tauri/tauri.windows.signing.conf.json' || '' }}
+                  projectPath: "./desktop"
+                  tauriScript: pnpm exec tauri

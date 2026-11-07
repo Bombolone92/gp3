@@ -1,0 +1,130 @@
+/* Design tokens. Dark is the drafting default for the canvas chrome; light
+   and dark follow the system unless the user picks one. */
+
+:root {
+  color-scheme: light;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 15px;
+
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+
+  --titlebar-h: 40px;
+  --tabs-h: 30px;
+  --ribbon-h: 94px;
+  --doctabs-h: 32px;
+  --status-h: 30px;
+
+  /* Light */
+  --bg-app: #eef0f3;
+  --bg-chrome: #f8f9fa;
+  --bg-panel: #ffffff;
+  --bg-input: #ffffff;
+  --bg-hover: #e6e9ee;
+  --bg-active: #dbe3f0;
+  --bg-pressed: #d4dbe6;
+  --bg-elev: #ffffff;
+  --bg-canvas: #ffffff;
+  --border: #d5dae1;
+  --border-strong: #8a929e;
+  --fg: #1c222b;
+  --fg-muted: #5b6574;
+  --fg-faint: #6b7482;
+  --accent: #1f6feb;
+  --accent-strong: #1f6feb;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(31, 111, 235, 0.12);
+  --accent-text: #1659c7;
+  --danger: #c93636;
+  --warning: #b26b00;
+  --success: #1e7f45;
+  --focus: #1f6feb;
+  --scrim: rgba(20, 24, 31, 0.36);
+  --tooltip-bg: #1f2530;
+  --tooltip-fg: #f2f4f7;
+  --cmd-bg: rgba(255, 255, 255, 0.94);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg-app: #1a1e25;
+    --bg-chrome: #242a33;
+    --bg-panel: #20252d;
+    --bg-input: #191d23;
+    --bg-hover: #2e3540;
+    --bg-active: #2d3b52;
+    --bg-pressed: #36445c;
+    --bg-elev: #272d37;
+    --bg-canvas: #1f242c;
+    --border: #353d49;
+    --border-strong: #6b7584;
+    --fg: #e5e9ef;
+    --fg-muted: #a1aab8;
+    --fg-faint: #8f99a8;
+    --accent: #4d8dff;
+    --accent-strong: #2f6bd8;
+    --accent-fg: #ffffff;
+    --accent-soft: rgba(77, 141, 255, 0.16);
+    --accent-text: #7aa9ff;
+    --danger: #ff6b6b;
+    --warning: #f0a740;
+    --success: #4cc382;
+    --focus: #6aa1ff;
+    --scrim: rgba(0, 0, 0, 0.5);
+    --tooltip-bg: #e8ecf2;
+    --tooltip-fg: #161a20;
+    --cmd-bg: rgba(36, 42, 51, 0.95);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-app: #1a1e25;
+  --bg-chrome: #242a33;
+  --bg-panel: #20252d;
+  --bg-input: #191d23;
+  --bg-hover: #2e3540;
+  --bg-active: #2d3b52;
+  --bg-pressed: #36445c;
+  --bg-elev: #272d37;
+  --bg-canvas: #1f242c;
+  --border: #353d49;
+  --border-strong: #6b7584;
+  --fg: #e5e9ef;
+  --fg-muted: #a1aab8;
+  --fg-faint: #8f99a8;
+  --accent: #4d8dff;
+  --accent-strong: #2f6bd8;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(77, 141, 255, 0.16);
+  --accent-text: #7aa9ff;
+  --danger: #ff6b6b;
+  --warning: #f0a740;
+  --success: #4cc382;
+  --focus: #6aa1ff;
+  --scrim: rgba(0, 0, 0, 0.5);
+  --tooltip-bg: #e8ecf2;
+  --tooltip-fg: #161a20;
+  --cmd-bg: rgba(36, 42, 51, 0.95);
+}
+
+/* Touch targets are taller, so the ribbon is too (three rows of 32 px buttons). */
+@media (pointer: coarse) {
+  :root {
+    --ribbon-h: 128px;
+  }
+}
+
+@media (max-width: 599px) {
+  :root {
+    --titlebar-h: 48px;
+    --status-h: 0px;
+  }
+}

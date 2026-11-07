@@ -1,0 +1,36 @@
+{
+  "name": "puter-photo-editor",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && npm run build:worker && vite build",
+    "build:worker": "vite build --config vite.worker.config.ts",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "vitest run",
+    "wasm:build": "cargo build --manifest-path wasm/Cargo.toml --target wasm32-unknown-unknown --release && cp wasm/target/wasm32-unknown-unknown/release/photo_engine.wasm public/photo-engine.wasm",
+    "test:browser": "playwright test",
+    "psd:audit": "node scripts/audit-psd.mjs",
+    "perf:bundle": "node scripts/perf-bundle.mjs",
+    "perf:startup": "node scripts/perf-startup.mjs",
+    "test:rust": "cargo test --manifest-path wasm/Cargo.toml"
+  },
+  "dependencies": {
+    "ag-psd": "31.0.2",
+    "lucide": "^0.468.0",
+    "pako": "2.1.0",
+    "pathkit-wasm": "1.0.0",
+    "yjs": "13.6.33"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "24.19.1",
+    "@types/pako": "2.0.4",
+    "@webgpu/types": "^0.1.60",
+    "prettier": "^3.9.9",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.0",
+    "vitest": "^4.1.11"
+  }
+}

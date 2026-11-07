@@ -1,0 +1,613 @@
+/* Window chrome: a light grey frame holding the title row (menus, centred
+   name, account), the ribbon tabs and the ribbon as a white card; the sheet, sheet tabs and status
+   bar below, styled on the app's tokens. */
+:root { --chrome: #f3f3f3; --chrome-ink: #242424; --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.06); --ribbon-accent: #1f7a45; --chrome-hover: rgba(0, 0, 0, 0.06); --chrome-pressed: rgba(0, 0, 0, 0.09); --chrome-field-line: #c8c8c8; --menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.1); --dialog-btn-line: #c4c4c4; --seg-track: rgba(0, 0, 0, 0.06); --dialog-shadow: 0 16px 48px rgba(0, 0, 0, 0.24), 0 0 0 1px rgba(0, 0, 0, 0.1); }
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) { --chrome: #1d1d1d; --chrome-ink: #ededed; --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08); --ribbon-accent: #6fcf97; --chrome-hover: rgba(255, 255, 255, 0.08); --chrome-pressed: rgba(255, 255, 255, 0.12); --chrome-field-line: #4a4a4a; --menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12); --dialog-btn-line: #4a4a4a; --seg-track: rgba(255, 255, 255, 0.08); --dialog-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12); }
+}
+:root[data-theme="dark"] { --chrome: #1d1d1d; --chrome-ink: #ededed; --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08); --ribbon-accent: #6fcf97; --chrome-hover: rgba(255, 255, 255, 0.08); --chrome-pressed: rgba(255, 255, 255, 0.12); --chrome-field-line: #4a4a4a; --menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12); --dialog-btn-line: #4a4a4a; --seg-track: rgba(255, 255, 255, 0.08); --dialog-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12); }
+
+/* Title row */
+.editor-header { background: var(--chrome); border-bottom: 0; }
+.topbar { gap: 4px; height: calc(40px + var(--safe-t)); padding-right: 8px; }
+.topbar .icon-btn { width: 32px; height: 32px; }
+.topbar .brand-mark { width: 22px; height: 22px; margin: 0 4px 0 2px; }
+.topbar-menus { flex: 0 1 auto; min-width: 0; }
+.topbar .menubar { height: 32px; min-height: 0; padding: 0; gap: 0; flex-wrap: nowrap; overflow: hidden; }
+.topbar .menubar-btn { height: 28px; padding: 0 8px; border-radius: 5px; font-size: 13px; font-weight: 400; color: var(--chrome-ink); }
+.topbar-title-wrap { justify-content: center; }
+/* The name is centred by itself, with the save status hanging at its right: centred as a pair, the name moved
+   each time the status changed width, which autosave does at every edit (Saved, Unsaved changes, Saving…). */
+@media (min-width: 901px) {
+  .topbar-title-wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto auto minmax(max-content, 1fr); align-items: center; column-gap: 0; }
+  .topbar-title-wrap > .doc-title { grid-column: 2; }
+  .topbar-title-wrap > .doc-group-badge { grid-column: 3; margin-left: 8px; }
+  .topbar-title-wrap > .save-status { grid-column: 4; justify-self: start; margin-left: 8px; }
+}
+.topbar .doc-title { font-size: 13px; font-weight: 600; color: var(--chrome-ink); padding: 4px 8px; }
+@media (hover: hover) {
+  .topbar .menubar-btn:hover, .topbar .doc-title:hover { background: var(--chrome-hover); }
+}
+/* Narrow windows: the menus take a row of their own under the name, where they can scroll or wrap. */
+@media (max-width: 900px) {
+  .topbar { flex-wrap: wrap; height: auto; row-gap: 0; padding-bottom: 2px; }
+  .topbar-menus { order: 5; flex: 1 0 100%; }
+  .topbar .menubar { overflow-x: auto; }
+  .topbar-title-wrap { justify-content: flex-start; }
+}
+@media (pointer: coarse) { .topbar .menubar-btn { height: 40px; } .topbar .menubar { height: 44px; } }
+
+/* Ribbon: tabs on the frame, the commands on a card */
+.ribbon { background: var(--chrome); border-bottom: 0; padding-bottom: 6px; }
+.ribbon-tab-row { padding: 0 10px; }
+.ribbon-tab { height: 34px; padding: 0 11px; font-size: 13px; color: var(--chrome-ink); border-radius: 5px 5px 0 0; }
+.ribbon-tab[aria-selected="true"] { color: var(--chrome-ink); font-weight: 600; }
+.ribbon-tab[aria-selected="true"]::after { height: 3px; bottom: 3px; left: 11px; right: 11px; background: var(--ribbon-accent); border-radius: 2px; }
+/* Bold text is wider: the label reserves its bold width so the tabs do not shift as the selection moves. */
+.ribbon-tab { display: inline-grid; place-items: center; }
+.ribbon-context-tab { color: var(--ribbon-accent); border-left: 0; }
+.ribbon-panels { margin: 0 8px; background: var(--surface); border-radius: 8px; box-shadow: var(--card-shadow); overflow: hidden; }
+.ribbon-collapsed .ribbon-panels { display: none; }
+.ribbon-collapsed { padding-bottom: 0; }
+.ribbon-home, .ribbon-panel-tools { background: transparent; height: 86px; padding: 5px 0; }
+.ribbon-group, .ribbon-home .tb-group { padding: 0 8px; margin: 2px 0; border-right-color: var(--hairline-strong); }
+/* Group names are left off, as on the Mac; each group still names itself to assistive technology. */
+.ribbon-group-label { display: none; }
+.ribbon-group-controls { grid-template-rows: repeat(3, 24px); }
+.ribbon-group-controls.ribbon-two-rows { grid-template-rows: repeat(2, 24px); }
+.ribbon .tb-btn { height: 24px; min-width: 24px; border-radius: 4px; font-size: 12px; color: var(--chrome-ink); }
+.ribbon .tb-btn[aria-pressed="true"] { background: var(--chrome-pressed); }
+@media (hover: hover) {
+  .ribbon .tb-btn:hover:not(:disabled) { background: var(--chrome-hover); }
+  .ribbon-tab:hover { background: var(--chrome-hover); }
+}
+.ribbon .tb-btn.ribbon-large { min-height: 74px; padding: 2px 4px; gap: 2px; }
+.ribbon .ribbon-large .ribbon-button-label { font-size: 12px; line-height: 15px; }
+.ribbon .ribbon-split-large .ribbon-large { min-height: 52px; }
+.ribbon .ribbon-split-large .ribbon-split-arrow { height: 22px; }
+.ribbon .tb-font, .ribbon .tb-size, .ribbon .tb-fmt { height: 26px; border: 1px solid var(--chrome-field-line); border-radius: 4px; background: var(--surface); }
+.ribbon .tb-font { width: 132px; }
+.ribbon .tb-fmt { width: 118px; }
+.ribbon-home .ribbon-stack:has(> .ribbon-row) { gap: 10px; }
+.ribbon .tb-color .color-bar { height: 3px; border-radius: 1px; }
+.ribbon-collapse, .ribbon-scroll { color: var(--chrome-ink); }
+@media (pointer: coarse) {
+  .ribbon-home, .ribbon-panel-tools { height: 150px; }
+  .ribbon .tb-btn { height: 44px; min-width: 44px; }
+  /* Rows as tall as the touch-sized buttons, so stacked commands do not overlap. */
+  .ribbon-group-controls { grid-template-rows: repeat(3, 44px); }
+  .ribbon-group-controls.ribbon-two-rows { grid-template-rows: repeat(2, 44px); }
+}
+
+/* The formula bar sits on the frame, its fields white. */
+.formula-bar { background: var(--chrome); border-bottom: 1px solid var(--hairline-strong); }
+
+/* Sheet tabs and status bar on the frame */
+.sheet-tabs, .status-bar { background: var(--chrome); }
+
+/* Quick access: Save, Undo, Redo beside the app mark */
+.quick-access { display: flex; align-items: center; gap: 0; flex: none; padding-right: 6px; margin-right: 2px; border-right: 1px solid var(--hairline-strong); }
+.quick-access .qat-btn, .quick-access .tb-btn { width: 30px; height: 30px; min-width: 30px; display: grid; place-items: center; border-radius: 5px; color: var(--chrome-ink); }
+.quick-access .tb-btn:disabled { opacity: 0.4; }
+@media (hover: hover) { .quick-access .qat-btn:hover:not(:disabled), .quick-access .tb-btn:hover:not(:disabled) { background: var(--chrome-hover); } }
+@media (max-width: 640px) { .quick-access .qat-btn.qat-save { display: none; } }
+
+/* A large command's drop-down mark sits beside its icon, leaving both label lines in view. */
+.ribbon .tb-btn.ribbon-large[aria-haspopup="menu"] { position: relative; }
+.ribbon .tb-btn.ribbon-large[aria-haspopup="menu"]::after { position: absolute; top: 18px; right: 2px; margin: 0; }
+/* Home's 32px icons need the width to keep that mark clear of the icon: 32px plus the mark and a gap on each side. */
+.ribbon-home .tb-btn.ribbon-large[aria-haspopup="menu"] { min-width: 56px; }
+/* AutoSum, Fill and Clear show their icons only, as on the Mac; their names stay on the buttons for assistive technology. */
+.ribbon-home .ribbon-group[aria-label="Editing"] .ribbon-stack .ribbon-button-label { display: none; }
+.ribbon-home .ribbon-group[aria-label="Editing"] .ribbon-stack { gap: 3px; }
+.ribbon-home .ribbon-group[aria-label="Clipboard"] .ribbon-stack .ribbon-button-label { display: none; }
+.ribbon-home .ribbon-group[aria-label="Clipboard"] .ribbon-stack { gap: 3px; }
+.ribbon .tb-btn.ribbon-large { padding: 2px 2px; }
+.ribbon-group, .ribbon-home .tb-group { padding: 0 6px; }
+
+/* ---------- Grid: headers, selection and gridlines ---------- */
+:root {
+  --xl-green: #1e7145;
+  --xl-head: #f5f5f5;
+  --xl-head-line: #d8d8d8;
+  --xl-head-ink: #444444;
+  --xl-head-hl: #e1e1e1;
+  --xl-head-sel: #d3e7da;
+  --xl-sel-wash: rgba(16, 16, 16, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) { --xl-green: #5fbf86; --xl-head: #262626; --xl-head-line: #3a3a3a; --xl-head-ink: #c8c8c8; --xl-head-hl: #3a3a3a; --xl-head-sel: #24452f; }
+}
+:root[data-theme="dark"] { --xl-green: #5fbf86; --xl-head: #262626; --xl-head-line: #3a3a3a; --xl-head-ink: #c8c8c8; --xl-head-hl: #3a3a3a; --xl-head-sel: #24452f; }
+/* The sheet is paper in every theme: its gridlines are a neutral grey. */
+.grid-viewport, .frz-layer, .grid > .grid-editor { --grid: #e1e1e1; --grid-line: #e1e1e1; }
+
+.grid-corner, .grid-colhead-clip, .grid-rowhead-clip { background: var(--xl-head); border-color: var(--xl-head-line); }
+.grid-colhead .hcell, .grid-colhead-frozen .hcell { border-right-color: var(--xl-head-line); }
+.grid-rowhead .hcell, .grid-rowhead-frozen .hcell { border-bottom-color: var(--xl-head-line); }
+.hcell { color: var(--xl-head-ink); font-size: max(6px, calc(12px * var(--zoom, 1))); font-weight: 400; letter-spacing: 0; }
+@media (hover: hover) { .hcell:hover { background: var(--xl-head-hl); color: var(--xl-head-ink); } }
+/* Headers of the selected cells: darker, the label in green, a green rule along the edge facing the cells. */
+.hcell.hl { background: var(--xl-head-hl); color: var(--xl-green); font-weight: 600; }
+.grid-colhead .hcell.hl, .grid-colhead-frozen .hcell.hl { box-shadow: inset 0 -2px 0 var(--xl-green); }
+.grid-rowhead .hcell.hl, .grid-rowhead-frozen .hcell.hl { box-shadow: inset -2px 0 0 var(--xl-green); }
+/* Whole rows or columns selected: a green-tinted header. */
+.hcell.sel { background: var(--xl-head-sel); color: var(--xl-green); font-weight: 600; border-color: var(--xl-head-line); }
+.grid-colhead .hcell.sel, .grid-colhead-frozen .hcell.sel { box-shadow: inset 0 -2px 0 var(--xl-green); }
+.grid-rowhead .hcell.sel, .grid-rowhead-frozen .hcell.sel { box-shadow: inset -2px 0 0 var(--xl-green); }
+.hcell.sel.after-hidden::before, .hcell.sel.before-hidden::after { background: var(--xl-green); }
+
+/* The selected block: a grey wash inside one 2px green border; the active cell is not boxed again inside it. */
+.sel-range { background: var(--xl-sel-wash); border: 2px solid var(--xl-green); }
+.sel-extras .sel-range, .sel-range.extra { border: 0; }
+.sel-active { border-color: var(--xl-green); box-shadow: none; }
+.sel-range.multi + .sel-active { border-color: transparent; }
+.fill-handle { width: 7px; height: 7px; background: var(--xl-green); border: 1px solid #fff; border-radius: 0; }
+.fill-preview, .cut-range { border-color: var(--xl-green); }
+/* The freeze handles stay in place and keep their drag, but rest as a faint line until pointed at. */
+.freeze-bar { background: var(--xl-head-line); opacity: 0.9; }
+.freeze-bar.v { width: 3px; }
+.freeze-bar.h { height: 3px; }
+@media (hover: hover) { .freeze-bar:hover { background: var(--xl-green); } }
+.freeze-bar.dragging { background: var(--xl-green); }
+/* Under forced colours (Windows High Contrast) the selection, its handle, the selected headers and the freeze bars are
+   drawn in system colours (grid.css); the look above comes later and took that back, so the selection was outlined in
+   the text colour of every cell border, the handle lost its fill, and the freeze bars went the colour of the canvas. */
+@media (forced-colors: active) {
+  .fill-handle { background: Highlight; border-color: Canvas; }
+  .sel-range { border: 2px solid Highlight; background: transparent; }
+  .sel-active { border-color: Highlight; }
+  .fill-preview, .cut-range { border-color: Highlight; }
+  .hcell.sel { background: Highlight; color: HighlightText; border-color: Highlight; }
+  .freeze-bar { background: CanvasText; opacity: 1; }
+  .freeze-bar.dragging { background: Highlight; }
+}
+
+/* ---------- Sheet tabs and status bar ---------- */
+@media (pointer: fine) {
+  .sheet-tabs { height: 30px; padding: 0 4px; border-top: 1px solid var(--xl-head-line); }
+  .sheet-tabs .tab-add, .sheet-tabs .tab-all, .sheet-tabs .tab-scroll-btn { width: 26px; height: 26px; }
+  .tab { font-size: 12.5px; font-weight: 400; color: var(--chrome-ink); padding: 0 4px 0 16px; }
+  .tab:not(.active) { padding-right: 16px; }
+  .tab-strip > .tab-item:not(.active) + .tab-item:not(.active)::before { content: ""; position: absolute; left: -1px; top: 7px; bottom: 7px; width: 1px; background: var(--xl-head-line); }
+  /* The sheet in view: a white tab joined to the sheet above it, its name in green. */
+  .tab-item.active { background: var(--surface); margin-top: -1px; border: 1px solid var(--xl-head-line); border-top: 0; border-radius: 0 0 5px 5px; }
+  .tab-item.active::after { display: none; }
+  .tab.active { color: var(--xl-green); font-weight: 600; background: transparent; }
+  /* A grouped sheet's tab is white like the one in view, its name not in green. */
+  .tab.grouped:not(.active) { background: var(--surface); color: var(--ink); margin-top: -1px; border: 1px solid var(--xl-head-line); border-top: 0; border-radius: 0 0 5px 5px; }
+  .status-bar { min-height: calc(26px + var(--safe-b)); border-top: 0; font-size: 12px; color: var(--chrome-ink); }
+  .status-item { font-weight: 400; }
+  .status-item .muted { font-weight: 400; color: var(--chrome-ink); }
+  .status-right .status-item { font-weight: 400; }
+  .status-view[aria-pressed="true"] { background: var(--chrome-pressed); } /* a black wash vanished on the dark frame */
+  .zoom-btn { width: 20px; height: 20px; color: var(--chrome-ink); }
+  /* A thin track with a round white thumb. */
+  .zoom-slider { -webkit-appearance: none; appearance: none; height: 16px; width: 104px; background: transparent; }
+  .zoom-slider::-webkit-slider-runnable-track { height: 2px; background: #b4b4b4; border-radius: 1px; }
+  .zoom-slider::-moz-range-track { height: 2px; background: #b4b4b4; border-radius: 1px; }
+  .zoom-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -5px; border-radius: 50%; background: #fff; border: 1px solid #8a8a8a; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); }
+  .zoom-slider::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 1px solid #8a8a8a; }
+  .zoom-label { font-weight: 400; color: var(--chrome-ink); }
+}
+
+/* ---------- Menus: compact rows ---------- */
+@media (pointer: fine) {
+  .menu { padding: 5px; border: 0; border-radius: 8px; box-shadow: var(--menu-shadow); }
+  .menu-item { min-height: 26px; padding: 3px 8px; gap: 8px; border-radius: 4px; font-size: 13px; font-weight: 400; }
+  .menu-icon { width: 18px; height: 18px; }
+  .menu-sep { margin: 4px 6px; }
+  .menu-header { padding: 6px 8px 3px; font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--ink-2); }
+  .menu-shortcut { font-size: 12px; }
+}
+
+/* ---------- Dialogs: compact desktop dialogs ---------- */
+@media (min-width: 640px) and (pointer: fine) {
+  .modal-scrim { background: rgba(0, 0, 0, 0.18); }
+  /* The shadow, button line and segment track are tokens of the frame above, so a dark window, by the
+     system's setting or the app's, draws them dark (a rule on the app's dark stamp alone missed the first). */
+  .modal-panel { border: 0; border-radius: 10px; padding: 14px 18px 16px; box-shadow: var(--dialog-shadow); font-size: 13px; }
+  .modal-head { margin-bottom: 10px; }
+  .modal-title { font-size: 15px; font-weight: 600; letter-spacing: 0; }
+  .modal-text { font-size: 13px; margin-bottom: 12px; }
+  .modal-panel .btn { padding: 5px 16px; min-height: 28px; font-size: 13px; font-weight: 400; border-radius: 6px; border: 1px solid var(--dialog-btn-line); background: var(--surface); }
+  .modal-panel .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+  .modal-panel .btn-ghost { border-color: transparent; }
+  .modal-panel .btn-danger { color: var(--critical); }
+  @media (hover: hover) {
+    .modal-panel .btn:hover { background: var(--surface-2); }
+    .modal-panel .btn-primary:hover { background: var(--accent-strong); }
+  }
+  /* Tabs and choices as a segmented control: the chosen segment raised in white with a bold label. */
+  .segmented, .seg, .fc-tabs { background: var(--seg-track); border: 0; border-radius: 7px; padding: 2px; gap: 2px; }
+  .segmented button, .seg-btn { padding: 3px 10px; min-height: 24px; border-radius: 5px; font-size: 13px; font-weight: 400; color: var(--ink); }
+  .segmented button[aria-checked="true"], .seg-btn[aria-checked="true"], .fc-tabs .seg-btn[aria-selected="true"], .seg .seg-btn[role="tab"][aria-selected="true"] {
+    background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 0 0 1px var(--hairline-strong), 0 1px 2px rgba(0, 0, 0, 0.12);
+  }
+  .modal-panel .input, .modal-panel select { min-height: 26px; font-size: 13px; }
+}
+@media (min-width: 640px) and (pointer: fine) {
+  .modal-panel .select, .modal-panel .field label, .modal-panel .field > span { font-size: 13px; }
+  .modal-panel .select option { padding: 2px 6px; }
+}
+.check-group.vertical { flex-direction: column; gap: 8px; border: 0; padding: 4px 0 0; margin: 0; }
+
+/* Insert ▸ Symbol */
+.symbol-grid { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 2px; max-height: 260px; overflow-y: auto; margin: 10px 0; padding: 2px; border: 1px solid var(--hairline-strong); border-radius: 6px; background: var(--surface); }
+.symbol-recent { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px; }
+/* Sixteen 30px symbols to a row ran past a phone's edge, the last columns reached only by scrolling sideways. */
+@media (max-width: 639px) { .symbol-grid { grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); } }
+.symbol-cell { height: 30px; min-width: 30px; display: grid; place-items: center; font-size: 17px; border-radius: 4px; color: var(--ink); }
+.symbol-cell[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+@media (hover: hover) { .symbol-cell:hover:not([aria-selected="true"]) { background: var(--surface-2); } }
+.symbol-info { min-height: 18px; margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+
+/* Formulas ▸ Watch Window: a floating panel over the sheet */
+.watch-window { position: fixed; right: 24px; bottom: 64px; z-index: 40; width: min(620px, calc(100vw - 32px)); max-height: 280px; display: flex; flex-direction: column;
+  background: var(--surface); border-radius: 8px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1); font-size: 12px; }
+.watch-window[hidden] { display: none; }
+/* Narrower than the panel and its 24px gutter (a phone), it spans the window less 16px each side, not 8px and 24px. */
+@media (max-width: 668px) { .watch-window { right: 16px; } }
+.watch-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px 4px 12px; cursor: move; border-bottom: 1px solid var(--hairline); }
+.watch-title { font-weight: 600; font-size: 13px; }
+.watch-actions { display: flex; gap: 6px; padding: 6px 10px; }
+.watch-actions .btn { padding: 3px 10px; font-size: 12px; font-weight: 400; gap: 6px; border: 1px solid var(--hairline-strong); background: var(--surface); }
+.watch-scroll { overflow: auto; flex: 1; border-top: 1px solid var(--hairline); }
+.watch-table { width: 100%; border-collapse: collapse; }
+.watch-table th, .watch-table td { text-align: left; padding: 3px 8px; white-space: nowrap; border-bottom: 1px solid var(--hairline); }
+.watch-table th { font-weight: 600; color: var(--ink-2); background: var(--surface-2); position: sticky; top: 0; }
+.watch-table tr[aria-selected="true"] td { background: var(--accent-wash); }
+.watch-table .mono { font-family: var(--mono); }
+
+/* View ▸ Page Break Preview: the printed pages outlined in blue and numbered, the rest of the sheet greyed. */
+.grid-pages { position: absolute; inset: 0 auto auto 0; pointer-events: none; z-index: 1; }
+.grid-pages[hidden] { display: none; }
+.page-area { position: absolute; top: 0; left: 0; box-sizing: border-box; border: 2px solid #2e6fd6; box-shadow: 0 0 0 100000px rgba(110, 110, 110, 0.22); }
+.page-box { position: absolute; top: 0; left: 0; box-sizing: border-box; display: grid; place-items: center; overflow: hidden; }
+.page-label { font-size: 44px; font-weight: 600; color: rgba(120, 120, 120, 0.35); white-space: nowrap; user-select: none; }
+/* The lines between pages: a strip that can be pressed, its visible line drawn down the middle. Manual breaks are
+   solid, automatic ones dashed; Normal view's lines (View ▸ Page Breaks) are thinner and ignore the pointer. */
+.page-break-line, .page-area-edge { position: absolute; top: 0; left: 0; pointer-events: auto; touch-action: none; }
+.page-break-line.row, .page-area-edge.row { cursor: ns-resize; }
+.page-break-line.col, .page-area-edge.col { cursor: ew-resize; }
+.page-break-line::after { content: ''; position: absolute; border: 0 dashed #2e6fd6; }
+.page-break-line.row::after { left: 0; right: 0; top: calc(50% - 1px); border-top-width: 2px; }
+.page-break-line.col::after { top: 0; bottom: 0; left: calc(50% - 1px); border-left-width: 2px; }
+.page-break-line.manual::after { border-style: solid; }
+.page-break-line.dragging::after, .page-area-edge.dragging { border-color: #1b4fa8; }
+.page-area-edge.dragging.row { border-top: 2px solid #1b4fa8; margin-top: 3px; height: 2px !important; }
+.page-area-edge.dragging.col { border-left: 2px solid #1b4fa8; margin-left: 3px; width: 2px !important; }
+.page-break-line:hover::after { border-color: #1b4fa8; }
+.grid-pages.lines-only .page-break-line { pointer-events: none; }
+.grid-pages.lines-only .page-break-line::after { border-color: color-mix(in srgb, var(--ink, #333) 55%, transparent); border-top-width: 0; border-left-width: 0; }
+.grid-pages.lines-only .page-break-line.row::after { border-top-width: 1px; top: 50%; }
+.grid-pages.lines-only .page-break-line.col::after { border-left-width: 1px; left: 50%; }
+.grid-pages.lines-only .page-break-line.manual::after { border-style: dashed; border-color: color-mix(in srgb, var(--ink, #333) 80%, transparent); }
+.consolidate-dialog .row { gap: 8px; align-items: flex-start; }
+/* A list box, not a drop-down: no arrow, as the other dialogs' lists have none. */
+.consolidate-dialog .consolidate-refs { flex: 1; min-height: 96px; background-image: none; padding-right: 8px; height: auto; }
+.consolidate-dialog .input { flex: 1; }
+/* Share, at the right of the title row */
+.topbar .share-btn { height: 28px; padding: 0 12px 0 10px; gap: 6px; margin: 0 4px; font-size: 13px; font-weight: 400; color: var(--chrome-ink); background: var(--surface); border: 1px solid var(--hairline-strong); border-radius: 6px; }
+@media (hover: hover) { .topbar .share-btn:hover { background: var(--surface-2); } }
+
+/* Insert ▸ Shapes gallery and Insert ▸ Icons */
+.shape-group { padding: 2px 4px 6px; }
+.shape-grid { display: grid; grid-template-columns: repeat(8, 32px); gap: 2px; }
+.shape-cell { width: 32px; height: 28px; display: grid; place-items: center; border-radius: 4px; }
+@media (hover: hover) { .shape-cell:hover { background: var(--surface-2); } }
+.icon-pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 4px; max-height: 340px; overflow-y: auto; margin-top: 10px; padding: 4px; border: 1px solid var(--hairline-strong); border-radius: 6px; }
+.icon-pick { height: 56px; display: grid; place-items: center; border-radius: 6px; border: 2px solid transparent; background: #fff; }
+.icon-pick[aria-selected="true"] { border-color: var(--accent); background: var(--accent-wash); }
+/* Home ▸ Format as Table gallery */
+.table-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px 6px 8px; }
+.table-gallery-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px; border-radius: 6px; font-size: 11px; color: var(--ink-2); }
+@media (hover: hover) { .table-gallery-item:hover { background: var(--surface-2); } }
+/* Fill Color and Font Color as split buttons: apply the last colour, the arrow opens the palette. */
+.tb-color-split { display: inline-flex; align-items: stretch; border-radius: 4px; }
+.ribbon .tb-color-apply { border-top-right-radius: 0; border-bottom-right-radius: 0; padding-left: 4px; padding-right: 2px; }
+.ribbon .tb-color-apply .tb-pen-bar { display: block; width: 16px; height: 4px; margin-top: 0; border-radius: 0; }
+.ribbon .tb-color-arrow { width: 14px; min-width: 14px; padding: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; justify-content: center; }
+.ribbon .tb-color-arrow > span:first-child, .ribbon .tb-color-arrow .color-bar { display: none; }
+.ribbon .tb-color-caret { display: flex; color: var(--ink-3); }
+.ribbon .ribbon-menu-btn { gap: 1px; padding-right: 2px; }
+@media (hover: hover) { .tb-color-split:hover > .tb-btn:not(:hover) { box-shadow: inset 0 0 0 1px var(--hairline-strong); } }
+@media (forced-colors: active) { .tb-pen-bar { forced-color-adjust: none; } }
+.ribbon .ribbon-large .ribbon-label-line { display: block; white-space: nowrap; }
+.ribbon .tb-btn.ribbon-large { max-width: none; }
+
+/* Headings: a 20px column-letter row and a narrow row-number column that widens past row 999. */
+.grid { --row-header-w: 32px; --col-header-h: 20px; }
+@media (max-width: 640px) { .grid { --row-header-w: 32px; } }
+
+/* ---------- Formula bar: a compact row of white fields on the frame ---------- */
+@media (pointer: fine) {
+  .formula-bar { --formulabar-h: 31px; --fb-field: 24px; align-items: center; padding: 0 0 0 6px; }
+  .formula-bar .name-box {
+    height: var(--fb-field); width: 98px; padding: 0 6px; text-align: left; font-weight: 400; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--xl-field-line); border-right: 0; border-radius: 4px 0 0 4px;
+  }
+  .formula-bar .name-box:focus { box-shadow: inset 0 0 0 1px var(--xl-green); background: var(--surface); }
+  .formula-bar .name-menu-btn {
+    height: var(--fb-field); width: 18px; margin-right: 6px; color: var(--ink-2);
+    background: var(--surface); border: 1px solid var(--xl-field-line); border-left: 0; border-radius: 0 4px 4px 0;
+  }
+  .formula-bar.fixed-actions .fx-actions { height: var(--fb-field); align-self: center; border-right: 0; padding: 0 2px; gap: 4px; }
+  .formula-bar .fx-action { width: 24px; height: var(--fb-field); color: var(--ink-2); background: transparent; }
+  .formula-bar .fx-apply { color: var(--ink-2); background: transparent; }
+  .formula-bar .fx-btn { width: 30px; height: var(--fb-field); border-right: 0; border-radius: 4px; color: var(--xl-icon-ink); }
+  .formula-bar .fx-btn svg { width: 22px; height: 22px; }
+  .formula-bar .fx-action svg { width: 19px; height: 19px; }
+  .formula-bar .fx-action:not(:disabled) { color: var(--xl-icon-ink); }
+  .formula-bar .formula-input {
+    height: var(--fb-field); line-height: calc(var(--fb-field) - 2px); margin-left: 4px; padding: 0 8px;
+    background: var(--surface); border: 1px solid var(--xl-field-line); border-right: 0; border-radius: 4px 0 0 4px;
+  }
+  .formula-bar .formula-input:focus { box-shadow: none; border-color: var(--xl-green); }
+  .formula-bar .fx-expand {
+    height: var(--fb-field); width: 24px; margin-right: 6px; color: var(--ink-2);
+    background: var(--surface); border: 1px solid var(--xl-field-line); border-left: 0; border-radius: 0 4px 4px 0;
+  }
+  .formula-bar .formula-input:focus + .fx-expand, .formula-bar .formula-input:focus ~ .fx-expand { border-color: var(--xl-green); }
+  .formula-bar.expanded { align-items: flex-start; padding-top: 3px; padding-bottom: 3px; }
+  .formula-bar.expanded .formula-input { height: 112px; padding: 4px 8px; }
+  .formula-bar.expanded .fx-expand { height: 112px; padding-top: 4px; }
+  .formula-bar.expanded .name-menu-btn { padding-top: 0; align-items: center; }
+}
+:root { --xl-field-line: #c6c6c6; --xl-icon-ink: #5c5c5c; }
+:root[data-theme="dark"] { --xl-field-line: #4a4a4a; --xl-icon-ink: #c8c8c8; }
+@media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { --xl-field-line: #4a4a4a; --xl-icon-ink: #c8c8c8; } }
+
+/* Sheet bar: the two scroll arrows always at the left (dim while every tab fits), plain tabs, then +.
+   The sheet list and the tab's options button stay for the keyboard (and right-click), out of sight until focused. */
+@media (pointer: fine) {
+  .sheet-tabs.excel-layout .tab-all:not(:focus-visible),
+  .sheet-tabs.excel-layout .tab-list > .tab-menu-btn:not(:focus-visible) { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .sheet-tabs.excel-layout .tab-item.active { padding-right: 0; }
+  .sheet-tabs.excel-layout .tab.active { padding-right: 16px; }
+  .sheet-tabs.excel-layout .tab-navigation { display: flex; gap: 2px; margin-right: 6px; }
+  .sheet-tabs.excel-layout .tab-scroll-btn { color: var(--xl-icon-ink); }
+  .sheet-tabs.excel-layout .tab-scroll-btn[aria-disabled="true"] { opacity: 0.4; }
+}
+
+/* Status bar: the selection's address and the sheet's size are off by default, shown when chosen
+   from Customize Status Bar. */
+.status-bar:not(.show-address) .status-address, .status-bar:not(.show-size) .status-size { display: none; }
+.status-a11y { display: inline-flex; align-items: center; gap: 5px; border-radius: 3px; padding: 0 4px; color: inherit; }
+@media (hover: hover) { .status-a11y:hover { background: rgba(0, 0, 0, 0.07); } }
+.status-a11y.investigate .status-a11y-text { font-weight: 600; }
+
+/* Review ▸ Check Accessibility: a pane along the right of the window, as the task panes sit. */
+.a11y-pane { position: fixed; right: 12px; top: 200px; bottom: 64px; z-index: 40; width: min(320px, calc(100vw - 24px)); display: flex; flex-direction: column;
+  background: var(--surface); border-radius: 8px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1); font-size: 12.5px; }
+.a11y-pane[hidden] { display: none; }
+/* In the grid's area, a task pane docks at its right edge, from just under the formula bar to just over the sheet tabs. */
+.editor-grid > .a11y-pane, .editor-grid > .lang-pane, .editor-grid > .selpane { position: absolute; top: 8px; bottom: 8px; right: 12px; max-width: calc(100% - 24px); }
+/* Find and replace moves aside for an open task pane rather than sitting under it, keeping at least 280px of its own
+   (above the pane, when the grid is too narrow for both). On a phone it spans the grid whatever is open (editor.css). */
+.editor-grid:has(> .a11y-pane:not([hidden]), > .lang-pane:not([hidden]), > .selpane:not([hidden])) > .find-panel { --find-right: min(calc(min(340px, 100% - 24px) + 24px), calc(100% - 288px)); z-index: 41; }
+.a11y-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 6px 6px 14px; border-bottom: 1px solid var(--hairline); }
+.a11y-title { font-weight: 600; font-size: 14px; }
+.a11y-body { overflow: auto; padding: 8px 14px 14px; flex: 1; }
+.a11y-heading { font-size: 12.5px; font-weight: 600; margin: 6px 0; }
+.a11y-tier > summary { font-weight: 600; padding: 4px 0; cursor: pointer; }
+.a11y-rule { margin-left: 14px; }
+.a11y-rule > summary { padding: 3px 0; cursor: pointer; }
+.a11y-rule ul { list-style: none; margin: 0 0 4px 14px; padding: 0; }
+.a11y-item { display: block; width: 100%; text-align: left; padding: 3px 6px; border-radius: 3px; color: var(--ink); }
+@media (hover: hover) { .a11y-item:hover { background: var(--accent-wash); } }
+.a11y-info { border-top: 1px solid var(--hairline); margin-top: 10px; padding-top: 4px; }
+.a11y-info h4 { font-size: 12px; font-weight: 600; margin: 8px 0 2px; }
+.a11y-info p { margin: 0; color: var(--ink-2); line-height: 1.45; }
+.a11y-clear { display: flex; gap: 8px; align-items: flex-start; color: var(--ink-2); line-height: 1.45; }
+.a11y-clear span { color: var(--xl-green); }
+/* Review ▸ Show Changes: the recent edits, newest first, in the same pane frame as Accessibility. */
+.chg-pane { width: min(340px, calc(100vw - 24px)); }
+.chg-filters { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 6px 10px; padding: 10px 14px 8px; border-bottom: 1px solid var(--hairline); }
+.chg-field { display: contents; }
+.chg-field-label { color: var(--ink-2); font-size: 12px; }
+.chg-scope { height: 28px; padding: 0 30px 0 10px; font-size: 12.5px; background-position: right 8px center; }
+.chg-range-row { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.chg-range { flex: 1; min-width: 0; height: 28px; padding: 0 10px; font-size: 12.5px; font-family: var(--mono); }
+.chg-range::placeholder { font-family: var(--font); }
+.chg-range[aria-invalid="true"] { border-color: var(--critical); }
+.chg-clear-range { width: 24px; height: 24px; }
+.chg-use-selection { height: 28px; white-space: nowrap; }
+.chg-hint { grid-column: 1 / -1; color: var(--ink-3); font-size: 11.5px; }
+.chg-hint:empty { display: none; }
+.chg-body { padding-top: 6px; }
+.chg-summary { margin: 2px 0 8px; color: var(--ink-3); font-size: 12px; }
+.chg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.chg-card { border: 1px solid var(--hairline); border-radius: 6px; padding: 8px 10px; background: var(--surface); }
+.chg-card.chg-structure, .chg-card.chg-undo, .chg-card.chg-redo { background: var(--surface-2); }
+.chg-head { display: flex; align-items: center; gap: 7px; }
+.chg-avatar { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 600;
+  background: var(--accent-wash); color: var(--accent-strong); }
+.chg-author { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chg-time { margin-left: auto; flex: none; color: var(--ink-3); font-size: 11.5px; }
+.chg-what { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 6px; margin-top: 4px; }
+.chg-label { color: var(--ink-2); }
+.chg-place { padding: 0 3px; border-radius: 3px; color: var(--accent-strong); font-family: var(--mono); font-size: 12px; text-align: left; overflow-wrap: anywhere; }
+button.chg-place { text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--hairline-strong); }
+@media (hover: hover) { button.chg-place:hover, .chg-cell-ref:not(:disabled):hover { background: var(--accent-wash); } }
+.chg-place-gone { color: var(--ink-3); }
+.chg-diff { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; margin-top: 5px; }
+.chg-muted { color: var(--ink-3); }
+.chg-value { max-width: 100%; padding: 1px 5px; border-radius: 3px; background: var(--surface-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chg-diff .chg-value:first-child, .chg-cell .chg-value:nth-of-type(1) { text-decoration: line-through; text-decoration-color: var(--ink-3); color: var(--ink-2); }
+.chg-blank { color: var(--ink-3); font-style: italic; }
+.chg-arrow { display: inline-flex; color: var(--ink-3); }
+.chg-cells { margin-top: 5px; }
+.chg-cells > summary { cursor: pointer; color: var(--ink-2); padding: 2px 0; }
+.chg-cells ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.chg-cell { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 6px; }
+.chg-cell > .chg-value, .chg-cell > .chg-blank { justify-self: start; }
+.chg-cell-ref { padding: 1px 3px; border-radius: 3px; font-family: var(--mono); font-size: 11.5px; color: var(--accent-strong); text-align: left; }
+.chg-cell-ref:disabled { color: var(--ink-3); }
+.chg-rest { margin: 4px 0 0; color: var(--ink-3); font-size: 11.5px; }
+.chg-more { display: block; margin: 10px auto 2px; }
+.chg-more[hidden] { display: none; }
+.chg-foot { display: flex; justify-content: space-between; gap: 6px; padding: 6px 8px; border-top: 1px solid var(--hairline); }
+.chg-foot .btn { display: inline-flex; align-items: center; gap: 5px; }
+.chg-foot span { display: inline-flex; }
+.alt-text-input { width: 100%; resize: vertical; min-height: 96px; margin: 6px 0; font: inherit; }
+.quick-access .qat-arrow { width: 14px; min-width: 14px; margin-left: -4px; }
+.quick-access .qat-arrow:disabled { opacity: 0.4; }
+
+/* The AutoSave switch at the head of the title row */
+.autosave-switch { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 8px 0 4px; border-radius: 5px; color: var(--chrome-ink); font-size: 12.5px; }
+@media (hover: hover) { .autosave-switch:hover { background: rgba(0, 0, 0, 0.06); } }
+.autosave-track { position: relative; width: 30px; height: 16px; border-radius: 8px; border: 1px solid var(--chrome-ink); background: transparent; transition: background 0.15s; }
+.autosave-knob { position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--chrome-ink); transition: transform 0.15s; }
+.autosave-switch[aria-checked="true"] .autosave-track { background: var(--xl-green); border-color: var(--xl-green); }
+.autosave-switch[aria-checked="true"] .autosave-knob { transform: translateX(14px); background: #fff; }
+@media (max-width: 900px) { .autosave-switch { display: none; } }
+
+/* Ribbon scaling: a group squeezed for room keeps its small buttons' icons and drops their names (they become tooltips). */
+.ribbon-group.ribbon-compact .tb-btn:not(.ribbon-large) .ribbon-button-label { display: none; }
+.ribbon-group.ribbon-compact .tb-btn:not(.ribbon-large) { min-width: 26px; justify-content: center; }
+
+/* Data ▸ Circle Invalid Data: a red ellipse around each cell whose value breaks its rule. */
+.find-hl.invalid-circle { border: 2px solid #e5141f; border-radius: 50%; background: none; box-sizing: content-box; padding: 2px 4px; margin: -4px 0 0 -6px; z-index: 3; }
+
+/* Insert ▸ Recommended PivotTables */
+.rec-pivot-body { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.3fr); gap: 12px; min-height: 300px; margin: 8px 0 12px; }
+.rec-pivot-list { border: 1px solid var(--hairline-strong); border-radius: 6px; overflow: auto; max-height: 360px; padding: 4px; }
+.rec-pivot-list:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rec-pivot-item { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 4px; cursor: pointer; }
+.rec-pivot-item[aria-selected="true"] { background: var(--accent-wash); box-shadow: inset 3px 0 0 var(--xl-green); }
+.rec-pivot-item-title { font-weight: 600; font-size: 12.5px; }
+.rec-pivot-item-sample { font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rec-pivot-preview { border: 1px solid var(--hairline-strong); border-radius: 6px; padding: 10px; overflow: auto; max-height: 360px; }
+.rec-pivot-title { font-weight: 600; margin-bottom: 8px; }
+.rec-pivot-table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+.rec-pivot-table th { text-align: left; background: var(--accent-wash); padding: 3px 8px; border-bottom: 1px solid var(--hairline-strong); }
+.rec-pivot-table td { padding: 3px 8px; border-bottom: 1px solid var(--hairline); }
+.rec-pivot-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rec-pivot-table th.num { text-align: right; white-space: nowrap; }
+@media (max-width: 640px) { .rec-pivot-body { grid-template-columns: 1fr; } }
+/* Cancel and OK keep together at the right; on a phone they wrap under Blank PivotTable. */
+.rec-pivot-foot { flex-wrap: wrap; row-gap: 8px; }
+.rec-pivot-actions { margin-left: auto; }
+
+/* Background error checking: a green triangle in a cell's top-left corner, and the smart tag beside the active cell.
+   A value its validation rule refuses is marked the same way. */
+.cell.err-flag::before, .cell.invalid::before { content: ""; position: absolute; top: 0; left: 0; width: 0; height: 0; border-style: solid; border-width: 6px 6px 0 0; border-color: #1f8f3a transparent transparent transparent; }
+@media (forced-colors: active) { .cell.invalid::before { border-top-color: CanvasText; } }
+.error-smarttag { position: fixed; z-index: 30; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 3px; color: #b07800; background: var(--surface); border: 1px solid var(--hairline-strong); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+.error-smarttag[hidden] { display: none; }
+@media (hover: hover) { .error-smarttag:hover { background: var(--surface-2); } }
+
+/* AutoFilter buttons: a small square drop-down with a down arrow; once the column is
+   filtered, a funnel beside a smaller arrow. The button is part of the sheet, which stays paper in every
+   theme, so its glyph keeps the paper's dark grey: a light one for dark mode was all but invisible on it. */
+:root {
+  --xl-filter-arrow: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 6.5h8L8 11z' fill='%23505050'/></svg>");
+  --xl-filter-on: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M2 3h7.5L6.6 6.6v4L5 11.6V6.6z' fill='%23505050'/><path d='M9.5 9h5l-2.5 3z' fill='%23505050'/></svg>");
+}
+.cell.filter-head::after {
+  width: 15px; height: 15px; margin-top: -7.5px; right: calc(3px + var(--spill-right, 0px)); border-radius: 2px;
+  background-color: var(--surface); border: 1px solid #b4b4b4; box-sizing: border-box;
+  background-image: var(--xl-filter-arrow); background-size: 15px 15px;
+}
+.cell.filter-head.filter-on::after { background-color: var(--surface); background-image: var(--xl-filter-on); background-size: 15px 15px; }
+
+/* No buttons sit over a selected chart or picture: with a mouse, editing goes through the ribbon's
+   contextual tabs, the Format pane, double-click, Enter and Delete. A touch screen keeps the buttons. */
+@media (pointer: fine) {
+  .chart-box.selected .chart-tools .chart-tool:not(.chart-open-link) { display: none; }
+  .chart-box .chart-tools:not(:has(.chart-open-link:not([hidden]))), .chart-box.selected .chart-tools:not(:has(.chart-open-link:not([hidden]))) { display: none; }
+}
+
+/* Quick Analysis: the button at the corner of a selected block, and its panel of tabs and tiles */
+.quick-analysis-btn { position: fixed; z-index: 30; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 3px; background: var(--surface); border: 1px solid var(--hairline-strong); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); }
+.quick-analysis-btn[hidden] { display: none; }
+@media (hover: hover) { .quick-analysis-btn:hover { background: var(--surface-2); } }
+.quick-analysis { position: fixed; z-index: 60; width: min(440px, calc(100vw - 16px)); background: var(--surface); border-radius: 8px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1); padding: 8px 10px 10px; font-size: 12.5px; }
+.qa-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--hairline); margin-bottom: 8px; }
+.qa-tab { padding: 6px 10px; border-bottom: 2px solid transparent; color: var(--ink-2); }
+.qa-tab[aria-selected="true"] { color: var(--xl-green); border-bottom-color: var(--xl-green); font-weight: 600; }
+.qa-tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.qa-tile { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 2px; border-radius: 4px; text-align: center; color: var(--ink); font-size: 11.5px; line-height: 1.2; }
+@media (hover: hover) { .qa-tile:hover { background: var(--accent-wash); } }
+.qa-hint { margin: 8px 2px 0; color: var(--ink-3); font-size: 11.5px; }
+
+/* Glass ribbon commands: hover and pressed states are frosted pills, lit along the top edge, that the
+   icons sit in; large commands lift their icon with a soft shadow. */
+:root {
+  --ribbon-glass: linear-gradient(rgba(255, 255, 255, 0.95), rgba(243, 245, 249, 0.8));
+  --ribbon-glass-pressed: linear-gradient(rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.16));
+  --ribbon-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --ribbon-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 0 0 0.5px rgba(0, 122, 255, 0.3);
+  --ribbon-icon-lift: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --ribbon-glass: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+    --ribbon-glass-pressed: linear-gradient(rgba(10, 132, 255, 0.24), rgba(10, 132, 255, 0.16));
+    --ribbon-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 0.5px rgba(255, 255, 255, 0.12), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --ribbon-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 0.5px rgba(10, 132, 255, 0.45);
+    --ribbon-icon-lift: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+  }
+}
+:root[data-theme="dark"] {
+  --ribbon-glass: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+  --ribbon-glass-pressed: linear-gradient(rgba(10, 132, 255, 0.24), rgba(10, 132, 255, 0.16));
+  --ribbon-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 0.5px rgba(255, 255, 255, 0.12), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --ribbon-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 0.5px rgba(10, 132, 255, 0.45);
+  --ribbon-icon-lift: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+.ribbon .tb-btn { border-radius: 7px; transition: background-color 0.12s, box-shadow 0.12s; }
+.ribbon .tb-btn.ribbon-large { border-radius: 10px; }
+.ribbon .ribbon-split, .ribbon .tb-color-split { border-radius: 7px; }
+.ribbon .tb-btn[aria-pressed="true"] { background: var(--ribbon-glass-pressed); box-shadow: var(--ribbon-glass-pressed-edge); }
+@media (hover: hover) {
+  .ribbon .tb-btn:hover:not(:disabled) { background: var(--ribbon-glass); box-shadow: var(--ribbon-glass-edge); }
+  .ribbon .tb-btn[aria-pressed="true"]:hover:not(:disabled) { background: var(--ribbon-glass-pressed); box-shadow: var(--ribbon-glass-pressed-edge), 0 1px 3px rgba(0, 0, 0, 0.08); }
+  .ribbon-split:hover { box-shadow: var(--ribbon-glass-edge); }
+  .ribbon-split:hover > .tb-btn:hover:not(:disabled) { box-shadow: none; }
+}
+.ribbon .tb-btn:active:not(:disabled) { background: var(--ribbon-glass-pressed); box-shadow: var(--ribbon-glass-pressed-edge); }
+.ribbon .ribbon-large > svg.ico { filter: var(--ribbon-icon-lift); }
+@media (prefers-reduced-motion: reduce) { .ribbon .tb-btn { transition: none; } }
+@media (forced-colors: active) {
+  .ribbon .tb-btn, .ribbon .tb-btn:hover, .ribbon .tb-btn[aria-pressed="true"] { box-shadow: none; }
+  .ribbon .ribbon-large > svg.ico { filter: none; }
+}
+
+/* Review ▸ Thesaurus and Translate: a pane along the right of the window, as the task panes sit. */
+.lang-pane { position: fixed; right: 12px; top: 200px; bottom: 64px; z-index: 40; width: min(330px, calc(100vw - 24px)); display: flex; flex-direction: column;
+  background: var(--surface); border-radius: 8px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1); font-size: 12.5px; }
+.lang-pane[hidden] { display: none; }
+.lang-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px 0 8px; border-bottom: 1px solid var(--hairline); }
+.lang-tabs { display: flex; gap: 2px; }
+.lang-tab { padding: 8px 10px 7px; font-size: 13px; font-weight: 500; color: var(--ink-2); border-bottom: 2px solid transparent; }
+.lang-tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ribbon-accent, var(--accent)); }
+@media (hover: hover) { .lang-tab:hover { color: var(--ink); } }
+.lang-body { flex: 1; overflow: auto; padding: 10px 12px 12px; }
+.lang-panel { display: flex; flex-direction: column; gap: 8px; }
+.lang-panel[hidden] { display: none; }
+.lang-search { display: flex; gap: 6px; align-items: center; }
+.lang-search .input { flex: 1; min-width: 0; height: 32px; }
+.lang-status { margin: 0; min-height: 1em; }
+.lang-foot { margin: 6px 0 0; }
+.thesaurus-sense { border-top: 1px solid var(--hairline); padding-top: 8px; }
+.thesaurus-sense:first-child { border-top: 0; padding-top: 0; }
+.thesaurus-sense h4 { font-size: 12.5px; font-weight: 600; margin: 0 0 4px; display: flex; gap: 6px; align-items: baseline; }
+.thesaurus-pos { font-size: 11px; font-weight: 500; color: var(--ink-3); font-style: italic; }
+.thesaurus-words { list-style: none; margin: 0 0 6px; padding: 0; }
+.thesaurus-words li { display: flex; align-items: center; justify-content: space-between; border-radius: 4px; }
+@media (hover: hover) { .thesaurus-words li:hover { background: var(--accent-wash); } }
+.thesaurus-word { flex: 1; text-align: left; padding: 3px 6px; color: var(--ink); }
+.thesaurus-insert { padding: 1px 8px; font-size: 12px; opacity: 0; }
+.thesaurus-words li:hover .thesaurus-insert, .thesaurus-insert:focus-visible { opacity: 1; }
+@media (hover: none) { .thesaurus-insert { opacity: 1; } }
+.thesaurus-antonyms { margin-left: 6px; }
+.lang-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: end; }
+.lang-pair .field { margin: 0; min-width: 0; }
+.lang-pair .select { width: 100%; }
+.lang-source { width: 100%; resize: vertical; font: inherit; min-height: 84px; }
+.lang-row { align-items: center; gap: 6px; }
+.lang-row .spacer { flex: 1; }
+.lang-output { min-height: 84px; padding: 8px 10px; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface-2); line-height: 1.45; }
+.lang-output p { margin: 0 0 4px; white-space: pre-wrap; overflow-wrap: anywhere; }

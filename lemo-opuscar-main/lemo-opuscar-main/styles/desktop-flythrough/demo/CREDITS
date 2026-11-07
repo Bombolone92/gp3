@@ -1,0 +1,17 @@
+Desktop Flythrough 桌面穿梭 — demo film 叮之前 · Before the Ding
+
+Code: written for this film. src/post.js depth-of-field shaders are adapted from the Lemo-Opuscar library (core/three/post.js, MIT, LemoLab).
+The page contract, renderer, reading-time check, TTS and speech-check wrappers, sampler and procedural foley helpers come from the library's core/ (MIT).
+three.js (MIT), loaded from the library's node_modules.
+
+Fonts (SIL Open Font License 1.1; licence texts in fonts/; downloaded by build.sh from github.com/google/fonts):
+  Instrument Sans (fonts/InstrumentSans.ttf), IBM Plex Mono Medium and SemiBold, Noto Sans SC (subset to the characters on screen, fonts/NotoSansSC-sub.ttf).
+
+Voice-over: Microsoft neural text-to-speech via edge-tts, zh-CN-XiaoxiaoNeural (Chinese) and en-US-AvaNeural (English); an online service, check Microsoft's terms before commercial use.
+
+Music samples (CC0 1.0, no attribution required; acknowledged): VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library (Versilian Studios).
+  Instruments: marimba, vibraphone, glockenspiel, contrabass, contrabass pizz, cellos, cellos pizz, violas, violins pizz, horn, timpani, suspended cymbal, claps, shaker. Fetched with tools/fetch.sh.
+Kick drum and all foley: synthesised in code (audio/compose.py, audio/foley.py, core/audio/sfx.py).
+
+Pixel art (the cat photo and its compressed copy, the bell), phone interfaces, cards, the server tower, desk props, wood and paper textures: drawn in code. No photographs, no generated images.
+Facts and their sources: FACTS.md. Fictional: 小林, the chat, the photo; the sizes 4.2 MB and 300 KB are illustrative.

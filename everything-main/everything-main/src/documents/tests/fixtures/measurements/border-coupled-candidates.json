@@ -1,0 +1,97 @@
+{
+  "status": "rejected",
+  "scope": "Independent native table-border controls; no runtime fix or corpus promotion.",
+  "coupled": {
+    "experiment": "coupled-minimum",
+    "edges": 2048,
+    "improved": 438,
+    "regressions": []
+  },
+  "floor": {
+    "experiment": "coupled-floor-bottom",
+    "edges": 2048,
+    "improved": 612,
+    "regressions": [
+      {
+        "source": "tests/fixtures/border-phase/holdout.docx",
+        "zoom": 100,
+        "page": 1,
+        "id": 10,
+        "edge": 3,
+        "native": 185,
+        "baseline": 185,
+        "candidate": 186
+      },
+      {
+        "source": "tests/fixtures/border-phase/holdout.docx",
+        "zoom": 200,
+        "page": 1,
+        "id": 5,
+        "edge": 3,
+        "native": 241,
+        "baseline": 241,
+        "candidate": 242
+      },
+      {
+        "source": "tests/fixtures/border-phase/holdout.docx",
+        "zoom": 200,
+        "page": 1,
+        "id": 7,
+        "edge": 3,
+        "native": 242,
+        "baseline": 242,
+        "candidate": 243
+      },
+      {
+        "source": "tests/fixtures/border-phase/heights-thin.docx",
+        "zoom": 100,
+        "page": 1,
+        "id": 16,
+        "edge": 3,
+        "native": 250,
+        "baseline": 250,
+        "candidate": 249
+      },
+      {
+        "source": "tests/fixtures/border-axis-phase/control.docx",
+        "zoom": 100,
+        "page": 4,
+        "id": 13,
+        "edge": 3,
+        "native": 250,
+        "baseline": 250,
+        "candidate": 249
+      },
+      {
+        "source": "tests/fixtures/border-axis-phase/control.docx",
+        "zoom": 100,
+        "page": 4,
+        "id": 14,
+        "edge": 3,
+        "native": 250,
+        "baseline": 250,
+        "candidate": 249
+      },
+      {
+        "source": "tests/fixtures/border-axis-phase/control.docx",
+        "zoom": 100,
+        "page": 4,
+        "id": 15,
+        "edge": 3,
+        "native": 250,
+        "baseline": 250,
+        "candidate": 249
+      },
+      {
+        "source": "tests/fixtures/border-axis-phase/control.docx",
+        "zoom": 100,
+        "page": 4,
+        "id": 16,
+        "edge": 3,
+        "native": 250,
+        "baseline": 250,
+        "candidate": 249
+      }
+    ]
+  }
+}

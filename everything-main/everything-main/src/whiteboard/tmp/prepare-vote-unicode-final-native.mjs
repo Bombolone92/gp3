@@ -1,0 +1,12 @@
+import fs from 'node:fs';import path from 'node:path';import {randomUUID}from 'node:crypto';import {validateBoard}from '../src/model.js';
+const root='tmp/vote-unicode-final-native';fs.mkdirSync(root,{recursive:true});for(const name of ['assets','icons'])fs.cpSync('dist/'+name,path.join(root,name),{recursive:true});
+const prod=fs.readFileSync('dist/index.html','utf8'),asset=prod.match(/<script type="module" crossorigin src="([^"]+)"/)[1],style=prod.match(/<link rel="stylesheet" crossorigin href="([^"]+)"/)[1],source=JSON.parse(fs.readFileSync('tmp/vote-unicode-french-native-fixture.json','utf8')),fixtures={};
+for(const [locale,theme]of [['en','dark'],['fr','light']]){
+ const fixture=validateBoard({...structuredClone(source),id:randomUUID(),title:'Vote Unicode final '+locale});fixtures[locale]=fixture;
+ let html=fs.readFileSync('tmp/vote-unicode-french-before-native/index-before.html','utf8');
+ html=html.replace(/if\(!localStorage.getItem\('whiteboard-theme'\)\)localStorage.setItem\('whiteboard-theme','[^']+'\);/,"localStorage.setItem('whiteboard-theme','"+theme+"');").replace(/if\(!localStorage.getItem\('whiteboard-language'\)\)localStorage.setItem\('whiteboard-language','[^']+'\);/,"localStorage.setItem('whiteboard-language','"+locale+"');").replace(/const fixture=.*?;\s*await new Promise/s,'const fixture='+JSON.stringify(fixture)+';\nawait new Promise').replace(/await import\('[^']+'\)/,"await import('"+asset+"')").replace(/<link rel="stylesheet" crossorigin href="[^"]+"/,'<link rel="stylesheet" crossorigin href="'+style+'"');
+ fs.writeFileSync(path.join(root,'index-'+locale+'.html'),html);
+ const wrapper='<!doctype html><title>Vote Unicode final '+locale+'</title><style>body{margin:0;overflow:hidden}iframe{width:1200px;height:800px;border:0}pre{position:fixed;left:1210px;top:0;width:650px;max-height:850px;overflow:auto;white-space:pre-wrap;font:14px monospace}</style><iframe src="index-'+locale+'.html#local='+fixture.id+'"></iframe><pre></pre><script>addEventListener("message",e=>{if(e.source===document.querySelector("iframe").contentWindow&&e.data.captions)document.querySelector("pre").textContent=JSON.stringify(e.data,null,2);})</script>';
+ fs.writeFileSync(path.join(root,'view-'+locale+'.html'),wrapper);fs.writeFileSync(path.join(root,'view-'+locale+'-saved.html'),wrapper.replace('Unicode final','Unicode saved final'));
+}
+fs.writeFileSync('tmp/vote-unicode-final-native-fixtures.json',JSON.stringify(fixtures));console.log({asset,style,boards:Object.fromEntries(Object.entries(fixtures).map(([k,v])=>[k,v.id]))});

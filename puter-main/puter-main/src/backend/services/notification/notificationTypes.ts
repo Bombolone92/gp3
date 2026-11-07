@@ -1,0 +1,213 @@
+/*
+ * Copyright (C) 2024-present Puter Technologies Inc.
+ *
+ * This file is part of Puter.
+ *
+ * Puter is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { HttpError } from '../../core/http/HttpError.js';
+
+/** Who the recipient is in relation to the notification. */
+export type NotificationAudience = 'account' | 'developer' | 'app-user';
+
+/** What a subject is built from: the recipient, and the app the row is about. */
+export interface NotificationSubjectRef {
+    userUuid: string;
+    appUid: string | null;
+}
+
+export interface NotificationType {
+    /** Stable wire name, stored in `notification`.`type`. */
+    type: string;
+    audience: NotificationAudience;
+    /**
+     * Whether a row of this type must name an app. `account` types never may; a
+     * `developer` type that is not app-scoped still carries one where the app
+     * is known.
+     */
+    appScoped: boolean;
+    /** Whether `notifyUpdate` may fold a later one into an open row. */
+    groupable: boolean;
+    /**
+     * `false` keeps the type off the account's own desktop: out of the
+     * whole-mailbox listing, the unread replay and the desktop wire. Apps still
+     * read it through its subject. Absent means it shows there.
+     */
+    accountMailbox?: false;
+    /** Where a delivery of this type publishes. */
+    subject: (ref: NotificationSubjectRef) => string;
+}
+
+/**
+ * `notif:<appUid>:<audience>`, falling back to the recipient when the row names
+ * no app — which is every `account` row, and the worker rows whose app is
+ * optional.
+ */
+const subjectFor =
+    (audience: NotificationAudience) =>
+    (ref: NotificationSubjectRef): string =>
+        `notif:${ref.appUid ?? ref.userUuid}:${audience}`;
+
+/**
+ * The catalog. Every write goes through it, so a type that is not here cannot
+ * reach the table.
+ *
+ * `audience` is not derivable from `app_uid`: "your worker failed to deploy"
+ * and "your background job finished" both name an app, but the first must never
+ * reach a _user_ of that app.
+ */
+export const NOTIFICATION_TYPES = [
+    {
+        type: 'share.received',
+        audience: 'account',
+        appScoped: false,
+        groupable: true,
+        subject: subjectFor('account'),
+    },
+    {
+        type: 'share.claimed',
+        audience: 'account',
+        appScoped: false,
+        groupable: false,
+        subject: subjectFor('account'),
+    },
+    // A worker need not be bound to an app — `#resolveWorkerAppBinding`
+    // returns null for a user-scoped one — so these carry an app only when
+    // there is one to carry.
+    {
+        type: 'app.worker.deployed',
+        audience: 'developer',
+        appScoped: false,
+        groupable: false,
+        subject: subjectFor('developer'),
+    },
+    {
+        type: 'app.worker.deployFailed',
+        audience: 'developer',
+        appScoped: false,
+        groupable: false,
+        subject: subjectFor('developer'),
+    },
+    // The recipient is the subscription's holder, not the app's owner: a
+    // subscription that ended without an unsubscribe is news for whoever made
+    // it. An account made its own carries no app, exactly as a worker row does.
+    {
+        type: 'app.events.ended',
+        audience: 'app-user',
+        appScoped: false,
+        groupable: false,
+        subject: subjectFor('app-user'),
+    },
+    {
+        type: 'app.events.suspended',
+        audience: 'developer',
+        appScoped: true,
+        groupable: false,
+        subject: subjectFor('developer'),
+    },
+    // A handler the user published into their own scope stopped taking
+    // deliveries: the code is theirs, so the notice is too.
+    {
+        type: 'app.events.handler_suspended',
+        audience: 'app-user',
+        appScoped: true,
+        groupable: false,
+        subject: subjectFor('app-user'),
+    },
+    // The only type apps create; its kind goes in the value's `channel`. A
+    // newer one replaces the newest with the same `group` unless that one was
+    // shown or dismissed.
+    {
+        type: 'app.message',
+        audience: 'app-user',
+        appScoped: true,
+        groupable: true,
+        accountMailbox: false,
+        subject: subjectFor('app-user'),
+    },
+    // A key-value share is news inside the app whose data it is, and nowhere
+    // else: the desktop has nothing to open it with.
+    {
+        type: 'kv.share.received',
+        audience: 'app-user',
+        appScoped: true,
+        groupable: false,
+        accountMailbox: false,
+        subject: subjectFor('app-user'),
+    },
+] as const satisfies readonly NotificationType[];
+
+/** Every registered type name; what `notify` accepts. */
+export type NotificationTypeName = (typeof NOTIFICATION_TYPES)[number]['type'];
+
+/** Serialized `value` may not exceed this many bytes. */
+export const NOTIFICATION_VALUE_MAX_BYTES = 16 * 1024;
+
+export const assertNotificationValueFits = (
+    value: Record<string, unknown>,
+): void => {
+    if (
+        Buffer.byteLength(JSON.stringify(value), 'utf8') >
+        NOTIFICATION_VALUE_MAX_BYTES
+    ) {
+        throw new HttpError(
+            400,
+            `\`value\` may not exceed ${NOTIFICATION_VALUE_MAX_BYTES} bytes`,
+            {
+                legacyCode: 'notification_value_too_large',
+            },
+        );
+    }
+};
+const BY_NAME = new Map<string, NotificationType>(
+    NOTIFICATION_TYPES.map((entry) => [entry.type, entry]),
+);
+
+export const findNotificationType = (
+    type: string,
+): NotificationType | undefined => BY_NAME.get(type);
+
+/** Types kept off the account's own desktop; see `accountMailbox`. */
+export const OUTSIDE_ACCOUNT_MAILBOX_TYPES: readonly string[] =
+    NOTIFICATION_TYPES.filter(
+        (entry: NotificationType) => entry.accountMailbox === false,
+    ).map((entry) => entry.type);
+
+/** Whether rows of this type belong on the account's own desktop. */
+export const inAccountMailbox = (type: unknown): boolean =>
+    typeof type !== 'string' || !OUTSIDE_ACCOUNT_MAILBOX_TYPES.includes(type);
+
+/**
+ * The registry entry for a write, or a throw. `account` rows never name an app;
+ * app-scoped rows always do.
+ */
+export const resolveNotificationWrite = (
+    type: string,
+    appUid: string | null,
+): NotificationType => {
+    const entry = BY_NAME.get(type);
+    if (!entry) {
+        throw new Error(`notification type is not registered: ${type}`);
+    }
+    if (entry.audience === 'account' && appUid !== null) {
+        throw new Error(
+            `notification type ${type} is account-audience and cannot name an app`,
+        );
+    }
+    if (entry.appScoped && !appUid) {
+        throw new Error(`notification type ${type} requires an app uid`);
+    }
+    return entry;
+};

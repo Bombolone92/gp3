@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {validateBoard} from '../src/model.js';
+const root='tmp/table-object-name-french-before-native';
+const fixture=validateBoard(JSON.parse(fs.readFileSync('tmp/table-object-name-unicode-native-fixture.json','utf8')));
+const cell=fixture.items.find(i=>i.type==='table').cells[0][0];
+if(cell.length!==301 || !cell.isWellFormed())throw Error('Invalid source cell');
+fs.mkdirSync(root,{recursive:true});
+for(const folder of ['assets','icons'])fs.cpSync(path.join('tmp/generated-board-title-unicode-final-native',folder),path.join(root,folder),{recursive:true});
+let html=fs.readFileSync('tmp/table-object-name-unicode-native/index.html','utf8');
+html=html.replaceAll('/assets/index-OpUucuU9.js','/assets/index-BwpFkvOH.js').replaceAll('/assets/index-BynTlqQo.css','/assets/index-BlbulZT3.css').replace("localStorage.setItem('whiteboard-language','en')","localStorage.setItem('whiteboard-language','fr')").replace("localStorage.setItem('whiteboard-theme','dark')","localStorage.setItem('whiteboard-theme','light')");
+html=html.slice(0,html.lastIndexOf('<script>'))+`<script>let last='';function report(){const a=document.querySelector('#object-link-current a'),e=document.querySelector('#table-editor textarea');const v={caption:a?{length:a.textContent.length,valid:a.textContent.isWellFormed(),tail:a.textContent.slice(-12)}:null,cell:e?{length:e.value.length,valid:e.value.isWellFormed(),tail:e.value.slice(-6),lang:e.lang}:null,originals:[...document.querySelectorAll('#board-outline [data-id]')].map(n=>({text:n.textContent,valid:n.textContent.isWellFormed(),lang:n.querySelector('[data-user-content]')?.lang})),history:['undo','redo'].map(k=>document.querySelector('[data-action="'+k+'"]')?.disabled),language:document.documentElement.lang};const next=JSON.stringify(v);if(next!==last){last=next;parent.postMessage(v,'*');}}new MutationObserver(()=>requestAnimationFrame(report)).observe(document.body,{childList:true,subtree:true,attributes:true});</script>`;
+fs.writeFileSync(path.join(root,'index-before.html'),html);
+const wrapper='<!doctype html><title>French table destination Unicode before</title><style>body{margin:0;overflow:hidden}iframe{width:1200px;height:800px;border:0}pre{position:fixed;left:1210px;top:0;width:650px;max-height:850px;overflow:auto;white-space:pre-wrap;font:14px monospace}</style><iframe src="index-before.html#local='+fixture.id+'"></iframe><pre></pre><script>addEventListener("message",e=>{if(e.source===document.querySelector("iframe").contentWindow&&e.data.originals)document.querySelector("pre").textContent=JSON.stringify(e.data,null,2);})</script>';
+fs.writeFileSync(path.join(root,'view-before.html'),wrapper);fs.writeFileSync(path.join(root,'view-saved.html'),wrapper.replace('Unicode before','Unicode saved before'));
+console.log({root,id:fixture.id,sourceCellLength:cell.length,sourceValid:cell.isWellFormed(),asset:'index-BwpFkvOH.js'});

@@ -1,0 +1,11 @@
+import { build } from 'vite';
+import { readFile, writeFile } from 'node:fs/promises';
+const bundle=await build({configFile:false,logLevel:'silent',build:{write:false,rollupOptions:{output:{manualChunks:id=>/pdfjs-dist/.test(id)?undefined:'index'}}}});
+let css=bundle.output.filter(f=>f.type==='asset'&&f.fileName.endsWith('.css')).map(f=>f.source).join('\n');
+for(const f of bundle.output.filter(f=>f.type==='asset'&&f.fileName.endsWith('.woff2')))css=css.replaceAll('/'+f.fileName,'data:font/woff2;base64,'+Buffer.from(f.source).toString('base64'));
+let code=bundle.output.find(f=>f.type==='chunk'&&f.isEntry).code;
+for(const size of [64,128])code=code.replaceAll('/icons/icon-'+size+'.png','data:image/png;base64,'+Buffer.from(await readFile('public/icons/icon-'+size+'.png')).toString('base64'));
+code=code.replaceAll('</script','<\\/script');
+await writeFile('tmp/wcag-frame-choices-native.html','<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Frame choices WCAG audit</title><style>'+css+'</style><body><div id="app"></div><div id="toast" role="status" aria-live="polite"></div><script type="module">(async()=>{'+code+'})()</script></body></html>');
+await writeFile('tmp/wcag-frame-choices-320.html','<!doctype html><html><meta charset="utf-8"><title>Frame choices 320 CSS pixel audit</title><iframe title="Whiteboard" src="wcag-frame-choices-native.html" width="320" height="850" style="border:1px solid"></iframe></html>');
+console.log('Built current source with embedded stylesheet and fonts.');

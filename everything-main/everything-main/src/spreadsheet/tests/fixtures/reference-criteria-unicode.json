@@ -1,0 +1,1116 @@
+{
+  "provenance": {
+    "application": "Microsoft Excel 16.113 for macOS",
+    "date": "2026-09-22",
+    "method": "Opened app-exported native-only XLSX; verified stored formulas and compared worksheet results with fully qualified Evaluate. All 14 actual error cells verified through ERROR.TYPE. Unicode pair COUNTIF controls separately verified for all 259 pairs in excel-text-comparison-unicode.json.",
+    "columns": [
+      "COUNTIF",
+      "COUNTIFS",
+      "SUMIF",
+      "SUMIFS",
+      "AVERAGEIF",
+      "AVERAGEIFS",
+      "MAXIFS",
+      "MINIFS",
+      "COUNTIF <>",
+      "COUNTIF ="
+    ]
+  },
+  "cases": [
+    {
+      "values": [
+        "ss",
+        "ß"
+      ],
+      "criteria": [
+        "ss",
+        "ß"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        "ﬁ",
+        "fi"
+      ],
+      "criteria": [
+        "ﬁ",
+        "fi"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        "é",
+        "é"
+      ],
+      "criteria": [
+        "é",
+        "é"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        "e",
+        "é"
+      ],
+      "criteria": [
+        "e",
+        "é"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "values": [
+        "ab",
+        "a​b"
+      ],
+      "criteria": [
+        "ab",
+        "a​b"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        "ab",
+        "ab​"
+      ],
+      "criteria": [
+        "ab",
+        "ab​"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "values": [
+        "​",
+        "️"
+      ],
+      "criteria": [
+        "​",
+        "️"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        "️",
+        "​⁠"
+      ],
+      "criteria": [
+        "️",
+        "​⁠"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        "​",
+        "​⁠"
+      ],
+      "criteria": [
+        "​",
+        "​⁠"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "values": [
+        "ı",
+        "I"
+      ],
+      "criteria": [
+        "ı",
+        "I"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "values": [
+        "ᾀ",
+        "ἀι"
+      ],
+      "criteria": [
+        "ᾀ",
+        "ἀι"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          7,
+          7,
+          7,
+          7,
+          7,
+          7,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "values": [
+        "𝐀",
+        "a"
+      ],
+      "criteria": [
+        "𝐀",
+        "a"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        " x ",
+        " x "
+      ],
+      "criteria": [
+        " x ",
+        " x "
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ],
+        [
+          2,
+          2,
+          9,
+          9,
+          4.5,
+          4.5,
+          7,
+          2,
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "values": [
+        "#N/A",
+        "#n/a"
+      ],
+      "criteria": [
+        "#N/A",
+        "#n/a"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          0,
+          0,
+          0,
+          0,
+          {
+            "error": "#DIV/0!"
+          },
+          {
+            "error": "#DIV/0!"
+          },
+          0,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          {
+            "error": "#DIV/0!"
+          },
+          {
+            "error": "#DIV/0!"
+          },
+          0,
+          0,
+          2,
+          0
+        ]
+      ]
+    },
+    {
+      "values": [
+        {
+          "error": "#N/A"
+        },
+        "#N/A"
+      ],
+      "criteria": [
+        "#N/A"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "values": [
+        {
+          "error": "#N/A"
+        },
+        "#N/A"
+      ],
+      "criteria": [
+        "#Ｎ/Ａ"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "values": [
+        {
+          "error": "#N/A"
+        },
+        "#N/A"
+      ],
+      "criteria": [
+        "#N/A​"
+      ],
+      "weights": [
+        2,
+        7
+      ],
+      "expected": [
+        [
+          0,
+          0,
+          0,
+          0,
+          {
+            "error": "#DIV/0!"
+          },
+          {
+            "error": "#DIV/0!"
+          },
+          0,
+          0,
+          2,
+          0
+        ]
+      ]
+    },
+    {
+      "values": [
+        "ss",
+        "ß",
+        "SS"
+      ],
+      "criteria": [
+        "ss",
+        "ß"
+      ],
+      "weights": [
+        10000000000000000,
+        1,
+        -10000000000000000
+      ],
+      "expected": [
+        [
+          3,
+          3,
+          0,
+          0,
+          0,
+          0,
+          10000000000000000,
+          -10000000000000000,
+          0,
+          3
+        ],
+        [
+          3,
+          3,
+          0,
+          0,
+          0,
+          0,
+          10000000000000000,
+          -10000000000000000,
+          0,
+          3
+        ]
+      ]
+    }
+  ],
+  "errorCriteria": [
+    {
+      "criterion": "#NULL!",
+      "expected": 1
+    },
+    {
+      "criterion": "=#NULL!",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#NULL!",
+      "expected": 27
+    },
+    {
+      "criterion": "<#NULL!",
+      "expected": 0
+    },
+    {
+      "criterion": ">#NULL!",
+      "expected": 13
+    },
+    {
+      "criterion": "<=#NULL!",
+      "expected": 1
+    },
+    {
+      "criterion": ">=#NULL!",
+      "expected": 14
+    },
+    {
+      "criterion": "#DIV/0!",
+      "expected": 1
+    },
+    {
+      "criterion": "=#DIV/0!",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#DIV/0!",
+      "expected": 27
+    },
+    {
+      "criterion": "<#DIV/0!",
+      "expected": 1
+    },
+    {
+      "criterion": ">#DIV/0!",
+      "expected": 12
+    },
+    {
+      "criterion": "<=#DIV/0!",
+      "expected": 2
+    },
+    {
+      "criterion": ">=#DIV/0!",
+      "expected": 13
+    },
+    {
+      "criterion": "#VALUE!",
+      "expected": 1
+    },
+    {
+      "criterion": "=#VALUE!",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#VALUE!",
+      "expected": 27
+    },
+    {
+      "criterion": "<#VALUE!",
+      "expected": 2
+    },
+    {
+      "criterion": ">#VALUE!",
+      "expected": 11
+    },
+    {
+      "criterion": "<=#VALUE!",
+      "expected": 3
+    },
+    {
+      "criterion": ">=#VALUE!",
+      "expected": 12
+    },
+    {
+      "criterion": "#REF!",
+      "expected": 1
+    },
+    {
+      "criterion": "=#REF!",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#REF!",
+      "expected": 27
+    },
+    {
+      "criterion": "<#REF!",
+      "expected": 3
+    },
+    {
+      "criterion": ">#REF!",
+      "expected": 10
+    },
+    {
+      "criterion": "<=#REF!",
+      "expected": 4
+    },
+    {
+      "criterion": ">=#REF!",
+      "expected": 11
+    },
+    {
+      "criterion": "#NAME?",
+      "expected": 1
+    },
+    {
+      "criterion": "=#NAME?",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#NAME?",
+      "expected": 27
+    },
+    {
+      "criterion": "<#NAME?",
+      "expected": 4
+    },
+    {
+      "criterion": ">#NAME?",
+      "expected": 9
+    },
+    {
+      "criterion": "<=#NAME?",
+      "expected": 5
+    },
+    {
+      "criterion": ">=#NAME?",
+      "expected": 10
+    },
+    {
+      "criterion": "#NUM!",
+      "expected": 1
+    },
+    {
+      "criterion": "=#NUM!",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#NUM!",
+      "expected": 27
+    },
+    {
+      "criterion": "<#NUM!",
+      "expected": 5
+    },
+    {
+      "criterion": ">#NUM!",
+      "expected": 8
+    },
+    {
+      "criterion": "<=#NUM!",
+      "expected": 6
+    },
+    {
+      "criterion": ">=#NUM!",
+      "expected": 9
+    },
+    {
+      "criterion": "#N/A",
+      "expected": 1
+    },
+    {
+      "criterion": "=#N/A",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#N/A",
+      "expected": 27
+    },
+    {
+      "criterion": "<#N/A",
+      "expected": 6
+    },
+    {
+      "criterion": ">#N/A",
+      "expected": 7
+    },
+    {
+      "criterion": "<=#N/A",
+      "expected": 7
+    },
+    {
+      "criterion": ">=#N/A",
+      "expected": 8
+    },
+    {
+      "criterion": "#GETTING_DATA",
+      "expected": 1
+    },
+    {
+      "criterion": "=#GETTING_DATA",
+      "expected": 1
+    },
+    {
+      "criterion": "<>#GETTING_DATA",
+      "expected": 27
+    },
+    {
+      "criterion": "<#GETTING_DATA",
+      "expected": 7
+    },
+    {
+      "criterion": ">#GETTING_DATA",
+      "expected": 6
+    },
+    {
+      "criterion": "<=#GETTING_DATA",
+      "expected": 8
+    },
+    {
+      "criterion": ">=#GETTING_DATA",
+      "expected": 7
+    },
+    {
+      "criterion": "#SPILL!",
+      "expected": 0
+    },
+    {
+      "criterion": "=#SPILL!",
+      "expected": 0
+    },
+    {
+      "criterion": "<>#SPILL!",
+      "expected": 28
+    },
+    {
+      "criterion": "<#SPILL!",
+      "expected": 0
+    },
+    {
+      "criterion": ">#SPILL!",
+      "expected": 0
+    },
+    {
+      "criterion": "<=#SPILL!",
+      "expected": 0
+    },
+    {
+      "criterion": ">=#SPILL!",
+      "expected": 0
+    },
+    {
+      "criterion": "#CONNECT!",
+      "expected": 0
+    },
+    {
+      "criterion": "=#CONNECT!",
+      "expected": 0
+    },
+    {
+      "criterion": "<>#CONNECT!",
+      "expected": 28
+    },
+    {
+      "criterion": "<#CONNECT!",
+      "expected": 0
+    },
+    {
+      "criterion": ">#CONNECT!",
+      "expected": 0
+    },
+    {
+      "criterion": "<=#CONNECT!",
+      "expected": 0
+    },
+    {
+      "criterion": ">=#CONNECT!",
+      "expected": 0
+    },
+    {
+      "criterion": "#BLOCKED!",
+      "expected": 0
+    },
+    {
+      "criterion": "=#BLOCKED!",
+      "expected": 0
+    },
+    {
+      "criterion": "<>#BLOCKED!",
+      "expected": 28
+    },
+    {
+      "criterion": "<#BLOCKED!",
+      "expected": 0
+    },
+    {
+      "criterion": ">#BLOCKED!",
+      "expected": 0
+    },
+    {
+      "criterion": "<=#BLOCKED!",
+      "expected": 0
+    },
+    {
+      "criterion": ">=#BLOCKED!",
+      "expected": 0
+    },
+    {
+      "criterion": "#UNKNOWN!",
+      "expected": 0
+    },
+    {
+      "criterion": "=#UNKNOWN!",
+      "expected": 0
+    },
+    {
+      "criterion": "<>#UNKNOWN!",
+      "expected": 28
+    },
+    {
+      "criterion": "<#UNKNOWN!",
+      "expected": 0
+    },
+    {
+      "criterion": ">#UNKNOWN!",
+      "expected": 0
+    },
+    {
+      "criterion": "<=#UNKNOWN!",
+      "expected": 0
+    },
+    {
+      "criterion": ">=#UNKNOWN!",
+      "expected": 0
+    },
+    {
+      "criterion": "#FIELD!",
+      "expected": 0
+    },
+    {
+      "criterion": "=#FIELD!",
+      "expected": 0
+    },
+    {
+      "criterion": "<>#FIELD!",
+      "expected": 28
+    },
+    {
+      "criterion": "<#FIELD!",
+      "expected": 0
+    },
+    {
+      "criterion": ">#FIELD!",
+      "expected": 0
+    },
+    {
+      "criterion": "<=#FIELD!",
+      "expected": 0
+    },
+    {
+      "criterion": ">=#FIELD!",
+      "expected": 0
+    },
+    {
+      "criterion": "#CALC!",
+      "expected": 0
+    },
+    {
+      "criterion": "=#CALC!",
+      "expected": 0
+    },
+    {
+      "criterion": "<>#CALC!",
+      "expected": 28
+    },
+    {
+      "criterion": "<#CALC!",
+      "expected": 0
+    },
+    {
+      "criterion": ">#CALC!",
+      "expected": 0
+    },
+    {
+      "criterion": "<=#CALC!",
+      "expected": 0
+    },
+    {
+      "criterion": ">=#CALC!",
+      "expected": 0
+    }
+  ]
+}

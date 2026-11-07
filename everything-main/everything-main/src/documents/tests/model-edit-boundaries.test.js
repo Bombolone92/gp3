@@ -1,0 +1,268 @@
+import { describe, it, expect } from 'vitest';
+import { TextDocument, paragraph, paragraphFormat, boundaries } from '../src/engine/model.js';
+import { emptyStyles } from '../src/engine/styles.js';
+import { JSDOM } from 'jsdom';
+import { zipSync, unzipSync, strToU8, strFromU8 } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+
+const headingStyles = () => {
+  const styles = emptyStyles();
+  styles.definitions.Heading1 = { id: 'Heading1', type: 'paragraph', name: 'heading 1', basedOn: null, next: null, properties: {}, reference: {}, run: { bold: true } };
+  return styles;
+};
+const shape = doc => doc.paragraphs.map(p => [p.styleId || null, p.runs.map(r => r.text).join(''), p.format?.alignment ?? 'left']);
+
+describe('removing an empty paragraph', () => {
+  const heading = () => new TextDocument([
+    paragraph('Intro'), paragraph(''), paragraph('Title', { styleId: 'Heading1', format: { alignment: 'center' } }), paragraph('Body'),
+  ], undefined, undefined, headingStyles());
+  it('keeps the following heading when Backspace deletes the empty line above it', () => {
+    const doc = heading(), before = shape(doc);
+    doc.select(7); expect(doc.delete(-1)).toBe(true);
+    expect(shape(doc)).toEqual([[null, 'Intro', 'left'], ['Heading1', 'Title', 'center'], [null, 'Body', 'left']]);
+    expect(doc.paragraphs[1].runs[0].bold).toBe(true);
+    expect(doc.selection).toEqual({ anchor: 6, focus: 6 });
+    doc.undo(); expect(shape(doc)).toEqual(before); expect(doc.selection).toEqual({ anchor: 7, focus: 7 });
+  });
+  it('keeps the following heading when Delete is pressed in the empty line', () => {
+    const doc = heading();
+    doc.select(6); expect(doc.delete(1)).toBe(true);
+    expect(shape(doc)[1]).toEqual(['Heading1', 'Title', 'center']);
+  });
+  it('moves a bookmark from the removed paragraph onto the surviving one', () => {
+    const doc = heading();
+    doc.select(6); doc.addBookmark('Empty');
+    doc.select(7); doc.delete(-1);
+    expect(doc.bookmarks.map(b => [b.name, b.startParagraph === doc.paragraphs[1].id])).toEqual([['Empty', true]]);
+  });
+  it('keeps the first paragraph\'s identity on the survivor, so removing paragraphs by id stays exact', () => {
+    const doc = new TextDocument([paragraph('Intro'), paragraph(''), paragraph(''), paragraph(''), paragraph('End')]);
+    const ids = new Set(doc.paragraphs.slice(2, 4).map(p => p.id));
+    // Remove each listed paragraph by deleting the mark before it, last first.
+    for (let i = doc.paragraphs.length - 1; i >= 0; i--) {
+      if (!ids.has(doc.paragraphs[i].id)) continue;
+      const at = doc.paragraphOffset(i); doc.select(at - 1, at); doc.delete(-1);
+    }
+    expect(doc.text).toBe('Intro\n\nEnd');
+  });
+  it('still keeps the first paragraph when it has text', () => {
+    const doc = new TextDocument([paragraph('Intro'), paragraph('Title', { styleId: 'Heading1' })], undefined, undefined, headingStyles());
+    doc.select(6); doc.delete(-1);
+    expect(shape(doc)).toEqual([[null, 'IntroTitle', 'left']]);
+  });
+  it('keeps the paragraph after deleted whole paragraphs as it was, also when a tracked deletion is accepted', () => {
+    const outline = () => new TextDocument([paragraph('Old title', { styleId: 'Heading1', format: { alignment: 'center' } }), paragraph('Old intro'), paragraph('Section'), paragraph('Body')], undefined, undefined, headingStyles());
+    // From the start of the heading to the start of "Section": the heading and the paragraph after it, marks included.
+    const doc = outline(), before = shape(doc);
+    doc.paragraphs[2].styleId = 'Heading1';
+    doc.select(0, 'Old title\nOld intro\n'.length); doc.delete(-1);
+    expect(shape(doc)).toEqual([['Heading1', 'Section', 'left'], [null, 'Body', 'left']]);
+    doc.undo(); expect(shape(doc).map(p => p[1])).toEqual(before.map(p => p[1]));
+    // Deleting the plain paragraph before a heading leaves the heading a heading.
+    const plain = new TextDocument([paragraph('Intro'), paragraph('Title', { styleId: 'Heading1' })], undefined, undefined, headingStyles());
+    plain.select(0, 6); plain.delete(1);
+    expect(shape(plain)).toEqual([['Heading1', 'Title', 'left']]);
+    const tracked = outline();
+    tracked.trackChanges = true;
+    tracked.select(0, 'Old title\n'.length); tracked.replace('');
+    expect(tracked.revisions).toHaveLength(1);
+    tracked.resolveRevisions(true);
+    expect(shape(tracked)).toEqual([[null, 'Old intro', 'left'], [null, 'Section', 'left'], [null, 'Body', 'left']]);
+    // A deletion that starts inside a paragraph still merges into that paragraph, as Backspace does.
+    const partial = new TextDocument([paragraph('Old title', { styleId: 'Heading1' }), paragraph('Old intro')], undefined, undefined, headingStyles());
+    partial.select(3, 'Old title\n'.length); partial.delete(-1);
+    expect(shape(partial)).toEqual([['Heading1', 'OldOld intro', 'left']]);
+  });
+  it('saves and reopens the surviving heading with its style and source properties', async () => {
+    const dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer;
+    const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    const heading = '<w:p w:rsidR="00A1B2C3"><w:pPr><w:pStyle w:val="Heading1"/><w:jc w:val="center"/></w:pPr><w:proofErr w:type="spellStart"/><w:r><w:t>Titel</w:t></w:r><w:proofErr w:type="spellEnd"/></w:p>';
+    const files = {
+      '[Content_Types].xml': '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>',
+      '_rels/.rels': '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+      'word/_rels/document.xml.rels': '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+      'word/styles.xml': `<w:styles xmlns:w="${W}"><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:rPr><w:b/></w:rPr></w:style></w:styles>`,
+      'word/document.xml': `<w:document xmlns:w="${W}"><w:body><w:p><w:r><w:t>Intro</w:t></w:r></w:p><w:p/>${heading}<w:sectPr/></w:body></w:document>`,
+    };
+    try {
+      const pkg = await DocxPackage.open(zipSync(Object.fromEntries(Object.entries(files).map(([k, v]) => [k, strToU8(v)]))));
+      const doc = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets);
+      doc.select(7); doc.delete(-1);
+      expect(doc.text).toBe('Intro\nTitel');
+      const xml = strFromU8(unzipSync(new Uint8Array(await pkg.export(doc.paragraphs, doc.pageSettings, doc.numbering, doc.styles, doc.tables, doc.assets).arrayBuffer()))['word/document.xml']);
+      expect(xml).toMatch(/<w:body><w:p><w:r><w:t>Intro<\/w:t><\/w:r><\/w:p><w:p w:rsidR="00A1B2C3"><w:pPr><w:pStyle w:val="Heading1"\/><w:jc w:val="center"\/><\/w:pPr>(?:<w:proofErr[^>]*\/>)?<w:r><w:t[^>]*>Titel<\/w:t><\/w:r>/);
+      const reopened = await DocxPackage.open(new Uint8Array(await pkg.export(doc.paragraphs, doc.pageSettings, doc.numbering, doc.styles, doc.tables, doc.assets).arrayBuffer()));
+      expect(reopened.paragraphs.map(p => p.styleId || null)).toEqual([null, 'Heading1']);
+    } finally { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; }
+  });
+});
+
+describe('a comment made at a caret', () => {
+  const range = (text, caret) => {
+    const doc = new TextDocument([paragraph(text)], undefined, undefined, undefined, [], {}, { comments: [] });
+    doc.select(caret);
+    const [start, end] = doc.commentRange();
+    return doc.text.slice(start, end);
+  };
+  it('anchors the whole word, including combining marks and astral letters', () => {
+    expect(range('cafe\u0301 au lait', 1)).toBe('cafe\u0301');
+    expect(range('नमस्ते दुनिया', 1)).toBe('नमस्ते');
+    expect(range('𝐀𝐁𝐂 x', 2)).toBe('𝐀𝐁𝐂');
+    expect(range("don't stop", 2)).toBe("don't");
+  });
+  it('anchors comment markers on grapheme boundaries', () => {
+    const doc = new TextDocument([paragraph('cafe\u0301 au')], undefined, undefined, undefined, [], {}, { comments: [] });
+    doc.select(2); const id = doc.addComment({ text: 'Accent' });
+    expect(doc.commentList.find(c => c.id === id)).toMatchObject({ start: 0, end: 5 });
+  });
+});
+
+describe('Replace with Track Changes on', () => {
+  const tracked = text => {
+    const doc = new TextDocument([paragraph(text)], undefined, undefined, undefined, [], {}, { trackChanges: true });
+    doc.revisionAuthor = 'Me'; return doc;
+  };
+  const marks = doc => doc.revisions.map(r => [r.type, r.author, doc.text.slice(r.start, r.end)]);
+  it('records Replace All as tracked deletions and insertions', () => {
+    const doc = tracked('one cat, two cat');
+    expect(doc.replaceMatches('cat', 'dog', {}, true)).toBe(2);
+    expect(marks(doc)).toEqual([['del', 'Me', 'cat'], ['ins', 'Me', 'dog'], ['del', 'Me', 'cat'], ['ins', 'Me', 'dog']]);
+    expect(doc.selection).toEqual({ anchor: 10, focus: 10 });
+    expect(doc.history).toHaveLength(1);
+    doc.undo(); expect(doc.text).toBe('one cat, two cat'); expect(doc.revisions).toEqual([]);
+    doc.redo(); doc.resolveRevisions(false); expect(doc.text).toBe('one cat, two cat');
+    doc.undo(); doc.resolveRevisions(true); expect(doc.text).toBe('one dog, two dog');
+  });
+  it('records a single Replace as a tracked change', () => {
+    const doc = tracked('one cat, two cat');
+    doc.select(4, 7);
+    expect(doc.replaceMatches('cat', 'dog', {}, false)).toBe(1);
+    expect(marks(doc)).toEqual([['del', 'Me', 'cat'], ['ins', 'Me', 'dog']]);
+  });
+  it('changes nothing, including history, when every match is already deleted text', () => {
+    const doc = tracked('one cat, two cat');
+    doc.select(4, 7); doc.replace(''); doc.select(13, 16); doc.replace('');
+    doc.select(0); const before = JSON.stringify(doc.paragraphs), history = doc.history.length;
+    expect(doc.replaceMatches('cat', '', {}, true)).toBe(0);
+    expect(JSON.stringify(doc.paragraphs)).toBe(before); expect(doc.history).toHaveLength(history);
+    expect(doc.selection).toEqual({ anchor: 0, focus: 0 });
+    doc.undo(); expect(doc.revisions.map(r => r.type)).toEqual(['del']);
+  });
+  it('undoes an advanced Replace All in one step when some matches are already deleted', () => {
+    const doc = tracked('one cat, two cat');
+    doc.select(4, 7); doc.replace('');
+    const before = JSON.stringify(doc.paragraphs);
+    // The "cat" already deleted is not found while Track Changes is on, so one match is replaced.
+    expect(doc.replaceMatches('cat', '', { advanced: true, matchCase: true }, true)).toBe(1);
+    expect(doc.revisions.map(r => [r.type, doc.text.slice(r.start, r.end)])).toEqual([['del', 'cat'], ['del', 'cat']]);
+    doc.undo();
+    expect(JSON.stringify(doc.paragraphs)).toBe(before);
+  });
+});
+
+describe('grapheme boundaries after an edit', () => {
+  // Count the text handed to the grapheme segmenter: an edit should cost its paragraph, not the document.
+  const segmented = run => {
+    const original = Intl.Segmenter.prototype.segment; let count = 0;
+    Intl.Segmenter.prototype.segment = function (text) { count += text.length; return original.call(this, text); };
+    try { run(); } finally { Intl.Segmenter.prototype.segment = original; }
+    return count;
+  };
+  const large = () => new TextDocument(Array.from({ length: 2000 }, (_, i) => paragraph(`Paragraph ${i} with some ordinary words in it.`)));
+  it('matches a full segmentation through random edits, joiners, regional indicators and CR', () => {
+    const graphemes = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+    const full = text => [...graphemes.segment(text)].map(s => s.index).concat(text.length);
+    const atoms = ['a', '\n', 'e', '́', '\u{1F44D}', '\u{1F3FD}', '‍', '\u{1F1EB}', '\u{1F1F7}', 'क', '्', 'ष', 'ᄀ', 'ᅡ', '\r', ' '];
+    let seed = 3, text = 'start\nof text';
+    const random = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+    for (let i = 0; i < 3000; i++) {
+      const at = Math.floor(random() * (text.length + 1)), removed = Math.floor(random() * 3);
+      let inserted = ''; for (let k = Math.floor(random() * 4); k > 0; k--) inserted += atoms[Math.floor(random() * atoms.length)];
+      text = text.slice(0, at) + inserted + text.slice(at + removed);
+      expect(boundaries(text)).toEqual(full(text));
+    }
+  });
+  it('segments only the edited paragraph when typing in a long document', () => {
+    const doc = large();
+    doc.select(doc.text.length); boundaries(doc.text);
+    const cost = segmented(() => { doc.replace('x'); boundaries(doc.text); doc.select(doc.selection.focus); doc.delete(-1); boundaries(doc.text); });
+    expect(doc.text.endsWith('in it.')).toBe(true);
+    expect(cost).toBeLessThan(500);
+  });
+  it('keeps advanced Replace All from re-segmenting the document per match', () => {
+    const doc = large();
+    let count;
+    const cost = segmented(() => { count = doc.replaceMatches('words', 'terms', { advanced: true, matchCase: true }, true); });
+    expect(count).toBe(2000);
+    expect(doc.paragraphs[1999].runs[0].text).toBe('Paragraph 1999 with some ordinary terms in it.');
+    expect(cost).toBeLessThan(doc.text.length * 4);
+  });
+});
+
+describe('a text-wrapping break', () => {
+  it('keeps its clear setting when it replaces a selection with Track Changes on', () => {
+    const doc = new TextDocument([paragraph('one abc two')], undefined, undefined, undefined, [], {}, { trackChanges: true });
+    doc.select(4, 7); expect(doc.insertTextWrappingBreak('all')).toBe(true);
+    expect(doc.paragraphs[0].runs.map(r => [r.text, r.breakClear ?? null, r.revision?.type ?? null]))
+      .toEqual([['one ', null, null], ['abc', null, 'del'], ['\v', 'all', 'ins'], [' two', null, null]]);
+    expect(doc.selection).toEqual({ anchor: 8, focus: 8 });
+  });
+});
+
+describe('inserting an equation over a selection', () => {
+  const equation = { xml: '<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>x</m:t></m:r></m:oMath>', text: 'x' };
+  it('tracks the replaced text as a deletion and the equation as an insertion when Track Changes is on', () => {
+    const doc = new TextDocument([paragraph('one abc two')], undefined, undefined, undefined, [], {}, { trackChanges: true });
+    doc.revisionAuthor = 'Me'; doc.select(7, 4);
+    expect(doc.insertMathRun(equation)).toBe(true);
+    expect(doc.paragraphs[0].runs.map(r => [r.text, !!r.math, r.revision?.type ?? null]))
+      .toEqual([['one ', false, null], ['abc', false, 'del'], ['￼', true, 'ins'], [' two', false, null]]);
+    expect(doc.selection).toEqual({ anchor: 8, focus: 8 });
+    doc.undo(); expect(doc.text).toBe('one abc two'); expect(doc.selection).toEqual({ anchor: 7, focus: 4 });
+  });
+  it('replaces the selection outright when Track Changes is off', () => {
+    const doc = new TextDocument([paragraph('one abc two')]);
+    doc.select(4, 7); doc.insertMathRun(equation);
+    expect(doc.text).toBe('one ￼ two'); expect(doc.history).toHaveLength(1);
+  });
+});
+
+describe('Decrease Indent', () => {
+  it('stops at the margin instead of indenting text into it', () => {
+    const doc = new TextDocument([paragraph('plain'), paragraph('indented', { format: { indentLeft: 360 } }), paragraph('outdented', { format: { indentLeft: -360 } })]);
+    const indents = () => doc.paragraphs.map(p => paragraphFormat(p, doc.numbering).indentLeft);
+    doc.select(0, doc.text.length);
+    expect(doc.changeListLevel(-1)).toBe(true);
+    expect(indents()).toEqual([0, 0, -360]);
+    expect(doc.changeListLevel(-1)).toBe(false); expect(doc.history).toHaveLength(1);
+    expect(doc.changeListLevel(1)).toBe(true); expect(indents()).toEqual([720, 720, 360]);
+  });
+});
+
+describe('tracked editing in a long document', () => {
+  // Count the JSON written while editing: a tracked keystroke should not serialize the whole document.
+  const serialized = run => {
+    const original = JSON.stringify; let count = 0;
+    JSON.stringify = (...args) => { const out = original(...args); count += out?.length || 0; return out; };
+    try { run(); } finally { JSON.stringify = original; }
+    return count;
+  };
+  const large = () => {
+    const doc = new TextDocument(Array.from({ length: 2000 }, (_, i) => paragraph(`Paragraph ${i} with some ordinary words in it.`)), undefined, undefined, undefined, [], {}, { trackChanges: true });
+    doc.revisionAuthor = 'Me'; return doc;
+  };
+  it('compares only the edited paragraphs when typing and deleting', () => {
+    const doc = large(), size = JSON.stringify(doc.paragraphs).length;
+    doc.select(doc.paragraphOffset(1000) + 5);
+    const cost = serialized(() => { doc.replace('x'); doc.select(doc.paragraphOffset(1000) + 2); doc.delete(1); doc.delete(1); });
+    expect(doc.revisions.map(r => r.type)).toEqual(['del', 'ins']);
+    expect(cost).toBeLessThan(size / 10);
+  });
+  it('keeps tracked Replace All linear in the number of matches', () => {
+    const doc = large(), size = JSON.stringify(doc.paragraphs).length;
+    let count;
+    const cost = serialized(() => { count = doc.replaceMatches('ordinary', '', {}, true); });
+    expect(count).toBe(2000); expect(doc.revisions).toHaveLength(2000);
+    expect(cost).toBeLessThan(size * 4);
+  });
+});

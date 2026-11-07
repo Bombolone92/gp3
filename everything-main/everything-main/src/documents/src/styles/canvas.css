@@ -1,0 +1,194 @@
+@font-face {
+  font-family: 'Canvas Noto Sans';
+  src: url('/fonts/NotoSans.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+.canvas-workspace { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--surface); }
+.canvas-host { position: relative; flex: 1; overflow: auto; min-height: 100px; background: var(--canvas); overscroll-behavior: contain; }
+.canvas-pages { display: flex; flex-direction: column; align-items: center; width: max-content; min-width: 100%; padding: 24px; gap: 24px; touch-action: pan-y; }
+.canvas-page { display: block; background: white; outline: 1px solid var(--hairline-strong); cursor: text; flex-shrink: 0; }
+.canvas-input { position: absolute; width: 2px; height: 26px; padding: 0; border: 0; opacity: 0.01; overflow: hidden; resize: none; white-space: pre; pointer-events: none; }
+/* The hidden field holds the whole document and is laid out again on every keystroke: a system face
+   without kerning or ligature shaping takes about half that work. The inline font shorthand sets these,
+   hence !important. Accessible editing shows the field itself and keeps ordinary text rendering. */
+.canvas-host:not(.accessible-editing) .canvas-input { font-family: Arial, Helvetica, sans-serif !important; font-kerning: none !important; font-variant-ligatures: none !important; text-rendering: optimizeSpeed; }
+.canvas-image-frame { position:absolute; border:1px solid #375f91; pointer-events:none; z-index:3; }
+.canvas-image-frame[hidden] { display:none; }
+.canvas-image-handle { position:absolute; width:12px; height:12px; padding:0; border:1px solid #375f91; background:white; pointer-events:auto; touch-action:none; border-radius:2px; }
+.canvas-image-handle[data-handle='nw'] { left:-6px;top:-6px;cursor:nwse-resize; }
+.canvas-image-handle[data-handle='ne'] { right:-6px;top:-6px;cursor:nesw-resize; }
+.canvas-image-handle[data-handle='sw'] { left:-6px;bottom:-6px;cursor:nesw-resize; }
+.canvas-image-handle[data-handle='se'] { right:-6px;bottom:-6px;cursor:nwse-resize; }
+.canvas-image-move { position:absolute; left:16px;top:-28px; height:24px; padding:2px 8px; border:1px solid #375f91; background:white; color:#243e5f; font:12px system-ui; border-radius:4px; pointer-events:auto; touch-action:none; cursor:move; }
+.canvas-host.accessible-editing { padding: 24px; }
+.accessible-editing .canvas-pages { display: none; }
+.accessible-editing .canvas-input { position: static; width: 100%; height: 100%; min-height: 300px; opacity: 1; pointer-events: auto; padding: 24px; background: white; color: #202124; white-space: pre-wrap; overflow: auto; line-height: 1.65; border: 1px solid var(--control-border); }
+.canvas-message { padding: 24px; }
+.canvas-message[hidden] { display: none; }
+.canvas-message-error { color: var(--critical); }
+/* Notices about the open document: a tinted message bar under the toolbar. */
+.canvas-message:not(.editor-error) { position: relative; flex: none; max-height: 40vh; overflow: auto; padding: 10px 52px 10px 16px; font-size: 13px; line-height: 1.45; color: var(--ink); background: var(--accent-wash); border-bottom: 1px solid var(--hairline); }
+.canvas-message:not(.editor-error) > :not(.canvas-message-close) + * { margin-top: 6px; }
+.canvas-message-close { position: absolute; top: 5px; right: 8px; width: 32px; height: 32px; color: var(--ink-2); }
+@media (max-width: 700px) {
+  .canvas-message:not(.editor-error) { max-height: 30vh; padding: 8px 48px 8px 12px; font-size: 12px; }
+  .canvas-message-close { top: 0; right: 0; width: 44px; height: 44px; }
+}
+.canvas-message > p { margin: 0; }
+/* A converted Hanword file's report sits in the message bar as its other notices do. */
+.canvas-message > .import-notice { padding: 0; color: inherit; background: none; border: 0; font-size: inherit; max-height: none; overflow: visible; }
+.canvas-message > .import-notice p { margin: 6px 0 0; }
+/* A document that could not open keeps the header and menus; the message takes the workspace. */
+.canvas-failed > .canvas-toolbar-shell, .canvas-failed > .ed-ribbon, .canvas-failed .ribbon-tab, .canvas-failed > .canvas-editor-body, .canvas-failed > .canvas-statusbar { display: none; }
+.canvas-failed > .canvas-message.editor-error { position: static; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; min-height: 0; overflow: auto; text-align: center; }
+.canvas-failed .canvas-message-text { max-width: 34rem; font-size: 15px; line-height: 1.5; color: var(--ink); }
+.canvas-message-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.preview-features { margin-top: 8px; }
+.preview-features summary { cursor: pointer; }
+.preview-features ul { margin: 8px 0 0; padding-left: 24px; max-height: min(30vh, 18rem); overflow: auto; overflow-wrap: anywhere; }
+.canvas-find { flex: 0 0 320px; width: 320px; min-width: 0; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 14px; border-right: 1px solid var(--hairline); background: var(--surface); }
+.canvas-find[hidden] { display: none; }
+.canvas-find-heading, .canvas-find-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.canvas-find-heading { justify-content: space-between; margin-bottom: 8px; }
+.canvas-find-heading { position: sticky; top: -14px; z-index: 1; margin-top: -14px; padding-top: 14px; padding-bottom: 8px; background: var(--surface); }
+.canvas-find { scroll-padding-top: 64px; }
+.canvas-find-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.canvas-find-field .input { min-width: 0; width: 100%; }
+.canvas-find-row { margin: 8px 0; font-size: 12px; }
+.canvas-find-row label { display: inline-flex; align-items: center; gap: 4px; }
+.canvas-find-count, .canvas-find-row .field-hint { margin-right: auto; }
+.canvas-find-notice { margin: 0; font-size: 12px; }
+.canvas-find-notice:empty { display: none; }
+@media (max-width: 480px) { .canvas-find-actions { justify-content: flex-end; } .canvas-find-actions .field-hint { flex-basis: 100%; margin: 0; } }
+@media (max-width: 700px) {
+  .canvas-find { order: 1; flex: 0 0 auto; width: 100%; max-height: min(60dvh, calc(100% - 130px)); border: 1px solid var(--hairline-strong); border-radius: 16px 16px 0 0; }
+  .canvas-find .icon-btn, .canvas-find .btn, .canvas-find .input { min-height: 44px; }
+  .canvas-find .icon-btn { min-width: 44px; }
+}
+.playground-shell { height: 100dvh; display: flex; flex-direction: column; }
+.playground-nav { padding: 10px 20px; display: flex; gap: 14px; align-items: center; border-bottom: 1px solid var(--hairline); background: var(--surface); flex-wrap: wrap; }
+.playground-nav a { color: var(--accent); font-size: 13px; }
+.playground-nav strong { margin-right: auto; }
+.playground-editor { flex: 1; min-height: 0; }
+#playground-error:empty { display: none; }
+#playground-error { padding: 10px 20px; color: var(--critical); }
+
+@font-face {
+  font-family: 'Canvas Noto Sans';
+  src: url('/fonts/NotoSans-Italic.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: block;
+}
+
+.canvas-page-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.canvas-page-fields .input { min-width: 0; width: 100%; }
+.canvas-tab-list { max-height: 220px; overflow-y: auto; }
+.canvas-outline-list { list-style: none; margin: 0; padding: 0; }
+.canvas-outline-entry { display: flex; gap: 16px; align-items: baseline; justify-content: space-between; width: 100%; padding: 10px 12px; text-align: start; border: 0; border-radius: 5px; background: transparent; color: var(--ink); cursor: pointer; }
+.canvas-outline-entry:hover, .canvas-outline-entry:focus-visible { background: var(--accent-wash); }
+.canvas-outline-entry > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.canvas-outline-page { flex-shrink: 0; color: var(--ink-3); font-size: 12px; }
+.canvas-tab-row, .canvas-tab-head { display: grid; grid-template-columns: 1fr 1fr 1fr 36px; gap: 10px; align-items: center; margin-bottom: 8px; }
+.canvas-tab-row .input { min-width: 0; width: 100%; }
+.canvas-tab-head { font-size: 12px; color: var(--ink-2); }
+.canvas-dialog-heading { font-size: 14px; margin: 4px 0 12px; }
+.canvas-geometry-form > section { min-width: 0; }
+.canvas-geometry-form > .field-hint, .canvas-geometry-form > .field-error, .canvas-geometry-form > .row { grid-column: 1 / -1; }
+@media (min-width: 700px) {
+  .modal-panel.wide.canvas-geometry-dialog { width: 780px; max-width: calc(100vw - 40px); }
+  .canvas-geometry-form { display: grid; grid-template-columns: 1fr 1.1fr; column-gap: 28px; }
+}
+
+.modal-panel.canvas-style-dialog { display: flex; flex-direction: column; overflow: hidden; }
+.canvas-style-dialog > .modal-head, .canvas-style-dialog > .sheet-handle { flex-shrink: 0; }
+.canvas-style-form { display: flex; flex-direction: column; min-height: 0; gap: 12px; }
+.canvas-style-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
+.canvas-style-form > .row, .canvas-style-form > .field-error { flex-shrink: 0; }
+@media (min-width: 760px) {
+  .modal-panel.wide.canvas-style-dialog { width: 760px; max-width: calc(100vw - 40px); }
+  .canvas-style-dialog.wide .canvas-style-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.canvas-border-form { display: flex; flex-direction: column; min-height: 0; max-height: 70vh; }
+.canvas-border-scroll { overflow-x: auto; }
+.canvas-border-fields { width: 100%; border-collapse: separate; border-spacing: 6px 8px; }
+.canvas-border-fields th { text-align: left; font-size: 12px; font-weight: 500; }
+.canvas-border-fields td { min-width: 70px; }
+.canvas-border-fields .input { padding: 8px; min-width: 68px; }
+.canvas-border-fields select.input { min-width: 125px; padding-right: 25px; }
+.canvas-border-fields input[type="text"] { min-width: 90px; }
+@media (max-width: 640px) { .canvas-cell-border-dialog .canvas-border-fields { border-spacing: 2px 8px; } }
+@media (min-width: 641px) { .modal-panel.wide.canvas-border-dialog { width: 780px; max-width: calc(100vw - 40px); } }
+
+.canvas-document-surface { position: relative; display: flex; flex: 1; min-height: 100px; overflow: hidden; }
+.canvas-document-surface.has-rulers { padding-top: 30px; }
+.has-rulers .canvas-pages { padding-inline: 40px; }
+.canvas-ruler-top { position: absolute; top: 0; left: 0; right: 0; height: 30px; overflow: hidden; background: var(--canvas); border-bottom: 1px solid var(--hairline); z-index: 3; }
+.canvas-ruler-side { position: absolute; top: 30px; bottom: 0; left: 0; width: 25px; overflow: hidden; background: var(--canvas); z-index: 2; border-right: 1px solid var(--hairline); }
+.canvas-ruler { position: absolute; background: var(--surface-2); color: var(--ink-2); user-select: none; touch-action: none; }
+.canvas-ruler-horizontal { height: 29px; top: 0; }
+.canvas-ruler-vertical { width: 24px; left: 0; }
+.canvas-ruler-writing { position: absolute; background: var(--surface); pointer-events: none; }
+.canvas-ruler-horizontal .canvas-ruler-writing { top: 0; bottom: 0; }
+.canvas-ruler-vertical .canvas-ruler-writing { left: 0; right: 0; }
+.canvas-ruler-tick { position: absolute; pointer-events: none; background: var(--ink-3); opacity: .8; }
+.canvas-ruler-horizontal .canvas-ruler-tick { bottom: 9px; width: 1px; height: 3px; }
+.canvas-ruler-horizontal .canvas-ruler-tick.half { height: 5px; }
+.canvas-ruler-horizontal .canvas-ruler-tick.major { height: 0; }
+.canvas-ruler-tick span { position: absolute; font: 10px/1 system-ui, sans-serif; }
+.canvas-ruler-horizontal .canvas-ruler-tick span { bottom: 0; transform: translateX(-50%); }
+.canvas-ruler-vertical .canvas-ruler-tick { right: 3px; height: 1px; width: 3px; }
+.canvas-ruler-vertical .canvas-ruler-tick.half { width: 5px; }
+.canvas-ruler-vertical .canvas-ruler-tick.major { width: 0; }
+.canvas-ruler-vertical .canvas-ruler-tick span { right: 4px; transform: translateY(-50%); }
+.canvas-ruler-handle { position: absolute; padding: 0; border: 0; border-radius: 0; color: var(--ink-2); background: transparent; touch-action: none; cursor: ew-resize; z-index: 2; }
+.canvas-ruler-handle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.canvas-ruler-handle:hover { color: var(--accent); }
+.canvas-ruler-handle:disabled { cursor: default; opacity: .45; }
+.canvas-ruler-handle[data-kind='left'], .canvas-ruler-handle[data-kind='right'] { width: 8px; height: 12px; top: 8px; transform: translateX(-50%); border-inline: 1px dotted currentColor; z-index: 1; }
+.canvas-ruler-handle[data-kind='top'], .canvas-ruler-handle[data-kind='bottom'] { height: 9px; width: 24px; transform: translateY(-50%); border-block: 1px dotted currentColor; cursor: ns-resize; }
+.canvas-ruler-handle[data-kind='firstLine'], .canvas-ruler-handle[data-kind='hanging'], .canvas-ruler-handle[data-kind='indentRight'] { width: 12px; height: 8px; transform: translateX(-50%); background: currentColor; }
+.canvas-ruler-handle[data-kind='firstLine'] { top: 0; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.canvas-ruler-handle[data-kind='hanging'], .canvas-ruler-handle[data-kind='indentRight'] { top: 20px; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.canvas-ruler-handle[data-kind='hanging'] { top: 16px; }
+.canvas-ruler-handle[data-kind='indentLeft'] { top: 24px; width: 12px; height: 5px; border: 1px solid currentColor; background: var(--surface); transform: translateX(-50%); }
+.canvas-ruler-handle[data-kind='tab'] { top: 12px; height: 15px; width: 14px; transform: translateX(-50%); font: bold 16px/15px system-ui, sans-serif; }
+.canvas-tab-selector { position: absolute; left: 0; top: 0; width: 25px; height: 30px; border: 1px solid var(--hairline-strong); background: var(--surface); color: var(--ink); z-index: 4; padding: 0; font-size: 18px; cursor: pointer; }
+.canvas-ruler-guide { position: absolute; pointer-events: none; z-index: 4; border-color: var(--accent); }
+.canvas-ruler-guide[data-axis='x'] { bottom: 0; border-left: 1px dashed; }
+.canvas-ruler-guide[data-axis='y'] { right: 0; border-top: 1px dashed; }
+/* Contrast themes replace fills with the window color: the ticks and indent markers, which are fills, keep the text
+   color, and the text area keeps an edge to tell it from the margins. */
+@media (forced-colors: active) {
+  .canvas-ruler-tick { forced-color-adjust: none; background: CanvasText; opacity: 1; }
+  .canvas-ruler-tick span { color: CanvasText; }
+  .canvas-ruler-handle:is([data-kind='firstLine'], [data-kind='hanging'], [data-kind='indentRight']) { forced-color-adjust: none; color: ButtonText; }
+  .canvas-ruler-handle:is([data-kind='firstLine'], [data-kind='hanging'], [data-kind='indentRight']):hover { color: Highlight; }
+  .canvas-ruler-handle:is([data-kind='firstLine'], [data-kind='hanging'], [data-kind='indentRight']):disabled { color: GrayText; opacity: 1; }
+  .canvas-ruler-writing { box-sizing: border-box; }
+  .canvas-ruler-horizontal .canvas-ruler-writing { border-inline: 1px solid CanvasText; }
+  .canvas-ruler-vertical .canvas-ruler-writing { border-block: 1px solid CanvasText; }
+}
+.canvas-ruler-value { position: absolute; top: 34px; left: 34px; z-index: 5; padding: 4px 8px; background: var(--surface); color: var(--ink); border: 1px solid var(--hairline-strong); border-radius: 4px; font-size: 12px; }
+/* The style dialog's fields come in titled groups. */
+.canvas-style-section { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--hairline); }
+.canvas-style-section h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.canvas-border-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; }
+.canvas-border-presets .field-label { margin: 0 4px 0 0; }
+/* Bookmarks: name and its actions, then the list and its actions, with room between them. */
+.bookmark-form { display: flex; flex-direction: column; gap: 12px; }
+.bookmark-form > .field, .bookmark-form > .field-hint { margin: 0; }
+.bookmark-form > .field-hint { margin-top: -6px; }
+.bookmark-form > .row:not(.row-end) { padding-bottom: 8px; border-bottom: 1px solid var(--hairline); }
+/* A dialog's button row wraps on a narrow screen instead of running off its edge. */
+.modal-panel .row-end { flex-wrap: wrap; }
+/* Image properties: fields and their notes in a steady rhythm; cropping as a titled group. */
+.image-form { display: flex; flex-direction: column; gap: 10px; }
+.image-form > .field, .image-form .field-hint { margin: 0; }
+.image-form > .field-hint { margin-top: -4px; }
+.image-crop { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 0; padding: 12px 14px 14px; border: 1px solid var(--hairline-strong); border-radius: var(--r-sm); }
+.image-crop legend { padding: 0 6px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.image-crop .btn { align-self: flex-start; }

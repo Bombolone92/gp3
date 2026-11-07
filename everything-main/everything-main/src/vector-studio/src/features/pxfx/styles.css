@@ -1,0 +1,437 @@
+/* Effect Gallery and SVG filter dialogs */
+
+.pxg-dialog,
+.pxf-dialog {
+  width: min(1200px, calc(100vw - 24px));
+  max-width: min(1200px, calc(100vw - 24px));
+  height: min(780px, calc(100dvh - 24px));
+}
+
+.pxf-dialog {
+  width: min(880px, calc(100vw - 24px));
+  height: min(620px, calc(100dvh - 24px));
+}
+
+.pxg-dialog .dialog-body,
+.pxf-dialog .dialog-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.pxg {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 236px 300px;
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Preview */
+
+.pxg-view,
+.pxf-view {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pxp {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.pxp-stage {
+  position: relative;
+  flex: 1;
+  min-height: 160px;
+  cursor: grab;
+  touch-action: none;
+  /* Transparency shows as a light checkerboard in both themes. */
+  background-color: #ffffff;
+  background-image: linear-gradient(45deg, #e3e3e3 25%, transparent 25%), linear-gradient(-45deg, #e3e3e3 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e3e3e3 75%), linear-gradient(-45deg, transparent 75%, #e3e3e3 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.pxp-stage.dragging {
+  cursor: grabbing;
+}
+
+.pxp-stage:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.pxp-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pxp-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel-2);
+}
+
+.pxp-btn {
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+}
+
+.pxp-zoom {
+  min-width: 48px;
+  text-align: center;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Catalog */
+
+.pxg-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.pxg-search {
+  height: var(--control-h);
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text);
+  font: inherit;
+}
+
+.pxg-cats {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.pxg-cat {
+  border-bottom: 1px solid var(--border);
+}
+
+.pxg-cat-title {
+  padding: 6px 2px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pxg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 2px 0 8px;
+}
+
+.pxg-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: center;
+  cursor: pointer;
+}
+
+.pxg-tile:hover {
+  background: var(--bg-hover);
+}
+
+.pxg-tile[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--bg-selected);
+  color: var(--text);
+}
+
+.pxg-tile:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.pxg-thumb {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-xs);
+  background: var(--bg-panel-2);
+}
+
+.pxg-tile-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Settings and the filter stack */
+
+.pxg-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.pxg-settings .fx-row {
+  grid-template-columns: 104px minmax(0, 1fr) 72px;
+}
+
+.pxg-settings .fx-row.fx-select {
+  grid-template-columns: 104px minmax(0, 1fr);
+}
+
+.pxg-color {
+  width: 48px;
+  height: var(--control-h);
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.pxg-stack-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.pxg-stack-title {
+  font-weight: 600;
+}
+
+.pxg-tools {
+  display: flex;
+  gap: 2px;
+}
+
+.pxg-stack {
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  min-height: 96px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.pxg-stack:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.pxg-layer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 6px 0 2px;
+  border-radius: var(--radius-xs);
+  cursor: default;
+}
+
+.pxg-layer[aria-selected='true'] {
+  background: var(--bg-selected);
+}
+
+.pxg-layer-name.off {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+
+.pxg-empty {
+  padding: 8px;
+  color: var(--text-3);
+}
+
+/* SVG filters */
+
+.pxf {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.pxf-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.pxf-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 2px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.pxf-list:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.pxf-group {
+  padding: 8px 6px 2px;
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pxf-item {
+  padding: 5px 8px;
+  border-radius: var(--radius-xs);
+  cursor: default;
+}
+
+.pxf-item:hover {
+  background: var(--bg-hover);
+}
+
+.pxf-item[aria-selected='true'] {
+  background: var(--bg-selected);
+  color: var(--text);
+}
+
+.pxf-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.pxf-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pxf-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pxf-view {
+  flex: 1;
+}
+
+.pxf-code-box summary {
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.pxf-code {
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  resize: vertical;
+}
+
+.pxf-code[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+@media (max-width: 1000px) {
+  .pxg {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .pxg-view {
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .pxg-dialog,
+  .pxf-dialog {
+    height: calc(100dvh - 24px);
+  }
+
+  .pxg-dialog .dialog-body,
+  .pxf-dialog .dialog-body {
+    overflow-y: auto;
+  }
+
+  .pxg,
+  .pxf {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pxg > *,
+  .pxf > *,
+  .pxg-catalog,
+  .pxf-side,
+  .pxf-main {
+    flex: none;
+    min-height: auto;
+  }
+
+  .pxg-view,
+  .pxf-view {
+    flex: none;
+    height: 38dvh;
+  }
+
+  .pxg-cats {
+    overflow: visible;
+  }
+
+  .pxg-grid {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  }
+
+  .pxg-settings {
+    overflow: visible;
+  }
+
+  .pxf-list {
+    max-height: 200px;
+  }
+}

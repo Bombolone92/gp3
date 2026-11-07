@@ -1,0 +1,2418 @@
+import { openClusters } from "./clusters-ui.js";
+import { busy } from "./accessibility/busy.js";
+import { createTextEditor } from "./text-editor.js";
+import { equalTextRuns, textDifference } from "./rich-text.js";
+import { spliceTextBlocks } from "./text-blocks.js";
+import {
+  authoredTextHTML,
+  languageAttribute,
+  objectNameHTML,
+} from "./accessibility/object-content.js";
+import { openSelectionFilter } from "./selection-filter-ui.js";
+import { referencedTags, importTags } from "./tags.js";
+import { trimMindMap } from "./mind-map.js";
+import { item, uid, clone, escape, bounds, validateBoard } from "./model.js";
+import { externalizeObjectLinks } from "./object-link-data.js";
+import { mergeTableDraft } from "./table-draft.js";
+import {
+  tableCellContent,
+  tableLanguagePatch,
+  tableTextContent,
+  normalizedCellLanguage,
+} from "./table-language.js";
+import {
+  createAuthoredField,
+  fieldContent,
+} from "./facilitation/authored-field.js";
+import { sizedTableCells } from "./table-sizing.js";
+import {
+  safeURL,
+  completeGroups,
+  group,
+  ungroup,
+  connectObjects,
+  createFrame,
+  orderedFrames,
+  frameItems,
+  attachToFrame,
+  layoutUnits,
+  layoutMoves,
+  applyLayout,
+  reorderItems,
+  duplicateItems,
+  updateConnectors,
+} from "./scene.js";
+import { placeDuplicates } from "./duplication.js";
+import {
+  TEMPLATE_CATALOG,
+  TEMPLATE_CATEGORIES,
+  fromTemplate,
+  searchTemplates,
+} from "./templates.js";
+import {
+  COMPONENTS,
+  COMPONENT_GROUPS,
+  componentItems,
+  searchComponents,
+} from "./component-library.js";
+import {
+  ICON_CATEGORIES,
+  ICON_COLORS,
+  iconItem,
+  searchIcons,
+} from "./icon-library.js";
+import { shapeFamilies, searchShapes, iconSvg, fold } from "./libraries.js";
+import { shapePreview } from "./shape-art.js";
+import { language, t, translateUI, addTranslations, plural } from "./i18n.js";
+import { paint, exportImage } from "./render.js";
+import { reflowTextItems, clearTextLayoutCache } from "./text.js";
+import { fontFamily, loadItemFonts } from "./fonts.js";
+import { clearConnectorLabelCache } from "./connectors.js";
+import { exportPDF, exportRegions, pdfPlan } from "./export.js";
+import { exportCSV, exportXLSX } from "./export-sheet.js";
+import {
+  deletedSince,
+  recoverDeleted,
+  restoreFrame,
+  frameRestoreIds,
+  restoreObjects,
+  sameObject,
+  restoreBoard,
+  withoutObjects,
+} from "./history/restore.js";
+import { readTableContent, pasteTable, tableHeight } from "./bulk-content.js";
+import { canSwitchShape, shapeKey, switchShape } from "./shapes.js";
+import { portableWorkshop } from "./facilitation/model.js";
+import { unlinkCopiedJira } from "./planning/task.js";
+// A writer that fails to download reports it plainly instead of with the
+// browser's module error.
+const loadWriter = (pending) =>
+  pending.catch(() => {
+    throw Error(
+      "This feature could not load. Check your connection and try again.",
+    );
+  });
+const frameTitleHTML = (frame, fallback = "Frame") =>
+  frame?.text ? authoredTextHTML(frame) : escape(t(fallback));
+function frameChoicesHTML(frames, id, legend, allowNone = false) {
+  // Native options cannot mark language changes within their text. Labels
+  // keep the complete authored title available to each radio's name.
+  const name = uid(),
+    choices = allowNone ? [null, ...frames] : frames;
+  return `<fieldset id="${id}" class="frame-choices"><legend>${t(legend)}</legend><div class="slide-choices">${choices
+    .map(
+      (frame, index) =>
+        `<label><input type="radio" name="${name}" value="${frame ? escape(frame.id) : ""}" ${index === 0 ? "checked" : ""}><span>${frame ? frameTitleHTML(frame, "Untitled frame") : t("No frame")}</span></label>`,
+    )
+    .join("")}</div></fieldset>`;
+}
+const EXPORT_HELP = {
+  pdf: "Large areas split across pages at a readable scale, with an overview page that shows the page grid.",
+  pptx: "One slide per frame, or one slide for the board or selection. Each slide shows a high-resolution image, the frame title, and the frame text in the speaker notes.",
+  png: "Images export one region at a time, up to 4,096 pixels on the longest side.",
+  jpeg: "Images export one region at a time, up to 4,096 pixels on the longest side.",
+  svg: "A vector image with selectable text and embedded images. Several frames are stacked in one file.",
+  xlsx: "A workbook with a sheet of text objects (including task fields such as assignee, start, due, and status), one sheet per table, and a list of frames.",
+  csv: "UTF-8 comma-separated values for Excel and other spreadsheet apps.",
+  json: "An editable Whiteboard file that can be imported again.",
+};
+const RENDERING_HELP = {
+  raster:
+    "Image rendering matches the board exactly, including its fonts. Text in the PDF is not selectable.",
+  vector:
+    "Vector rendering keeps text and shapes sharp at any zoom and makes text selectable. Standard PDF fonts replace the board fonts, so spacing can differ slightly. Images and characters those fonts lack are kept as images.",
+};
+const EXPORT_TYPES = {
+  pdf: "application/pdf",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  png: "image/png",
+  jpeg: "image/jpeg",
+  svg: "image/svg+xml",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  csv: "text/csv;charset=utf-8",
+  json: "application/json",
+};
+addTranslations({
+  "Enter a label for the link.": "Saisissez un libellé pour le lien.",
+  [EXPORT_HELP.pdf]:
+    "Les grandes zones sont réparties sur plusieurs pages à une échelle lisible, avec une page de vue d’ensemble qui montre la grille des pages.",
+  [EXPORT_HELP.pptx]:
+    "Une diapositive par cadre, ou une seule pour le tableau ou la sélection. Chaque diapositive présente une image haute résolution, le titre du cadre et son texte dans les notes de l’orateur.",
+  [EXPORT_HELP.png]:
+    "Les images exportent une région à la fois, jusqu’à 4 096 pixels sur le côté le plus long.",
+  [EXPORT_HELP.svg]:
+    "Une image vectorielle avec du texte sélectionnable et des images intégrées. Plusieurs cadres sont empilés dans un seul fichier.",
+  [EXPORT_HELP.xlsx]:
+    "Un classeur avec une feuille des objets texte (y compris les champs de tâche comme le responsable, le début, l’échéance et le statut), une feuille par tableau de données et la liste des cadres.",
+  [EXPORT_HELP.csv]:
+    "Valeurs séparées par des virgules en UTF-8 pour Excel et d’autres tableurs.",
+  [EXPORT_HELP.json]:
+    "Un fichier Whiteboard modifiable que vous pouvez importer de nouveau.",
+  [RENDERING_HELP.raster]:
+    "Le rendu en image reproduit exactement le tableau, polices comprises. Le texte du PDF n’est pas sélectionnable.",
+  [RENDERING_HELP.vector]:
+    "Le rendu vectoriel garde le texte et les formes nets à tout niveau de zoom et rend le texte sélectionnable. Des polices PDF standard remplacent celles du tableau, ce qui peut modifier légèrement l’espacement. Les images et les caractères absents de ces polices restent des images.",
+  "Frames to export": "Cadres à exporter",
+  "Documents and slides": "Documents et diapositives",
+  Images: "Images",
+  Spreadsheets: "Feuilles de calcul",
+  Editable: "Modifiable",
+  "PowerPoint slides": "Diapositives PowerPoint",
+  "SVG vector image": "Image vectorielle SVG",
+  "Excel workbook": "Classeur Excel",
+  "CSV spreadsheet": "Feuille de calcul CSV",
+  "PDF options": "Options PDF",
+  "Page size": "Format de page",
+  Letter: "Lettre",
+  Legal: "Légal",
+  Tabloid: "Tabloïd",
+  A4: "A4",
+  A3: "A3",
+  "Fit to content": "Ajusté au contenu",
+  Orientation: "Orientation",
+  Automatic: "Automatique",
+  Landscape: "Paysage",
+  Portrait: "Portrait",
+  Scale: "Échelle",
+  "Readable detail (split large areas)":
+    "Détail lisible (grandes zones réparties)",
+  "Fit each area on one page": "Chaque zone sur une seule page",
+  Margins: "Marges",
+  Narrow: "Étroites",
+  Normal: "Normales",
+  Wide: "Larges",
+  Rendering: "Rendu",
+  "Image (matches the board exactly)": "Image (identique au tableau)",
+  "Vector (text and shapes)": "Vectoriel (texte et formes)",
+  "Show page boundaries and labels":
+    "Afficher les limites et les libellés des pages",
+  "Spreadsheet content": "Contenu de la feuille de calcul",
+  "Text objects and tasks": "Objets texte et tâches",
+  "Estimated length: 1 page.": "Longueur estimée : 1 page.",
+  "Estimated length: {count} pages.": "Longueur estimée : {count} pages.",
+  "Preparing export…": "Préparation de l’exportation…",
+  "Export ready.": "Exportation prête.",
+});
+// Feature modules add More tools entries ([action, label, run]) and shape
+// library choices ({ key, name, hint, icon, run }).
+const extraTools = [],
+  extraShapes = [];
+export function addMoreTools(entries) {
+  extraTools.push(...entries);
+}
+export function addShapeChoices(entries) {
+  extraShapes.push(...entries);
+}
+export function createFeatures(api) {
+  const selected = () =>
+    api.board().items.filter((i) => api.selection().has(i.id));
+  function add(i) {
+    api.placeItems?.([i]);
+    api.mutate(() => {
+      api.board().items.push(i);
+      api.select(new Set([i.id]));
+    });
+  }
+  function labelField(d, id, i, required = false) {
+    const field = createTextEditor(d.ownerDocument, i || { text: "" }, {
+      plainTextOnly: true,
+      maxLength: 200,
+      multiline: false,
+    });
+    field.id = id;
+    field.className = "authored-label-field";
+    field.tabIndex = 0;
+    field.setAttribute("data-user-content", "");
+    field.setAttribute("aria-labelledby", `${id}-label`);
+    if (required) field.setAttribute("aria-required", "true");
+    field.addEventListener("input", () =>
+      field.removeAttribute("aria-invalid"),
+    );
+    d.querySelector(`#${id}`).replaceWith(field);
+    d.addEventListener("close", () => field.destroy(), { once: true });
+    field.focus();
+    return field;
+  }
+  function saveLabel(i, text, formatting) {
+    const prev = i.text || "",
+      runs = clone(formatting),
+      { start, end, insert } = textDifference(prev, text),
+      blocks = spliceTextBlocks(prev, i.textBlocks, start, end, insert);
+    if (runs.length) i.textRuns = runs;
+    else delete i.textRuns;
+    if (blocks.length) i.textBlocks = blocks;
+    else delete i.textBlocks;
+    i.text = text;
+  }
+  function linkDialog(i) {
+    const editing = !!i;
+    api.modal(
+      editing ? "Edit link" : "Add link",
+      `<form aria-describedby="link-conflict-error"><div class="field"><span id="link-label-label">Label</span><div id="link-label"></div><p id="link-label-error" role="alert" hidden></p></div><label class="field">URL<input id="link-url" type="url" placeholder="https://example.com" value="${escape(i?.url || "")}" required aria-describedby="link-url-error link-conflict-error"></label><p id="link-url-error" role="alert" hidden></p><p id="link-conflict-error" class="dialog-copy" role="alert" tabindex="-1" hidden></p><div class="dialog-footer">${editing ? '<button type="button" class="secondary" id="open-link">Open link</button>' : ""}<button class="primary" type="submit">${editing ? "Save changes" : "Add link"}</button></div></form>`,
+      (d) => {
+        const field = labelField(d, "link-label", i, true);
+        const urlField = d.querySelector("#link-url"),
+          urlError = d.querySelector("#link-url-error"),
+          labelError = d.querySelector("#link-label-error"),
+          form = d.querySelector("form"),
+          conflictError = d.querySelector("#link-conflict-error");
+        field.setAttribute(
+          "aria-describedby",
+          `${labelError.id} ${conflictError.id}`,
+        );
+        const clearConflict = () => {
+          conflictError.textContent = "";
+          conflictError.hidden = true;
+        };
+        form.addEventListener("input", clearConflict);
+        form.addEventListener("change", clearConflict);
+        const error = (input, message, text = "") => {
+          message.textContent = text ? t(text) : "";
+          message.hidden = !text;
+          if (text) input.setAttribute("aria-invalid", "true");
+          else input.removeAttribute("aria-invalid");
+        };
+        urlField.addEventListener("input", () => error(urlField, urlError));
+        field.addEventListener("input", () => error(field, labelError));
+        // As the fields showed them, to save only what changes here.
+        const shown = {
+          url: d.querySelector("#link-url").value,
+          text: d.querySelector("#link-label").value,
+        };
+        const was = { url: i?.url || "", text: i?.text || "" };
+        const openedRuns = clone(i?.textRuns || []),
+          openedLanguage = i?.lang;
+        if (editing)
+          d.querySelector("#open-link").onclick = () =>
+            window.open(safeURL(i.url), "_blank", "noopener,noreferrer");
+        form.onsubmit = (e) => {
+          e.preventDefault();
+          clearConflict();
+          const url = safeURL(urlField.value);
+          if (!url) {
+            error(urlField, urlError, "Enter a valid http or https link.");
+            urlField.focus();
+            return;
+          }
+          error(urlField, urlError);
+          const text = field.value;
+          if (!text) {
+            error(field, labelError, "Enter a label for the link.");
+            field.focus();
+            return;
+          }
+          error(field, labelError);
+          // Collaborators can lock or remove the card while this is open.
+          if (editing && !api.board()?.items.includes(i)) {
+            d.close();
+            return api.toast("This link is no longer on the board.");
+          }
+          if (editing && !api.canEdit(new Set([i.id]))) return;
+          if (editing) {
+            // Only fields changed here are saved, and never over someone
+            // else's newer value.
+            const next = {};
+            if (d.querySelector("#link-url").value !== shown.url)
+              next.url = url;
+            if (text !== shown.text) next.text = text;
+            if (
+              Object.keys(next).some((key) => (i[key] || "") !== was[key]) ||
+              (next.text !== undefined &&
+                (i.lang !== openedLanguage ||
+                  !equalTextRuns(i.textRuns, openedRuns)))
+            ) {
+              conflictError.textContent = t(
+                "This object changed. Open it again to edit it.",
+              );
+              conflictError.hidden = false;
+              conflictError.focus();
+              return;
+            }
+            if (Object.keys(next).length)
+              api.mutate(() => {
+                if (next.text !== undefined)
+                  saveLabel(i, next.text, field.textRuns);
+                if (next.url !== undefined) i.url = next.url;
+              });
+          } else {
+            const p = api.center();
+            add(
+              item("link", p.x, p.y, {
+                url,
+                text,
+                w: 280,
+                h: 115,
+                color: "#dce5f7",
+              }),
+            );
+          }
+          d.close();
+        };
+      },
+    );
+  }
+  function tableDialog(i) {
+    let pasted = false;
+    const original = i ? clone(i) : null;
+    let cells = i
+      ? clone(i.cells)
+      : [
+          [t("Label"), t("Text")],
+          ["", ""],
+          ["", ""],
+        ];
+    let cellLanguages = clone(i?.cellLanguages || {});
+    api.modal(
+      i ? "Edit table" : "Add table",
+      `<form aria-describedby="table-conflict-error table-paste-error table-size-error"><div class="table-actions"><button type="button" data-table="row">Add row</button><button type="button" data-table="col">Add column</button><button type="button" data-table="remove-row">Remove last row</button><button type="button" data-table="remove-col">Remove last column</button></div><div id="cell-editor" class="cell-editor" aria-describedby="table-conflict-error table-paste-error table-size-error"></div><p id="table-conflict-error" class="dialog-copy" role="alert" tabindex="-1" hidden></p><p id="table-paste-error" class="dialog-copy" role="alert" hidden></p><p id="table-size-error" class="dialog-copy" role="alert" tabindex="-1" hidden></p><div class="dialog-footer"><button class="primary" type="submit">Save changes</button></div></form>`,
+      (d) => {
+        const form = d.querySelector("form"),
+          conflictError = d.querySelector("#table-conflict-error"),
+          pasteError = d.querySelector("#table-paste-error"),
+          sizeError = d.querySelector("#table-size-error");
+        const clearConflict = () => {
+          conflictError.textContent = "";
+          conflictError.hidden = true;
+        };
+        const clearPaste = () => {
+          pasteError.textContent = "";
+          pasteError.hidden = true;
+        };
+        const clearSize = () => {
+          sizeError.textContent = "";
+          sizeError.hidden = true;
+        };
+        const showSize = (message) => {
+          sizeError.textContent = t(message);
+          sizeError.hidden = false;
+          sizeError.focus();
+        };
+        form.addEventListener("input", clearSize);
+        form.addEventListener("change", clearSize);
+        form.addEventListener("input", clearPaste);
+        form.addEventListener("change", clearPaste);
+        form.addEventListener("input", clearConflict);
+        form.addEventListener("change", clearConflict);
+        let fields = [];
+        const capture = () => {
+          for (const input of fields) {
+            const r = +input.dataset.row,
+              c = +input.dataset.col,
+              content = fieldContent(input);
+            if (typeof cells[r]?.[c] !== "string") continue;
+            cells[r][c] = content.text;
+            const metadata = normalizedCellLanguage(content.text, {
+              lang: content.lang,
+              textRuns: content.textRuns,
+            });
+            if (Object.keys(metadata).length)
+              cellLanguages[`${r},${c}`] = metadata;
+            else delete cellLanguages[`${r},${c}`];
+          }
+        };
+        const render = () => {
+          clearConflict();
+          clearPaste();
+          clearSize();
+          const states = new Map(
+              fields.map((input) => [input.id, input.languageState()]),
+            ),
+            focused = d.ownerDocument.activeElement?.id;
+          capture();
+          fields.forEach((input) => input.destroy());
+          fields = [];
+          cellLanguages =
+            tableLanguagePatch({ cells, cellLanguages }, cells).cellLanguages ||
+            {};
+          d.querySelector("#cell-editor").innerHTML =
+            `<table aria-label="${t("Table cells")}"><tbody>${cells.map((row, r) => `<tr>${row.map((_, c) => `<td><span class="sr-only" id="table-dialog-cell-${r}-${c}-label">${t("Row")} ${r + 1}, ${t("Column")} ${c + 1}</span><textarea id="table-dialog-cell-${r}-${c}"></textarea></td>`).join("")}</tr>`).join("")}</tbody></table>`;
+          cells.forEach((row, r) =>
+            row.forEach((_, c) => {
+              const id = `table-dialog-cell-${r}-${c}`,
+                input = createAuthoredField(
+                  d.querySelector(`#${id}`),
+                  tableCellContent({ cells, cellLanguages }, r, c, false),
+                  { maxLength: 2000, inheritedLanguage: i?.lang },
+                );
+              input.dataset.row = r;
+              input.dataset.col = c;
+              input.setAttribute(
+                "aria-describedby",
+                [
+                  input.getAttribute("aria-describedby"),
+                  conflictError.id,
+                  pasteError.id,
+                  sizeError.id,
+                ]
+                  .filter(Boolean)
+                  .join(" "),
+              );
+              fields.push(input);
+              const saved = states.get(id);
+              if (saved) input.restoreLanguageState(saved);
+              input.addEventListener("input", capture);
+              input.addEventListener(
+                "paste",
+                (event) => {
+                  if (!event.clipboardData) return;
+                  clearPaste();
+                  clearSize();
+                  try {
+                    const incomingContent = readTableContent(
+                        event.clipboardData,
+                      ),
+                      incoming = incomingContent?.cells;
+                    if (!incoming) return;
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    capture();
+                    cells = pasteTable(cells, incoming, r, c);
+                    // A spreadsheet replaces cells, so old passage ranges cannot
+                    // remain attached to unrelated incoming text.
+                    incoming.forEach((line, y) =>
+                      line.forEach((_, x) => {
+                        const key = `${r + y},${c + x}`,
+                          lang = cellLanguages[key]?.lang;
+                        cellLanguages[key] =
+                          incomingContent.cellLanguages?.[`${y},${x}`] ||
+                          (lang ? { lang } : {});
+                      }),
+                    );
+                    pasted = true;
+                    fields.forEach((field) => field.destroy());
+                    fields = [];
+                    render();
+                    d.querySelector(
+                      `[data-row="${r}"][data-col="${c}"]`,
+                    ).focus();
+                  } catch (error) {
+                    event.preventDefault();
+                    pasteError.textContent = t(error.message);
+                    pasteError.hidden = false;
+                  }
+                },
+                true,
+              );
+            }),
+          );
+          if (focused)
+            d.querySelector(`#${focused}`)?.focus({ preventScroll: true });
+        };
+        d.addEventListener(
+          "close",
+          () => fields.forEach((input) => input.destroy()),
+          { once: true },
+        );
+        render();
+        d.querySelectorAll("[data-table]").forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              capture();
+              switch (btn.dataset.table) {
+                case "row":
+                  if (cells.length < 20) cells.push(cells[0].map(() => ""));
+                  break;
+                case "col":
+                  if (cells[0].length < 12)
+                    cells.forEach((row) => row.push(""));
+                  break;
+                case "remove-row":
+                  if (cells.length > 1) cells.pop();
+                  break;
+                case "remove-col":
+                  if (cells[0].length > 1) cells.forEach((row) => row.pop());
+              }
+              render();
+            }),
+        );
+        form.onsubmit = (e) => {
+          e.preventDefault();
+          clearConflict();
+          clearPaste();
+          clearSize();
+          capture();
+          if (i) {
+            if (
+              !api.board()?.items.includes(i) ||
+              !api.canEdit(new Set([i.id]))
+            )
+              return;
+            try {
+              const merged = mergeTableDraft(
+                {
+                  cells,
+                  cellLanguages: Object.keys(cellLanguages).length
+                    ? cellLanguages
+                    : undefined,
+                },
+                original,
+                i,
+              );
+              cells = merged.cells;
+              cellLanguages = merged.cellLanguages || {};
+            } catch (error) {
+              conflictError.textContent = t(error.message);
+              conflictError.hidden = false;
+              conflictError.focus();
+              return;
+            }
+          }
+          if (i && (i.columnWidths || i.rowHeights)) {
+            try {
+              const patch = sizedTableCells(
+                i,
+                cells,
+                document.createElement("canvas").getContext("2d"),
+              );
+              api.mutate(() =>
+                Object.assign(i, patch, {
+                  cellLanguages: Object.keys(cellLanguages).length
+                    ? cellLanguages
+                    : undefined,
+                }),
+              );
+              d.close();
+            } catch (error) {
+              showSize(error.message);
+            }
+            return;
+          }
+          const w = i
+            ? Math.max(i.w, cells[0].length * 140)
+            : cells[0].length * 170;
+          const h = Math.max(
+            i?.h || 0,
+            cells.length * (i ? 65 : 75),
+            pasted
+              ? tableHeight(
+                  cells,
+                  w,
+                  document.createElement("canvas").getContext("2d"),
+                  i?.fontSize || 15,
+                  i && fontFamily(i),
+                )
+              : 0,
+          );
+          if (h > 1e6) {
+            showSize(
+              "The table is too tall. Use a smaller font or fewer lines.",
+            );
+            return;
+          }
+          if (i)
+            api.mutate(() => {
+              i.cells = cells;
+              i.cellLanguages = Object.keys(cellLanguages).length
+                ? cellLanguages
+                : undefined;
+              i.w = w;
+              i.h = h;
+            });
+          else {
+            const p = api.center();
+            add(
+              item("table", p.x, p.y, {
+                cells,
+                ...(Object.keys(cellLanguages).length ? { cellLanguages } : {}),
+                w,
+                h,
+                color: "#ffffff",
+              }),
+            );
+          }
+          d.close();
+        };
+      },
+    );
+  }
+  function attachFile(target) {
+    const boardId = api.board().id;
+    api.fileInput("*/*", async (file) => {
+      try {
+        if (file.size > 10 * 1024 * 1024)
+          throw Error("Choose a file smaller than 10 MB.");
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        let binary = "";
+        for (let start = 0; start < bytes.length; start += 32768)
+          binary += String.fromCharCode(
+            ...bytes.subarray(start, start + 32768),
+          );
+        if (api.board()?.id !== boardId) return;
+        if (
+          target &&
+          (!api.board().items.includes(target) ||
+            !api.canEdit(new Set([target.id])))
+        )
+          return;
+        const data = "data:application/octet-stream;base64," + btoa(binary);
+        if (target)
+          api.mutate(() =>
+            Object.assign(target, {
+              data,
+              fileName: file.name,
+              text: file.name,
+            }),
+          );
+        else {
+          const p = api.center();
+          add(
+            item("file", p.x, p.y, {
+              data,
+              fileName: file.name,
+              text: file.name,
+              w: 280,
+              h: 110,
+              color: "#eadcf0",
+            }),
+          );
+        }
+      } catch (error) {
+        api.toast(error.message);
+      }
+    });
+  }
+  function fileDialog(i) {
+    api.modal(
+      "File attachment",
+      `<form aria-describedby="file-conflict-error"><div class="field"><span id="file-label-label">Label</span><div id="file-label"></div></div><p class="dialog-copy" data-user-content>${escape(i.fileName)}</p><p id="file-conflict-error" class="dialog-copy" role="alert" tabindex="-1" hidden></p><div class="dialog-footer"><button class="secondary" type="button" id="replace-file">Attach file</button><button class="secondary" type="button" id="download-file">Download attachment</button><button class="primary">Save changes</button></div></form>`,
+      (d) => {
+        const field = labelField(d, "file-label", i),
+          form = d.querySelector("form"),
+          conflictError = d.querySelector("#file-conflict-error");
+        field.setAttribute("aria-describedby", conflictError.id);
+        const clearConflict = () => {
+          conflictError.textContent = "";
+          conflictError.hidden = true;
+        };
+        form.addEventListener("input", clearConflict);
+        form.addEventListener("change", clearConflict);
+        const opened = i.text,
+          openedRuns = clone(i.textRuns || []),
+          openedLanguage = i.lang;
+        d.querySelector("#replace-file").onclick = () => {
+          d.close();
+          attachFile(i);
+        };
+        d.querySelector("#download-file").onclick = () => {
+          const raw = atob(i.data.split(",")[1]),
+            bytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+          api.download(bytes, i.fileName, "application/octet-stream");
+        };
+        form.onsubmit = (e) => {
+          e.preventDefault();
+          clearConflict();
+          if (!api.board()?.items.includes(i) || !api.canEdit(new Set([i.id])))
+            return;
+          const label = field.value;
+          // Unchanged here, someone else's newer label stays.
+          if (label !== (opened || "")) {
+            if (
+              i.text !== opened ||
+              i.lang !== openedLanguage ||
+              !equalTextRuns(i.textRuns, openedRuns)
+            ) {
+              conflictError.textContent = t(
+                "This object changed. Open it again to edit it.",
+              );
+              conflictError.hidden = false;
+              conflictError.focus();
+              return;
+            }
+            api.mutate(() => saveLabel(i, label, field.textRuns));
+          }
+          d.close();
+        };
+      },
+    );
+  }
+  function organizeSelection(value) {
+    if (!api.canEdit()) return;
+    const items = api.board().items,
+      ids = api.selection();
+    if (!ids.size) return api.toast("Select objects first.");
+    if (["front", "back", "forward", "backward"].includes(value)) {
+      const next = reorderItems(items, ids, value, api.selectionOptions?.());
+      if (next !== items) api.mutate(() => (api.board().items = next));
+      return;
+    }
+    if (
+      [
+        "left",
+        "center",
+        "right",
+        "top",
+        "middle",
+        "bottom",
+        "horizontal",
+        "vertical",
+      ].includes(value)
+    ) {
+      const moves = layoutMoves(items, ids, value, api.selectionOptions?.());
+      if (moves.length) api.mutate(() => applyLayout(items, moves));
+      return;
+    }
+    if (["frame", "connect"].includes(value) && items.length >= 5000)
+      return api.toast("A board can contain at most 5,000 objects.");
+    if (value === "ungroup" && !items.some((i) => ids.has(i.id) && i.groupId))
+      return;
+    api.mutate(() => {
+      if (value === "group")
+        api.select(group(items, ids, api.selectionOptions?.()));
+      else if (value === "ungroup") ungroup(items, ids);
+      else if (value === "connect") {
+        const arrow = connectObjects(items, ids);
+        api.select(new Set([arrow.id]));
+      } else if (value === "frame") {
+        const frame = createFrame(
+          items,
+          ids,
+          t("Section"),
+          api.selectionOptions?.(),
+        );
+        api.select(new Set([frame.id]));
+      }
+    });
+  }
+  function organize() {
+    if (!api.canEdit()) return;
+    if (!api.selection().size) {
+      api.toast("Select objects first.");
+      return;
+    }
+    const items = api.board().items,
+      ids = api.selection();
+    const count = layoutUnits(items, ids, api.selectionOptions?.()).length;
+    // Frames hidden from this person are not offered to move into.
+    const concealed = api.concealedIn?.(api.board()) || new Set();
+    const options = (entries, disabled = false) =>
+      entries
+        .map(
+          ([key, label]) =>
+            `<button data-organize="${key}" ${disabled ? "disabled" : ""}>${label}</button>`,
+        )
+        .join("");
+    api.modal(
+      "Organize selection",
+      `<div class="arrange-sections">
+      <fieldset><legend>Position</legend><button type="button" class="secondary" data-organize="move">Move selection</button></fieldset>
+      <fieldset><legend>Alignment</legend><div class="arrange-grid">${options(
+        [
+          ["left", "Align left"],
+          ["top", "Align top"],
+          ["center", "Center horizontally"],
+          ["middle", "Center vertically"],
+          ["right", "Align right"],
+          ["bottom", "Align bottom"],
+        ],
+        count < 2,
+      )}</div></fieldset>
+      <fieldset><legend>Spacing</legend><p class="dialog-copy">Select at least three objects or groups to distribute evenly.</p><div class="arrange-grid">${options(
+        [
+          ["horizontal", "Distribute horizontally"],
+          ["vertical", "Distribute vertically"],
+        ],
+        count < 3,
+      )}</div></fieldset>
+      <fieldset><legend>Layer order</legend><div class="arrange-grid">${[
+        ["front", "Bring to front"],
+        ["forward", "Bring forward"],
+        ["backward", "Send backward"],
+        ["back", "Send to back"],
+      ]
+        .map((entry) =>
+          options(
+            [entry],
+            reorderItems(items, ids, entry[0], api.selectionOptions?.()) ===
+              items,
+          ),
+        )
+        .join("")}</div></fieldset>
+      <fieldset><legend>Group and organize</legend><div class="arrange-grid">${options(
+        [
+          ["group", "Group selection"],
+          ["ungroup", "Ungroup selection"],
+          ["connect", "Connect selected objects"],
+          ["frame", "Create frame around selection"],
+          ["cluster", "Cluster sticky notes"],
+          ["snippet", "Save as reusable content"],
+        ],
+      )}</div></fieldset>
+      ${frameChoicesHTML(
+        orderedFrames(items).filter((f) => !concealed.has(f.id)),
+        "parent-frame",
+        "Move into frame",
+        true,
+      )}<button class="secondary" id="assign-frame">Move into frame</button></div>`,
+      (d) => {
+        d.querySelectorAll("[data-organize]").forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              try {
+                const value = btn.dataset.organize;
+                if (value === "move") {
+                  d.close();
+                  api.moveSelection();
+                  return;
+                }
+                if (value === "cluster") {
+                  d.close();
+                  openClusters(api);
+                  return;
+                }
+                if (value === "snippet") {
+                  d.close();
+                  saveSnippet();
+                  return;
+                }
+                organizeSelection(value);
+                d.close();
+              } catch (error) {
+                api.toast(error.message);
+              }
+            }),
+        );
+        d.querySelector("#assign-frame").onclick = () => {
+          // A collaborator may have removed the frame or locked the
+          // selection meanwhile; that is said, and the dialog stays.
+          try {
+            const parent = d.querySelector("#parent-frame input:checked").value;
+            if (!api.canEdit(api.selection())) return;
+            if (
+              parent &&
+              !api
+                .board()
+                .items.some((i) => i.id === parent && i.type === "frame")
+            )
+              throw Error("Choose a valid frame.");
+            api.mutate(() =>
+              attachToFrame(api.board().items, api.selection(), parent),
+            );
+            d.close();
+          } catch (error) {
+            api.toast(error.message);
+          }
+        };
+      },
+    );
+  }
+  function frames() {
+    api.modal(
+      "Frames and navigation",
+      '<div class="frame-list"></div><div class="dialog-footer"><button class="primary" id="present-frames">Present</button></div>',
+      (d) => {
+        const render = () => {
+          // What this person may see: staged and hidden frames stay covered.
+          const shown = (api.visualBoard?.() || api.board()).items;
+          const all = orderedFrames(shown);
+          // Reordering renumbers every frame, so it waits while some are
+          // hidden from this person.
+          const concealed = api.concealedIn?.(api.board()) || new Set();
+          const fixed = orderedFrames(api.board().items).some((f) =>
+            concealed.has(f.id),
+          );
+          d.querySelector(".frame-list").innerHTML = all.length
+            ? all
+                .map(
+                  (f, n) =>
+                    `<div class="frame-row"><button class="frame-go" data-frame="${escape(f.id)}"><span class="sr-only">${t("Go to frame")}: </span><span>${n + 1}</span> <strong>${frameTitleHTML(f)}</strong> <small>${frameItems(shown, f.id).size - 1} ${t("Objects")}</small></button><button class="secondary" data-order="${escape(f.id)}" data-delta="-1" aria-label="${t("Move frame earlier")}" ${fixed || n === 0 ? "disabled" : ""}>↑</button><button class="secondary" data-order="${escape(f.id)}" data-delta="1" aria-label="${t("Move frame later")}" ${fixed || n === all.length - 1 ? "disabled" : ""}>↓</button></div>`,
+                )
+                .join("") +
+              (fixed
+                ? `<p class="dialog-copy">${t("Frames can be reordered once the facilitator shows every frame.")}</p>`
+                : "")
+            : `<p class="dialog-copy">${t("Add a frame to organize content and create presentation slides.")}</p>`;
+          d.querySelectorAll("[data-frame]").forEach(
+            (btn) =>
+              (btn.onclick = () => {
+                const f = api
+                  .board()
+                  .items.find(
+                    (i) => i.id === btn.dataset.frame && i.type === "frame",
+                  );
+                // Collaborators can remove frames while this list is open.
+                if (!f) return render();
+                d.close();
+                api.focusRegion(f);
+              }),
+          );
+          d.querySelectorAll("[data-order]").forEach(
+            (btn) =>
+              (btn.onclick = () => {
+                const latest = orderedFrames(api.board().items),
+                  from = latest.findIndex((f) => f.id === btn.dataset.order),
+                  to = from + Number(btn.dataset.delta);
+                if (from < 0 || to < 0 || to >= latest.length) return render();
+                if (!api.canEdit(new Set(latest.map((f) => f.id)))) return;
+                api.mutate(() => {
+                  const ordered = orderedFrames(api.board().items),
+                    index = ordered.findIndex(
+                      (f) => f.id === btn.dataset.order,
+                    ),
+                    next = index + Number(btn.dataset.delta);
+                  [ordered[index], ordered[next]] = [
+                    ordered[next],
+                    ordered[index],
+                  ];
+                  ordered.forEach((f, i) => (f.order = i));
+                });
+                render();
+              }),
+          );
+        };
+        render();
+        d.querySelector("#present-frames").onclick = () => {
+          d.close();
+          presentationSetup();
+        };
+      },
+    );
+  }
+  function presentationSetup() {
+    const frames = orderedFrames((api.visualBoard?.() || api.board()).items);
+    api.modal(
+      "Presentation",
+      `<p class="dialog-copy">Choose frames in presentation order.</p><div class="slide-choices" role="group" aria-label="${t("Frames")}">${frames.map((f) => `<label><input type="checkbox" value="${escape(f.id)}" aria-describedby="presentation-error" checked><span>${frameTitleHTML(f)}</span></label>`).join("")}</div><p id="presentation-error" class="dialog-copy" role="alert" hidden></p><div class="dialog-footer">${api.selection().size ? '<button class="secondary" id="present-selection">Present selection</button>' : ""}<button class="primary" id="start-presentation">${frames.length ? "Start presentation" : "Present board"}</button></div>`,
+      (d) => {
+        const choices = d.querySelector(".slide-choices"),
+          error = d.querySelector("#presentation-error");
+        const clearError = () => {
+          error.textContent = "";
+          error.hidden = true;
+          choices.removeAttribute("aria-invalid");
+        };
+        choices.addEventListener("change", () => {
+          if (choices.querySelector("input:checked")) clearError();
+        });
+        d.querySelector("#start-presentation").onclick = () => {
+          const ids = [...choices.querySelectorAll("input:checked")].map(
+            (e) => e.value,
+          );
+          if (frames.length && !ids.length) {
+            error.textContent = t("Choose at least one frame.");
+            error.hidden = false;
+            choices.setAttribute("aria-invalid", "true");
+            choices.querySelector("input")?.focus();
+            return;
+          }
+          clearError();
+          const regions = exportRegions(api.visualBoard?.() || api.board(), {
+            scope: frames.length ? "frames" : "board",
+            frameIds: ids,
+          });
+          d.close();
+          present(regions);
+        };
+        const btn = d.querySelector("#present-selection");
+        if (btn)
+          btn.onclick = () => {
+            const regions = exportRegions(api.visualBoard?.() || api.board(), {
+              scope: "selection",
+              selection: api.selection(),
+            });
+            d.close();
+            present(regions);
+          };
+      },
+    );
+  }
+  function present(regions) {
+    let index = 0;
+    const dialog = api.modal(
+      "Presentation",
+      `<div class="presentation-stage"><canvas id="slide-canvas" role="img" tabindex="0" aria-labelledby="slide-title"></canvas></div><div class="presentation-controls"><button class="secondary" id="slide-prev">Previous slide</button><span id="slide-count" role="status" aria-live="polite"></span><button class="secondary" id="slide-next">Next slide</button><button class="secondary" id="slide-fullscreen">Fullscreen</button><button class="primary" id="slide-exit">Exit presentation</button></div><p class="presentation-hint">Use arrow keys to navigate slides. Press Escape to exit.</p><div id="slide-outline" class="sr-only"></div>`,
+      (d) => {
+        d.classList.add("presentation-dialog");
+        api.presentTimer?.(d);
+        const canvas = d.querySelector("canvas");
+        const render = () => {
+          const region = regions[index],
+            r = canvas.getBoundingClientRect(),
+            z = Math.min(
+              (r.width || 900) / region.rect.w,
+              (r.height || 500) / region.rect.h,
+            );
+          paint(
+            canvas,
+            region.items,
+            {
+              x: (r.width || 900) / 2 - (region.rect.x + region.rect.w / 2) * z,
+              y:
+                (r.height || 500) / 2 - (region.rect.y + region.rect.h / 2) * z,
+              z,
+            },
+            {
+              background: "#ffffff",
+              textColor: "#30342f",
+              mindCounts: region.mindCounts,
+              tags: api.board().tags,
+            },
+          );
+          api.presentAttention?.(d, region.rect);
+          const frame = region.items.find((i) => i.id === region.frameId);
+          const name = frame?.text
+            ? frameTitleHTML(frame)
+            : `<span data-user-content>${escape(region.name)}</span>`;
+          d.querySelector("#slide-count").innerHTML =
+            `${index + 1} / ${regions.length} · <span id="slide-title">${name}</span>`;
+          d.querySelector("#slide-prev").disabled = index === 0;
+          d.querySelector("#slide-next").disabled =
+            index === regions.length - 1;
+          d.querySelector("#slide-outline").innerHTML = region.items
+            .map((i) => objectNameHTML(i))
+            .join(". ");
+        };
+        const move = (delta) => {
+          index = Math.max(0, Math.min(regions.length - 1, index + delta));
+          render();
+        };
+        d.querySelector("#slide-prev").onclick = () => move(-1);
+        d.querySelector("#slide-next").onclick = () => move(1);
+        d.querySelector("#slide-exit").onclick = () => d.close();
+        d.querySelector("#slide-fullscreen").onclick = async () => {
+          try {
+            if (document.fullscreenElement) await document.exitFullscreen();
+            else await d.requestFullscreen();
+            render();
+          } catch {
+            api.toast("Fullscreen is unavailable. Presentation remains open.");
+          }
+        };
+        d.addEventListener("keydown", (e) => {
+          if (
+            [
+              "ArrowRight",
+              "PageDown",
+              "ArrowLeft",
+              "PageUp",
+              "Home",
+              "End",
+            ].includes(e.key)
+          ) {
+            e.preventDefault();
+            if (e.key === "Home") index = 0;
+            else if (e.key === "End") index = regions.length - 1;
+            else
+              index = Math.max(
+                0,
+                Math.min(
+                  regions.length - 1,
+                  index + (["ArrowRight", "PageDown"].includes(e.key) ? 1 : -1),
+                ),
+              );
+            render();
+          }
+        });
+        window.addEventListener("resize", render);
+        d.addEventListener("close", () => {
+          window.removeEventListener("resize", render);
+          if (document.fullscreenElement === d)
+            document.exitFullscreen().catch(() => {});
+        });
+        render();
+        canvas.focus();
+      },
+    );
+    return dialog;
+  }
+  async function versions() {
+    const boardId = api.board().id;
+    const shared = api.sharedHistory?.();
+    const d = api.modal(
+      "Version history",
+      `<p class="dialog-copy">${t(shared ? "Everyone's edits to this shared board are kept, so any earlier version can be restored. Restoring saves a new version and never removes history." : "Up to 30 recent versions are kept on this device, subject to a 50 MB limit. Restoring preserves the current version first.")}</p>${shared ? `<h3>${t("Shared board history")}</h3><div class="revision-list" id="shared-revisions"><p>${t("Loading…")}</p></div><h3>${t("Versions on this device")}</h3>` : ""}<div class="checkpoint-create"><label class="field">Checkpoint name<input id="checkpoint-label" maxlength="120" value="${t("Checkpoint")}"></label><button class="primary" id="checkpoint-create">Create checkpoint</button></div><div class="revision-list" id="local-revisions"></div>`,
+    );
+    const when = (at) =>
+      new Date(at).toLocaleString(language === "fr" ? "fr-CA" : "en-CA");
+    // Granular restore choices for one version, loaded on demand.
+    // `onDevice` versions are this device's own; the audit log records a
+    // restoration from them without a shared version's time.
+    async function options(button, load, at, onDevice = false) {
+      const row = button.closest(".revision-row");
+      const existing = row.nextElementSibling;
+      if (existing?.classList.contains("revision-options")) {
+        existing.remove();
+        button.setAttribute("aria-expanded", "false");
+        return;
+      }
+      const done = busy(button);
+      let version;
+      try {
+        version = await load();
+      } catch (error) {
+        api.toast(error.message || "Could not load this version.");
+        return;
+      } finally {
+        done();
+      }
+      const current = api.board();
+      // What the workshop hides from this person, then or now, is not
+      // named or counted here.
+      const hidden = api.concealedIn
+        ? new Set([...api.concealedIn(version), ...api.concealedIn(current)])
+        : new Set();
+      const shown = version.items.filter((i) => !hidden.has(i.id));
+      const frames = shown.filter((i) => i.type === "frame");
+      // Nothing hidden from this person is restored or recovered either.
+      const visible = { ...version, items: shown };
+      const missing = deletedSince(current, visible);
+      const selected = [...api.selection()];
+      const panel = document.createElement("div");
+      panel.className = "revision-options";
+      panel.setAttribute("role", "group");
+      panel.setAttribute("aria-label", t("Restore options"));
+      panel.innerHTML = `<p class="dialog-copy">${shown.length} ${t("Objects")} · <span data-user-content>${escape(version.title)}</span></p><div class="dialog-footer"><button class="secondary" data-part="objects" ${selected.length ? "" : "disabled"}>${t("Restore selected objects")} (${selected.length})</button><button class="secondary" data-part="deleted" ${missing.length ? "" : "disabled"}>${t("Recover deleted objects")} (${missing.length})</button><button class="secondary" data-part="copy">${t("Open as a copy")}</button></div>${frames.length ? `${frameChoicesHTML(frames, "restore-frame", "Frame")}<button class="secondary" data-part="frame">${t("Restore this frame")}</button>` : ""}`;
+      row.after(panel);
+      button.setAttribute("aria-expanded", "true");
+      panel.querySelectorAll("[data-part]").forEach((el) => {
+        el.onclick = async () => {
+          const part = el.dataset.part;
+          if (part === "copy") {
+            const copy = clone(version);
+            copy.id = uid();
+            delete copy.shared;
+            delete copy.timer;
+            // Like a duplicate, the copy starts without the live workshop
+            // and without anything hidden from this person, then or now.
+            const ids = new Set(copy.items.map((i) => i.id));
+            const now = api.concealedIn
+              ? [...api.concealedIn(api.board())].filter((id) => ids.has(id))
+              : [];
+            if (now.length)
+              copy.items = withoutObjects(copy, new Set(now)).items;
+            let covered = now.length;
+            if (api.portableCopy) covered += api.portableCopy(copy);
+            else {
+              copy.workshop = portableWorkshop(copy.workshop);
+              if (!copy.workshop) delete copy.workshop;
+            }
+            copy.title = `${version.title.slice(0, 160)} (${when(at)})`;
+            copy.updated = Date.now();
+            copy.favorite = false;
+            d.close();
+            await api.addBoard(copy);
+            if (covered)
+              api.toast(
+                "Workshop content hidden from you was left out of the copy.",
+              );
+            return;
+          }
+          // Restoring part of the board changes existing objects, so their
+          // locks apply; recovering deleted objects adds new ones.
+          const frameId = panel.querySelector(
+            "#restore-frame input:checked",
+          )?.value;
+          // Worked out again after the backup below is saved: a lock, or
+          // content hidden from this person, can arrive meanwhile.
+          const plan = () => {
+            const covered = api.concealedIn
+              ? new Set([...hidden, ...api.concealedIn(api.board())])
+              : hidden;
+            const source = {
+              ...visible,
+              items: visible.items.filter((i) => !covered.has(i.id)),
+            };
+            // The workshop may have hidden the frame since these options
+            // opened.
+            if (part === "frame" && !source.items.some((i) => i.id === frameId))
+              throw Error("That frame is no longer shown to you.");
+            const affected =
+              part === "objects"
+                ? new Set(selected)
+                : part === "frame"
+                  ? frameRestoreIds(api.board(), source, frameId, covered)
+                  : new Set();
+            return api.canEdit(affected) ? { source, covered } : null;
+          };
+          try {
+            if (!plan()) return;
+            await api.local.checkpoint(api.board(), "Before restoration");
+            const checked = plan();
+            if (!checked) return;
+            const { source, covered } = checked;
+            const result =
+              part === "objects"
+                ? restoreObjects(api.board(), source, new Set(selected))
+                : part === "frame"
+                  ? restoreFrame(api.board(), source, frameId, covered)
+                  : recoverDeleted(api.board(), source);
+            api.replaceItems(result.items);
+            shared?.note({
+              at: onDevice ? null : at,
+              scope: part,
+              objects: result.count,
+            });
+            d.close();
+            api.toast(
+              plural(
+                result.count,
+                "{count} object restored.",
+                "{count} objects restored.",
+              ),
+            );
+          } catch (error) {
+            api.toast(error.message || "Could not restore this version.");
+          }
+        };
+      });
+      api.refresh?.();
+    }
+    async function restoreWhole(button, load, at, onDevice = false) {
+      // Checks read-only access and reports it without a false success.
+      if (!api.canEdit(new Set())) return;
+      const done = busy(button);
+      try {
+        const version = await load();
+        const then = new Map(version.items.map((i) => [i.id, i]));
+        // Worked out again after the backup below is saved: a lock, or
+        // content hidden from this person, can arrive meanwhile.
+        const plan = () => {
+          // Nothing the workshop hides from this person, then or now, comes
+          // back or changes: objects hidden now stay as they are.
+          const hidden = api.concealedIn
+            ? new Set([
+                ...api.concealedIn(version),
+                ...api.concealedIn(api.board()),
+              ])
+            : new Set();
+          // Like restoring a frame, the objects it would change or remove
+          // are checked for locks.
+          const changed = new Set(
+            api
+              .board()
+              .items.filter(
+                (i) =>
+                  !hidden.has(i.id) &&
+                  (!then.has(i.id) || !sameObject(then.get(i.id), i)),
+              )
+              .map((i) => i.id),
+          );
+          if (!api.canEdit(changed)) return null;
+          return restoreBoard(api.board(), version, hidden);
+        };
+        if (!plan()) {
+          done();
+          return;
+        }
+        await api.local.checkpoint(api.board(), "Before restoration");
+        const restored = plan();
+        if (!restored) {
+          done();
+          return;
+        }
+        api.restore(restored);
+        shared?.note({
+          at: onDevice ? null : at,
+          scope: "board",
+          objects: restored.items.length,
+        });
+        d.close();
+        api.toast("Version restored.");
+      } catch {
+        api.toast("Could not restore this version.");
+        done();
+      }
+    }
+    // Shared versions arrive a page at a time, newest first.
+    let sharedRows = [];
+    const renderShared = async (older = false) => {
+      const list = d.querySelector("#shared-revisions");
+      try {
+        const { versions, more } = await shared.list(
+          older ? sharedRows.at(-1)?.at : undefined,
+        );
+        if (!d.isConnected) return;
+        // Only well-formed versions are shown; the list comes from the
+        // board's worker and becomes markup.
+        const page = (Array.isArray(versions) ? versions : []).filter(
+          (v) =>
+            Number.isSafeInteger(v?.at) &&
+            Number.isSafeInteger(v.edits) &&
+            Array.isArray(v.authors),
+        );
+        const rows = (sharedRows = older ? [...sharedRows, ...page] : page);
+        const focusAt = older ? page[0]?.at : null;
+        list.innerHTML = rows.length
+          ? rows
+              .map(
+                (v, n) =>
+                  `<div class="revision-row"><div><strong id="shared-version-${v.at}">${when(v.at)}</strong><small><span data-user-content>${escape(v.authors.map(String).join(", "))}</span> · ${v.edits} ${t(v.edits === 1 ? "edit" : "edits")}${n === 0 ? ` · ${t("Current version")}` : ""}</small></div><div class="revision-actions"><button class="secondary" data-shared="${v.at}" aria-describedby="shared-version-${v.at}" ${n === 0 ? "disabled" : ""}>${t("Restore version")}</button><button class="text-btn" data-shared-options="${v.at}" aria-describedby="shared-version-${v.at}" aria-expanded="false">${t("More options")}</button></div></div>`,
+              )
+              .join("") +
+            (more === true
+              ? `<button class="text-btn" id="shared-older">${t("Show older versions")}</button>`
+              : "")
+          : `<p>${t("No shared edits yet.")}</p>`;
+        const olderButton = list.querySelector("#shared-older");
+        if (olderButton)
+          olderButton.onclick = () => {
+            const done = busy(olderButton);
+            renderShared(true).finally(done);
+          };
+        // After showing older versions, the first of them has focus.
+        if (focusAt !== null && focusAt !== undefined)
+          list.querySelector(`[data-shared="${focusAt}"]`)?.focus();
+        list.querySelectorAll("[data-shared]").forEach((btn) => {
+          const at = Number(btn.dataset.shared);
+          btn.onclick = () => restoreWhole(btn, () => shared.load(at), at);
+        });
+        list.querySelectorAll("[data-shared-options]").forEach((btn) => {
+          const at = Number(btn.dataset.sharedOptions);
+          btn.onclick = () => options(btn, () => shared.load(at), at);
+        });
+        api.refresh?.();
+      } catch (error) {
+        // Announced, as the list it replaces loads silently.
+        const alert = document.createElement("p");
+        alert.setAttribute("role", "alert");
+        alert.textContent = t(
+          error.message || "Could not load the shared history.",
+        );
+        list.replaceChildren(alert);
+      }
+    };
+    const render = async () => {
+      await api.waitForSaves();
+      const revisions = (await api.local.revisions(boardId)).sort(
+        (a, b) => b.created - a.created,
+      );
+      if (!d.isConnected) return;
+      d.querySelector("#local-revisions").innerHTML = revisions.length
+        ? revisions
+            .map(
+              (r) =>
+                `<div class="revision-row"><div id="local-version-${escape(r.id)}"><strong data-user-content>${escape(t(r.label))}</strong><small>${when(r.created)} · ${r.board.items.length} ${t("Objects")}</small></div><div class="revision-actions"><button class="secondary" data-revision="${r.id}" aria-describedby="local-version-${escape(r.id)}">${t("Restore version")}</button><button class="text-btn" data-revision-options="${r.id}" aria-describedby="local-version-${escape(r.id)}" aria-expanded="false">${t("More options")}</button></div></div>`,
+            )
+            .join("")
+        : `<p>${t("No saved versions yet.")}</p>`;
+      const find = (id) => revisions.find((r) => r.id === id);
+      d.querySelectorAll("[data-revision]").forEach(
+        (btn) =>
+          (btn.onclick = () =>
+            restoreWhole(
+              btn,
+              async () => find(btn.dataset.revision).board,
+              find(btn.dataset.revision).created,
+              true,
+            )),
+      );
+      d.querySelectorAll("[data-revision-options]").forEach(
+        (btn) =>
+          (btn.onclick = () =>
+            options(
+              btn,
+              async () => find(btn.dataset.revisionOptions).board,
+              find(btn.dataset.revisionOptions).created,
+              true,
+            )),
+      );
+      api.refresh?.();
+    };
+    d.querySelector("#checkpoint-create").onclick = async (e) => {
+      // One checkpoint per press: a double click must not save two.
+      const button = e.currentTarget;
+      if (button.disabled) return;
+      const done = busy(button);
+      try {
+        await api.local.checkpoint(
+          api.board(),
+          d.querySelector("#checkpoint-label").value.trim() || "Checkpoint",
+        );
+        api.toast("Checkpoint saved.");
+        await render();
+      } catch {
+        api.toast("Could not save the checkpoint. Export a backup.");
+      } finally {
+        done();
+      }
+    };
+    await Promise.all([render(), shared ? renderShared() : null]);
+  }
+  async function saveSnippet() {
+    if (!api.selection().size) {
+      api.toast("Select objects first.");
+      return;
+    }
+    // As with copying, objects hidden from this person are never saved,
+    // including the hidden contents of a visible frame or group.
+    const hidden = () => api.concealedIn?.(api.board()) || new Set();
+    if ([...api.selection()].every((id) => hidden().has(id))) {
+      api.toast("Hidden objects cannot be copied.");
+      return;
+    }
+    api.modal(
+      "Save as reusable content",
+      `<form><label class="field">Name<input id="snippet-name" maxlength="120" required></label><div class="dialog-footer"><button class="primary">Save</button></div></form>`,
+      (d) =>
+        (d.querySelector("form").onsubmit = async (e) => {
+          e.preventDefault();
+          // One save per press: a double submit must not save it twice.
+          const button = d.querySelector(".primary");
+          if (button.disabled) return;
+          button.disabled = true;
+          const concealed = hidden();
+          const source = clone(
+            api.board().items.filter((i) => !concealed.has(i.id)),
+          );
+          const ids = api.selection();
+          const keep = source.filter((i) => ids.has(i.id));
+          const chosenIds = new Set(keep.map((i) => i.id)),
+            wholeGroups = completeGroups(source, chosenIds);
+          externalizeObjectLinks(keep, api.objectURL);
+          for (const i of keep) {
+            trimMindMap(i, chosenIds);
+            if (i.groupId && !wholeGroups.has(i.groupId)) delete i.groupId;
+            if (!chosenIds.has(i.parentId)) delete i.parentId;
+            // Lines may be attached at just one end; trim each end separately.
+            if (!chosenIds.has(i.startId)) delete i.startId;
+            if (!chosenIds.has(i.endId)) delete i.endId;
+          }
+          try {
+            await api.local.saveTemplate({
+              id: uid(),
+              title: d.querySelector("input").value.trim(),
+              items: keep,
+              tags: referencedTags(keep, api.board().tags),
+              version: 1,
+              updated: Date.now(),
+            });
+          } catch {
+            button.disabled = false;
+            return api.toast("Could not save this content on this device.");
+          }
+          d.close();
+          api.toast("Reusable content saved.");
+        }),
+    );
+  }
+  // Built boards and components are cached per language for previews.
+  const libraryPreviews = new Map();
+  const library = {
+    tab: "templates",
+    category: "",
+    group: "",
+    iconCategory: "",
+    color: ICON_COLORS[0].value,
+  };
+  function previewItems(kind, id) {
+    const key = `${kind}|${id}|${language}`;
+    if (!libraryPreviews.has(key))
+      libraryPreviews.set(
+        key,
+        kind === "template"
+          ? fromTemplate(id, language).items
+          : componentItems(id, language),
+      );
+    return libraryPreviews.get(key);
+  }
+  function paintLibraryPreview(canvas, items) {
+    const width = 240,
+      height = 130,
+      a = bounds(items),
+      z = Math.min(width / (a.w + 40), height / (a.h + 40));
+    paint(
+      canvas,
+      items,
+      {
+        x: width / 2 - (a.x + a.w / 2) * z,
+        y: height / 2 - (a.y + a.h / 2) * z,
+        z,
+      },
+      {
+        width,
+        height,
+        background: "#ffffff",
+        textColor: "#30342f",
+        mindBadges: false,
+      },
+    );
+  }
+  // Previews paint when scrolled into view, or a few at a time without
+  // IntersectionObserver, so the dialog opens immediately.
+  const previewCleanup = new WeakMap();
+  function schedulePreviews(d, container) {
+    // Each render replaces the previous list's observer or scroll handler,
+    // and closing the dialog ends the current one.
+    if (previewCleanup.has(container)) previewCleanup.get(container)();
+    else d.addEventListener("close", () => previewCleanup.get(container)?.());
+    const canvases = [...container.querySelectorAll("canvas[data-preview-id]")];
+    const draw = (canvas) => {
+      if (!canvas.isConnected || canvas.dataset.painted) return;
+      canvas.dataset.painted = "true";
+      try {
+        paintLibraryPreview(
+          canvas,
+          previewItems(canvas.dataset.previewKind, canvas.dataset.previewId),
+        );
+      } catch {
+        /* A preview failure must not block the library. */
+      }
+    };
+    if (window.IntersectionObserver) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries)
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            draw(entry.target);
+          }
+      });
+      canvases.forEach((canvas) => observer.observe(canvas));
+      previewCleanup.set(container, () => observer.disconnect());
+      return;
+    }
+    // Without an observer, paint the first rows, then more as the list scrolls.
+    let budget = 0;
+    const next = () => {
+      if (!d.isConnected) return;
+      canvases.splice(0, 2).forEach(draw);
+      if (canvases.length && (budget -= 2) > 0) setTimeout(next, 0);
+    };
+    const more = () => {
+      if (budget <= 0 && canvases.length) setTimeout(next, 0);
+      budget = 8;
+    };
+    container.addEventListener("scroll", more, { passive: true });
+    previewCleanup.set(container, () => {
+      canvases.length = 0;
+      container.removeEventListener("scroll", more);
+    });
+    more();
+  }
+  // Arrow keys, Home and End move between cards in a wrapping grid.
+  function gridKeys(container, selector) {
+    container.addEventListener("keydown", (e) => {
+      const items = [...container.querySelectorAll(selector)],
+        index = items.indexOf(document.activeElement);
+      if (index < 0) return;
+      const top = items[0].offsetTop;
+      let columns = items.findIndex((el) => el.offsetTop !== top);
+      if (columns < 1) columns = 1;
+      // Up and Down go to the nearest item in the row above or below. A
+      // dialog's sections are separate grids with their own column counts.
+      const vertical = (down) => {
+        const at = items[index].getBoundingClientRect();
+        let best = -1,
+          row = Infinity,
+          gap = Infinity;
+        items.forEach((el, n) => {
+          const r = el.getBoundingClientRect();
+          const dy = down ? r.top - at.top : at.top - r.top,
+            dx = Math.abs(r.left - at.left);
+          if (dy < 1 || !(r.width || r.height) || dy > row + 1) return;
+          if (dy < row - 1) [row, gap] = [dy, Infinity];
+          if (dx < gap) [best, gap] = [n, dx];
+        });
+        return best >= 0 ? best : index + (down ? columns : -columns);
+      };
+      const target = {
+        ArrowRight: () => index + 1,
+        ArrowLeft: () => index - 1,
+        ArrowDown: () => vertical(true),
+        ArrowUp: () => vertical(false),
+        Home: () => 0,
+        End: () => items.length - 1,
+      }[e.key]?.();
+      if (target === undefined) return;
+      e.preventDefault();
+      items[Math.max(0, Math.min(items.length - 1, target))].focus();
+    });
+  }
+  // Toggle buttons that filter a list; one is pressed at a time.
+  function filterChips(root, label, entries, active, attribute, onChange) {
+    const html = `<div class="library-chips" role="group" aria-label="${t(label)}">${entries
+      .map(
+        ([id, name, count]) =>
+          `<button type="button" class="library-chip" data-${attribute}="${id}" aria-pressed="${id === active}">${escape(name)}${count == null ? "" : ` <span>${count}</span>`}</button>`,
+      )
+      .join("")}</div>`;
+    return {
+      html,
+      bind() {
+        const buttons = root.querySelectorAll(`[data-${attribute}]`);
+        buttons.forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              buttons.forEach((b) =>
+                b.setAttribute("aria-pressed", b === btn ? "true" : "false"),
+              );
+              onChange(btn.dataset[attribute]);
+            }),
+        );
+      },
+    };
+  }
+  // A search field whose Down arrow moves into the results.
+  function bindSearch(search, results, render) {
+    search.oninput = render;
+    search.onkeydown = (e) => {
+      if (e.key !== "ArrowDown") return;
+      e.preventDefault();
+      results.querySelector("button")?.focus();
+    };
+  }
+  const resultCount = (n) => t(`${n} result${n === 1 ? "" : "s"}`);
+  async function templateLibrary(tab = "templates") {
+    const custom = await api.local.templates(),
+      l = language === "fr" ? 1 : 0,
+      onBoard = !!api.board();
+    library.tab = onBoard ? tab : "templates";
+    const tabs = [
+      ["templates", "Templates"],
+      ["components", "Components"],
+      ["icons", "Icons and stickers"],
+    ];
+    api.modal(
+      "Template library",
+      `${onBoard ? `<div class="library-tabs" role="tablist" aria-label="${t("Library sections")}">${tabs.map(([id, label]) => `<button type="button" role="tab" id="library-tab-${id}" aria-controls="library-panel" data-library-tab="${id}">${t(label)}</button>`).join("")}</div>` : ""}<div id="library-panel" class="library-panel"></div>`,
+      (d) => {
+        d.classList.add("wide-dialog");
+        const panel = d.querySelector("#library-panel");
+        // Inserts copies centered in the view.
+        const insert = (items, tags) => {
+          if (!api.canEdit(new Set())) return;
+          if (api.board().items.length + items.length > 5000)
+            return api.toast("A board can contain at most 5,000 objects.");
+          d.close();
+          const source = clone(items),
+            middle = api.viewCenter(),
+            a = bounds(source);
+          for (const i of source) {
+            i.x += middle.x - a.x - a.w / 2;
+            i.y += middle.y - a.y - a.h / 2;
+          }
+          let imported;
+          try {
+            imported = importTags(api.board(), source, tags);
+          } catch (error) {
+            api.toast(error.message);
+            return;
+          }
+          api.mutate(() => {
+            if (imported.length || api.board().tags)
+              api.board().tags = imported;
+            const ids = new Set(source.map((i) => i.id));
+            const copies = [];
+            duplicateItems(source, ids, 0);
+            copies.push(...source.slice(ids.size));
+            unlinkCopiedJira(copies, items);
+            // Inserted frames come after the board's own, in their order.
+            const last = Math.max(
+              -1,
+              ...orderedFrames(api.board().items).map((f) => f.order || 0),
+            );
+            orderedFrames(copies).forEach((f, n) => (f.order = last + 1 + n));
+            api.placeItems?.(copies);
+            api.board().items.push(...copies);
+            // Like pasted objects, copies landing in a frame join it,
+            // unless the frame is hidden from this person.
+            placeDuplicates(
+              api.board().items,
+              new Set(copies.map((i) => i.id)),
+              api.concealedIn?.(api.board()),
+            );
+            api.select(new Set(copies.map((i) => i.id)));
+          });
+        };
+        const use = (b) => {
+          if (api.board()) insert(b.items, b.tags);
+          else {
+            d.close();
+            api.addBoard(b);
+          }
+        };
+        const templatesPanel = () => {
+          const categories = filterChips(
+            panel,
+            "Template categories",
+            [
+              ["", t("All"), TEMPLATE_CATALOG.length],
+              ...TEMPLATE_CATEGORIES.map((c) => [
+                c.id,
+                c.name[l],
+                TEMPLATE_CATALOG.filter((def) => def.categoryId === c.id)
+                  .length,
+              ]),
+              [
+                "playbooks",
+                t("Playbooks"),
+                TEMPLATE_CATALOG.filter((def) => def.playbook).length,
+              ],
+            ],
+            library.category,
+            "category",
+            (id) => {
+              library.category = id;
+              render();
+            },
+          );
+          panel.innerHTML = `<label class="search template-search"><input id="template-search" type="search" aria-label="Search templates" placeholder="Search templates" autocomplete="off"></label>${categories.html}<p class="library-count" role="status" aria-live="polite"></p><div class="template-library-list"></div><h3 class="custom-heading">${t("My reusable content")}</h3><div class="custom-template-list"></div>`;
+          const list = panel.querySelector(".template-library-list"),
+            search = panel.querySelector("#template-search");
+          const render = () => {
+            const playbooks = library.category === "playbooks",
+              matches = searchTemplates(
+                search.value,
+                playbooks ? "" : library.category,
+              ).filter((def) => !playbooks || def.playbook);
+            panel.querySelector(".library-count").textContent = resultCount(
+              matches.length,
+            );
+            list.innerHTML = matches.length
+              ? matches
+                  .map(
+                    (def) =>
+                      `<button type="button" class="library-template" data-use="${def.id}"><canvas class="library-preview" data-preview-kind="template" data-preview-id="${def.id}" aria-hidden="true"></canvas><small data-user-content>${escape(def.category[l])}${def.playbook ? ` · ${escape(t("Playbook"))}` : ""}</small><strong data-user-content>${escape(def.name[l])}</strong><span data-user-content>${escape(def.description[l])}</span><b>${t(api.board() ? "Insert into board" : "Use template")}</b></button>`,
+                  )
+                  .join("")
+              : `<p>${t("No templates found.")}</p>`;
+            list
+              .querySelectorAll("[data-use]")
+              .forEach(
+                (btn) =>
+                  (btn.onclick = () =>
+                    use(fromTemplate(btn.dataset.use, language))),
+              );
+            schedulePreviews(d, list);
+          };
+          render();
+          categories.bind();
+          bindSearch(search, list, render);
+          gridKeys(list, ".library-template");
+          const emptyCustom = `<p class="dialog-copy">${t("No reusable content yet. Select objects on a board to save your own.")}</p>`;
+          panel.querySelector(".custom-template-list").innerHTML = custom.length
+            ? custom
+                .map(
+                  (b) =>
+                    `<div class="revision-row"><strong data-user-content>${escape(b.title)}</strong><button class="secondary" data-custom="${escape(b.id)}">${t("Use template")}</button><button class="text-btn" data-remove-template="${escape(b.id)}">${t("Delete template")}</button></div>`,
+                )
+                .join("")
+            : emptyCustom;
+          panel.querySelectorAll("[data-custom]").forEach(
+            (btn) =>
+              (btn.onclick = () =>
+                use({
+                  ...clone(custom.find((b) => b.id === btn.dataset.custom)),
+                  id: uid(),
+                  updated: Date.now(),
+                  favorite: false,
+                })),
+          );
+          panel.querySelectorAll("[data-remove-template]").forEach(
+            (btn) =>
+              (btn.onclick = async () => {
+                // Saved content has no undo, so deleting takes a second click.
+                if (!btn.dataset.confirm) {
+                  btn.dataset.confirm = "true";
+                  btn.textContent = t("Confirm delete");
+                  btn.classList.add("danger");
+                  return;
+                }
+                await api.local.removeTemplate(btn.dataset.removeTemplate);
+                const index = custom.findIndex(
+                  (b) => b.id === btn.dataset.removeTemplate,
+                );
+                if (index >= 0) custom.splice(index, 1);
+                const row = btn.parentElement,
+                  next =
+                    row.nextElementSibling ||
+                    row.previousElementSibling ||
+                    null;
+                row.remove();
+                const rows = panel.querySelector(".custom-template-list");
+                if (!rows.children.length) rows.innerHTML = emptyCustom;
+                // Keep keyboard focus in the list instead of dropping to the page.
+                (
+                  next?.querySelector("[data-custom]") ||
+                  panel.querySelector("#template-search")
+                )?.focus();
+              }),
+          );
+        };
+        const componentsPanel = () => {
+          const groups = filterChips(
+            panel,
+            "Component groups",
+            [
+              ["", t("All"), COMPONENTS.length],
+              ...COMPONENT_GROUPS.map((g) => [
+                g.id,
+                g.name[l],
+                COMPONENTS.filter((c) => c.group === g.id).length,
+              ]),
+            ],
+            library.group,
+            "group",
+            (id) => {
+              library.group = id;
+              render();
+            },
+          );
+          panel.innerHTML = `<label class="search template-search"><input id="component-search" type="search" aria-label="${t("Search components")}" placeholder="${t("Search components")}" autocomplete="off"></label>${groups.html}<p class="library-count" role="status" aria-live="polite"></p><div class="template-library-list component-list"></div>`;
+          const list = panel.querySelector(".component-list"),
+            search = panel.querySelector("#component-search"),
+            names = new Map(COMPONENT_GROUPS.map((g) => [g.id, g.name[l]]));
+          const render = () => {
+            const matches = searchComponents(search.value, library.group);
+            panel.querySelector(".library-count").textContent = resultCount(
+              matches.length,
+            );
+            list.innerHTML = matches.length
+              ? matches
+                  .map(
+                    (c) =>
+                      `<button type="button" class="library-template" data-component="${c.id}"><canvas class="library-preview" data-preview-kind="component" data-preview-id="${c.id}" aria-hidden="true"></canvas><small data-user-content>${escape(names.get(c.group))}</small><strong data-user-content>${escape(c.name[l])}</strong><span data-user-content>${escape(c.description[l])}</span><b>${t("Insert component")}</b></button>`,
+                  )
+                  .join("")
+              : `<p>${t("No components found.")}</p>`;
+            list
+              .querySelectorAll("[data-component]")
+              .forEach(
+                (btn) =>
+                  (btn.onclick = () =>
+                    insert(componentItems(btn.dataset.component, language))),
+              );
+            schedulePreviews(d, list);
+          };
+          render();
+          groups.bind();
+          bindSearch(search, list, render);
+          gridKeys(list, ".library-template");
+        };
+        const iconsPanel = () => {
+          panel.innerHTML = `<div class="icon-filters"><label class="search template-search"><input id="icon-search" type="search" aria-label="${t("Search icons")}" placeholder="${t("Search icons")}" autocomplete="off"></label><label class="field">${t("Icon categories")}<select id="icon-category"><option value="">${t("All")}</option>${ICON_CATEGORIES.map((c) => `<option value="${c.id}" ${c.id === library.iconCategory ? "selected" : ""}>${escape(c.name[l])}</option>`).join("")}</select></label><label class="field">${t("Icon color")}<select id="icon-color">${ICON_COLORS.map((c) => `<option value="${c.value}" ${c.value === library.color ? "selected" : ""}>${escape(c.name[l])}</option>`).join("")}</select></label></div><p class="library-count" role="status" aria-live="polite"></p><div class="icon-grid"></div>`;
+          const grid = panel.querySelector(".icon-grid"),
+            search = panel.querySelector("#icon-search"),
+            entries = new Map();
+          const render = () => {
+            const matches = searchIcons(search.value, library.iconCategory);
+            panel.querySelector(".library-count").textContent = resultCount(
+              matches.length,
+            );
+            grid.style.color = library.color;
+            grid.innerHTML = matches.length
+              ? matches
+                  .map((entry) => {
+                    entries.set(entry.id, entry);
+                    const name = escape(entry.name[l]);
+                    return `<button type="button" class="icon-choice" data-icon="${entry.id}" aria-label="${escape(t("Insert icon"))}: ${name}" title="${name}">${entry.sticker ? `<span class="sticker-preview" style="background:${entry.background};color:${entry.glyph}">${entry.node ? iconSvg(entry.node) : `<b>${escape(entry.label)}</b>`}</span>` : iconSvg(entry.node)}</button>`;
+                  })
+                  .join("")
+              : `<p>${t("No icons found.")}</p>`;
+            grid.querySelectorAll("[data-icon]").forEach(
+              (btn) =>
+                (btn.onclick = () =>
+                  insert([
+                    iconItem(entries.get(btn.dataset.icon), 0, 0, {
+                      color: library.color,
+                      lang: language,
+                    }),
+                  ])),
+            );
+          };
+          render();
+          bindSearch(search, grid, render);
+          gridKeys(grid, ".icon-choice");
+          panel.querySelector("#icon-category").onchange = (e) => {
+            library.iconCategory = e.target.value;
+            render();
+          };
+          panel.querySelector("#icon-color").onchange = (e) => {
+            library.color = e.target.value;
+            grid.style.color = library.color;
+          };
+        };
+        const show = (next, focus = false) => {
+          library.tab = next;
+          d.querySelectorAll("[data-library-tab]").forEach((btn) => {
+            const active = btn.dataset.libraryTab === next;
+            btn.setAttribute("aria-selected", active ? "true" : "false");
+            btn.tabIndex = active ? 0 : -1;
+            if (active && focus) btn.focus();
+          });
+          if (onBoard) {
+            panel.setAttribute("role", "tabpanel");
+            panel.setAttribute("aria-labelledby", `library-tab-${next}`);
+          }
+          ({
+            templates: templatesPanel,
+            components: componentsPanel,
+            icons: iconsPanel,
+          })[next]();
+          translateUI(panel);
+        };
+        d.querySelectorAll("[data-library-tab]").forEach((btn) => {
+          btn.onclick = () => show(btn.dataset.libraryTab);
+          btn.onkeydown = (e) => {
+            const order = tabs.map(([id]) => id),
+              index = order.indexOf(btn.dataset.libraryTab),
+              next = {
+                ArrowRight: index + 1,
+                ArrowLeft: index - 1,
+                Home: 0,
+                End: order.length - 1,
+              }[e.key];
+            if (next === undefined) return;
+            e.preventDefault();
+            show(order[(next + order.length) % order.length], true);
+          };
+        });
+        show(library.tab);
+      },
+    );
+  }
+  function exports() {
+    const board = api.board(),
+      shown = (api.visualBoard?.() || board).items,
+      frames = orderedFrames(shown),
+      chosen = new Set(api.selection()),
+      selectedFrames = frames.filter((f) => chosen.has(f.id)),
+      tables = shown.filter((i) => i.type === "table");
+    // Letter is the default in North America; elsewhere A4.
+    const letter = /-(US|CA|MX|PH|CL|CO|VE|GT|PR)$/i.test(
+      globalThis.navigator?.language || "",
+    );
+    const option = (value, label, selected = false) =>
+      `<option value="${value}"${selected ? " selected" : ""}>${label}</option>`;
+    const sheetChoiceName = uid(),
+      sheetChoices = [
+        ["objects", escape(t("Text objects and tasks"))],
+        ["frames", escape(t("Frames"))],
+        ...tables.map((i, n) => {
+          const prefix = `${t("Table")} ${n + 1}: `,
+            header = tableTextContent(i, {
+              rows: [i.cells[0]],
+              separator: ", ",
+              limit: Math.max(0, 80 - prefix.length),
+            });
+          return [
+            `table:${i.id}`,
+            `${escape(prefix)}${authoredTextHTML(header)}`,
+          ];
+        }),
+      ],
+      sheetChoicesHTML = sheetChoices
+        .map(
+          ([value, label], n) =>
+            `<label><input type="radio" name="${sheetChoiceName}" value="${escape(value)}" ${n === 0 ? "checked" : ""}><span>${label}</span></label>`,
+        )
+        .join("");
+    api.modal(
+      "Export board",
+      `<form><label class="field">Export scope<select id="export-scope"><option value="board">Entire board</option><option value="selection" ${api.selection().size || api.region() ? "" : "disabled"}>Selected objects or region</option><option value="frames" ${frames.length ? "" : "disabled"}>Defined frames</option></select></label><div id="export-frames" class="slide-choices" role="group" aria-label="${t("Frames to export")}" aria-describedby="export-error" hidden>${frames.map((f) => `<label><input type="checkbox" value="${escape(f.id)}" aria-describedby="export-error" ${!selectedFrames.length || selectedFrames.includes(f) ? "checked" : ""}><span>${frameTitleHTML(f, "Untitled frame")}</span></label>`).join("")}</div><label class="field">Export format<select id="export-format"><optgroup label="${t("Documents and slides")}">${option("pdf", "PDF document")}${option("pptx", "PowerPoint slides")}</optgroup><optgroup label="${t("Images")}">${option("png", "PNG image")}${option("jpeg", "JPEG image")}${option("svg", "SVG vector image")}</optgroup><optgroup label="${t("Spreadsheets")}">${option("xlsx", "Excel workbook")}${option("csv", "CSV spreadsheet")}</optgroup><optgroup label="${t("Editable")}">${option("json", "Whiteboard file")}</optgroup></select></label>` +
+        `<fieldset id="pdf-options" class="export-options"><legend>PDF options</legend><div class="field-row"><label class="field">Page size<select id="pdf-page-size">${option("letter", "Letter", letter)}${option("legal", "Legal")}${option("tabloid", "Tabloid")}${option("a4", "A4", !letter)}${option("a3", "A3")}${option("fit", "Fit to content")}</select></label><label class="field">Orientation<select id="pdf-orientation">${option("auto", "Automatic")}${option("landscape", "Landscape")}${option("portrait", "Portrait")}</select></label></div>` +
+        `<div class="field-row"><label class="field">Scale<select id="pdf-scale">${option("auto", "Readable detail (split large areas)")}${option("fit", "Fit each area on one page")}${[25, 50, 75, 100, 150, 200].map((n) => option(n, `${n}%`)).join("")}</select></label><label class="field">Margins<select id="pdf-margin">${option("narrow", "Narrow")}${option("normal", "Normal", true)}${option("wide", "Wide")}</select></label></div>` +
+        `<label class="field">Rendering<select id="pdf-mode" aria-describedby="pdf-mode-help">${option("raster", "Image (matches the board exactly)")}${option("vector", "Vector (text and shapes)")}</select></label><p id="pdf-mode-help" class="dialog-copy"></p><label class="export-check"><input type="checkbox" id="pdf-markers" checked> Show page boundaries and labels</label><p id="pdf-estimate" class="dialog-copy" aria-live="polite"></p></fieldset>` +
+        `<fieldset class="frame-choices" id="sheet-choice" hidden><legend>${t("Spreadsheet content")}</legend><div class="slide-choices" id="export-sheet">${sheetChoicesHTML}</div></fieldset>` +
+        `<p id="export-help" class="dialog-copy"></p><p id="export-error" class="dialog-copy" role="alert" hidden></p><p id="export-status" class="sr-only" role="status" aria-live="polite"></p><div class="dialog-footer"><button class="primary" type="submit">Export</button></div></form>`,
+      (d) => {
+        const $ = (selector) => d.querySelector(selector);
+        const clearError = () => {
+          $("#export-error").textContent = "";
+          $("#export-error").hidden = true;
+          $("#export-frames").removeAttribute("aria-invalid");
+        };
+        const pdfOptions = () => ({
+          pageSize: $("#pdf-page-size").value,
+          orientation: $("#pdf-orientation").value,
+          scale: $("#pdf-scale").value,
+          margin: $("#pdf-margin").value,
+          mode: $("#pdf-mode").value,
+          markers: $("#pdf-markers").checked,
+        });
+        const frameIds = () =>
+          [...d.querySelectorAll("#export-frames input:checked")].map(
+            (i) => i.value,
+          );
+        const update = () => {
+          clearError();
+          const scope = $("#export-scope").value,
+            format = $("#export-format").value;
+          $("#export-frames").hidden = scope !== "frames";
+          $("#pdf-options").hidden = format !== "pdf";
+          $("#sheet-choice").hidden = format !== "csv";
+          $("#pdf-orientation").disabled = $("#pdf-page-size").value === "fit";
+          $("#export-help").textContent = t(EXPORT_HELP[format]);
+          $("#pdf-mode-help").textContent = t(
+            RENDERING_HELP[$("#pdf-mode").value],
+          );
+          if (format !== "pdf") return;
+          // With no frame chosen there is nothing to count; exporting says
+          // the same.
+          if (scope === "frames" && !frameIds().length) {
+            $("#pdf-estimate").textContent = t("Choose at least one frame.");
+            return;
+          }
+          // Page count preview for the current scope and page settings.
+          try {
+            const pages = pdfPlan(
+              exportRegions(api.visualBoard?.() || board, {
+                scope,
+                selection: chosen,
+                region: api.region(),
+                frameIds: frameIds(),
+              }),
+              pdfOptions(),
+            ).length;
+            $("#pdf-estimate").textContent =
+              pages === 1
+                ? t("Estimated length: 1 page.")
+                : t("Estimated length: {count} pages.").replace(
+                    "{count}",
+                    pages,
+                  );
+          } catch (error) {
+            $("#pdf-estimate").textContent = t(error.message);
+          }
+        };
+        d.querySelector("form").addEventListener("change", update);
+        update();
+        d.querySelector("form").onsubmit = async (e) => {
+          e.preventDefault();
+          clearError();
+          const btn = d.querySelector("button[type=submit]"),
+            status = $("#export-status");
+          btn.disabled = true;
+          status.textContent = t("Preparing export…");
+          let missingFrames = false;
+          try {
+            const scope = $("#export-scope").value,
+              format = $("#export-format").value,
+              ids = frameIds();
+            if (scope === "frames" && !ids.length) {
+              missingFrames = true;
+              throw Error("Choose at least one frame.");
+            }
+            const snapshot = clone(
+                format === "json" ? board : api.visualBoard?.() || board,
+              ),
+              selection = new Set(api.selection()),
+              region = clone(api.region());
+            await loadItemFonts(snapshot.items);
+            await document.fonts?.ready;
+            clearTextLayoutCache();
+            clearConnectorLabelCache();
+            if (
+              reflowTextItems(
+                snapshot.items,
+                document.createElement("canvas").getContext("2d"),
+              )
+            )
+              updateConnectors(snapshot.items);
+            const regions = exportRegions(snapshot, {
+              scope,
+              selection,
+              region,
+              frameIds: ids,
+              includeHidden: format === "json",
+            });
+            let blob;
+            if (format === "pdf")
+              blob = await exportPDF(
+                snapshot,
+                regions,
+                language,
+                undefined,
+                pdfOptions(),
+              );
+            // The PowerPoint and SVG writers load when first used.
+            else if (format === "pptx")
+              blob = await (
+                await loadWriter(import("./export-pptx.js"))
+              ).exportPPTX(snapshot, regions, { lang: language });
+            else if (format === "svg")
+              blob = (await loadWriter(import("./export-svg.js"))).exportSVG(
+                snapshot,
+                regions,
+              );
+            else if (format === "xlsx") blob = exportXLSX(snapshot, regions);
+            else if (format === "csv")
+              blob = exportCSV(
+                snapshot,
+                regions,
+                $("#export-sheet input:checked").value,
+              );
+            else if (format === "json") {
+              const items = [
+                  ...new Map(
+                    regions
+                      .flatMap((r) => r.items)
+                      .map((i) => [i.id, clone(i)]),
+                  ).values(),
+                ],
+                kept = new Set(items.map((i) => i.id));
+              for (const i of items) {
+                trimMindMap(i, kept);
+                if (!kept.has(i.parentId)) delete i.parentId;
+                if (!kept.has(i.startId)) delete i.startId;
+                if (!kept.has(i.endId)) delete i.endId;
+              }
+              const exported = { ...snapshot, items };
+              if (scope !== "board") {
+                delete exported.comments;
+                delete exported.workshop;
+                if (exported.tags)
+                  exported.tags = referencedTags(items, exported.tags);
+                externalizeObjectLinks(
+                  items,
+                  api.objectURL && ((id) => api.objectURL(id, snapshot)),
+                );
+              }
+              delete exported.shared;
+              delete exported.timer;
+              api.portable?.(exported);
+              blob = JSON.stringify(exported, null, 2);
+            } else {
+              if (regions.length !== 1)
+                throw Error(
+                  "Reduce the selection to one region for image export.",
+                );
+              blob = await exportImage(
+                { ...snapshot, items: regions[0].items },
+                regions[0].rect,
+                format,
+                { mindCounts: regions[0].mindCounts },
+              );
+            }
+            api.download(
+              blob,
+              // A title of only symbols still names the file, instead of
+              // a hidden ".pdf".
+              (board.title
+                .normalize("NFC")
+                .replace(/[^\p{L}\p{M}\p{N} _-]/gu, "")
+                .trim() || "Whiteboard") +
+                "." +
+                format,
+              EXPORT_TYPES[format],
+            );
+            status.textContent = t("Export ready.");
+            api.exported?.(format, scope);
+            d.close();
+          } catch (error) {
+            status.textContent = "";
+            $("#export-error").textContent = t(
+              error.message || "Export failed. Please try again.",
+            );
+            $("#export-error").hidden = false;
+            if (missingFrames) {
+              $("#export-frames").setAttribute("aria-invalid", "true");
+              $("#export-frames input")?.focus();
+            }
+            btn.disabled = false;
+          }
+        };
+      },
+    );
+  }
+  function shapeLibrary(change = false) {
+    const board = api.board();
+    const ids = new Set(
+      change
+        ? selected()
+            .filter(canSwitchShape)
+            .map((i) => i.id)
+        : [],
+    );
+    if (!board || !api.canEdit(change ? api.selection() : ids)) return;
+    const chosen = board.items.filter((i) => ids.has(i.id));
+    if (change && (!chosen.length || !chosen.every(canSwitchShape))) return;
+    let family = "";
+    api.modal(
+      change ? "Change shape" : "Shapes",
+      `<label class="search template-search"><input id="shape-search" type="search" aria-label="Search shapes" placeholder="Search shapes" autocomplete="off"></label><div class="shape-chips"></div><div class="shape-families"></div>`,
+      (d) => {
+        const container = d.querySelector(".shape-families"),
+          search = d.querySelector("#shape-search");
+        const families = filterChips(
+          d,
+          "Shape families",
+          [
+            ["", t("All")],
+            ...shapeFamilies(change).map((f) => [f.id, t(f.name)]),
+          ],
+          "",
+          "family",
+          (id) => {
+            family = id;
+            render();
+          },
+        );
+        d.querySelector(".shape-chips").outerHTML = families.html;
+        const render = () => {
+          const results = searchShapes(search.value, family, change);
+          container.innerHTML = results.length
+            ? results
+                .map(
+                  (f) =>
+                    `<section class="shape-family"><h3 id="shape-family-${f.id}">${t(f.name)}</h3><div class="shape-library" role="group" aria-labelledby="shape-family-${f.id}">${f.shapes
+                      .map(
+                        ({ key, name, hint }) =>
+                          `<button type="button" class="shape-choice" data-shape="${key}" ${change ? `aria-pressed="${chosen.every((i) => shapeKey(i) === key)}"` : ""}>${shapePreview(key)}<strong>${t(name)}</strong>${hint && f.id === "basic" ? `<small>${t(hint)}</small>` : ""}</button>`,
+                      )
+                      .join("")}</div></section>`,
+                )
+                .join("")
+            : `<p class="dialog-copy">${t("No shapes found.")}</p>`;
+          // Choices other features register, such as task cards, are found
+          // as shapes are: in either language, ignoring accents and order.
+          const words = fold(search.value).split(/\s+/).filter(Boolean);
+          const extras =
+            change || family
+              ? []
+              : extraShapes.filter((c) => {
+                  const text = fold(
+                    [c.name, t(c.name), c.hint || "", t(c.hint || "")]
+                      .concat(c.keywords || [])
+                      .join(" "),
+                  );
+                  return words.every((word) => text.includes(word));
+                });
+          if (extras.length) {
+            container.querySelector(":scope > p.dialog-copy")?.remove();
+            container.insertAdjacentHTML(
+              "beforeend",
+              `<section class="shape-family"><h3 id="shape-family-extra">${t("Planning")}</h3><div class="shape-library" role="group" aria-labelledby="shape-family-extra">${extras.map((c) => `<button type="button" class="shape-choice" data-extra="${c.key}">${c.icon || ""}<strong>${t(c.name)}</strong>${c.hint ? `<small>${t(c.hint)}</small>` : ""}</button>`).join("")}</div></section>`,
+            );
+            container.querySelectorAll("[data-extra]").forEach((btn) => {
+              btn.onclick = () => {
+                if (api.board() !== board || !api.canEdit(ids)) return;
+                d.close();
+                extraShapes.find((c) => c.key === btn.dataset.extra)?.run();
+              };
+            });
+          }
+          container.querySelectorAll("[data-shape]").forEach((btn) => {
+            btn.onclick = () => {
+              if (api.board() !== board || !api.canEdit(ids)) return;
+              const key = btn.dataset.shape;
+              if (change) {
+                // Re-read after the dialog: collaborators can change or delete objects.
+                const items = board.items.filter((i) => ids.has(i.id));
+                if (items.length !== ids.size || !items.every(canSwitchShape))
+                  return d.close();
+                d.close();
+                if (items.every((i) => shapeKey(i) === key)) return;
+                api.mutate(() => items.forEach((i) => switchShape(i, key)));
+              } else {
+                d.close();
+                api.addShape(key);
+              }
+            };
+          });
+        };
+        render();
+        families.bind();
+        bindSearch(search, container, render);
+        gridKeys(container, ".shape-choice");
+      },
+    );
+  }
+  function more() {
+    api.modal(
+      "More tools",
+      `<div class="more-tools-grid">${[
+        ["commands", "Command palette"],
+        ["shapes", "Shapes"],
+        ["link", "Add link"],
+        ["table", "Add table"],
+        ["mind-map", "Mind map"],
+        ["bulk-notes", "Bulk sticky notes"],
+        ["file", "Attach file"],
+        ["import-document", "Import document"],
+        ["embed", "Embed content"],
+        ["google-workspace", "Google Workspace"],
+        ["organize", "Organize selection"],
+        ["filter-selection", "Filter selection"],
+        ["cluster", "Cluster sticky notes"],
+        ["copy-image", "Copy as image"],
+        ["copy-style", "Copy style"],
+        ["paste-style", "Paste style"],
+        ["clear-content", "Clear content"],
+        ["replace-image", "Replace image"],
+        ["unlock-all", "Unlock all objects"],
+        ["frames", "Frames and navigation"],
+        ["minimap", "Minimap"],
+        ["timer", "Timer"],
+        ["facilitation", "Facilitation"],
+        ["navigation", "Mouse, trackpad, and touch"],
+        ["selection-settings", "Selection settings"],
+        ["grid", "Grid and snapping"],
+        ["dimensions", "Object dimensions"],
+        ["present", "Presentation"],
+        ["region", "Select export region"],
+        ["exact-region", "Set export region"],
+        ["history", "Version history"],
+        ["templates", "Template library"],
+        ["components", "Components"],
+        ["icons", "Icons and stickers"],
+        ["help", "Keyboard shortcuts"],
+        ...extraTools.map(([action, label]) => [action, label]),
+      ]
+        .map(
+          ([action, label]) =>
+            `<button class="secondary" data-feature="${action}" ${["copy-image", "filter-selection", "clear-content"].includes(action) && !api.selection().size ? "disabled" : ""}>${label}</button>`,
+        )
+        .join("")}</div>`,
+      (d) =>
+        d.querySelectorAll("[data-feature]").forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              d.close();
+              const extra = extraTools.find(
+                ([action]) => action === btn.dataset.feature,
+              );
+              if (btn.dataset.feature === "help") api.help();
+              else if (extra) extra[2]();
+              else actions[btn.dataset.feature]();
+            }),
+        ),
+    );
+  }
+  const actions = {
+    commands: () => api.commands(),
+    "mind-map": () => api.mindMap(),
+    shapes: () => shapeLibrary(),
+    "change-shape": () => shapeLibrary(true),
+    link: () => linkDialog(),
+    table: () => tableDialog(),
+    "bulk-notes": () => api.bulkNotes(),
+    file: () => attachFile(),
+    organize,
+    "filter-selection": () => openSelectionFilter(api),
+    cluster: () => openClusters(api),
+    "copy-image": () => api.copyImage(),
+    "copy-style": () => api.copyStyle(),
+    "paste-style": () => api.pasteStyle(),
+    "clear-content": () => api.clearContent(),
+    "replace-image": () => api.replaceImage(),
+    "unlock-all": () => api.unlockAll(),
+    frames,
+    minimap: () => api.minimap(),
+    timer: () => api.timer(),
+    facilitation: () => api.facilitation?.(),
+    navigation: () => api.navigation(),
+    "selection-settings": () => api.selectionSettings(),
+    grid: () => api.grid(),
+    dimensions: () => api.dimensions(),
+    present: presentationSetup,
+    history: versions,
+    templates: () => templateLibrary("templates"),
+    components: () => templateLibrary("components"),
+    icons: () => templateLibrary("icons"),
+    "save-snippet": saveSnippet,
+    "more-tools": more,
+    region: () => api.setTool("region"),
+    "exact-region": () => api.exactRegion(),
+    export: exports,
+  };
+  return {
+    actions,
+    organizeSelection,
+    edit(i) {
+      if (i.type === "link") linkDialog(i);
+      else if (i.type === "table") tableDialog(i);
+      else if (i.type === "file") fileDialog(i);
+      else return false;
+      return true;
+    },
+  };
+}

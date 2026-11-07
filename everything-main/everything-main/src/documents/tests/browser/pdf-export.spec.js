@@ -1,0 +1,56 @@
+import { test, expect } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { fileCommand } from './helpers/editor-tools.js';
+
+test('File → Export → PDF downloads every page with searchable text', async ({ page }, info) => {
+  await page.goto('/playground.html');
+  await page.locator('.canvas-workspace').first().waitFor();
+  // Count the pages of the opened file, not of the sample it replaces.
+  const previous = await page.getByRole('textbox', { name: 'Document text' }).elementHandle();
+  await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/annual-report.docx');
+  if (previous) await expect.poll(() => previous.evaluate(el => el.isConnected)).toBe(false);
+  await expect(page.locator('.canvas-page').first()).toBeVisible();
+  const pages = await page.locator('.canvas-page').count();
+  const downloading = page.waitForEvent('download');
+  await (await fileCommand(page, 'Export')).click();
+  await page.getByRole('menuitem', { name: 'PDF (.pdf)', exact: true }).click();
+  const download = await downloading;
+  expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+  const path = info.outputPath('export.pdf');
+  await download.saveAs(path);
+  const pdf = readFileSync(path).toString('latin1');
+  expect(pdf.startsWith('%PDF-1.7')).toBe(true);
+  expect(pdf.match(/\/Type \/Page /g)).toHaveLength(pages);
+  let text = null;
+  try { text = execFileSync('pdftotext', [path, '-'], { encoding: 'utf8' }); } catch { /* poppler is optional */ }
+  if (text !== null) expect(text.replace(/\s+/g, ' ')).toMatch(/\w{4,}/);
+});
+
+test('choosing PDF again while one is being made downloads it once', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  await expect(page.locator('.canvas-page')).toHaveCount(2);
+  // Each page takes a moment to encode, as a long document's do.
+  await page.evaluate(() => {
+    const toBlob = HTMLCanvasElement.prototype.toBlob;
+    HTMLCanvasElement.prototype.toBlob = function (done, ...rest) { toBlob.call(this, blob => setTimeout(() => done(blob), 400), ...rest); };
+  });
+  const downloads = [];
+  page.on('download', download => downloads.push(download.suggestedFilename()));
+  const choosePdf = async () => {
+    await (await fileCommand(page, 'Export')).click();
+    await page.getByRole('menuitem', { name: 'PDF (.pdf)', exact: true }).click();
+  };
+  const first = page.waitForEvent('download');
+  await choosePdf();
+  await choosePdf();
+  await first;
+  await page.waitForTimeout(2000);
+  expect(downloads).toEqual(['Across two pages.pdf']);
+  // Once it is done, the next request makes another.
+  const again = page.waitForEvent('download');
+  await choosePdf();
+  await again;
+  expect(downloads).toHaveLength(2);
+});

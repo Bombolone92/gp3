@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Contract Manager (mock dev)</title>
+  <meta name="theme-color" content="#f8f9fa" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0e0f11" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem('cm:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    })();
+  </script>
+  <script src="./dev/puter-mock.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div id="app" class="app"></div>
+</body>
+</html>

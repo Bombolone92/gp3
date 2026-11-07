@@ -1,0 +1,47 @@
+# AWS Amplify Hosting custom HTTP headers (applied to the deployed site).
+#
+# The script-src hashes cover the two inline scripts in index.html (theme
+# resolution, then the Plausible queue stub). Vite copies them into the build
+# verbatim, so a hash only changes when its script's text changes. Recompute
+# them with:
+#   python3 -c "import re,hashlib,base64;[print('sha256-'+base64.b64encode(hashlib.sha256(s.encode()).digest()).decode()) for s in re.findall(r'<script>(.*?)</script>',open('dist/index.html').read(),re.S)]"
+# (The JSON-LD block is a non-executing data block; CSP does not apply to it.)
+customHeaders:
+  - pattern: '**'
+    headers:
+      # js.puter.com serves the Puter SDK (loaded on demand for online play)
+      # and api.puter.com is its REST endpoint. plausible.io serves the
+      # analytics script and receives its events. Peer signaling runs over
+      # WebSockets whose hostnames are assigned dynamically per account
+      # (e.g. signal-<id>.workers.dev, wss://puter.cafe as fallback), so
+      # connect-src allows the wss: scheme rather than a brittle host list.
+      # TURN uses turn:/stun: schemes, which CSP does not govern, and the
+      # auth prompt opens as a popup (a new top-level context), so no
+      # frame-src is needed.
+      #
+      # style-src has to allow inline styles because the Puter SDK dresses its
+      # own UI that way: the consent dialog every first-time player sees is a
+      # <puter-dialog> whose shadow root carries a <style> element, plus style
+      # attributes on its contents. Under "style-src 'self'" both are blocked
+      # and that dialog renders as an unstyled white box over the board.
+      # Hashing is not an option — the SDK is an unversioned CDN bundle, so its
+      # CSS can change under us at any time. Scripts stay strict, which is the
+      # protection that matters: this app writes text with textContent and never
+      # builds markup from anything a player or a peer sends.
+      #
+      # frame-ancestors is '*' so the game can be embedded as an iframe on any
+      # site. To restrict it later, replace '*' with an explicit origin list,
+      # e.g. "frame-ancestors https://puter.com https://*.puter.com". There is
+      # deliberately no X-Frame-Options header: it has no wildcard equivalent,
+      # and any value it can carry would block framing in the browsers that
+      # honour it (browsers that support frame-ancestors ignore it anyway).
+      - key: 'Content-Security-Policy'
+        value: "default-src 'self'; script-src 'self' https://js.puter.com https://plausible.io 'sha256-Ae92DMlvhX2of26U5jhemEEtmQDwlfAX4yVGQ8Mrsfc=' 'sha256-s3GjtVo80AO5y21xNb09L193qY2mDVWzcLbCiBHrn4s='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.puter.com https://puter.com https://js.puter.com https://plausible.io wss:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors *; upgrade-insecure-requests"
+      - key: 'X-Content-Type-Options'
+        value: 'nosniff'
+      - key: 'Referrer-Policy'
+        value: 'strict-origin-when-cross-origin'
+      - key: 'Permissions-Policy'
+        value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+      - key: 'Strict-Transport-Security'
+        value: 'max-age=31536000; includeSubDomains'

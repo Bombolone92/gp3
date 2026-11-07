@@ -1,0 +1,343 @@
+/* ---- 3D and Materials panel ---- */
+.panel-3d [hidden] {
+  display: none !important;
+}
+
+.td-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  margin: 10px 12px 2px;
+  border-radius: var(--radius);
+  background: var(--bg-panel-2);
+}
+
+.td-tab {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  min-height: 26px;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-2);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.td-tab:hover {
+  background: var(--bg-hover);
+}
+
+.td-tab[aria-selected='true'] {
+  background: var(--bg-elev);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.td-tab:focus-visible,
+.td-choice:focus-visible,
+.td-swatch:focus-visible,
+.td-trackball:focus-visible,
+.td-lightball:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.td-empty {
+  margin: 8px 12px 0;
+  color: var(--text-2);
+}
+
+.td-section {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.td-section:last-child {
+  border-bottom: 0;
+}
+
+.td-heading {
+  margin: 0 0 8px;
+  font-size: var(--fs);
+  font-weight: 600;
+}
+
+.td-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px 8px;
+  margin-bottom: 6px;
+}
+
+.td-slider {
+  grid-template-columns: 76px minmax(0, 1fr) 66px;
+}
+
+.td-label {
+  color: var(--text-2);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.td-range {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.td-num-wrap {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.td-num {
+  width: 100%;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.td-unit {
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.td-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 2px 0 8px 84px;
+}
+
+.td-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.td-sub {
+  margin-left: 12px;
+  padding-left: 8px;
+  border-left: 2px solid var(--border);
+}
+
+.td-choices {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.td-choice {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 26px;
+  padding: 2px 4px;
+  border: 0;
+  background: var(--bg-input);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.td-choice + .td-choice {
+  border-left: 1px solid var(--border);
+}
+
+.td-choice:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.td-choice[aria-checked='true'] {
+  background: var(--bg-selected);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.td-choice:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* The type picker: four tall buttons with icons over their names. */
+.td-kind-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.td-kind-row > .td-label {
+  text-align: left;
+}
+
+.td-choice-big {
+  flex-direction: column;
+  min-height: 54px;
+  gap: 3px;
+}
+
+.td-orient {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 8px;
+}
+
+.td-angles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.td-trackball,
+.td-lightball {
+  flex: none;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.td-trackball:active,
+.td-lightball:active {
+  cursor: grabbing;
+}
+
+.td-trackball svg,
+.td-lightball svg {
+  display: block;
+  overflow: visible;
+}
+
+.td-ball {
+  fill: var(--bg-input);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.td-ball-line {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.td-face {
+  fill: var(--text-2);
+  stroke: var(--text);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+
+.td-face-front {
+  fill: var(--accent);
+}
+
+.td-light {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+
+.td-light-ball {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.td-light-ray {
+  stroke: var(--warning);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 2;
+}
+
+.td-light-dot {
+  fill: var(--warning);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+
+.td-light-dot.behind {
+  fill: var(--bg-input);
+}
+
+.td-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 6px;
+}
+
+.td-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 2px 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.td-swatch:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.td-swatch[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--bg-selected);
+  color: var(--text);
+}
+
+.td-swatch-ball {
+  width: 40px;
+  height: 40px;
+}
+
+.td-note {
+  margin: 6px 0 0;
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.td-color {
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: none;
+}
+
+.td-muted,
+.td-disabled .td-section {
+  opacity: 0.55;
+}
+
+.td-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 10px 12px 12px;
+}

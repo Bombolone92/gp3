@@ -1,0 +1,53 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { unzipSync, strFromU8 } from 'fflate';
+import { JSDOM } from 'jsdom';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { StorySession } from '../src/engine/story-session.js';
+import { drawingTextSourceKey } from '../src/engine/drawing-text-edit.js';
+const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+const MC = 'http://schemas.openxmlformats.org/markup-compatibility/2006';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const parse = source => new DOMParser().parseFromString(source, 'application/xml');
+const branches = source => [...parse(source).getElementsByTagNameNS(MC, 'AlternateContent')[0].children].map(b => b.getElementsByTagNameNS(W, 'txbxContent')[0]);
+
+it('edits equivalent alternate control stories while retaining branch metadata and exact undo', async () => {
+  const bytes = readFileSync('tests/fixtures/drawing-text-metadata/control.docx'), parts = unzipSync(bytes);
+  const pkg = await DocxPackage.open(bytes), model = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets), session = new StorySession(model);
+  model.select(model.text.indexOf('\ufffc'), model.text.indexOf('\ufffc') + 1);
+  const image = model.selectedImage, frame = pkg.drawingTextFrames(image)[0];
+  expect(frame.reason).toBeNull();
+  const draft = new TextDocument(frame.paragraphs, undefined, pkg.numbering, pkg.styles, frame.tables);
+  draft.select(0, 10); draft.replace('Updated');
+  const prepared = pkg.prepareDrawingTextEdit(image, 0, draft.paragraphs, model.assets, pkg.styles, pkg.numbering, draft.tables);
+  const stories = branches(prepared.shell);
+  expect(stories.map(s => s.getElementsByTagNameNS(W, 'p')[0].getAttributeNS(W, 'rsidRDefault'))).toEqual(['00112233', '44556677']);
+  expect(stories.map(s => s.getElementsByTagNameNS(W, 'sdtEndPr').length)).toEqual([0, 1]);
+  expect(stories.map(s => [...s.getElementsByTagNameNS(W, 't')].map(t => t.textContent).join(''))).toEqual(['Updated titleOriginal second paragraph', 'Updated titleOriginal second paragraph']);
+  model.assets['metadata-edit'] = prepared.asset;
+  session.run(() => model.replaceDrawingText(image, 'metadata-edit', prepared.shell));
+  const save = async () => new Uint8Array(await session.export(pkg).arrayBuffer());
+  const saved = await save(), reopened = await DocxPackage.open(saved);
+  expect(reopened.drawingTextFrames(reopened.paragraphs.flatMap(p => p.runs).find(r => r.image).image)[0].reason).toBeNull();
+  for (const name of Object.keys(parts).filter(n => n !== 'word/document.xml')) expect(unzipSync(saved)[name]).toEqual(parts[name]);
+  session.undo(); expect(unzipSync(await save())).toEqual(parts);
+  session.redo(); expect(unzipSync(await save())).toEqual(unzipSync(saved));
+}, 60000);
+
+it('does not erase end formatting, control identities, unknown metadata or invalid editing IDs when matching', () => {
+  const [a, b] = branches(strFromU8(unzipSync(readFileSync('tests/fixtures/drawing-text-metadata/control.docx'))['word/document.xml']));
+  expect(drawingTextSourceKey(a)).toBe(drawingTextSourceKey(b));
+  const end = b.getElementsByTagNameNS(W, 'sdtEndPr')[0];
+  const properties = b.ownerDocument.createElementNS(W, 'w:rPr'); properties.append(b.ownerDocument.createElementNS(W, 'w:b')); end.append(properties);
+  expect(drawingTextSourceKey(a)).not.toBe(drawingTextSourceKey(b));
+  end.replaceChildren();
+  b.getElementsByTagNameNS(W, 'id')[0].setAttributeNS(W, 'w:val', '502');
+  expect(drawingTextSourceKey(a)).not.toBe(drawingTextSourceKey(b));
+  b.getElementsByTagNameNS(W, 'id')[0].setAttributeNS(W, 'w:val', '501');
+  end.setAttribute('unknown', '1'); expect(drawingTextSourceKey(a)).not.toBe(drawingTextSourceKey(b)); end.removeAttribute('unknown');
+  b.getElementsByTagNameNS(W, 'p')[0].setAttributeNS(W, 'w:rsidRDefault', 'invalid');
+  expect(drawingTextSourceKey(a)).not.toBe(drawingTextSourceKey(b));
+});

@@ -1,0 +1,2264 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Independent Evaluate and worksheet formula2 probes agree; stored formulas checked and scratch ranges cleared with COUNTA zero. Amplified differences around one half or one expose normalization rounding. Exact native zeros are required; nonzero comparisons allow 1e-11 relative error or four double-precision rounding units times the amplifier. The normalization-stage capture contributes t functions only; explicit beta precision remains separately tracked.",
+  "captures": [
+    {
+      "name": "t-small-complement-controls",
+      "selectedCases": 80,
+      "scriptSha256": "78643cd7445c5cd602bee3c9b5496b079c777631c87c63d4a491d042830b1623",
+      "captureSha256": "51e8c75be63ee7ef4ee17860aacd16301ebb4c032c5c0ca337fe977355916d11"
+    },
+    {
+      "name": "t-normalization-stages-v2",
+      "selectedCases": 40,
+      "scriptSha256": "1a1fffbe73797903e32aea78f5aaaf02830c5c44828a6d64d12622816c6d2be7",
+      "captureSha256": "1070ab845a42222e6312b5988d23890cdda38f8108a84fd6036a1b38936a4651"
+    },
+    {
+      "name": "t-normalization-boundaries",
+      "selectedCases": 198,
+      "scriptSha256": "0ca83bf20fda2c573dccf6480d7b8673cddc742ef1cb7cea8d463dbc16249fe6",
+      "captureSha256": "6b6603a040fec9b8c074567c8d658f075557b4a172430ba2bc9b209bea02a86a"
+    },
+    {
+      "name": "t-test-normalization",
+      "selectedCases": 54,
+      "scriptSha256": "6bd6da61af51181fb5e0d72cfdd873247e5da1dd577596e70b320ef3374dbd2f",
+      "captureSha256": "d2ca0254d56553f23041b9bb36eb9da6a904c476146f70e9e0d5762bd4f06c71"
+    }
+  ],
+  "cases": [
+    {
+      "expression": "1e10*(T.DIST(1e-10,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-10,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-10,1,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-10,1,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-10,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-10,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-10,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-10,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-9,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-9,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-9,1,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-9,1,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-9,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-9,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-9,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-9,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-8,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-8,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-8,1,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-8,1,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-8,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-8,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-7,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-7,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 318.182651337651,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-7,1,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-7,1,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 318.182651337651,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-7,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-7,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 318.182651337651,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 636.365302675301,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-10,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-10,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-10,2,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-10,2,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-10,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-10,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-10,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-10,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-9,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-9,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-9,2,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-9,2,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-9,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-9,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-9,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-9,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-8,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-8,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-8,2,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-8,2,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-8,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-8,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-7,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-7,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 357.317293531167,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-7,2,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-7,2,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 357.317292976056,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-7,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-7,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 357.317292976056,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 714.634585952112,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-10,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-10,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-10,3,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-10,3,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-10,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-10,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-10,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-10,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-9,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-9,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-9,3,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-9,3,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-9,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-9,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-9,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-9,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-8,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-8,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-8,3,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-8,3,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-8,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-8,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-7,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-7,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 367.552597246856,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-7,3,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-7,3,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 367.552597246856,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-7,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-7,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 367.552597246856,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 735.105194493713,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-10,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-10,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-10,10,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-10,10,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-10,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-10,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-10,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-10,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-9,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-9,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-9,10,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-9,10,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-9,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-9,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-9,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-9,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-8,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-8,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-8,10,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-8,10,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-8,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-8,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-7,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-7,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 389.10838329187,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-7,10,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-7,10,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 389.108383846981,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-7,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-7,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 389.108383846981,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 778.216767693962,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-10,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-10,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-10,1000,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-10,1000,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-10,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-10,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-10,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-10,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-9,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-9,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-9,1000,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-9,1000,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-9,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-9,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-9,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-9,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-8,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-8,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-8,1000,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-8,1000,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-8,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-8,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-8,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-8,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1e-7,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1e-7,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST(-1e-7,1000,TRUE))",
+      "formula": "LET(v,1e10*(0.5-T.DIST(-1e-7,1000,TRUE)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1e-7,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 636.365302675301,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.00001,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.00001,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 63661.979872176,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.001,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.001,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6366195.60141716,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.5,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.5,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2951672353.00867,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.96,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.96,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6996571082.23967,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 714.634585952112,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.00001,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.00001,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 70710.6810438063,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.001,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.001,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7071066.04443508,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.5,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.5,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3333333333.33333,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.96,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.96,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8109426903.98268,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 735.105194493713,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.00001,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.00001,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 73510.5193871988,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.001,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.001,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7351050.30539085,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.5,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.5,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3485520351.51849,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.96,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.96,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8551477914.35146,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 778.216767693962,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.00001,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.00001,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 77821.6767916007,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.001,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.001,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7782166.25259009,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.5,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.5,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3721063942.57027,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.96,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.96,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9215637597.523,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.00001,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.00001,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 79768.5114606317,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.001,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.001,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7976849.81547198,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.5,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.5,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3828149191.66125,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.96,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.96,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9497268150.44251,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1e-7,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1e-7,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.00001,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.00001,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 79788.4361314338,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.001,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.001,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7978842.2835092,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.5,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.5,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3829248125.27629,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.96,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.96,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9500039324.1473,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "T.DIST.RT(2,10000)",
+      "formula": "LET(v,T.DIST.RT(2,10000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.0227636303307177,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(0.5,250)",
+      "formula": "LET(v,T.DIST.RT(0.5,250),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.30875744295962,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(3,100000)",
+      "formula": "LET(v,T.DIST.RT(3,100000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.00135023044203236,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(5,1000000)",
+      "formula": "LET(v,T.DIST.RT(5,1000000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.86699893544537e-7,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(1,100)",
+      "formula": "LET(v,T.DIST.RT(1,100),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.159862077892062,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(7.5,1000000)",
+      "formula": "LET(v,T.DIST.RT(7.5,1000000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.19350573685745e-14,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(0.001,1000000)",
+      "formula": "LET(v,T.DIST.RT(0.001,1000000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.499601057885825,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(1.96,3000)",
+      "formula": "LET(v,T.DIST.RT(1.96,3000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.02504411583619,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(9,1000000)",
+      "formula": "LET(v,T.DIST.RT(9,1000000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.13048651674643e-19,
+      "amplification": 0
+    },
+    {
+      "expression": "T.DIST.RT(1.9599663568141,1000000)",
+      "formula": "LET(v,T.DIST.RT(1.9599663568141,1000000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.0250000000000004,
+      "amplification": 0
+    },
+    {
+      "expression": "1e10*(T.DIST(3.7252902984619e-9,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(3.7252902984619e-9,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(3.7252902984619e-9,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(3.7252902984619e-9,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(3.7252902984619e-9,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(3.7252902984619e-9,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(3.7252902984619e-9,1,2))",
+      "formula": "LET(v,1e10*(1-TDIST(3.7252902984619e-9,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(7.4505805969238e-9,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(7.4505805969238e-9,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(7.4505805969238e-9,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(7.4505805969238e-9,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(7.4505805969238e-9,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(7.4505805969238e-9,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(7.4505805969238e-9,1,2))",
+      "formula": "LET(v,1e10*(1-TDIST(7.4505805969238e-9,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.1175870895386e-8,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.1175870895386e-8,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 47.4318695431464,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.1175870895386e-8,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.1175870895386e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 47.4318695431464,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.1175870895386e-8,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.1175870895386e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637390862928,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.1175870895386e-8,1,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.1175870895386e-8,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637390862928,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.4901161193848e-8,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.4901161193848e-8,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 47.4318695431464,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.4901161193848e-8,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.4901161193848e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 47.4318695431464,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.4901161193848e-8,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.4901161193848e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637390862928,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.4901161193848e-8,1,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.4901161193848e-8,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637390862928,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.9802322387695e-8,1,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.9802322387695e-8,1,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637390862928,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.9802322387695e-8,1))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.9802322387695e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637385311812,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.9802322387695e-8,1))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.9802322387695e-8,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 189.727477062362,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.9802322387695e-8,1,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.9802322387695e-8,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 189.727477062362,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(5.2683560638618e-9,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(5.2683560638618e-9,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(5.2683560638618e-9,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(5.2683560638618e-9,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(5.2683560638618e-9,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(5.2683560638618e-9,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(5.2683560638618e-9,2,2))",
+      "formula": "LET(v,1e10*(1-TDIST(5.2683560638618e-9,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.0536712127724e-8,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.0536712127724e-8,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.0536712127724e-8,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.0536712127724e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.0536712127724e-8,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.0536712127724e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.0536712127724e-8,2,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.0536712127724e-8,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.5805068191585e-8,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.5805068191585e-8,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 74.5058059692383,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.5805068191585e-8,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.5805068191585e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 74.5058059692383,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.5805068191585e-8,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.5805068191585e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 149.011611938477,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.5805068191585e-8,2,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.5805068191585e-8,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 149.011611938477,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.1073424255447e-8,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.1073424255447e-8,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 74.5058059692383,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.1073424255447e-8,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.1073424255447e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 74.5058059692383,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.1073424255447e-8,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.1073424255447e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 149.011611938477,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.1073424255447e-8,2,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.1073424255447e-8,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 149.011611938477,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(4.2146848510894e-8,2,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(4.2146848510894e-8,2,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 149.011611938477,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(4.2146848510894e-8,2))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(4.2146848510894e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 149.011611938477,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(4.2146848510894e-8,2))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(4.2146848510894e-8,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 298.023223876953,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(4.2146848510894e-8,2,2))",
+      "formula": "LET(v,1e10*(1-TDIST(4.2146848510894e-8,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 298.023223876953,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(6.4523920698795e-9,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(6.4523920698795e-9,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(6.4523920698795e-9,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(6.4523920698795e-9,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(6.4523920698795e-9,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(6.4523920698795e-9,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(6.4523920698795e-9,3,2))",
+      "formula": "LET(v,1e10*(1-TDIST(6.4523920698795e-9,3,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.2904784139759e-8,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.2904784139759e-8,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.2904784139759e-8,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.2904784139759e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.2904784139759e-8,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.2904784139759e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.2904784139759e-8,3,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.2904784139759e-8,3,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.9357176209638e-8,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.9357176209638e-8,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 71.1478032044965,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.9357176209638e-8,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.9357176209638e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 71.1478037596081,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.9357176209638e-8,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.9357176209638e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 142.295607519216,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.9357176209638e-8,3,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.9357176209638e-8,3,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 142.295607519216,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.5809568279518e-8,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.5809568279518e-8,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637390862928,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.5809568279518e-8,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.5809568279518e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 94.8637385311812,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.5809568279518e-8,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.5809568279518e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 189.727477062362,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.5809568279518e-8,3,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.5809568279518e-8,3,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 189.727477062362,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(5.1619136559036e-8,3,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(5.1619136559036e-8,3,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 189.727477062362,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(5.1619136559036e-8,3))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(5.1619136559036e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 189.727477062362,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(5.1619136559036e-8,3))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(5.1619136559036e-8,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 379.454954124725,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(5.1619136559036e-8,3,2))",
+      "formula": "LET(v,1e10*(1-TDIST(5.1619136559036e-8,3,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 379.454954124725,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.1780402288468e-8,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.1780402288468e-8,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.1780402288468e-8,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.1780402288468e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.1780402288468e-8,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.1780402288468e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.1780402288468e-8,10,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.1780402288468e-8,10,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.3560804576936e-8,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.3560804576936e-8,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.3560804576936e-8,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.3560804576936e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.3560804576936e-8,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.3560804576936e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.3560804576936e-8,10,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.3560804576936e-8,10,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(3.5341206865404e-8,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(3.5341206865404e-8,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 137.515598908067,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(3.5341206865404e-8,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(3.5341206865404e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 137.515598908067,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(3.5341206865404e-8,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(3.5341206865404e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 275.031197816133,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(3.5341206865404e-8,10,2))",
+      "formula": "LET(v,1e10*(1-TDIST(3.5341206865404e-8,10,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 275.031197816133,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(4.7121609153872e-8,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(4.7121609153872e-8,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 183.354131877422,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(4.7121609153872e-8,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(4.7121609153872e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 183.354131877422,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(4.7121609153872e-8,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(4.7121609153872e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 366.708263754845,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(4.7121609153872e-8,10,2))",
+      "formula": "LET(v,1e10*(1-TDIST(4.7121609153872e-8,10,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 366.708263754845,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(9.4243218307745e-8,10,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(9.4243218307745e-8,10,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 366.708263754845,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(9.4243218307745e-8,10))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(9.4243218307745e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 366.708263754845,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(9.4243218307745e-8,10))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(9.4243218307745e-8,10)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 733.416527509689,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(9.4243218307745e-8,10,2))",
+      "formula": "LET(v,1e10*(1-TDIST(9.4243218307745e-8,10,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 733.416527509689,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(3.7066170465448e-8,99,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(3.7066170465448e-8,99,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(3.7066170465448e-8,99))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(3.7066170465448e-8,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(3.7066170465448e-8,99))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(3.7066170465448e-8,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(3.7066170465448e-8,99,2))",
+      "formula": "LET(v,1e10*(1-TDIST(3.7066170465448e-8,99,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(7.4132340930896e-8,99,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(7.4132340930896e-8,99,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(7.4132340930896e-8,99))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(7.4132340930896e-8,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(7.4132340930896e-8,99))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(7.4132340930896e-8,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(7.4132340930896e-8,99,2))",
+      "formula": "LET(v,1e10*(1-TDIST(7.4132340930896e-8,99,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.1119851139634e-7,99,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.1119851139634e-7,99,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 442.499061836799,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.1119851139634e-7,99))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.1119851139634e-7,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 442.499061836799,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.1119851139634e-7,99))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.1119851139634e-7,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 884.998123673597,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.1119851139634e-7,99,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.1119851139634e-7,99,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 884.998123673597,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.4826468186179e-7,99,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.4826468186179e-7,99,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 589.99874985588,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.4826468186179e-7,99))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.4826468186179e-7,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 589.99874985588,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.4826468186179e-7,99))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.4826468186179e-7,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1179.99749971176,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.4826468186179e-7,99,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.4826468186179e-7,99,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1179.99749971176,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.9652936372358e-7,99,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.9652936372358e-7,99,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1179.99749971176,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.9652936372358e-7,99))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.9652936372358e-7,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1179.99749915665,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.9652936372358e-7,99))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.9652936372358e-7,99)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2359.9949983133,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.9652936372358e-7,99,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.9652936372358e-7,99,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2359.9949983133,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(3.7252902984619e-8,100,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(3.7252902984619e-8,100,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(3.7252902984619e-8,100))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(3.7252902984619e-8,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(3.7252902984619e-8,100))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(3.7252902984619e-8,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(3.7252902984619e-8,100,2))",
+      "formula": "LET(v,1e10*(1-TDIST(3.7252902984619e-8,100,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(7.4505805969238e-8,100,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(7.4505805969238e-8,100,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(7.4505805969238e-8,100))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(7.4505805969238e-8,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(7.4505805969238e-8,100))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(7.4505805969238e-8,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(7.4505805969238e-8,100,2))",
+      "formula": "LET(v,1e10*(1-TDIST(7.4505805969238e-8,100,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.1175870895386e-7,100,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.1175870895386e-7,100,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 444.739520766291,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.1175870895386e-7,100))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.1175870895386e-7,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 444.739520766291,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.1175870895386e-7,100))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.1175870895386e-7,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 889.479041532582,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.1175870895386e-7,100,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.1175870895386e-7,100,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 889.479041532582,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.4901161193848e-7,100,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.4901161193848e-7,100,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 592.986028058462,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.4901161193848e-7,100))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.4901161193848e-7,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 592.986028058462,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.4901161193848e-7,100))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.4901161193848e-7,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1185.97205611692,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.4901161193848e-7,100,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.4901161193848e-7,100,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1185.97205611692,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.9802322387695e-7,100,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.9802322387695e-7,100,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1185.97205611692,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.9802322387695e-7,100))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.9802322387695e-7,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1185.97205556181,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.9802322387695e-7,100))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.9802322387695e-7,100)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2371.94411112363,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.9802322387695e-7,100,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.9802322387695e-7,100,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2371.94411112363,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(3.7438704152111e-8,101,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(3.7438704152111e-8,101,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(3.7438704152111e-8,101))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(3.7438704152111e-8,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(3.7438704152111e-8,101))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(3.7438704152111e-8,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(3.7438704152111e-8,101,2))",
+      "formula": "LET(v,1e10*(1-TDIST(3.7438704152111e-8,101,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(7.4877408304221e-8,101,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(7.4877408304221e-8,101,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(7.4877408304221e-8,101))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(7.4877408304221e-8,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(7.4877408304221e-8,101))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(7.4877408304221e-8,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(7.4877408304221e-8,101,2))",
+      "formula": "LET(v,1e10*(1-TDIST(7.4877408304221e-8,101,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.1231611245633e-7,101,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.1231611245633e-7,101,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 446.968749789889,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.1231611245633e-7,101))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.1231611245633e-7,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 446.968749789889,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.1231611245633e-7,101))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.1231611245633e-7,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 893.937499579778,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.1231611245633e-7,101,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.1231611245633e-7,101,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 893.937499579778,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.4975481660844e-7,101,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.4975481660844e-7,101,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 595.958332683111,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.4975481660844e-7,101))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.4975481660844e-7,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 595.958332683111,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.4975481660844e-7,101))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.4975481660844e-7,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1191.91666536622,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.4975481660844e-7,101,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.4975481660844e-7,101,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1191.91666536622,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.9950963321688e-7,101,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.9950963321688e-7,101,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1191.91666536622,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.9950963321688e-7,101))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.9950963321688e-7,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1191.91666592133,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.9950963321688e-7,101))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.9950963321688e-7,101)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2383.83333184267,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.9950963321688e-7,101,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.9950963321688e-7,101,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2383.83333184267,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(1.1780402288468e-7,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(1.1780402288468e-7,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(1.1780402288468e-7,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(1.1780402288468e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(1.1780402288468e-7,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(1.1780402288468e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(1.1780402288468e-7,1000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(1.1780402288468e-7,1000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(2.3560804576936e-7,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(2.3560804576936e-7,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(2.3560804576936e-7,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(2.3560804576936e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(2.3560804576936e-7,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(2.3560804576936e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(2.3560804576936e-7,1000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(2.3560804576936e-7,1000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(3.5341206865404e-7,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(3.5341206865404e-7,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1409.55773275664,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(3.5341206865404e-7,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(3.5341206865404e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1409.55773275664,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(3.5341206865404e-7,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(3.5341206865404e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2819.11546551328,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(3.5341206865404e-7,1000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(3.5341206865404e-7,1000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2819.11546551328,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(4.7121609153872e-7,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(4.7121609153872e-7,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1879.41030960204,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(4.7121609153872e-7,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(4.7121609153872e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1879.41030960204,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(4.7121609153872e-7,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(4.7121609153872e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3758.82061920407,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(4.7121609153872e-7,1000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(4.7121609153872e-7,1000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3758.82061920407,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(9.4243218307745e-7,1000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(9.4243218307745e-7,1000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3758.8206203143,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(9.4243218307745e-7,1000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(9.4243218307745e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3758.8206203143,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(9.4243218307745e-7,1000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(9.4243218307745e-7,1000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7517.64124062859,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(9.4243218307745e-7,1000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(9.4243218307745e-7,1000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7517.64124062859,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(0.0000037252902984619,1000000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(0.0000037252902984619,1000000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(0.0000037252902984619,1000000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(0.0000037252902984619,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.0000037252902984619,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.0000037252902984619,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(0.0000037252902984619,1000000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(0.0000037252902984619,1000000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(0.0000074505805969238,1000000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(0.0000074505805969238,1000000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(0.0000074505805969238,1000000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(0.0000074505805969238,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.0000074505805969238,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.0000074505805969238,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(0.0000074505805969238,1000000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(0.0000074505805969238,1000000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(0.000011175870895386,1000000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(0.000011175870895386,1000000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 44585.263057062,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(0.000011175870895386,1000000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(0.000011175870895386,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 44585.2630576171,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.000011175870895386,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.000011175870895386,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 89170.5261152342,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(0.000011175870895386,1000000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(0.000011175870895386,1000000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 89170.5261152342,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(0.000014901161193848,1000000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(0.000014901161193848,1000000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 59447.0174086759,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(0.000014901161193848,1000000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(0.000014901161193848,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 59447.0174086759,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.000014901161193848,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.000014901161193848,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 118894.034817352,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(0.000014901161193848,1000000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(0.000014901161193848,1000000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 118894.034817352,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(T.DIST(0.000029802322387695,1000000,TRUE)-0.5)",
+      "formula": "LET(v,1e10*(T.DIST(0.000029802322387695,1000000,TRUE)-0.5),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 118894.034805139,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.DIST.RT(0.000029802322387695,1000000))",
+      "formula": "LET(v,1e10*(0.5-T.DIST.RT(0.000029802322387695,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 118894.034805139,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.DIST.2T(0.000029802322387695,1000000))",
+      "formula": "LET(v,1e10*(1-T.DIST.2T(0.000029802322387695,1000000)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 237788.069610279,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-TDIST(0.000029802322387695,1000000,2))",
+      "formula": "LET(v,1e10*(1-TDIST(0.000029802322387695,1000000,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 237788.069610279,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-9,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-9,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-9,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-9,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 460.792961565204,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 921.585923130408,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 45927.934576584,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 91855.8691531679,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-9,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-9,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-9,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-9,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 351.76502155565,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 703.5300431113,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 29057.3664551985,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 58114.732910397,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-9,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-9,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-9,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-9,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3254.01243950196,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6508.02487900393,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+1e-7,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+1e-7,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 307.19530808021,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+1e-7,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+1e-7,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 614.390616160421,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 460.792961565204,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 921.585923130408,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 453.966021440877,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+1e-7,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 907.932042881754,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.00001,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.00001,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 30618.623051426,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.00001,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.00001,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 61237.2461028521,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 45927.934576584,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 91855.8691531679,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 45927.934576584,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.00001,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 91855.8691531679,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.01,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.01,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 30618047.7017404,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.01,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),4-SEQUENCE(3)+0.01,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 61236095.4034807,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 45926497.4857443,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 91852994.9714886,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 45926497.485812,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(3),SEQUENCE(3)+0.01,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 91852994.971624,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+1e-7,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+1e-7,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 245.316728042511,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+1e-7,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+1e-7,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 490.633456085021,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 351.76502155565,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 703.5300431113,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 351.76502155565,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+1e-7,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 703.5300431113,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.00001,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.00001,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 20264.2605640069,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.00001,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.00001,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 40528.5211280138,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 29057.3664551985,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 58114.732910397,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 29057.3664551985,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.00001,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 58114.732910397,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.01,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.01,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 20264359.8645102,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.01,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),11-SEQUENCE(10)+0.01,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 40528719.7290205,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 29057376.7655999,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 58114753.5311999,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 29057376.7655999,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(10),SEQUENCE(10)+0.01,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 58114753.5311999,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+1e-7,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+1e-7,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+1e-7,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+1e-7,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+1e-7,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.00001,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.00001,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2300.64637563032,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.00001,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.00001,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4601.29275126064,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3254.01243950196,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6508.02487900393,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3254.01243950196,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.00001,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6508.02487900393,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.01,1,1))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.01,1,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2183458.75394155,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.01,2,1))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),1001-SEQUENCE(1000)+0.01,2,1)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4366917.50788309,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,1,2))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,1,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3088263.22350131,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,2,2))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,2,2)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6176526.44700262,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,1,3))",
+      "formula": "LET(v,1e10*(0.5-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,1,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3088263.22350131,
+      "amplification": 10000000000
+    },
+    {
+      "expression": "1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,2,3))",
+      "formula": "LET(v,1e10*(1-T.TEST(SEQUENCE(1000),SEQUENCE(1000)+0.01,2,3)),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6176526.44700262,
+      "amplification": 10000000000
+    }
+  ]
+}

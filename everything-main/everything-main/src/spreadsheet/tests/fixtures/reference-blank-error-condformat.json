@@ -1,0 +1,618 @@
+{
+  "reference": {
+    "application": "Microsoft Excel for Mac",
+    "version": "16.113.26091433",
+    "method": "Open XLSX, calculate only its worksheet, copy the range through Excel AppleScript, read actual system clipboard HTML and extract resolved fills.",
+    "sources": [
+      {
+        "file": "native-blank-error-controls.xlsx",
+        "sha256": "39841f9560f2cc10cff91493f5b4247b06ea46e3152396bc7a4394928acf5b93"
+      },
+      {
+        "file": "native-blank-error-saved.xlsx",
+        "sha256": "132cc0fe8676f86ed327b23dc83a0d752e913c2ae7332c738dda25add8180a2b"
+      },
+      {
+        "file": "native-blank-error-clipboard.html",
+        "sha256": "b74c4f132480c5fe7825dbb0c5056cafbfce7a3db173f028643d7787d4f6300f"
+      },
+      {
+        "file": "native-blank-error-formulas.xlsx",
+        "sha256": "ad894cd297a2cd9dcf62eec10f2ddd7bb85120e1ce5b1013ad9a6042fb5f3060"
+      },
+      {
+        "file": "native-blank-error-formulas-clipboard.html",
+        "sha256": "5f6fe6cb36fbe83d8f91250ed91bc5aab46c723aa14683c60ccd32aa5a31393f"
+      },
+      {
+        "file": "native-blank-error-text.xlsx",
+        "sha256": "0584f4b3b596ffe0fd1ccc9b142686dfc3fe54210e97342df7c54fb92d87c15e"
+      },
+      {
+        "file": "native-blank-error-text-clipboard.html",
+        "sha256": "5f7468622b7998b94596e2498f52ccbfff0a9d942f1d2a8c4e0864b9227194ce"
+      },
+      {
+        "file": "native-cf-anchors-two.xlsx",
+        "sha256": "16a053f4da07d46d5f080231c6528d43aac3f85cccf94ec4517a5c3f7f4cb4e9"
+      },
+      {
+        "file": "native-cf-anchors-two-clipboard.html",
+        "sha256": "418e124e5fc47944156e4f54333e20345329814ab8af51460205c63d008b2054"
+      }
+    ]
+  },
+  "types": [
+    "containsBlanks",
+    "notContainsBlanks",
+    "containsErrors",
+    "notContainsErrors"
+  ],
+  "cases": [
+    {
+      "label": "blank",
+      "value": null,
+      "matches": [
+        true,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "empty string",
+      "value": "",
+      "matches": [
+        true,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "formula empty",
+      "value": {
+        "f": "\"\""
+      },
+      "matches": [
+        true,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "space",
+      "value": " ",
+      "matches": [
+        true,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "spaces",
+      "value": "   ",
+      "matches": [
+        true,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "NBSP",
+      "value": " ",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "en space",
+      "value": " ",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "ideographic space",
+      "value": "　",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "tab",
+      "value": "\t",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "newline",
+      "value": "\n",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "CR",
+      "value": "\r",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "zero width",
+      "value": "​",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "text",
+      "value": "text",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "zero",
+      "value": 0,
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "number",
+      "value": -2.5,
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "false",
+      "value": false,
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "true",
+      "value": true,
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "numeric text",
+      "value": "0",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "error text",
+      "value": "#N/A",
+      "matches": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "label": "NA",
+      "value": {
+        "f": "NA()"
+      },
+      "matches": [
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "division",
+      "value": {
+        "f": "1/0"
+      },
+      "matches": [
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "value",
+      "value": {
+        "f": "VALUE(\"bad\")"
+      },
+      "matches": [
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "ref",
+      "value": {
+        "f": "#REF!"
+      },
+      "matches": [
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "num",
+      "value": {
+        "f": "SQRT(-1)"
+      },
+      "matches": [
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "name",
+      "value": {
+        "f": "UNKNOWNFUNCTION()"
+      },
+      "matches": [
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "null",
+      "value": {
+        "f": "A1 B2"
+      },
+      "matches": [
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "label": "formula spaces",
+      "value": {
+        "f": "\"  \""
+      },
+      "matches": [
+        true,
+        false,
+        false,
+        true
+      ]
+    }
+  ],
+  "formulaResults": [
+    {
+      "formula": null,
+      "matches": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "FALSE",
+      "matches": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "TRUE",
+      "matches": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "formula": "1/0",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "2",
+      "matches": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "formula": "-1",
+      "matches": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "formula": "\"x\"",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "0",
+      "matches": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "\"\"",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "$A$2",
+      "matches": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "\"TRUE\"",
+      "matches": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "formula": "\"FALSE\"",
+      "matches": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "\"0\"",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "\"1\"",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "\"1%\"",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "\"-1\"",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "formula": "\" 0 \"",
+      "matches": [
+        false,
+        true,
+        false,
+        false
+      ]
+    }
+  ],
+  "anchors": [
+    {
+      "c": 0,
+      "type": "expression",
+      "formula": "B3=2",
+      "sqref": "B7:B8 D3:D4",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 5,
+      "type": "containsBlanks",
+      "formula": "G3=2",
+      "sqref": "G7:G8 I3:I4",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 10,
+      "type": "notContainsBlanks",
+      "formula": "L3=2",
+      "sqref": "L7:L8 N3:N4",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 15,
+      "type": "containsErrors",
+      "formula": "Q3=2",
+      "sqref": "Q7:Q8 S3:S4",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 20,
+      "type": "notContainsErrors",
+      "formula": "V3=2",
+      "sqref": "V7:V8 X3:X4",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 25,
+      "type": "expression",
+      "formula": "AA3=2",
+      "sqref": "AC3:AC4 AA7:AA8",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 30,
+      "type": "containsBlanks",
+      "formula": "AF3=2",
+      "sqref": "AH3:AH4 AF7:AF8",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 35,
+      "type": "notContainsBlanks",
+      "formula": "AK3=2",
+      "sqref": "AM3:AM4 AK7:AK8",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 40,
+      "type": "containsErrors",
+      "formula": "AP3=2",
+      "sqref": "AR3:AR4 AP7:AP8",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "c": 45,
+      "type": "notContainsErrors",
+      "formula": "AU3=2",
+      "sqref": "AW3:AW4 AU7:AU8",
+      "paint": [
+        false,
+        true,
+        false,
+        true
+      ]
+    }
+  ]
+}

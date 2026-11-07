@@ -1,0 +1,957 @@
+import { attachMentions } from "../src/mentions.js";
+import { escape } from "../src/model.js";
+import { labelled, language, plural, t, translateUI } from "../src/i18n.js";
+import {
+  COMMENT_LIMITS,
+  commentPoint,
+  commentAttachment,
+  commentActivity,
+  commentExcerpt,
+  commentMessage,
+  commentThread,
+  validateComments,
+  validateCommentLanguage,
+} from "../src/comments.js";
+import { canonicalLanguage } from "../src/accessibility/language-tag.js";
+import { authoredTextHTML } from "../src/accessibility/object-content.js";
+import { formatTextRuns, replaceTextRuns, sliceTextRuns } from "../src/rich-text.js";
+import { keepPageFocus, keepPaginationFocus } from "../src/paging.js";
+
+export function createCommentsUI(api) {
+  // Times come from the board's shared clock when there is one: the worker
+  // refuses comments dated far from its own time, as a fast device's would be.
+  const now = () => api.now?.() ?? Date.now();
+  let layer,
+    panel,
+    boardId,
+    active,
+    draft,
+    editing,
+    positioning,
+    signature,
+    page = 0,
+    drag,
+    suppressClick = 0;
+  let visible = true;
+  const pins = new Map(),
+    drafts = new Map();
+  let indexedItems,
+    indexedLength = -1,
+    itemIndex = new Map();
+  function itemsById() {
+    const items = state().board.items;
+    if (items !== indexedItems || items.length !== indexedLength) {
+      indexedItems = items;
+      indexedLength = items.length;
+      itemIndex = new Map(items.map((i) => [i.id, i]));
+    }
+    return itemIndex;
+  }
+  try {
+    visible = localStorage.getItem("whiteboard-comments-visible") !== "false";
+    const saved = JSON.parse(
+      localStorage.getItem("whiteboard-comment-drafts") || "[]",
+    );
+    if (Array.isArray(saved))
+      for (const [key, value] of saved.slice(-20))
+        if (
+          typeof key === "string" &&
+          value &&
+          typeof value.text === "string" &&
+          value.text.length <= COMMENT_LIMITS.text
+        ) {
+          try {
+            validateCommentLanguage(value);
+          } catch {
+            delete value.lang;
+            delete value.textRuns;
+          }
+          drafts.set(key, value);
+        }
+  } catch {}
+  const state = () => api.state(),
+    threads = () => state().board?.comments || [];
+  const thread = () => threads().find((c) => c.id === active);
+  const key = () => `${boardId}|${active || "new"}|${editing?.id || "reply"}`;
+  // Typing keeps the draft in memory at once and in storage shortly after,
+  // rather than rewriting every draft on each keystroke.
+  let storeTimer = null;
+  function remember(soon = false) {
+    if (!panel || !draft) return;
+    const next = panel.querySelector("textarea").value;
+    if (next !== draft.text && draft.textRuns?.length)
+      draft.textRuns = replaceTextRuns(draft.text, next, draft.textRuns);
+    draft.text = next;
+    // The draft just written is the most recent, so the oldest untouched
+    // one goes first when there are too many.
+    drafts.delete(key());
+    if (draft.text) drafts.set(key(), structuredClone({ ...draft, editing }));
+    while (drafts.size > 20) drafts.delete(drafts.keys().next().value);
+    if (!soon) rememberStorage();
+    else if (!storeTimer) storeTimer = setTimeout(rememberStorage, 500);
+  }
+  function clearDraft() {
+    drafts.delete(key());
+    draft = null;
+    rememberStorage();
+  }
+  function rememberStorage() {
+    clearTimeout(storeTimer);
+    storeTimer = null;
+    try {
+      localStorage.setItem(
+        "whiteboard-comment-drafts",
+        JSON.stringify([...drafts]),
+      );
+    } catch {}
+  }
+  globalThis.addEventListener?.("pagehide", () => {
+    if (storeTimer) rememberStorage();
+  });
+  function close(focus = true) {
+    cancelDrag();
+    if (!panel) return;
+    remember();
+    panel.remove();
+    panel = null;
+    active = editing = draft = positioning = null;
+    signature = null;
+    document
+      .querySelector('[data-action="comments"]')
+      ?.setAttribute("aria-expanded", "false");
+    if (focus) api.canvas()?.focus();
+    api.draw();
+  }
+  function skeleton() {
+    if (panel) return;
+    api.prepare();
+    boardId = state().board.id;
+    panel = document.createElement("section");
+    panel.id = "comments-panel";
+    panel.className = "comments-panel panel";
+    panel.setAttribute("aria-label", t("Comments"));
+    panel.innerHTML = `<header><h2 tabindex="-1">Comments</h2><button class="icon-btn" id="comments-close" aria-label="Close comments">${api.icon("x")}</button></header>
+      <div class="comment-filters"><label class="sr-only" for="comment-search">Search comments</label><input id="comment-search" type="search" placeholder="Search comments"><label class="sr-only" for="comment-filter">Show comments</label><select id="comment-filter"><option value="open">Open comments</option><option value="resolved">Resolved comments</option><option value="all">All comments</option></select></div>
+      <div class="comment-list-actions"><button id="comment-new" class="text-btn">New comment</button><label><input id="comment-pins-visible" type="checkbox">Show pins</label></div>
+      <div id="comment-list"></div><p id="comments-results" class="sr-only" role="status"></p><div class="comment-pages"><button class="text-btn" id="comments-previous">Previous</button><span id="comments-count"></span><button class="text-btn" id="comments-next">Next</button></div>
+      <section id="comment-thread" hidden><header><h3 tabindex="-1">Discussion</h3><button class="text-btn" id="comment-resolve"></button></header><button class="text-btn" id="comment-move" aria-expanded="false" aria-controls="comment-position">Move pin</button><form id="comment-position" hidden><p class="dialog-copy" id="comment-position-help">Set the pin position in board pixels.</p><div class="field-row"><label class="field">Horizontal position<input id="comment-x" type="number" step="any" min="-1000000" max="1000000" required aria-describedby="comment-position-help comment-position-error"></label><label class="field">Vertical position<input id="comment-y" type="number" step="any" min="-1000000" max="1000000" required aria-describedby="comment-position-help comment-position-error"></label></div><p id="comment-position-error" role="alert" hidden></p><div class="dialog-footer"><button class="text-btn" type="button" id="comment-move-cancel">Cancel</button><button class="primary" type="submit">Apply move</button></div></form><div id="comment-messages"></div></section>
+      <form id="comment-form" hidden><label class="sr-only" for="comment-text">Write a comment</label><textarea id="comment-text" maxlength="4000" rows="3" placeholder="Write a reply" aria-describedby="comment-help comment-error"></textarea><p id="comment-help">Enter to post · Shift+Enter for a new line</p><p id="comment-error" role="alert" hidden></p><div class="comment-form-actions"><button type="button" class="text-btn" id="comment-edit-cancel" hidden>Cancel edit</button><button class="primary" type="submit">Post comment</button></div></form>`;
+    api.canvas().parentElement.append(panel);
+    panel.querySelector("#comments-close").onclick = () => close();
+    panel.querySelector("#comment-new").onclick = () => api.add();
+    panel.querySelector("#comment-filter").onchange = panel.querySelector(
+      "#comment-search",
+    ).oninput = () => {
+      page = 0;
+      signature = null;
+      render();
+    };
+    panel.querySelector("#comment-pins-visible").checked = visible;
+    panel.querySelector("#comment-pins-visible").onchange = togglePins;
+    const previous = panel.querySelector("#comments-previous"),
+      next = panel.querySelector("#comments-next");
+    previous.onclick = () => {
+      page--;
+      signature = null;
+      render();
+      keepPageFocus(previous, next);
+    };
+    next.onclick = () => {
+      page++;
+      signature = null;
+      render();
+      keepPageFocus(next, previous);
+    };
+    panel.querySelector("#comment-resolve").onclick = () =>
+      change((all) => {
+        const c = all.find((i) => i.id === active);
+        if (c) c.resolved = !c.resolved;
+      });
+    panel.querySelector("#comment-move").onclick = () =>
+      positioning ? closePosition() : openPosition();
+    panel.querySelector("#comment-move-cancel").onclick = () => closePosition();
+    panel.querySelector("#comment-position").onsubmit = submitPosition;
+    panel.querySelector("#comment-edit-cancel").onclick = () => {
+      clearDraft();
+      editing = null;
+      loadDraft();
+      render();
+      panel.querySelector("textarea").focus();
+    };
+    panel.querySelector("textarea").oninput = () => {
+      remember(true);
+      panel.querySelector("#comment-error").hidden = true;
+    };
+    if (api.people)
+      attachMentions(panel.querySelector("textarea"), () => api.people());
+    panel.querySelector("#comment-form").onsubmit = submit;
+    panel
+      .querySelector("#comment-text")
+      .insertAdjacentHTML(
+        "afterend",
+        `<button id="comment-language-options" class="text-btn" type="button" aria-expanded="false" aria-controls="comment-language-controls">${t("Content language")}</button><div id="comment-language-controls" hidden></div>`,
+      );
+    panel.querySelector("#comment-language-options").onclick = openLanguage;
+    panel.querySelector("textarea").onkeydown = (e) => {
+      if (
+        e.key === "Enter" &&
+        !e.shiftKey &&
+        !e.isComposing &&
+        e.keyCode !== 229
+      ) {
+        e.preventDefault();
+        submit(e);
+      }
+    };
+    panel.onkeydown = (e) => {
+      if (e.key === "Escape" && !e.isComposing && e.keyCode !== 229) {
+        e.preventDefault();
+        e.stopPropagation();
+        close();
+      }
+    };
+    translateUI(panel);
+    document
+      .querySelector('[data-action="comments"]')
+      ?.setAttribute("aria-expanded", "true");
+  }
+  function closeLanguage(focus = false) {
+    const controls = panel?.querySelector("#comment-language-controls");
+    if (!controls) return;
+    controls.hidden = true;
+    controls.replaceChildren();
+    panel
+      .querySelector("#comment-language-options")
+      .setAttribute("aria-expanded", "false");
+    if (focus) panel.querySelector("#comment-language-options").focus();
+  }
+  function openLanguage() {
+    if (!draft || state().readOnly) return;
+    const root = panel.querySelector("#comment-language-controls");
+    if (!root.hidden) return closeLanguage(true);
+    remember();
+    const box = panel.querySelector("#comment-text");
+    const range = {
+      start: box.selectionStart,
+      end: box.selectionEnd,
+      text: box.value,
+    };
+    const phrase = range.end > range.start;
+    root.innerHTML = `<label class="field">${t("Apply to")}<select id="comment-language-scope">${phrase ? `<option value="text">${t("Selected text")}</option>` : ""}<option value="comment">${t("Whole comment")}</option></select></label><label class="field">${t("Language tag")}<input id="comment-language-tag" maxlength="64" placeholder="fr-CA" aria-describedby="comment-language-help comment-language-error" autocomplete="off" spellcheck="false"></label><p id="comment-language-help" class="dialog-copy">${t("Enter a language tag, such as en, fr-CA, or es. Leave empty to inherit the surrounding language.")}</p><p id="comment-language-error" role="alert" hidden></p><div class="dialog-footer"><button type="button" id="comment-language-cancel" class="text-btn">${t("Cancel")}</button><button type="button" id="comment-language-save" class="secondary">${t("Apply language")}</button></div>`;
+    const tag = root.querySelector("#comment-language-tag");
+    const scope = root.querySelector("#comment-language-scope");
+    const sync = () => {
+      const values = sliceTextRuns(draft.textRuns, range.start, range.end).map(
+        (run) => run.style.lang,
+      );
+      tag.value =
+        scope.value === "text"
+          ? values.length && values.every((v) => v === values[0])
+            ? values[0]
+            : ""
+          : draft.lang || "";
+    };
+    scope.onchange = sync;
+    sync();
+    root.hidden = false;
+    panel
+      .querySelector("#comment-language-options")
+      .setAttribute("aria-expanded", "true");
+    root.querySelector("#comment-language-cancel").onclick = () =>
+      closeLanguage(true);
+    root.onkeydown = (e) => {
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        closeLanguage(true);
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        root.querySelector("#comment-language-save").click();
+      }
+    };
+    root.querySelector("#comment-language-save").onclick = () => {
+      if (!draft || state().readOnly) return;
+      const value = tag.value.trim();
+      const lang = value ? canonicalLanguage(value) : null;
+      const error = root.querySelector("#comment-language-error");
+      if (value && !lang) {
+        error.hidden = false;
+        error.textContent = t(
+          "Enter a valid language tag, such as en or fr-CA.",
+        );
+        tag.focus();
+        return;
+      }
+      if (scope.value === "text") {
+        if (box.value !== range.text) {
+          error.hidden = false;
+          error.textContent = t(
+            "The comment text changed. Reopen Content language to select the passage again.",
+          );
+          return;
+        }
+        const runs = formatTextRuns(
+          box.value,
+          draft.textRuns,
+          range.start,
+          range.end,
+          { lang },
+        );
+        if (runs.length) draft.textRuns = runs;
+        else delete draft.textRuns;
+      } else {
+        if (lang) draft.lang = lang;
+        else delete draft.lang;
+      }
+      remember();
+      if (draft.lang) box.lang = draft.lang;
+      else box.removeAttribute("lang");
+      closeLanguage(true);
+    };
+    tag.focus();
+  }
+  function loadDraft(position) {
+    closeLanguage();
+    const saved = drafts.get(key());
+    // A newly chosen place replaces the saved draft's place and object.
+    draft = structuredClone(
+      position
+        ? {
+            text: saved?.text || "",
+            ...(saved?.lang ? { lang: saved.lang } : {}),
+            ...(saved?.textRuns?.length ? { textRuns: saved.textRuns } : {}),
+            ...position,
+          }
+        : saved || { text: "" },
+    );
+    panel.querySelector("textarea").value = draft.text;
+    if (draft.lang) panel.querySelector("textarea").lang = draft.lang;
+    else panel.querySelector("textarea").removeAttribute("lang");
+    // An error belongs to the thread and text it was about.
+    panel.querySelector("#comment-error").hidden = true;
+    signature = null;
+  }
+  function compose(point, anchor) {
+    if (state().readOnly) return api.toast("This board is read-only.");
+    remember();
+    skeleton();
+    closePosition(false);
+    active = editing = null;
+    loadDraft({
+      ...point,
+      ...(anchor ? commentAttachment(point, anchor) : {}),
+    });
+    render();
+    panel.querySelector("textarea").focus();
+    api.draw();
+  }
+  function show(id, focus = true) {
+    remember();
+    skeleton();
+    closePosition(false);
+    active = id;
+    editing = null;
+    loadDraft();
+    render();
+    const c = thread();
+    // A thread on content hidden from this person opens in place, without
+    // moving the view to where that content is.
+    if (c && !state().concealed?.has(c.anchorId)) {
+      api.reveal?.(c.anchorId);
+      const p = commentPoint(
+        c,
+        new Map(state().board.items.map((i) => [i.id, i])),
+      );
+      api.focus(p, panel);
+    }
+    if (focus)
+      panel.querySelector(state().readOnly ? "h3" : "textarea").focus();
+    api.draw();
+  }
+  function change(fn) {
+    if (state().readOnly) {
+      api.toast("This board is read-only.");
+      return false;
+    }
+    try {
+      const all = structuredClone(threads());
+      fn(all);
+      validateComments(all);
+      api.save(all);
+      signature = null;
+      if (panel) panel.querySelector("#comment-error").hidden = true;
+      render();
+      return true;
+    } catch (e) {
+      if (panel) {
+        const error = panel.querySelector("#comment-error");
+        error.hidden = false;
+        error.textContent = t(e.message);
+      } else api.toast(e.message);
+      return false;
+    }
+  }
+  function closePosition(focus = true) {
+    positioning = null;
+    if (!panel) return;
+    panel.querySelector("#comment-position").hidden = true;
+    const button = panel.querySelector("#comment-move");
+    button.setAttribute("aria-expanded", "false");
+    if (focus) button.focus();
+  }
+  function openPosition() {
+    const c = thread();
+    if (!c || state().readOnly || state().concealed?.has(c.anchorId)) return;
+    positioning = { board: boardId, id: c.id, ...commentPoint(c, itemsById()) };
+    panel.querySelector("#comment-x").value = positioning.x;
+    panel.querySelector("#comment-y").value = positioning.y;
+    panel.querySelector("#comment-position-error").hidden = true;
+    panel.querySelector("#comment-position").hidden = false;
+    panel.querySelector("#comment-move").setAttribute("aria-expanded", "true");
+    panel.querySelector("#comment-x").focus();
+    panel.querySelector("#comment-x").select();
+  }
+  function submitPosition(e) {
+    e.preventDefault();
+    const form = panel.querySelector("#comment-position");
+    if (!positioning || !form.reportValidity()) return;
+    const c = thread();
+    if (
+      !c ||
+      state().board.id !== positioning.board ||
+      c.id !== positioning.id ||
+      state().readOnly ||
+      state().concealed?.has(c.anchorId)
+    ) {
+      render();
+      return;
+    }
+    const point = commentPoint(c, itemsById()),
+      error = panel.querySelector("#comment-position-error");
+    if (point.x !== positioning.x || point.y !== positioning.y) {
+      error.hidden = false;
+      error.textContent = t(
+        "This pin moved. Close and reopen Move pin to use its current position.",
+      );
+      return;
+    }
+    const next = {
+      x: panel.querySelector("#comment-x").valueAsNumber,
+      y: panel.querySelector("#comment-y").valueAsNumber,
+    };
+    if (next.x === point.x && next.y === point.y) return closePosition();
+    if (positionThread(c.id, next)) closePosition();
+    else {
+      error.hidden = false;
+      error.textContent = panel.querySelector("#comment-error").textContent;
+    }
+  }
+  function submit(e) {
+    e.preventDefault();
+    if (state().readOnly || !draft) return;
+    remember();
+    const raw = panel.querySelector("textarea").value;
+    const text = raw.trim();
+    const trimStart = raw.length - raw.trimStart().length;
+    const textRuns = sliceTextRuns(
+      draft.textRuns,
+      trimStart,
+      trimStart + text.length,
+    );
+    const formatting = {
+      ...(draft.lang ? { lang: draft.lang } : {}),
+      ...(textRuns.length ? { textRuns } : {}),
+    };
+    if (!text) {
+      panel.querySelector("textarea").focus();
+      return;
+    }
+    let nextId = active;
+    const success = change((all) => {
+      const author = state().author,
+        c = all.find((i) => i.id === active);
+      if (active && !c) throw Error("This discussion is no longer available.");
+      if (editing) {
+        const m = c.messages.find((m) => m.id === editing.id);
+        if (
+          !m ||
+          m.deleted ||
+          m.authorId !== author.id ||
+          m.text !== editing.original ||
+          m.lang !== editing.originalLanguage ||
+          JSON.stringify(m.textRuns || []) !==
+            JSON.stringify(editing.originalRuns || [])
+        )
+          throw Error("This comment changed. Reopen it before editing.");
+        if (
+          m.text !== text ||
+          m.lang !== formatting.lang ||
+          JSON.stringify(m.textRuns || []) !== JSON.stringify(textRuns)
+        ) {
+          m.text = text;
+          if (formatting.lang) m.lang = formatting.lang;
+          else delete m.lang;
+          if (textRuns.length) m.textRuns = textRuns;
+          else delete m.textRuns;
+          m.editedAt = Math.max(Math.round(now()), m.createdAt);
+        }
+      } else if (c) {
+        if (c.messages.length >= COMMENT_LIMITS.replies)
+          throw Error("This discussion has reached its reply limit.");
+        // A reply follows the discussion even when this device's clock is
+        // behind the one that started it.
+        c.messages.push(
+          Object.assign(
+            commentMessage(
+              author,
+              text,
+              Math.max(
+                Math.round(now()),
+                ...c.messages.map((m) => m.createdAt + 1),
+              ),
+            ),
+            formatting,
+          ),
+        );
+        c.resolved = false;
+      } else {
+        if (all.length >= COMMENT_LIMITS.threads)
+          throw Error("This board has reached its comment limit.");
+        const byId = new Map(state().board.items.map((i) => [i.id, i]));
+        const next = commentThread(
+          commentPoint(draft, byId),
+          author,
+          text,
+          byId.get(draft.anchorId),
+          Math.round(now()),
+        );
+        nextId = next.id;
+        Object.assign(next.messages[0], formatting);
+        all.push(next);
+      }
+    });
+    if (success) {
+      clearDraft();
+      active = nextId;
+      editing = null;
+      loadDraft();
+      render();
+      panel.querySelector("textarea").focus();
+    }
+  }
+  function editMessage(id) {
+    const m = thread()?.messages.find((m) => m.id === id);
+    if (!m || state().readOnly || m.authorId !== state().author.id) return;
+    remember();
+    editing = {
+      id,
+      original: m.text,
+      originalLanguage: m.lang,
+      originalRuns: structuredClone(m.textRuns || []),
+    };
+    loadDraft();
+    if (draft.editing?.id === id && typeof draft.editing.original === "string")
+      editing = { ...draft.editing };
+    if (!draft.text) {
+      panel.querySelector("textarea").value = draft.text = m.text;
+      if (m.lang) draft.lang = m.lang;
+      if (m.textRuns?.length) draft.textRuns = structuredClone(m.textRuns);
+    }
+    render();
+    panel.querySelector("textarea").focus();
+  }
+  function deleteMessage(id) {
+    change((all) => {
+      const m = all
+        .find((i) => i.id === active)
+        ?.messages.find((m) => m.id === id);
+      if (!m || m.authorId !== state().author.id)
+        throw Error("Only the author can edit this comment.");
+      // Deleting or restoring leaves the words as they were, so a restored
+      // comment is not marked edited.
+      m.deleted = !m.deleted;
+    });
+  }
+  function render() {
+    const s = state();
+    if (panel && s.board?.id !== boardId) {
+      close(false);
+      return;
+    }
+    renderPins();
+    if (!panel) return;
+    if (s.readOnly || !draft) {
+      const lostFocus = panel
+        .querySelector("#comment-language-controls")
+        .contains(document.activeElement);
+      closeLanguage();
+      if (lostFocus)
+        panel.querySelector("#comment-search").focus({ preventScroll: true });
+    }
+    const c = thread(),
+      author = s.author;
+    const query = panel
+        .querySelector("#comment-search")
+        .value.toLocaleLowerCase()
+        .normalize("NFKD")
+        .replace(/\p{M}/gu, ""),
+      filter = panel.querySelector("#comment-filter").value;
+    const value = [
+      s.board.comments,
+      active,
+      editing,
+      filter,
+      query,
+      page,
+      s.readOnly,
+      author.id,
+      visible,
+      s.board.workshop,
+      !!s.concealed?.has(c?.anchorId),
+    ];
+    if (signature && value.every((v, n) => v === signature[n])) return;
+    signature = value;
+    // The list and messages are rebuilt; a focused control inside them gets
+    // focus back afterwards, found by its data attributes.
+    const regions = ["#comment-list", "#comment-messages"];
+    const focused = document.activeElement;
+    const region = regions.find((r) =>
+      panel.querySelector(r)?.contains(focused),
+    );
+    const keyOf = (el) =>
+      el.tagName +
+      [...el.attributes]
+        .filter((a) => a.name.startsWith("data-"))
+        .map((a) => `|${a.name}=${a.value}`)
+        .join("");
+    const focusKey =
+      region && focused !== panel.querySelector(region) ? keyOf(focused) : null;
+    const controls = () =>
+      region
+        ? [...panel.querySelector(region).querySelectorAll("button:enabled")]
+        : [];
+    const focusIndex = focusKey ? controls().indexOf(focused) : -1;
+    const results = threads()
+      .filter(
+        (c) =>
+          (filter === "all" ||
+            (filter === "resolved"
+              ? c.resolved
+              : !c.resolved && c.messages.some((m) => !m.deleted))) &&
+          (!query ||
+            c.messages.some(
+              (m) =>
+                !m.deleted &&
+                `${m.authorName} ${m.text}`
+                  .toLocaleLowerCase()
+                  .normalize("NFKD")
+                  .replace(/\p{M}/gu, "")
+                  .includes(query),
+            )),
+      )
+      .sort(
+        (a, b) =>
+          commentActivity(b) - commentActivity(a) || a.id.localeCompare(b.id),
+      );
+    page = Math.max(0, Math.min(page, Math.ceil(results.length / 50) - 1));
+    panel.querySelector("#comment-list").innerHTML =
+      results
+        .slice(page * 50, page * 50 + 50)
+        .map((c) => {
+          const first = c.messages.find((m) => !m.deleted);
+          return `<button class="comment-summary" data-thread="${escape(c.id)}" aria-pressed="${active === c.id}"><strong data-user-content>${escape(first?.authorId === s.author.id ? t("You") : first?.authorName || t("Deleted comment"))}</strong><span data-user-content>${first ? authoredTextHTML(first, commentExcerpt(first.text, 120)) : escape(t("Deleted comment"))}</span><small>${c.resolved ? t("Resolved") : t("Open")} · ${c.messages.filter((m) => !m.deleted).length}</small></button>`;
+        })
+        .join("") || `<p class="dialog-copy">${t("No comments to show.")}</p>`;
+    for (const b of panel.querySelectorAll("[data-thread]"))
+      b.onclick = () => show(b.dataset.thread);
+    panel.querySelector("#comments-previous").disabled = page === 0;
+    panel.querySelector("#comments-next").disabled =
+      (page + 1) * 50 >= results.length;
+    panel.querySelector("#comments-count").textContent = String(results.length);
+    // Searching and filtering say how many discussions match, even when
+    // they all fit on one page and the pager is hidden.
+    const found = panel.querySelector("#comments-results"),
+      summary = plural(
+        results.length,
+        "{count} discussion",
+        "{count} discussions",
+      );
+    if (found.textContent !== summary) found.textContent = summary;
+    panel.querySelector(".comment-pages").hidden = results.length <= 50;
+    keepPaginationFocus(
+      focused,
+      panel.querySelector("#comments-previous"),
+      panel.querySelector("#comments-next"),
+      panel.querySelector("#comment-search"),
+    );
+    panel.classList.toggle("has-discussion", !!c);
+    panel.querySelector("#comment-new").disabled = s.readOnly;
+    panel.querySelector("#comment-thread").hidden = !c;
+    panel.querySelector("#comment-resolve").textContent = t(
+      c?.resolved ? "Reopen discussion" : "Resolve discussion",
+    );
+    panel.querySelector("#comment-resolve").disabled = s.readOnly;
+    panel.querySelector("#comment-move").disabled =
+      s.readOnly || s.concealed?.has(c?.anchorId);
+    if (!c || s.readOnly || s.concealed?.has(c.anchorId)) closePosition(false);
+    panel.querySelector("#comment-messages").innerHTML = c
+      ? c.messages
+          .map(
+            (m) =>
+              `<article class="comment-message" data-message="${escape(m.id)}"><header><strong data-user-content>${escape(m.authorId === author.id ? t("You") : m.authorName)}</strong><time datetime="${new Date(m.createdAt).toISOString()}">${escape(new Date(m.createdAt).toLocaleString(language === "fr" ? "fr-CA" : "en-CA", { dateStyle: "medium", timeStyle: "short" }))}</time></header><p data-user-content>${m.deleted ? escape(t("Comment deleted")) : authoredTextHTML(m)}</p>${m.editedAt && !m.deleted ? `<small>${t("Edited")}</small>` : ""}${api.reactions?.(c, m) || ""}${!s.readOnly && m.authorId === author.id ? `<div>${!m.deleted ? `<button class="text-btn" data-edit-comment="${escape(m.id)}">${t("Edit comment")}</button>` : ""}<button class="text-btn" data-delete-comment="${escape(m.id)}">${t(m.deleted ? "Restore comment" : "Delete comment")}</button></div>` : ""}</article>`,
+          )
+          .join("")
+      : "";
+    for (const b of panel.querySelectorAll("[data-edit-comment]"))
+      b.onclick = () => editMessage(b.dataset.editComment);
+    for (const b of panel.querySelectorAll("[data-delete-comment]"))
+      b.onclick = () => deleteMessage(b.dataset.deleteComment);
+    panel.querySelector("#comment-form").hidden = s.readOnly || !draft;
+    panel.querySelector("#comment-edit-cancel").hidden = !editing;
+    panel.querySelector('#comment-form [type="submit"]').textContent = t(
+      editing ? "Save comment" : active ? "Reply" : "Post comment",
+    );
+    // The visible hint says what the box is for, as its label does.
+    const purpose = t(
+      editing ? "Edit comment" : active ? "Write a reply" : "Write a comment",
+    );
+    const box = panel.querySelector("textarea");
+    box.setAttribute("aria-label", purpose);
+    if (draft?.lang) box.lang = draft.lang;
+    else box.removeAttribute("lang");
+    box.placeholder = purpose;
+    panel.querySelector("#comment-pins-visible").checked = visible;
+    if (focusKey) {
+      const same = [...panel.querySelector(region).querySelectorAll("*")].find(
+        (el) => keyOf(el) === focusKey,
+      );
+      // Gone, as when someone else resolved that discussion: the control
+      // now in its place, or the panel's heading.
+      const nearby = controls();
+      (
+        same ||
+        (focusIndex >= 0 && nearby[Math.min(focusIndex, nearby.length - 1)]) ||
+        panel.querySelector("h2")
+      )?.focus();
+    }
+    if (
+      panel.contains(focused) &&
+      (focused.disabled || focused.closest("[hidden]")) &&
+      (document.activeElement === focused ||
+        document.activeElement === document.body)
+    )
+      panel.querySelector("#comment-search").focus({ preventScroll: true });
+  }
+  function renderPins() {
+    if (!layer || !state().board) return;
+    if (!threads().length && !(draft && !active && panel)) {
+      for (const pin of pins.values()) pin.remove();
+      pins.clear();
+      return;
+    }
+    const s = state(),
+      byId = itemsById(),
+      rect = api.canvas().getBoundingClientRect(),
+      keep = new Set();
+    for (const c of [
+      ...threads(),
+      ...(draft && !active && panel
+        ? [{ ...draft, id: "draft", messages: [], resolved: false }]
+        : []),
+    ]) {
+      if (
+        !visible ||
+        s.hidden?.has(c.anchorId) ||
+        (c.resolved && c.id !== active) ||
+        (c.id !== "draft" &&
+          c.messages.every((m) => m.deleted) &&
+          c.id !== active)
+      )
+        continue;
+      const p = drag?.id === c.id ? drag.point : commentPoint(c, byId),
+        x = s.view.x + p.x * s.view.z,
+        y = s.view.y + p.y * s.view.z;
+      if (
+        ![x, y].every(Number.isFinite) ||
+        x < -30 ||
+        y < -30 ||
+        x > rect.width + 30 ||
+        y > rect.height + 30
+      )
+        continue;
+      keep.add(c.id);
+      let pin = pins.get(c.id);
+      if (!pin) {
+        pin = document.createElement("button");
+        pin.className = "comment-pin";
+        pin.dataset.comment = c.id;
+        pin.innerHTML =
+          api.icon("message-square") +
+          '<span class="sr-only" data-comment-label></span>';
+        pin.onclick = () => {
+          if (drag || performance.now() < suppressClick) return;
+          if (c.id === "draft") panel?.querySelector("textarea")?.focus();
+          else show(c.id);
+        };
+        pin.addEventListener("pointerdown", (e) => startDrag(e, c.id));
+        pin.addEventListener("pointermove", moveDrag);
+        pin.addEventListener("pointerup", endDrag);
+        for (const type of ["pointercancel", "lostpointercapture"])
+          pin.addEventListener(type, (e) => {
+            if (drag && drag.pointer === e.pointerId) cancelDrag();
+          });
+        pin.onkeydown = (e) => {
+          if (e.key === "Escape" && drag) {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelDrag();
+          }
+          const direction = {
+            ArrowLeft: [-1, 0],
+            ArrowRight: [1, 0],
+            ArrowUp: [0, -1],
+            ArrowDown: [0, 1],
+          }[e.key];
+          if (direction && !e.altKey && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (state().readOnly || c.id === "draft") return;
+            const current = threads().find((t) => t.id === c.id);
+            if (!current) return;
+            const p = commentPoint(current, itemsById()),
+              step = e.shiftKey ? 10 : 1;
+            positionThread(c.id, {
+              x: p.x + direction[0] * step,
+              y: p.y + direction[1] * step,
+            });
+          }
+        };
+        layer.append(pin);
+        pins.set(c.id, pin);
+      }
+      pin.style.left = `${x}px`;
+      pin.style.top = `${y}px`;
+      const first = c.messages.find((m) => !m.deleted);
+      const name =
+        c.id === "draft"
+          ? escape(t("Draft comment"))
+          : escape(labelled(t("Comment"), "")) +
+            (first
+              ? authoredTextHTML(first, commentExcerpt(first.text, 100))
+              : escape(t("Comment deleted")));
+      const label = pin.querySelector("[data-comment-label]");
+      if (pin.labelMarkup !== name) {
+        label.innerHTML = name;
+        pin.labelMarkup = name;
+      }
+      pin.title = label.textContent;
+      pin.setAttribute(
+        "aria-pressed",
+        String(c.id === active || c.id === "draft"),
+      );
+    }
+    for (const [id, pin] of pins)
+      if (!keep.has(id)) {
+        pin.remove();
+        pins.delete(id);
+      }
+  }
+  function startDrag(e, id) {
+    if (e.button !== 0 || drag || state().readOnly || id === "draft") return;
+    e.preventDefault();
+    e.stopPropagation();
+    const c = threads().find((t) => t.id === id);
+    if (!c) return;
+    const point = commentPoint(
+      c,
+      new Map(state().board.items.map((i) => [i.id, i])),
+    );
+    drag = {
+      id,
+      pointer: e.pointerId,
+      board: state().board.id,
+      sx: e.clientX,
+      sy: e.clientY,
+      original: point,
+      point,
+      moved: false,
+    };
+    e.currentTarget.focus({ preventScroll: true });
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+  }
+  function moveDrag(e) {
+    if (!drag || drag.pointer !== e.pointerId) return;
+    if (state().readOnly || state().board.id !== drag.board)
+      return cancelDrag();
+    if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 3)
+      drag.moved = true;
+    if (drag.moved) {
+      drag.point = {
+        x: drag.original.x + (e.clientX - drag.sx) / state().view.z,
+        y: drag.original.y + (e.clientY - drag.sy) / state().view.z,
+      };
+      renderPins();
+    }
+  }
+  function endDrag(e) {
+    if (!drag || drag.pointer !== e.pointerId) return;
+    const previous = drag;
+    drag = null;
+    if (!previous.moved) return;
+    suppressClick = performance.now() + 400;
+    if (state().readOnly || state().board.id !== previous.board)
+      return renderPins();
+    positionThread(previous.id, previous.point);
+    renderPins();
+  }
+  function positionThread(id, point) {
+    return change((all) => {
+      const c = all.find((c) => c.id === id);
+      if (!c) return;
+      Object.assign(c, point);
+      for (const k of ["anchorId", "dx", "dy"]) delete c[k];
+      const anchor = api.anchor(point);
+      if (anchor) Object.assign(c, commentAttachment(c, anchor));
+    });
+  }
+  function cancelDrag() {
+    if (!drag) return;
+    drag = null;
+    renderPins();
+  }
+  function togglePins() {
+    visible = !visible;
+    try {
+      localStorage.setItem("whiteboard-comments-visible", String(visible));
+    } catch {}
+    render();
+  }
+  return {
+    bind(next) {
+      close(false);
+      layer = next;
+      pins.clear();
+    },
+    close,
+    compose,
+    show,
+    render,
+    cancel: cancelDrag,
+    isOpen: () => !!panel,
+    toggle() {
+      if (panel) close();
+      else {
+        skeleton();
+        render();
+        panel.querySelector("h2").focus();
+        api.draw();
+      }
+    },
+    togglePins,
+  };
+}

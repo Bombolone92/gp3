@@ -1,0 +1,741 @@
+/* Rent roll, lease pages, lease ledger, outstanding balances, transaction dialogs, receipts. */
+
+
+/* ---- Lists ---------------------------------------------------------------- */
+.ls-lease,
+.ls-term {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.ls-lease-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ls-lease-sub,
+.ls-term .sub {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.ls-pills {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.num.ls-soon {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.ls-chips {
+  min-width: 0;
+}
+
+.list-card .toolbar {
+  flex-wrap: wrap;
+}
+
+.list-card .toolbar .select.sm {
+  width: auto;
+  max-width: 220px;
+}
+
+.list-card .table tfoot th,
+.list-card .table tfoot td {
+  border-top: 1px solid var(--border-strong);
+  font-weight: 700;
+}
+
+/* ---- Lease detail ----------------------------------------------------------- */
+.ls-subtitle {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.ls-glance {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.ls-glance-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px 16px;
+}
+
+.ls-glance-item + .ls-glance-item {
+  border-left: 1px solid var(--border);
+}
+
+.ls-glance-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.ls-glance-value {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ls-glance-item:first-child .ls-glance-value {
+  font-size: 20px;
+}
+
+.detail-tabs {
+  margin-bottom: 16px;
+}
+
+.ls-tab-narrow {
+  max-width: 820px;
+}
+
+.ls-recurring,
+.ls-people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ls-recurring li,
+.ls-people li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ls-recurring li:last-child,
+.ls-people li:last-child {
+  border-bottom: 0;
+}
+
+.ls-rec-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.ls-small {
+  font-size: 12px;
+}
+
+.ls-recurring .subtle {
+  font-size: 13px;
+}
+
+.ls-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ls-person-name {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ls-contact {
+  display: block;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ls-policy {
+  margin: 0;
+}
+
+.ls-tenant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.ls-tenant-grid .card + .card {
+  margin-top: 0;
+}
+
+.ls-tenant .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Ledger */
+.ls-ledger-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  width: 100%;
+}
+
+.ls-ledger td {
+  vertical-align: top;
+}
+
+.ls-ledger td:last-child {
+  width: 1%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.ls-tx-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.ls-tx-title a {
+  color: var(--text);
+}
+
+.ls-auto {
+  display: inline-flex;
+  color: var(--text-3);
+}
+
+.ls-void td {
+  color: var(--text-3);
+}
+
+.ls-void .num {
+  text-decoration: line-through;
+}
+
+/* ---- Lease form ----------------------------------------------------------------- */
+.lf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lf-form .card + .card {
+  margin-top: 0;
+}
+
+.lf-section .card-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lf-section .card-head h2 .icon {
+  color: var(--text-3);
+}
+
+.lf-note {
+  margin: 0;
+  font-size: 13px;
+}
+
+.lf-tenants {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lf-tenants:empty {
+  display: none;
+}
+
+.lf-tenants li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface-2);
+}
+
+.lf-new-tenants {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lf-new-tenants:empty {
+  display: none;
+}
+
+.lf-new-tenant,
+.lf-extra {
+  display: grid;
+  gap: 8px;
+  align-items: center;
+}
+
+.lf-new-tenant {
+  grid-template-columns: 1fr 1fr 1.3fr 1fr auto;
+}
+
+.lf-extras {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lf-extras:empty {
+  display: none;
+}
+
+.lf-extra {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) 130px auto;
+}
+
+.lf-prepare,
+.lf-prorate {
+  align-items: flex-start;
+  line-height: 1.4;
+}
+
+.lf-prorate input {
+  margin-top: 2px;
+}
+
+.lf-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px -28px -48px;
+  padding: 12px 28px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* ---- Transaction dialogs ------------------------------------------------------------ */
+.tx-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tx-error[hidden] {
+  display: none;
+}
+
+.tx-lease-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface-2);
+}
+
+.tx-lease-summary > .icon {
+  color: var(--text-3);
+  flex: none;
+}
+
+.tx-lease-title {
+  font-weight: 600;
+}
+
+.tx-lease-balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 12px;
+}
+
+.tx-lease-balance strong {
+  font-size: 16px;
+}
+
+.tx-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tx-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tx-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.5fr) 130px 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.tx-row-expense {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.2fr) 120px 36px;
+}
+
+.tx-row-journal {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 110px 110px 36px;
+}
+
+.tx-row-head {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.tx-row-head .r {
+  text-align: right;
+}
+
+.tx-cell-unit .select {
+  width: 100%;
+}
+
+.tx-rows-total {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px 0;
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.tx-apply-head {
+  margin-bottom: 6px;
+}
+
+.tx-apply .table td {
+  height: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.tx-apply-cell {
+  width: 150px;
+}
+
+.tx-apply-cell .input {
+  width: 130px;
+  margin-left: auto;
+}
+
+.tx-apply-empty {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r);
+}
+
+.tx-apply-foot {
+  flex-wrap: wrap;
+}
+
+.tx-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.tx-summary .icon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.tx-summary.bad {
+  color: var(--danger);
+}
+
+.tx-available {
+  margin: 0;
+}
+
+.tx-bills {
+  max-height: 340px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+
+.tx-bills .table td {
+  height: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.tx-journal-diff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 10px 12px;
+  border-radius: var(--r);
+  background: var(--success-soft);
+  color: var(--success);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.tx-journal-diff.bad {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ---- Receipts and statements (screen and print) -------------------------------------- */
+.receipt {
+  max-width: 680px;
+  margin: 0 auto;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.receipt-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid var(--text);
+}
+
+.receipt-company {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.receipt-small {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.receipt-title {
+  text-align: right;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.receipt-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 18px;
+  margin: 0 0 18px;
+}
+
+.receipt-meta dt {
+  color: var(--text-3);
+}
+
+.receipt-meta dd {
+  margin: 0;
+}
+
+.receipt-amount {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px 16px;
+  margin: 0 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+
+.receipt-amount strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt-lines {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt-lines th,
+.receipt-lines td {
+  padding: 7px 4px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.receipt-lines th {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 600;
+}
+
+.receipt-lines .r {
+  text-align: right;
+}
+
+.receipt-memo,
+.receipt-balance {
+  margin: 0 0 10px;
+}
+
+.receipt-foot {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+/* ---- Responsive -------------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .ls-glance {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ls-glance-item:nth-child(4) {
+    border-left: 0;
+  }
+
+  .ls-glance-item:nth-child(n + 4) {
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 1023px) {
+  .lf-actions {
+    margin: 16px -20px -40px;
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ls-glance {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ls-glance-item + .ls-glance-item {
+    border-left: 0;
+  }
+
+  .ls-glance-item:nth-child(n + 2) {
+    border-top: 1px solid var(--border);
+  }
+
+  .ls-glance-item:nth-child(2n) {
+    border-left: 1px solid var(--border);
+  }
+
+  .ls-glance-item:first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* Two narrow columns: let a value like "$1,605.00 on Oct 2" wrap rather
+     than cut it off. */
+  .ls-glance-value {
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  .ls-glance-item:first-child + .ls-glance-item {
+    border-left: 0;
+  }
+
+  /* Names on the first line with the remove button, email and phone on
+     the second. */
+  .lf-new-tenant {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px;
+  }
+
+  .lf-new-tenant > :last-child {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .lf-extra {
+    grid-template-columns: 1fr 120px auto;
+  }
+
+  .lf-extra > :nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .lf-actions {
+    margin: 16px -16px -32px;
+    padding: 10px 16px;
+  }
+
+  .lf-actions .btn {
+    flex: 1;
+  }
+
+  .lf-actions .spacer {
+    display: none;
+  }
+
+  .tx-row,
+  .tx-row-expense,
+  .tx-row-journal {
+    grid-template-columns: 1fr 1fr;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tx-row > .icon-btn {
+    justify-self: end;
+  }
+
+  .tx-row-head {
+    display: none;
+  }
+
+  .tx-apply-cell,
+  .tx-apply-cell .input {
+    width: 110px;
+  }
+
+  .receipt-head {
+    flex-direction: column;
+  }
+
+  .receipt-title {
+    text-align: left;
+  }
+}
+
+@media print {
+  #print-root .receipt {
+    max-width: none;
+    color: #111;
+  }
+
+  #print-root .receipt-head {
+    border-bottom-color: #111;
+  }
+
+  #print-root .receipt-amount,
+  #print-root .receipt-lines th,
+  #print-root .receipt-lines td {
+    border-color: #ccc;
+  }
+}

@@ -1,0 +1,147 @@
+/* Design tokens. Light is the default; dark applies for an explicit choice or
+   when the system prefers dark and the user chose "system". */
+:root {
+  color-scheme: light;
+  --font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+
+  --radius-sm: 3px;
+  --radius: 5px;
+  --radius-lg: 8px;
+
+  --bg: #eef0f3;
+  --chrome: #f7f8fa;
+  --panel: #ffffff;
+  --panel-2: #f3f5f7;
+  --border: #d9dde3;
+  --border-strong: #c3c9d1;
+  --text: #1c2129;
+  --text-2: #4f5966;
+  --text-3: #646e7a;
+  --hover: #e9edf2;
+  --active: #dfe5ec;
+  --accent: #1f63d6;
+  --accent-hover: #1a56bb;
+  --accent-text: #ffffff;
+  --accent-weak: #e3ecfb;
+  /* Accent-coloured text on --accent-weak (4.5:1 in both themes). */
+  --accent-on-weak: #1f63d6;
+  --accent-border: #9dbcf0;
+  --focus: #1f63d6;
+  --danger: #c4312b;
+  --danger-weak: #fbe9e8;
+  --warning: #a35f00;
+  --warning-weak: #fdf1dc;
+  --success: #1d7a43;
+  --success-weak: #e3f4ea;
+
+  /* Viewport */
+  --viewport: #e7eaee;
+  --model: #b9c3cf;
+  --edge: #1b1f24;
+  /* Visible edges in the line styles (hidden lines removed/visible, wireframe). */
+  --wire: #1b1f24;
+  --hidden-edge: #8b939d;
+  --selection: #2f7cf6;
+  --hover-3d: #f29d38;
+  --preview: #f2c94c;
+  --preview-cut: #e86a5c;
+  --cap: #d97c6a;
+  --plane-fill: rgba(64, 128, 230, 0.10);
+  --plane-edge: #6f9be0;
+  --sketch-under: #2463d1;
+  --sketch-full: #14181d;
+  --sketch-over: #d22d2d;
+  --sketch-construction: #6f8db8;
+  --sketch-selected: #f0821e;
+  --sketch-inactive: #5c6b80;
+  --dimension: #1b1f24;
+  --dimension-driven: #7d8794;
+  --axis-x: #d33a2c;
+  --axis-y: #2c9b45;
+  --axis-z: #2f63d6;
+
+  /* Icons */
+  --icon-accent: #9ec0f4;
+  --icon-accent-2: #c9dbf8;
+  --icon-soft: #e3e7ec;
+
+  --scrim: rgba(18, 22, 28, 0.32);
+  --tooltip-bg: #1f242b;
+  --tooltip-text: #f3f5f7;
+
+  --titlebar-h: 40px;
+  --cm-h: 92px;
+  --status-h: 26px;
+  --left-w: 280px;
+  --taskpane-w: 36px;
+  --touch: 32px;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --touch: 44px;
+  }
+}
+
+:root[data-theme-resolved='dark'] {
+  color-scheme: dark;
+  --bg: #17191d;
+  --chrome: #1f2226;
+  --panel: #24272c;
+  --panel-2: #2a2e34;
+  --border: #353a41;
+  --border-strong: #464c55;
+  --text: #e7e9ec;
+  --text-2: #b1b8c2;
+  --text-3: #858e99;
+  --hover: #2f343b;
+  --active: #383e46;
+  --accent: #4d8dff;
+  --accent-hover: #6aa0ff;
+  --accent-text: #0b1220;
+  --accent-weak: #1f3354;
+  --accent-on-weak: #7fb0ff;
+  --accent-border: #3c62a3;
+  --focus: #6aa0ff;
+  --danger: #ff6b62;
+  --danger-weak: #3d2221;
+  --warning: #f0b14a;
+  --warning-weak: #3b2e17;
+  --success: #4cc283;
+  --success-weak: #1b3527;
+
+  --viewport: #2b2f35;
+  --model: #9aa6b4;
+  --edge: #0e1013;
+  --wire: #d3d9e1;
+  --hidden-edge: #6e7783;
+  --selection: #4f95ff;
+  --hover-3d: #ffaa4d;
+  --preview: #e8c050;
+  --preview-cut: #ef7b6d;
+  --cap: #c46f60;
+  --plane-fill: rgba(110, 160, 255, 0.10);
+  --plane-edge: #6f9be0;
+  --sketch-under: #6aa4ff;
+  --sketch-full: #f1f3f6;
+  --sketch-over: #ff6b62;
+  --sketch-construction: #8ea6c8;
+  --sketch-selected: #ffa04a;
+  --sketch-inactive: #9aa8bb;
+  --dimension: #e9ecf0;
+  --dimension-driven: #98a2ae;
+
+  --icon-accent: #3f6fb8;
+  --icon-accent-2: #2c4c7d;
+  --icon-soft: #3a4048;
+
+  --scrim: rgba(0, 0, 0, 0.5);
+  --tooltip-bg: #e9ecf0;
+  --tooltip-text: #15181c;
+}

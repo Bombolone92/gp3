@@ -1,0 +1,26 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {unzipSync,strFromU8} from 'fflate';
+import {reopenDocx} from './helpers/reopen-docx.js';
+const source='tests/fixtures/temporary-control-bookmarks/control.docx';
+const sameParts=(a,b)=>{expect(Object.keys(a).sort()).toEqual(Object.keys(b).sort());for(const[n,v]of Object.entries(b))expect(Buffer.from(a[n]).equals(Buffer.from(v)),n).toBe(true);};
+test('formats bookmarked temporary controls, replaces a prompt, and preserves undo and reopening',async({page},info)=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/playground.html');await page.getByLabel('Open DOCX file').setInputFiles(source);
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^interior: before Alpha beta/);await expect(input).toBeEditable();await expect(page.locator('canvas.canvas-page')).toHaveCount(1);
+ const original=await input.inputValue(),parts=unzipSync(readFileSync(source));
+ const save=async name=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(name+'.docx');await(await pending).saveAs(path);return path;};
+ sameParts(unzipSync(readFileSync(await save('noedit'))),parts);
+ const select=async(label,from,to=from)=>input.evaluate((el,{label,from,to})=>{const at=el.value.indexOf(label)+label.length;el.focus();el.setSelectionRange(at+from,at+to);el.dispatchEvent(new Event('select',{bubbles:true}));},{label,from,to});
+ await select('boundary: before ',1,3);await page.getByRole('button',{name:'Bold',exact:true}).click();
+ await select('placeholder: before ',1,3);await page.getByRole('button',{name:'Bold',exact:true}).click();const formatted=await save('formatted');
+ await reopenDocx(page,input,formatted,original);await select('boundary: before ',1,3);await expect(page.getByRole('button',{name:'Bold',exact:true})).toHaveAttribute('aria-pressed','true');
+ await select('placeholder: before ',7,9);await expect(page.getByRole('button',{name:'Bold',exact:true})).toHaveAttribute('aria-pressed','true');
+ await select('placeholder: before ',-4,-1);await expect(page.getByRole('button',{name:'Bold',exact:true})).toHaveAttribute('aria-pressed','false');
+ await select('placeholder: before ',4);await input.press('X');const changed=original.replace('placeholder: before Alpha beta after','placeholder: before X after');await expect(input).toHaveValue(changed);
+ const edited=await save('edited'),editedParts=unzipSync(readFileSync(edited));
+ const retained=await page.evaluate(xml=>{const w='http://schemas.openxmlformats.org/wordprocessingml/2006/main',d=new DOMParser().parseFromString(xml,'application/xml');return {controls:d.getElementsByTagNameNS(w,'sdt').length,bookmarks:[...d.getElementsByTagNameNS(w,'bookmarkStart')].map(n=>n.getAttributeNS(w,'name'))};},strFromU8(editedParts['word/document.xml']));
+ expect(retained.controls).toBe(8);expect(retained.bookmarks).not.toContain('Mark_placeholder');expect(retained.bookmarks).toContain('Mark_boundary');
+ for(const[n,b]of Object.entries(parts))if(n!=='word/document.xml')expect(Buffer.from(editedParts[n]).equals(Buffer.from(b)),n).toBe(true);
+ await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(input).toHaveValue(original);sameParts(unzipSync(readFileSync(await save('undo'))),unzipSync(readFileSync(formatted)));
+ await reopenDocx(page,input,edited,changed);await expect(input).toBeEditable();expect(errors).toEqual([]);
+});

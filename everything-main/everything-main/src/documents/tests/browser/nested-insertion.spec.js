@@ -1,0 +1,20 @@
+import {test,expect} from '@playwright/test';
+import {showAllTools,onTab} from './helpers/editor-tools.js';
+import {reopenDocx} from './helpers/reopen-docx.js';
+for(const label of ['Outer before','Inner line 1'])test(`inserts a table inside ${label} using its cell width`,async({page},info)=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/playground.html');await showAllTools(page);
+ await page.getByLabel('Open DOCX file').setInputFiles('tests/fixtures/nested-tables/nested-clipping-inner-exact.docx');
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/Inner line 6/);
+ const before=await input.inputValue();
+ await input.evaluate((el,label)=>{const at=el.value.indexOf(label)+5;el.focus();el.setSelectionRange(at,at);el.dispatchEvent(new Event('select',{bubbles:true}));},label);
+ const insert=(await onTab(page,'insert')).getByRole('button',{name:'Insert table',exact:true});await expect(insert).toBeEnabled();await insert.click();
+ await page.getByLabel('Table rows',{exact:true}).fill('2');await page.getByLabel('Table columns',{exact:true}).fill('2');await page.getByRole('button',{name:'Insert',exact:true}).click();
+ await expect(page.getByRole('dialog')).toHaveCount(0);await expect(input).toBeFocused();
+ const inserted=await input.inputValue();expect(inserted.length).toBe(before.length+5);
+ await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(input).toHaveValue(before);
+ await page.getByRole('button',{name:'Redo',exact:true}).click();await expect(input).toHaveValue(inserted);
+ await page.keyboard.insertText('Nested authored');await expect(input).toHaveValue(/Nested authored/);
+ const text=await input.inputValue(),event=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();
+ const path=info.outputPath(`nested-insertion-${label.startsWith('Inner')?'deep':'outer'}.docx`);await(await event).saveAs(path);await reopenDocx(page,input,path,text);
+ await page.locator('canvas.canvas-page').first().screenshot({path:info.outputPath('nested-insertion.png')});expect(errors).toEqual([]);
+});

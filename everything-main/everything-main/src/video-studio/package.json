@@ -1,0 +1,46 @@
+{
+  "name": "video-studio",
+  "version": "1.0.0",
+  "description": "Video Studio: a multi-track video editor on Puter. Timeline editing, text, effects, transitions, filters, keyframes, captions and export, stored in your own cloud.",
+  "type": "module",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "npm run build:worker && vite",
+    "build": "npm run build:worker && vite build",
+    "build:worker": "vite build --config vite.worker.config.js",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build:wasm": "node tools/build-wasm.mjs",
+    "check:licenses": "node tools/check-licenses.mjs",
+    "prebuild": "npm run check:licenses"
+  },
+  "dependencies": {
+    "@fontsource/anton": "5.3.0",
+    "@fontsource/bebas-neue": "5.3.0",
+    "@fontsource/dancing-script": "5.3.0",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/lobster": "5.3.0",
+    "@fontsource/merriweather": "5.3.0",
+    "@fontsource/montserrat": "5.3.0",
+    "@fontsource/oswald": "5.3.0",
+    "@fontsource/pacifico": "5.3.0",
+    "@fontsource/permanent-marker": "5.3.0",
+    "@fontsource/playfair-display": "5.3.0",
+    "@fontsource/poppins": "5.3.0",
+    "@fontsource/roboto-mono": "5.3.0",
+    "@mediapipe/tasks-vision": "1.0.1",
+    "lucide": "1.54.0",
+    "mediabunny": "1.61.3"
+  },
+  "devDependencies": {
+    "axe-core": "4.14.0",
+    "jsdom": "30.1.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.3"
+  }
+}

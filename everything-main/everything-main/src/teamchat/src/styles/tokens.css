@@ -1,0 +1,202 @@
+/* Design tokens. Light is the default; dark applies by OS preference unless
+   the app stamped light, and again when the app stamped dark, so the in-app
+   toggle wins in both directions. */
+
+:root {
+  color-scheme: light;
+
+  --page: #f7f7f5;
+  --surface: #ffffff;
+  --surface-2: #f0efec;
+  --surface-3: #e6e5e0;
+  --sidebar: #f1f0ed;
+  --ink: #111110;
+  --ink-2: #4f4e4a;
+  --ink-3: #6d6b66;
+  --hairline: rgba(17, 17, 16, 0.1);
+  --row-hover: rgba(17, 17, 16, 0.035); /* a message row under the pointer: a breath, not a block */
+  --hairline-strong: rgba(17, 17, 16, 0.18);
+  --scrim: rgba(17, 17, 16, 0.44);
+
+  /* Accent: fill for primary actions (white text clears 4.5:1), and a
+     darker "strong" form for accent-colored text on light surfaces. */
+  --accent: #4f46e5;
+  --accent-strong: #3f37c9;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(79, 70, 229, 0.1);
+  --accent-wash-strong: rgba(79, 70, 229, 0.18);
+
+  --critical: #c22a2a;
+  --critical-ink: #fff; /* text on a --critical background */
+  --critical-wash: rgba(194, 42, 42, 0.1);
+  --success: #1a7f37;
+  --success-ink: #fff; /* text on a --success background */
+  --warn: #9a6700;
+  --warn-strong: #6d4c00; /* warn-coloured text on a light wash, where --warn itself falls short of 4.5:1 */
+  --mention: rgba(234, 179, 8, 0.16);
+
+  /* Avatar palette (8 slots), each with an ink that clears 4.5:1 on it. */
+  --av-1: #d6e4ff; --av-1-ink: #1d3f8f;
+  --av-2: #ffe0cc; --av-2-ink: #8a3a0c;
+  --av-3: #d3f4e5; --av-3-ink: #0f5c3a;
+  --av-4: #fff1c2; --av-4-ink: #6d4c00;
+  --av-5: #fbdce9; --av-5-ink: #8a1c4a;
+  --av-6: #e3dcff; --av-6-ink: #45308f;
+  --av-7: #d9f0f8; --av-7-ink: #0d5468;
+  --av-8: #e9e7e1; --av-8-ink: #3f3d38;
+
+  /* Code tokens, each clearing 4.5:1 on --surface-2 (see tests/highlight.test.js). */
+  --tok-kw: #6d28d9;
+  --tok-str: #0f6b35;
+  --tok-num: #a3450a;
+  --tok-com: #6d6b66;
+  --tok-fn: #1d4ed8;
+  --tok-type: #b42318;
+  --tok-attr: #8a3a0c;
+  --tok-lit: #0d5468;
+  --tok-var: #8a1c4a;
+  --tok-tag: #b42318;
+  --tok-punc: #4f4e4a;
+  --tok-op: #4f4e4a;
+  --tok-meta: #6d28d9;
+  --tok-ins: #0f6b35;
+  --tok-ins-bg: rgba(26, 127, 55, 0.12);
+  --tok-del: #b42318;
+  --tok-del-bg: rgba(194, 42, 42, 0.12);
+
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-full: 999px;
+
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --sidebar-w: 268px;
+  --panel-w: 380px;
+  --header-h: 56px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0f0f10;
+    --surface: #18181a;
+    --surface-2: #222224;
+    --surface-3: #2c2c2f;
+    --sidebar: #141416;
+    --ink: #f4f4f2;
+    --ink-2: #bdbcb6;
+    --ink-3: #8f8e88;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --row-hover: rgba(255, 255, 255, 0.045);
+    --hairline-strong: rgba(255, 255, 255, 0.18);
+    --scrim: rgba(0, 0, 0, 0.6);
+
+    --accent: #8b8ff8;
+    --accent-strong: #a9acff;
+    --accent-ink: #0f0f10;
+    --accent-wash: rgba(139, 143, 248, 0.16);
+    --accent-wash-strong: rgba(139, 143, 248, 0.26);
+
+    --critical: #f07373;
+    --critical-ink: #1a0b0b;
+    --critical-wash: rgba(240, 115, 115, 0.14);
+    --success: #4cc26a;
+    --success-ink: #0f0f10;
+    --warn: #e0b13d;
+    --warn-strong: #e0b13d;
+    --mention: rgba(234, 179, 8, 0.2);
+
+    --av-1: #1f3566; --av-1-ink: #c9d8ff;
+    --av-2: #5a2a10; --av-2-ink: #ffd3ba;
+    --av-3: #15452f; --av-3-ink: #bfeed7;
+    --av-4: #4d3a05; --av-4-ink: #ffe7a1;
+    --av-5: #5a1a37; --av-5-ink: #ffc9df;
+    --av-6: #34276b; --av-6-ink: #d9d1ff;
+    --av-7: #113f4e; --av-7-ink: #c3e9f5;
+    --av-8: #33322f; --av-8-ink: #dad8d1;
+
+    --tok-kw: #c4b5fd;
+    --tok-str: #86efac;
+    --tok-num: #fdba74;
+    --tok-com: #9a9992;
+    --tok-fn: #93c5fd;
+    --tok-type: #fca5a5;
+    --tok-attr: #fcd34d;
+    --tok-lit: #7dd3fc;
+    --tok-var: #f9a8d4;
+    --tok-tag: #fca5a5;
+    --tok-punc: #bdbcb6;
+    --tok-op: #bdbcb6;
+    --tok-meta: #c4b5fd;
+    --tok-ins: #86efac;
+    --tok-ins-bg: rgba(76, 194, 106, 0.14);
+    --tok-del: #fca5a5;
+    --tok-del-bg: rgba(240, 115, 115, 0.16);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0f0f10;
+  --surface: #18181a;
+  --surface-2: #222224;
+  --surface-3: #2c2c2f;
+  --sidebar: #141416;
+  --ink: #f4f4f2;
+  --ink-2: #bdbcb6;
+  --ink-3: #8f8e88;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --row-hover: rgba(255, 255, 255, 0.045);
+  --hairline-strong: rgba(255, 255, 255, 0.18);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --accent: #8b8ff8;
+  --accent-strong: #a9acff;
+  --accent-ink: #0f0f10;
+  --accent-wash: rgba(139, 143, 248, 0.16);
+  --accent-wash-strong: rgba(139, 143, 248, 0.26);
+
+  --critical: #f07373;
+  --critical-ink: #1a0b0b;
+  --critical-wash: rgba(240, 115, 115, 0.14);
+  --success: #4cc26a;
+  --success-ink: #0f0f10;
+  --warn: #e0b13d;
+  --warn-strong: #e0b13d;
+  --mention: rgba(234, 179, 8, 0.2);
+
+  --av-1: #1f3566; --av-1-ink: #c9d8ff;
+  --av-2: #5a2a10; --av-2-ink: #ffd3ba;
+  --av-3: #15452f; --av-3-ink: #bfeed7;
+  --av-4: #4d3a05; --av-4-ink: #ffe7a1;
+  --av-5: #5a1a37; --av-5-ink: #ffc9df;
+  --av-6: #34276b; --av-6-ink: #d9d1ff;
+  --av-7: #113f4e; --av-7-ink: #c3e9f5;
+  --av-8: #33322f; --av-8-ink: #dad8d1;
+
+  --tok-kw: #c4b5fd;
+  --tok-str: #86efac;
+  --tok-num: #fdba74;
+  --tok-com: #9a9992;
+  --tok-fn: #93c5fd;
+  --tok-type: #fca5a5;
+  --tok-attr: #fcd34d;
+  --tok-lit: #7dd3fc;
+  --tok-var: #f9a8d4;
+  --tok-tag: #fca5a5;
+  --tok-punc: #bdbcb6;
+  --tok-op: #bdbcb6;
+  --tok-meta: #c4b5fd;
+  --tok-ins: #86efac;
+  --tok-ins-bg: rgba(76, 194, 106, 0.14);
+  --tok-del: #fca5a5;
+  --tok-del-bg: rgba(240, 115, 115, 0.16);
+}

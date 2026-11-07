@@ -1,0 +1,97 @@
+.panel-variables {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.var-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+}
+
+.var-ds-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.var-ds {
+  flex: 1;
+  min-width: 0;
+}
+
+.var-head,
+.var-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) 72px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.var-head {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.var-list {
+  flex: 1;
+  min-height: 80px;
+  overflow: auto;
+}
+
+.var-list .panel-empty {
+  padding: 12px 10px;
+}
+
+.var-row {
+  min-height: 28px;
+  cursor: default;
+}
+
+.var-row:hover {
+  background: var(--bg-hover);
+}
+
+.var-row.selected {
+  background: var(--bg-selected);
+}
+
+.var-row:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.var-name,
+.var-bound {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.var-type,
+.var-bound {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.var-footer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--border);
+}
+
+.var-spacer {
+  flex: 1;
+}

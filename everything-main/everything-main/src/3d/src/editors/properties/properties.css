@@ -1,0 +1,201 @@
+/* Properties editor: search results, panel reordering, multi-drag and button feedback. */
+
+.rail-tab.search-miss {
+  opacity: 0.35;
+}
+.prop-body.searching .search-hl .sr-label,
+.prop-body.searching .checkbox.search-hl .cb-label {
+  color: #edc45c;
+}
+.prop-body {
+  position: relative;
+}
+.panel-drop-line {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 3;
+  color: var(--c-text-on-accent, #ffffff);
+}
+.panel.dragging {
+  opacity: 0.55;
+}
+.ph-grip {
+  cursor: grab;
+}
+.num-field.multi-sel {
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+body.eyedropper-active,
+body.eyedropper-active * {
+  cursor: crosshair !important;
+}
+
+/* UI list filter */
+.ul-filter-toggle-row {
+  display: flex;
+  justify-content: center;
+  height: 12px;
+  margin-top: -2px;
+}
+.ul-filter-toggle {
+  width: 28px;
+  height: 12px;
+  display: grid;
+  place-items: center;
+  opacity: 0.6;
+  border-radius: 3px;
+}
+.ul-filter-toggle:hover,
+.ul-filter-toggle.on {
+  opacity: 1;
+}
+.ul-filter-toggle .icon {
+  width: 10px;
+  height: 10px;
+}
+.ul-filter {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  margin: 2px 26px 4px 0;
+}
+.ul-filter-text {
+  flex: 1;
+  min-width: 0;
+}
+.ul-fbtn {
+  width: 24px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 3px;
+  background: var(--w-field, #28292a);
+}
+.ul-fbtn.on {
+  background: var(--accent);
+  color: var(--c-text-on-accent, #ffffff);
+}
+
+/* header options popover */
+.hdr-toggle.prop-options-btn {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  width: auto;
+  padding: 0 3px;
+}
+.prop-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px 8px;
+}
+
+/* read-only lists and greyed groups of the extra data panels */
+.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.attr-table {
+  display: flex;
+  flex-direction: column;
+  background: var(--w-list, rgba(0, 0, 0, 0.18));
+  border-radius: var(--radius);
+  padding: 2px 0;
+}
+.attr-row {
+  display: grid;
+  grid-template-columns: 18px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  height: var(--row);
+  padding: 0 6px;
+}
+.attr-row .attr-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attr-row .attr-meta {
+  color: var(--t-99, #999a9c);
+  font-size: 0.92em;
+}
+
+/* Camera ▸ Background Images: one framed box per image */
+.bgimg-box {
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(var(--hl-rgb, 255, 255, 255), 0.05);
+  margin: 4px 0;
+}
+.bgimg-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: calc(var(--row) + 4px);
+  padding: 0 4px;
+}
+.bgimg-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bgimg-expand,
+.bgimg-btn {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius);
+  color: var(--t-cc, #cdced0);
+}
+.bgimg-btn:hover,
+.bgimg-expand:hover {
+  background: rgba(var(--hl-rgb, 255, 255, 255), 0.1);
+}
+.bgimg-btn:not(.on) {
+  opacity: 0.6;
+}
+.bgimg-body {
+  padding: 2px 4px 6px;
+}
+/* UI list: drag to reorder, resize grip */
+.ul-rows {
+  position: relative;
+}
+.ul-row.ul-dragging {
+  opacity: 0.55;
+}
+.ul-drop {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+.ul-filter-toggle-row {
+  align-items: center;
+  justify-content: space-between;
+}
+.ul-grip-space {
+  width: 18px;
+}
+.ul-resize {
+  width: 18px;
+  height: 10px;
+  cursor: ns-resize;
+  background: radial-gradient(circle, var(--g-6a, #68696b) 0.8px, transparent 1.1px) 0 1px / 3.5px 4px;
+  opacity: 0.7;
+}
+.ul-resize:hover {
+  opacity: 1;
+}

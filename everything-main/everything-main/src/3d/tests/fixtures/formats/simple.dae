@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_cameras>
+    <camera id="Cam-camera" name="Cam">
+      <optics><technique_common><perspective><yfov>30</yfov><aspect_ratio>1.5</aspect_ratio><znear>0.1</znear><zfar>100</zfar></perspective></technique_common></optics>
+    </camera>
+  </library_cameras>
+  <library_lights>
+    <light id="Lamp-light" name="Lamp"><technique_common><point><color>1 0.5 0.25</color></point></technique_common></light>
+  </library_lights>
+  <library_effects>
+    <effect id="Red-effect">
+      <profile_COMMON><technique sid="common"><phong>
+        <diffuse><color sid="diffuse">0.8 0.1 0.1 1</color></diffuse>
+        <shininess><float sid="shininess">50</float></shininess>
+      </phong></technique></profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="Red-material" name="Red"><instance_effect url="#Red-effect"/></material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="Box-mesh" name="Box">
+      <mesh>
+        <source id="Box-positions">
+          <float_array id="Box-positions-array" count="24">1 1 1 1 -1 1 -1 -1 1 -1 1 1 1 1 -1 1 -1 -1 -1 -1 -1 -1 1 -1</float_array>
+          <technique_common><accessor source="#Box-positions-array" count="8" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
+        </source>
+        <vertices id="Box-vertices"><input semantic="POSITION" source="#Box-positions"/></vertices>
+        <polylist material="Red-material" count="6">
+          <input semantic="VERTEX" source="#Box-vertices" offset="0"/>
+          <vcount>4 4 4 4 4 4</vcount>
+          <p>0 3 2 1 4 5 6 7 0 1 5 4 1 2 6 5 2 3 7 6 4 7 3 0</p>
+        </polylist>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_animations>
+    <animation id="Box-move">
+      <source id="Box-move-input"><float_array id="Box-move-input-array" count="2">0 1</float_array>
+        <technique_common><accessor source="#Box-move-input-array" count="2" stride="1"><param name="TIME" type="float"/></accessor></technique_common></source>
+      <source id="Box-move-output"><float_array id="Box-move-output-array" count="2">0 3</float_array>
+        <technique_common><accessor source="#Box-move-output-array" count="2" stride="1"><param name="X" type="float"/></accessor></technique_common></source>
+      <source id="Box-move-interp"><Name_array id="Box-move-interp-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common><accessor source="#Box-move-interp-array" count="2" stride="1"><param name="INTERPOLATION" type="name"/></accessor></technique_common></source>
+      <sampler id="Box-move-sampler">
+        <input semantic="INPUT" source="#Box-move-input"/>
+        <input semantic="OUTPUT" source="#Box-move-output"/>
+        <input semantic="INTERPOLATION" source="#Box-move-interp"/>
+      </sampler>
+      <channel source="#Box-move-sampler" target="Box/location.X"/>
+    </animation>
+  </library_animations>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Group" name="Group" type="NODE">
+        <translate sid="location">0 0 2</translate>
+        <node id="Box" name="Box" type="NODE">
+          <translate sid="location">0 0 0</translate>
+          <rotate sid="rotationZ">0 0 1 0</rotate>
+          <scale sid="scale">1 1 1</scale>
+          <instance_geometry url="#Box-mesh" name="Box">
+            <bind_material><technique_common><instance_material symbol="Red-material" target="#Red-material"/></technique_common></bind_material>
+          </instance_geometry>
+        </node>
+      </node>
+      <node id="Cam" name="Cam" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 0 -1 -10 0 1 0 0 0 0 0 1</matrix>
+        <instance_camera url="#Cam-camera"/>
+      </node>
+      <node id="Lamp" name="Lamp" type="NODE">
+        <translate sid="location">4 1 6</translate>
+        <instance_light url="#Lamp-light"/>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene><instance_visual_scene url="#Scene"/></scene>
+</COLLADA>

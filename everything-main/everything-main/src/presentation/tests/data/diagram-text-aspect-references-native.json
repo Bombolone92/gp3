@@ -1,0 +1,989 @@
+{
+  "provenance": "Owned synthetic DiagramML data and layouts. Expected leaf bounds/font sizes were read independently from native reference regenerated drawings on 2026-10-11; local PDFs were visually inspected. Geometry-only reference controls cover both axes, absent/explicit coordinates, explicit dimensions and upper/lower aspect inequalities. Chromium production glyph measurements replay content predicates; they do not supply expected geometry. The no-aspect overflowing-body control retains native exhausted geometry and reports content failure. No reference-application diagrams, style definitions or font files are included.",
+  "cases": [
+    {
+      "name": "aspect: inherited height and aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:0\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" val=\"97.5\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 1152000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 1296000,
+            "w": 2304000,
+            "h": 1512000
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"primary\",\"1\",80,32,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,42,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "aspect: inherited height without aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:1\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" val=\"97.5\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2877187,
+            "h": 2246400
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 2527200,
+            "w": 2301750,
+            "h": 280799
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": false,
+      "measurements": {
+        "[\"primary\",\"1\",80,78,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,9.75,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        },
+        "[\"primary\",\"1\",79.921875,78,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",63.9375,9.75,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        },
+        "[\"primary\",\"1\",79.921875,62.400000000000006,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",63.9375,7.799999999999997,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "aspect: automatic height and aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:2\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 1152000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 1296000,
+            "w": 2304000,
+            "h": 1512000
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"primary\",\"1\",80,32,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,42,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "aspect: local base and inherited height",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:3\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" val=\"97.5\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" val=\"1\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 1152000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 1296000,
+            "w": 2304000,
+            "h": 1512000
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"primary\",\"1\",80,32,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,42,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "aspect: short inherited height and aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:4\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" val=\"10\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 1152000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 1296000,
+            "w": 2304000,
+            "h": 1512000
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"primary\",\"1\",80,32,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,42,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "aspect: ancestor height at aspect boundary",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:5\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" val=\"32\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 1152000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 1296000,
+            "w": 2304000,
+            "h": 1512000
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"primary\",\"1\",80,32,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,42,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "aspect: inherited height lower-bound width",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:6\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" val=\"97.5\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"w\" op=\"gte\" refType=\"h\" fact=\"2.5\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 1152000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 1296000,
+            "w": 2304000,
+            "h": 1512000
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"primary\",\"1\",80,32,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,42,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "aspect: automatic height lower-bound width",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:inherited-text-aspect:7\"><d:title val=\"Inherited text geometry control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"w\" op=\"gte\" refType=\"h\" fact=\"2.5\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "expected": [
+        {
+          "name": "primary",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 1152000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "secondary",
+          "bounds": {
+            "x": 0,
+            "y": 1296000,
+            "w": 2304000,
+            "h": 1512000
+          },
+          "font": 18.0
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"primary\",\"1\",80,32,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        },
+        "[\"secondary\",\"1\",64,42,18,65,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": false
+    },
+    {
+      "name": "reference: h: automatic",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:0\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.2\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 432000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 43200,
+            "w": 43200,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,12,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "reference: h: explicit",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:1\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"100\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.2\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 432000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 43200,
+            "w": 43200,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,12,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "reference: h: lower bound",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:2\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" op=\"gte\" refType=\"h\" fact=\"5\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 432000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 43200,
+            "w": 43200,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,12,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "reference: h: no aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:3\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 3600000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 360000,
+            "w": 360000,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,100,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "reference: w: automatic",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:4\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" op=\"lte\" refType=\"h\" fact=\"0.5\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 54000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 54000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",15,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "reference: w: explicit",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:5\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"200\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" op=\"lte\" refType=\"h\" fact=\"0.5\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 54000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 54000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",15,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "reference: w: lower bound",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:6\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"h\" op=\"gte\" refType=\"w\" fact=\"2\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 54000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 54000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",15,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "reference: w: no aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-dimension-reference:7\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 7200000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 720000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 720000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",200,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: h: automatic",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:0\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.2\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 432000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 360000,
+            "w": 360000,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,12,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: h: explicit",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:1\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"100\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.2\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 432000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 43200,
+            "w": 43200,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,12,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: h: lower bound",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:2\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" op=\"gte\" refType=\"h\" fact=\"5\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 432000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 360000,
+            "w": 360000,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,12,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: h: no aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:3\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"b\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"h\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 3600000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 3600000,
+            "y": 360000,
+            "w": 360000,
+            "h": 72000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",60,100,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: w: automatic",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:4\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" op=\"lte\" refType=\"h\" fact=\"0.5\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 720000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 720000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",15,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: w: explicit",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:5\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"200\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" op=\"lte\" refType=\"h\" fact=\"0.5\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 54000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 54000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",15,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: w: lower bound",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:6\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"h\" op=\"gte\" refType=\"w\" fact=\"2\"/><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 720000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 720000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",15,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    },
+    {
+      "name": "coordinate: w: no aspect",
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:aspect-coordinate-reference:7\"><d:title val=\"Aspect dimension and edge reference control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\"/><d:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\"/></d:constrLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"group\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:constrLst><d:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\"/><d:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><d:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"60\"/><d:constr type=\"l\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"r\" fact=\"0.1\"/><d:constr type=\"h\" for=\"ch\" forName=\"probe\" refFor=\"ch\" refForName=\"query\" refType=\"w\" fact=\"0.1\"/><d:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"2\"/></d:constrLst><d:layoutNode name=\"query\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"primFontSz\" val=\"18\"/><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode><d:layoutNode name=\"probe\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "available": {
+        "w": 250,
+        "h": 150
+      },
+      "expected": [
+        {
+          "name": "query",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 7200000,
+            "h": 1080000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "probe",
+          "bounds": {
+            "x": 720000,
+            "y": 2160000,
+            "w": 72000,
+            "h": 720000
+          },
+          "font": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"1\",200,30,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      },
+      "coordinateReferences": true
+    }
+  ]
+}

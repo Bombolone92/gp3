@@ -1,0 +1,1128 @@
+{
+  "status": "rejected",
+  "candidateCanonicalSha256": "1bff00a2dcad249451f1ce3ddd62d801dcd61fdbd5c78efa4d05ca8381a9522d",
+  "baselineBorderCanonicalSha256": "e46d90c45a32ee8d61da4e4a86013ec6c06f4281183846c67b3ed76f437879e1",
+  "baselineEditorCanonicalSha256": "426f415e411b8f7ea7d829eb51560a649a776f1b0fb768f9d4246934a11a4b09",
+  "cleanReferenceSha256": "c965fb51755e0288dd10cdc290b48c716986c54bc3cfa32c10ca6f5c29f5eba9",
+  "edgeEvidenceCanonicalSha256": "4660270a333796b446e7454d677d57ffd274d00b12c65d9b7ae9eedad6a95793",
+  "edgeSummary": {
+    "experiment": "coupled-relative",
+    "edges": 2048,
+    "improved": 884,
+    "regressions": []
+  },
+  "regions": 512,
+  "observations": [
+    {
+      "nativeCropSha256": "da0f4510d21aaca3288427ae162d60de4c33a89ed2831080cd28408bc7a7a15f",
+      "rasterSha256": {
+        "baseline": "d78e2a2ac274bf90c52d9617ae8f52ebcf4d0e6329fdb51907bf0b713a66108f",
+        "candidate": "27b45aa7fb01f837b4ff32ce6491ef79bccf50b9dd8d6cbf7e11845dc47c7e46"
+      },
+      "source": "tests/fixtures/border-phase/control.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 65600,
+          "differing": {
+            "baseline": 2782,
+            "candidate": 256
+          },
+          "worse": 4,
+          "samples": [
+            {
+              "region": 11,
+              "x": 201,
+              "y": 184
+            },
+            {
+              "region": 11,
+              "x": 200,
+              "y": 185
+            },
+            {
+              "region": 15,
+              "x": 203,
+              "y": 248
+            },
+            {
+              "region": 15,
+              "x": 200,
+              "y": 251
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "6203a87c6e1c8344ad294cc871c676494b76c2103070fd0536feb032cd6f21d9",
+      "rasterSha256": {
+        "baseline": "91f5b8b67cc7b987f5c68451c6d953753fc4ff67efff59eec5ed32bbac4bf5d4",
+        "candidate": "d06f93539c2eefafdfc317816da2a37e86b879dfb33179ff6d23d2d01c1723b6"
+      },
+      "source": "tests/fixtures/border-phase/control.docx",
+      "zoom": 200,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 191552,
+          "differing": {
+            "baseline": 6632,
+            "candidate": 1536
+          },
+          "worse": 8,
+          "samples": [
+            {
+              "region": 6,
+              "x": 225,
+              "y": 240
+            },
+            {
+              "region": 6,
+              "x": 224,
+              "y": 241
+            },
+            {
+              "region": 8,
+              "x": 578,
+              "y": 241
+            },
+            {
+              "region": 8,
+              "x": 577,
+              "y": 242
+            },
+            {
+              "region": 14,
+              "x": 230,
+              "y": 496
+            },
+            {
+              "region": 14,
+              "x": 224,
+              "y": 502
+            },
+            {
+              "region": 16,
+              "x": 583,
+              "y": 497
+            },
+            {
+              "region": 16,
+              "x": 577,
+              "y": 503
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "9321c9a2f887dc9fe983157f9d00a30d08ded1230deb3c942b1548822411e58a",
+      "rasterSha256": {
+        "baseline": "9b2e56f3cd5a6fb1e563d2ad04fe5818d010081b2881f3d438cd001f5b973ee4",
+        "candidate": "0555b158d089a6b55769fa10d6734376e04aa058666a02db8bf997abfa74449d"
+      },
+      "source": "tests/fixtures/border-phase/control.docx",
+      "zoom": 125,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 90944,
+          "differing": {
+            "baseline": 3097,
+            "candidate": 1037
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "14e1f8452a9ba92c7243be91fb79b115e1727d23a013c58002ed1ed136b6d81d",
+      "rasterSha256": {
+        "baseline": "01c34799e82da61324e732cdfe4fa90dfe6877f4e389c5e43686e6085dcede65",
+        "candidate": "f3ceeeae6936f8b7e07d7708274ff869e2b0169af35912932a81fbc9f2419a3b"
+      },
+      "source": "tests/fixtures/border-phase/control.docx",
+      "zoom": 150,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 120384,
+          "differing": {
+            "baseline": 1712,
+            "candidate": 568
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "5c702c4b1536c3fa606ca383b030810bddcf6d44c0b7e40406950b6429933cd9",
+      "rasterSha256": {
+        "baseline": "d78e2a2ac274bf90c52d9617ae8f52ebcf4d0e6329fdb51907bf0b713a66108f",
+        "candidate": "5887df0762500a5723a647d66df128f6972453985c3bb6ab9cd3bdf9e7fd64b2"
+      },
+      "source": "tests/fixtures/border-phase/holdout.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 65600,
+          "differing": {
+            "baseline": 1644,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "8384927bfac3d7c5ee51a77d7a4f1f19a7bea3b12942d64cfebce2a3e6bbd102",
+      "rasterSha256": {
+        "baseline": "91f5b8b67cc7b987f5c68451c6d953753fc4ff67efff59eec5ed32bbac4bf5d4",
+        "candidate": "f259eb9ff4e46aec6869ff7d5946c33bf6359eab06d0d6d770dda0ed1dfd0f0f"
+      },
+      "source": "tests/fixtures/border-phase/holdout.docx",
+      "zoom": 200,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 191552,
+          "differing": {
+            "baseline": 2292,
+            "candidate": 764
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "80d82d7312389882668417814889b1565dabd9b81c16c2d671b79baf8fc00ffa",
+      "rasterSha256": {
+        "baseline": "d78e2a2ac274bf90c52d9617ae8f52ebcf4d0e6329fdb51907bf0b713a66108f",
+        "candidate": "27b45aa7fb01f837b4ff32ce6491ef79bccf50b9dd8d6cbf7e11845dc47c7e46"
+      },
+      "source": "tests/fixtures/border-phase/reordered.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 65600,
+          "differing": {
+            "baseline": 2782,
+            "candidate": 256
+          },
+          "worse": 4,
+          "samples": [
+            {
+              "region": 11,
+              "x": 201,
+              "y": 184
+            },
+            {
+              "region": 11,
+              "x": 200,
+              "y": 185
+            },
+            {
+              "region": 15,
+              "x": 203,
+              "y": 248
+            },
+            {
+              "region": 15,
+              "x": 200,
+              "y": 251
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "6203a87c6e1c8344ad294cc871c676494b76c2103070fd0536feb032cd6f21d9",
+      "rasterSha256": {
+        "baseline": "91f5b8b67cc7b987f5c68451c6d953753fc4ff67efff59eec5ed32bbac4bf5d4",
+        "candidate": "d06f93539c2eefafdfc317816da2a37e86b879dfb33179ff6d23d2d01c1723b6"
+      },
+      "source": "tests/fixtures/border-phase/reordered.docx",
+      "zoom": 200,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 191552,
+          "differing": {
+            "baseline": 6632,
+            "candidate": 1536
+          },
+          "worse": 8,
+          "samples": [
+            {
+              "region": 6,
+              "x": 225,
+              "y": 240
+            },
+            {
+              "region": 6,
+              "x": 224,
+              "y": 241
+            },
+            {
+              "region": 8,
+              "x": 578,
+              "y": 241
+            },
+            {
+              "region": 8,
+              "x": 577,
+              "y": 242
+            },
+            {
+              "region": 14,
+              "x": 230,
+              "y": 496
+            },
+            {
+              "region": 14,
+              "x": 224,
+              "y": 502
+            },
+            {
+              "region": 16,
+              "x": 583,
+              "y": 497
+            },
+            {
+              "region": 16,
+              "x": 577,
+              "y": 503
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "cb23e1a40890ae52909f275a0908683a5662e4ac7b102473a5e7dbf5afe7ab4d",
+      "rasterSha256": {
+        "baseline": "b4c55edf86c327d2e691e1daaa0a29f735128bb7c1045f7e208b926ae0a47b93",
+        "candidate": "8ac42d2d3c383abad13447b1bdd47b09bd8bbcb12fd0b4cf5765968f7a35f367"
+      },
+      "source": "tests/fixtures/border-phase/heights-thin.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 66256,
+          "differing": {
+            "baseline": 4162,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "fb1bd149a66558ecefe3e04655dc12a5f124e66428b07b060d6b312614bea9e5",
+      "rasterSha256": {
+        "baseline": "e5bd4ce5bacb0435c4bb62fcfd8e6e4a8d18377a133dfec2a7f684592e4c6831",
+        "candidate": "78a6755235be67fc31a582ae03acea11c3d2d019a810662cc8a03e9c627269f1"
+      },
+      "source": "tests/fixtures/border-phase/heights-thin.docx",
+      "zoom": 200,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 192720,
+          "differing": {
+            "baseline": 8157,
+            "candidate": 3
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "50e0e060a97334bacf5d0e7cac08b6ae61467592a0fdd9bb94256d0de3bfb718",
+      "rasterSha256": {
+        "baseline": "3921edf9fab864ecdda6254f77d673e40c5e8105baae3f1c1ae67f02c5fa20f1",
+        "candidate": "2ce5b6868437ee391dc945610ee0d2d1e7d007ccc25a57913b3b28f42b7fa4c6"
+      },
+      "source": "tests/fixtures/border-phase/heights-wide.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 66256,
+          "differing": {
+            "baseline": 1521,
+            "candidate": 513
+          },
+          "worse": 4,
+          "samples": [
+            {
+              "region": 11,
+              "x": 203,
+              "y": 184
+            },
+            {
+              "region": 11,
+              "x": 200,
+              "y": 187
+            },
+            {
+              "region": 15,
+              "x": 203,
+              "y": 248
+            },
+            {
+              "region": 15,
+              "x": 200,
+              "y": 251
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "80f64a7f20f4e5ae987c004a160063376475c6ebe0f66fcd23e4cbd50eae92fb",
+      "rasterSha256": {
+        "baseline": "2bbc8fe1538faf127a50bb3b1803b98ba24fa24eb81564de8c6a43c954feb45e",
+        "candidate": "b5cfda34e586079e129d07dd21109bc3319ac41d3ec53794510de3f0b04cd1a5"
+      },
+      "source": "tests/fixtures/border-phase/heights-wide.docx",
+      "zoom": 200,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 192720,
+          "differing": {
+            "baseline": 5344,
+            "candidate": 1280
+          },
+          "worse": 10,
+          "samples": [
+            {
+              "region": 2,
+              "x": 230,
+              "y": 111
+            },
+            {
+              "region": 2,
+              "x": 224,
+              "y": 117
+            },
+            {
+              "region": 4,
+              "x": 583,
+              "y": 112
+            },
+            {
+              "region": 4,
+              "x": 577,
+              "y": 118
+            },
+            {
+              "region": 10,
+              "x": 230,
+              "y": 368
+            },
+            {
+              "region": 10,
+              "x": 224,
+              "y": 374
+            },
+            {
+              "region": 12,
+              "x": 583,
+              "y": 369
+            },
+            {
+              "region": 12,
+              "x": 577,
+              "y": 375
+            },
+            {
+              "region": 16,
+              "x": 583,
+              "y": 498
+            },
+            {
+              "region": 16,
+              "x": 577,
+              "y": 504
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "c51ab0cb0bfd8c89e0f6dd3cbfed76c05cef82c6e8d857eafd7b78054d78f699",
+      "rasterSha256": {
+        "baseline": "24878fbc04f7c50e3675b81f1ec0c8ca5de99606b0dc201f99b5eef47c2956ca",
+        "candidate": "0aad5e4ec6bf683174e5e90fd160685f2d0a00286c2db46f0daebd9e9c579e39"
+      },
+      "source": "tests/fixtures/border-phase/filled.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 65600,
+          "differing": {
+            "baseline": 2782,
+            "candidate": 256
+          },
+          "worse": 4,
+          "samples": [
+            {
+              "region": 11,
+              "x": 201,
+              "y": 184
+            },
+            {
+              "region": 11,
+              "x": 200,
+              "y": 185
+            },
+            {
+              "region": 15,
+              "x": 203,
+              "y": 248
+            },
+            {
+              "region": 15,
+              "x": 200,
+              "y": 251
+            }
+          ]
+        },
+        "red": {
+          "pixels": 65600,
+          "differing": {
+            "baseline": 1529,
+            "candidate": 278
+          },
+          "worse": 2,
+          "samples": [
+            {
+              "region": 3,
+              "x": 201,
+              "y": 56
+            },
+            {
+              "region": 15,
+              "x": 203,
+              "y": 248
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "7f984dcc175b49cbc0b8b89048e23658821c732398c6e0e296b01fe22eae3b54",
+      "rasterSha256": {
+        "baseline": "d6d8e035084664f97b46833ba9bdd01ffd35e7e7c2da599a219b7c39e73e0663",
+        "candidate": "99920b204f1b8c1a22363c150f1cdc831ec467955caa0a72a897b14d13fdfa33"
+      },
+      "source": "tests/fixtures/border-phase/filled.docx",
+      "zoom": 150,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 120384,
+          "differing": {
+            "baseline": 1712,
+            "candidate": 568
+          },
+          "worse": 0,
+          "samples": []
+        },
+        "red": {
+          "pixels": 120384,
+          "differing": {
+            "baseline": 562,
+            "candidate": 47
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "b72e40028cf9f9d4a880f9a47f98deddddf0506f4a94bdc5d9b1c10d3d33f61f",
+      "rasterSha256": {
+        "baseline": "211f0d58ed8161073d681e972664eeaf4339f9d69c9c26ded32d4665db320777",
+        "candidate": "211f0d58ed8161073d681e972664eeaf4339f9d69c9c26ded32d4665db320777"
+      },
+      "source": "tests/fixtures/border-phase/borderless.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 65600,
+          "differing": {
+            "baseline": 0,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        },
+        "red": {
+          "pixels": 65600,
+          "differing": {
+            "baseline": 533,
+            "candidate": 533
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "e88cacaa50680fec73b97ebf17e7cffb1f1e0b48c382ed9ba6628c6fb9247926",
+      "rasterSha256": {
+        "baseline": "c7fa090f7b18b50f4892c6736218039ec9033057e1af616002a5ffbb13a834ee",
+        "candidate": "c7fa090f7b18b50f4892c6736218039ec9033057e1af616002a5ffbb13a834ee"
+      },
+      "source": "tests/fixtures/border-phase/borderless.docx",
+      "zoom": 150,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 120384,
+          "differing": {
+            "baseline": 0,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        },
+        "red": {
+          "pixels": 120384,
+          "differing": {
+            "baseline": 254,
+            "candidate": 254
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "0fdfbab5899d4f4016df8dd1a796560269d19480a3cdd70b28bf043c65d88309",
+      "rasterSha256": {
+        "baseline": "1b471fafb69f62ada16679c426d06e260c97618e8baa0fbaa29e6f93b665566d",
+        "candidate": "1fd5a29c59cc14c45506a9511c6746939ef6c9aaecafbd31c55719627f78f608"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 57728,
+          "differing": {
+            "baseline": 4024,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "0fdfbab5899d4f4016df8dd1a796560269d19480a3cdd70b28bf043c65d88309",
+      "rasterSha256": {
+        "baseline": "0e7f1669a303d61a95931317d5be42d8e197f649c2122a171ebb292ccf37c8c4",
+        "candidate": "1fd5a29c59cc14c45506a9511c6746939ef6c9aaecafbd31c55719627f78f608"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 2,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 57728,
+          "differing": {
+            "baseline": 4534,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "0fdfbab5899d4f4016df8dd1a796560269d19480a3cdd70b28bf043c65d88309",
+      "rasterSha256": {
+        "baseline": "1508c0be8e94225647d721d9cefe9a1b520c215a6d5b0a6f6ceb0ffb67db746b",
+        "candidate": "1fd5a29c59cc14c45506a9511c6746939ef6c9aaecafbd31c55719627f78f608"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 3,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 59040,
+          "differing": {
+            "baseline": 4542,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "3d55fca2430b237a1644311fe8686b325fbdee6fa07cabdd5fce3f362eea33c1",
+      "rasterSha256": {
+        "baseline": "79d1ed5fb2e10ab208b3c00337f7b19bfa5014b19672aba0b9979fbb2b890e27",
+        "candidate": "98f1a248cc9caf02c4606e85655e9297eb9830c9670525fae102ff98aa395846"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 4,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 59040,
+          "differing": {
+            "baseline": 3578,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "fc0af90fc9394dcc71353855a1b7ba708e1e8364ae9ae070493db0e105ab0df1",
+      "rasterSha256": {
+        "baseline": "4e5e52aa857244f090fcb455a2d32b17a8ca472b76d8a5ebec85c9dbd76526a1",
+        "candidate": "8055ada5492747378cf29262ff7fa6cc9151ae76812c186b1e1ca88356fadfae"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 5,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 57728,
+          "differing": {
+            "baseline": 1527,
+            "candidate": 513
+          },
+          "worse": 1,
+          "samples": [
+            {
+              "region": 3,
+              "x": 200,
+              "y": 58
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "9206156357cf9ff36f37a74960a722f2072366266cd534c5f05f4ad0f3856629",
+      "rasterSha256": {
+        "baseline": "3a7f5c1e97eacda78a8bc9ee64aa4dd020b0b1724d3b5c96bf795e8ee34c6b9f",
+        "candidate": "18d1e409899498293885618912820ff1497ba4edb84d909044308c6215dd251c"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 6,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 57728,
+          "differing": {
+            "baseline": 1020,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "80c1acb9acc5fc1e2f4e5990bad112b7d5fda88361c11344b158fd7df7d0e03b",
+      "rasterSha256": {
+        "baseline": "ac7a8dd0717c67bac7a584a10073ed28ff836a83d7ca36a32b2d1d19c59b8942",
+        "candidate": "2217751b710b528dd2745ab5507ef10af5834383db64c177648762314edad063"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 7,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 59040,
+          "differing": {
+            "baseline": 1532,
+            "candidate": 512
+          },
+          "worse": 2,
+          "samples": [
+            {
+              "region": 11,
+              "x": 203,
+              "y": 184
+            },
+            {
+              "region": 11,
+              "x": 200,
+              "y": 187
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "83e7a9c7149285a2aef036176571da124bc6da078748285b4594ff4e9461cf6a",
+      "rasterSha256": {
+        "baseline": "6e17392e731c06b53b86ad07853f9b7f8528d19ef353f5713ce8122fa6ee470c",
+        "candidate": "630ea6ca183259d6ac7f2482ca9aac0c11e18126f198e3cae64f3a1209471e40"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 100,
+      "page": 8,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 59040,
+          "differing": {
+            "baseline": 2045,
+            "candidate": 1025
+          },
+          "worse": 4,
+          "samples": [
+            {
+              "region": 7,
+              "x": 203,
+              "y": 120
+            },
+            {
+              "region": 7,
+              "x": 200,
+              "y": 123
+            },
+            {
+              "region": 11,
+              "x": 203,
+              "y": 184
+            },
+            {
+              "region": 11,
+              "x": 200,
+              "y": 187
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "bc68af7fc7f5684bff16795f63b07e0d41c1c3efa4620747a8c6b2bf2050ba5e",
+      "rasterSha256": {
+        "baseline": "a1b10424f834b9129755bd0bf9d2db473f6160498694d909ab6c287f23bb459f",
+        "candidate": "ad47733db272807eb8d6ce3432114f1456447d22d900e9ac2ce52419d49c1c4c"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 1,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 230912,
+          "differing": {
+            "baseline": 8112,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "8c5f761f22914a51463e0ed7fc991d6a137882f62e34cfbe428250c39812503e",
+      "rasterSha256": {
+        "baseline": "2bb5194a6599922c150a29ee11f2f6269d24b6ccd4d8eb1d24daca3d57b19a51",
+        "candidate": "04979d6f482663d3b9108bc1fa672902861ec64f96684b3f6600df5b4f952492"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 2,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 230912,
+          "differing": {
+            "baseline": 8144,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "dc0461ce0b7e87e641e99c5fb425c6d64b5ecfb20b9316b31588d7ed2c0bedc4",
+      "rasterSha256": {
+        "baseline": "78b774d240927ba4baf3bf041aeddcd4230c11b3852cd74a9bd29e392e1b6991",
+        "candidate": "89338312f2c31736022cc7f327de5bae38051d0651361006cb53211551cd9172"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 3,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 233536,
+          "differing": {
+            "baseline": 8176,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "317fe5293ad07f689f3803f3d8a852644cdec731fa0537f4d0de41e55b4523ac",
+      "rasterSha256": {
+        "baseline": "04a9f70558b2eaab6a5c664a0b8ac53f4f63999c3e728ee26436a383e5bc6056",
+        "candidate": "ec8553ad5ede8757742f326042529c4e0c0bd65a6de9a179000600575697b43e"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 4,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 233536,
+          "differing": {
+            "baseline": 8224,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "54d1b13ea41d9e1484c66850603a4a5a07c99e1c0994e74718aca9cf36d801f7",
+      "rasterSha256": {
+        "baseline": "755eac45e000d0dbdc43f5334855db5c209ecf182b0c5e821edb30c5ed4f10c9",
+        "candidate": "03b372f3c51dd02df0c6ae8a111e5f4d9c4915613ecc113d9a894d878a46c6d6"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 5,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 230912,
+          "differing": {
+            "baseline": 6096,
+            "candidate": 2048
+          },
+          "worse": 8,
+          "samples": [
+            {
+              "region": 6,
+              "x": 230,
+              "y": 239
+            },
+            {
+              "region": 6,
+              "x": 224,
+              "y": 245
+            },
+            {
+              "region": 8,
+              "x": 583,
+              "y": 239
+            },
+            {
+              "region": 8,
+              "x": 577,
+              "y": 245
+            },
+            {
+              "region": 14,
+              "x": 230,
+              "y": 496
+            },
+            {
+              "region": 14,
+              "x": 224,
+              "y": 502
+            },
+            {
+              "region": 16,
+              "x": 583,
+              "y": 496
+            },
+            {
+              "region": 16,
+              "x": 577,
+              "y": 502
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "bf6d56f76dbd4ab137de8ad4555cad9b98e550dac73c9bd6e883ad6da4f764e2",
+      "rasterSha256": {
+        "baseline": "53ea172ed29e3bf94adf4bd86c8c6e9c54066d186a30df5de358e22c576a3116",
+        "candidate": "37445573a2196df10a084d091b5b6f157ac71496d0d10d5244da6da965167dca"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 6,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 230912,
+          "differing": {
+            "baseline": 4080,
+            "candidate": 0
+          },
+          "worse": 0,
+          "samples": []
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "bf6d56f76dbd4ab137de8ad4555cad9b98e550dac73c9bd6e883ad6da4f764e2",
+      "rasterSha256": {
+        "baseline": "18093e00927c845ceab69882a82e36c3679c8fd596cbbdf572e2a2ccd2768ff0",
+        "candidate": "02130b9e570e490154c86756dbdfa8712e6f812bfffc9fd1b3ecacf0ee2324a6"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 7,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 233536,
+          "differing": {
+            "baseline": 6128,
+            "candidate": 2048
+          },
+          "worse": 8,
+          "samples": [
+            {
+              "region": 6,
+              "x": 230,
+              "y": 240
+            },
+            {
+              "region": 6,
+              "x": 224,
+              "y": 246
+            },
+            {
+              "region": 8,
+              "x": 583,
+              "y": 240
+            },
+            {
+              "region": 8,
+              "x": 577,
+              "y": 246
+            },
+            {
+              "region": 14,
+              "x": 230,
+              "y": 497
+            },
+            {
+              "region": 14,
+              "x": 224,
+              "y": 503
+            },
+            {
+              "region": 16,
+              "x": 583,
+              "y": 497
+            },
+            {
+              "region": 16,
+              "x": 577,
+              "y": 503
+            }
+          ]
+        }
+      }
+    },
+    {
+      "nativeCropSha256": "806cd89d2f5518775a5e20ed1273fe10bfd2e2fdf0b35d5a77e27456869c035e",
+      "rasterSha256": {
+        "baseline": "d4dabd4f08a452205ba001f1afc287d45846d2a71f3d80301f630a98a4ece1e1",
+        "candidate": "6e47f860a184a44bfcd9f68274cd4a5c2f6219bf5fd841127c5b07a6a47e031f"
+      },
+      "source": "tests/fixtures/border-axis-phase/control.docx",
+      "zoom": 200,
+      "page": 8,
+      "regions": 16,
+      "metrics": {
+        "black": {
+          "pixels": 233536,
+          "differing": {
+            "baseline": 5136,
+            "candidate": 1024
+          },
+          "worse": 4,
+          "samples": [
+            {
+              "region": 14,
+              "x": 230,
+              "y": 498
+            },
+            {
+              "region": 14,
+              "x": 224,
+              "y": 504
+            },
+            {
+              "region": 16,
+              "x": 583,
+              "y": 498
+            },
+            {
+              "region": 16,
+              "x": 577,
+              "y": 504
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "blackWorse": 69,
+  "redWorse": 2
+}

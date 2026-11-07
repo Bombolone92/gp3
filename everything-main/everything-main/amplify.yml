@@ -1,0 +1,879 @@
+# AWS Amplify Hosting build settings. Each folder in src/ is deployed as its
+# own Amplify app, connected to this repository as a monorepo app whose root
+# is that folder. Amplify picks the entry below whose appRoot matches the app's
+# AMPLIFY_MONOREPO_APP_ROOT environment variable, runs its commands inside
+# that folder, and publishes its dist/ folder.
+version: 1
+applications:
+  - appRoot: src/whiteboard
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            # package.json requires Node >= 22.12; install the latest 22.x.
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/documents
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/pdf
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/presentation
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/spreadsheet
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/teamchat
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/records
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/sudoku
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/email
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/meetings
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/chess
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/backgammon
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/solitaire
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/checkers
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/video-studio
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/vector-studio
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/3d
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/accounting
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/assets
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/audio-studio
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/calendar
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/cap-table
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/contacts
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/contracts
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/crm
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/help-desk
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            # Also bundles the Puter worker into public/worker/.
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/expense
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/childcare
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/field-service
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/fleet
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/hiring
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/inventory
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/invoicing
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/legal
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/notes
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/photo-studio
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/pos
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/projects
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/property-management
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/shifts
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/signatures
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/survey
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/tasks
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/time-tracking
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/wiki
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/circuits
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            # The WebAssembly kernel is committed prebuilt (src/kernel/kernel.wasm),
+            # so the build needs no Rust toolchain.
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/api-client
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/cad
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            # Also bundles the DXF worker into its own hashed asset.
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/parametric
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/music-studio
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+  - appRoot: src/building-design
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm install 22
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*

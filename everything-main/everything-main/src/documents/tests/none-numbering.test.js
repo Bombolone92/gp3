@@ -1,0 +1,34 @@
+import {beforeAll,afterAll,it,expect} from 'vitest';
+import {JSDOM} from 'jsdom';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {unzipSync} from 'fflate';
+import {DocxPackage} from '../src/engine/docx.js';
+import {TextDocument} from '../src/engine/model.js';
+import {listMarkers} from '../src/engine/numbering.js';
+import { expectBodyEditParts } from './helpers/expect-body-edit-parts.js';
+const root='tests/fixtures/none-numbering/',source=readFileSync(root+'control.docx'),native=JSON.parse(readFileSync(root+'reference.json'));
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>dom.window.close());
+const model=p=>new TextDocument(p.paragraphs,p.pageSettings,p.numbering,p.styles,p.tables,p.assets);
+const markers=d=>listMarkers(d.paragraphs,d.numbering).filter(Boolean).map(m=>m.text);
+const save=async(p,d)=>new Uint8Array(await p.export(d.paragraphs,d.pageSettings,d.numbering,d.styles,d.tables,d.assets).arrayBuffer());
+const exact=(bytes,parts,edited=false)=>{const out=unzipSync(bytes);expect(Object.keys(out).sort()).toEqual(Object.keys(parts).sort());if(edited)return expectBodyEditParts(out,parts);for(const[n,b]of Object.entries(parts))expect(Buffer.from(out[n]).equals(Buffer.from(b)),n).toBe(true);};
+it('matches all 58 native labels, including literal none, legal and deeper references',async()=>{
+ expect(createHash('sha256').update(source).digest('hex')).toBe(native.sourceSha256);
+ expect(createHash('sha256').update(readFileSync(root+'native.pdf')).digest('hex')).toBe(native.pdfSha256);
+ const d=model(await DocxPackage.open(source));expect(markers(d)).toEqual(native.rows.map(r=>r.marker));
+});
+it.each(['text','split','toggle'])('preserves the package and marker semantics through %s, reopen and exact undo',async operation=>{
+ const p=await DocxPackage.open(source),d=model(p),parts=unzipSync(source);exact(await save(p,d),parts);
+ d.select(d.text.indexOf('C01'));
+ if(operation==='text')d.replace('Added ');
+ if(operation==='split')d.replace('\n');
+ if(operation==='toggle')d.toggleList('number');
+ const bytes=await save(p,d);if(operation!=='toggle')exact(bytes,parts,true);
+ const again=model(await DocxPackage.open(bytes));expect(again.text).toBe(d.text);expect(markers(again)).toEqual(markers(d));
+ if(operation==='text')expect(markers(d)).toEqual(native.rows.map(r=>r.marker));
+ if(operation==='split')expect(markers(d).filter(m=>m==='>')).toHaveLength(2);
+ d.undo();exact(await save(p,d),parts);
+});

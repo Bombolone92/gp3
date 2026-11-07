@@ -1,0 +1,76 @@
+version: 0.17-0
+
+mqtt:
+  enabled: true
+  host: core-mosquitto.local.hass.io
+  port: 1883
+  user: "{FRIGATE_MQTT_USER}"
+  password: "{FRIGATE_MQTT_PASSWORD}"
+
+database:
+  path: /config/frigate.db
+
+ffmpeg:
+  hwaccel_args: []
+
+detectors:
+  cpu:
+    type: cpu
+
+go2rtc:
+  streams:
+    CAMERA_SLUG:
+      - "rtsp://RTSP_USER:RTSP_PASSWORD@CAMERA_IP:8001/0/av0"
+    CAMERA_SLUG_sub:
+      - "rtsp://RTSP_USER:RTSP_PASSWORD@CAMERA_IP:8001/0/av1"
+
+record:
+  enabled: true
+  continuous:
+    days: 1
+  motion:
+    days: 7
+  alerts:
+    pre_capture: 5
+    post_capture: 5
+    retain:
+      days: 30
+      mode: motion
+  detections:
+    pre_capture: 5
+    post_capture: 5
+    retain:
+      days: 30
+      mode: motion
+
+snapshots:
+  enabled: true
+  retain:
+    default: 30
+
+cameras:
+  CAMERA_SLUG:
+    ffmpeg:
+      retry_interval: 10
+      output_args:
+        record: preset-record-generic-audio-aac
+      inputs:
+        - path: rtsp://127.0.0.1:8554/CAMERA_SLUG
+          input_args: preset-rtsp-restream
+          roles: [record, audio]
+        - path: rtsp://127.0.0.1:8554/CAMERA_SLUG_sub
+          input_args: preset-rtsp-restream
+          roles: [detect]
+    detect:
+      enabled: true
+      width: SUB_WIDTH
+      height: SUB_HEIGHT
+      fps: 5
+    objects:
+      track: [person]
+    audio:
+      enabled: true
+    live:
+      streams:
+        Main Stream: CAMERA_SLUG
+        Sub Stream: CAMERA_SLUG_sub

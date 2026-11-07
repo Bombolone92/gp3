@@ -1,0 +1,33 @@
+{
+  "commands": [
+    {
+      "command": "backspace",
+      "paragraphs": [
+        "Alpha first\r",
+        "Bravo boundar\f",
+        "Table middle\r\u0007",
+        "\r\u0007",
+        "Delta boundary\f",
+        "Echo final\r"
+      ],
+      "sections": 3,
+      "changed": true,
+      "caret": 25
+    },
+    {
+      "command": "delete",
+      "paragraphs": [
+        "Alpha first\r",
+        "Bravo boundaryTable middle\r\u0007",
+        "\r\u0007",
+        "Delta boundary\f",
+        "Echo final\r"
+      ],
+      "sections": 2,
+      "changed": true,
+      "caret": 26
+    }
+  ],
+  "referenceBuild": "16.0.20430",
+  "method": "Built-in Selection.Delete and Selection.TypeBackspace on an already-open visible owned independent control; exact full-path, text, table and section-count guards, then native undo. No font programs inspected."
+}

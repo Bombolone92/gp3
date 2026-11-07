@@ -1,0 +1,94 @@
+--- a/src/engine/svg-group-opacity.js
++++ b/src/engine/svg-group-opacity.js
+@@ -31,15 +31,18 @@
+ // Presentation-attribute inherit is honored separately by the native reference.
+ export function svgGroupOpacities(root,paints=false) {
+   const sourceRules=stylesheetRules(root);
+-  const properties=['opacity',...(paints?['fill-opacity']:[])];
+-  const rules=new Map(properties.map(p=>[p,sourceRules.map(r=>({...r,...declaration(r.declarations,false,p)})).filter(r=>r.opacity!==undefined||r.ignored)]));
++  const rules=new Map();
++  const rulesFor=property=>{
++    if(!rules.has(property))rules.set(property,sourceRules.map(r=>({...r,...declaration(r.declarations,false,property)})).filter(r=>r.opacity!==undefined||r.ignored));
++    return rules.get(property);
++  };
+   const result=new Map(),fills=new Map(),paintOpacities=new Map(),overrides=new Set();
+   function resolve(node,property='opacity') {
+     const values=property==='opacity'?result:fills;
+     if(values.has(node))return values.get(node);
+     let value=node.getAttribute(property);
+     let override=false;
+-    for(const rule of rules.get(property))if(node.matches(rule.selector)) {value=rule.opacity??value;override||=rule.ignored;}
++    for(const rule of rulesFor(property))if(node.matches(rule.selector)) {value=rule.opacity??value;override||=rule.ignored;}
+     const style=node.getAttribute('style');
+     if(style) {const inline=declaration(style,true,property);value=inline.opacity??value;override||=inline.ignored;}
+     let opacity;
+@@ -51,8 +54,12 @@
+     return values.get(node);
+   }
+   for(const node of root.querySelectorAll('g'))resolve(node);
++  const paintOpacity=node=>{
++    if(!paintOpacities.has(node))paintOpacities.set(node,svgOpacityFloat(resolve(node))*svgOpacityFloat(resolve(node,'fill-opacity')));
++    return paintOpacities.get(node);
++  };
+   // Capture before preview CSSOM writes, but only when a translucent group can
+   // consume paint values. Ordinary vector-only SVGs need no paint traversal.
+-  if(paints&&[...result].some(([node,value])=>node.localName==='g'&&value<1))for(const node of root.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon'))paintOpacities.set(node,svgOpacityFloat(resolve(node))*svgOpacityFloat(resolve(node,'fill-opacity')));
+-  return {opacities:result,overrides,paintOpacities};
++  if(paints&&[...result].some(([node,value])=>node.localName==='g'&&value<1))for(const node of root.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon'))paintOpacity(node);
++  return {opacities:result,overrides,paintOpacities,paintOpacity};
+ }
+--- a/src/engine/svg-native-opacity.js
++++ b/src/engine/svg-native-opacity.js
+@@ -1,8 +1,9 @@
+ // The native vector SVG export combines paint/object alpha, then truncates to a
+ // byte. Translucent ancestor groups use a different native raster path.
+ // References: svg-opacity-values and svg-opacity-composition native captures.
++import {svgOpacityFloat} from './svg-group-opacity.js';
+ export function wordSvgAlpha(opacity, paintOpacity, colorAlpha = 1) {
+-  return Math.floor(Math.max(0, Math.min(1, opacity * paintOpacity * colorAlpha)) * 255 + 1e-10) / 255;
++  return Math.floor(svgOpacityFloat(opacity)*svgOpacityFloat(paintOpacity)*svgOpacityFloat(colorAlpha)*255) / 255;
+ }
+ 
+ function solidPaint(value) {
+@@ -11,7 +12,7 @@
+   return match ? { color: `rgb(${match[1]}, ${match[2]}, ${match[3]})`, alpha: Number(match[4] ?? 1) } : null;
+ }
+ 
+-export function wordSvgOpacities(root) {
++export function wordSvgOpacities(root,paintOpacity) {
+   const snapshots = new Map();
+   // Snapshot the cascade before writing overrides: fill/stroke opacity inherit.
+   for (const node of [root, ...root.querySelectorAll('*')]) {
+@@ -30,7 +31,11 @@
+       if (parent === root) break;
+     }
+     if (rasterGroup) continue;
+-    const fill = wordSvgAlpha(s.opacity, s.fillOpacity, s.fill.alpha);
++    const specified=paintOpacity?.(node);
++    if(s.opacity===1&&s.fillOpacity===1&&s.fill.alpha===1&&(specified===undefined||specified===1))continue;
++    const fill = paintOpacity
++      ? Math.floor(specified*svgOpacityFloat(s.fill.alpha)*255)/255
++      : wordSvgAlpha(s.opacity, s.fillOpacity, s.fill.alpha);
+     if (s.opacity === 1 && fill === s.fillOpacity && s.fill.alpha === 1) continue;
+     node.style.opacity = '1';
+     node.style.fill = s.fill.color;
+--- a/src/engine/svg-native-strokes.js
++++ b/src/engine/svg-native-strokes.js
+@@ -30,7 +30,7 @@
+   shadow.append(svg); document.body.append(host);
+   try {
+     materializeSvgUses(svg);
+-    const {opacities:groupOpacities,overrides,paintOpacities}=svgGroupOpacities(svg,rasterGroups);
++    const {opacities:groupOpacities,overrides,paintOpacities,paintOpacity}=svgGroupOpacities(svg,rasterGroups);
+     // Freeze the specified group cascade only on the disposable preview.
+     // Keep the numeric map: CSSOM serialization can erase decimal boundaries.
+     // Normal numeric declarations need no CSSOM reads or writes here.
+@@ -80,7 +80,7 @@
+     for (const mask of svg.querySelectorAll('mask')) {
+       if (getComputedStyle(mask).maskType === 'alpha') mask.style.maskType = 'luminance';
+     }
+-    wordSvgOpacities(svg);
++    wordSvgOpacities(svg,paintOpacity);
+     for(const node of svg.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon')) {
+       const style=getComputedStyle(node);
+       if(style.stroke==='none' || style.vectorEffect!=='none') continue;

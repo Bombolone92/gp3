@@ -1,0 +1,39 @@
+The Story of Chinese Characters (汉字的故事) — Chalkboard (Lemo-Opuscar) · LemoLab × Claude Opus 5.5
+
+IMAGES, FOOTAGE, MODELS
+- None. The classroom wall, boards, frame, tray, clock, chalk and wet streak are drawn in code (js/stage.js, js/chalk.js,
+  js/app.js). No photographs, no scans, no AI-generated images, no 3D models.
+
+CHALK WRITING
+- Every Chinese character written on the board is our own stroke data (js/hz.js): a centre line and a stroke type per
+  stroke, in GF 0023-2020 stroke order, drawn by the chalk engine. While writing the data, proportions were checked by eye
+  against LXGW WenKai set behind it (check page: index.html?lab=hz); no outline was copied or traced.
+- The oracle-bone, bronze and seal forms of 射 are redrawn by hand as chalk lines (js/ancient.js); no ancient-script font.
+  What they were drawn after is in FACTS.md.
+
+FONTS (SIL Open Font License 1.1; licence texts in fonts/; not in git, build.sh downloads them)
+- EMS Delight (teacher's English on the board) and EMS Casual Hand (the child's English), single-stroke SVG fonts:
+  derivatives of Delius (Natalia Raices) and Covered By Your Grace (Kimberly Geswein); SVG conversion by Sheldon B.
+  Michaels and Windell H. Oskay, gitlab.com/oskay/svg-fonts. fonts/OFL-EMS.txt
+- LXGW WenKai v1.530 (© LXGW, github.com/lxgw/LxgwWenKai): the subtitle face, subset by tools/subset.py to the characters
+  the subtitles use (fonts/wenkai-sub.woff2); the full font is used only on the check page. fonts/OFL-LXGWWenKai.txt
+
+VOICE
+- Chinese: Edge TTS (Microsoft), zh-CN-XiaoxiaoNeural, +15 %. English version: en-US-AvaNeural, +10 %.
+  Through the library's core/tts/tts_zh.py; checked with core/tts/asr_check.py (faster-whisper, MIT; Whisper models, MIT).
+
+SOUND
+- Chalk recordings from Wikimedia Commons, cut into grains by tools/foley_lib.py (foley/lib):
+  - "chalk-on-chalkboard" by fattirewhitey (freesound.org/people/fattirewhitey/sounds/264944; Commons file
+    "264944 chalk-on-chalkboard.wav") — CC0 1.0.
+  - "Chalkboard-writing.ogg" by Tomproberts (Commons) — CC0 1.0.
+  - "WWS Chalk.ogg" by Work With Sounds / La Fonderie, provided by Work With Sounds in cooperation with Wikimedia
+    Sverige (Commons) — CC BY 4.0 (creativecommons.org/licenses/by/4.0). Cut into grains, filtered and layered.
+- Music samples (CC0): VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library
+  (Versilian Studios) — marimba, pizzicato contrabass, vibraphone. Downloaded with sh tools/fetch.sh instruments
+  vsco2ce | vcsl.
+- Guqin: physical model (core/audio/pluck.py). Panel roll, felt wipe, corridor bell, room tone: synthesised in audio.py.
+
+FACTS
+- See FACTS.md: Shuowen Jiezi and Shuowen Xinfu as quoted on Dong Chinese; historical forms after the Academia Sinica
+  character database as shown there.

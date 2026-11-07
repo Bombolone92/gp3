@@ -1,0 +1,142 @@
+/* Charts: Insert ▸ Charts galleries, Chart Design and Format tabs, chart element selection and the Format pane. */
+
+.chart-gallery-grid { display: grid; gap: 4px; padding: 2px 8px 6px; }
+.chart-gallery-tile {
+  display: inline-flex; align-items: center; justify-content: center; padding: 4px; min-width: 44px; min-height: 44px;
+  border: 1px solid transparent; border-radius: 4px; background: none; color: var(--ink); cursor: pointer;
+}
+.chart-gallery-tile:hover, .chart-gallery-tile:focus-visible { border-color: var(--accent); background: var(--accent-soft, var(--surface-3)); outline: none; }
+.chart-gallery-tile[aria-checked="true"] { border-color: var(--accent); }
+.chart-gallery-picture { display: block; line-height: 0; }
+.chart-gallery-large .chart-gallery-tile { padding: 2px; }
+.chart-gallery-large .chart-gallery-picture { width: 100px; height: 66px; border: 1px solid var(--hairline); background: #fff; }
+.chart-gallery-large .chart-gallery-picture svg { width: 100px; height: 66px; }
+.chart-palettes { display: flex; flex-direction: column; padding: 2px 8px 6px; gap: 2px; }
+.chart-palette-row { display: flex; gap: 2px; padding: 4px; border: 1px solid transparent; border-radius: 4px; background: none; cursor: pointer; }
+.chart-palette-row:hover, .chart-palette-row:focus-visible { border-color: var(--accent); outline: none; }
+.chart-palette-chip { width: 22px; height: 16px; }
+
+.ribbon-tab.ribbon-chart-tab { color: var(--accent); }
+.chart-element-picker-wrap { display: flex; align-items: center; padding: 2px 4px; }
+.chart-element-picker { width: 190px; height: 26px; font-size: 12px; padding-left: 8px; padding-right: 26px; background-position: right 6px center; background-size: 14px 14px; }
+.chart-size-fields { display: flex; flex-direction: column; gap: 4px; padding: 2px 4px; }
+.chart-size-field { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-2); }
+.chart-size-label { min-width: 40px; }
+.chart-size-input { width: 64px; height: 24px; font-size: 12px; padding: 0 4px; }
+
+/* A selected element inside a selected chart: handles on each mark, or a frame with corners. */
+.chart-el-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.chart-el-frame { position: absolute; box-sizing: border-box; border: 1px solid var(--accent); }
+.chart-el-corner, .chart-el-handle { position: absolute; width: 6px; height: 6px; box-sizing: border-box; background: var(--surface); border: 1px solid var(--accent); }
+.chart-el-corner.nw { left: -3px; top: -3px; } .chart-el-corner.ne { right: -3px; top: -3px; }
+.chart-el-corner.sw { left: -3px; bottom: -3px; } .chart-el-corner.se { right: -3px; bottom: -3px; }
+/* A trendline label's corners resize it, with the cursor and "Resize" hint of the chart's own corner. */
+.chart-el-frame.resizable .chart-el-corner { pointer-events: auto; touch-action: none; }
+.chart-el-frame.resizable .chart-el-corner::before { content: ""; position: absolute; inset: -5px; }
+.chart-el-frame.resizable .chart-el-corner.nw, .chart-el-frame.resizable .chart-el-corner.se { cursor: nwse-resize; }
+.chart-el-frame.resizable .chart-el-corner.ne, .chart-el-frame.resizable .chart-el-corner.sw { cursor: nesw-resize; }
+/* A trendline label in the selected chart can be dragged where it reads best. */
+.chart-box.selected .chart-trendline-label { cursor: move; }
+.chart-title-editor {
+  position: absolute; z-index: 3; height: 28px; box-sizing: border-box; padding: 0 6px; text-align: center;
+  font: 18px Calibri, Carlito, Arial, sans-serif; color: #404040; background: #fff; border: 1px solid var(--accent); outline: none;
+}
+.chart-box.chart-shadow:not(.selected) { box-shadow: 2px 3px 6px rgba(0, 0, 0, .35); }
+
+/* The Format pane, docked at the right of the sheet. */
+.chart-format-pane {
+  flex: none; width: 300px; max-width: 45vw; min-height: 0; display: flex; flex-direction: column;
+  border-left: 1px solid var(--hairline-strong); background: var(--surface); color: var(--ink);
+}
+.chart-format-pane[hidden] { display: none; }
+.chart-pane-head { display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 14px; border-bottom: 1px solid var(--hairline); }
+.chart-pane-title { flex: 1; margin: 0; font-size: 15px; font-weight: 600; }
+.chart-pane-body { flex: 1; min-height: 0; overflow: auto; padding: 4px 0 12px; }
+.chart-pane-section { border-bottom: 1px solid var(--hairline); }
+.chart-pane-section > summary { padding: 8px 14px; font-weight: 600; font-size: 13px; cursor: pointer; }
+.chart-pane-fields { display: flex; flex-direction: column; gap: 6px; padding: 0 14px 10px 24px; font-size: 12.5px; }
+.chart-pane-sub { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.chart-pane-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.chart-pane-field > span { color: var(--ink-2); }
+.chart-pane-field .input { width: 140px; height: 26px; font-size: 12px; }
+.chart-pane-field select.select, select.chart-element-picker { padding-top: 0; padding-bottom: 0; line-height: 24px; }
+.chart-pane-number { width: 90px !important; }
+.chart-pane-color { width: 44px; height: 24px; padding: 0; border: 1px solid var(--hairline-strong); background: none; }
+.chart-pane-axis { padding: 6px 14px 8px; border-bottom: 1px solid var(--hairline); }
+.chart-pane-note { padding: 10px 14px; color: var(--ink-2); font-size: 12.5px; }
+@media (max-width: 640px) {
+  .chart-format-pane { position: fixed; inset: auto 0 0 0; width: auto; max-width: none; max-height: 60vh; z-index: 44; border-left: 0; border-top: 1px solid var(--hairline-strong); }
+}
+
+/* Insert Chart / Change Chart Type, Select Data Source and Move Chart. */
+.chart-type-dialog { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.chart-type-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--hairline); }
+.chart-type-tab { padding: 6px 12px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--ink-2); font: inherit; cursor: pointer; }
+.chart-type-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.chart-type-body { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 12px; min-height: 300px; }
+.chart-type-list { display: flex; flex-direction: column; gap: 2px; overflow: auto; max-height: 420px; }
+.chart-type-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid transparent; border-radius: 4px; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.chart-type-item[aria-selected="true"] { background: var(--accent-soft, var(--surface-3)); border-color: var(--accent); }
+.chart-type-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.chart-subtype-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.chart-subtype-row .chart-gallery-tile[aria-checked="true"] { background: var(--accent-soft, var(--surface-3)); }
+.chart-type-name { margin: 0; font-weight: 600; }
+.chart-type-preview { border: 1px solid var(--hairline); background: #fff; line-height: 0; overflow: hidden; }
+.chart-type-preview svg { width: 100%; height: auto; max-height: 300px; }
+.chart-type-recommended { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+.select-data-form { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.select-data-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.select-data-box { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--hairline); border-radius: 6px; padding: 8px; }
+.select-data-tools { display: flex; flex-wrap: wrap; gap: 4px; }
+.select-data-list { min-height: 140px; max-height: 220px; overflow: auto; border: 1px solid var(--hairline); border-radius: 4px; padding: 2px; }
+.select-data-row { display: flex; align-items: center; gap: 6px; width: 100%; padding: 4px 6px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.select-data-row[aria-selected="true"] { background: var(--accent-soft, var(--surface-3)); }
+/* Cancel and OK keep together at the right; on a phone they wrap under Hidden and Empty Cells. */
+.select-data-foot { flex-wrap: wrap; row-gap: 8px; }
+.select-data-actions { margin-left: auto; }
+.chart-move-form { display: flex; flex-direction: column; gap: 10px; }
+.chart-move-row { display: flex; align-items: center; gap: 10px; }
+.chart-move-row .check { min-width: 110px; }
+
+/* ---- Picture Format: preview galleries, the crop dialog and picture corrections ---- */
+.picture-gallery .picture-tile { padding: 4px; }
+.picture-tile-preview { display: flex; align-items: center; justify-content: center; width: 66px; height: 66px; }
+.picture-thumb { position: relative; display: block; box-sizing: border-box; line-height: 0; }
+.picture-thumb > img, .picture-thumb > svg { width: 100%; height: 100%; display: block; }
+/* A checked ground shows how much a transparent picture lets through. */
+.picture-checker { display: inline-flex; line-height: 0;
+  background: repeating-conic-gradient(#d9d9d9 0% 25%, #ffffff 0% 50%) 0 0 / 10px 10px; }
+.crop-dialog { display: flex; flex-direction: column; gap: 10px; }
+.crop-toolbar { align-items: center; gap: 12px; }
+.crop-aspect-field { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.crop-stage { position: relative; align-self: center; margin: 12px; flex: none; user-select: none; touch-action: none;
+  background: repeating-conic-gradient(#d9d9d9 0% 25%, #ffffff 0% 50%) 0 0 / 12px 12px; }
+.crop-picture { position: absolute; inset: 0; line-height: 0; }
+.crop-picture > img, .crop-picture > svg { width: 100%; height: 100%; display: block; }
+.crop-shade { position: absolute; inset: 0; background: rgba(20, 20, 20, .55); pointer-events: none; }
+.crop-frame { position: absolute; box-sizing: border-box; border: 1px solid #ffffff; outline: 1px solid rgba(0, 0, 0, .6); }
+.crop-move { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; background: transparent; border: 0; cursor: move; }
+.crop-move:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+/* The handles: black brackets at the corners, bars at the sides, each with a white edge to show on any picture. */
+.crop-handle { position: absolute; padding: 0; background: #111111; border: 1.5px solid #ffffff; box-sizing: border-box; border-radius: 2px; }
+.crop-handle:focus-visible { background: var(--accent); outline: none; }
+.crop-nw, .crop-ne, .crop-se, .crop-sw { width: 14px; height: 14px; }
+.crop-nw { left: -7px; top: -7px; cursor: nwse-resize; }
+.crop-ne { right: -7px; top: -7px; cursor: nesw-resize; }
+.crop-se { right: -7px; bottom: -7px; cursor: nwse-resize; }
+.crop-sw { left: -7px; bottom: -7px; cursor: nesw-resize; }
+.crop-n, .crop-s { left: calc(50% - 10px); width: 20px; height: 7px; cursor: ns-resize; }
+.crop-n { top: -4px; }
+.crop-s { bottom: -4px; }
+.crop-e, .crop-w { top: calc(50% - 10px); width: 7px; height: 20px; cursor: ew-resize; }
+.crop-e { right: -4px; }
+.crop-w { left: -4px; }
+.crop-readout { margin: 0; text-align: center; }
+.picture-corrections-stage { display: flex; justify-content: center; margin-bottom: 12px; }
+.picture-corrections-preview { line-height: 0; }
+.picture-corrections-preview > img, .picture-corrections-preview > svg { width: 100%; height: 100%; display: block; }
+.picture-corrections { display: grid; gap: 8px; margin-bottom: 12px; }
+.picture-correction-row { display: grid; grid-template-columns: 96px 1fr 64px auto; align-items: center; gap: 10px; }
+.picture-correction-number { width: 64px; }
+.picture-lock { gap: 6px; }
+.picture-correction-row input[type="range"] { accent-color: var(--accent); width: 100%; }

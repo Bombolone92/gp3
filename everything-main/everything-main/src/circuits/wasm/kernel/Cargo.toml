@@ -1,0 +1,21 @@
+[package]
+name = "kernel"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Geometry kernel for Circuits: copper pours, design rule checks and autorouting."
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+path = "src/lib.rs"
+
+[dependencies]
+i_overlay = { version = "=9.0.1", default-features = false }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

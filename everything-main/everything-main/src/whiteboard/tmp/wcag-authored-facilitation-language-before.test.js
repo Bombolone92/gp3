@@ -1,0 +1,6627 @@
+import { objectNameHTML } from "../src/accessibility/object-content.js";
+import test from "node:test";
+import assert from "node:assert/strict";
+import { JSDOM } from "jsdom";
+import { IDBFactory } from "fake-indexeddb";
+import { appBundle } from "./wcag-no-app-bundle.mjs";
+import axe from "axe-core";
+import { createCanvas } from "../tests/canvas.js";
+import { board as newBoard, item, validateBoard } from "../src/model.js";
+import { SharedDocument, rebase } from "../src/collaboration/document.js";
+import { setObjectHeight } from "../src/geometry.js";
+import { encode, hash } from "../src/collaboration/protocol.js";
+import {
+  answerKey,
+  adoptWorkshop,
+  concealment,
+  contributionKey,
+  historyKey,
+  messageTarget,
+  objectTarget,
+  participantKey,
+  pollTally,
+  portableWorkshop,
+  reactionKey,
+  resultRecord,
+  validateWorkshop,
+  validateWorkshopChanges,
+  VOTE_GRACE,
+  voteKey,
+  voteTally,
+  workshopEvents,
+} from "../src/facilitation/model.js";
+import {
+  engagement,
+  engagementCSV,
+  resultsCSV,
+  resultsJSON,
+} from "../src/facilitation/results.js";
+import { createFacilitationUI } from "../src/facilitation/ui.js";
+import { counted } from "../src/facilitation/strings.js";
+import { commentThread } from "../src/comments.js";
+import { environment, owner, editor, viewer } from "../tests/collaboration-helpers.js";
+import { createPeerHub } from "../tests/peer-hub.js";
+import { language, setLanguage, t } from "../src/i18n.js";
+
+const guest = {
+  uuid: "44444444-4444-4444-8444-444444444444",
+  username: "Dee",
+};
+const vote = (extra = {}) => ({
+  id: "vote1",
+  title: "Priorities",
+  votes: 2,
+  multiple: false,
+  anonymous: false,
+  hidden: true,
+  targets: ["a", "b", "c"],
+  state: "active",
+  revealed: false,
+  startedAt: 1000,
+  endsAt: 0,
+  ...extra,
+});
+const ballot = (user, ids, voteId = "vote1", named = true) => [
+  voteKey(voteId, user.uuid),
+  {
+    vote: voteId,
+    by: user.uuid,
+    ids,
+    at: 2000,
+    ...(named ? { name: user.username } : {}),
+  },
+];
+const notes = () => [
+  item("note", 0, 0, { id: "a", text: "Ship faster" }),
+  item("note", 250, 0, { id: "b", text: "=SUM(1)" }),
+  item("note", 500, 0, { id: "c", text: "Better docs" }),
+];
+
+test("workshop registers validate strictly and boards without them load unchanged", () => {
+  const plain = newBoard("Plain");
+  plain.items = notes();
+  assert.equal(validateBoard(structuredClone(plain)).workshop, undefined);
+  const doc = new SharedDocument();
+  doc.commit(plain);
+  assert.equal("workshop" in doc.snapshot(), false, "No empty workshop key");
+  doc.destroy();
+  const workshop = Object.fromEntries([
+    ["vote", vote()],
+    ballot(editor, ["a", "b"]),
+    [
+      reactionKey(editor.uuid, objectTarget("a")),
+      {
+        by: editor.uuid,
+        target: ["o", "a"],
+        types: ["thumbs", "idea"],
+        at: 1,
+        name: "Bob",
+      },
+    ],
+    [contributionKey("a"), { by: editor.uuid, at: 1, round: "r1" }],
+    [
+      participantKey(editor.uuid),
+      { by: editor.uuid, name: "Bob", role: "editor", first: 1, last: 2 },
+    ],
+    [
+      "settings",
+      {
+        lock: "contribute",
+        private: "r1",
+        anonymous: false,
+        stage: { frames: ["f"], shown: 0 },
+      },
+    ],
+    ["agenda", { steps: [{ frame: "f", minutes: 5, text: "Brainstorm" }] }],
+  ]);
+  validateWorkshop(workshop);
+  validateBoard({ ...plain, workshop });
+  const invalid = [
+    { vote: { ...vote(), votes: 0 } },
+    { vote: { ...vote(), targets: [] } },
+    { unknown: true },
+    // The key must name the ballot's own voter.
+    { [voteKey("vote1", owner.uuid)]: ballot(editor, ["a"])[1] },
+    {
+      [reactionKey(editor.uuid, objectTarget("a"))]: {
+        by: editor.uuid,
+        target: ["o", "a"],
+        types: ["unknown"],
+        at: 1,
+      },
+    },
+    {
+      [historyKey("h1")]: {
+        kind: "vote",
+        id: "h1",
+        title: "Anonymous",
+        startedAt: 1,
+        endedAt: 2,
+        anonymous: true,
+        participants: 1,
+        results: [{ id: "a", label: "A", count: 1, voters: ["Bob"] }],
+      },
+    },
+    {
+      [contributionKey("a")]: {
+        by: editor.uuid,
+        at: 1,
+        anonymous: true,
+        name: "Bob",
+      },
+    },
+    { settings: { lock: "sealed" } },
+  ];
+  for (const value of invalid)
+    assert.throws(() => validateWorkshop(value), /workshop/i);
+});
+
+test("the shared document keeps workshop state outside undo and merges concurrent ballots", () => {
+  const start = newBoard("Shared");
+  start.items = notes();
+  start.workshop = { vote: vote() };
+  const a = new SharedDocument(),
+    b = new SharedDocument();
+  a.commit(start);
+  b.apply(a.update());
+  const before = a.snapshot();
+  // Two participants vote at the same time from their own queued boards.
+  const mine = structuredClone(before),
+    theirs = structuredClone(before);
+  mine.workshop = Object.fromEntries([
+    ...Object.entries(mine.workshop),
+    ballot(owner, ["a"]),
+  ]);
+  theirs.workshop = Object.fromEntries([
+    ...Object.entries(theirs.workshop),
+    ballot(editor, ["b", "c"]),
+  ]);
+  a.commit(rebase(mine, before, a.snapshot()));
+  b.commit(rebase(theirs, before, b.snapshot()));
+  a.apply(b.update(a.vector()));
+  b.apply(a.update(b.vector()));
+  assert.deepEqual(a.snapshot().workshop, b.snapshot().workshop);
+  assert.deepEqual(
+    voteTally(a.snapshot(), a.snapshot().workshop.vote).map((r) => [
+      r.id,
+      r.count,
+    ]),
+    [
+      ["a", 1],
+      ["b", 1],
+      ["c", 1],
+    ],
+  );
+  // Drawing undo never removes a vote.
+  const moved = a.snapshot();
+  moved.items[0].x = 99;
+  a.commit(moved);
+  a.undo.undo();
+  assert.equal(a.snapshot().items[0].x, 0);
+  assert.equal(
+    Object.keys(a.snapshot().workshop).filter((k) => k.startsWith("v:")).length,
+    2,
+  );
+  a.validate();
+  a.workshop.set("vote", null);
+  assert.throws(() => a.validate(), /workshop/);
+  a.destroy();
+  b.destroy();
+});
+
+test("imports and duplicates drop live sessions but keep agenda, results, and reactions", () => {
+  const reaction = {
+    by: "device:x",
+    target: ["o", "a"],
+    types: ["heart"],
+    at: 1,
+    name: "Local author",
+  };
+  const workshop = {
+    vote: vote(),
+    settings: { private: "r1", lock: "frozen" },
+    session: { id: "s1", state: "active", startedAt: 1 },
+    run: { id: "r", state: "running", step: 0, startedAt: 1, stepAt: 1 },
+    agenda: { steps: [{ frame: "f", minutes: 3 }] },
+    [historyKey("old")]: {
+      kind: "vote",
+      id: "old",
+      title: "Done",
+      startedAt: 1,
+      endedAt: 2,
+      anonymous: true,
+      participants: 1,
+      results: [{ id: "a", label: "A", count: 1 }],
+    },
+    [reactionKey("device:x", ["o", "a"])]: reaction,
+    [contributionKey("a")]: { by: "device:x", at: 1, name: "Local author" },
+    ...Object.fromEntries([ballot(editor, ["a"])]),
+  };
+  const portable = portableWorkshop(workshop);
+  assert.deepEqual(Object.keys(portable).sort(), [
+    "agenda",
+    historyKey("old"),
+    reactionKey("device:x", ["o", "a"]),
+  ]);
+  assert.equal(portableWorkshop({ vote: vote() }), undefined);
+  // Sharing gives this device's entries to the signed-in owner.
+  const adopted = adoptWorkshop(workshop, "device:x", owner);
+  validateWorkshop(adopted);
+  assert.equal(
+    adopted[reactionKey(owner.uuid, ["o", "a"])].name,
+    owner.username,
+  );
+  assert.equal(adopted[contributionKey("a")].by, owner.uuid);
+  // Saved results name this device's votes by the owner too.
+  const named = adoptWorkshop(
+    {
+      [historyKey("mine")]: {
+        kind: "vote",
+        id: "mine",
+        title: "Named",
+        startedAt: 1,
+        endedAt: 2,
+        anonymous: false,
+        participants: 2,
+        results: [
+          { id: "a", label: "A", count: 2, voters: ["Cam", "Local author"] },
+          { id: "b", label: "B", count: 1, voters: ["Cam"] },
+        ],
+      },
+    },
+    "device:x",
+    owner,
+    "Local author",
+  );
+  validateWorkshop(named);
+  assert.deepEqual(
+    named[historyKey("mine")].results.map((r) => r.voters),
+    [[owner.username, "Cam"].sort(), ["Cam"]],
+  );
+});
+
+test("vote and poll tallies respect anonymity and export CSV and JSON", () => {
+  const b = { ...newBoard("Retro"), items: notes() };
+  b.workshop = Object.fromEntries([
+    ["vote", vote({ state: "ended", endedAt: 5000 })],
+    ballot(owner, ["a", "b"]),
+    ballot(editor, ["a"]),
+    ballot(viewer, ["x"]),
+  ]);
+  const label = (id) => b.items.find((i) => i.id === id)?.text || id;
+  const tally = voteTally(b, b.workshop.vote);
+  assert.deepEqual(tally[0], { id: "a", count: 2, voters: ["Alice", "Bob"] });
+  assert.equal(
+    tally.at(-1).count,
+    0,
+    "Ballots for unknown objects are ignored",
+  );
+  const named = resultRecord(b, "vote", label);
+  assert.equal(named.participants, 3);
+  const csv = resultsCSV(named);
+  assert.match(csv, /Rank,Object,Votes,Share \(%\),Participants/);
+  assert.match(csv, /1,Ship faster,2,66\.7,Alice; Bob/);
+  assert.match(csv, /'=SUM\(1\)/, "Formulas are neutralized");
+  assert.equal(JSON.parse(resultsJSON(named)).results[0].label, "Ship faster");
+  b.workshop.vote.anonymous = true;
+  const anonymous = resultRecord(b, "vote", label);
+  assert.equal(
+    anonymous.results.some((r) => r.voters),
+    false,
+    "Anonymous results never list voters",
+  );
+  assert.doesNotMatch(resultsCSV(anonymous), /Alice|Bob/);
+  validateWorkshop({ [historyKey(anonymous.id)]: anonymous });
+  const poll = {
+    id: "p1",
+    question: "Lunch?",
+    options: [
+      { id: "o1", text: "Pizza" },
+      { id: "o2", text: "Salad" },
+    ],
+    multiple: false,
+    anonymous: true,
+    hidden: false,
+    state: "open",
+    revealed: false,
+    startedAt: 1,
+  };
+  b.workshop = {
+    poll,
+    [answerKey("p1", owner.uuid)]: {
+      poll: "p1",
+      by: owner.uuid,
+      ids: ["o2"],
+      at: 2,
+    },
+    [answerKey("p1", editor.uuid)]: {
+      poll: "p1",
+      by: editor.uuid,
+      ids: ["o2"],
+      at: 3,
+    },
+  };
+  assert.deepEqual(
+    pollTally(b, poll).map((r) => [r.text, r.count, r.voters]),
+    [
+      ["Pizza", 0, undefined],
+      ["Salad", 2, undefined],
+    ],
+  );
+  assert.match(resultsCSV(resultRecord(b, "poll", label)), /1,Salad,2,100/);
+  // Tied results share a rank, and the next one counts them both.
+  const tied = resultsCSV({
+    kind: "vote",
+    title: "Tie",
+    anonymous: true,
+    participants: 3,
+    results: [
+      { id: "a", label: "Alpha", count: 2 },
+      { id: "b", label: "Beta", count: 1 },
+      { id: "c", label: "Gamma", count: 1 },
+      { id: "d", label: "Delta", count: 0 },
+    ],
+  });
+  for (const row of ["1,Alpha,2", "2,Beta,1", "2,Gamma,1", "4,Delta,0"])
+    assert.match(tied, new RegExp(`\r?\n${row},`));
+});
+
+test("private mode and staged frames conceal contributions until the facilitator reveals them", () => {
+  const frame = item("frame", 0, 400, { id: "f", text: "Round two" });
+  const b = {
+    ...newBoard("Private"),
+    items: [
+      ...notes(),
+      frame,
+      item("note", 20, 460, { id: "inside", parentId: "f", text: "Later" }),
+    ],
+    workshop: {
+      settings: { private: "r1", stage: { frames: ["f"], shown: 0 } },
+      [contributionKey("a")]: { by: editor.uuid, at: 1, round: "r1" },
+      [contributionKey("b")]: { by: owner.uuid, at: 1, round: "r1" },
+      // Created before this private round started.
+      [contributionKey("c")]: { by: editor.uuid, at: 1, round: "r0" },
+    },
+  };
+  b.items.find((i) => i.id === "b").task = {
+    assignee: { id: owner.uuid, name: "Alice" },
+    start: null,
+    due: "2026-10-02",
+    status: "todo",
+  };
+  const forOwner = concealment(b, owner.uuid, true);
+  assert.deepEqual([...forOwner.notes], ["a"]);
+  assert.equal(forOwner.frames.size, 0, "Facilitators see staged frames");
+  const forEditor = concealment(b, editor.uuid, false);
+  assert.deepEqual([...forEditor.notes], ["b"]);
+  assert.deepEqual([...forEditor.frames], ["f"]);
+  assert.deepEqual([...forEditor.hidden], ["inside"]);
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    const shown = ui.api.conceal(ui.api.visible(b.items));
+    assert.equal(shown.find((i) => i.id === "a").text, "Ship faster");
+    assert.equal(shown.find((i) => i.id === "b").text, "Private note");
+    assert.equal(
+      shown.find((i) => i.id === "b").task,
+      undefined,
+      "Private notes do not show their task details",
+    );
+    assert.equal(
+      shown.find((i) => i.id === "f").text,
+      "Hidden by the facilitator",
+    );
+    assert.equal(
+      shown.some((i) => i.id === "inside"),
+      false,
+    );
+    assert.equal(
+      ui.api.locked(new Set(["b"])),
+      true,
+      "Hidden notes are protected",
+    );
+    assert.equal(ui.api.locked(new Set(["a"])), false);
+    // Each draw passes a new list; a covered note keeps one stand-in, so
+    // its text layout is measured once, and it follows the note.
+    const again = ui.api.conceal(ui.api.visible([...b.items]));
+    const standIn = shown.find((i) => i.id === "b");
+    assert.equal(
+      again.find((i) => i.id === "b"),
+      standIn,
+    );
+    b.items.find((i) => i.id === "b").x = 999;
+    const moved = ui.api.conceal(ui.api.visible([...b.items]));
+    assert.equal(moved.find((i) => i.id === "b").x, 999);
+    assert.equal(moved.find((i) => i.id === "b").text, "Private note");
+    assert.notEqual(b.items.find((i) => i.id === "b").text, "Private note");
+    ui.api.render();
+    assert.ok(ui.doc.querySelector('[data-fac-item="b"] .fac-private'));
+    assert.match(
+      ui.doc.querySelector("#workshop-banner").textContent,
+      /Private mode/,
+    );
+    // Exported JSON never includes the hidden text.
+    const exported = structuredClone(b);
+    ui.api.portable(exported);
+    assert.equal(exported.items.find((i) => i.id === "b").text, "Private note");
+    assert.equal(exported.workshop, undefined);
+    b.workshop = { ...b.workshop, settings: {} };
+    assert.equal(
+      ui.api.conceal(b.items),
+      b.items,
+      "Revealing shows every note",
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("facilitation preserves frame languages in staging, voting and agenda navigation", () => {
+  for (const interfaceLanguage of ["en", "fr"]) {
+    const frames = [
+      item("frame", 0, 0, { text: "Bonjour à tous.", lang: "fr-CA", order: 0 }),
+      item("frame", 600, 0, {
+        text: 'Hello. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 7, end: 22, style: { lang: "fr" } }],
+        order: 1,
+      }),
+      item("frame", 1200, 0, { text: "", lang: "es", order: 2 }),
+    ];
+    const b = { ...newBoard("Agenda"), items: frames },
+      ui = stubUI(b, { role: "owner", me: owner }),
+      previousLanguage = language;
+    setLanguage(interfaceLanguage);
+    const checkTitles = (selector, wholeTag = "fr-CA", passageTag = "fr") => {
+      const labels = [...ui.doc.querySelectorAll(selector)];
+      assert.equal(labels.length, 3);
+      assert.equal(labels[0].querySelector("[lang]")?.lang, wholeTag);
+      assert.equal(
+        labels[1].querySelector('[lang="en-CA"]')?.textContent,
+        frames[1].text,
+      );
+      assert.equal(
+        labels[1].querySelector(`[lang="${passageTag}"]`)?.textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(labels[1].querySelector("img"), null);
+      assert.equal(labels[2].textContent, t("Frame"));
+      assert.equal(labels[2].querySelector("[lang]"), null);
+    };
+    try {
+      ui.api.render();
+      ui.api.open("session");
+      checkTitles("#fac-stage-frames label");
+      ui.api.open("vote");
+      checkTitles("#fac-vote-frames label");
+      ui.api.open("agenda");
+      checkTitles(".fac-agenda strong");
+      checkTitles(".fac-step legend");
+      const go = ui.doc.querySelector('[data-fac="agenda-go"]'),
+        references = go
+          .getAttribute("aria-labelledby")
+          .split(/\s+/)
+          .map((id) => ui.doc.getElementById(id));
+      assert.ok(references.every(Boolean));
+      assert.equal(references[0].textContent, `${t("Go to step")}:`);
+      assert.equal(references[1].querySelector("[lang]").lang, "fr-CA");
+      ui.click('[data-fac="agenda-start"]');
+      assert.equal(
+        ui.doc.querySelector(".fac-remaining [lang]")?.lang,
+        "fr-CA",
+      );
+      const chip = ui.doc.querySelector('[data-fac-open="agenda"]');
+      assert.equal(chip.querySelector("[lang]")?.lang, "fr-CA");
+      assert.equal(
+        ui.doc.querySelector("#facilitation-live [lang]")?.lang,
+        "fr-CA",
+      );
+      chip.focus();
+      frames[0].lang = "fr-BE";
+      b.updated++;
+      ui.api.render();
+      checkTitles(".fac-agenda strong", "fr-BE");
+      checkTitles(".fac-step legend", "fr-BE");
+      assert.equal(ui.doc.querySelector('[data-fac-open="agenda"]'), chip);
+      assert.equal(ui.doc.activeElement, chip);
+      assert.equal(chip.querySelector("[lang]").lang, "fr-BE");
+      ui.click('[data-fac="agenda-next"]');
+      for (const selector of [
+        ".fac-remaining",
+        '[data-fac-open="agenda"]',
+        "#facilitation-live",
+      ]) {
+        assert.equal(
+          ui.doc.querySelector(`${selector} [lang="fr"]`)?.textContent,
+          "Bonjour à tous.",
+        );
+        assert.equal(ui.doc.querySelector(`${selector} img`), null);
+      }
+      frames[1].textRuns = [{ start: 7, end: 22, style: { lang: "fr-CA" } }];
+      b.updated++;
+      ui.api.render();
+      assert.equal(
+        ui.doc.querySelector('.fac-remaining [lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(
+        ui.doc.querySelector('[data-fac-open="agenda"] [lang="fr-CA"]')
+          .textContent,
+        "Bonjour à tous.",
+      );
+      checkTitles(".fac-agenda strong", "fr-BE", "fr-CA");
+      ui.api.open("session");
+      checkTitles("#fac-stage-frames label", "fr-BE", "fr-CA");
+      ui.api.open("vote");
+      checkTitles("#fac-vote-frames label", "fr-BE", "fr-CA");
+    } finally {
+      setLanguage(previousLanguage);
+      ui.close();
+    }
+  }
+});
+
+test("tagged agenda titles stay concealed in participant content and announcements", () => {
+  const f = item("frame", 0, 0, {
+      id: "french",
+      text: "Bonjour à tous.",
+      lang: "fr-CA",
+    }),
+    b = {
+      ...newBoard("Agenda"),
+      items: [f],
+      workshop: {
+        settings: { hide: [f.id] },
+        agenda: { steps: [{ frame: f.id, text: "Private instructions" }] },
+        run: {
+          id: "run",
+          state: "running",
+          startedAt: 1,
+          step: 0,
+          frame: f.id,
+        },
+      },
+    },
+    ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.render();
+    ui.api.open("agenda");
+    for (const selector of [
+      ".fac-agenda",
+      ".fac-remaining",
+      '[data-fac-open="agenda"]',
+      "#facilitation-live",
+    ]) {
+      const el = ui.doc.querySelector(selector);
+      assert.doesNotMatch(el.textContent, /Bonjour|Private instructions/);
+      assert.equal(el.querySelector("[lang]"), null);
+    }
+    b.workshop = { ...b.workshop, settings: {} };
+    ui.api.render();
+    assert.equal(ui.doc.querySelector(".fac-agenda [lang]")?.lang, "fr-CA");
+    assert.equal(
+      ui.doc.querySelector('[data-fac-open="agenda"] [lang]')?.lang,
+      "fr-CA",
+    );
+    b.workshop = { ...b.workshop, settings: { hide: [f.id] } };
+    ui.api.render();
+    assert.doesNotMatch(
+      ui.doc.querySelector(".fac-agenda").textContent,
+      /Bonjour/,
+    );
+    assert.equal(ui.doc.querySelector('[data-fac-open="agenda"] [lang]'), null);
+  } finally {
+    ui.close();
+  }
+});
+
+test("the agenda runner advances ordered frames, brings everyone, and starts the step timer", () => {
+  const frames = ["Welcome", "Brainstorm", "Vote"].map((text, n) =>
+    item("frame", n * 600, 0, { id: `f${n}`, text, order: n, w: 500 }),
+  );
+  const b = {
+    ...newBoard("Agenda"),
+    shared: { server: "https://x.puter.work", room: "room" },
+    items: frames,
+    workshop: {
+      agenda: {
+        steps: [
+          { frame: "f0", minutes: 2, text: "Introduce yourself" },
+          { frame: "f1", minutes: 10 },
+          { frame: "f2" },
+        ],
+      },
+    },
+  };
+  const host = stubUI(b, { role: "owner", me: owner });
+  try {
+    host.api.open("agenda");
+    assert.equal(host.doc.querySelectorAll(".fac-agenda li").length, 3);
+    host.click('[data-fac="agenda-start"]');
+    assert.equal(b.workshop.run.step, 0);
+    assert.equal(
+      b.workshop.session.state,
+      "active",
+      "Starting records a session",
+    );
+    assert.deepEqual(host.calls.focus, ["f0"]);
+    assert.equal(host.calls.bring, 1);
+    assert.equal(host.calls.timer[0].duration, 120000);
+    assert.match(host.banner(), /Step 1 of 3: Welcome/);
+    assert.match(host.banner(), /Introduce yourself/);
+    host.click('[data-fac="agenda-next"]');
+    assert.equal(b.workshop.run.step, 1);
+    assert.equal(host.calls.timer[1].duration, 600000);
+    host.click('[data-fac="agenda-next"]');
+    assert.equal(
+      host.calls.timer.length,
+      2,
+      "Steps without a duration keep the timer",
+    );
+    assert.equal(
+      host.doc.querySelector('[data-fac="agenda-next"]').disabled,
+      true,
+    );
+    // Participants see the step and cannot run the agenda.
+    const participant = stubUI(b, { role: "editor", me: editor });
+    try {
+      participant.api.render();
+      assert.match(participant.banner(), /Step 3 of 3: Vote/);
+      participant.api.open("agenda");
+      assert.equal(
+        participant.doc.querySelector('[data-fac="agenda-next"]'),
+        null,
+      );
+      assert.equal(participant.doc.querySelector("#fac-tab-summary"), null);
+      // A hidden step's title and instructions stay out of the banner and
+      // its announcement.
+      const shown = b.workshop;
+      b.workshop = {
+        ...shown,
+        settings: { hide: ["f1"] },
+        run: { ...shown.run, step: 1, frame: "f1" },
+        agenda: {
+          steps: shown.agenda.steps.map((s) =>
+            s.frame === "f1" ? { ...s, text: "Pick the winner" } : s,
+          ),
+        },
+      };
+      participant.api.render();
+      assert.match(
+        participant.banner(),
+        /Step 2 of 3: Hidden by the facilitator/,
+      );
+      const live = participant.doc.querySelector("#facilitation-live");
+      assert.match(live.textContent, /Step 2 of 3: Hidden by the facilitator/);
+      for (const text of [participant.banner(), live.textContent])
+        assert.doesNotMatch(text, /Brainstorm|Pick the winner/);
+      // The open Agenda tab follows frames being hidden and shown.
+      const agenda = () =>
+        participant.doc.querySelector(".fac-agenda").textContent;
+      assert.match(agenda(), /Hidden by the facilitator/);
+      assert.doesNotMatch(agenda(), /Brainstorm/);
+      b.workshop = shown;
+      participant.api.render();
+      assert.match(agenda(), /Brainstorm/);
+      b.workshop = { ...shown, settings: { hide: ["f0"] } };
+      participant.api.render();
+      assert.doesNotMatch(agenda(), /Welcome/);
+      b.workshop = shown;
+    } finally {
+      participant.close();
+    }
+    host.click('[data-fac="agenda-end"]');
+    assert.equal(b.workshop.run.state, "ended");
+    assert.equal(host.banner(), "");
+    // Skipped frames drop out of the steps.
+    b.workshop.agenda.steps[1].skip = true;
+    host.api.render();
+    host.click('[data-fac="agenda-start"]');
+    host.click('[data-fac="agenda-next"]');
+    assert.match(host.banner(), /Step 2 of 2: Vote/);
+  } finally {
+    host.close();
+  }
+});
+
+test("titles with dollar signs show and are announced as written", async () => {
+  const { translateUI } = await import("../src/i18n.js");
+  const title = "Q$$ plan $& $' $` done";
+  const b = {
+    ...newBoard("Agenda"),
+    shared: { server: "https://x.puter.work", room: "room" },
+    items: [
+      item("frame", 0, 0, { id: "f0", text: title, order: 0, w: 500 }),
+      ...notes(),
+    ],
+    workshop: { agenda: { steps: [{ frame: "f0" }] } },
+  };
+  const host = stubUI(b, { role: "owner", me: owner });
+  globalThis.NodeFilter = host.doc.defaultView.NodeFilter;
+  try {
+    host.api.open("agenda");
+    host.click('[data-fac="agenda-start"]');
+    // Starting records attendance just after.
+    await new Promise((r) => setTimeout(r, 10));
+    assert.equal(host.banner(), `Step 1 of 1: ${title}`);
+    b.workshop = { ...b.workshop, vote: vote({ title }) };
+    host.api.render();
+    const live = host.doc.querySelector("#facilitation-live");
+    assert.equal(live.textContent, `Voting started: ${title}`);
+    // The page translates announcements, which leaves the title as written.
+    translateUI(host.doc.body);
+    assert.equal(live.textContent, `Voting started: ${title}`);
+  } finally {
+    delete globalThis.NodeFilter;
+    host.close();
+  }
+});
+
+test("engagement summaries count contributions per participant and stay aggregate when anonymous", () => {
+  const b = { ...newBoard("Summary"), items: notes() };
+  b.workshop = {
+    session: { id: "s1", state: "ended", startedAt: 1000, endedAt: 700000 },
+    [participantKey(owner.uuid)]: {
+      by: owner.uuid,
+      name: "Alice",
+      role: "owner",
+      session: "s1",
+      first: 1000,
+      last: 600000,
+    },
+    [participantKey(editor.uuid)]: {
+      by: editor.uuid,
+      name: "Bob",
+      role: "editor",
+      session: "s1",
+      first: 2000,
+      last: 500000,
+    },
+    [contributionKey("a")]: { by: editor.uuid, at: 5000, name: "Bob" },
+    [contributionKey("b")]: { by: editor.uuid, at: 300000, name: "Bob" },
+    [contributionKey("c")]: { by: owner.uuid, at: 400000, anonymous: true },
+    [reactionKey(owner.uuid, objectTarget("a"))]: {
+      by: owner.uuid,
+      target: ["o", "a"],
+      types: ["heart", "idea"],
+      at: 6000,
+      name: "Alice",
+    },
+    vote: vote({ targets: ["a", "b"], anonymous: true }),
+    ...Object.fromEntries([ballot(editor, ["a", "b"], "vote1", false)]),
+  };
+  b.comments = [
+    {
+      id: "t",
+      x: 0,
+      y: 0,
+      resolved: false,
+      messages: [
+        {
+          id: "m",
+          authorId: owner.uuid,
+          authorName: "Alice",
+          text: "Nice",
+          createdAt: 7000,
+        },
+      ],
+    },
+  ];
+  const label = (id) => b.items.find((i) => i.id === id)?.text;
+  const summary = engagement(b, { now: 800000, label });
+  const bob = summary.people.find((p) => p.name === "Bob"),
+    alice = summary.people.find((p) => p.name === "Alice");
+  assert.equal(bob.notes, 2);
+  assert.equal(bob.votes, 0, "Anonymous ballots are not attributed");
+  assert.equal(alice.comments, 1);
+  assert.equal(alice.reactions, 2);
+  assert.equal(summary.anonymousNotes, 1);
+  assert.equal(summary.totals.notes, 3);
+  assert.deepEqual(summary.reacted[0], {
+    id: "a",
+    label: "Ship faster",
+    count: 2,
+  });
+  assert.equal(summary.voted[0].count, 1);
+  assert.equal(
+    summary.timeline.reduce(
+      (n, t) => n + t.notes + t.comments + t.reactions + t.votes + t.answers,
+      0,
+    ),
+    3 + 1 + 2 + 2,
+    "Notes, comments, reaction types, and votes",
+  );
+  const csv = engagementCSV(summary);
+  assert.match(csv, /Workshop summary/);
+  assert.match(csv, /Bob,editor,.*,2,0,0,0,0/);
+  b.workshop.settings = { anonymous: true };
+  const hidden = engagement(b, { now: 800000, label });
+  assert.equal(hidden.people.find((p) => p.name === "Bob").notes, 0);
+  assert.equal(hidden.anonymousNotes, 3);
+  // A reaction left anonymously stays unattributed once anonymity ends.
+  b.workshop[reactionKey(editor.uuid, objectTarget("b"))] = {
+    by: editor.uuid,
+    target: ["o", "b"],
+    types: ["heart"],
+    at: 6000,
+  };
+  b.workshop.settings = { anonymous: false };
+  const later = engagement(b, { now: 800000, label });
+  assert.equal(later.people.find((p) => p.name === "Bob").reactions, 0);
+  assert.equal(later.totals.reactions, 3);
+});
+
+// Worker enforcement through the real commit path.
+function workerSetup() {
+  const env = environment();
+  return { env, boards: env.service };
+}
+async function createRoom(boards, items) {
+  const b = newBoard("Workshop");
+  b.items = items;
+  const doc = new SharedDocument();
+  doc.commit(b);
+  await boards.call(owner, {
+    op: "create",
+    room: b.id,
+    update: encode(doc.update()),
+  });
+  doc.destroy();
+  return b.id;
+}
+async function commit(boards, user, room, change) {
+  const { doc } = await boards.load(room);
+  const before = doc.vector();
+  const next = doc.snapshot();
+  next.workshop ||= {};
+  change(next, next.workshop);
+  if (!Object.keys(next.workshop).length) delete next.workshop;
+  doc.commit(next);
+  const update = doc.update(before);
+  doc.destroy();
+  return boards.call(user, {
+    op: "commit",
+    room,
+    id: await hash(update),
+    update: encode(update),
+  });
+}
+async function invite(boards, room, user, role) {
+  const { token } = await boards.call(owner, { op: "invite", room, role });
+  await boards.call(user, { op: "join", room, token });
+}
+const rejected = (promise, status = 422) => assert.rejects(promise, { status });
+
+test("the worker lets commenters vote and react but not edit content, and only facilitators run sessions", async () => {
+  const { env, boards } = workerSetup();
+  const room = await createRoom(boards, notes());
+  await invite(boards, room, editor, "editor");
+  await invite(boards, room, viewer, "commenter");
+  await invite(boards, room, guest, "viewer");
+  const now = env.now;
+  await rejected(
+    commit(boards, editor, room, (b, w) => (w.vote = vote({ startedAt: now }))),
+  );
+  await commit(
+    boards,
+    owner,
+    room,
+    (b, w) => (w.vote = vote({ startedAt: now })),
+  );
+  // A commenter votes and reacts, but cannot change content or the session.
+  await commit(boards, viewer, room, (b, w) => {
+    const [key, value] = ballot(viewer, ["a", "b"]);
+    w[key] = { ...value, at: now };
+    w[reactionKey(viewer.uuid, objectTarget("a"))] = {
+      by: viewer.uuid,
+      target: ["o", "a"],
+      types: ["thumbs"],
+      at: now,
+      name: viewer.username,
+    };
+  });
+  await rejected(
+    commit(boards, viewer, room, (b) => (b.items[0].text = "Changed")),
+  );
+  await rejected(
+    commit(boards, viewer, room, (b, w) => (w.vote.revealed = true)),
+  );
+  await rejected(
+    commit(boards, viewer, room, (b, w) => (w.settings = { lock: "open" })),
+  );
+  // Nobody changes another person's ballot or reaction.
+  await rejected(
+    commit(
+      boards,
+      editor,
+      room,
+      (b, w) => delete w[voteKey("vote1", viewer.uuid)],
+    ),
+  );
+  await rejected(
+    commit(
+      boards,
+      owner,
+      room,
+      (b, w) => delete w[voteKey("vote1", viewer.uuid)],
+    ),
+    422,
+  );
+  await rejected(
+    commit(boards, editor, room, (b, w) => {
+      const [key, value] = ballot(viewer, ["c"]);
+      w[key] = value;
+    }),
+  );
+  await rejected(
+    commit(boards, editor, room, (b, w) => {
+      delete w[reactionKey(viewer.uuid, objectTarget("a"))];
+    }),
+  );
+  await rejected(
+    commit(boards, editor, room, (b, w) => {
+      const [key, value] = ballot(editor, ["a", "b", "c"]);
+      w[key] = value;
+    }),
+    422,
+  );
+  await rejected(
+    commit(boards, editor, room, (b, w) => {
+      const [key, value] = ballot(editor, ["a", "a"]);
+      w[key] = value;
+    }),
+  );
+  await rejected(
+    commit(boards, editor, room, (b, w) => {
+      const [key, value] = ballot(editor, ["missing"]);
+      w[key] = value;
+    }),
+  );
+  await rejected(
+    commit(boards, editor, room, (b, w) => (w.settings = { private: "r1" })),
+  );
+  await rejected(
+    commit(boards, editor, room, (b, w) => (w.settings = { lock: "frozen" })),
+  );
+  // Viewers write nothing.
+  await rejected(
+    commit(boards, guest, room, (b, w) => {
+      const [key, value] = ballot(guest, ["a"]);
+      w[key] = value;
+    }),
+    403,
+  );
+  // A participant removes their own vote; facilitators end the session.
+  // Ballots are taken for a moment after it ends, so it ended a while ago.
+  await commit(boards, viewer, room, (b, w) => {
+    w[voteKey("vote1", viewer.uuid)].ids = ["b"];
+  });
+  await commit(boards, owner, room, (b, w) => {
+    w.vote = { ...w.vote, state: "ended", endedAt: now - VOTE_GRACE - 1000 };
+  });
+  await rejected(
+    commit(
+      boards,
+      viewer,
+      room,
+      (b, w) => delete w[voteKey("vote1", viewer.uuid)],
+    ),
+  );
+  const { doc } = await boards.load(room);
+  const final = doc.snapshot();
+  doc.destroy();
+  assert.deepEqual(final.workshop[voteKey("vote1", viewer.uuid)].ids, ["b"]);
+  assert.equal(final.items[0].text, "Ship faster");
+  // Timed votes close at their deadline.
+  await commit(boards, owner, room, (b, w) => {
+    w.vote = vote({ id: "vote2", startedAt: env.now, endsAt: env.now + 60000 });
+  });
+  env.now += 120000;
+  await rejected(
+    commit(boards, viewer, room, (b, w) => {
+      const [key, value] = ballot(viewer, ["a"], "vote2");
+      w[key] = value;
+    }),
+  );
+});
+
+test("the worker enforces board locks and private notes and audits facilitation changes", async () => {
+  const { env, boards } = workerSetup();
+  const room = await createRoom(boards, notes());
+  await invite(boards, room, editor, "editor");
+  await invite(boards, room, guest, "editor");
+  await invite(boards, room, viewer, "commenter");
+  const add =
+    (user, extra = {}, claim = user) =>
+    (b, w) => {
+      const note = item("note", 0, 300, {
+        id: `n-${user.username}-${b.items.length}`,
+        text: "Idea",
+        ...extra,
+      });
+      b.items.push(note);
+      w[contributionKey(note.id)] = {
+        by: claim.uuid,
+        at: env.now,
+        name: claim.username,
+      };
+    };
+  await commit(
+    boards,
+    owner,
+    room,
+    (b, w) => (w.settings = { lock: "contribute" }),
+  );
+  await commit(boards, editor, room, add(editor));
+  await rejected(commit(boards, editor, room, add(editor, { type: "rect" })));
+  await rejected(commit(boards, editor, room, add(editor, {}, owner)));
+  await rejected(
+    commit(boards, editor, room, (b) =>
+      b.items.push(item("note", 0, 0, { id: "unclaimed" })),
+    ),
+  );
+  await rejected(commit(boards, editor, room, (b) => (b.items[0].x = 40)));
+  await rejected(commit(boards, editor, room, (b) => b.items.splice(0, 1)));
+  await rejected(commit(boards, editor, room, (b) => (b.title = "Renamed")));
+  await commit(
+    boards,
+    editor,
+    room,
+    (b) => (b.items.at(-1).text = "Refined idea"),
+  );
+  await commit(boards, owner, room, (b) => (b.items[0].x = 40));
+  await commit(
+    boards,
+    owner,
+    room,
+    (b, w) => (w.settings = { lock: "frozen" }),
+  );
+  await rejected(commit(boards, editor, room, add(editor)));
+  await rejected(
+    commit(boards, editor, room, (b) => (b.items.at(-1).text = "Again")),
+  );
+  // Voting, reactions, and comments continue while frozen.
+  await commit(boards, viewer, room, (b, w) => {
+    w[reactionKey(viewer.uuid, objectTarget("a"))] = {
+      by: viewer.uuid,
+      target: ["o", "a"],
+      types: ["eyes"],
+      at: env.now,
+      name: viewer.username,
+    };
+  });
+  // Private notes are protected from other participants until revealed.
+  await commit(boards, owner, room, (b, w) => (w.settings = { private: "r1" }));
+  await commit(boards, editor, room, (b, w) => {
+    add(editor)(b, w);
+    w[contributionKey(b.items.at(-1).id)].round = "r1";
+  });
+  await rejected(
+    commit(boards, guest, room, (b) => (b.items.at(-1).text = "Tampered")),
+  );
+  await commit(boards, owner, room, (b, w) => (w.settings = { private: null }));
+  await commit(boards, guest, room, (b) => (b.items.at(-1).text = "Built on"));
+  // Reactions and contribution records of deleted objects may be cleared.
+  await commit(boards, editor, room, (b, w) => {
+    const id = b.items.at(-1).id;
+    b.items.pop();
+    delete w[contributionKey(id)];
+  });
+  await commit(boards, owner, room, (b, w) => {
+    w.poll = {
+      id: "p1",
+      question: "Continue?",
+      options: [
+        { id: "y", text: "Yes" },
+        { id: "n", text: "No" },
+      ],
+      multiple: false,
+      anonymous: true,
+      hidden: false,
+      state: "open",
+      revealed: false,
+      startedAt: env.now,
+    };
+    w.vote = vote({ startedAt: env.now });
+  });
+  await commit(boards, viewer, room, (b, w) => {
+    w[answerKey("p1", viewer.uuid)] = {
+      poll: "p1",
+      by: viewer.uuid,
+      ids: ["y"],
+      at: env.now,
+    };
+  });
+  await rejected(
+    commit(boards, viewer, room, (b, w) => {
+      w[answerKey("p1", viewer.uuid)] = {
+        poll: "p1",
+        by: viewer.uuid,
+        ids: ["y"],
+        at: env.now,
+        name: viewer.username,
+      };
+    }),
+  );
+  await commit(boards, owner, room, (b, w) => {
+    w.poll = { ...w.poll, state: "closed", endedAt: env.now };
+    w.vote = { ...w.vote, state: "ended", revealed: true, endedAt: env.now };
+  });
+  const actions = [...env.data]
+    .filter(([key]) => key.startsWith("org:audit:"))
+    .map(([, entry]) => entry.action);
+  for (const action of [
+    "workshop.locked",
+    "workshop.private_mode",
+    "vote.started",
+    "vote.ended",
+    "vote.revealed",
+    "poll.started",
+    "poll.closed",
+  ])
+    assert.ok(actions.includes(action), action);
+  const locked = [...env.data].find(
+    ([key, entry]) =>
+      key.startsWith("org:audit:") && entry.action === "workshop.locked",
+  )[1];
+  assert.equal(locked.category, "content");
+  assert.equal(locked.actor.uuid, owner.uuid);
+});
+
+test("workshop events and client-side validation agree on facilitator-only changes", () => {
+  const before = { title: "T", items: notes(), workshop: {} };
+  const after = { ...before, workshop: { settings: { lock: "frozen" } } };
+  assert.throws(
+    () => validateWorkshopChanges(before, after, editor, "editor"),
+    /facilitator/,
+  );
+  validateWorkshopChanges(before, after, owner, "facilitator");
+  assert.deepEqual(
+    workshopEvents(before.workshop, after.workshop).map((e) => e.action),
+    ["workshop.locked"],
+  );
+  const reaction = {
+    [reactionKey(editor.uuid, messageTarget("t", "m"))]: {
+      by: editor.uuid,
+      target: ["m", "t", "m"],
+      types: ["plus"],
+      at: 1,
+      name: "Bob",
+    },
+  };
+  const discussed = {
+    ...before,
+    comments: [
+      {
+        id: "t",
+        x: 0,
+        y: 0,
+        resolved: false,
+        messages: [
+          {
+            id: "m",
+            authorId: owner.uuid,
+            authorName: "Alice",
+            text: "Hi",
+            createdAt: 1,
+          },
+        ],
+      },
+    ],
+  };
+  validateWorkshopChanges(
+    discussed,
+    { ...discussed, workshop: reaction },
+    editor,
+    "commenter",
+  );
+  // A reaction to a message that is gone is harmless, as when it was
+  // deleted at the same moment, and is not refused with everything else.
+  assert.doesNotThrow(() =>
+    validateWorkshopChanges(
+      before,
+      { ...before, workshop: reaction },
+      editor,
+      "commenter",
+    ),
+  );
+});
+
+test("participants record their own attendance but cannot fake it", async () => {
+  // The console records a participant's attendance through the same checks.
+  const b = {
+    ...newBoard("Attendance"),
+    items: notes(),
+    shared: { server: "x", room: "r" },
+  };
+  b.workshop = { session: { id: "s1", state: "active", startedAt: 1000 } };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.render();
+    await new Promise((r) => setTimeout(r, 10));
+  } finally {
+    ui.close();
+  }
+  const key = participantKey(editor.uuid);
+  assert.deepEqual(b.workshop[key], {
+    by: editor.uuid,
+    name: "Bob",
+    role: "editor",
+    session: "s1",
+    first: 10000,
+    last: 10000,
+  });
+
+  const now = 900000;
+  const session = { id: "s1", state: "active", startedAt: 100000 };
+  const record = {
+    by: editor.uuid,
+    name: "Bob",
+    role: "editor",
+    session: "s1",
+    first: 200000,
+    last: 500000,
+  };
+  const board = (entry) => ({
+    title: "T",
+    items: notes(),
+    workshop: { session, ...(entry ? { [key]: entry } : {}) },
+  });
+  const put = (from, patch, user = editor, role = "editor") =>
+    validateWorkshopChanges(
+      board(from),
+      board(patch && { ...(from || record), ...patch }),
+      user,
+      role,
+      now,
+    );
+  // Seen again: only "last seen" moves on.
+  put(record, { last: now });
+  // A record written just before the owner changed their role still saves.
+  put(record, { last: now }, editor, "commenter");
+  put(undefined, { first: now, last: now });
+  // Two clients recording the same person at once differ by a moment.
+  put(
+    { ...record, first: now - 1000, last: now - 1000 },
+    {
+      first: now - 3000,
+      last: now - 3000,
+    },
+  );
+  const faked = [
+    [record, { role: "owner" }],
+    [record, { role: "facilitator" }],
+    [record, { role: "Administrator" }],
+    [record, { last: 8e15 }],
+    [record, { first: 0 }],
+    [record, { first: 150000 }],
+    [undefined, { first: 0, last: now }],
+    [undefined, { first: 1000, last: 1000 }],
+    [record, { session: undefined }],
+    [record, null],
+  ];
+  for (const [from, patch] of faked)
+    assert.throws(() => put(from, patch), /attendance/, JSON.stringify(patch));
+  // Facilitators may still record and clear anyone.
+  put(record, { role: "facilitator", first: 0 }, owner, "facilitator");
+  put(record, null, owner, "facilitator");
+});
+
+test("workshop rules the worker enforces explain themselves in French", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { setLanguage, t } = await import("../src/i18n.js");
+  const source = readFileSync(
+    new URL("../src/facilitation/model.js", import.meta.url),
+    "utf8",
+  );
+  const messages = [...source.matchAll(/Error\(\s*"((?:[^"\\]|\\.)*)"/g)].map(
+    (m) => JSON.parse(`"${m[1]}"`),
+  );
+  assert.ok(messages.includes("This attendance record is not allowed."));
+  const dom = new JSDOM("", { url: "https://whiteboard.test" });
+  globalThis.document = dom.window.document;
+  try {
+    setLanguage("fr");
+    assert.deepEqual(
+      messages.filter((m) => t(m) === m),
+      [],
+    );
+  } finally {
+    setLanguage("en");
+    dom.window.close();
+    delete globalThis.document;
+  }
+});
+
+// Resolve the naming references as well as ordinary aria-labels.
+const accessibleName = (node) =>
+  (node.getAttribute("aria-labelledby")
+    ? node
+        .getAttribute("aria-labelledby")
+        .split(/\s+/)
+        .map((id) => node.ownerDocument.getElementById(id)?.textContent || "")
+        .join(" ")
+    : node.getAttribute("aria-label") || node.textContent
+  )
+    .replace(/\s+/g, " ")
+    .trim();
+
+// A facilitation console bound to a small DOM with injected dependencies.
+function stubUI(board, { role, me, selection = new Set(), now = () => 10000 }) {
+  const dom = new JSDOM(
+    '<div class="canvas-wrap"><canvas id="canvas"></canvas><div class="canvas-navigation"><button data-action="facilitation"></button></div></div>',
+  );
+  const previous = globalThis.document;
+  globalThis.document = dom.window.document;
+  const doc = dom.window.document;
+  doc.querySelector("#canvas").getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1600,
+    height: 900,
+  });
+  const calls = { focus: [], bring: 0, timer: [], toasts: [], downloads: [] };
+  const api = createFacilitationUI({
+    board: () => board,
+    identity: () => ({ id: me.uuid, name: me.username }),
+    role: () => role,
+    canParticipate: () => role !== "viewer",
+    canEdit: () => ["owner", "facilitator", "editor"].includes(role),
+    now,
+    view: () => ({ x: 0, y: 0, z: 1 }),
+    canvas: () => doc.querySelector("#canvas"),
+    hidden: () => new Map(),
+    selection: () => selection,
+    select: () => {},
+    commit(workshop) {
+      if (workshop) board.workshop = workshop;
+      else delete board.workshop;
+      api.render();
+    },
+    setTimer(timer) {
+      calls.timer.push(timer);
+      board.timer = timer;
+    },
+    focusFrame: (frame) => calls.focus.push(frame.id),
+    bring: () => calls.bring++,
+    follow: () => {},
+    session: () => null,
+    roster: () => [],
+    icon: (name) => `<i data-lucide="${name}" aria-hidden="true"></i>`,
+    toast: (message) => calls.toasts.push(message),
+    download: (...args) => calls.downloads.push(args),
+    draw: () => {},
+  });
+  api.bind(doc.querySelector(".canvas-wrap"));
+  return {
+    api,
+    doc,
+    calls,
+    click(selector) {
+      const el = doc.querySelector(selector);
+      assert.ok(el, selector);
+      el.click();
+    },
+    banner: () =>
+      doc.querySelector("#workshop-banner").hidden
+        ? ""
+        : doc.querySelector("#workshop-banner").textContent,
+    close() {
+      api.detach();
+      dom.window.close();
+      if (previous === undefined) delete globalThis.document;
+      else globalThis.document = previous;
+    },
+  };
+}
+
+test("composition Escape preserves a voting title draft and ordinary Escape closes facilitation", () => {
+  const b = newBoard("Workshop");
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    const opener = ui.doc.querySelector('[data-action="facilitation"]');
+    opener.focus();
+    ui.api.open("vote");
+    const field = ui.doc.querySelector("#fac-vote-title");
+    field.focus();
+    field.value = "候補を選択";
+    for (const flags of [{ isComposing: true }, { keyCode: 229 }]) {
+      const event = new ui.doc.defaultView.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+        ...flags,
+      });
+      field.dispatchEvent(event);
+      assert.ok(ui.doc.querySelector("#facilitation-panel"));
+      assert.equal(ui.doc.activeElement, field);
+      assert.equal(field.value, "候補を選択");
+      assert.equal(event.defaultPrevented, false);
+      assert.equal(b.workshop, undefined);
+    }
+    field.dispatchEvent(
+      new ui.doc.defaultView.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(ui.doc.querySelector("#facilitation-panel"), null);
+    assert.equal(ui.doc.activeElement, opener);
+    assert.equal(b.workshop, undefined);
+  } finally {
+    ui.close();
+  }
+});
+
+test("anonymous cursors and editing indicators carry neither the name nor the account's color", () => {
+  const b = {
+    ...newBoard("Anonymous"),
+    shared: { server: "s", room: "r" },
+    workshop: { settings: { anonymous: true } },
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    const present = new Map([
+      ["session-1", { user: owner.uuid, username: "alice", cursor: null }],
+    ]);
+    const [[session, person]] = [...ui.api.people(present)];
+    assert.equal(session, "session-1");
+    assert.equal(person.username, "Participant");
+    assert.notEqual(person.user, owner.uuid);
+    b.workshop.settings.anonymous = false;
+    assert.equal(ui.api.people(present), present);
+  } finally {
+    ui.close();
+  }
+});
+
+test("the voting tab counts its minutes left down with the banner", (t) => {
+  t.mock.timers.enable({ apis: ["setInterval"] });
+  let clock = 1_000_000;
+  const b = {
+    ...newBoard("Vote"),
+    shared: { server: "s", room: "r" },
+    items: [item("note", 0, 0, { id: "a", text: "A" })],
+    workshop: {
+      vote: {
+        id: "v1",
+        title: "Pick one",
+        votes: 3,
+        multiple: false,
+        anonymous: true,
+        hidden: false,
+        targets: ["a"],
+        state: "active",
+        revealed: false,
+        startedAt: clock,
+        endsAt: clock + 10 * 60000,
+      },
+    },
+  };
+  const ui = stubUI(b, { role: "editor", me: viewer, now: () => clock });
+  try {
+    ui.api.render();
+    ui.api.open("vote");
+    const minutes = () =>
+      ui.doc
+        .querySelector("#fac-tabpanel")
+        .textContent.match(/About \d+ minutes? left/)?.[0];
+    assert.equal(minutes(), "About 10 minutes left");
+    clock += 6 * 60000;
+    t.mock.timers.tick(1000);
+    assert.match(ui.banner(), /4:00/);
+    assert.equal(minutes(), "About 4 minutes left");
+  } finally {
+    ui.close();
+  }
+});
+
+// Built application harness, as in app.test.js.
+const code = await appBundle();
+async function setup(puter) {
+  const dom = new JSDOM('<div id="app"></div><div id="toast"></div>', {
+    url: "https://whiteboard.test",
+    runScripts: "outside-only",
+    pretendToBeVisual: true,
+  });
+  const w = dom.window;
+  w.structuredClone = (value) => w.JSON.parse(w.JSON.stringify(value));
+  w.TextEncoder = TextEncoder;
+  w.TextDecoder = TextDecoder;
+  Object.defineProperty(w.crypto, "subtle", { value: crypto.subtle });
+  w.indexedDB = new IDBFactory();
+  w.matchMedia = () => ({ matches: false, addEventListener() {} });
+  w.puter = puter;
+  const downloads = [];
+  w.URL.createObjectURL = (blob) => {
+    downloads.push(blob);
+    return "blob:test";
+  };
+  w.URL.revokeObjectURL = () => {};
+  w.HTMLAnchorElement.prototype.click = () => {};
+  w.HTMLCanvasElement.prototype.setPointerCapture = () => {};
+  w.HTMLCanvasElement.prototype.getContext = function () {
+    if (
+      !this._native ||
+      this._native.width !== this.width ||
+      this._native.height !== this.height
+    )
+      this._native = createCanvas(this.width, this.height);
+    return this._native.getContext("2d");
+  };
+  w.HTMLCanvasElement.prototype.toDataURL = function () {
+    return this._native.toDataURL("image/png");
+  };
+  w.HTMLDialogElement.prototype.showModal = function () {
+    this.open = true;
+  };
+  w.HTMLDialogElement.prototype.close = function () {
+    this.open = false;
+    this.dispatchEvent(new w.Event("close"));
+  };
+  await w.eval(`(async()=>{${code}\n})()`);
+  const tick = () => new Promise((r) => setTimeout(r, 25));
+  const doc = w.document;
+  const click = async (selector) => {
+    const el = doc.querySelector(selector);
+    assert.ok(el, selector);
+    el.click();
+    await tick();
+  };
+  const until = async (fn, message, timeout = 8000) => {
+    const deadline = Date.now() + timeout;
+    while (!fn() && Date.now() < deadline) await tick();
+    assert.ok(fn(), message);
+  };
+  const read = (blob) =>
+    new Promise((resolve) => {
+      const r = new w.FileReader();
+      r.onload = () => resolve(r.result);
+      r.readAsText(blob);
+    });
+  const key = (key, extra = {}) =>
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      }),
+    );
+  const sizeCanvas = () =>
+    (doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1600,
+      height: 900,
+    }));
+  async function addNote(text) {
+    key("n");
+    await tick();
+    const input = doc.querySelector("#canvas-text-editor");
+    assert.ok(input, "Note editor opened");
+    input.value = text;
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await tick();
+  }
+  async function audit(selector) {
+    if (!w.axe) w.eval(axe.source);
+    const result = await w.axe.run(doc.querySelector(selector), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      result.violations.length,
+      0,
+      `${selector}: ${result.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.html).join(" ")}`).join(", ")}`,
+    );
+  }
+  const outline = () =>
+    [...doc.querySelectorAll("#board-outline button")].map(
+      (b) => b.textContent,
+    );
+  return {
+    w,
+    doc,
+    click,
+    tick,
+    until,
+    read,
+    key,
+    sizeCanvas,
+    addNote,
+    audit,
+    outline,
+    downloads,
+    close: () => w.close(),
+  };
+}
+
+test("built app: a facilitator runs dot votes, polls, reactions, history, and exports on a personal board", async () => {
+  const app = await setup();
+  const { doc, w, click, until } = app;
+  try {
+    await click('[data-action="new"]');
+    await until(() => doc.querySelector("#canvas"), "Board opened");
+    app.sizeCanvas();
+    for (const text of ["Ship faster", "=SUM(1)", "Better docs"])
+      await app.addNote(text);
+    await until(() => app.outline().length === 3, "Three notes");
+    const ids = [...doc.querySelectorAll("#board-outline button")].map(
+      (b) => b.dataset.id,
+    );
+    // An unlocked selection offers hiding from its toolbar, then showing.
+    await until(
+      () => doc.querySelector('#selection-tools [data-action="hide-objects"]'),
+      "Hide from participants is on the toolbar of an unlocked note",
+    );
+    await click('#selection-tools [data-action="hide-objects"]');
+    await until(
+      () => doc.querySelector('#selection-tools [data-action="show-objects"]'),
+      "A hidden note offers Show to participants",
+    );
+    await click('#selection-tools [data-action="show-objects"]');
+    await until(
+      () => doc.querySelector('#selection-tools [data-action="hide-objects"]'),
+      "Showing the note again restores the Hide button",
+    );
+    await click('.canvas-navigation [data-action="facilitation"]');
+    const panel = doc.querySelector("#facilitation-panel");
+    assert.ok(panel, "The console opens from the canvas navigation");
+    assert.equal(doc.activeElement.id, "facilitation-heading");
+    assert.equal(
+      doc
+        .querySelector('.canvas-navigation [data-action="facilitation"]')
+        .getAttribute("aria-expanded"),
+      "true",
+    );
+    await app.audit("#facilitation-panel");
+    // Arrow keys move between tabs.
+    doc.querySelector("#fac-tab-session").focus();
+    doc
+      .querySelector("#fac-tab-session")
+      .dispatchEvent(
+        new w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+    await app.tick();
+    assert.equal(doc.activeElement.id, "fac-tab-vote");
+    assert.ok(doc.querySelector("#fac-vote-form"));
+    await app.audit("#facilitation-panel");
+    doc.querySelector("#fac-vote-title").value = "Next quarter";
+    doc
+      .querySelector("#fac-vote-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    await until(
+      () =>
+        /3 votes left/.test(doc.querySelector("#workshop-banner").textContent),
+      "The banner shows remaining votes",
+    );
+    const add = (id) =>
+      doc.querySelector(`[data-fac-vote="add"][data-id="${id}"]`);
+    assert.ok(add(ids[0]), "Votable objects show a vote button on the canvas");
+    add(ids[0]).focus();
+    add(ids[0]).click();
+    await app.tick();
+    assert.equal(doc.activeElement, add(ids[0]), "Focus stays on the vote");
+    assert.equal(
+      add(ids[0]).getAttribute("aria-disabled"),
+      "true",
+      "One vote per object by default",
+    );
+    // An unavailable vote button stays focusable but does nothing.
+    const before = doc.querySelector("#workshop-banner").textContent;
+    add(ids[0]).click();
+    await app.tick();
+    assert.equal(doc.querySelector("#workshop-banner").textContent, before);
+    add(ids[2]).click();
+    await app.tick();
+    assert.match(doc.querySelector("#fac-remaining").textContent, /1 of 3/);
+    doc.querySelector(`[data-fac-vote="remove"][data-id="${ids[2]}"]`).click();
+    await app.tick();
+    await click(`[data-fac="vote-add"][data-id="${ids[1]}"]`);
+    assert.match(doc.querySelector("#fac-remaining").textContent, /1 of 3/);
+    assert.equal(
+      doc.querySelector(".fac-vote-count"),
+      null,
+      "Counts stay hidden while voting",
+    );
+    await app.audit("#facilitation-panel");
+    await click('[data-fac="vote-end"]');
+    await click('[data-fac="vote-reveal"]');
+    await until(
+      () => doc.querySelector(`[data-fac-item="${ids[0]}"] .fac-vote-count`),
+      "Revealed counts appear on objects",
+    );
+    const rows = [...doc.querySelectorAll(".fac-results li")].map(
+      (li) => li.textContent,
+    );
+    assert.equal(rows.length, 3);
+    assert.match(rows[0], /Ship faster.*1 vote\b/);
+    doc.querySelector("#fac-top").value = "1";
+    await click('[data-fac="vote-top"]');
+    assert.deepEqual(
+      [...doc.querySelectorAll('#board-outline [aria-pressed="true"]')].map(
+        (b) => b.dataset.id,
+      ),
+      [ids[0]],
+      "Select top N selects the leading objects",
+    );
+    await click('.canvas-navigation [data-action="facilitation"]');
+    await click('.canvas-navigation [data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    await click('[data-fac="vote-csv"]');
+    const csv = await app.read(app.downloads.at(-1));
+    assert.match(csv, /Next quarter/);
+    assert.match(csv, /'=SUM\(1\)/);
+    await click('[data-fac="vote-json"]');
+    assert.equal(
+      JSON.parse(await app.read(app.downloads.at(-1))).title,
+      "Next quarter",
+    );
+    await click("#fac-tab-history");
+    assert.equal(
+      doc.querySelectorAll(".fac-history > li").length,
+      1,
+      "Completed votes stay in the history",
+    );
+    await app.audit("#facilitation-panel");
+    // Polls.
+    await click("#fac-tab-poll");
+    doc.querySelector("#fac-poll-question").value = "Keep the retro format?";
+    doc.querySelector("#fac-poll-options").value = "Yes\nNo\n";
+    doc
+      .querySelector("#fac-poll-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    doc.querySelector('[name="fac-poll-answer"]').checked = true;
+    doc
+      .querySelector("#fac-answer-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.match(
+      doc.querySelector(".fac-results li").textContent,
+      /Yes.*1 response\b.*100%/,
+    );
+    await app.audit("#facilitation-panel");
+    await click('[data-fac="poll-close"]');
+    await click("#fac-tab-history");
+    assert.equal(doc.querySelectorAll(".fac-history > li").length, 2);
+    // Summary.
+    await click("#fac-tab-summary");
+    assert.ok(doc.querySelector(".fac-totals"));
+    await app.audit("#facilitation-panel");
+    await click('[data-fac="summary-csv"]');
+    assert.match(await app.read(app.downloads.at(-1)), /Workshop summary/);
+    // Session controls, including private mode on a personal board.
+    await click("#fac-tab-session");
+    await click('[data-fac="private-on"]');
+    await until(
+      () =>
+        /Private mode/.test(doc.querySelector("#workshop-banner").textContent),
+      "Private mode banner",
+    );
+    await app.audit("#facilitation-panel");
+    doc
+      .querySelector("#facilitation-panel")
+      .dispatchEvent(
+        new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    await app.tick();
+    assert.equal(doc.querySelector("#facilitation-panel"), null);
+    assert.equal(
+      doc.activeElement.dataset.action,
+      "facilitation",
+      "Focus returns to the entry point",
+    );
+    await app.addNote("My own private idea");
+    assert.ok(
+      app.outline().some((t) => t.includes("My own private idea")),
+      "Authors see their own private notes",
+    );
+    // Reactions on objects.
+    await click(`#board-outline [data-id="${ids[0]}"]`);
+    await click(`[data-fac-item="${ids[0]}"] [data-fac-picker]`);
+    assert.ok(doc.querySelector(".fac-picker"));
+    await app.audit(".fac-picker");
+    assert.equal(doc.activeElement.dataset.facChoose, "thumbs");
+    doc.activeElement.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+    );
+    assert.equal(doc.activeElement.dataset.facChoose, "heart");
+    await click('[data-fac-choose="thumbs"]');
+    const chip = () =>
+      doc.querySelector(
+        `[data-fac-item="${ids[0]}"] [data-fac-react="thumbs"]`,
+      );
+    await until(() => chip(), "The reaction appears on the object");
+    assert.equal(chip().getAttribute("aria-pressed"), "true");
+    assert.match(chip().textContent, /1/);
+    assert.match(chip().getAttribute("aria-label"), /Thumbs up: 1 \(You\)/);
+    chip().click();
+    await until(() => !chip(), "Toggling removes your reaction");
+    // Reactions on comment messages.
+    await click('[data-action="add-comment"]');
+    doc.querySelector("#comment-text").value = "Worth discussing";
+    await click('#comment-form [type="submit"]');
+    await click("#comments-panel [data-fac-picker]");
+    await click('[data-fac-choose="idea"]');
+    await until(
+      () =>
+        doc.querySelector(
+          '#comments-panel [data-fac-react="idea"][aria-pressed="true"]',
+        ),
+      "Comment messages show reactions",
+    );
+    await app.audit("#comments-panel");
+    await click("#comments-close");
+    // The command palette and More tools reach the console too.
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="facilitation"]');
+    assert.ok(doc.querySelector("#facilitation-panel"));
+    // Whiteboard files keep results and reactions, not the live session.
+    const downloaded = app.downloads.length;
+    await click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "json";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await until(() => app.downloads.length > downloaded, "Board exported");
+    await app.tick();
+    const exported = JSON.parse(await app.read(app.downloads.at(-1)));
+    const keys = Object.keys(exported.workshop);
+    assert.equal(keys.filter((k) => k.startsWith("h:")).length, 2);
+    assert.ok(keys.some((k) => k.startsWith("r:")));
+    assert.equal(exported.workshop.vote, undefined);
+    assert.equal(exported.workshop.settings, undefined);
+    validateBoard(exported);
+    // French.
+    doc.querySelector("dialog")?.close();
+    const language = doc.querySelector("#language");
+    language.value = "fr";
+    language.dispatchEvent(new w.Event("change", { bubbles: true }));
+    await app.tick();
+    await click('.canvas-navigation [data-action="facilitation"]');
+    await until(
+      () => doc.querySelector("#facilitation-heading"),
+      "Console reopened",
+    );
+    assert.equal(
+      doc.querySelector("#facilitation-heading").textContent,
+      "Animation",
+    );
+    assert.equal(doc.querySelector("#fac-tab-poll").textContent, "Sondage");
+    await app.audit("#facilitation-panel");
+  } finally {
+    app.close();
+  }
+});
+
+test("built collaborators: private mode, a commenter's vote and reaction, and board locks sync through the worker", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Retrospective",
+    items: [item("note", 100, 100, { text: "Owner idea" })],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+    ["editor", "commenter"].map((role) =>
+      env.service.call(owner, { op: "invite", room: initial.id, role }),
+    ),
+  );
+  const a = await setup(env.sdk(owner)),
+    b = await setup(env.sdk(editor)),
+    c = await setup(env.sdk(viewer)),
+    apps = [a, b, c];
+  try {
+    for (const [index, app] of apps.entries()) {
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${index ? invites[index - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await app.until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined",
+      );
+      app.sizeCanvas();
+    }
+    await a.until(() => a.outline().length === 1, "Owner sees the board");
+    await a.click('.canvas-navigation [data-action="facilitation"]');
+    await a.click('[data-fac="private-on"]');
+    await b.until(
+      () =>
+        /Private mode/.test(
+          b.doc.querySelector("#workshop-banner").textContent,
+        ),
+      "Private mode reaches the editor",
+    );
+    await b.addNote("Bob secret");
+    await b.until(
+      () => b.outline().some((t) => t.includes("Bob secret")),
+      "The author sees the note",
+    );
+    await a.until(() => a.outline().length === 2, "The note reaches the owner");
+    await c.until(
+      () => c.outline().length === 2,
+      "The note reaches the commenter",
+    );
+    for (const app of [a, c]) {
+      assert.ok(
+        !app.outline().some((t) => t.includes("Bob secret")),
+        "Others see a placeholder",
+      );
+      assert.ok(app.outline().some((t) => t.includes("Private note")));
+      assert.ok(
+        app.doc.querySelector(".fac-private"),
+        "A face-down marker is shown",
+      );
+    }
+    // Lists of the board's objects keep the note face down too.
+    await a.click('.canvas-navigation [data-action="objects"]');
+    const listed = [...a.doc.querySelectorAll("dialog [data-object]")].map(
+      (x) => x.textContent,
+    );
+    assert.ok(
+      listed.some((x) => x.includes("Private note")),
+      listed.join(),
+    );
+    assert.ok(!listed.some((x) => x.includes("Bob secret")));
+    a.doc.querySelector("dialog").close();
+    await a.tick();
+    const ownerIdea = [...a.doc.querySelectorAll("#board-outline button")].find(
+      (x) => x.textContent.includes("Owner idea"),
+    ).dataset.id;
+    await a.click(`#board-outline [data-id="${ownerIdea}"]`);
+    await a.click("#object-link-access");
+    const targets = [
+      ...a.doc.querySelectorAll("#object-link-targets [data-link-target]"),
+    ].map((x) => x.textContent);
+    assert.ok(
+      !targets.some((x) => /Bob secret|Private note/.test(x)),
+      targets.join(),
+    );
+    await a.click("#object-link-close");
+    await a.click('[data-fac="private-reveal"]');
+    await c.until(
+      () => c.outline().some((t) => t.includes("Bob secret")),
+      "Revealing shows everyone's notes",
+    );
+    // The commenter votes and reacts; the facilitator sees the results.
+    await a.click("#fac-tab-vote");
+    a.doc.querySelector("#fac-vote-hidden").checked = false;
+    a.doc
+      .querySelector("#fac-vote-form")
+      .dispatchEvent(new a.w.Event("submit", { cancelable: true }));
+    await c.until(
+      () => c.doc.querySelector('[data-fac-vote="add"]'),
+      "The commenter can vote on the canvas",
+    );
+    c.doc.querySelector('[data-fac-vote="add"]').click();
+    await a.until(
+      () =>
+        /1 participant has voted/.test(
+          a.doc.querySelector("#fac-tabpanel").textContent,
+        ),
+      "The ballot reaches the facilitator",
+    );
+    const noteId = c.doc.querySelector("#board-outline button").dataset.id;
+    await c.click(`#board-outline [data-id="${noteId}"]`);
+    await c.click(`[data-fac-item="${noteId}"] [data-fac-picker]`);
+    await c.click('[data-fac-choose="celebrate"]');
+    await a.until(
+      () =>
+        a.doc.querySelector(
+          `[data-fac-item="${noteId}"] [data-fac-react="celebrate"]`,
+        ),
+      "The reaction reaches the facilitator",
+    );
+    assert.match(
+      a.doc
+        .querySelector(
+          `[data-fac-item="${noteId}"] [data-fac-react="celebrate"]`,
+        )
+        .getAttribute("aria-label"),
+      /Cam/,
+      "Named reactions show who reacted",
+    );
+    // A locked board stops editors from changing the facilitator's note.
+    await a.click("#fac-tab-session");
+    const contribute = a.doc.querySelector(
+      '[name="fac-lock"][value="contribute"]',
+    );
+    contribute.checked = true;
+    contribute.dispatchEvent(new a.w.Event("change", { bubbles: true }));
+    await b.until(
+      () =>
+        /Board locked/.test(
+          b.doc.querySelector("#workshop-banner").textContent,
+        ),
+      "The lock reaches the editor",
+    );
+    const ownerNote = [...b.doc.querySelectorAll("#board-outline button")].find(
+      (x) => x.textContent.includes("Owner idea"),
+    ).dataset.id;
+    await b.click(`#board-outline [data-id="${ownerNote}"]`);
+    b.key("Delete");
+    await b.tick();
+    assert.ok(
+      b.outline().some((t) => t.includes("Owner idea")),
+      "Locked content cannot be deleted",
+    );
+    assert.match(b.doc.querySelector("#toast").textContent, /Unlock|locked/i);
+    await b.addNote("Still contributing");
+    await a.until(
+      () => a.outline().some((t) => t.includes("Still contributing")),
+      "Participants can still add notes",
+    );
+    // A refused change is undone on screen too.
+    const title = b.doc.querySelector("#board-title");
+    title.value = "Renamed by an editor";
+    title.dispatchEvent(new b.w.Event("change", { bubbles: true }));
+    await b.tick();
+    assert.equal(title.value, "Retrospective");
+    assert.match(b.doc.title, /^Retrospective/);
+    // The timer is the facilitator's while the board is locked.
+    for (const app of [a, b]) await app.click('[data-action="timer"]');
+    assert.equal(b.doc.querySelector("#timer-start").disabled, true);
+    assert.equal(a.doc.querySelector("#timer-start").disabled, false);
+    for (const app of apps) await app.click('[data-action="home"]');
+    await Promise.all(
+      apps.map((app) =>
+        app.until(() => app.doc.querySelector(".library"), "Left the board"),
+      ),
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("facilitators can hide individual objects and frame contents from participants", async () => {
+  const { concealment, validateWorkshop, workshopEvents } =
+    await import("../src/facilitation/model.js");
+  const { board, item } = await import("../src/model.js");
+  const frame = item("frame", 0, 0, { w: 300, h: 300, text: "Answers" });
+  const inside = item("note", 10, 60, { text: "Answer", parentId: frame.id });
+  const loose = item("note", 400, 0, { text: "Hint" });
+  const b = { ...board("Hide"), items: [frame, inside, loose] };
+  b.workshop = { settings: { hide: [frame.id, loose.id] } };
+  const participant = concealment(b, "someone", false);
+  assert.deepEqual(
+    [...participant.hidden].sort(),
+    [frame.id, inside.id, loose.id].sort(),
+  );
+  assert.equal(concealment(b, "facilitator", true).hidden.size, 0);
+  assert.deepEqual(workshopEvents({}, b.workshop)[0], {
+    action: "workshop.hidden",
+    details: { objects: 2 },
+  });
+  validateWorkshop(b.workshop);
+  assert.throws(() =>
+    validateWorkshop({ settings: { hide: [frame.id, frame.id] } }),
+  );
+});
+
+test("starting a new vote right after a timed vote's deadline keeps its result", () => {
+  const b = { ...newBoard("Workshop"), items: notes(), shared: { room: "r" } };
+  // The stub's clock reads 10000: the deadline has passed, but the vote is
+  // still active while late ballots arrive.
+  b.workshop = {
+    vote: vote({ endsAt: 9000, hidden: false }),
+    ...Object.fromEntries([ballot(owner, ["a", "b"]), ballot(editor, ["a"])]),
+  };
+  const host = stubUI(b, { role: "owner", me: owner });
+  try {
+    host.api.open("vote");
+    assert.equal(host.doc.querySelector('[data-fac="vote-end"]'), null);
+    host.click('[data-fac="vote-clear"]');
+    assert.equal(b.workshop.vote, undefined);
+    const record = b.workshop[historyKey("vote1")];
+    assert.ok(record, "The result is in the history");
+    assert.equal(record.results.find((r) => r.id === "a").count, 2);
+    assert.equal(record.results.find((r) => r.id === "b").count, 1);
+    assert.equal(
+      Object.keys(b.workshop).some((k) => k.startsWith("v:")),
+      false,
+      "Ballots are cleared",
+    );
+  } finally {
+    host.close();
+  }
+});
+
+test("hidden vote results stay hidden in the history until revealed", () => {
+  const b = { ...newBoard("Workshop"), items: notes(), shared: { room: "r" } };
+  const vote = {
+    id: "vote1",
+    title: "Secret vote",
+    votes: 2,
+    multiple: false,
+    anonymous: false,
+    hidden: true,
+    targets: ["a", "b"],
+    state: "ended",
+    revealed: false,
+    startedAt: 1000,
+    endsAt: 0,
+    endedAt: 5000,
+  };
+  b.workshop = {
+    vote,
+    [voteKey("vote1", owner.uuid)]: {
+      vote: "vote1",
+      by: owner.uuid,
+      ids: ["a"],
+      at: 2000,
+      name: "Alice",
+    },
+  };
+  const record = resultRecord(b, "vote", (id) => id, 5000);
+  assert.equal(record.hidden, true);
+  b.workshop[historyKey("vote1")] = record;
+  validateBoard(b);
+  const participant = stubUI(b, { role: "editor", me: editor });
+  try {
+    participant.api.open("history");
+    const panel = participant.doc.querySelector("#fac-tabpanel");
+    assert.match(panel.textContent, /Results are hidden/);
+    assert.equal(panel.querySelector('[data-fac="history-csv"]'), null);
+    assert.doesNotMatch(panel.textContent, /Alice/);
+  } finally {
+    participant.close();
+  }
+  const facilitator = stubUI(b, { role: "owner", me: owner });
+  try {
+    facilitator.api.open("vote");
+    facilitator.click('[data-fac="vote-reveal"]');
+    assert.equal(b.workshop[historyKey("vote1")].hidden, false);
+  } finally {
+    facilitator.close();
+  }
+});
+
+test("a timed vote ends at its deadline without another redraw", async () => {
+  const dom = new JSDOM(
+    '<div class="canvas-wrap"><canvas id="canvas"></canvas><div class="canvas-navigation"></div></div>',
+  );
+  const previous = globalThis.document;
+  globalThis.document = dom.window.document;
+  const doc = dom.window.document;
+  doc.querySelector("#canvas").getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1600,
+    height: 900,
+  });
+  let clock = 10000;
+  const b = { ...newBoard("Workshop"), items: notes() };
+  b.workshop = {
+    vote: {
+      id: "v1",
+      title: "Timed",
+      votes: 1,
+      multiple: false,
+      anonymous: true,
+      hidden: false,
+      targets: ["a"],
+      state: "active",
+      revealed: false,
+      startedAt: 1000,
+      endsAt: 10500,
+    },
+  };
+  const api = createFacilitationUI({
+    board: () => b,
+    identity: () => ({ id: owner.uuid, name: "Alice" }),
+    role: () => "owner",
+    canParticipate: () => true,
+    canEdit: () => true,
+    now: () => clock,
+    view: () => ({ x: 0, y: 0, z: 1 }),
+    canvas: () => doc.querySelector("#canvas"),
+    hidden: () => new Map(),
+    selection: () => new Set(),
+    select() {},
+    commit(workshop) {
+      b.workshop = workshop;
+    },
+    setTimer() {},
+    focusFrame() {},
+    bring() {},
+    follow() {},
+    session: () => null,
+    roster: () => [],
+    icon: () => "",
+    toast() {},
+    download() {},
+  });
+  try {
+    api.bind(doc.querySelector(".canvas-wrap"));
+    api.open("vote");
+    api.render();
+    // Closed at the deadline, and recorded once late ballots can arrive.
+    clock = 10500 + VOTE_GRACE;
+    await new Promise((resolve) => setTimeout(resolve, 1300));
+    assert.equal(b.workshop.vote.state, "ended");
+    assert.match(doc.querySelector("#fac-tabpanel").textContent, /ended/);
+    // It ended at its deadline, not when it was saved.
+    assert.equal(b.workshop.vote.endedAt, 10500);
+    assert.equal(b.workshop[historyKey("v1")].endedAt, 10500);
+  } finally {
+    api.detach();
+    dom.window.close();
+    globalThis.document = previous;
+  }
+});
+
+test("counts of one read as one vote, participant, or response in English and French", async () => {
+  const { setLanguage } = await import("../src/i18n.js");
+  const b = { ...newBoard("Workshop"), items: notes() };
+  b.workshop = Object.fromEntries([
+    ["vote", vote({ votes: 2, hidden: false, revealed: true })],
+    ballot(editor, ["a"]),
+  ]);
+  const ui = stubUI(b, { role: "editor", me: editor });
+  const text = (selector) => ui.doc.querySelector(selector).textContent;
+  try {
+    ui.api.render();
+    ui.api.open("vote");
+    assert.match(text("#fac-tabpanel"), /1 participant has voted\./);
+    assert.match(text("#fac-tabpanel"), /1 vote · 100%.*0 votes · 0%/);
+    assert.match(ui.banner(), /1 vote left/);
+    assert.equal(
+      ui.doc
+        .querySelector(`[data-fac-item="a"] .fac-vote-count`)
+        .getAttribute("aria-label"),
+      "1 vote",
+    );
+    setLanguage("fr");
+    ui.api.render();
+    ui.api.open("vote");
+    // French uses the singular for zero too.
+    assert.match(text("#fac-tabpanel"), /1 participant a voté\./);
+    assert.match(text("#fac-tabpanel"), /1 vote · 100%.*0 vote · 0%/);
+    assert.match(ui.banner(), /1 vote restant/);
+  } finally {
+    setLanguage("en");
+    ui.close();
+  }
+});
+
+test("participants see a timed vote's results at its deadline without a facilitator", () => {
+  for (const hidden of [false, true]) {
+    const b = { ...newBoard("Workshop"), shared: { server: "x", room: "r" } };
+    b.items = notes();
+    b.workshop = Object.fromEntries([
+      ["vote", vote({ hidden, anonymous: true, endsAt: 5000 })],
+      ballot(editor, ["a"], "vote1", false),
+    ]);
+    // Only a participant is online after the deadline, so nobody ends it.
+    const ui = stubUI(b, { role: "editor", me: editor });
+    try {
+      ui.api.render();
+      ui.api.open("vote");
+      const panel = ui.doc.querySelector("#fac-tabpanel").textContent;
+      assert.match(panel, /Voting has ended/);
+      assert.equal(/1 vote · 100%/.test(panel), !hidden, `hidden: ${hidden}`);
+      assert.equal(
+        ui.doc.querySelectorAll(".fac-vote-count").length,
+        hidden ? 0 : 3,
+      );
+      assert.equal(b.workshop.vote.state, "active");
+    } finally {
+      ui.close();
+    }
+  }
+});
+
+test("saved results name an object once the facilitator reveals it", () => {
+  const b = { ...newBoard("Workshop"), shared: { server: "x", room: "r" } };
+  b.items = [
+    item("frame", 0, 0, { id: "F", w: 1000, h: 800, text: "Round 2" }),
+    item("note", 100, 100, { id: "a", parentId: "F", text: "Secret idea" }),
+  ];
+  b.workshop = {
+    settings: { stage: { frames: ["F"], shown: 0 } },
+    [historyKey("v1")]: {
+      kind: "vote",
+      id: "v1",
+      title: "Prior",
+      startedAt: 1,
+      endedAt: 2,
+      anonymous: true,
+      participants: 1,
+      results: [{ id: "a", label: "Secret idea", count: 3 }],
+    },
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.open("history");
+    const text = () => ui.doc.querySelector("#fac-tabpanel").textContent;
+    assert.match(text(), /Hidden by the facilitator/);
+    assert.doesNotMatch(text(), /Secret idea/);
+    b.workshop = { ...b.workshop, settings: {} };
+    ui.api.render();
+    assert.match(text(), /Secret idea/);
+    assert.doesNotMatch(text(), /Hidden by the facilitator/);
+  } finally {
+    ui.close();
+  }
+});
+
+test("a vote saves no text hidden from participants, so deleting the object later reveals nothing", () => {
+  const b = { ...newBoard("Workshop"), shared: { server: "x", room: "r" } };
+  b.items = [
+    item("note", 0, 0, { id: "a", text: "Visible idea" }),
+    item("note", 250, 0, { id: "b", text: "Hidden secret" }),
+    item("frame", 0, 400, { id: "F", w: 600, h: 400, text: "Later" }),
+    item("note", 50, 450, { id: "c", parentId: "F", text: "Staged secret" }),
+  ];
+  b.workshop = {
+    settings: {
+      lock: "open",
+      hide: ["b"],
+      stage: { frames: ["F"], shown: 0 },
+    },
+    vote: vote({ targets: ["a", "b", "c"], hidden: false }),
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("vote");
+    ui.click('[data-fac="vote-end"]');
+    const saved = b.workshop[historyKey("vote1")];
+    assert.ok(!JSON.stringify(saved).includes("secret"));
+    assert.equal(saved.results.find((r) => r.id === "a").label, "Visible idea");
+    // The facilitator still reads the names while the objects exist.
+    ui.api.open("history");
+    assert.match(
+      ui.doc.querySelector("#fac-tabpanel").textContent,
+      /Hidden secret/,
+    );
+  } finally {
+    ui.close();
+  }
+  // The facilitator deletes both before revealing them.
+  b.items = b.items.filter((i) => i.id === "a");
+  const participant = stubUI(b, { role: "editor", me: editor });
+  try {
+    participant.api.open("history");
+    const text = participant.doc.querySelector("#fac-tabpanel").textContent;
+    assert.match(text, /Visible idea/);
+    assert.doesNotMatch(text, /secret/);
+  } finally {
+    participant.close();
+  }
+});
+
+test("a vote ended in private mode saves no private note's text", () => {
+  const b = { ...newBoard("Workshop"), shared: { server: "x", room: "r" } };
+  b.items = [
+    item("note", 0, 0, { id: "a", text: "Alice secret" }),
+    item("note", 250, 0, { id: "b", text: "Other" }),
+  ];
+  b.workshop = {
+    settings: { lock: "open", private: "r1", anonymous: false },
+    [contributionKey("a")]: { by: owner.uuid, at: 1000, round: "r1" },
+    vote: vote({ targets: ["a", "b"], hidden: false }),
+  };
+  const history = (who, role) => {
+    const ui = stubUI(b, { role, me: who });
+    try {
+      ui.api.open("history");
+      ui.click('[data-fac="history-csv"]');
+      return [
+        ui.doc.querySelector("#fac-tabpanel").textContent,
+        ui.calls.downloads[0][0],
+      ];
+    } finally {
+      ui.close();
+    }
+  };
+  // The owner, who wrote the note, ends the vote while notes are private.
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("vote");
+    ui.click('[data-fac="vote-end"]');
+  } finally {
+    ui.close();
+  }
+  const saved = b.workshop[historyKey("vote1")];
+  assert.ok(!JSON.stringify(saved).includes("Alice secret"));
+  assert.deepEqual(
+    saved.results.map((r) => r.label),
+    ["", "Other"],
+  );
+  assert.match(history(owner, "owner")[0], /Alice secret/);
+  for (const [who, role] of [
+    [editor, "facilitator"],
+    [guest, "editor"],
+  ])
+    for (const text of history(who, role)) {
+      assert.doesNotMatch(text, /Alice secret/);
+      assert.match(text, /Private note/);
+    }
+  // Once the notes are revealed, everyone sees what the note says.
+  b.workshop = { ...b.workshop, settings: { lock: "open", private: null } };
+  assert.match(history(editor, "facilitator")[0], /Alice secret/);
+});
+
+test("facilitators reveal hidden results from History after starting a new vote", () => {
+  const b = { ...newBoard("Workshop"), shared: { server: "x", room: "r" } };
+  b.items = notes();
+  b.workshop = Object.fromEntries([
+    ["vote", vote({ anonymous: true })],
+    ballot(editor, ["a"], "vote1", false),
+  ]);
+  const ui = stubUI(b, { role: "owner", me: owner });
+  const participant = () => {
+    const other = stubUI(b, { role: "editor", me: editor });
+    try {
+      other.api.open("history");
+      return other.doc.querySelector("#fac-tabpanel").textContent;
+    } finally {
+      other.close();
+    }
+  };
+  try {
+    ui.api.open("vote");
+    ui.click('[data-fac="vote-end"]');
+    // While the vote is still in its tab, History reveals it there too.
+    ui.api.open("history");
+    assert.match(
+      ui.doc.querySelector("#fac-tabpanel").textContent,
+      /Only facilitators can see these results/,
+    );
+    ui.click('[data-fac="history-reveal"]');
+    assert.equal(b.workshop.vote.revealed, true);
+    assert.equal(b.workshop[historyKey("vote1")].hidden, false);
+    ui.api.open("vote");
+    ui.click('[data-fac="vote-hide"]');
+    assert.equal(b.workshop[historyKey("vote1")].hidden, true);
+    // After "New vote", the saved result can still be revealed.
+    ui.click('[data-fac="vote-clear"]');
+    assert.equal(b.workshop.vote, undefined);
+    assert.match(participant(), /Results are hidden/);
+    ui.api.open("history");
+    ui.click('[data-fac="history-reveal"]');
+    assert.equal(b.workshop[historyKey("vote1")].hidden, false);
+    assert.equal(ui.doc.querySelector('[data-fac="history-reveal"]'), null);
+    assert.doesNotMatch(participant(), /Results are hidden/);
+    assert.match(participant(), /1 vote\b/);
+  } finally {
+    ui.close();
+  }
+});
+
+test("canvas badges are worked out only for objects in view", async () => {
+  const { createOverlay } = await import("../src/facilitation/overlay.js");
+  const dom = new JSDOM('<div class="canvas-wrap"><canvas></canvas></div>');
+  const previous = globalThis.document;
+  globalThis.document = dom.window.document;
+  const b = { ...newBoard("Large"), workshop: {} };
+  b.items = Array.from({ length: 2000 }, (_, n) =>
+    item("note", (n % 50) * 220, Math.floor(n / 50) * 200, { id: `n${n}` }),
+  );
+  let lookups = 0;
+  const index = new Map([
+    [
+      JSON.stringify(objectTarget("n0")),
+      [
+        {
+          by: editor.uuid,
+          target: objectTarget("n0"),
+          types: ["heart"],
+          at: 1,
+        },
+      ],
+    ],
+  ]);
+  const get = index.get.bind(index);
+  index.get = (key) => (lookups++, get(key));
+  const overlay = createOverlay({
+    board: () => b,
+    view: () => ({ x: 0, y: 0, z: 1 }),
+    canvas: () => ({
+      getBoundingClientRect: () => ({ width: 1600, height: 900 }),
+    }),
+    hidden: () => new Map(),
+    selection: () => new Set(),
+    me: () => ({ id: owner.uuid }),
+    canParticipate: () => true,
+    index: () => index,
+    concealment: () => ({
+      notes: new Set(),
+      frames: new Set(),
+      hidden: new Set(),
+    }),
+    label: (id) => id,
+    icon: () => "",
+    voting: () => null,
+    stagedForManager: () => false,
+  });
+  try {
+    overlay.bind(dom.window.document.querySelector(".canvas-wrap"));
+    overlay.render();
+    assert.equal(dom.window.document.querySelectorAll(".fac-item").length, 1);
+    assert.ok(lookups < 100, `${lookups} objects looked up`);
+  } finally {
+    overlay.detach();
+    dom.window.close();
+    globalThis.document = previous;
+  }
+});
+
+test("the add reaction button names its object once, as written, in each language", async () => {
+  const { createOverlay } = await import("../src/facilitation/overlay.js");
+  const { setLanguage } = await import("../src/i18n.js");
+  const dom = new JSDOM('<div class="canvas-wrap"><canvas></canvas></div>');
+  const previous = globalThis.document;
+  globalThis.document = dom.window.document;
+  const b = { ...newBoard("Labels"), workshop: {} };
+  b.items = [item("note", 0, 0, { id: "n0" })];
+  const overlay = createOverlay({
+    board: () => b,
+    view: () => ({ x: 0, y: 0, z: 1 }),
+    canvas: () => ({
+      getBoundingClientRect: () => ({ width: 1600, height: 900 }),
+    }),
+    hidden: () => new Map(),
+    selection: () => new Set(["n0"]),
+    me: () => ({ id: owner.uuid }),
+    canParticipate: () => true,
+    index: () => new Map(),
+    concealment: () => ({
+      notes: new Set(),
+      frames: new Set(),
+      hidden: new Set(),
+    }),
+    label: () => `Q&A: Tom's "idea"`,
+    icon: () => "",
+    voting: () => null,
+    stagedForManager: () => false,
+  });
+  const label = () =>
+    accessibleName(dom.window.document.querySelector("[data-fac-picker]"));
+  try {
+    overlay.bind(dom.window.document.querySelector(".canvas-wrap"));
+    overlay.render();
+    assert.equal(label(), `Add a reaction: Q&A: Tom's "idea"`);
+    setLanguage("fr");
+    overlay.render();
+    assert.equal(label(), `Ajouter une réaction : Q&A: Tom's "idea"`);
+  } finally {
+    setLanguage("en");
+    overlay.detach();
+    dom.window.close();
+    globalThis.document = previous;
+  }
+});
+
+test("showing an object inside a hidden frame says it stays hidden with the frame", () => {
+  const b = { ...newBoard("Hidden"), shared: { server: "x", room: "r" } };
+  b.items = [
+    item("frame", 0, 0, { id: "F", w: 1000, h: 800, text: "Later" }),
+    item("frame", 100, 100, { id: "G", w: 300, h: 300, text: "Inner" }),
+    item("note", 150, 150, { id: "n", parentId: "G", text: "Inside" }),
+    item("note", 2000, 0, { id: "m", text: "Alone" }),
+  ];
+  b.workshop = { settings: { lock: "open", hide: ["F", "m"] } };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    // A frame lying inside the hidden frame, and what it holds, are hidden.
+    assert.equal(ui.api.hidden("G"), true);
+    assert.equal(ui.api.hidden("n"), true);
+    ui.api.setHidden(["n"], false);
+    assert.deepEqual(b.workshop.settings.hide, ["F", "m"]);
+    assert.equal(
+      ui.calls.toasts.at(-1),
+      "Objects in a hidden frame stay hidden until the frame is shown.",
+    );
+    ui.api.setHidden(["m"], false);
+    assert.deepEqual(b.workshop.settings.hide, ["F"]);
+    assert.equal(ui.calls.toasts.at(-1), "Shown to participants.");
+    ui.api.setHidden(["F", "G", "n"], false);
+    assert.equal(ui.api.hidden("n"), false);
+    assert.equal(ui.calls.toasts.at(-1), "Shown to participants.");
+  } finally {
+    ui.close();
+  }
+});
+
+test("frames inside a staged or hidden frame are concealed with it", () => {
+  const b = {
+    ...newBoard("Nested"),
+    items: [
+      item("frame", 0, 0, { id: "A", w: 1000, h: 800, text: "Outer" }),
+      item("frame", 100, 100, { id: "B", w: 400, h: 300, text: "Inner" }),
+      item("note", 150, 150, { id: "n", parentId: "B", text: "Secret" }),
+      item("frame", 1200, 0, { id: "C", w: 400, h: 300, text: "Beside" }),
+    ],
+  };
+  b.workshop = { settings: { stage: { frames: ["A"], shown: 0 } } };
+  const staged = concealment(b, editor.uuid, false);
+  assert.deepEqual([...staged.frames], ["A"]);
+  assert.deepEqual([...staged.hidden].sort(), ["B", "n"]);
+  b.workshop = { settings: { hide: ["A"] } };
+  const hidden = concealment(b, editor.uuid, false);
+  assert.deepEqual([...hidden.hidden].sort(), ["A", "B", "n"]);
+  assert.equal(concealment(b, owner.uuid, true).hidden.size, 0);
+  // A step already shown stays visible inside a later, larger step.
+  b.workshop = { settings: { stage: { frames: ["B", "A"], shown: 1 } } };
+  const revealed = concealment(b, editor.uuid, false);
+  assert.deepEqual([...revealed.frames], ["A"]);
+  assert.deepEqual([...revealed.hidden], []);
+});
+
+test("a locked board refuses participants' planning setting changes", () => {
+  const before = { ...newBoard("Locked"), items: notes() };
+  before.workshop = { settings: { lock: "frozen" } };
+  const after = structuredClone(before);
+  after.planning = { statusSync: true };
+  assert.throws(
+    () => validateWorkshopChanges(before, after, editor, "editor"),
+    /locked/,
+  );
+  // The refused change is rolled back, so allowed notes still save.
+  const b = {
+    ...newBoard("Contribute"),
+    shared: { server: "x", room: "r" },
+    items: notes(),
+    workshop: { settings: { lock: "contribute" } },
+  };
+  const baseline = structuredClone(b);
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    b.planning = { statusSync: true };
+    assert.equal(ui.api.beforeSave(baseline), false);
+    assert.equal(b.planning, undefined);
+    b.items.push(item("note", 900, 0, { text: "Mine" }));
+    assert.equal(ui.api.beforeSave(baseline), true);
+  } finally {
+    ui.close();
+  }
+});
+
+test("text heights measured with this device's fonts do not block votes on a locked board", () => {
+  const text = (extra) =>
+    item("text", 0, 300, {
+      id: "t",
+      text: "Agenda",
+      autoHeight: true,
+      h: 60,
+      ...extra,
+    });
+  for (const lock of ["frozen", "contribute"])
+    for (const rotation of [0, 0.5]) {
+      const b = {
+        ...newBoard("Locked"),
+        shared: { server: "x", room: "r" },
+        items: [...notes(), text(rotation ? { rotation } : {})],
+        workshop: { settings: { lock }, vote: vote() },
+      };
+      const baseline = structuredClone(b);
+      // This device measures the facilitator's text a little taller, which
+      // also moves rotated text to keep its corner in place.
+      setObjectHeight(b.items[3], 62);
+      if (rotation) assert.notEqual(b.items[3].x, baseline.items[3].x);
+      const ui = stubUI(b, { role: "editor", me: editor });
+      try {
+        b.workshop = Object.fromEntries([
+          ...Object.entries(b.workshop),
+          ballot(editor, ["a"]),
+        ]);
+        assert.equal(ui.api.beforeSave(baseline), true, `${lock} ${rotation}`);
+        assert.ok(b.workshop[voteKey("vote1", editor.uuid)]);
+        // Other changes to the text are still refused.
+        const edited = structuredClone(b);
+        edited.items[3].text = "Changed";
+        assert.throws(() =>
+          validateWorkshopChanges(baseline, edited, editor, "editor"),
+        );
+        const resized = structuredClone(b);
+        resized.items[3].autoHeight = false;
+        assert.throws(() =>
+          validateWorkshopChanges(baseline, resized, editor, "editor"),
+        );
+      } finally {
+        ui.close();
+      }
+    }
+});
+
+test("the agenda steps back from the step shown after frames are deleted", () => {
+  const b = {
+    ...newBoard("Agenda"),
+    items: [0, 1, 2, 3, 4].map((n) =>
+      item("frame", n * 900, 0, {
+        id: `f${n}`,
+        text: `Step ${n}`,
+        w: 800,
+        h: 600,
+        order: n,
+      }),
+    ),
+  };
+  b.workshop = {
+    run: { id: "run1", state: "running", step: 4, startedAt: 1, stepAt: 1 },
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    b.items = b.items.slice(0, 2);
+    ui.api.open("agenda");
+    assert.match(ui.doc.querySelector(".fac-remaining").textContent, /2 of 2/);
+    ui.click('[data-fac="agenda-prev"]');
+    assert.match(ui.doc.querySelector(".fac-remaining").textContent, /1 of 2/);
+  } finally {
+    ui.close();
+  }
+});
+
+test("vote lists, the agenda, and saved results never name hidden objects", () => {
+  const frame = item("frame", 1000, 0, { w: 600, h: 400, text: "Round 2" });
+  const staged = item("note", 1100, 100, {
+    text: "Staged secret",
+    parentId: frame.id,
+  });
+  const loose = item("note", 300, 0, { text: "Hidden secret" });
+  const shown = item("note", 0, 0, { text: "Visible idea" });
+  const b = {
+    ...newBoard("Workshop"),
+    shared: { server: "x", room: "r" },
+    items: [shown, frame, staged, loose],
+  };
+  b.workshop = {
+    settings: { stage: { frames: [frame.id], shown: 0 }, hide: [loose.id] },
+    vote: vote({ targets: [shown.id, staged.id, loose.id] }),
+    [historyKey("old")]: {
+      kind: "vote",
+      id: "old",
+      title: "Earlier",
+      startedAt: 1,
+      endedAt: 2,
+      participants: 1,
+      results: [{ id: loose.id, label: "Hidden secret", count: 1 }],
+    },
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    for (const tab of ["vote", "agenda", "history"]) {
+      ui.api.open(tab);
+      const text = ui.doc.querySelector("#fac-tabpanel").textContent;
+      assert.doesNotMatch(text, /secret|Round 2/, tab);
+    }
+    ui.api.open("vote");
+    assert.equal(ui.doc.querySelectorAll(".fac-vote-list li").length, 1);
+  } finally {
+    ui.close();
+  }
+});
+
+test("a ballot arriving after a vote is saved updates the saved result", async () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  const ended = vote({ state: "ended", endedAt: 9000, hidden: false });
+  b.workshop = {
+    vote: ended,
+    [historyKey(ended.id)]: resultRecord(
+      { ...b, workshop: { vote: ended } },
+      "vote",
+      (id) => id,
+      9000,
+    ),
+  };
+  assert.equal(b.workshop[historyKey(ended.id)].participants, 0);
+  // Accepted by the worker before the end, merged in after it.
+  Object.assign(b.workshop, Object.fromEntries([ballot(editor, ["a"])]));
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.render();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const saved = b.workshop[historyKey(ended.id)];
+    assert.equal(saved.participants, 1);
+    assert.equal(saved.results.find((r) => r.id === "a").count, 1);
+    assert.equal(saved.endedAt, 9000);
+  } finally {
+    ui.close();
+  }
+});
+
+test("facilitators keep a saved vote result's labels instead of rewriting them", async () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  const ended = vote({ state: "ended", endedAt: 9000, hidden: false });
+  // Saved by another facilitator, who names objects differently.
+  b.workshop = {
+    vote: ended,
+    ...Object.fromEntries([ballot(editor, ["a"])]),
+  };
+  b.workshop[historyKey(ended.id)] = resultRecord(
+    b,
+    "vote",
+    (id) => `Other ${id}`,
+    9000,
+  );
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    const before = b.workshop;
+    ui.api.render();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.equal(b.workshop, before, "an up-to-date result is not rewritten");
+    // Received changes replace the entries, as every board update does.
+    b.workshop = {
+      ...b.workshop,
+      ...Object.fromEntries([ballot(viewer, ["b"])]),
+    };
+    ui.api.render();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const saved = b.workshop[historyKey(ended.id)];
+    assert.equal(saved.participants, 2);
+    assert.deepEqual(saved.results.map((r) => r.label).sort(), [
+      "Other a",
+      "Other b",
+      "Other c",
+    ]);
+  } finally {
+    ui.close();
+  }
+});
+
+test("a stale reveal or agenda step never undoes another facilitator's reveal all, end or restart", async () => {
+  const { rebaseWorkshop } = await import("../src/facilitation/model.js");
+  const stage = { frames: ["A", "B", "C", "D"], shown: 1 };
+  const run = {
+    id: "run1",
+    state: "running",
+    step: 1,
+    frame: "B",
+    startedAt: 1,
+    stepAt: 2,
+  };
+  const before = { settings: { lock: "open", stage }, run };
+  // This facilitator reveals the next frame and moves to the next step...
+  const local = {
+    settings: { lock: "open", stage: { ...stage, shown: 2 } },
+    run: { ...run, step: 2, frame: "C", stepAt: 3 },
+  };
+  // ...after another revealed every frame and ended the agenda.
+  const ended = rebaseWorkshop(local, before, {
+    settings: { lock: "open" },
+    run: { ...run, state: "ended" },
+  });
+  assert.equal(ended.settings.stage, undefined);
+  assert.equal(ended.run.state, "ended");
+  validateWorkshop(ended);
+  // Another staged different frames and started a new run.
+  const restaged = { frames: ["E", "F"], shown: 0 },
+    restarted = { ...run, id: "run2", step: 0, frame: "A" };
+  const replaced = rebaseWorkshop(local, before, {
+    settings: { lock: "open", stage: restaged },
+    run: restarted,
+  });
+  assert.deepEqual(replaced.settings.stage, restaged);
+  assert.deepEqual(replaced.run, restarted);
+  // Two reveals at once keep the further one, and settings still merge.
+  const further = rebaseWorkshop(local, before, {
+    settings: { lock: "frozen", stage: { ...stage, shown: 3 } },
+    run,
+  });
+  assert.deepEqual(further.settings, {
+    lock: "frozen",
+    stage: { ...stage, shown: 3 },
+  });
+  assert.deepEqual(further.run, local.run);
+  // Revealing the last frame, or ending the run, still applies.
+  const done = rebaseWorkshop(
+    { settings: { lock: "open" }, run: { ...run, state: "ended" } },
+    before,
+    before,
+  );
+  assert.equal(done.settings.stage, undefined);
+  assert.equal(done.run.state, "ended");
+});
+
+test("concurrent facilitator changes to settings and a vote keep both", async () => {
+  const { rebaseWorkshop } = await import("../src/facilitation/model.js");
+  const before = {
+    settings: { lock: "open", private: "r1", anonymous: false },
+    vote: vote(),
+  };
+  // Another facilitator revealed private notes and the vote results...
+  const remote = {
+    settings: { ...before.settings, private: null },
+    vote: { ...before.vote, revealed: true },
+  };
+  // ...while this one locked the board and ended the vote.
+  const local = {
+    settings: { ...before.settings, lock: "frozen" },
+    vote: { ...before.vote, state: "ended", endedAt: 5000 },
+  };
+  const merged = rebaseWorkshop(local, before, remote);
+  assert.deepEqual(merged.settings, {
+    lock: "frozen",
+    private: null,
+    anonymous: false,
+  });
+  assert.equal(merged.vote.revealed, true);
+  assert.equal(merged.vote.state, "ended");
+  validateWorkshop(merged);
+  // A different vote is never mixed with the one it replaced.
+  const next = { ...vote({ id: "vote2", title: "New" }) };
+  const replaced = rebaseWorkshop({ vote: next }, before, remote);
+  assert.deepEqual(replaced.vote, next);
+  // The first settings on a board merge too: one facilitator locks the
+  // board while another turns on private mode and hides an object.
+  const first = rebaseWorkshop(
+    { settings: { lock: "frozen", private: null, anonymous: false } },
+    {},
+    {
+      settings: { lock: "open", private: "r1", anonymous: false, hide: ["a"] },
+    },
+  );
+  assert.deepEqual(first.settings, {
+    lock: "frozen",
+    private: "r1",
+    anonymous: false,
+    hide: ["a"],
+  });
+  // Frames the other staged meanwhile stay staged.
+  const defaults = {
+    lock: "open",
+    private: null,
+    anonymous: false,
+    stage: null,
+  };
+  const stage = { frames: ["f1", "f2"], shown: 0 };
+  const staged = rebaseWorkshop(
+    { settings: { ...defaults, lock: "frozen" } },
+    {},
+    { settings: { ...defaults, stage } },
+  );
+  assert.deepEqual(staged.settings, { ...defaults, lock: "frozen", stage });
+});
+
+test("a stale reveal or end keeps the vote or poll another facilitator started or cleared", async () => {
+  const { rebaseWorkshop } = await import("../src/facilitation/model.js");
+  const poll = (extra = {}) => ({
+    id: "poll1",
+    question: "Lunch?",
+    options: [
+      { id: "o1", text: "Yes" },
+      { id: "o2", text: "No" },
+    ],
+    multiple: false,
+    anonymous: false,
+    hidden: false,
+    state: "open",
+    revealed: false,
+    startedAt: 1000,
+    ...extra,
+  });
+  const before = { vote: vote(), poll: poll() };
+  // This facilitator revealed the vote and closed the poll...
+  const local = {
+    vote: { ...before.vote, revealed: true },
+    poll: { ...before.poll, state: "closed", endedAt: 5000 },
+  };
+  // ...while another started new ones.
+  const next = {
+    vote: vote({ id: "vote2", title: "New" }),
+    poll: poll({ id: "poll2", question: "Dinner?" }),
+  };
+  assert.deepEqual(rebaseWorkshop(local, before, next), next);
+  // A vote and poll the other facilitator cleared stay cleared.
+  assert.equal(rebaseWorkshop(local, before, {}), undefined);
+  assert.deepEqual(
+    rebaseWorkshop(local, before, { settings: { lock: "frozen" } }),
+    { settings: { lock: "frozen" } },
+  );
+  // Clearing the old vote and poll keeps the new ones.
+  assert.deepEqual(rebaseWorkshop({}, before, next), next);
+  // With nothing new, clearing them still clears them.
+  assert.equal(rebaseWorkshop({}, before, before), undefined);
+});
+
+test("two facilitators hiding and showing objects at once keep both changes", async () => {
+  const { rebaseWorkshop } = await import("../src/facilitation/model.js");
+  const before = { settings: { lock: "open", hide: ["a", "b"] } };
+  // This facilitator hides x and shows b again...
+  const local = { settings: { lock: "open", hide: ["a", "x"] } };
+  // ...while another hid y and showed a again.
+  const remote = { settings: { lock: "open", hide: ["b", "y"] } };
+  const merged = rebaseWorkshop(local, before, remote);
+  assert.deepEqual(merged.settings.hide, ["y", "x"]);
+  validateWorkshop(merged);
+  // Showing everything keeps what the other facilitator hid meanwhile.
+  assert.deepEqual(
+    rebaseWorkshop({ settings: { lock: "open", hide: [] } }, before, remote)
+      .settings.hide,
+    ["y"],
+  );
+  // A merge past the limit keeps this facilitator's own list.
+  const many = (p) => Array.from({ length: 300 }, (_, n) => `${p}${n}`);
+  const big = rebaseWorkshop(
+    { settings: { hide: many("l") } },
+    { settings: { hide: [] } },
+    { settings: { hide: many("r") } },
+  );
+  assert.deepEqual(big.settings.hide, many("l"));
+});
+
+test("saving the agenda keeps steps another facilitator changed meanwhile", () => {
+  const b = { ...newBoard("Agenda"), shared: { server: "x", room: "r" } };
+  b.items = [
+    item("frame", 0, 0, { id: "F1", w: 500, h: 400, text: "Intro" }),
+    item("frame", 600, 0, { id: "F2", w: 500, h: 400, text: "Ideas" }),
+  ];
+  b.workshop = { agenda: { steps: [{ frame: "F1", minutes: 5 }] } };
+  const ui = stubUI(b, { role: "facilitator", me: owner });
+  try {
+    ui.api.open("agenda");
+    const field = (n, name) => ui.doc.querySelectorAll(name)[n];
+    // This facilitator starts writing instructions for the second step...
+    field(1, ".fac-step-text").value = "Brainstorm";
+    // ...while another sets the first step's duration.
+    b.workshop = { agenda: { steps: [{ frame: "F1", minutes: 10 }] } };
+    ui.api.render();
+    assert.equal(field(0, ".fac-step-minutes").value, "10");
+    assert.equal(field(1, ".fac-step-text").value, "Brainstorm");
+    ui.doc
+      .querySelector("#fac-agenda-form")
+      .dispatchEvent(
+        new ui.doc.defaultView.Event("submit", { cancelable: true }),
+      );
+    assert.deepEqual(b.workshop.agenda.steps, [
+      { frame: "F1", minutes: 10 },
+      { frame: "F2", text: "Brainstorm" },
+    ]);
+    // Once saved, later changes from others show again.
+    b.workshop = {
+      agenda: {
+        steps: [
+          { frame: "F1", minutes: 10 },
+          { frame: "F2", text: "Vote" },
+        ],
+      },
+    };
+    ui.api.render();
+    assert.equal(field(1, ".fac-step-text").value, "Vote");
+  } finally {
+    ui.close();
+  }
+});
+
+test("agenda settings are kept for boards with more than 60 frames", async () => {
+  const { agendaSteps } = await import("../src/facilitation/model.js");
+  const b = {
+    ...newBoard("Long"),
+    items: Array.from({ length: 61 }, (_, n) =>
+      item("frame", n * 700, 0, { w: 600, h: 400, text: `Step ${n + 1}` }),
+    ),
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("agenda");
+    const rows = ui.doc.querySelectorAll("#fac-agenda-form [data-step]");
+    rows[0].querySelector(".fac-step-include").checked = false;
+    rows[60].querySelector(".fac-step-include").checked = false;
+    ui.doc
+      .querySelector("#fac-agenda-form")
+      .dispatchEvent(
+        new ui.doc.defaultView.Event("submit", { cancelable: true }),
+      );
+    const titles = agendaSteps(b).map((s) => s.title);
+    assert.equal(titles.length, 59);
+    assert.ok(!titles.includes("Step 1") && !titles.includes("Step 61"));
+  } finally {
+    ui.close();
+  }
+});
+
+test("copies of a workshop board leave out what the person may not see", () => {
+  const mine = item("note", 0, 0, { text: "My idea" });
+  const theirs = item("note", 300, 0, { text: "Bob's private idea" });
+  const secret = item("note", 600, 0, { text: "Answer key" });
+  const b = {
+    ...newBoard("Workshop"),
+    shared: { server: "x", room: "r" },
+    items: [mine, theirs, secret],
+    workshop: {
+      settings: { private: "r1", hide: [secret.id] },
+      [contributionKey(theirs.id)]: { by: "bob", at: 1, round: "r1" },
+      [contributionKey(mine.id)]: { by: viewer.uuid, at: 1, round: "r1" },
+    },
+  };
+  const ui = stubUI(b, { role: "editor", me: viewer });
+  try {
+    const copy = structuredClone(b);
+    assert.equal(ui.api.portableCopy(copy), 2);
+    assert.deepEqual(
+      copy.items.map((i) => i.text),
+      ["My idea", "Private note"],
+    );
+    assert.equal(copy.workshop, undefined);
+    validateBoard({ ...copy, shared: undefined });
+    // The facilitator's own copy keeps hidden objects, not others' notes.
+    const own = structuredClone(b);
+    assert.equal(
+      ui.api.portableCopy(own, { id: owner.uuid, manager: true }),
+      2,
+    );
+    assert.deepEqual(
+      own.items.map((i) => i.text),
+      ["Private note", "Private note", "Answer key"],
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("the workshop banner keeps keyboard focus while its countdown changes", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  b.workshop = { vote: vote({ endsAt: 10000 + 300_000 }) };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.render();
+    const chip = ui.doc.querySelector('[data-fac-open="vote"]');
+    chip.focus();
+    b.workshop = { vote: vote({ endsAt: 10000 + 299_000 }) };
+    ui.api.render();
+    assert.equal(ui.doc.querySelector('[data-fac-open="vote"]'), chip);
+    assert.match(chip.textContent, /4:59/);
+    assert.equal(ui.doc.activeElement, chip);
+  } finally {
+    ui.close();
+  }
+});
+
+test("the reaction picker keeps its trigger when someone else reacts meanwhile", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  b.workshop = { session: { id: "s1", state: "active", startedAt: 1 } };
+  const ui = stubUI(b, {
+    role: "editor",
+    me: editor,
+    selection: new Set(["a"]),
+  });
+  Object.assign(globalThis, { innerWidth: 1600, innerHeight: 900 });
+  try {
+    ui.api.render();
+    const trigger = ui.doc.querySelector("[data-fac-picker]");
+    trigger.focus();
+    trigger.click();
+    assert.ok(ui.doc.activeElement.closest(".fac-picker"));
+    // Another participant reacts to the same note, which redraws its badge.
+    b.workshop = {
+      ...b.workshop,
+      [reactionKey(viewer.uuid, objectTarget("a"))]: {
+        by: viewer.uuid,
+        target: ["o", "a"],
+        types: ["heart"],
+        at: 5,
+        name: "Cam",
+      },
+    };
+    ui.api.render();
+    const redrawn = ui.doc.querySelector("[data-fac-picker]");
+    assert.equal(redrawn.getAttribute("aria-expanded"), "true");
+    ui.doc.querySelector(".fac-picker").dispatchEvent(
+      new ui.doc.defaultView.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+      }),
+    );
+    assert.equal(ui.doc.querySelector(".fac-picker"), null);
+    assert.equal(ui.doc.activeElement, redrawn);
+    assert.equal(redrawn.getAttribute("aria-expanded"), "false");
+  } finally {
+    ui.close();
+    delete globalThis.innerWidth;
+    delete globalThis.innerHeight;
+  }
+});
+
+test("the reaction picker returns focus to a comment's rebuilt reaction button", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  const comments = ui.doc.createElement("div");
+  comments.id = "comments-panel";
+  ui.doc.body.append(comments);
+  const thread = { id: "t1" },
+    message = { id: "m1" };
+  const draw = () =>
+    (comments.innerHTML = ui.api.commentReactions(thread, message));
+  Object.assign(globalThis, { innerWidth: 1600, innerHeight: 900 });
+  try {
+    draw();
+    const trigger = comments.querySelector("[data-fac-picker]");
+    trigger.focus();
+    trigger.click();
+    assert.ok(ui.doc.activeElement.closest(".fac-picker"));
+    // The comments panel is rebuilt when someone else votes or reacts.
+    draw();
+    ui.doc.querySelector(".fac-picker").dispatchEvent(
+      new ui.doc.defaultView.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+      }),
+    );
+    assert.equal(ui.doc.querySelector(".fac-picker"), null);
+    assert.equal(
+      ui.doc.activeElement,
+      comments.querySelector("[data-fac-picker]"),
+    );
+  } finally {
+    ui.close();
+    delete globalThis.innerWidth;
+    delete globalThis.innerHeight;
+  }
+});
+
+test("closing the facilitation panel returns focus to what opened it", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  b.workshop = { vote: vote({ endsAt: 10000 + 300_000 }) };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.render();
+    const chip = ui.doc.querySelector('[data-fac-open="vote"]');
+    chip.focus();
+    chip.click();
+    const panel = ui.doc.querySelector("#facilitation-panel");
+    assert.ok(panel);
+    assert.notEqual(ui.doc.activeElement, chip);
+    panel.dispatchEvent(
+      new ui.doc.defaultView.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+      }),
+    );
+    assert.equal(ui.doc.querySelector("#facilitation-panel"), null);
+    assert.equal(ui.doc.activeElement, chip);
+  } finally {
+    ui.close();
+  }
+});
+
+test("objects added to the same list show up in the participant's view", () => {
+  const hiddenNote = item("note", 0, 0, { id: "hidden" });
+  const mine = item("note", 300, 0, { id: "mine" });
+  const b = {
+    ...newBoard("Staged"),
+    shared: { server: "s", room: "r" },
+    items: [hiddenNote, mine],
+    workshop: { settings: { hide: ["hidden"] } },
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    assert.deepEqual(
+      ui.api.visible(b.items).map((i) => i.id),
+      ["mine"],
+    );
+    // Adding an object pushes it into the board's list in place.
+    b.items.push(item("note", 600, 0, { id: "added" }));
+    assert.deepEqual(
+      ui.api.visible(b.items).map((i) => i.id),
+      ["mine", "added"],
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("starting the agenda starts a session without earlier attendance", () => {
+  const record = (who, session) => ({
+    by: who.uuid,
+    name: who.username,
+    role: "editor",
+    session,
+    first: 1,
+    last: 2,
+  });
+  const b = {
+    ...newBoard("Workshop"),
+    shared: { server: "s", room: "r" },
+    items: [item("frame", 0, 0, { w: 300, h: 200, text: "One", order: 0 })],
+    workshop: {
+      session: { id: "old", state: "ended", startedAt: 1, endedAt: 2 },
+      [participantKey(editor.uuid)]: record(editor, "old"),
+      [participantKey(viewer.uuid)]: record(viewer, "old"),
+    },
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("agenda");
+    ui.click('[data-fac="agenda-start"]');
+    assert.equal(b.workshop.session.state, "active");
+    assert.notEqual(b.workshop.session.id, "old");
+    assert.deepEqual(
+      Object.keys(b.workshop).filter((k) => k.startsWith("p:")),
+      [],
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("facilitation actions keep keyboard focus and open sections in the panel", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("session");
+    const start = ui.doc.querySelector('[data-fac="session-start"]');
+    start.focus();
+    start.click();
+    const panel = ui.doc.querySelector("#fac-tabpanel");
+    assert.ok(panel.contains(ui.doc.activeElement), "focus stays in the panel");
+    assert.equal(ui.doc.activeElement.disabled, false);
+    b.items.push(
+      item("frame", 0, 400, { w: 300, h: 200, text: "Step one", order: 0 }),
+    );
+    ui.api.open("agenda");
+    const editor = ui.doc.querySelector("#fac-tabpanel details");
+    editor.open = true;
+    ui.api.render();
+    ui.doc.querySelector('[data-fac="agenda-start"]')?.click();
+    assert.equal(ui.doc.querySelector("#fac-tabpanel details").open, true);
+  } finally {
+    ui.close();
+  }
+});
+
+test("participants' copies and exports keep no hidden text in saved results or the agenda", () => {
+  const secret = item("note", 0, 0, { id: "s", text: "Answer key" });
+  const frame = item("frame", 0, 400, {
+    id: "f",
+    w: 400,
+    h: 400,
+    text: "Round 2",
+  });
+  const inner = item("note", 10, 410, {
+    id: "i",
+    text: "Hidden idea",
+    parentId: "f",
+  });
+  const open = item("note", 600, 0, { id: "o", text: "Open idea" });
+  const record = (id, hidden) => ({
+    kind: "vote",
+    id,
+    title: "T",
+    startedAt: 1,
+    endedAt: 2,
+    anonymous: true,
+    hidden,
+    participants: 1,
+    results: [
+      { id: "s", label: "Answer key", count: 3 },
+      { id: "i", label: "Hidden idea", count: 1 },
+      { id: "o", label: "Open idea", count: 1 },
+    ],
+  });
+  const b = {
+    ...newBoard("W"),
+    shared: { server: "x", room: "r" },
+    items: [secret, frame, inner, open],
+    workshop: {
+      settings: { hide: ["s"], stage: { frames: ["f"], shown: 0 } },
+      agenda: {
+        steps: [{ frame: "f", minutes: 5, text: "Secret instructions" }],
+      },
+      [historyKey("v1")]: record("v1", true),
+      [historyKey("v2")]: record("v2", false),
+    },
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    const copy = structuredClone(b);
+    ui.api.portableCopy(copy);
+    const exported = structuredClone(b);
+    ui.api.portable(exported);
+    for (const result of [copy, exported]) {
+      const text = JSON.stringify(result.workshop);
+      assert.doesNotMatch(text, /Answer key|Hidden idea|Secret instructions/);
+      assert.equal(result.workshop[historyKey("v1")], undefined);
+      assert.deepEqual(
+        result.workshop[historyKey("v2")].results.map((r) => r.label),
+        ["Hidden by the facilitator", "Hidden by the facilitator", "Open idea"],
+      );
+      assert.equal(result.workshop.agenda.steps[0].minutes, 5);
+      validateWorkshop(result.workshop);
+    }
+  } finally {
+    ui.close();
+  }
+  // The facilitator's own copy keeps everything.
+  const host = stubUI(b, { role: "owner", me: owner });
+  try {
+    const copy = structuredClone(b);
+    host.api.portableCopy(copy);
+    assert.match(JSON.stringify(copy.workshop), /Secret instructions/);
+    assert.ok(copy.workshop[historyKey("v1")]);
+  } finally {
+    host.close();
+  }
+});
+
+test("a vote for an object deleted afterwards can still be taken back", () => {
+  const b = { ...newBoard("Vote"), items: notes(), shared: { room: "r" } };
+  b.workshop = {
+    vote: vote({ votes: 1, endsAt: 0 }),
+    ...Object.fromEntries([ballot(editor, ["a"])]),
+  };
+  b.items = b.items.filter((i) => i.id !== "a");
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.open("vote");
+    const rows = [...ui.doc.querySelectorAll(".fac-vote-list li")];
+    const removed = rows.find((r) => /Removed object/.test(r.textContent));
+    assert.ok(removed, "The deleted object stays listed for its voter");
+    assert.equal(
+      removed
+        .querySelector('[data-fac="vote-add"]')
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    removed.querySelector('[data-fac="vote-remove"]').click();
+    assert.equal(b.workshop[voteKey("vote1", editor.uuid)], undefined);
+    assert.match(ui.doc.querySelector("#fac-remaining").textContent, /1 of 1/);
+    assert.ok(
+      ![...ui.doc.querySelectorAll(".fac-vote-list li")].some((r) =>
+        /Removed object/.test(r.textContent),
+      ),
+      "Once taken back, it is no longer listed",
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("a running agenda with every frame left out names no step", () => {
+  const b = {
+    ...newBoard("Agenda"),
+    items: [item("frame", 0, 0, { id: "f0", text: "Intro", order: 0 })],
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("agenda");
+    ui.click('[data-fac="agenda-start"]');
+    assert.match(ui.doc.querySelector("#fac-tabpanel").textContent, /Step 1/);
+    b.workshop = {
+      ...b.workshop,
+      agenda: { steps: [{ frame: "f0", skip: true }] },
+    };
+    ui.api.render();
+    const panel = ui.doc.querySelector("#fac-tabpanel").textContent;
+    assert.doesNotMatch(panel, /Step 0 of 0/);
+    assert.match(panel, /All frames are excluded from the agenda/);
+    assert.ok(ui.doc.querySelector('[data-fac="agenda-end"]'));
+  } finally {
+    ui.close();
+  }
+});
+
+test("the agenda runs on imported frames whatever their IDs look like", () => {
+  // Imported board files keep their own object IDs.
+  const ids = ["Frame 1", "étape:2"];
+  const b = {
+    ...newBoard("Imported"),
+    items: ids.map((id, n) =>
+      item("frame", n * 600, 0, { id, text: id, order: n, w: 500 }),
+    ),
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("agenda");
+    ui.click('[data-fac="agenda-start"]');
+    assert.deepEqual(ui.calls.toasts, []);
+    assert.equal(b.workshop.run.frame, ids[0]);
+    ui.click('[data-fac="agenda-next"]');
+    assert.equal(b.workshop.run.frame, ids[1]);
+    validateWorkshop(b.workshop);
+  } finally {
+    ui.close();
+  }
+});
+
+test("the agenda stays on its frame when earlier frames are deleted or skipped", () => {
+  const b = {
+    ...newBoard("Agenda"),
+    items: ["A", "B", "C", "D"].map((text, n) =>
+      item("frame", n * 900, 0, { id: text, text, w: 800, h: 600, order: n }),
+    ),
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("agenda");
+    ui.click('[data-fac="agenda-start"]');
+    ui.click('[data-fac="agenda-next"]');
+    assert.match(ui.banner(), /Step 2 of 4: B/);
+    b.items = b.items.filter((i) => i.id !== "A");
+    ui.api.render();
+    assert.match(ui.banner(), /Step 1 of 3: B/);
+    ui.click('[data-fac="agenda-next"]');
+    assert.match(ui.banner(), /Step 2 of 3: C/);
+    assert.deepEqual(ui.calls.focus.at(-1), "C");
+    // Skipping an earlier step in the agenda keeps the current one too.
+    b.workshop = {
+      ...b.workshop,
+      agenda: { steps: [{ frame: "B", skip: true }] },
+    };
+    ui.api.render();
+    assert.match(ui.banner(), /Step 1 of 2: C/);
+    // If the current frame itself is deleted, the step at its place shows.
+    b.items = b.items.filter((i) => i.id !== "C");
+    ui.api.render();
+    assert.match(ui.banner(), /Step 1 of 1: D/);
+  } finally {
+    ui.close();
+  }
+});
+
+test("staging frames is announced as hiding, revealing, and showing all", () => {
+  const b = {
+    ...newBoard("Stage"),
+    shared: { server: "x", room: "r" },
+    items: ["A", "B"].map((text, n) =>
+      item("frame", n * 900, 0, { id: text, text, w: 800, h: 600, order: n }),
+    ),
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  const live = () => ui.doc.querySelector("#facilitation-live").textContent;
+  const stage = (value) => {
+    b.workshop = { settings: value ? { stage: value } : {} };
+    ui.api.render();
+    return live();
+  };
+  try {
+    ui.api.render();
+    assert.match(
+      stage({ frames: ["A", "B"], shown: 0 }),
+      /revealing frames one at a time/,
+    );
+    assert.match(
+      stage({ frames: ["A", "B"], shown: 1 }),
+      /revealed another frame/,
+    );
+    assert.match(stage(null), /All frames are visible/);
+  } finally {
+    ui.close();
+  }
+});
+
+test("hiding a large frame stores the frame, not each object in it", () => {
+  const frame = item("frame", 0, 0, {
+    id: "f",
+    w: 5000,
+    h: 5000,
+    text: "Answers",
+  });
+  const inside = Array.from({ length: 600 }, (_, n) =>
+    item("note", (n % 30) * 160, 100 + Math.floor(n / 30) * 160, {
+      id: `n${n}`,
+      parentId: "f",
+    }),
+  );
+  const b = {
+    ...newBoard("Big"),
+    shared: { server: "x", room: "r" },
+    items: [frame, ...inside],
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    const ids = ["f", ...inside.map((i) => i.id)];
+    ui.api.setHidden(ids, true);
+    assert.deepEqual(b.workshop.settings.hide, ["f"]);
+    assert.ok(
+      ids.every((id) => ui.api.hidden(id)),
+      "Contents count as hidden",
+    );
+    assert.deepEqual(
+      [...concealment(b, editor.uuid, false).hidden].length,
+      601,
+      "Participants see none of it",
+    );
+    ui.api.setHidden(ids, false);
+    assert.deepEqual(b.workshop.settings?.hide || [], []);
+  } finally {
+    ui.close();
+  }
+});
+
+test("the summary counts votes and polls that ended earlier in the session", () => {
+  const b = { ...newBoard("Summary"), items: notes() };
+  const record = (id, kind, results, extra = {}) => ({
+    kind,
+    id,
+    title: id,
+    startedAt: 2000,
+    endedAt: 3000,
+    anonymous: false,
+    hidden: false,
+    participants: 1,
+    results,
+    ...extra,
+  });
+  b.workshop = {
+    session: { id: "s1", state: "active", startedAt: 1000 },
+    [participantKey(owner.uuid)]: {
+      by: owner.uuid,
+      name: "Alice",
+      role: "owner",
+      session: "s1",
+      first: 1000,
+      last: 9000,
+    },
+    [participantKey(editor.uuid)]: {
+      by: editor.uuid,
+      name: "Bob",
+      role: "editor",
+      session: "s1",
+      first: 1000,
+      last: 9000,
+    },
+    // A poll and a vote that ended and were cleared for the next ones.
+    [historyKey("p1")]: record("p1", "poll", [
+      { id: "o1", label: "Yes", count: 1, voters: ["Bob"] },
+      { id: "o2", label: "No", count: 0 },
+    ]),
+    [historyKey("v0")]: record(
+      "v0",
+      "vote",
+      [{ id: "a", label: "Ship faster", count: 2, voters: ["Alice", "Bob"] }],
+      { participants: 2 },
+    ),
+    // Before the session: not counted.
+    [historyKey("old")]: record(
+      "old",
+      "vote",
+      [{ id: "a", label: "Ship faster", count: 1, voters: ["Alice"] }],
+      { endedAt: 500 },
+    ),
+    // A reaction from before the session: not counted either.
+    [reactionKey(owner.uuid, objectTarget("a"))]: {
+      by: owner.uuid,
+      target: ["o", "a"],
+      types: ["heart"],
+      at: 500,
+      name: "Alice",
+    },
+    vote: vote({ anonymous: false, startedAt: 4000 }),
+    ...Object.fromEntries([ballot(owner, ["b"])]),
+  };
+  const summary = engagement(b, { now: 10000, label: (id) => id });
+  assert.deepEqual(summary.reacted, []);
+  assert.equal(summary.totals.reactions, 0);
+  const row = (name) => summary.people.find((p) => p.name === name);
+  assert.equal(row("Bob").answers, 1);
+  assert.equal(row("Bob").votes, 1);
+  assert.equal(row("Alice").votes, 1 + 1, "Earlier and current votes");
+  assert.equal(summary.totals.participants, 2);
+  assert.equal(summary.totals.votes, 2 + 1, "Objects voted for");
+  assert.equal(summary.totals.answers, 1);
+  assert.deepEqual(
+    summary.voted.map((r) => [r.id, r.count]),
+    [
+      ["a", 2],
+      ["b", 1],
+    ],
+    "A vote that ended before the session is not among the most voted",
+  );
+});
+
+test("the most voted objects count only ballots cast in the session", () => {
+  const b = { ...newBoard("Summary"), items: notes() };
+  b.workshop = {
+    session: { id: "s2", state: "active", startedAt: 5000 },
+    // A vote that ended before this session is still on the Voting tab.
+    vote: vote({ state: "ended", endedAt: 3000 }),
+    ...Object.fromEntries([ballot(owner, ["a"]), ballot(editor, ["b"])]),
+  };
+  const summary = engagement(b, { now: 10000 });
+  assert.equal(summary.totals.votes, 0);
+  assert.deepEqual(summary.voted, []);
+  // Ballots cast during the session count.
+  b.workshop.session.startedAt = 1000;
+  assert.deepEqual(
+    engagement(b, { now: 10000 }).voted.map((r) => [r.id, r.count]),
+    [
+      ["a", 1],
+      ["b", 1],
+    ],
+  );
+});
+
+test("the summary's activity chart counts an event at the session's end", () => {
+  const b = { ...newBoard("Summary"), items: notes() };
+  // Twelve whole minutes: the end falls on the edge of a thirteenth bucket.
+  const end = 1000 + 12 * 60000;
+  b.workshop = {
+    session: { id: "s1", state: "ended", startedAt: 1000, endedAt: end },
+    vote: vote({ startedAt: 1000 }),
+    ...Object.fromEntries([
+      [voteKey("vote1", owner.uuid), { ...ballot(owner, ["a"])[1], at: end }],
+    ]),
+  };
+  const summary = engagement(b, { now: end + 5000 });
+  assert.equal(summary.timeline.length, 12);
+  assert.equal(summary.totals.votes, 1);
+  assert.equal(
+    summary.timeline.reduce((sum, bucket) => sum + bucket.votes, 0),
+    1,
+  );
+});
+
+test("summary totals add up the rows and count only sticky notes as notes", () => {
+  const b = {
+    ...newBoard("Summary"),
+    items: [
+      ...notes(),
+      item("pen", 0, 0, {
+        id: "p",
+        points: [
+          [0, 0],
+          [1, 1],
+        ],
+      }),
+      item("arrow", 0, 0, { id: "ar" }),
+    ],
+  };
+  b.workshop = {
+    session: { id: "s1", state: "active", startedAt: 1000 },
+    vote: vote({ anonymous: false, multiple: true, votes: 3 }),
+    ...Object.fromEntries([
+      ballot(editor, ["a", "a", "b"]),
+      ballot(owner, ["c"]),
+    ]),
+    poll: {
+      id: "p1",
+      question: "Q",
+      options: [
+        { id: "o1", text: "Yes" },
+        { id: "o2", text: "No" },
+      ],
+      multiple: false,
+      anonymous: false,
+      hidden: false,
+      state: "open",
+      revealed: false,
+      startedAt: 1000,
+    },
+    [answerKey("p1", editor.uuid)]: {
+      poll: "p1",
+      by: editor.uuid,
+      ids: ["o1"],
+      at: 2000,
+      name: "Bob",
+    },
+    [contributionKey("a")]: { by: editor.uuid, at: 1500, name: "Bob" },
+    [contributionKey("p")]: { by: editor.uuid, at: 1500, name: "Bob" },
+    [contributionKey("ar")]: { by: editor.uuid, at: 1500, name: "Bob" },
+    [reactionKey(owner.uuid, objectTarget("a"))]: {
+      by: owner.uuid,
+      target: ["o", "a"],
+      types: ["heart", "idea"],
+      at: 2000,
+      name: "Alice",
+    },
+  };
+  validateWorkshop(b.workshop);
+  const summary = engagement(b, { now: 5000 });
+  const sum = (key) => summary.people.reduce((n, p) => n + p[key], 0);
+  for (const key of ["notes", "reactions", "votes", "answers"]) {
+    assert.equal(summary.totals[key], sum(key), key);
+    assert.equal(
+      summary.totals[key],
+      summary.timeline.reduce((n, t) => n + t[key], 0),
+      key,
+    );
+  }
+  assert.equal(summary.totals.notes, 1, "Drawings and arrows are not notes");
+  assert.equal(summary.totals.votes, 3);
+  assert.equal(summary.totals.answers, 1);
+  assert.equal(summary.totals.reactions, 2);
+});
+
+test("a person's votes in the summary stay the same once the vote is saved", () => {
+  const b = { ...newBoard("Dots"), items: notes(), shared: { room: "r" } };
+  const live = vote({ anonymous: false, multiple: true });
+  b.workshop = {
+    session: { id: "s1", state: "active", startedAt: 1000 },
+    vote: live,
+    ...Object.fromEntries([ballot(editor, ["a", "a", "a", "b"])]),
+  };
+  const votes = (board) =>
+    engagement(board, { now: 10000 }).people.find((p) => p.name === "Bob")
+      .votes;
+  assert.equal(votes(b), 2);
+  const saved = resultRecord(
+    { ...b, workshop: { ...b.workshop, vote: { ...live, endedAt: 5000 } } },
+    "vote",
+    (id) => id,
+  );
+  b.workshop = {
+    session: b.workshop.session,
+    [historyKey(saved.id)]: saved,
+  };
+  assert.equal(votes(b), 2);
+});
+
+test("a vote revealed while another facilitator ended it shows its saved result", async () => {
+  const b = { ...newBoard("Race"), items: notes(), shared: { room: "r" } };
+  const ended = vote({ state: "ended", endedAt: 9000, revealed: true });
+  b.workshop = {
+    vote: ended,
+    ...Object.fromEntries([ballot(editor, ["a"])]),
+  };
+  // As merged: the vote is revealed but its record was saved hidden.
+  b.workshop[historyKey("vote1")] = {
+    ...resultRecord(
+      {
+        ...b,
+        workshop: { ...b.workshop, vote: { ...ended, revealed: false } },
+      },
+      "vote",
+      (id) => id,
+      9000,
+    ),
+  };
+  assert.equal(b.workshop[historyKey("vote1")].hidden, true);
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.render();
+    await new Promise((r) => setTimeout(r, 10));
+    assert.equal(b.workshop[historyKey("vote1")].hidden, false);
+  } finally {
+    ui.close();
+  }
+});
+
+test("a poll revealed while another facilitator closed it shows its saved result", async () => {
+  const b = { ...newBoard("Race"), items: notes(), shared: { room: "r" } };
+  const poll = {
+    id: "p1",
+    question: "Lunch?",
+    options: [
+      { id: "o1", text: "Yes" },
+      { id: "o2", text: "No" },
+    ],
+    multiple: false,
+    anonymous: true,
+    hidden: true,
+    state: "closed",
+    revealed: true,
+    startedAt: 1000,
+    endedAt: 9000,
+  };
+  b.workshop = {
+    poll,
+    [answerKey("p1", editor.uuid)]: {
+      poll: "p1",
+      by: editor.uuid,
+      ids: ["o1"],
+      at: 2000,
+    },
+  };
+  // As merged: the poll is revealed but its record was saved hidden.
+  b.workshop[historyKey("p1")] = resultRecord(
+    { ...b, workshop: { ...b.workshop, poll: { ...poll, revealed: false } } },
+    "poll",
+    (id) => id,
+    9000,
+  );
+  assert.equal(b.workshop[historyKey("p1")].hidden, true);
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.render();
+    await new Promise((r) => setTimeout(r, 10));
+    assert.equal(b.workshop[historyKey("p1")].hidden, false);
+  } finally {
+    ui.close();
+  }
+});
+
+test("restoring a deleted object during a session keeps its author", () => {
+  const b = { ...newBoard("Undo"), items: notes() };
+  b.workshop = {
+    session: { id: "s1", state: "active", startedAt: 1000 },
+    [contributionKey("a")]: { by: owner.uuid, at: 2000, name: "Alice" },
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.beforeSave(null);
+    const note = b.items.find((i) => i.id === "a");
+    b.items = b.items.filter((i) => i !== note);
+    ui.api.beforeSave(null);
+    b.items.push(note);
+    ui.api.beforeSave(null);
+    assert.equal(b.workshop[contributionKey("a")].by, owner.uuid);
+    // Once the session ends, records of removed objects are dropped.
+    b.workshop = {
+      ...b.workshop,
+      session: { ...b.workshop.session, state: "ended", endedAt: 5000 },
+    };
+    b.items = b.items.filter((i) => i !== note);
+    ui.api.beforeSave(null);
+    assert.equal(b.workshop[contributionKey("a")], undefined);
+  } finally {
+    ui.close();
+  }
+});
+
+test("the workshop banner sits below the selection toolbar", () => {
+  const b = { ...newBoard("Banner"), items: notes() };
+  b.workshop = { settings: { private: "r1" } };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    const wrap = ui.doc.querySelector(".canvas-wrap");
+    const tools = ui.doc.createElement("div");
+    tools.id = "selection-tools";
+    wrap.append(tools);
+    wrap.getBoundingClientRect = () => ({ top: 100, height: 800 });
+    tools.getBoundingClientRect = () => ({
+      top: 120,
+      bottom: 240,
+      height: 120,
+    });
+    ui.api.render();
+    const banner = ui.doc.querySelector("#workshop-banner");
+    assert.equal(banner.hidden, false);
+    assert.equal(banner.style.top, "148px");
+    tools.hidden = true;
+    ui.api.render();
+    assert.equal(banner.style.top, "", "Back in place without a toolbar");
+  } finally {
+    ui.close();
+  }
+});
+
+test("built collaborators: a participant's note over a hidden frame stays theirs to see", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Hidden answers",
+    items: [
+      item("frame", -100000, -100000, {
+        id: "answers",
+        w: 200000,
+        h: 200000,
+        text: "Answers",
+      }),
+    ],
+    workshop: { settings: { hide: ["answers"] } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(editor));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Joined",
+    );
+    app.sizeCanvas();
+    assert.deepEqual(app.outline(), [], "The hidden frame is not shown");
+    await app.addNote("My answer");
+    await app.until(
+      () => app.outline().some((t) => t.includes("My answer")),
+      "The author still sees a note added over the hidden frame",
+    );
+    let saved;
+    const deadline = Date.now() + 8000;
+    while (!saved && Date.now() < deadline) {
+      const { doc } = await env.service.load(initial.id);
+      saved = doc.snapshot().items.find((i) => i.text === "My answer");
+      doc.destroy();
+      if (!saved) await app.tick();
+    }
+    assert.ok(saved, "The note is saved");
+    assert.equal(saved.parentId, undefined, "It is not put in the frame");
+    // Library content inserted there stays visible too.
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="icons"]');
+    await app.click('[data-icon="sticker-thumbs-up"]');
+    await app.until(
+      () => app.outline().some((t) => t.includes("Thumbs up")),
+      "An inserted icon over the hidden frame stays visible",
+    );
+
+    await app.click(`#board-outline [data-id="${saved.id}"]`);
+    // Nor is the hidden frame offered to move the note into.
+    await app.click('#selection-tools [data-action="organize"]');
+    assert.deepEqual(
+      [...app.doc.querySelectorAll("#parent-frame input[type=radio]")].map(
+        (o) => o.value,
+      ),
+      [""],
+    );
+    // Let the save that brought the note to the board finish.
+    for (let n = 0; n < 8; n++) await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("under a lock, connectors may follow the objects they join", async () => {
+  const { updateConnectors } = await import("../src/scene.js");
+  const mine = item("note", 0, 0, { id: "mine" });
+  const theirs = item("note", 600, 0, { id: "theirs" });
+  const line = item("arrow", 0, 0, {
+    id: "line",
+    startId: "mine",
+    endId: "theirs",
+  });
+  const loose = item("arrow", 0, 300, { id: "loose", w: 200, h: 0 });
+  const before = {
+    title: "T",
+    items: [mine, theirs, line, loose],
+    workshop: {
+      settings: { lock: "contribute" },
+      [contributionKey("mine")]: { by: editor.uuid, at: 1, name: "Bob" },
+    },
+  };
+  updateConnectors(before.items);
+  const change = (edit) => {
+    const after = structuredClone(before);
+    const byId = new Map(after.items.map((i) => [i.id, i]));
+    edit(byId);
+    updateConnectors(after.items);
+    return () => validateWorkshopChanges(before, after, editor, "editor");
+  };
+  // Moving your own note re-routes the line attached to it.
+  change((byId) => (byId.get("mine").y += 150))();
+  // A line whose stored route was out of date is re-routed by any save.
+  before.items.find((i) => i.id === "theirs").y = 400;
+  change(() => {})();
+  // Other changes to someone else's line are still refused.
+  for (const edit of [
+    (byId) => (byId.get("line").color = "#ff0000"),
+    (byId) => delete byId.get("line").endId,
+    (byId) => (byId.get("loose").w = 400),
+    (byId) => (byId.get("theirs").x += 50),
+  ])
+    assert.throws(change(edit), /only change your own sticky notes/);
+});
+
+test("facilitators are offered to reveal or hide results only when that changes what participants see", () => {
+  const panel = (b, role, me) => {
+    const ui = stubUI(b, { role, me });
+    ui.api.open(b.workshop.poll ? "poll" : "vote");
+    const el = ui.doc.querySelector("#fac-tabpanel");
+    const result = {
+      text: el.textContent,
+      toggle: el.querySelector('[data-fac$="-reveal"], [data-fac$="-hide"]')
+        ?.dataset.fac,
+    };
+    ui.close();
+    return result;
+  };
+  const withVote = (extra) => ({
+    ...newBoard("Workshop"),
+    items: notes(),
+    shared: { room: "r" },
+    workshop: { vote: vote(extra) },
+  });
+  // Results shown once the vote ends: there is nothing to reveal or hide.
+  const shown = withVote({ hidden: false, state: "ended", endedAt: 3000 });
+  const facilitator = panel(shown, "owner", owner);
+  assert.equal(facilitator.toggle, undefined);
+  assert.doesNotMatch(facilitator.text, /Only facilitators can see/);
+  assert.doesNotMatch(
+    panel(shown, "editor", editor).text,
+    /Results are hidden/,
+  );
+  // While the vote runs, or when results stay hidden, the choice matters.
+  assert.equal(
+    panel(withVote({ hidden: false }), "owner", owner).toggle,
+    "vote-reveal",
+  );
+  const hidden = withVote({ state: "ended", endedAt: 3000 });
+  assert.equal(panel(hidden, "owner", owner).toggle, "vote-reveal");
+  assert.match(panel(hidden, "owner", owner).text, /Only facilitators can see/);
+  hidden.workshop.vote.revealed = true;
+  assert.equal(panel(hidden, "owner", owner).toggle, "vote-hide");
+  // The same for a poll.
+  const poll = (extra) => ({
+    ...newBoard("Workshop"),
+    items: notes(),
+    shared: { room: "r" },
+    workshop: {
+      poll: {
+        id: "p1",
+        question: "Lunch?",
+        options: [
+          { id: "o1", text: "Yes" },
+          { id: "o2", text: "No" },
+        ],
+        multiple: false,
+        anonymous: true,
+        hidden: false,
+        state: "closed",
+        revealed: false,
+        startedAt: 1000,
+        ...extra,
+      },
+    },
+  });
+  assert.equal(panel(poll({}), "owner", owner).toggle, undefined);
+  assert.equal(
+    panel(poll({ hidden: true }), "owner", owner).toggle,
+    "poll-reveal",
+  );
+  assert.equal(
+    panel(poll({ state: "open" }), "owner", owner).toggle,
+    "poll-reveal",
+  );
+});
+
+test("staging more frames than can be revealed one at a time is refused", () => {
+  const b = {
+    ...newBoard("Stage"),
+    shared: { server: "x", room: "r" },
+    items: Array.from({ length: 62 }, (_, n) =>
+      item("frame", n * 900, 0, { text: `Step ${n + 1}`, order: n }),
+    ),
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("session");
+    ui.doc.querySelector('[data-fac="stage-start"]').click();
+    assert.equal(b.workshop?.settings?.stage, undefined);
+    assert.match(
+      ui.doc.querySelector("#fac-error").textContent,
+      /up to 60 frames/,
+    );
+    // Leaving two out stages the rest, every one of them hidden.
+    const boxes = ui.doc.querySelectorAll("#fac-stage-frames input");
+    boxes[0].checked = boxes[1].checked = false;
+    ui.doc.querySelector('[data-fac="stage-start"]').click();
+    assert.equal(b.workshop.settings.stage.frames.length, 60);
+  } finally {
+    ui.close();
+  }
+});
+
+test("a face-down private note shows none of its tags or link", () => {
+  const other = {
+    uuid: "55555555-5555-4555-8555-555555555555",
+    username: "Cy",
+  };
+  const b = {
+    ...newBoard("Private"),
+    shared: { room: "r" },
+    tags: [{ id: "t1", name: "Complaint", color: "#e03131" }],
+    items: [
+      item("note", 0, 0, {
+        id: "n",
+        text: "My idea",
+        tagIds: ["t1"],
+        objectLink: { url: "https://example.com/evidence" },
+      }),
+    ],
+    workshop: {
+      settings: { private: "r1" },
+      [contributionKey("n")]: {
+        by: other.uuid,
+        at: 5,
+        name: "Cy",
+        round: "r1",
+      },
+    },
+  };
+  validateBoard(structuredClone(b));
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    const [shown] = ui.api.conceal(b.items);
+    assert.equal(shown.text, "Private note");
+    assert.equal(shown.tagIds, undefined);
+    assert.equal(shown.objectLink, undefined);
+    const exported = structuredClone(b);
+    ui.api.portable(exported);
+    assert.equal(exported.items[0].tagIds, undefined);
+    assert.equal(exported.items[0].objectLink, undefined);
+    // The author still sees their own note in full.
+    const author = stubUI(b, { role: "editor", me: other });
+    assert.deepEqual(author.api.conceal(b.items)[0].tagIds, ["t1"]);
+    author.close();
+  } finally {
+    ui.close();
+  }
+});
+
+test("facilitators see which objects are hidden from participants", () => {
+  const b = {
+    ...newBoard("Hide"),
+    shared: { room: "r" },
+    items: [
+      item("frame", 0, 0, { id: "f", w: 400, h: 300, text: "Answers" }),
+      item("note", 500, 0, { id: "n", text: "Hint" }),
+      item("note", 800, 0, { id: "shown", text: "Visible" }),
+    ],
+    workshop: { settings: { hide: ["f", "n"] } },
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.render();
+    const marked = (id) =>
+      ui.doc.querySelector(`[data-fac-item="${id}"] .fac-staged`)?.textContent;
+    assert.match(marked("f"), /Hidden from participants/);
+    assert.match(marked("n"), /Hidden from participants/);
+    assert.equal(marked("shown"), undefined);
+    b.workshop = { settings: { hide: ["f"] } };
+    ui.api.render();
+    assert.equal(marked("n"), undefined);
+  } finally {
+    ui.close();
+  }
+});
+
+test("built collaborators: adding a note to a frozen board says why it was not added", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Frozen",
+    items: [],
+    workshop: { settings: { lock: "frozen" } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(editor));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Joined",
+    );
+    app.sizeCanvas();
+    app.key("n");
+    await app.tick();
+    assert.equal(app.doc.querySelector("#canvas-text-editor"), null);
+    assert.equal(
+      app.doc.querySelector("#toast").textContent,
+      "The facilitator froze this board.",
+    );
+    assert.deepEqual(app.outline(), []);
+    for (let n = 0; n < 8; n++) await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("built collaborators: a facilitator's selection does not show where hidden objects are", async () => {
+  const env = environment(),
+    hub = createPeerHub();
+  env.service.now = () => Date.now();
+  const key = item("note", 0, 0, { text: "Answer key" });
+  const shown = item("note", 400, 0, { text: "Question" });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Quiz",
+    items: [key, shown],
+    workshop: { settings: { hide: [key.id] } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const apps = [];
+  try {
+    for (const [user, token] of [
+      [owner, ""],
+      [editor, invite.token],
+    ]) {
+      const sdk = env.sdk(user);
+      sdk.peer = hub.peer;
+      const app = await setup(sdk);
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${token}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await app.until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined",
+      );
+      app.sizeCanvas();
+      await app.click('[data-action="fit"]');
+    }
+    const [facilitator, participant] = apps;
+    await facilitator.until(
+      () => facilitator.outline().length === 2,
+      "The facilitator sees the hidden note",
+    );
+    await facilitator.click('[data-action="participants"]');
+    await facilitator.until(
+      () =>
+        [...facilitator.doc.querySelectorAll(".live-participant-row")].some(
+          (row) =>
+            row.textContent.includes(editor.username) &&
+            row.querySelector("[data-follow]")?.disabled === false,
+        ),
+      "The participant is connected",
+    );
+    facilitator.doc.querySelector("dialog[open]")?.close();
+    facilitator.key("a", { ctrlKey: true });
+    // Moving the pointer shares the selection with the others.
+    const move = new facilitator.w.MouseEvent("pointermove", {
+      clientX: 800,
+      clientY: 850,
+      bubbles: true,
+    });
+    Object.defineProperties(move, {
+      pointerId: { value: 1 },
+      pointerType: { value: "mouse" },
+    });
+    facilitator.doc.querySelector("#canvas").dispatchEvent(move);
+    const boxes = () =>
+      participant.doc.querySelectorAll(".participant-selection").length;
+    await participant.until(() => boxes(), "The selection is shown");
+    for (let n = 0; n < 8; n++) await participant.tick();
+    assert.equal(boxes(), 1, "Only the visible note is outlined");
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("built app: a personal board suggests no one from the shared board left", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const note = item("note", 0, 0, { text: "Shared" });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Team",
+    items: [note],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(editor));
+  const suggestions = async () => {
+    await app.click('[data-action="add-comment"]');
+    const input = app.doc.querySelector("#comment-text");
+    input.value = "@";
+    input.setSelectionRange(1, 1);
+    input.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+    await app.tick();
+    const list = input.parentElement.querySelector(".mention-list");
+    const names = list.hidden
+      ? []
+      : [...list.children].map((li) => li.textContent);
+    input.value = "";
+    input.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+    await app.click("#comments-close");
+    return names;
+  };
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Joined",
+    );
+    app.sizeCanvas();
+    await app.click(`#board-outline [data-id="${note.id}"]`);
+    let names = [];
+    const deadline = Date.now() + 8000;
+    while (!names.length && Date.now() < deadline) names = await suggestions();
+    assert.deepEqual(names, [`@${owner.username}`], "Members are suggested");
+    // Someone who joins later can be mentioned without reopening the board.
+    const later = await env.service.call(owner, {
+      op: "invite",
+      room: initial.id,
+      role: "commenter",
+    });
+    await env.service.call(viewer, {
+      op: "join",
+      room: initial.id,
+      token: later.token,
+    });
+    const joined = `@${viewer.username}`,
+      until = Date.now() + 8000;
+    while (!names.includes(joined) && Date.now() < until)
+      names = await suggestions();
+    assert.ok(names.includes(joined), names.join(", "));
+    await app.click('[data-action="home"]');
+    await app.until(() => app.doc.querySelector('[data-action="new"]'), "Home");
+    await app.click('[data-action="new"]');
+    await app.until(() => app.doc.querySelector("#canvas"), "Board opened");
+    app.sizeCanvas();
+    await app.addNote("Mine");
+    await app.until(() => app.outline().length === 1, "A note");
+    await app.click("#board-outline button");
+    assert.deepEqual(await suggestions(), []);
+  } finally {
+    app.close();
+  }
+});
+
+test("built collaborators: links, comment pins, and the frame list respect content hidden from participants", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const key = item("note", 0, 0, { text: "Answer key" });
+  const shown = item("note", 400, 0, {
+    text: "Question",
+    objectLink: { objectId: key.id },
+  });
+  const author = { id: owner.uuid, name: owner.username };
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Quiz",
+    items: [
+      key,
+      shown,
+      item("frame", 0, 400, {
+        id: "one",
+        w: 300,
+        h: 200,
+        text: "One",
+        order: 0,
+      }),
+      item("frame", 400, 400, {
+        id: "two",
+        w: 300,
+        h: 200,
+        text: "Two",
+        order: 1,
+      }),
+      item("frame", 800, 400, {
+        id: "three",
+        w: 300,
+        h: 200,
+        text: "Three",
+        order: 2,
+      }),
+    ],
+    comments: [
+      commentThread({ x: 20, y: 20 }, author, "About the key", key),
+      commentThread({ x: 420, y: 20 }, author, "About the question", shown),
+    ],
+    workshop: { settings: { hide: [key.id, "two"] } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(editor));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}&object=${key.id}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Joined",
+    );
+    app.sizeCanvas();
+    // A link to hidden content does not select it.
+    assert.equal(app.doc.querySelector("#selection-tools").hidden, true);
+    assert.equal(
+      app.doc.querySelector("#toast").textContent,
+      "The linked object is no longer on this board.",
+    );
+    await app.click('[data-action="fit"]');
+    await app.click(`#board-outline [data-id="${shown.id}"]`);
+    await app.click("#object-link-access");
+    assert.equal(
+      app.doc.querySelector("#object-link-current a").textContent,
+      "Go to linked object",
+    );
+    assert.ok(
+      !app.doc
+        .querySelector("#object-links-panel")
+        .textContent.includes(key.text),
+      "Neither the preview nor the destination picker reveals hidden content",
+    );
+    await app.click("#object-link-close");
+    const pins = () =>
+      [...app.doc.querySelectorAll("#comment-pins > *")].map(
+        (p) => p.getAttribute("aria-label") || p.textContent,
+      );
+    await app.until(() => pins().length, "Comment pins are shown");
+    assert.deepEqual(pins(), ["Comment: About the question"]);
+    // Opening the other thread from the list leaves the view where it is.
+    const pin = app.doc.querySelector("#comment-pins > *");
+    const where = [pin.style.left, pin.style.top];
+    await app.click('[data-action="comments"]');
+    const hiddenThread = [
+      ...app.doc.querySelectorAll("#comments-panel [data-thread]"),
+    ].find((el) => el.textContent.includes("About the key"));
+    assert.ok(hiddenThread, "The thread is listed");
+    hiddenThread.click();
+    await app.tick();
+    const moved = app.doc.querySelector("#comment-pins > *");
+    assert.deepEqual([moved.style.left, moved.style.top], where);
+    // Frames keep their order while one is hidden, and the list says why.
+    await app.click('[data-action="frames"]');
+    const list = app.doc.querySelector(".frame-list");
+    assert.deepEqual(
+      [...list.querySelectorAll(".frame-row strong")].map((s) => s.textContent),
+      ["One", "Three"],
+    );
+    assert.ok(
+      [...list.querySelectorAll("[data-order]")].every((b) => b.disabled),
+    );
+    assert.match(list.textContent, /once the facilitator shows every frame/);
+    // Section links in the Share dialog do not name the hidden frame.
+    await app.click('[data-action="share"]');
+    await app.until(() => app.doc.querySelector("#share-link"), "Share dialog");
+    const scope = app.doc.querySelector("#share-scope");
+    assert.ok(scope, "Section links are offered");
+    assert.deepEqual(
+      [...scope.options].map((o) => o.value),
+      ["", "one", "three"],
+    );
+    assert.doesNotMatch(scope.textContent, /Two/);
+  } finally {
+    app.close();
+  }
+});
+
+test("built viewer text link previews close when a facilitator hides their object", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const note = item("note", 0, 0, {
+      text: "Confidential reference",
+      textRuns: [
+        { start: 0, end: 22, style: { link: "https://example.com/private" } },
+      ],
+    }),
+    room = await createRoom(env.service, [note]),
+    { token } = await env.service.call(owner, {
+      op: "invite",
+      room,
+      role: "viewer",
+    }),
+    app = await setup(env.sdk(viewer));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Joined",
+    );
+    app.sizeCanvas();
+    await app.click(`#board-outline [data-id="${note.id}"]`);
+    await app.click("#text-link-access");
+    assert.equal(
+      app.doc.querySelector("#text-link-preview a").href,
+      "https://example.com/private",
+    );
+    await commit(env.service, owner, room, (_, workshop) => {
+      workshop.settings = { hide: [note.id] };
+    });
+    await app.until(
+      () => !app.doc.querySelector(`#board-outline [data-id="${note.id}"]`),
+      "Hidden object disappears from the viewer's board",
+    );
+    assert.equal(app.doc.querySelector("#text-link-preview"), null);
+    assert.ok(!app.doc.body.textContent.includes("Confidential reference"));
+  } finally {
+    app.close();
+  }
+});
+
+test("built collaborators: undo on a frozen board is refused and kept for later", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Freeze",
+    items: [],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const lock = async (value) => {
+    const { doc } = await env.service.load(initial.id);
+    const vector = doc.vector(),
+      next = doc.snapshot();
+    next.workshop = { ...next.workshop, settings: { lock: value } };
+    doc.commit(next);
+    const update = doc.update(vector);
+    doc.destroy();
+    await env.service.call(owner, {
+      op: "commit",
+      room: initial.id,
+      id: await hash(update),
+      update: encode(update),
+    });
+  };
+  const app = await setup(env.sdk(editor));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Joined",
+    );
+    app.sizeCanvas();
+    await app.addNote("Mine");
+    await app.until(() => app.outline().length === 1, "Note added");
+    // The note reaches the worker before the owner freezes the board.
+    for (let n = 0; n < 200; n++) {
+      const { doc } = await env.service.load(initial.id);
+      const saved = doc.snapshot().items.length;
+      doc.destroy();
+      if (saved) break;
+      await app.tick();
+    }
+    await lock("frozen");
+    await app.until(
+      () =>
+        /frozen/i.test(app.doc.querySelector("#workshop-banner").textContent),
+      "The freeze reaches the editor",
+    );
+    app.key("z", { ctrlKey: true });
+    await app.tick();
+    assert.match(app.outline()[0], /Mine/, "The text stays");
+    assert.equal(
+      app.doc.querySelector("#toast").textContent,
+      "The facilitator froze this board.",
+    );
+    await lock("open");
+    await app.until(
+      () =>
+        !/frozen/i.test(
+          app.doc.querySelector("#workshop-banner")?.textContent || "",
+        ),
+      "The board opens again",
+    );
+    app.key("z", { ctrlKey: true });
+    await app.until(
+      () => app.outline().length === 1 && !/Mine/.test(app.outline()[0]),
+      "Undo still works",
+    );
+    for (let n = 0; n < 8; n++) await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("built collaborators: undo that a locked board refuses changes nothing", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const theirs = item("note", 0, 0, { text: "Owner idea" });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Lock",
+    items: [theirs],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const saved = async () => {
+    const { doc } = await env.service.load(initial.id);
+    const board = doc.snapshot();
+    doc.destroy();
+    return board;
+  };
+  const lock = async (value) => {
+    const { doc } = await env.service.load(initial.id);
+    const vector = doc.vector(),
+      next = doc.snapshot();
+    next.workshop = { ...next.workshop, settings: { lock: value } };
+    doc.commit(next);
+    const update = doc.update(vector);
+    doc.destroy();
+    await env.service.call(owner, {
+      op: "commit",
+      room: initial.id,
+      id: await hash(update),
+      update: encode(update),
+    });
+  };
+  const app = await setup(env.sdk(editor));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Joined",
+    );
+    app.sizeCanvas();
+    await app.click(`#board-outline [data-id="${theirs.id}"]`);
+    app.key("ArrowRight", { shiftKey: true });
+    for (let n = 0; n < 200 && (await saved()).items[0].x === 0; n++)
+      await app.tick();
+    const moved = (await saved()).items[0].x;
+    assert.notEqual(moved, 0, "The move reaches the worker");
+    await lock("contribute");
+    await app.until(
+      () =>
+        /locked/i.test(app.doc.querySelector("#workshop-banner").textContent),
+      "The lock reaches the editor",
+    );
+    app.key("z", { ctrlKey: true });
+    await app.tick();
+    assert.match(app.doc.querySelector("#toast").textContent, /locked|only/i);
+    for (let n = 0; n < 40; n++) await app.tick();
+    assert.equal((await saved()).items[0].x, moved, "Nothing is saved");
+    assert.doesNotMatch(
+      app.doc.querySelector("#toast").textContent,
+      /conflicted/,
+    );
+    await lock("open");
+    await app.until(
+      () =>
+        !/locked/i.test(
+          app.doc.querySelector("#workshop-banner")?.textContent || "",
+        ),
+      "The board opens again",
+    );
+    app.key("z", { ctrlKey: true });
+    for (let n = 0; n < 200 && (await saved()).items[0].x !== 0; n++)
+      await app.tick();
+    assert.equal((await saved()).items[0].x, 0, "Undo still works");
+    for (let n = 0; n < 8; n++) await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("a reaction left anonymously gains no name when the same person reacts again", () => {
+  const editor = {
+    uuid: "22222222-2222-4222-8222-222222222222",
+    username: "Bob",
+  };
+  const b = {
+    ...newBoard("Workshop"),
+    items: [item("note", 0, 0, { id: "a", text: "Idea" })],
+  };
+  b.workshop = { settings: { lock: "open", anonymous: true } };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    const record = () =>
+      b.workshop[Object.keys(b.workshop).find((k) => k.startsWith("r:"))];
+    ui.api.react("a", "question");
+    assert.equal(record().name, undefined);
+    b.workshop = {
+      ...b.workshop,
+      settings: { lock: "open", anonymous: false },
+    };
+    ui.api.react("a", "thumbs");
+    assert.deepEqual(record().types, ["thumbs", "question"]);
+    assert.equal(record().name, undefined);
+    // Reactions left with a name keep it; anonymity hides it again.
+    ui.api.react("a", "question");
+    ui.api.react("a", "thumbs");
+    ui.api.react("a", "heart");
+    assert.equal(record().name, "Bob");
+    b.workshop = { ...b.workshop, settings: { lock: "open", anonymous: true } };
+    ui.api.react("a", "thumbs");
+    assert.equal(record().name, undefined);
+  } finally {
+    ui.close();
+  }
+});
+
+test("a closed poll's saved result includes answers accepted before it closed that arrive afterwards", async () => {
+  const owner = {
+      uuid: "11111111-1111-4111-8111-111111111111",
+      username: "Alice",
+    },
+    editor = { uuid: "22222222-2222-4222-8222-222222222222", username: "Bob" };
+  const b = {
+    ...newBoard("Workshop"),
+    items: [item("note", 0, 0, { id: "a", text: "Idea" })],
+  };
+  b.workshop = {
+    poll: {
+      id: "p1",
+      question: "Which?",
+      options: [
+        { id: "o1", text: "One" },
+        { id: "o2", text: "Two" },
+      ],
+      multiple: false,
+      anonymous: true,
+      hidden: false,
+      state: "open",
+      revealed: false,
+      startedAt: 1000,
+    },
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("poll");
+    ui.click('[data-fac="poll-close"]');
+    const saved = () => b.workshop[historyKey("p1")];
+    assert.equal(saved().participants, 0);
+    b.workshop = {
+      ...b.workshop,
+      [answerKey("p1", editor.uuid)]: {
+        poll: "p1",
+        by: editor.uuid,
+        ids: ["o1"],
+        at: 9000,
+      },
+    };
+    ui.api.render();
+    await new Promise((r) => setTimeout(r, 30));
+    assert.equal(saved().participants, 1);
+    assert.deepEqual(
+      saved().results.map((r) => r.count),
+      [1, 0],
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("the open Summary tab follows deleted objects", () => {
+  const owner = {
+      uuid: "11111111-1111-4111-8111-111111111111",
+      username: "Alice",
+    },
+    editor = { uuid: "22222222-2222-4222-8222-222222222222", username: "Bob" };
+  const b = {
+    ...newBoard("Workshop"),
+    items: [
+      item("note", 0, 0, { id: "a", text: "x" }),
+      item("note", 300, 0, { id: "b", text: "y" }),
+    ],
+  };
+  b.workshop = {
+    session: { id: "s1", state: "active", startedAt: 1000 },
+    [contributionKey("a")]: { by: editor.uuid, at: 2000, name: "Bob" },
+    [contributionKey("b")]: { by: editor.uuid, at: 2000, name: "Bob" },
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("summary");
+    const notes = () =>
+      ui.doc.querySelector(".fac-totals div:nth-child(2) dd").textContent;
+    assert.equal(notes(), "2");
+    // Records of deleted objects stay; the note count follows the board.
+    b.items = b.items.filter((i) => i.id !== "b");
+    ui.api.render();
+    assert.equal(notes(), "1");
+  } finally {
+    ui.close();
+  }
+});
+
+test("long vote lists say they are shortened and agenda buttons name their step", () => {
+  const frames = ["Welcome", "Brainstorm"].map((text, n) =>
+    item("frame", n * 600, 0, { id: `f${n}`, text, order: n, w: 500 }),
+  );
+  const notes = Array.from({ length: 250 }, (_, n) =>
+    item("note", (n % 20) * 220, 800 + Math.floor(n / 20) * 220, {
+      id: `n${n}`,
+      text: `Idea ${n}`,
+    }),
+  );
+  const b = {
+    ...newBoard("Workshop"),
+    items: [...frames, ...notes],
+    workshop: {
+      agenda: { steps: [{ frame: "f0", minutes: 2 }, { frame: "f1" }] },
+      vote: vote({ targets: notes.map((n) => n.id), hidden: false }),
+    },
+  };
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    ui.api.open("vote");
+    assert.equal(ui.doc.querySelectorAll(".fac-vote-list li").length, 200);
+    assert.match(
+      ui.doc.querySelector(".fac-vote-list").nextElementSibling.textContent,
+      /first 200 of 250/,
+    );
+    ui.api.open("agenda");
+    ui.click('[data-fac="agenda-start"]');
+    const names = [...ui.doc.querySelectorAll('[data-fac="agenda-go"]')].map(
+      (button) =>
+        button
+          .getAttribute("aria-labelledby")
+          .split(/\s+/)
+          .map((id) => ui.doc.getElementById(id).textContent)
+          .join(" "),
+    );
+    assert.deepEqual(names, ["Go to step: Welcome", "Go to step: Brainstorm"]);
+  } finally {
+    ui.close();
+  }
+});
+
+test("revealing earlier results from History is audited once", () => {
+  const record = {
+    kind: "vote",
+    id: "v1",
+    title: "Budget",
+    startedAt: 1,
+    endedAt: 2,
+    anonymous: true,
+    hidden: true,
+    participants: 3,
+    results: [{ id: "a", label: "", count: 3 }],
+  };
+  const session = (id, extra = {}) => ({
+    ...vote({ id, state: "ended", endedAt: 2, hidden: true }),
+    ...extra,
+  });
+  const actions = (before, after) =>
+    workshopEvents(before, after).map((e) => [e.action, e.details.id]);
+  // Revealed from History while a later vote runs.
+  assert.deepEqual(
+    actions(
+      { vote: session("v2"), [historyKey("v1")]: record },
+      { vote: session("v2"), [historyKey("v1")]: { ...record, hidden: false } },
+    ),
+    [["vote.revealed", "v1"]],
+  );
+  // The current vote's reveal is recorded once, not again for its record.
+  assert.deepEqual(
+    actions(
+      { vote: session("v1"), [historyKey("v1")]: record },
+      {
+        vote: session("v1", { revealed: true }),
+        [historyKey("v1")]: { ...record, hidden: false },
+      },
+    ),
+    [["vote.revealed", "v1"]],
+  );
+  // Hiding again, or no change, records nothing.
+  assert.deepEqual(
+    actions(
+      { [historyKey("v1")]: { ...record, hidden: false } },
+      { [historyKey("v1")]: record },
+    ),
+    [],
+  );
+});
+
+test("rewriting others' content or comments with its current values is refused while it would win over their edits", async () => {
+  const Y = await import("yjs");
+  const { decode } = await import("../src/collaboration/protocol.js");
+  const env = environment(),
+    boards = env.service;
+  const initial = newBoard("Workshop");
+  initial.items = [item("note", 0, 0, { id: "a", text: "Owner's note" })];
+  const thread = commentThread(
+    { x: 1, y: 1 },
+    { id: owner.uuid, name: owner.username },
+    "Owner's words",
+  );
+  thread.messages[0].createdAt = env.now;
+  initial.comments = [thread];
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  const room = initial.id;
+  await boards.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  for (const [user, role] of [
+    [editor, "editor"],
+    [viewer, "commenter"],
+  ]) {
+    const { token } = await boards.call(owner, { op: "invite", room, role });
+    await boards.call(user, { op: "join", room, token });
+  }
+  const send = async (user, update) =>
+    boards.call(user, {
+      op: "commit",
+      room,
+      id: await hash(update),
+      update: encode(update),
+    });
+  const setLock = async (lock) => {
+    const { doc } = await boards.load(room);
+    const vector = doc.vector(),
+      next = doc.snapshot();
+    next.workshop = { ...next.workshop, settings: { lock } };
+    doc.commit(next);
+    const update = doc.update(vector);
+    doc.destroy();
+    await send(owner, update);
+  };
+  // A write from a copy of the current state, from a chosen client.
+  const rewrite = async (client, change) => {
+    const state = decode(
+      (await boards.call(owner, { op: "sync", room })).update,
+    );
+    const base = new Y.Doc(),
+      fork = new Y.Doc();
+    Y.applyUpdate(base, state);
+    fork.clientID = client;
+    Y.applyUpdate(fork, state);
+    change(fork);
+    return Y.encodeStateAsUpdate(fork, Y.encodeStateVector(base));
+  };
+  const note = (d) => d.getMap("items").get("a");
+  const same = (d) => note(d).set("geometry", { ...note(d).get("geometry") });
+  const message = (d) =>
+    d
+      .getMap("comments")
+      .get(thread.id)
+      .get("messages")
+      .get(thread.messages[0].id);
+  try {
+    for (const lock of ["frozen", "contribute"]) {
+      await setLock(lock);
+      await assert.rejects(
+        send(editor, await rewrite(0x7ffffff1, same)),
+        (e) => e.status === 422,
+        lock,
+      );
+      await assert.rejects(
+        send(
+          editor,
+          await rewrite(0x7ffffff2, (d) =>
+            d.getMap("board").set("title", "Workshop"),
+          ),
+        ),
+        (e) => e.status === 422,
+        `${lock} title`,
+      );
+    }
+    await setLock("open");
+    // An open board takes it, as before.
+    await send(editor, await rewrite(0x7ffffff3, same));
+    // Someone else's comment, rewritten with its own words.
+    await assert.rejects(
+      send(
+        viewer,
+        await rewrite(0x7ffffff4, (d) =>
+          message(d).set("text", message(d).get("text")),
+        ),
+      ),
+      /Only the author/,
+    );
+    await assert.rejects(
+      send(
+        editor,
+        await rewrite(0x7ffffff5, (d) =>
+          message(d).set("authorId", message(d).get("authorId")),
+        ),
+      ),
+      /Only the author/,
+    );
+    // The author's own edit saves.
+    await send(
+      owner,
+      await rewrite(7, (d) => {
+        message(d).set("text", "Owner's correction");
+        message(d).set("editedAt", env.now);
+      }),
+    );
+    const { doc } = await boards.load(room);
+    try {
+      assert.equal(
+        doc.snapshot().comments[0].messages[0].text,
+        "Owner's correction",
+      );
+    } finally {
+      doc.destroy();
+    }
+  } finally {
+    env.close?.();
+  }
+});
+
+test("simultaneous facilitator changes to the same register keep both, and later ones win", () => {
+  const start = newBoard("Workshop");
+  start.items = [
+    item("note", 0, 0, { id: "secret", text: "Private" }),
+    item("note", 300, 0, { id: "other", text: "Other" }),
+  ];
+  start.workshop = {
+    settings: { lock: "open", private: null, anonymous: false },
+  };
+  const exchange = (a, b) => {
+    for (let n = 0; n < 3; n++) {
+      a.apply(b.update(a.vector()));
+      b.apply(a.update(b.vector()));
+    }
+  };
+  const change = (doc, fn) => {
+    const before = doc.snapshot(),
+      next = structuredClone(before);
+    fn(next.workshop);
+    doc.commit(rebase(next, before, doc.snapshot()));
+  };
+  // Either facilitator's value can win the register; both changes stay.
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const a = new SharedDocument(undefined, { merge: true }),
+      b = new SharedDocument(undefined, { merge: true });
+    try {
+      a.commit(start);
+      b.apply(a.update());
+      change(a, (w) => {
+        w.settings = { ...w.settings, hide: ["secret"] };
+      });
+      change(b, (w) => {
+        w.settings = { ...w.settings, hide: ["other"], lock: "contribute" };
+      });
+      exchange(a, b);
+      for (const doc of [a, b]) {
+        const { settings } = doc.snapshot().workshop;
+        assert.deepEqual([...settings.hide].sort(), ["other", "secret"]);
+        assert.equal(settings.lock, "contribute");
+      }
+      // A change made after seeing another replaces it as usual.
+      change(b, (w) => {
+        w.settings = { ...w.settings, hide: [] };
+      });
+      exchange(a, b);
+      for (const doc of [a, b])
+        assert.deepEqual(doc.snapshot().workshop.settings.hide, []);
+    } finally {
+      a.destroy();
+      b.destroy();
+    }
+  }
+  // Documents that do not merge, such as the worker's, never write.
+  const a = new SharedDocument(),
+    b = new SharedDocument();
+  try {
+    a.commit(start);
+    b.apply(a.update());
+    change(a, (w) => {
+      w.settings = { ...w.settings, hide: ["secret"] };
+    });
+    change(b, (w) => {
+      w.settings = { ...w.settings, hide: ["other"] };
+    });
+    a.apply(b.update(a.vector()));
+    b.apply(a.update(b.vector()));
+    assert.deepEqual(a.snapshot().workshop, b.snapshot().workshop);
+    assert.equal(a.snapshot().workshop.settings.hide.length, 1);
+  } finally {
+    a.destroy();
+    b.destroy();
+  }
+});
+
+test("a ballot or reaction racing a facilitator's change does not refuse the rest of the save", async () => {
+  const env = environment(),
+    boards = env.service;
+  let now = Date.now();
+  boards.now = () => now;
+  const b = newBoard("Workshop");
+  b.items = [
+    item("note", 0, 0, { id: "a", text: "A" }),
+    item("note", 300, 0, { id: "b", text: "B" }),
+  ];
+  const seed = new SharedDocument();
+  seed.commit(b);
+  await boards.call(owner, {
+    op: "create",
+    room: b.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const { token } = await boards.call(owner, {
+    op: "invite",
+    room: b.id,
+    role: "editor",
+  });
+  await boards.call(editor, { op: "join", room: b.id, token });
+  const send = async (user, doc, vector, change) => {
+    const next = doc.snapshot();
+    change(next);
+    doc.commit(next);
+    const update = doc.update(vector);
+    return boards.call(user, {
+      op: "commit",
+      room: b.id,
+      id: await hash(update),
+      update: encode(update),
+    });
+  };
+  const change = async (user, fn) => {
+    const { doc } = await boards.load(b.id);
+    try {
+      await send(user, doc, doc.vector(), fn);
+    } finally {
+      doc.destroy();
+    }
+  };
+  const text = async (id) => {
+    const { doc } = await boards.load(b.id);
+    try {
+      return doc.snapshot().items.find((i) => i.id === id)?.text;
+    } finally {
+      doc.destroy();
+    }
+  };
+  // A ballot sent just before a manual end, with another edit.
+  await change(owner, (s) => {
+    s.workshop = {
+      vote: {
+        id: "v1",
+        title: "P",
+        votes: 2,
+        multiple: false,
+        anonymous: true,
+        hidden: false,
+        targets: ["a", "b"],
+        state: "active",
+        revealed: false,
+        startedAt: now,
+        endsAt: 0,
+      },
+    };
+  });
+  const bob = (await boards.load(b.id)).doc,
+    before = bob.vector();
+  await change(owner, (s) => {
+    s.workshop.vote = { ...s.workshop.vote, state: "ended", endedAt: now };
+  });
+  now += 2000;
+  await send(editor, bob, before, (s) => {
+    s.workshop[voteKey("v1", editor.uuid)] = {
+      vote: "v1",
+      by: editor.uuid,
+      ids: ["a"],
+      at: now,
+    };
+    s.items.find((i) => i.id === "b").text = "Bob's edit";
+  });
+  bob.destroy();
+  assert.equal(await text("b"), "Bob's edit");
+  // Well after the end, a ballot is refused.
+  now += 10_000;
+  await assert.rejects(
+    change(editor, (s) => {
+      s.workshop[voteKey("v1", editor.uuid)] = {
+        vote: "v1",
+        by: editor.uuid,
+        ids: ["b"],
+        at: now,
+      };
+    }),
+    /closed/,
+  );
+  // A reaction to a note deleted at the same moment, with another edit.
+  const carol = (await boards.load(b.id)).doc,
+    base = carol.vector();
+  await change(owner, (s) => {
+    s.items = s.items.filter((i) => i.id !== "a");
+  });
+  await send(editor, carol, base, (s) => {
+    s.workshop[reactionKey(editor.uuid, objectTarget("a"))] = {
+      by: editor.uuid,
+      target: ["o", "a"],
+      types: ["heart"],
+      at: now,
+    };
+    s.items.find((i) => i.id === "b").text = "Still saved";
+  });
+  carol.destroy();
+  assert.equal(await text("b"), "Still saved");
+  // Reactions to made-up targets cannot use up the board's reaction limit.
+  const react = (count) => (s) => {
+    for (let n = 0; n < count; n++) {
+      const target = messageTarget("none", `m${n}`);
+      s.workshop[reactionKey(editor.uuid, target)] = {
+        by: editor.uuid,
+        target,
+        types: ["heart"],
+        at: now,
+      };
+    }
+  };
+  await assert.rejects(change(editor, react(200)), /no longer exists/);
+  await change(editor, react(10));
+  const { token: commenter } = await boards.call(owner, {
+    op: "invite",
+    room: b.id,
+    role: "commenter",
+  });
+  await boards.call(viewer, { op: "join", room: b.id, token: commenter });
+  await change(viewer, (s) => {
+    s.workshop[reactionKey(viewer.uuid, objectTarget("b"))] = {
+      by: viewer.uuid,
+      target: ["o", "b"],
+      types: ["heart"],
+      at: now,
+    };
+  });
+});
+
+test("a register a facilitator cleared is not put back over another facilitator's new one", () => {
+  const poll = (id, question) => ({
+    id,
+    question,
+    options: [
+      { id: "y", text: "Yes" },
+      { id: "n", text: "No" },
+    ],
+    multiple: false,
+    anonymous: false,
+    hidden: false,
+    state: "open",
+    revealed: false,
+    startedAt: 1,
+  });
+  const seed = new SharedDocument();
+  seed.commit(newBoard("Workshop"));
+  const a = new SharedDocument(seed.update(), { merge: true }),
+    b = new SharedDocument(seed.update(), { merge: true });
+  seed.destroy();
+  a.doc.clientID = 10;
+  b.doc.clientID = 20;
+  try {
+    const vector = a.vector();
+    // A starts a poll and cancels it before hearing from B.
+    const x = a.snapshot();
+    x.workshop = { poll: poll("pa", "A's poll") };
+    a.commit(x);
+    const y = a.snapshot();
+    delete y.workshop;
+    a.commit(y);
+    // B starts its own at the same time as A's first.
+    const z = b.snapshot();
+    z.workshop = { poll: poll("pb", "B's poll") };
+    b.commit(z);
+    const fromA = a.update(b.vector()),
+      fromB = b.update(vector);
+    a.apply(fromB);
+    b.apply(fromA);
+    a.apply(b.update(a.vector()));
+    b.apply(a.update(b.vector()));
+    for (const doc of [a, b])
+      assert.equal(doc.snapshot().workshop?.poll?.question, "B's poll");
+  } finally {
+    a.destroy();
+    b.destroy();
+  }
+});
+
+test("on a locked board, participants' saves that only tidy or re-rank others' objects are taken", async () => {
+  const { reorderItems } = await import("../src/scene.js");
+  const { decode } = await import("../src/collaboration/protocol.js");
+  const carol = {
+    uuid: "44444444-4444-4444-8444-444444444444",
+    username: "Carol",
+  };
+  const env = environment(),
+    boards = env.service;
+  const b = newBoard("Workshop");
+  b.items = [
+    item("frame", 0, 0, { id: "F", w: 600, h: 600, text: "Frame" }),
+    item("rect", 800, 0, { id: "o1" }),
+    item("rect", 1200, 0, { id: "o2" }),
+  ];
+  const seed = new SharedDocument();
+  seed.commit(b);
+  const room = b.id;
+  await boards.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  for (const user of [editor, carol]) {
+    const { token } = await boards.call(owner, {
+      op: "invite",
+      room,
+      role: "editor",
+    });
+    await boards.call(user, { op: "join", room, token });
+  }
+  const client = async (user) =>
+    new SharedDocument(
+      decode((await boards.call(user, { op: "sync", room })).update),
+    );
+  const edit = async (user, doc, change) => {
+    const vector = doc.vector(),
+      next = doc.snapshot();
+    next.workshop ||= {};
+    change(next, next.workshop);
+    doc.commit(next);
+    const update = doc.update(vector);
+    return boards.call(user, {
+      op: "commit",
+      room,
+      id: await hash(update),
+      update: encode(update),
+    });
+  };
+  const own = (user, id) => (next, w) => {
+    next.items.push(item("note", 50, 50, { id, parentId: "F", text: id }));
+    w[contributionKey(id)] = { by: user.uuid, at: env.now };
+  };
+  const facilitator = await client(owner);
+  await edit(
+    owner,
+    facilitator,
+    (n, w) => (w.settings = { lock: "contribute" }),
+  );
+  // Bob adds a note into the frame while the facilitator deletes it.
+  const bob = await client(editor),
+    other = await client(owner);
+  await edit(editor, bob, own(editor, "N"));
+  await edit(owner, other, (n) => {
+    n.items = n.items.filter((i) => i.id !== "F");
+  });
+  // Carol's save tidies the stale frame link on Bob's note.
+  const c = await client(carol);
+  await edit(carol, c, own(carol, "M"));
+  // Moving her own note back and to front re-ranks others' objects.
+  await edit(carol, c, (n) => {
+    n.items = reorderItems(n.items, new Set(["M"]), "backward", {});
+  });
+  await edit(carol, c, (n) => {
+    n.items = reorderItems(n.items, new Set(["M"]), "front", {});
+  });
+  // Writing someone else's value back as it was is still refused.
+  await assert.rejects(
+    (async () => {
+      const vector = c.vector();
+      const entry = c.items.get("o1");
+      entry.set("geometry", { ...entry.get("geometry") });
+      const update = c.update(vector);
+      await boards.call(carol, {
+        op: "commit",
+        room,
+        id: await hash(update),
+        update: encode(update),
+      });
+    })(),
+    { status: 422 },
+  );
+  // So is replacing someone else's object, or its text, with a copy.
+  for (const copy of [
+    (items) => items.set("o1", items.get("o1").clone()),
+    (items) => {
+      const entry = items.get("o2");
+      entry.set("text", entry.get("text").clone());
+    },
+  ])
+    await assert.rejects(
+      (async () => {
+        const d = await client(carol),
+          vector = d.vector();
+        d.doc.transact(() => copy(d.items));
+        const update = d.update(vector);
+        try {
+          await boards.call(carol, {
+            op: "commit",
+            room,
+            id: await hash(update),
+            update: encode(update),
+          });
+        } finally {
+          d.destroy();
+        }
+      })(),
+      { status: 422 },
+    );
+  for (const d of [facilitator, bob, other, c]) d.destroy();
+});
+
+test("focus on a vote or reaction badge button that goes moves to the badge or the canvas", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  b.workshop = {
+    [reactionKey(viewer.uuid, objectTarget("a"))]: {
+      by: viewer.uuid,
+      target: ["o", "a"],
+      types: ["heart"],
+      at: 5,
+      name: "Cam",
+    },
+    vote: vote({ hidden: true }),
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    const canvas = ui.doc.querySelector("#canvas");
+    canvas.tabIndex = 0;
+    ui.api.render();
+    // Removing this person's only vote here keeps focus on the badge.
+    ui.doc.querySelector('[data-fac-vote="add"][data-id="a"]').click();
+    const remove = ui.doc.querySelector(
+      '[data-fac-vote="remove"][data-id="a"]',
+    );
+    remove.focus();
+    remove.click();
+    assert.equal(
+      ui.doc.activeElement,
+      ui.doc.querySelector('[data-fac-vote="add"][data-id="a"]'),
+    );
+    // The badge goes when the vote is cleared and Cam removes the only
+    // reaction.
+    ui.doc.querySelector('[data-fac-react="heart"]')?.focus();
+    b.workshop = {};
+    ui.api.render();
+    assert.ok(
+      ui.doc.activeElement === canvas ||
+        ui.doc
+          .querySelector(".facilitation-badges")
+          ?.contains(ui.doc.activeElement),
+      "not left on the page",
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("each object's votes and reactions are a group named after the object", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  b.workshop = {
+    vote: vote({ hidden: false, revealed: true }),
+    [reactionKey(viewer.uuid, objectTarget("a"))]: {
+      by: viewer.uuid,
+      target: ["o", "a"],
+      types: ["heart"],
+      at: 5,
+      name: "Cam",
+    },
+  };
+  const ui = stubUI(b, { role: "editor", me: editor });
+  try {
+    ui.api.render();
+    const group = ui.doc.querySelector('[data-fac-item="a"]');
+    assert.equal(group.getAttribute("role"), "group");
+    assert.match(accessibleName(group), /\S/);
+    assert.notEqual(
+      accessibleName(group),
+      accessibleName(ui.doc.querySelector('[data-fac-item="b"]')),
+    );
+  } finally {
+    ui.close();
+  }
+});
+
+test("the summary counts reactions only on objects and comments that remain", () => {
+  const b = { ...newBoard("Workshop"), items: notes() };
+  const thread = commentThread(
+    { x: 0, y: 0 },
+    { id: owner.uuid, name: "Alice" },
+    "Hi",
+  );
+  const gone = commentThread(
+    { x: 0, y: 0 },
+    { id: owner.uuid, name: "Alice" },
+    "Bye",
+  );
+  gone.messages[0].deleted = true;
+  b.comments = [thread, gone];
+  b.workshop = { session: { id: "s1", state: "active", startedAt: 1000 } };
+  const react = (who, target) => ({
+    [reactionKey(who.uuid, target)]: {
+      by: who.uuid,
+      target,
+      types: ["heart"],
+      at: 2000,
+      name: who.username,
+    },
+  });
+  Object.assign(
+    b.workshop,
+    react(editor, objectTarget("a")),
+    react(viewer, objectTarget("deleted-note")),
+    react(owner, messageTarget(thread.id, thread.messages[0].id)),
+    react(editor, messageTarget(gone.id, gone.messages[0].id)),
+  );
+  assert.equal(engagement(b, { now: 5000 }).totals.reactions, 2);
+});
+
+for (const surface of ["vote list", "live results", "summary", "overlay"])
+  test(`saved object languages reach facilitation ${surface}`, () => {
+    const b = newBoard("Object language audit");
+    b.items = notes();
+    b.items[0].text = "Bonjour à tous.";
+    b.items[0].lang = "fr-CA";
+    b.workshop = Object.fromEntries([
+      ["vote", vote({ hidden: false })],
+      ballot(owner, ["a"]),
+      [
+        reactionKey(owner.uuid, objectTarget("a")),
+        {
+          by: owner.uuid,
+          target: ["o", "a"],
+          types: ["thumbs"],
+          at: 2000,
+          name: owner.username,
+        },
+      ],
+    ]);
+    validateBoard(b);
+    const ui = stubUI(b, { role: "owner", me: owner });
+    const previousLanguage = language;
+    try {
+      setLanguage("en");
+      ui.api.render();
+      ui.api.open(surface === "summary" ? "summary" : "vote");
+      let label;
+      if (surface === "overlay")
+        label = ui.doc.querySelector('[data-fac-item="a"]');
+      else {
+        const selector =
+          surface === "vote list"
+            ? ".fac-vote-list li"
+            : surface === "live results"
+              ? ".fac-result-label"
+              : ".fac-rank li";
+        label = [...ui.doc.querySelectorAll(selector)].find((n) =>
+          n.textContent.includes("Bonjour à tous."),
+        );
+      }
+      assert.ok(label, surface + " exposes the authored object name");
+      if (surface === "overlay")
+        assert.ok(accessibleName(label).includes("Bonjour à tous."));
+      assert.equal(
+        label.querySelector('[lang="fr-CA"]')?.textContent,
+        "Bonjour à tous.",
+      );
+    } finally {
+      setLanguage(previousLanguage);
+      ui.close();
+    }
+  });
+
+test("facilitation object labels retain trimmed and clipped passages, language-only updates and focus", () => {
+  const previousLanguage = language;
+  const text =
+    '\n  Hello. Bonjour à tous. <img src="bad"> ' +
+    "word ".repeat(30) +
+    "\nSecond line";
+  const start = text.indexOf("Bonjour");
+  const b = newBoard("Mixed object languages");
+  b.items = [
+    item("note", 0, 0, {
+      id: "a",
+      text,
+      lang: "en-CA",
+      textRuns: [{ start, end: start + 15, style: { lang: "fr" } }],
+    }),
+    item("note", 250, 0, { id: "b", text: "", lang: "fr-CA" }),
+    item("note", 500, 0, { id: "c", text: "Bonjour encore.", lang: "fr-CA" }),
+  ];
+  b.workshop = Object.fromEntries([
+    ["vote", vote({ hidden: false })],
+    ballot(owner, ["a"]),
+    [
+      reactionKey(owner.uuid, objectTarget("a")),
+      { by: owner.uuid, target: objectTarget("a"), types: ["heart"], at: 2000 },
+    ],
+  ]);
+  validateBoard(b);
+  const ui = stubUI(b, { role: "owner", me: owner, selection: new Set(["a"]) });
+  try {
+    for (const lang of ["en", "fr"]) {
+      setLanguage(lang);
+      ui.api.render();
+      ui.api.open("vote");
+      const rows = ui.doc.querySelectorAll(".fac-vote-list li");
+      const label = rows[0].querySelector("[data-user-content]");
+      assert.equal(label.lang, "en-CA");
+      assert.equal(label.textContent, text.trim().split("\n")[0].slice(0, 120));
+      assert.equal(
+        label.querySelector('[lang="fr"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(rows[0].querySelector("img"), null);
+      assert.equal(
+        rows[1].querySelector("[lang]"),
+        null,
+        "The empty-note type is interface text",
+      );
+      assert.equal(rows[2].querySelector("[lang]").lang, "fr-CA");
+      const action = rows[0].querySelector('[data-fac="vote-add"]');
+      assert.equal(
+        accessibleName(action),
+        `${t("Vote for")} ${label.textContent}`,
+      );
+      assert.equal(
+        accessibleName(rows[0].querySelector('[data-fac="vote-remove"]')),
+        `${t("Remove your vote from")} ${label.textContent}`,
+      );
+      assert.equal(
+        action.querySelector("[lang]"),
+        null,
+        "Translated action words inherit the interface language",
+      );
+      const group = ui.doc.querySelector('[data-fac-item="a"]');
+      assert.equal(accessibleName(group), label.textContent);
+      assert.equal(
+        accessibleName(group.querySelector('[data-fac-vote="add"]')),
+        `${t("Vote for")} ${label.textContent} · ${counted("{count} votes left", 1).replace("{count}", "1")}`,
+      );
+      assert.equal(
+        accessibleName(group.querySelector("[data-fac-picker]")),
+        `${t("Add a reaction")}${lang === "fr" ? " : " : ": "}${label.textContent}`,
+      );
+      rows[0].querySelector('[data-fac="vote-remove"]').focus();
+      b.items[0].lang = "en-GB";
+      b.items[0].textRuns[0].style.lang = "fr-CA";
+      ui.api.render();
+      assert.equal(ui.doc.activeElement.dataset.fac, "vote-remove");
+      assert.equal(ui.doc.activeElement.dataset.id, "a");
+      assert.equal(
+        ui.doc.querySelector(".fac-vote-list [data-user-content]").lang,
+        "en-GB",
+      );
+      assert.equal(
+        ui.doc.querySelector('.fac-result-label [lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(
+        group.querySelector('[lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+      const overlayVote = group.querySelector('[data-fac-vote="add"]');
+      overlayVote.focus();
+      b.items[0].textRuns[0].style.lang = "fr";
+      ui.api.render();
+      assert.equal(ui.doc.activeElement.dataset.facVote, "add");
+      assert.equal(ui.doc.activeElement.closest(".fac-item"), group);
+      assert.equal(
+        group.querySelector('[lang="fr"]').textContent,
+        "Bonjour à tous.",
+      );
+      ui.api.open("summary");
+      const summaryExport = ui.doc.querySelector('[data-fac="summary-csv"]');
+      summaryExport.focus();
+      b.items[0].textRuns[0].style.lang = "fr-CA";
+      ui.api.render();
+      assert.equal(ui.doc.activeElement.dataset.fac, "summary-csv");
+      for (const row of ui.doc.querySelectorAll(".fac-rank li"))
+        assert.equal(
+          row.querySelector('[lang="fr-CA"]').textContent,
+          "Bonjour à tous.",
+        );
+      b.items[0].lang = "en-CA";
+      b.items[0].textRuns[0].style.lang = "fr";
+    }
+  } finally {
+    setLanguage(previousLanguage);
+    ui.close();
+  }
+});
+
+test("facilitation object language markup preserves masked and removed labels", () => {
+  const b = newBoard("Private language tags");
+  b.items = notes();
+  for (const i of b.items) {
+    i.text = "Instructions secrètes " + i.id;
+    i.lang = "fr-CA";
+  }
+  b.workshop = Object.fromEntries([
+    [
+      "settings",
+      { lock: "open", private: "r1", anonymous: false, hide: ["b"] },
+    ],
+    [
+      "vote",
+      vote({
+        hidden: false,
+        revealed: true,
+        targets: ["a", "b", "c", "gone"],
+        votes: 4,
+      }),
+    ],
+    [contributionKey("a"), { by: editor.uuid, at: 1000, round: "r1" }],
+    ballot(owner, ["a", "b", "gone"]),
+  ]);
+  validateBoard(b);
+  const previousLanguage = language;
+  const ui = stubUI(b, { role: "editor", me: owner });
+  try {
+    setLanguage("en");
+    ui.api.render();
+    ui.api.open("vote");
+    const rows = [...ui.doc.querySelectorAll(".fac-vote-list li")];
+    for (const name of [
+      "Private note",
+      "Hidden by the facilitator",
+      "Removed object",
+    ]) {
+      const row = rows.find((r) => r.textContent.startsWith(name));
+      assert.ok(row, name);
+      assert.equal(row.querySelector("[lang]"), null);
+      assert.equal(
+        accessibleName(row.querySelector('[data-fac="vote-remove"]')),
+        `Remove your vote from ${name}`,
+      );
+    }
+    assert.doesNotMatch(
+      ui.doc.querySelector("#fac-tabpanel").textContent,
+      /Instructions secrètes [ab]/,
+    );
+    const privateGroup = ui.doc.querySelector('[data-fac-item="a"]');
+    assert.equal(accessibleName(privateGroup), "Private note");
+    assert.equal(privateGroup.querySelector("[lang]"), null);
+    assert.equal(ui.doc.querySelector('[data-fac-item="b"]'), null);
+    assert.equal(
+      ui.doc.querySelector('.fac-result-label [lang="fr-CA"]').textContent,
+      "Instructions secrètes c",
+    );
+  } finally {
+    setLanguage(previousLanguage);
+    ui.close();
+  }
+});
+
+test("completed votes preserve saved label languages after the current objects change", () => {
+  const b = { ...newBoard("Saved label languages"), items: notes() };
+  b.items[0].text = "Bonjour à tous.";
+  b.items[0].lang = "fr-CA";
+  b.workshop = Object.fromEntries([
+    ["vote", vote({ hidden: false })],
+    ballot(owner, ["a"]),
+  ]);
+  const ui = stubUI(b, { role: "owner", me: owner });
+  const previousLanguage = language;
+  try {
+    setLanguage("en");
+    ui.api.open("vote");
+    ui.click('[data-fac="vote-end"]');
+    b.items[0].text = "This is current English content.";
+    b.items[0].lang = "en";
+    validateBoard(b);
+    ui.api.open("history");
+    const row = [...ui.doc.querySelectorAll(".fac-result-label")].find(
+      (n) => n.textContent === "Bonjour à tous.",
+    );
+    assert.ok(
+      row,
+      "History retains its actual saved French label rather than the current object name",
+    );
+
+    assert.equal(
+      row.querySelector('[lang="fr-CA"]')?.textContent,
+      "Bonjour à tous.",
+    );
+  } finally {
+    setLanguage(previousLanguage);
+    ui.close();
+  }
+});
+
+test("saved result language metadata validates tags, ranges and language-only styles", () => {
+  const b = {
+    ...newBoard("Saved languages"),
+    items: notes(),
+    workshop: { vote: vote() },
+  };
+  const record = resultRecord(b, "vote", (id) => id, 10000);
+  const valid = {
+    ...record.results[0],
+    label: "Hello. Bonjour.",
+    lang: "en",
+    textRuns: [{ start: 7, end: 15, style: { lang: "fr" } }],
+  };
+  record.results[0] = valid;
+  validateWorkshop({ [historyKey(record.id)]: record });
+  for (const changes of [
+    { lang: "fr_CA" },
+    { lang: "<script>" },
+    { textRuns: [{ start: 7, end: 16, style: { lang: "fr" } }] },
+    { textRuns: [{ start: 7, end: 15, style: { lang: "fr_CA" } }] },
+    { textRuns: [{ start: 7, end: 15, style: { lang: "fr", bold: true } }] },
+    { label: "A😀B", textRuns: [{ start: 2, end: 4, style: { lang: "fr" } }] },
+  ]) {
+    const trial = structuredClone(record);
+    trial.results[0] = { ...valid, ...changes };
+    assert.throws(
+      () => validateWorkshop({ [historyKey(trial.id)]: trial }),
+      /Invalid workshop/,
+    );
+  }
+  validateWorkshop({
+    [historyKey(record.id)]: resultRecord(b, "vote", (id) => id, 10000),
+  });
+});
+
+test("saved vote languages survive trimmed passages, authored captions, retallying, shared serialization and interface changes", async () => {
+  const text =
+    '\n  Hello. Bonjour à tous. <img src="bad"> ' + "word ".repeat(30);
+  const start = text.indexOf("Bonjour");
+  const b = {
+    ...newBoard("Snapshots"),
+    items: [
+      item("note", 0, 0, {
+        id: "a",
+        text,
+        lang: "en-CA",
+        textRuns: [
+          { start, end: start + 15, style: { lang: "fr-CA", bold: true } },
+        ],
+      }),
+      item("pen", 250, 0, {
+        id: "b",
+        w: 100,
+        h: 100,
+        points: [
+          [0, 0],
+          [100, 100],
+        ],
+        alt: "Cette courbe monte.",
+        lang: "fr-CA",
+      }),
+      item("note", 500, 0, { id: "c", text: "" }),
+    ],
+    workshop: Object.fromEntries([
+      ["vote", vote({ hidden: false })],
+      ballot(owner, ["a", "b"]),
+    ]),
+  };
+  validateBoard(b);
+  const previousLanguage = language;
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    setLanguage("en");
+    ui.api.open("vote");
+    ui.click('[data-fac="vote-end"]');
+    const record = () => b.workshop[historyKey("vote1")];
+    const rows = new Map(
+      record().results.map((r) => [r.id, structuredClone(r)]),
+    );
+    assert.equal(rows.get("a").lang, "en-CA");
+    assert.deepEqual(rows.get("a").textRuns, [
+      { start: 7, end: 22, style: { lang: "fr-CA" } },
+    ]);
+    assert.equal(rows.get("a").label, text.trim().slice(0, 120));
+    assert.equal(rows.get("b").lang, "en");
+    assert.deepEqual(rows.get("b").textRuns, [
+      {
+        start: "Drawing: ".length,
+        end: "Drawing: Cette courbe monte.".length,
+        style: { lang: "fr-CA" },
+      },
+    ]);
+    assert.equal(rows.get("c").lang, "en");
+    b.items = b.items.filter((i) => i.id !== "a");
+    b.items[0].alt = "This is current English content.";
+    b.items[0].lang = "en";
+    b.workshop = {
+      ...b.workshop,
+      ...Object.fromEntries([ballot(editor, ["a"])]),
+    };
+    ui.api.render();
+    await new Promise((r) => setTimeout(r, 20));
+    assert.equal(record().results.find((r) => r.id === "a").count, 2);
+    for (const row of record().results) {
+      const prior = rows.get(row.id);
+      assert.equal(row.label, prior.label);
+      assert.equal(row.lang, prior.lang);
+      assert.deepEqual(row.textRuns, prior.textRuns);
+    }
+    validateBoard(b);
+    const shared = new SharedDocument();
+    try {
+      shared.commit(b);
+      assert.deepEqual(
+        shared.snapshot().workshop[historyKey("vote1")],
+        record(),
+      );
+    } finally {
+      shared.destroy();
+    }
+    assert.deepEqual(
+      portableWorkshop(b.workshop)[historyKey("vote1")],
+      record(),
+    );
+    setLanguage("fr");
+    ui.api.open("history");
+    const labels = [...ui.doc.querySelectorAll(".fac-result-label")];
+    assert.equal(
+      labels
+        .find((n) => n.textContent.includes("Hello."))
+        .querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    const drawing = labels.find((n) => n.textContent.startsWith("Drawing:"));
+    assert.equal(drawing.querySelector("[data-user-content]").lang, "en");
+    assert.equal(
+      drawing.querySelector('[lang="fr-CA"]').textContent,
+      "Cette courbe monte.",
+    );
+    assert.equal(ui.doc.querySelector(".fac-history img"), null);
+    ui.click('[data-fac="history-json"]');
+    const exported = JSON.parse(ui.calls.downloads.at(-1)[0]);
+    assert.deepEqual(exported.results, record().results);
+  } finally {
+    setLanguage(previousLanguage);
+    ui.close();
+  }
+});
+
+test("redacting saved vote labels removes their old language ranges from history and portable copies", () => {
+  const b = {
+    ...newBoard("Private history"),
+    items: notes(),
+    workshop: { vote: vote({ hidden: false }) },
+  };
+  for (const i of b.items) {
+    i.text = "Instructions secrètes " + i.id;
+    i.lang = "fr-CA";
+  }
+  const previousLanguage = language;
+  const ui = stubUI(b, { role: "owner", me: owner });
+  try {
+    setLanguage("en");
+    ui.api.open("vote");
+    ui.click('[data-fac="vote-end"]');
+    const saved = structuredClone(b.workshop[historyKey("vote1")]);
+    assert.equal(saved.results[0].lang, "fr-CA");
+    b.workshop = {
+      ...b.workshop,
+      settings: { lock: "open", private: "r1", hide: ["b"] },
+      [contributionKey("a")]: { by: editor.uuid, at: 1000, round: "r1" },
+    };
+    ui.api.open("history");
+    const privateRow = [...ui.doc.querySelectorAll(".fac-result-label")].find(
+      (n) => n.textContent === "Private note",
+    );
+    assert.ok(privateRow);
+    assert.equal(privateRow.querySelector('[lang="fr-CA"]'), null);
+    assert.equal(privateRow.querySelector("[data-user-content]").lang, "en");
+    const copy = structuredClone(b);
+    ui.api.portableCopy(copy, { id: owner.uuid, manager: false });
+    const rows = new Map(
+      copy.workshop[historyKey("vote1")].results.map((r) => [r.id, r]),
+    );
+    for (const id of ["a", "b"]) {
+      assert.equal(rows.get(id).lang, "en");
+      assert.equal(rows.get(id).textRuns, undefined);
+      assert.doesNotMatch(rows.get(id).label, /Instructions secrètes/);
+    }
+    validateWorkshop(copy.workshop);
+    assert.deepEqual(
+      b.workshop[historyKey("vote1")],
+      saved,
+      "Viewer redaction does not rewrite the shared snapshot",
+    );
+    const blank = structuredClone(saved);
+    const blankRow = blank.results.find((r) => r.id === "a");
+    blankRow.label = "";
+    delete blankRow.lang;
+    delete blankRow.textRuns;
+    b.workshop = {
+      ...b.workshop,
+      settings: { lock: "open" },
+      [historyKey("vote1")]: blank,
+    };
+    ui.api.render();
+    assert.equal(
+      ui.doc.querySelector('.fac-result-label [lang="fr-CA"]').textContent,
+      "Instructions secrètes a",
+    );
+    ui.doc.querySelector('[data-fac="history-json"]').focus();
+    b.items[0].text = "Current English instructions.";
+    b.items[0].lang = "en-GB";
+    ui.api.render();
+    const currentLabel = [...ui.doc.querySelectorAll(".fac-result-label")].find(
+      (n) => n.textContent === "Current English instructions.",
+    );
+    assert.ok(
+      currentLabel,
+      "Unlabelled private snapshots track their currently visible object",
+    );
+    assert.equal(
+      currentLabel.querySelector("[data-user-content]").lang,
+      "en-GB",
+    );
+    assert.equal(ui.doc.activeElement.dataset.fac, "history-json");
+  } finally {
+    setLanguage(previousLanguage);
+    ui.close();
+  }
+});
+
+for (const surface of ["private note", "staged frame"])
+  test(`concealed ${surface} placeholders use the interface language while revealed content keeps its language`, () => {
+    const source = item(surface === "private note" ? "note" : "frame", 0, 0, {
+      id: "a",
+      text: "Bonjour. Suivez ce plan.",
+      lang: "fr-CA",
+      textRuns: [{ start: 0, end: 7, style: { lang: "fr", bold: true } }],
+    });
+    const b = newBoard("Concealed language");
+    b.items = [source];
+    b.workshop =
+      surface === "private note"
+        ? {
+            settings: { lock: "open", private: "r1" },
+            [contributionKey("a")]: { by: editor.uuid, at: 1000, round: "r1" },
+          }
+        : { settings: { lock: "open", stage: { frames: ["a"], shown: 0 } } };
+    validateBoard(b);
+    const original = structuredClone(b);
+    const previousLanguage = language;
+    const ui = stubUI(b, {
+      role: surface === "private note" ? "owner" : "editor",
+      me: owner,
+    });
+    try {
+      let standIn;
+      for (const interfaceLanguage of ["en", "fr", "en"]) {
+        setLanguage(interfaceLanguage);
+        ui.doc.documentElement.lang = interfaceLanguage;
+        const masked = ui.api.conceal([...b.items])[0];
+        if (standIn)
+          assert.equal(
+            masked,
+            standIn,
+            "Language refresh retains the measured stand-in",
+          );
+        standIn = masked;
+        const expected = t(
+          surface === "private note"
+            ? "Private note"
+            : "Hidden by the facilitator",
+        );
+        assert.equal(masked.text, expected);
+        const rendered = ui.doc.createElement("div");
+        rendered.innerHTML = objectNameHTML(masked);
+        assert.equal(
+          rendered.querySelector("[data-user-content]").lang,
+          interfaceLanguage,
+        );
+        assert.equal(
+          masked.textRuns,
+          undefined,
+          "Hidden passages do not decorate translated placeholders",
+        );
+        const copy = structuredClone(b);
+        assert.equal(
+          ui.api.portableCopy(copy, { id: owner.uuid, manager: false }),
+          1,
+        );
+        assert.equal(copy.items[0].text, expected);
+        assert.equal(copy.items[0].lang, interfaceLanguage);
+        assert.equal(copy.items[0].textRuns, undefined);
+        validateBoard(copy);
+        assert.deepEqual(
+          b,
+          original,
+          "Viewing and copying leave authored content untouched",
+        );
+      }
+      b.workshop = { settings: { lock: "open" } };
+      const revealed = ui.api.conceal(b.items)[0];
+      assert.equal(revealed, source);
+      assert.equal(revealed.lang, "fr-CA");
+      assert.deepEqual(revealed.textRuns, original.items[0].textRuns);
+    } finally {
+      setLanguage(previousLanguage);
+      ui.close();
+    }
+  });
+
+test("built participant outlines and object lists tag translated concealment placeholders and restore authored languages on reveal", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const initial = newBoard("Concealed language");
+  const note = item("note", 100, 100, {
+    text: "Bonjour. Suivez ce plan.",
+    lang: "fr-CA",
+  });
+  const frame = item("frame", 1000, 100, {
+    text: "Deuxième étape.",
+    lang: "fr-CA",
+  });
+  initial.items = [note, frame];
+  initial.workshop = {
+    settings: {
+      lock: "open",
+      private: "r1",
+      stage: { frames: [frame.id], shown: 0 },
+    },
+    [contributionKey(note.id)]: { by: owner.uuid, at: Date.now(), round: "r1" },
+  };
+  validateBoard(initial);
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(editor));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await app.until(
+      () =>
+        !app.doc.querySelector("#join-link") &&
+        app.doc.querySelector("#canvas"),
+      "Participant joined",
+    );
+    app.sizeCanvas();
+    for (const [interfaceLanguage, privateText, frameText] of [
+      ["en", "Private note", "Hidden by the facilitator"],
+      ["fr", "Note privée", "Masqué par l’animateur"],
+    ]) {
+      app.doc.querySelector("#language").value = interfaceLanguage;
+      app.doc
+        .querySelector("#language")
+        .dispatchEvent(new app.w.Event("change"));
+      await app.until(
+        () => app.outline().some((text) => text.includes(privateText)),
+        "Translated note placeholder rendered",
+      );
+      for (const [id, expected] of [
+        [note.id, privateText],
+        [frame.id, frameText],
+      ]) {
+        const label = app.doc.querySelector(
+          `#board-outline [data-id="${id}"] [data-user-content]`,
+        );
+        assert.equal(label.textContent, expected);
+        assert.equal(label.lang, interfaceLanguage);
+        assert.equal(label.querySelector('[lang="fr-CA"]'), null);
+      }
+      await app.click('[data-action="objects"]');
+      for (const [id, expected] of [
+        [note.id, privateText],
+        [frame.id, frameText],
+      ]) {
+        const label = app.doc.querySelector(
+          `dialog [data-object="${id}"] [data-user-content][lang]`,
+        );
+        assert.equal(label.textContent, expected);
+        assert.equal(label.lang, interfaceLanguage);
+      }
+      app.doc.querySelector("dialog[open]").close();
+      await app.tick();
+    }
+    await commit(env.service, owner, initial.id, (board, workshop) => {
+      workshop.settings = { lock: "open" };
+    });
+    await app.until(
+      () => app.outline().some((text) => text.includes(note.text)),
+      "Reveal reaches the participant",
+    );
+    for (const source of [note, frame]) {
+      const label = app.doc.querySelector(
+        `#board-outline [data-id="${source.id}"] [data-user-content]`,
+      );
+      assert.equal(label.textContent, source.text);
+      assert.equal(label.lang, "fr-CA");
+    }
+    const { doc } = await env.service.load(initial.id);
+    try {
+      assert.deepEqual(doc.snapshot().items, initial.items);
+    } finally {
+      doc.destroy();
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("generated vote titles preserve their known language in active views, announcements and saved history", () => {
+  const previousLanguage = language;
+  for (const interfaceLanguage of ["en", "fr"])
+    for (const mode of ["default", "blank", "custom"]) {
+      const b = { ...newBoard("Vote titles"), items: notes() };
+      const ui = stubUI(b, { role: "owner", me: owner });
+      try {
+        setLanguage(interfaceLanguage);
+        ui.api.render();
+        ui.api.open("vote");
+        const field = ui.doc.querySelector("#fac-vote-title"),
+          generated = t("Dot vote");
+        if (mode === "blank") field.value = "   ";
+        if (mode === "custom") field.value = 'Bonjour. <img src="bad">';
+        const expected = mode === "custom" ? field.value : generated;
+        ui.doc
+          .querySelector("#fac-vote-form")
+          .dispatchEvent(
+            new ui.doc.defaultView.Event("submit", { cancelable: true }),
+          );
+        assert.equal(b.workshop.vote.title, expected);
+        assert.equal(
+          b.workshop.vote.titleLang,
+          mode === "custom" ? undefined : interfaceLanguage,
+        );
+        validateBoard(b);
+        const announcement = ui.doc.querySelector("#facilitation-live");
+        assert.ok(announcement.textContent.includes(expected));
+        const tagged = announcement.querySelector("[data-user-content]");
+        assert.equal(tagged.textContent, expected);
+        assert.equal(tagged.lang, mode === "custom" ? "" : interfaceLanguage);
+        assert.equal(announcement.querySelector("img"), null);
+        setLanguage(interfaceLanguage === "en" ? "fr" : "en");
+        ui.api.render();
+        const heading = ui.doc.querySelector("#fac-tabpanel h3");
+        assert.equal(heading.textContent, expected);
+        assert.equal(
+          heading.querySelector("[data-user-content]").lang,
+          mode === "custom" ? "" : interfaceLanguage,
+        );
+        assert.equal(heading.hasAttribute("lang"), false);
+        ui.click('[data-fac="vote-end"]');
+        const id = b.workshop.vote.id,
+          saved = b.workshop[historyKey(id)];
+        assert.equal(
+          saved.titleLang,
+          mode === "custom" ? undefined : interfaceLanguage,
+        );
+        ui.api.open("history");
+        const title = ui.doc.querySelector(".fac-history summary strong");
+        assert.equal(title.textContent, expected);
+        assert.equal(
+          title.querySelector("[data-user-content]").lang,
+          mode === "custom" ? "" : interfaceLanguage,
+        );
+        for (const action of [
+          "history-reveal",
+          "history-csv",
+          "history-json",
+        ]) {
+          const button = ui.doc.querySelector(`[data-fac="${action}"]`);
+          assert.equal(button.hasAttribute("aria-label"), false);
+          const references = button
+            .getAttribute("aria-labelledby")
+            .split(/\s+/);
+          assert.equal(ui.doc.getElementById(references[1]), title);
+          assert.ok(
+            ui.doc
+              .getElementById(references[0])
+              .textContent.includes(button.textContent),
+          );
+        }
+        const copy = structuredClone(b);
+        ui.api.portableCopy(copy, { id: owner.uuid, manager: true });
+        assert.equal(copy.workshop[historyKey(id)].titleLang, saved.titleLang);
+        validateBoard(copy);
+        const doc = new SharedDocument();
+        try {
+          doc.commit(copy);
+          assert.equal(
+            doc.snapshot().workshop[historyKey(id)].titleLang,
+            saved.titleLang,
+          );
+        } finally {
+          doc.destroy();
+        }
+        const exported = JSON.parse(resultsJSON(saved));
+        assert.equal(exported.titleLang, saved.titleLang);
+      } finally {
+        setLanguage(previousLanguage);
+        ui.close();
+      }
+    }
+});
+
+test("vote and history title-language tags validate without changing legacy records", () => {
+  const b = {
+    ...newBoard("Title validation"),
+    items: notes(),
+    workshop: { vote: vote() },
+  };
+  const legacy = resultRecord(b, "vote", (id) => id, 3000);
+  assert.equal(legacy.titleLang, undefined);
+  validateWorkshop({ vote: b.workshop.vote, [historyKey(legacy.id)]: legacy });
+  for (const tag of ["fr-CA", "en", "es", "zh-Hant"]) {
+    b.workshop.vote.titleLang = tag;
+    const saved = resultRecord(b, "vote", (id) => id, 3000);
+    assert.equal(saved.titleLang, tag);
+    validateWorkshop({ vote: b.workshop.vote, [historyKey(saved.id)]: saved });
+  }
+  for (const invalid of ["", "fr_CA", "not a language", null, 42, {}, ["fr"]]) {
+    assert.throws(
+      () => validateWorkshop({ vote: { ...vote(), titleLang: invalid } }),
+      /workshop/i,
+    );
+    assert.throws(
+      () =>
+        validateWorkshop({
+          [historyKey(legacy.id)]: { ...legacy, titleLang: invalid },
+        }),
+      /workshop/i,
+    );
+  }
+});
+
+
+test("authored facilitation language audit: a custom French vote title inherits English after switching interfaces", () => {
+ const b={...newBoard("Custom title language"),items:notes()};
+ const ui=stubUI(b,{role:"owner",me:owner}), previousLanguage=language;
+ try {
+  setLanguage("fr");ui.api.open("vote");
+  const text="Veuillez choisir les prochaines étapes.";
+  ui.doc.querySelector("#fac-vote-title").value=text;
+  ui.doc.querySelector("#fac-vote-form").dispatchEvent(new ui.doc.defaultView.Event("submit",{cancelable:true}));
+  validateBoard(b);assert.equal(b.workshop.vote.title,text);
+  setLanguage("en");ui.api.render();
+  const heading=ui.doc.querySelector("#fac-tabpanel h3");
+  assert.equal(heading.textContent,text);
+  console.log(JSON.stringify({surface:"custom vote title",page:ui.doc.documentElement.lang,saved:b.workshop.vote,markup:heading.outerHTML}));
+  assert.ok(heading.querySelector('[lang|="fr"]'),"An ordinary French instruction has a French language declaration");
+ } finally {setLanguage(previousLanguage);ui.close();}
+});
+
+for(const surface of ["question","answer option"])
+ test(`authored facilitation language audit: a French poll ${surface} inherits English after switching interfaces`,()=>{
+  const b={...newBoard("Poll language"),items:notes()};
+  const ui=stubUI(b,{role:"owner",me:owner}), previousLanguage=language;
+  try {
+   setLanguage("fr");ui.api.open("poll");
+   const question="Quel problème souhaitez-vous résoudre en premier ?";
+   const options=["Commençons par améliorer la documentation.","Commençons par simplifier la navigation."];
+   ui.doc.querySelector("#fac-poll-question").value=question;
+   ui.doc.querySelector("#fac-poll-options").value=options.join("\n");
+   ui.doc.querySelector("#fac-poll-form").dispatchEvent(new ui.doc.defaultView.Event("submit",{cancelable:true}));
+   validateBoard(b);assert.equal(b.workshop.poll.question,question);
+   setLanguage("en");ui.api.render();
+   const node=surface==="question"?ui.doc.querySelector("#fac-tabpanel h3"):ui.doc.querySelector("#fac-answer-form label [data-user-content]");
+   const expected=surface==="question"?question:options[0];
+   assert.equal(node.textContent,expected);
+   console.log(JSON.stringify({surface:"poll "+surface,page:ui.doc.documentElement.lang,saved:b.workshop.poll,markup:node.outerHTML}));
+   assert.match((node.querySelector("[data-user-content]") || node).closest("[lang]")?.lang||"",/^fr(?:-|$)/,"An ordinary French phrase has a French language declaration");
+  }finally{setLanguage(previousLanguage);ui.close();}
+ });
+
+test("authored facilitation language audit: saved French agenda instructions inherit English after switching interfaces",()=>{
+ const b={...newBoard("Agenda instructions"),items:[item("frame",0,0,{id:"f",text:"Frame",order:0})]};
+ const ui=stubUI(b,{role:"owner",me:owner}), previousLanguage=language;
+ try{
+  setLanguage("fr");ui.api.open("agenda");
+  const text="Discutez ensemble puis choisissez les prochaines étapes.";
+  ui.doc.querySelector(".fac-step-text").value=text;
+  ui.doc.querySelector("#fac-agenda-form").dispatchEvent(new ui.doc.defaultView.Event("submit",{cancelable:true}));
+  validateBoard(b);assert.equal(b.workshop.agenda.steps[0].text,text);
+  setLanguage("en");ui.api.render();
+  const node=ui.doc.querySelector(".fac-agenda li p [data-user-content]");
+  assert.equal(node.textContent,text);
+  console.log(JSON.stringify({surface:"agenda instructions",page:ui.doc.documentElement.lang,saved:b.workshop.agenda,markup:node.outerHTML}));
+  assert.match((node.querySelector("[data-user-content]") || node).closest("[lang]")?.lang||"",/^fr(?:-|$)/,"An ordinary French instruction has a French language declaration");
+ }finally{setLanguage(previousLanguage);ui.close();}
+});

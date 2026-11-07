@@ -1,0 +1,130 @@
+diff --git a/node_modules/fflate/esm/browser.js b/node_modules/fflate/esm/browser.js
+index 82af0fd..b33f462 100644
+--- a/node_modules/fflate/esm/browser.js
++++ b/node_modules/fflate/esm/browser.js
+@@ -256,6 +256,8 @@ var inflt = function (dat, st, buf, dict) {
+                         err(0);
+                     break;
+                 }
++                if (st.maxOutputLength != null && bt + l > st.maxOutputLength)
++                    err(13, 'ZIP entry exceeds its declared decompressed size');
+                 // ensure size
+                 if (resize)
+                     cbuf(bt + l);
+@@ -342,8 +344,11 @@ var inflt = function (dat, st, buf, dict) {
+             }
+             if (!c)
+                 err(2);
+-            if (sym < 256)
++            if (sym < 256) {
++                if (st.maxOutputLength != null && bt >= st.maxOutputLength)
++                    err(13, 'ZIP entry exceeds its declared decompressed size');
+                 buf[bt++] = sym;
++            }
+             else if (sym == 256) {
+                 lpos = pos, lm = null;
+                 break;
+@@ -375,6 +380,8 @@ var inflt = function (dat, st, buf, dict) {
+                 if (resize)
+                     cbuf(bt + 131072);
+                 var end = bt + add;
++                if (st.maxOutputLength != null && end > st.maxOutputLength)
++                    err(13, 'ZIP entry exceeds its declared decompressed size');
+                 if (bt < dt) {
+                     var shift = dl - dt, dend = Math.min(dt, end);
+                     if (shift + bt < 0)
+@@ -2652,10 +2659,12 @@ export function unzip(data, opts, cb) {
+ export function unzipSync(data, opts) {
+     var files = {};
+     var e = data.length - 22;
+-    for (; b4(data, e) != 0x6054B50; --e) {
+-        if (!e || data.length - e > 65558)
++    for (; e >= 0 && (b4(data, e) != 0x6054B50 || e + 22 + b2(data, e + 20) != data.length); --e) {
++        if (data.length - e > 65557)
+             err(13);
+     }
++    if (e < 0)
++        err(13);
+     ;
+     var c = b2(data, e + 8);
+     if (!c)
+@@ -2682,8 +2691,12 @@ export function unzipSync(data, opts) {
+         })) {
+             if (!c_2)
+                 files[fn] = slc(data, b, b + sc);
+-            else if (c_2 == 8)
+-                files[fn] = inflateSync(data.subarray(b, b + sc), { out: new u8(su) });
++            else if (c_2 == 8) {
++                var result = inflt(data.subarray(b, b + sc), { i: 2, maxOutputLength: su }, new u8(su));
++                if (result.length != su)
++                    err(13, 'ZIP entry has an inconsistent decompressed size');
++                files[fn] = result;
++            }
+             else
+                 err(14, 'unknown compression type ' + c_2);
+         }
+diff --git a/node_modules/fflate/esm/index.mjs b/node_modules/fflate/esm/index.mjs
+index 4c057ee..6ce222a 100644
+--- a/node_modules/fflate/esm/index.mjs
++++ b/node_modules/fflate/esm/index.mjs
+@@ -274,6 +274,8 @@ var inflt = function (dat, st, buf, dict) {
+                         err(0);
+                     break;
+                 }
++                if (st.maxOutputLength != null && bt + l > st.maxOutputLength)
++                    err(13, 'ZIP entry exceeds its declared decompressed size');
+                 // ensure size
+                 if (resize)
+                     cbuf(bt + l);
+@@ -360,8 +362,11 @@ var inflt = function (dat, st, buf, dict) {
+             }
+             if (!c)
+                 err(2);
+-            if (sym < 256)
++            if (sym < 256) {
++                if (st.maxOutputLength != null && bt >= st.maxOutputLength)
++                    err(13, 'ZIP entry exceeds its declared decompressed size');
+                 buf[bt++] = sym;
++            }
+             else if (sym == 256) {
+                 lpos = pos, lm = null;
+                 break;
+@@ -393,6 +398,8 @@ var inflt = function (dat, st, buf, dict) {
+                 if (resize)
+                     cbuf(bt + 131072);
+                 var end = bt + add;
++                if (st.maxOutputLength != null && end > st.maxOutputLength)
++                    err(13, 'ZIP entry exceeds its declared decompressed size');
+                 if (bt < dt) {
+                     var shift = dl - dt, dend = Math.min(dt, end);
+                     if (shift + bt < 0)
+@@ -2670,10 +2677,12 @@ export function unzip(data, opts, cb) {
+ export function unzipSync(data, opts) {
+     var files = {};
+     var e = data.length - 22;
+-    for (; b4(data, e) != 0x6054B50; --e) {
+-        if (!e || data.length - e > 65558)
++    for (; e >= 0 && (b4(data, e) != 0x6054B50 || e + 22 + b2(data, e + 20) != data.length); --e) {
++        if (data.length - e > 65557)
+             err(13);
+     }
++    if (e < 0)
++        err(13);
+     ;
+     var c = b2(data, e + 8);
+     if (!c)
+@@ -2700,8 +2709,12 @@ export function unzipSync(data, opts) {
+         })) {
+             if (!c_2)
+                 files[fn] = slc(data, b, b + sc);
+-            else if (c_2 == 8)
+-                files[fn] = inflateSync(data.subarray(b, b + sc), { out: new u8(su) });
++            else if (c_2 == 8) {
++                var result = inflt(data.subarray(b, b + sc), { i: 2, maxOutputLength: su }, new u8(su));
++                if (result.length != su)
++                    err(13, 'ZIP entry has an inconsistent decompressed size');
++                files[fn] = result;
++            }
+             else
+                 err(14, 'unknown compression type ' + c_2);
+         }

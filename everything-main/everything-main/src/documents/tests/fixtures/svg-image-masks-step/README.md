@@ -1,0 +1,3 @@
+Original straight-edge image-mask controls. Generate with python tools/svg_image_masks_fixture.py --step. Capture and record with capture-svg-group-raster.ps1 and record_svg_masks.py svg-image-masks-step.
+
+The reference application produces identical native PNGs for all four image variants (PNG/JPEG, with/without sRGB inversion). Their inner middle rows are seven zeroes, 17, 237, then seven 255 values. GDI+ high-quality bicubic reproduces the two transition values; this does not certify that resampler for general image masks. The curved controls retain differences, including when using mirrored boundary samples. Original artwork and source/native/PNG hashes are included.

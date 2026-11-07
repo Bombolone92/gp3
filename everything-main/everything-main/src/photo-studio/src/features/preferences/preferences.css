@@ -1,0 +1,133 @@
+/* ----- Effects of Interface, Workspace, Guides and Transparency preferences ----- */
+#app.ui-scaled { grid-template-rows: auto auto minmax(0, 1fr) auto; }
+#app.ui-scaled .editor-layout { grid-template-columns: auto minmax(0, 1fr) auto; }
+#app.ui-scaled .topbar { height: 30px; }
+#app.ui-scaled .optionsbar { height: 36px; }
+#app.ui-scaled .statusbar { height: 22px; }
+#app.ui-scaled .toolbar { width: 44px; }
+#app.ui-scaled :is(.topbar, .optionsbar, .toolbar, .statusbar) { zoom: var(--ui-zoom, 1); }
+#app.ui-scaled :is(.dock, .bottom-dock, .document-tabs, .frame-tabs) { zoom: var(--ui-text-zoom, 1); }
+#app.narrow-options .optionsbar { height: 28px; gap: 4px; }
+#app:not(.ui-scaled).narrow-options { grid-template-rows: 30px 28px minmax(0, 1fr) 22px; }
+#app.narrow-options #tool-options { gap: 5px; }
+#app.narrow-options .active-tool-icon { height: 22px; width: 24px; }
+#app.narrow-options .optionsbar :is(input, select, button) { min-height: 20px; }
+#app.large-tabs .document-tabs { height: 34px; }
+#app.large-tabs .view-frame > .frame-tabs { height: 30px; }
+#app.large-tabs .document-tab { font-size: 12px; padding: 0 8px 0 12px; }
+
+/* Canvas color per screen mode and the image border. */
+#app .workspace { background: var(--canvas-mode, var(--canvas)); }
+#app .view-frames, #app .view-frame { background: var(--canvas-mode, var(--canvas)); }
+#app[data-canvas-border='line'] #stage { box-shadow: 0 0 0 1px var(--image-border-line, #0009); }
+#app[data-canvas-border='none'] #stage { box-shadow: none; }
+
+/* Transparency checkerboard drawn at a fixed screen size. */
+#app #stage { background-size: var(--checker-period, 20px) var(--checker-period, 20px); }
+
+/* Guides, grid, alignment guides and slices. */
+#overlay .guide { stroke: var(--guide-color, #00c8ff); }
+#overlay .guide.selected { stroke: color-mix(in srgb, var(--guide-color, #00c8ff) 60%, #0a3cff); }
+#app[data-guide-style='dashed'] #overlay .guide { stroke-dasharray: calc(5px * var(--inv-zoom, 1)) calc(4px * var(--inv-zoom, 1)); }
+#overlay .smart-guide, #overlay .smart-spacing { stroke: var(--smart-guide-color, #ff4fb3); }
+#overlay .smart-label-bg { fill: var(--smart-guide-color, #ff4fb3); }
+#overlay .grid-major, #overlay .grid-minor { stroke: var(--grid-color, #808080); }
+#app[data-grid-style='dashed'] #overlay :is(.grid-major, .grid-minor) { stroke-dasharray: calc(4px * var(--inv-zoom, 1)) calc(3px * var(--inv-zoom, 1)); }
+#overlay .grid-dots { fill: var(--grid-color, #808080); opacity: 0.85; }
+.slices-overlay .slice-user { stroke: var(--slice-color, #3d8bfd); }
+.slice-badge:not(.auto):not(.size) rect { fill: var(--slice-color, #3d8bfd); }
+#app.hide-slice-numbers .slice-badge:not(.size) { display: none; }
+
+/* Panel animations (Interface → Enable panel animations). */
+@media (prefers-reduced-motion: no-preference) {
+  #app.panel-animations .dock-drawer:not([hidden]) { animation: ps-slide-in 140ms ease-out; }
+  #app.panel-animations .menu-pop { animation: ps-fade-in 110ms ease-out; }
+  #app.panel-animations .tool-flyout, .panel-animations-root .context-menu { animation: ps-fade-in 110ms ease-out; }
+  #app.panel-animations dialog[open] { animation: ps-pop-in 150ms ease-out; }
+  #app.panel-animations .panel-body { transition: opacity 120ms; }
+}
+@keyframes ps-slide-in { from { opacity: 0; transform: translateX(10px); } }
+@keyframes ps-fade-in { from { opacity: 0; transform: translateY(-3px); } }
+@keyframes ps-pop-in { from { opacity: 0; transform: scale(0.97); } }
+
+/* Rich tooltips (Interface → Rich tooltips). */
+.rich-tooltip { position: fixed; z-index: 200; max-width: 280px; padding: 7px 9px; border-radius: 4px; background: var(--menu); color: var(--text); border: 1px solid var(--line); box-shadow: 0 6px 18px #0007; font-size: 11px; line-height: 1.45; pointer-events: none; }
+.rich-tooltip strong { display: flex; gap: 10px; justify-content: space-between; font-weight: 600; font-size: 12px; }
+.rich-tooltip kbd { color: var(--muted); font-weight: 400; }
+.rich-tooltip p { margin: 3px 0 0; color: var(--muted); }
+
+/* Readouts beside the pointer while dragging (Tools → Show tooltips while dragging). */
+.drag-readout { position: fixed; z-index: 150; pointer-events: none; padding: 3px 7px; border-radius: 3px; background: #1b1b1bea; color: #f2f2f2; font: 11px/1.35 system-ui, sans-serif; font-variant-numeric: tabular-nums; white-space: pre; box-shadow: 0 2px 8px #0006; }
+
+/* Brush cursor variants (Cursors). */
+.brush-cursor-cross { fill: none; stroke: #000; stroke-width: 1; }
+.brush-cursor-cross-outer { fill: none; stroke: #fff; stroke-width: 3; opacity: 0.8; }
+.brush-adjust-preview { stroke: none; }
+
+/* ----- Preferences window ----- */
+dialog.prefs-window { width: min(920px, calc(100vw - 32px)); max-width: none; height: min(660px, calc(100dvh - 48px)); padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+dialog.prefs-window:not([open]) { display: none; }
+/* Large windows can be resized from their corner. */
+dialog.prefs-window { resize: both; min-width: min(560px, calc(100vw - 16px)); min-height: min(420px, calc(100dvh - 16px)); max-height: calc(100dvh - 16px); }
+.prefs-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line-soft); }
+.prefs-head h2 { margin: 0; font-size: 16px; font-weight: 600; flex: none; }
+.prefs-search { position: relative; margin-left: auto; width: min(320px, 48%); }
+.prefs-search svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.prefs-search input { width: 100%; box-sizing: border-box; min-height: 28px; padding-left: 28px; border-radius: 14px; }
+.prefs-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+.prefs-nav { border-right: 1px solid var(--line-soft); padding: 8px; overflow: auto; display: flex; flex-direction: column; gap: 1px; background: var(--surface2); }
+.prefs-nav button { justify-content: flex-start; gap: 9px; height: 30px; padding: 0 10px; border-radius: 4px; color: var(--text); }
+.prefs-nav button svg { color: var(--muted); }
+.prefs-nav button[aria-current='page'] { background: var(--row-selected); }
+.prefs-nav button[aria-current='page'] svg { color: var(--text); }
+.prefs-content { overflow: auto; padding: 4px 24px 24px; }
+.prefs-content h3 { font-size: 16px; font-weight: 600; margin: 18px 0 2px; }
+.prefs-section { margin-top: 18px; }
+.prefs-section > h4 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 4px; }
+.prefs-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(180px, auto); align-items: center; gap: 4px 18px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+.prefs-row:last-child { border-bottom: 0; }
+.prefs-row.wide { grid-template-columns: minmax(0, 1fr); }
+.prefs-label { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.prefs-label > span { font-size: 12px; }
+.prefs-label small { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.prefs-label .prefs-page-tag { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+.prefs-control { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.prefs-control select { min-width: 180px; min-height: 26px; }
+.prefs-control input[type='number'] { width: 80px; min-height: 26px; }
+.prefs-control input[type='color'] { width: 44px; height: 26px; padding: 1px 2px; }
+.prefs-control .unit { color: var(--muted); font-size: 11px; }
+.prefs-switch { position: relative; width: 34px; height: 20px; flex: none; }
+.prefs-switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.prefs-switch span { position: absolute; inset: 0; border-radius: 10px; background: var(--input-line); transition: background 120ms; pointer-events: none; }
+.prefs-switch span::after { content: ''; position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform 120ms; box-shadow: 0 1px 2px #0005; }
+.prefs-switch input:checked + span { background: var(--accent); }
+.prefs-switch input:checked + span::after { transform: translateX(14px); }
+.prefs-switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.prefs-restart { display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px; font-size: 10px; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--text); }
+.prefs-notice { margin: 14px 0 0; padding: 8px 10px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 16%, transparent); font-size: 11px; }
+.prefs-empty { color: var(--muted); padding: 32px 0; text-align: center; }
+.prefs-foot { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-top: 1px solid var(--line-soft); }
+.prefs-foot .spacer { flex: 1; }
+.prefs-foot button { min-height: 26px; padding: 2px 12px; }
+.prefs-info { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin: 0; font-size: 11px; }
+.prefs-info dt { color: var(--muted); }
+.prefs-info dd { margin: 0; font-variant-numeric: tabular-nums; }
+.prefs-meter { height: 6px; border-radius: 3px; background: var(--input-line); overflow: hidden; margin-top: 8px; grid-column: 1 / -1; }
+.prefs-meter span { display: block; height: 100%; background: var(--accent); }
+.prefs-checker-preview { width: 64px; height: 26px; border: 1px solid var(--input-line); border-radius: 3px; }
+@media (max-width: 680px) {
+  .prefs-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .prefs-nav { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line-soft); }
+  .prefs-nav button span { white-space: nowrap; }
+  .prefs-row { grid-template-columns: minmax(0, 1fr); }
+  .prefs-control { justify-content: flex-start; }
+}
+#app { --canvas-mode: var(--canvas-mode-0); }
+#app[data-screen-mode='1'] { --canvas-mode: var(--canvas-mode-1); }
+#app[data-screen-mode='2'] { --canvas-mode: var(--canvas-mode-2); }
+:root.highlight-custom[data-theme='light'] { --row-selected: var(--row-selected-light) !important; }
+@media (prefers-color-scheme: light) { :root.highlight-custom[data-theme='system'] { --row-selected: var(--row-selected-light) !important; } }
+.dock-drop-target { box-shadow: inset 0 0 0 2px var(--accent) !important; background: color-mix(in srgb, var(--accent) 18%, var(--chrome)) !important; }
+#screen-overlay .brush-adjust-label { fill: #fff; stroke: #000a; stroke-width: 3px; paint-order: stroke; font: 600 11px system-ui, sans-serif; }
+.prefs-row:has(.prefs-control :disabled) .prefs-label { opacity: 0.5; }
+.prefs-control :disabled, .prefs-control :disabled + span { opacity: 0.45; }

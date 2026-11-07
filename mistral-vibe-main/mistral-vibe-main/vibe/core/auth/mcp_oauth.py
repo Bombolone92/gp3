@@ -1,0 +1,767 @@
+from __future__ import annotations
+
+import asyncio
+from collections.abc import Awaitable, Callable, Mapping
+from dataclasses import dataclass, field
+import errno
+import functools
+import time
+from typing import TYPE_CHECKING, Final
+import urllib.parse
+
+import anyio.to_thread
+import httpx2
+import keyring
+import keyring.backends.fail
+import keyring.errors
+from pydantic import AnyUrl, BaseModel, ConfigDict, ValidationError
+
+from vibe import __version__
+from vibe.core.config import MCPHttp, MCPOAuth, MCPStreamableHttp
+from vibe.core.utils.exceptions import first_of_type
+from vibe.observability.logging import logger
+from vibe.utils.http import VibeAsyncHTTPClient, build_ssl_context
+from vibe.utils.keyring import (
+    delete_api_key_from_keyring,
+    get_api_key_from_keyring,
+    set_api_key_in_keyring,
+)
+
+# The MCP SDK is imported where used: its package import loads ~230 modules.
+if TYPE_CHECKING:
+    from mcp.client.auth import OAuthClientProvider, OAuthFlowError
+    from mcp.shared.auth import (
+        AuthorizationCodeResult,
+        OAuthClientInformationFull,
+        OAuthToken,
+    )
+
+    from vibe.core.auth._mcp_oauth_provider import RefreshAwareOAuthClientProvider
+
+_USERNAME_PREFIX: Final = "mcp-oauth"
+_CLIENT_NAME: Final = "Mistral Vibe"
+_LOGIN_TIMEOUT_SECONDS: Final = 300.0
+# A login whose browser callback never arrives must not pin the loopback port
+# until the process exits, so the callback wait is bounded: an abandoned login
+# fails loudly after this long and releases the port for later attempts.
+_CALLBACK_TIMEOUT_SECONDS: Final = 600.0
+# What a streamable HTTP endpoint accepts: a POST that says both, per the spec.
+_MCP_ACCEPT: Final = "application/json, text/event-stream"
+_MIN_REQUEST_LINE_PARTS: Final = 2
+_HEADER_TERMINATORS: Final = frozenset({b"\r\n", b"\n", b""})
+_EXPIRED_TOKEN_TIME: Final = -1.0
+
+
+class MCPOAuthError(Exception):
+    def _fmt(self) -> str:
+        return self.__class__.__name__
+
+
+class MCPOAuthPortInUse(MCPOAuthError):
+    def __init__(self, *, port: int, server_alias: str) -> None:
+        self.port = port
+        self.server_alias = server_alias
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        return (
+            f"Loopback callback port {self.port} is already in use; cannot complete "
+            f"OAuth login for MCP server {self.server_alias!r}. "
+            "Set `auth.redirect_port` to a free port in this server's config and retry."
+        )
+
+
+class MCPOAuthCallbackTimeout(MCPOAuthError):
+    def __init__(self, *, port: int, server_alias: str, timeout_seconds: float) -> None:
+        self.port = port
+        self.server_alias = server_alias
+        self.timeout_seconds = timeout_seconds
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        minutes = self.timeout_seconds / 60
+        return (
+            f"Timed out after {minutes:g} minutes waiting for the OAuth browser "
+            f"callback for MCP server {self.server_alias!r}. The loopback port "
+            f"{self.port} has been released; retry the login and complete the "
+            "browser authorization this time."
+        )
+
+
+class MCPOAuthHeadlessError(MCPOAuthError):
+    def __init__(self, *, server_alias: str) -> None:
+        self.server_alias = server_alias
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        return (
+            f"No OS keyring backend is available; cannot store OAuth tokens for "
+            f"MCP server {self.server_alias!r}. "
+            'Switch this server to `auth.type = "static"` with `api_key_env` for '
+            "headless or CI environments."
+        )
+
+
+class MCPOAuthInvalidGrant(MCPOAuthError):
+    def __init__(self, *, server_alias: str, reason: str) -> None:
+        self.server_alias = server_alias
+        self.reason = reason
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        return (
+            f"OAuth refresh failed for MCP server {self.server_alias!r}: {self.reason}. "
+            f"Run `/mcp login {self.server_alias}` to re-authenticate."
+        )
+
+
+class MCPOAuthTransientRefreshError(MCPOAuthError):
+    def __init__(self, *, server_alias: str, reason: str) -> None:
+        self.server_alias = server_alias
+        self.reason = reason
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        return (
+            f"OAuth token refresh for MCP server {self.server_alias!r} hit a "
+            f"transient error ({self.reason}); keeping stored credentials and will "
+            "retry."
+        )
+
+
+class MCPOAuthLoginFailed(MCPOAuthError):
+    def __init__(self, *, server_alias: str, reason: str) -> None:
+        self.server_alias = server_alias
+        self.reason = reason
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        return (
+            f"OAuth login failed for MCP server {self.server_alias!r}: {self.reason}. "
+            f"Run `/mcp login {self.server_alias}` to retry."
+        )
+
+
+class MCPOAuthCredentialCleanupFailed(MCPOAuthError):
+    def __init__(self, *, server_alias: str, reason: str) -> None:
+        self.server_alias = server_alias
+        self.reason = reason
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        return (
+            f"Failed to remove OAuth credentials for MCP server "
+            f"{self.server_alias!r}: {self.reason}."
+        )
+
+
+class MCPOAuthCredentialRestoreFailed(MCPOAuthError):
+    def __init__(self, *, server_alias: str, reason: str) -> None:
+        self.server_alias = server_alias
+        self.reason = reason
+        super().__init__(self._fmt())
+
+    def _fmt(self) -> str:
+        return (
+            f"Failed to restore OAuth credentials for MCP server "
+            f"{self.server_alias!r} after an aborted removal: {self.reason}."
+        )
+
+
+def _kr_username(alias: str, kind: str) -> str:
+    return f"{_USERNAME_PREFIX}:{alias}:{kind}"
+
+
+async def _kr_get(username: str) -> str | None:
+    # OAuth material has only ever been filed under the current service name, so
+    # the legacy fallback can only ever miss -- and on macOS each service tried
+    # is its own `security` subprocess, ~17ms, on the session startup path.
+    return await anyio.to_thread.run_sync(
+        functools.partial(get_api_key_from_keyring, search_legacy_services=False),
+        username,
+    )
+
+
+async def _kr_set(username: str, value: str) -> None:
+    await anyio.to_thread.run_sync(set_api_key_in_keyring, username, value)
+
+
+async def _kr_delete(username: str) -> None:
+    try:
+        await anyio.to_thread.run_sync(delete_api_key_from_keyring, username)
+    except keyring.errors.PasswordDeleteError:
+        pass
+
+
+async def _kr_load[M: BaseModel](username: str, model: type[M]) -> M | None:
+    raw = await _kr_get(username)
+    if raw is None:
+        return None
+    try:
+        return model.model_validate_json(raw)
+    except ValidationError:
+        # Never log the exception: its message embeds the stored secret.
+        logger.warning("Ignoring unreadable keyring entry %s", username)
+        return None
+
+
+class Fingerprint(BaseModel):
+    """Config-drift detection marker for OAuth MCP servers.
+
+    Captures the server URL, normalized scopes, and client identity marker
+    (client_id, client_metadata_url, or "<dcr>" for DCR flow).
+    Two fingerprints are equal if all fields match; changes indicate the config
+    has changed and re-authentication is needed.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    url: str
+    scopes_sorted: tuple[str, ...]
+    client_marker: str
+
+    @classmethod
+    def compute(cls, server: MCPHttp | MCPStreamableHttp) -> Fingerprint:
+        auth = server.auth
+        if not isinstance(auth, MCPOAuth):
+            raise TypeError(
+                "Fingerprint.compute requires an OAuth-configured MCP server; "
+                f"server {server.name!r} uses auth.type={type(auth).__name__}"
+            )
+        scopes = tuple(sorted({s.strip() for s in auth.scopes if s.strip()}))
+        if auth.client_id:
+            marker = auth.client_id
+        elif auth.client_metadata_url:
+            marker = str(auth.client_metadata_url)
+        else:
+            marker = "<dcr>"
+        return cls(url=server.url, scopes_sorted=scopes, client_marker=marker)
+
+    @classmethod
+    async def load(cls, alias: str) -> Fingerprint | None:
+        return await _kr_load(_kr_username(alias, "fingerprint"), cls)
+
+    async def save(self, alias: str) -> None:
+        await _kr_set(_kr_username(alias, "fingerprint"), self.model_dump_json())
+
+    @classmethod
+    async def delete(cls, alias: str) -> None:
+        await _kr_delete(_kr_username(alias, "fingerprint"))
+
+
+class StoredOAuthTokens(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    access_token: str
+    token_type: str = "Bearer"
+    expires_in: int | None = None
+    scope: str | None = None
+    refresh_token: str | None = None
+    expires_at: float | None = None
+
+    @classmethod
+    def from_token(cls, token: OAuthToken) -> StoredOAuthTokens:
+        expires_at = (
+            time.time() + token.expires_in if token.expires_in is not None else None
+        )
+        return cls(**token.model_dump(), expires_at=expires_at)
+
+    def to_token(self) -> OAuthToken:
+        from mcp.shared.auth import OAuthToken
+
+        return OAuthToken.model_validate(self.model_dump(exclude={"expires_at"}))
+
+
+class KeyringTokenStorage:
+    def __init__(
+        self,
+        alias: str,
+        *,
+        fallback_client_info: OAuthClientInformationFull | None = None,
+    ) -> None:
+        try:
+            backend = keyring.get_keyring()
+        except (ImportError, keyring.errors.KeyringError) as exc:
+            raise MCPOAuthHeadlessError(server_alias=alias) from exc
+        if isinstance(backend, keyring.backends.fail.Keyring):
+            raise MCPOAuthHeadlessError(server_alias=alias)
+        self._alias = alias
+        self._fallback_client_info = fallback_client_info
+        self.token_expiry_time: float | None = None
+
+    async def get_tokens(self) -> OAuthToken | None:
+        stored = await _kr_load(_kr_username(self._alias, "tokens"), StoredOAuthTokens)
+        if stored is None:
+            self.token_expiry_time = None
+            return None
+        self.token_expiry_time = stored.expires_at
+        if stored.expires_at is None and stored.expires_in is not None:
+            self.token_expiry_time = _EXPIRED_TOKEN_TIME
+        return stored.to_token()
+
+    async def set_tokens(self, tokens: OAuthToken) -> None:
+        stored = StoredOAuthTokens.from_token(tokens)
+        self.token_expiry_time = stored.expires_at
+        await _kr_set(_kr_username(self._alias, "tokens"), stored.model_dump_json())
+
+    async def delete_tokens(self) -> None:
+        await _kr_delete(_kr_username(self._alias, "tokens"))
+        self.token_expiry_time = None
+
+    async def get_client_info(self) -> OAuthClientInformationFull | None:
+        from mcp.shared.auth import OAuthClientInformationFull
+
+        info = await _kr_load(
+            _kr_username(self._alias, "client_info"), OAuthClientInformationFull
+        )
+        return self._fallback_client_info if info is None else info
+
+    async def set_client_info(self, client_info: OAuthClientInformationFull) -> None:
+        await _kr_set(
+            _kr_username(self._alias, "client_info"), client_info.model_dump_json()
+        )
+
+    async def delete_client_info(self) -> None:
+        await _kr_delete(_kr_username(self._alias, "client_info"))
+
+
+@dataclass(frozen=True, slots=True)
+class OAuthCredentialBackup:
+    """Opaque process-local backup used only to roll back catalog removal."""
+
+    keyring_available: bool
+    tokens: str | None = field(repr=False)
+    client_info: str | None = field(repr=False)
+    fingerprint: str | None = field(repr=False)
+
+
+async def snapshot_oauth_credentials(alias: str) -> OAuthCredentialBackup:
+    try:
+        KeyringTokenStorage(alias=alias)
+    except MCPOAuthHeadlessError:
+        return OAuthCredentialBackup(
+            keyring_available=False, tokens=None, client_info=None, fingerprint=None
+        )
+    try:
+        return OAuthCredentialBackup(
+            keyring_available=True,
+            tokens=await _kr_get(_kr_username(alias, "tokens")),
+            client_info=await _kr_get(_kr_username(alias, "client_info")),
+            fingerprint=await _kr_get(_kr_username(alias, "fingerprint")),
+        )
+    except keyring.errors.KeyringError as exc:
+        raise MCPOAuthCredentialCleanupFailed(
+            server_alias=alias, reason=f"could not snapshot credentials: {exc}"
+        ) from exc
+
+
+async def restore_oauth_credentials(alias: str, backup: OAuthCredentialBackup) -> None:
+    if not backup.keyring_available:
+        return
+    try:
+        for kind, value in (
+            ("tokens", backup.tokens),
+            ("client_info", backup.client_info),
+            ("fingerprint", backup.fingerprint),
+        ):
+            username = _kr_username(alias, kind)
+            if value is None:
+                await _kr_delete(username)
+            else:
+                await _kr_set(username, value)
+    except keyring.errors.KeyringError as exc:
+        raise MCPOAuthCredentialRestoreFailed(
+            server_alias=alias, reason=str(exc)
+        ) from exc
+
+
+async def delete_oauth_credentials(alias: str) -> None:
+    try:
+        storage = KeyringTokenStorage(alias=alias)
+        await storage.delete_tokens()
+        await storage.delete_client_info()
+        await Fingerprint.delete(alias)
+    except MCPOAuthHeadlessError:
+        # No usable keyring backend means nothing was ever stored, so there is
+        # nothing to delete. Deleting is a no-op rather than a failure.
+        return
+    except MCPOAuthError:
+        raise
+    except keyring.errors.KeyringError as exc:
+        raise MCPOAuthCredentialCleanupFailed(
+            server_alias=alias, reason=str(exc)
+        ) from exc
+
+
+_LOGO_SVG: Final = (
+    '<svg class="mark" viewBox="0 0 162 162" xmlns="http://www.w3.org/2000/svg" '
+    'aria-hidden="true">'
+    '<path d="M50.9987 32.0001H30.9987V50.0001H50.9987V32.0001Z"/>'
+    '<path d="M130.999 32.0001H110.999V50.0001H130.999V32.0001Z"/>'
+    '<path d="M90.9988 92.0002H70.9988V110H90.9988V92.0002Z"/>'
+    '<path d="M50.9987 92.0002H30.9987V110H50.9987V92.0002Z"/>'
+    '<path d="M130.999 92.0002H110.999V110H130.999V92.0002Z"/>'
+    '<path d="M70.9987 52.0004H30.9987V70.0004H70.9987V52.0004Z"/>'
+    '<path d="M71.0002 112H11V130.001H71.0002V112Z"/>'
+    '<path d="M151 112H90.9998V130.001H151V112Z"/>'
+    '<path d="M130.999 72.0002H30.9987V90.0003H130.999V72.0002Z"/>'
+    '<path d="M131 52.0004H90.9998V70.0004H131V52.0004Z"/>'
+    "</svg>"
+)
+
+_FAVICON_DATA_URL: Final = (
+    "data:image/svg+xml;utf8,"
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 162 162' fill='%23FA500F'>"
+    "<path d='M50.9987 32.0001H30.9987V50.0001H50.9987V32.0001Z'/>"
+    "<path d='M130.999 32.0001H110.999V50.0001H130.999V32.0001Z'/>"
+    "<path d='M90.9988 92.0002H70.9988V110H90.9988V92.0002Z'/>"
+    "<path d='M50.9987 92.0002H30.9987V110H50.9987V92.0002Z'/>"
+    "<path d='M130.999 92.0002H110.999V110H130.999V92.0002Z'/>"
+    "<path d='M70.9987 52.0004H30.9987V70.0004H70.9987V52.0004Z'/>"
+    "<path d='M71.0002 112H11V130.001H71.0002V112Z'/>"
+    "<path d='M151 112H90.9998V130.001H151V112Z'/>"
+    "<path d='M130.999 72.0002H30.9987V90.0003H130.999V72.0002Z'/>"
+    "<path d='M131 52.0004H90.9998V70.0004H131V52.0004Z'/>"
+    "</svg>"
+)
+
+_BASE_STYLE: Final = """
+:root { color-scheme: light dark; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+       display: flex; align-items: center; justify-content: center;
+       min-height: 100vh; margin: 0;
+       background: light-dark(#FBFBF8, #171722);
+       color: light-dark(#15202b, #FBFBF8); }
+.card { padding: 2.5rem 3rem; border-radius: 12px;
+        background: light-dark(#F5F4EF, #242433);
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.12);
+        text-align: center; max-width: 28rem; }
+.mark { width: 64px; height: 64px; display: block; margin: 0 auto 1.25rem; }
+.mark path { fill: #FA500F; }
+h1 { font-size: 1.4rem; margin: 0 0 .5rem; font-weight: 600; }
+p { margin: 0; opacity: .7; }
+"""
+
+
+def _render_page(*, title: str, heading: str, body: str) -> bytes:
+    return (
+        f"<!DOCTYPE html>\n"
+        f'<html lang="en">\n'
+        f"<head>\n"
+        f'<meta charset="utf-8">\n'
+        f"<title>{title}</title>\n"
+        f'<link rel="icon" href="{_FAVICON_DATA_URL}">\n'
+        f"<style>{_BASE_STYLE}</style>\n"
+        f"</head>\n"
+        f"<body>\n"
+        f'<div class="card">\n'
+        f"{_LOGO_SVG}\n"
+        f"<h1>{heading}</h1>\n"
+        f"<p>{body}</p>\n"
+        f"</div>\n"
+        f"</body>\n"
+        f"</html>\n"
+    ).encode()
+
+
+_SUCCESS_HTML: Final = _render_page(
+    title="Mistral Vibe - Login complete",
+    heading="Login complete",
+    body="You can close this tab and return to Mistral Vibe.",
+)
+
+_ERROR_HTML: Final = _render_page(
+    title="Mistral Vibe - Login failed",
+    heading="Login failed",
+    body="The authorization server did not return an authorization code. Return to Mistral Vibe and try again.",
+)
+
+
+def _http_response(status_line: bytes, body: bytes) -> bytes:
+    return (
+        status_line
+        + b"Content-Type: text/html; charset=utf-8\r\n"
+        + b"Connection: close\r\n"
+        + b"Cache-Control: no-store\r\n"
+        + b"Content-Length: "
+        + str(len(body)).encode("ascii")
+        + b"\r\n\r\n"
+        + body
+    )
+
+
+class LoopbackCallbackHandler:
+    def __init__(self, *, port: int, server_alias: str) -> None:
+        self._port = port
+        self._server_alias = server_alias
+
+    async def _fail(
+        self,
+        writer: asyncio.StreamWriter,
+        msg: str,
+        *,
+        future: asyncio.Future[AuthorizationCodeResult],
+    ) -> None:
+        writer.write(_http_response(b"HTTP/1.1 400 Bad Request\r\n", _ERROR_HTML))
+        await writer.drain()
+        if not future.done():
+            future.set_exception(
+                MCPOAuthError(f"OAuth callback for {self._server_alias!r} {msg}")
+            )
+
+    async def serve_once(self) -> AuthorizationCodeResult:
+        from mcp.shared.auth import AuthorizationCodeResult
+
+        loop = asyncio.get_running_loop()
+        future: asyncio.Future[AuthorizationCodeResult] = loop.create_future()
+
+        async def handle(
+            reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+        ) -> None:
+            try:
+                request_line = await reader.readline()
+                while True:
+                    line = await reader.readline()
+                    if line in _HEADER_TERMINATORS:
+                        break
+                parts = request_line.split(b" ", 2)
+                if len(parts) < _MIN_REQUEST_LINE_PARTS:
+                    await self._fail(
+                        writer, "received a malformed HTTP request", future=future
+                    )
+                    return
+                path = parts[1].decode("latin-1", errors="replace")
+                query = urllib.parse.urlparse(path).query
+                params = urllib.parse.parse_qs(query)
+                code_values = params.get("code") or []
+                state_values = params.get("state") or []
+                iss_values = params.get("iss") or []
+                if not code_values:
+                    await self._fail(
+                        writer, "missing 'code' query parameter", future=future
+                    )
+                    return
+                writer.write(_http_response(b"HTTP/1.1 200 OK\r\n", _SUCCESS_HTML))
+                await writer.drain()
+                if not future.done():
+                    future.set_result(
+                        AuthorizationCodeResult(
+                            code=code_values[0],
+                            state=state_values[0] if state_values else None,
+                            iss=iss_values[0] if iss_values else None,
+                        )
+                    )
+            except BaseException as exc:
+                if not future.done():
+                    future.set_exception(exc)
+                raise
+            finally:
+                writer.close()
+                with _suppress_close_errors():
+                    await writer.wait_closed()
+
+        try:
+            server = await asyncio.start_server(
+                handle, host="127.0.0.1", port=self._port
+            )
+        except OSError as exc:
+            if exc.errno == errno.EADDRINUSE:
+                raise MCPOAuthPortInUse(
+                    port=self._port, server_alias=self._server_alias
+                ) from exc
+            raise
+
+        try:
+            # Bounded so an abandoned login releases the port instead of
+            # blocking every later login on this machine.
+            return await asyncio.wait_for(future, timeout=_CALLBACK_TIMEOUT_SECONDS)
+        except TimeoutError:
+            raise MCPOAuthCallbackTimeout(
+                port=self._port,
+                server_alias=self._server_alias,
+                timeout_seconds=_CALLBACK_TIMEOUT_SECONDS,
+            ) from None
+        finally:
+            server.close()
+            with _suppress_close_errors():
+                await server.wait_closed()
+
+
+class _suppress_close_errors:
+    def __enter__(self) -> None:
+        return None
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: object,
+    ) -> bool:
+        return exc_type is not None and issubclass(
+            exc_type, (ConnectionError, OSError, asyncio.CancelledError)
+        )
+
+
+def unwrap_oauth_refresh_error(
+    exc: BaseException,
+) -> MCPOAuthInvalidGrant | MCPOAuthTransientRefreshError | OAuthFlowError | None:
+    """Find a known OAuth error inside a possibly-grouped exception (streamable_http wraps auth-flow errors in an ExceptionGroup)."""
+    if (invalid_grant := first_of_type(exc, MCPOAuthInvalidGrant)) is not None:
+        return invalid_grant
+    if (transient := first_of_type(exc, MCPOAuthTransientRefreshError)) is not None:
+        return transient
+    from mcp.client.auth import OAuthFlowError
+
+    return first_of_type(exc, OAuthFlowError)
+
+
+def build_oauth_provider(
+    server: MCPHttp | MCPStreamableHttp,
+    *,
+    redirect_handler: Callable[[str], Awaitable[None]],
+    callback_handler: Callable[[], Awaitable[AuthorizationCodeResult]],
+) -> RefreshAwareOAuthClientProvider:
+    auth = server.auth
+    if not isinstance(auth, MCPOAuth):
+        raise TypeError(
+            "build_oauth_provider requires an OAuth-configured MCP server; "
+            f"server {server.name!r} uses auth.type={type(auth).__name__}"
+        )
+    from mcp.shared.auth import OAuthClientInformationFull, OAuthClientMetadata
+
+    from vibe.core.auth._mcp_oauth_provider import RefreshAwareOAuthClientProvider
+
+    redirect_uri = AnyUrl(f"http://127.0.0.1:{auth.redirect_port}/callback")
+    scope = " ".join(s for s in auth.scopes if s) or None
+    metadata = OAuthClientMetadata(
+        redirect_uris=[redirect_uri],
+        scope=scope,
+        grant_types=["authorization_code", "refresh_token"],
+        response_types=["code"],
+        token_endpoint_auth_method="none",
+        client_name=_CLIENT_NAME,
+    )
+    client_metadata_url = (
+        str(auth.client_metadata_url) if auth.client_metadata_url else None
+    )
+    fallback_client_info = None
+    if auth.client_id:
+        fallback_client_info = OAuthClientInformationFull(
+            client_id=auth.client_id,
+            redirect_uris=[redirect_uri],
+            scope=scope,
+            grant_types=["authorization_code", "refresh_token"],
+            response_types=["code"],
+            token_endpoint_auth_method="none",
+            client_name=_CLIENT_NAME,
+        )
+    return RefreshAwareOAuthClientProvider(
+        server_url=server.url,
+        client_metadata=metadata,
+        storage=KeyringTokenStorage(
+            alias=server.name, fallback_client_info=fallback_client_info
+        ),
+        server_alias=server.name,
+        redirect_handler=redirect_handler,
+        callback_handler=callback_handler,
+        client_metadata_url=client_metadata_url,
+    )
+
+
+async def perform_oauth_login(
+    server: MCPHttp | MCPStreamableHttp,
+    *,
+    on_url: Callable[[str], Awaitable[None]],
+    headers: Mapping[str, str] | None = None,
+) -> None:
+    auth = server.auth
+    if not isinstance(auth, MCPOAuth):
+        raise TypeError(
+            "perform_oauth_login requires an OAuth-configured MCP server; "
+            f"server {server.name!r} uses auth.type={type(auth).__name__}"
+        )
+    from mcp.client.auth import OAuthFlowError, OAuthTokenError
+
+    declared = dict(headers or {})
+    try:
+        try:
+            await _attempt_oauth_login(server, auth, on_url, declared)
+        except MCPOAuthInvalidGrant:
+            # invalid_grant already cleared the stored creds; retry runs fresh.
+            await _attempt_oauth_login(server, auth, on_url, declared)
+        except MCPOAuthTransientRefreshError:
+            # A non-invalid_grant refresh failure (e.g. pruned DCR client -> 5xx)
+            # keeps the creds, so a plain retry just re-refreshes and fails the
+            # same way. Drop them and retry once as a fresh authorization.
+            await delete_oauth_credentials(server.name)
+            await _attempt_oauth_login(server, auth, on_url, declared)
+    except MCPOAuthTransientRefreshError as exc:
+        raise MCPOAuthLoginFailed(
+            server_alias=server.name, reason=f"Transient error: {exc.reason}"
+        ) from exc
+    except (OAuthTokenError, OAuthFlowError, httpx2.HTTPError, OSError) as exc:
+        raise MCPOAuthLoginFailed(server_alias=server.name, reason=str(exc)) from exc
+    # A probe the server never challenges leaves no token, so fail loudly rather than save a false-success fingerprint.
+    if await KeyringTokenStorage(alias=server.name).get_tokens() is None:
+        raise MCPOAuthLoginFailed(
+            server_alias=server.name,
+            reason="the server never issued an OAuth challenge, so no token was obtained",
+        )
+    await Fingerprint.compute(server).save(server.name)
+
+
+async def _attempt_oauth_login(
+    server: MCPHttp | MCPStreamableHttp,
+    auth: MCPOAuth,
+    on_url: Callable[[str], Awaitable[None]],
+    declared_headers: Mapping[str, str],
+) -> None:
+    # Fresh provider per attempt so a retry reads the current keyring state, not
+    # the previous attempt's in-memory tokens.
+    handler = LoopbackCallbackHandler(port=auth.redirect_port, server_alias=server.name)
+    provider = build_oauth_provider(
+        server, redirect_handler=on_url, callback_handler=handler.serve_once
+    )
+    await _request_oauth_login(server, provider, declared_headers)
+
+
+def _initialize_message() -> dict[str, object]:
+    from mcp.types import LATEST_PROTOCOL_VERSION
+
+    return {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": LATEST_PROTOCOL_VERSION,
+            "capabilities": {},
+            "clientInfo": {"name": _CLIENT_NAME, "version": __version__},
+        },
+    }
+
+
+async def _request_oauth_login(
+    server: MCPHttp | MCPStreamableHttp,
+    provider: OAuthClientProvider,
+    declared_headers: Mapping[str, str],
+) -> None:
+    async with VibeAsyncHTTPClient(
+        auth=provider, timeout=_LOGIN_TIMEOUT_SECONDS, verify=build_ssl_context()
+    ) as client:
+        # A login has nothing to ask; it needs the 401 that starts the flow.
+        # Streamable HTTP endpoints route on POST and answer a bare GET with
+        # 405 before looking at credentials, so only a real ``initialize``
+        # draws the challenge. Streamed because an authorized server answers
+        # with an event stream, and the login is done at the headers either way.
+        #
+        # Declared headers ride along for the same reason: this has to be the
+        # request every other one to this url is, or a server that routes on
+        # them need not answer with the challenge at all. ``Accept`` stays
+        # ours -- the transport depends on it.
+        async with client.stream(
+            "POST",
+            server.url,
+            json=_initialize_message(),
+            headers={**declared_headers, "Accept": _MCP_ACCEPT},
+        ):
+            pass

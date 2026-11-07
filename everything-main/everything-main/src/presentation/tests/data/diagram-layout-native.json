@@ -1,0 +1,1103 @@
+{
+  "description": "Native reference layout instance trees, 2026-09-19. Data tree: diagram-layout-fixture.js. The input body is inside a root layoutNode with lin algorithm, empty shape/presOf and size constraints. Points and presParOf associations were read after native Save As and semantic IDs normalized by preserved data-node order and transition edges. Cases promoting document text to the saved graph root are outside this logical-tree fixture; no saved graph promotion or geometry is asserted here.",
+  "cases": [
+    {
+      "name": "loop axis=\"ch\" ptType=\"node\"",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "loop axis=\"ch ch\" ptType=\"node node\"",
+      "body": "<dgm:forEach axis=\"ch ch\" ptType=\"node node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "11",
+          "parent": 0,
+          "contributors": ["11"]
+        },
+        {
+          "name": "query",
+          "context": "12",
+          "parent": 0,
+          "contributors": ["12"]
+        },
+        {
+          "name": "query",
+          "context": "21",
+          "parent": 0,
+          "contributors": ["21"]
+        },
+        {
+          "name": "query",
+          "context": "22",
+          "parent": 0,
+          "contributors": ["22"]
+        },
+        {
+          "name": "query",
+          "context": "31",
+          "parent": 0,
+          "contributors": ["31"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "loop axis=\"ch ch par\" ptType=\"node node node\"",
+      "body": "<dgm:forEach axis=\"ch ch par\" ptType=\"node node node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "loop axis=\"ch ch par\" ptType=\"node node node\" cnt=\"0 1 0\"",
+      "body": "<dgm:forEach axis=\"ch ch par\" ptType=\"node node node\" cnt=\"0 1 0\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "loop axis=\"ch ch par ch\" ptType=\"node node all node\"",
+      "body": "<dgm:forEach axis=\"ch ch par ch\" ptType=\"node node all node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "11",
+          "parent": 0,
+          "contributors": ["11"]
+        },
+        {
+          "name": "query",
+          "context": "12",
+          "parent": 0,
+          "contributors": ["12"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "loop axis=\"ch par ch\" ptType=\"node all node\"",
+      "body": "<dgm:forEach axis=\"ch par ch\" ptType=\"node all node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "nested loops repeated parents",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:forEach axis=\"ch par\" ptType=\"node node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "same context distinct definitions",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "b",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        }
+      ]
+    },
+    {
+      "name": "recursive descendants",
+      "body": "<dgm:forEach name=\"recurse\" axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"branch\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:forEach ref=\"recurse\"></dgm:forEach></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "branch",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "branch",
+          "context": "11",
+          "parent": 1,
+          "contributors": ["11"]
+        },
+        {
+          "name": "branch",
+          "context": "12",
+          "parent": 1,
+          "contributors": ["12"]
+        },
+        {
+          "name": "branch",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "branch",
+          "context": "21",
+          "parent": 4,
+          "contributors": ["21"]
+        },
+        {
+          "name": "branch",
+          "context": "22",
+          "parent": 4,
+          "contributors": ["22"]
+        },
+        {
+          "name": "branch",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "branch",
+          "context": "31",
+          "parent": 7,
+          "contributors": ["31"]
+        }
+      ]
+    },
+    {
+      "name": "reference replaces axis and body",
+      "body": "<dgm:forEach name=\"shared\" axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"leaf\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach ref=\"shared\" axis=\"self\"><dgm:layoutNode name=\"unused\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "leaf",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "leaf",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "leaf",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "forward reference in false branch",
+      "body": "<dgm:forEach ref=\"shared\"></dgm:forEach><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"0\"><dgm:forEach name=\"shared\" axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"leaf\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach></dgm:if></dgm:choose>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "leaf",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "leaf",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "leaf",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        }
+      ]
+    },
+    {
+      "name": "pres ",
+      "body": "<dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "pres axis=\"none\"",
+      "body": "<dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"none\"/></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "pres axis=\"ch\" ptType=\"node\"",
+      "body": "<dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"ch\" ptType=\"node\"/></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "0",
+          "parent": 0,
+          "contributors": ["1", "2", "3"]
+        }
+      ]
+    },
+    {
+      "name": "nested empty presentation",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"outer\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf /><dgm:layoutNode name=\"inner\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "outer",
+          "context": "1",
+          "parent": 0,
+          "contributors": []
+        },
+        {
+          "name": "inner",
+          "context": "1",
+          "parent": 1,
+          "contributors": []
+        },
+        {
+          "name": "outer",
+          "context": "2",
+          "parent": 0,
+          "contributors": []
+        },
+        {
+          "name": "inner",
+          "context": "2",
+          "parent": 3,
+          "contributors": []
+        },
+        {
+          "name": "outer",
+          "context": "3",
+          "parent": 0,
+          "contributors": []
+        },
+        {
+          "name": "inner",
+          "context": "3",
+          "parent": 5,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "duplicate axis=\"des followSib\" ptType=\"node node\"",
+      "body": "<dgm:forEach axis=\"des followSib\" ptType=\"node node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "query",
+          "context": "12",
+          "parent": 0,
+          "contributors": ["12"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "duplicate axis=\"des followSib\" ptType=\"node all\"",
+      "body": "<dgm:forEach axis=\"des followSib\" ptType=\"node all\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "S1",
+          "parent": 0,
+          "contributors": ["S1"]
+        },
+        {
+          "name": "query",
+          "context": "P2",
+          "parent": 0,
+          "contributors": ["P2"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "query",
+          "context": "S2",
+          "parent": 0,
+          "contributors": ["S2"]
+        },
+        {
+          "name": "query",
+          "context": "P3",
+          "parent": 0,
+          "contributors": ["P3"]
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "query",
+          "context": "S11",
+          "parent": 0,
+          "contributors": ["S11"]
+        },
+        {
+          "name": "query",
+          "context": "P12",
+          "parent": 0,
+          "contributors": ["P12"]
+        },
+        {
+          "name": "query",
+          "context": "12",
+          "parent": 0,
+          "contributors": ["12"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "duplicate axis=\"ch ch par\" ptType=\"node node node\"",
+      "body": "<dgm:forEach axis=\"ch ch par\" ptType=\"node node node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "two loops same reference distinct data",
+      "body": "<dgm:forEach name=\"shared\" axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"leaf\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:forEach ref=\"shared\"></dgm:forEach></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "leaf",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "leaf",
+          "context": "21",
+          "parent": 0,
+          "contributors": ["21"]
+        }
+      ]
+    },
+    {
+      "name": "two loops same reference same data",
+      "body": "<dgm:forEach name=\"shared\" axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"leaf\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach ref=\"shared\"></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "leaf",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "leaf",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "leaf",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "reference own axis changes",
+      "body": "<dgm:forEach name=\"shared\" axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"leaf\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach ref=\"shared\" axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "leaf",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "recursive with explicit axis",
+      "body": "<dgm:forEach name=\"recurse\" axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"branch\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:forEach ref=\"recurse\" axis=\"ch\" ptType=\"node\"></dgm:forEach></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "branch",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "branch",
+          "context": "11",
+          "parent": 1,
+          "contributors": ["11"]
+        },
+        {
+          "name": "branch",
+          "context": "12",
+          "parent": 1,
+          "contributors": ["12"]
+        },
+        {
+          "name": "branch",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "branch",
+          "context": "21",
+          "parent": 4,
+          "contributors": ["21"]
+        },
+        {
+          "name": "branch",
+          "context": "22",
+          "parent": 4,
+          "contributors": ["22"]
+        },
+        {
+          "name": "branch",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "branch",
+          "context": "31",
+          "parent": 7,
+          "contributors": ["31"]
+        }
+      ]
+    },
+    {
+      "name": "recursive with changed ref name",
+      "body": "<dgm:forEach name=\"recurse\" axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"branch\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:forEach name=\"next\" ref=\"recurse\" axis=\"ch\" ptType=\"node\"></dgm:forEach></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "branch",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "branch",
+          "context": "11",
+          "parent": 1,
+          "contributors": ["11"]
+        },
+        {
+          "name": "branch",
+          "context": "12",
+          "parent": 1,
+          "contributors": ["12"]
+        },
+        {
+          "name": "branch",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "branch",
+          "context": "21",
+          "parent": 4,
+          "contributors": ["21"]
+        },
+        {
+          "name": "branch",
+          "context": "22",
+          "parent": 4,
+          "contributors": ["22"]
+        },
+        {
+          "name": "branch",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "branch",
+          "context": "31",
+          "parent": 7,
+          "contributors": ["31"]
+        }
+      ]
+    },
+    {
+      "name": "backward reference in false branch",
+      "body": "<dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"0\"><dgm:forEach name=\"shared\" axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"leaf\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach></dgm:if></dgm:choose><dgm:forEach ref=\"shared\" axis=\"ch\" ptType=\"node\"></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "leaf",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "leaf",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "leaf",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        }
+      ]
+    },
+    {
+      "name": "foreach inside mapped parents",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"container\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:forEach axis=\"ch par\" ptType=\"node node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "container",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 1,
+          "contributors": ["1"]
+        },
+        {
+          "name": "container",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 3,
+          "contributors": ["2"]
+        },
+        {
+          "name": "container",
+          "context": "3",
+          "parent": 0,
+          "contributors": ["3"]
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "parent": 5,
+          "contributors": ["3"]
+        }
+      ]
+    },
+    {
+      "name": "foreach inside unmapped parents",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"container\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf /><dgm:forEach axis=\"ch par\" ptType=\"node node\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "container",
+          "context": "1",
+          "parent": 0,
+          "contributors": []
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 1,
+          "contributors": ["1"]
+        },
+        {
+          "name": "container",
+          "context": "2",
+          "parent": 0,
+          "contributors": []
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 3,
+          "contributors": ["2"]
+        },
+        {
+          "name": "container",
+          "context": "3",
+          "parent": 0,
+          "contributors": []
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "parent": 5,
+          "contributors": ["3"]
+        }
+      ]
+    },
+    {
+      "name": "condition selected context stays original",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:choose><dgm:if func=\"cnt\" axis=\"ch\" ptType=\"node\" op=\"equ\" val=\"2\"><dgm:layoutNode name=\"chosen\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:if></dgm:choose></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "chosen",
+          "context": "1",
+          "parent": 0,
+          "contributors": ["1"]
+        }
+      ]
+    },
+    {
+      "name": "skipped duplicate branch",
+      "body": "<dgm:forEach axis=\"des followSib\" ptType=\"node node\"><dgm:choose><dgm:if func=\"pos\" axis=\"self\" ptType=\"node\" op=\"equ\" val=\"2\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:if></dgm:choose></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "query",
+          "context": "12",
+          "parent": 0,
+          "contributors": ["12"]
+        },
+        {
+          "name": "query",
+          "context": "22",
+          "parent": 0,
+          "contributors": ["22"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "skipped nested duplicate branch",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:forEach axis=\"ch par\" ptType=\"node node\"><dgm:choose><dgm:if func=\"pos\" axis=\"self\" ptType=\"node\" op=\"equ\" val=\"2\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:if></dgm:choose></dgm:forEach></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "parent": 0,
+          "contributors": ["2"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "same semantic reference separate owners",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"left\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf /><dgm:forEach name=\"shared\" axis=\"self\"><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach></dgm:layoutNode><dgm:layoutNode name=\"right\"><dgm:alg type=\"lin\"/><dgm:shape type=\"rect\"/><dgm:presOf /><dgm:forEach ref=\"shared\"></dgm:forEach></dgm:layoutNode></dgm:forEach>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "left",
+          "context": "1",
+          "parent": 0,
+          "contributors": []
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "parent": 1,
+          "contributors": ["1"]
+        },
+        {
+          "name": "right",
+          "context": "1",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "repeated loop constraints",
+      "body": "<dgm:forEach axis=\"ch par\" ptType=\"node all\"><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" val=\"2\"/></dgm:constrLst></dgm:forEach><dgm:layoutNode name=\"after\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf /></dgm:layoutNode>",
+      "nodes": [
+        {
+          "name": "root",
+          "context": "0",
+          "parent": null,
+          "contributors": ["0"]
+        },
+        {
+          "name": "after",
+          "context": "0",
+          "parent": 0,
+          "contributors": []
+        }
+      ]
+    }
+  ]
+}

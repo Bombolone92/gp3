@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Point of Sale store artwork</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow: hidden; }
+body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+.canvas { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #f5f0e8; color: #173a30; }
+.shape { position: absolute; pointer-events: none; }
+.circle { border-radius: 50%; }
+.ring { border-radius: 50%; border: 2px solid currentColor; opacity: .13; }
+.brand { position: absolute; display: flex; gap: 18px; align-items: center; font-weight: 650; letter-spacing: -1px; }
+.brand img { border-radius: 22%; display: block; }
+h1 { position: absolute; margin: 0; font-weight: 760; letter-spacing: -.055em; line-height: 1.035; }
+.sub { position: absolute; font-weight: 450; letter-spacing: -.025em; line-height: 1.3; margin: 0; }
+.shot { position: absolute; margin: 0; line-height: 0; }
+.shot img { display: block; width: 100%; height: auto; }
+.framed { background: #fdfdfd; border: 10px solid #fdfdfd; border-radius: 25px; overflow: hidden; box-shadow: 0 28px 80px #19352925, 0 2px 8px #19352912; }
+.footer { position: absolute; display: flex; justify-content: space-between; font-size: 36px; letter-spacing: -.5px; font-weight: 550; }
+</style>
+</head>
+<body><main class="canvas" id="canvas"></main>
+<script>
+/*__ASSET_DATA__*/
+(() => {
+const {ui,icon,width:W,height:H,slide:S}=window.ASSETS;
+const mobile=H>W, tablet=W===1024, desk=!mobile&&!tablet;
+const c=document.getElementById('canvas');
+function div(cls,css,text='') {const d=document.createElement('div');d.className=cls;d.style.cssText=css;d.textContent=text;c.append(d);return d;}
+function shape(x,y,w,h,color,ring=false) {div(`shape ${ring?'ring':'circle'}`,`left:${x}px;top:${y}px;width:${w}px;height:${h}px;${ring?`color:${color}`:`background:${color}`}`);}
+function shot(name,x,y,w,style='') {const f=document.createElement('figure');f.className='shot '+style;f.style.cssText=`left:${x}px;top:${y}px;width:${w}px`;const img=document.createElement('img');img.src=ui[name].src;img.alt='';if(['order-editor','stock-adjustment','customer-profile','customer-summary','customer-profile-mobile'].includes(name)){const r=20*(w-20)/ui[name].width;img.style.borderRadius=`${r}px ${r}px 0 0`;}f.append(img);c.append(f);return f;}
+function text(tag,cls,value,x,y,w,size){const e=document.createElement(tag);e.className=cls+' copy';e.style.cssText=`left:${x}px;top:${y}px;width:${w}px;font-size:${size}px`;e.innerHTML=value;c.append(e);return e;}
+function brand(){const b=div('brand copy',`left:${mobile?78:tablet?56:82}px;top:${mobile?74:tablet?38:42}px;font-size:${mobile?44:tablet?32:36}px`);const i=document.createElement('img');i.src=icon;i.width=mobile?72:tablet?44:52;i.height=i.width;b.append(i,document.createTextNode('Point of Sale'));}
+function panel(name,x,y,maxW,maxH){
+ const ratio=ui[name].width/ui[name].height;
+ const w=Math.min(maxW,(maxH-20)*ratio+20);
+ const h=(w-20)/ratio+20;
+ return shot(name,x+(maxW-w)/2,y+(maxH-h)/2,w,'framed');
+}
+function head(title,sub){
+ if(desk){text('h1','',title,82,157,715,102);if(sub)text('p','sub',sub,86,404,706,38);}
+ if(tablet){text('h1','',title.replace('<br>',' '),56,110,920,64);}
+ if(mobile){text('h1','',title,78,228,935,108);if(sub)text('p','sub',sub,82,499,920,42);}
+}
+const headlines=['Your whole shop, together','Every order, just right','Stay ahead of stock','Give regulars more reasons','See what earns more'];
+if(S===1){
+ c.style.background='#f5f0e8';
+ shape(W*.55,H*.28,W*.77,W*.77,'#fa7454');shape(-W*.16,H*.6,W*.52,W*.52,'#dbe7d1');
+ shape(W*.35,-W*.32,W*.8,W*.8,'#173a30',true);brand();
+ if(desk){text('h1','',headlines[0],82,123,1790,106);shot('overview-desktop',104,279,1712,'framed');}
+ if(tablet){text('h1','', 'Your whole shop,<br>together',56,113,940,64);shot('overview-desktop',42,290,940,'framed');}
+ if(mobile){text('h1','', 'Your whole<br>shop, together',78,234,940,108);text('p','sub','One place to run your day.',82,500,930,44);shot('overview-mobile',78,664,924,'framed');}
+}
+if(S===2){
+ c.style.background='#fa7454';c.style.color='#3a251d';
+ shape(W*.48,H*.17,W*.55,W*.55,'#ffb695');shape(W*.2,H*.68,W*.68,W*.68,'#f6d2b7');shape(W*.38,-W*.21,W*.76,W*.76,'#3a251d',true);brand();
+ head('Every order,<br>just right','Made for every preference.');
+ if(desk){panel('active-sale',100,479,670,547);panel('order-editor',846,129,994,895);}
+ if(tablet){panel('order-editor',56,200,912,537);}
+ if(mobile){panel('order-context-mobile',78,620,924,1510);}
+
+}
+if(S===3){
+ c.style.background='#dce7d4';
+ shape(W*.6,-W*.2,W*.57,W*.57,'#c1d4b5');shape(-W*.12,H*.63,W*.54,W*.54,'#f5f0e8');shape(W*.2,H*.29,W*.8,W*.8,'#173a30',true);brand();
+ head('Stay ahead<br>of stock','Know what needs restocking.');
+ if(desk){panel('stock-adjustment',95,465,682,559);panel('catalog-view',810,175,1036,829);}
+ if(tablet){panel('catalog-view',56,206,912,530);}
+ if(mobile){panel('catalog-view',78,612,924,746);panel('stock-adjustment',78,1386,924,704);}
+
+}
+if(S===4){
+ c.style.background='#193e33';c.style.color='#f8f2e7';
+ shape(W*.67,-W*.2,W*.68,W*.68,'#295747');shape(-W*.14,H*.7,W*.56,W*.56,'#295747');shape(W*.43,H*.03,W*.85,W*.85,'#fff',true);brand();
+ head('Give regulars<br>more reasons','Make every return visit count.');
+ if(desk){panel('customer-directory',82,491,701,536);panel('customer-profile',853,132,987,889);}
+ if(tablet){panel('customer-summary',56,205,912,534);}
+ if(mobile){panel('customer-profile-mobile',78,620,924,1506);}
+
+}
+if(S===5){
+ c.style.background='#f5f0e8';
+ shape(W*.61,H*.13,W*.6,W*.6,'#f8aa8e');shape(-W*.14,H*.7,W*.5,W*.5,'#e1e9d7');shape(W*.25,-W*.21,W*.9,W*.9,'#173a30',true);brand();
+ head('See what<br>earns more','Profit and margin, made clear.');
+ if(desk){panel('product-ranking',91,479,678,553);panel('reports-overview',812,135,1030,891);}
+ if(tablet){panel('reports-overview',48,208,928,530);}
+ if(mobile){panel('reports-overview-mobile',78,612,924,1508);}
+
+}
+if(mobile){const f=div('footer copy',`left:82px;right:82px;bottom:68px`);const a=document.createElement('span');a.textContent='Built for your business';const b=document.createElement('span');b.textContent=`0${S} / 05`;f.append(a,b);}
+})();
+</script>
+</body>
+</html>

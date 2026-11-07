@@ -1,0 +1,44 @@
+import { it, expect, beforeAll, afterAll } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { negativeWrapPreview } from '../src/engine/negative-wrap-preview.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { layoutPageStories } from '../src/engine/page-story-layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>{dom.window.close();delete globalThis.DOMParser;delete globalThis.XMLSerializer;});
+const measure=(text,style)=>({width:text.length*style.fontSize*.6,ascent:style.fontSize,descent:style.fontSize*.2});
+const folder='tests/fixtures/negative-wrap-recovery/';
+const place=(pkg,bestEffort)=>layoutDocument(pkg.paragraphs,measure,pageGeometry(pkg.pageSettings),pkg.numbering,pkg.tables,pkg.pageStories,{bestEffort});
+const geometry=lines=>lines.map(l=>({page:l.page,y:l.y,baseline:l.baseline,fragments:l.fragments.map(f=>({text:f.text,x:f.x,width:f.width,image:f.image&&{width:f.image.width,height:f.image.height,anchor:f.image.anchor}}))}));
+for(const scope of ['body','header','footer'])it(`isolates negative wrapping in ${scope} while retaining the source`,async()=>{
+ const bytes=readFileSync(folder+scope+'-unsupported.docx'),pkg=await DocxPackage.open(bytes),control=await DocxPackage.open(readFileSync(folder+scope+'-matched.docx'));
+ const original=JSON.stringify({paragraphs:pkg.paragraphs,stories:pkg.pageStories});
+ expect(()=>place(pkg,false)).toThrow(/negative paragraph offsets/);
+ const actual=place(pkg,true),expected=place(control,false);
+ expect(geometry(actual.lines)).toEqual(geometry(expected.lines));
+ const stories=layoutPageStories(actual,pkg.pageStories,[pkg.pageSettings],measure,pkg.numbering,{bestEffort:true});
+ const matched=layoutPageStories(expected,control.pageStories,[control.pageSettings],measure,control.numbering);
+ expect(geometry(stories.lines)).toEqual(geometry(matched.lines));
+ const issues=scope==='body'?actual.negativeWrapApproximations:stories.unsupported;
+ expect(issues).toHaveLength(2);expect(issues.every(i=>i.message.includes('drawing 1:') && i.message.includes('without text wrapping'))).toBe(true);
+ expect(JSON.stringify({paragraphs:pkg.paragraphs,stories:pkg.pageStories})).toBe(original);
+ expect(unzipSync(new Uint8Array(await pkg.export().arrayBuffer()))).toEqual(unzipSync(bytes));
+});
+it('leaves supported drawing positions and wrapping untouched and shares healthy objects',()=>{
+ const run=(wrap,vertical,y)=>({text:'\ufffc',image:{width:100,height:100,anchor:{wrap,vertical,y}}});
+ const healthy={id:'healthy',runs:[run('topAndBottom','paragraph',0),run('none','paragraph',-12),run('square','paragraph',-12),run('topAndBottom','page',-12)]};
+ const affected={id:'affected',runs:[run('topAndBottom','paragraph',-12),healthy.runs[0]]};
+ const source=[healthy,affected],snapshot=structuredClone(source),r=negativeWrapPreview(source);
+ expect(r.paragraphs[0]).toBe(healthy);expect(r.paragraphs[1].runs[1]).toBe(healthy.runs[0]);
+ expect(r.paragraphs[1].runs[0].image.anchor).toEqual({wrap:'none',vertical:'paragraph',y:-12});
+ expect(source).toEqual(snapshot);expect(r.approximations).toHaveLength(1);
+ const normal=[healthy];expect(negativeWrapPreview(normal).paragraphs).toBe(normal);
+});
+it('does not mask unrelated measurement failures',async()=>{
+ const pkg=await DocxPackage.open(readFileSync(folder+'body-unsupported.docx'));
+ expect(()=>layoutDocument(pkg.paragraphs,()=>{throw Error('measurement defect');},pageGeometry(pkg.pageSettings),pkg.numbering,pkg.tables,pkg.pageStories,{bestEffort:true})).toThrow('measurement defect');
+});

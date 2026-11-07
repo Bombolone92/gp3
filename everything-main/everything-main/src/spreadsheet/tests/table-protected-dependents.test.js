@@ -1,0 +1,40 @@
+import { expect, it } from 'vitest';
+import { Workbook } from '../src/core/workbook.js';
+
+it.each(['table rename', 'header rename', 'header replacement', 'convert'])('keeps protected dependent formulas valid after %s', (action) => {
+  const wb = new Workbook();
+  const id = wb.activeSheetId;
+  wb.setCells(id, [['Qty', 'Amount'], [2, 4], [3, 6]].flatMap((row, r) => row.map((v, c) => ({ r, c, cell: { v } }))));
+  const tid = wb.addTable(id, { r1: 0, c1: 0, r2: 2, c2: 1 }, { name: 'Sales' });
+  wb.setInput(id, 0, 4, '=SUM(Sales[Amount])');
+  wb.setInput(id, 1, 4, '=SUM(Sales[Amount])*2');
+  wb.protectRange(id, { r1: 0, c1: 4, r2: 0, c2: 4 });
+  const sid = wb.addSheet('Summary').id;
+  wb.setInput(sid, 0, 0, '=SUM(Sales[Amount])');
+  wb.setSheetProtected(sid, true);
+  wb.clearHistory();
+  const before = wb.toJSON();
+  const protectedEvents = [];
+  wb.addEventListener('change', (e) => { if (e.detail.type === 'protected') protectedEvents.push(e.detail); });
+  if (action === 'table rename') wb.updateTable(id, tid, { name: 'Orders' });
+  if (action === 'header rename') wb.setInput(id, 0, 1, 'Value');
+  if (action === 'header replacement') wb.setCellsWithTableHeaders(id, [{ r: 0, c: 1, cell: { v: 'Value' } }]);
+  if (action === 'convert') wb.deleteTable(id, tid);
+  expect(wb.getValue(id, 0, 4)).toBe(10);
+  expect(wb.getValue(id, 1, 4)).toBe(20);
+  expect(wb.getValue(sid, 0, 0)).toBe(10);
+  expect(protectedEvents).toEqual([]);
+  expect(wb.lockedAt(id, 0, 4)).toBe(true);
+  expect(wb.isProtected(sid)).toBe(true);
+  const after = wb.toJSON();
+  expect(wb.undoLabels()).toHaveLength(1);
+  wb.undo();
+  expect(wb.toJSON()).toEqual(before);
+  wb.redo();
+  expect(wb.toJSON()).toEqual(after);
+  // Automatic reference maintenance must not open protected cells to edits.
+  wb.setInput(id, 0, 4, '99');
+  wb.setCells(sid, [{ r: 0, c: 0, cell: { v: 99 } }]);
+  expect(wb.getValue(id, 0, 4)).toBe(10);
+  expect(wb.getValue(sid, 0, 0)).toBe(10);
+});

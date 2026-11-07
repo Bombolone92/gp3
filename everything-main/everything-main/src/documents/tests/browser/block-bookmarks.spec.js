@@ -1,0 +1,40 @@
+import {test,expect} from '@playwright/test';
+import {showAllTools,onTab} from './helpers/editor-tools.js';
+import {reopenDocx} from './helpers/reopen-docx.js';
+for(const location of ['body','cell'])test(`edits and navigates ${location} block bookmarks after export`,async({page},info)=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/playground.html');await showAllTools(page);
+  await page.getByLabel('Open DOCX file').setInputFiles(`public/fixtures/block-bookmark-${location}.docx`);
+  const input=page.getByRole('textbox',{name:'Document text'});
+  await expect.poll(()=>input.inputValue()).toContain('Control alpha');
+  const original=await input.inputValue();
+  await input.evaluate(el=>{const at=el.value.indexOf('Control alpha')+2;el.focus();el.setSelectionRange(at,at);el.dispatchEvent(new Event('select'));});
+  await input.pressSequentially('X');
+  const expected=original.replace('Control alpha','CoXntrol alpha');await expect(input).toHaveValue(expected);
+  const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();
+  const path=info.outputPath(`block-bookmark-${location}.docx`);await(await pending).saveAs(path);
+  await reopenDocx(page,input,path,expected);
+  await (await onTab(page,'insert')).getByRole('button',{name:'Bookmarks',exact:true}).click();
+  const list=page.getByRole('listbox',{name:'Document bookmarks',exact:true});
+  const id=await list.locator('option').filter({hasText:/^WholeBlock ·/}).getAttribute('value');await list.selectOption(id);
+  await page.getByRole('dialog').getByRole('button',{name:'Go to bookmark',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(await input.evaluate(el=>el.selectionStart)).toBe(expected.indexOf('CoXntrol alpha'));
+  expect(errors).toEqual([]);
+});
+
+test('retains a cell bookmark and control when merging adjacent cells',async({page},info)=>{
+  await page.goto('/playground.html');await showAllTools(page);
+  await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/block-bookmark-merged.docx');
+  const input=page.getByRole('textbox',{name:'Document text'});
+  await expect.poll(()=>input.inputValue()).toContain('First cell');
+  const original=await input.inputValue();
+  await input.evaluate(el=>{el.setSelectionRange(el.value.indexOf('First cell'),el.value.indexOf('After cell control')+3);el.dispatchEvent(new Event('select',{bubbles:true}));});
+  await page.getByRole('combobox',{name:'Table actions',exact:true}).selectOption('mergeCells');
+  await expect(input).toHaveValue(original);
+  const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();
+  const path=info.outputPath('block-bookmark-merged.docx');await(await pending).saveAs(path);
+  await reopenDocx(page,input,path,original);
+  await (await onTab(page,'insert')).getByRole('button',{name:'Bookmarks',exact:true}).click();
+  await expect(page.getByRole('listbox',{name:'Document bookmarks',exact:true}).locator('option').filter({hasText:/^WholeBlock ·/})).toHaveCount(1);
+});

@@ -1,0 +1,219 @@
+/* Spelling, custom dictionary, smart punctuation report, Find Font and Resolve Missing Fonts. */
+
+.spell-check,
+.custom-dictionary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(520px, calc(100vw - 48px));
+}
+
+.sp-status,
+.cd-status,
+.ff-status {
+  min-height: 1.3em;
+  margin: 0;
+  color: var(--text-2);
+}
+
+.sp-status {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.sp-main {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.sp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.sp-context {
+  margin: 0;
+  min-height: 72px;
+  max-height: 120px;
+  overflow: auto;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sp-context mark {
+  background: color-mix(in srgb, var(--danger) 22%, transparent);
+  color: inherit;
+  border-bottom: 2px solid var(--danger);
+  border-radius: 2px;
+}
+
+.sp-suggestions,
+.cd-list,
+.ff-list {
+  min-height: 120px;
+  max-height: 180px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  padding: 2px;
+}
+
+.sp-item,
+.cd-item,
+.ff-item {
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  cursor: default;
+  user-select: none;
+}
+
+.sp-item:hover,
+.cd-item:hover,
+.ff-item:hover {
+  background: var(--bg-hover);
+}
+
+.sp-item[aria-selected='true'],
+.cd-item[aria-selected='true'],
+.ff-item[aria-selected='true'] {
+  background: var(--bg-selected);
+}
+
+.sp-suggestions:focus-visible,
+.cd-list:focus-visible,
+.ff-list:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.sp-empty {
+  padding: 6px 8px;
+  color: var(--text-3);
+}
+
+.sp-options summary {
+  cursor: pointer;
+  color: var(--text-2);
+  padding: 4px 0;
+}
+
+.sp-options[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Smart Punctuation report */
+.punct-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.punct-table td {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.punct-table td.num,
+.rf-table td.num {
+  text-align: right;
+  padding-right: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Find Font */
+.find-font {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ff-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ff-head {
+  margin: 0;
+  font-size: var(--fs);
+  font-weight: 600;
+}
+
+.ff-list {
+  min-height: 220px;
+  max-height: 300px;
+}
+
+.ff-item {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.ff-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ff-count {
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+.ff-missing {
+  color: var(--danger);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.ff-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* Resolve Missing Fonts */
+.rf-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rf-table th,
+.rf-table td {
+  text-align: left;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rf-table select {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .find-font,
+  .sp-main {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+}

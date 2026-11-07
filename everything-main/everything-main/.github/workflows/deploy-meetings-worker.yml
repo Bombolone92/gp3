@@ -1,0 +1,59 @@
+name: Deploy Meetings rooms worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/meetings/worker/**
+      - .github/workflows/deploy-meetings-worker.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-meetings-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/meetings
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/meetings/package-lock.json
+
+      - run: npm ci
+      - run: npm test -- tests/worker-rooms.test.js
+
+      # The action uploads a single file under its own basename, so copy
+      # rooms.js to the name the live worker already serves from.
+      - name: Stage worker file
+        id: stage
+        env:
+          WORKER_PATH: ${{ secrets.MEETINGS_WORKER_PATH }}
+        run: |
+          : "${WORKER_PATH:?MEETINGS_WORKER_PATH secret is not set}"
+          file="$RUNNER_TEMP/worker/$(basename "$WORKER_PATH")"
+          mkdir -p "$(dirname "$file")"
+          cp worker/rooms.js "$file"
+          echo "puter_dir=$(dirname "$WORKER_PATH")" >> "$GITHUB_OUTPUT"
+          echo "source=$file" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy worker
+        id: puter_worker
+        uses: HeyPuter/puter-worker-deploy-action@v1.0.1
+        with:
+          worker_name: puter-meetings-rooms
+          source_path: ${{ steps.stage.outputs.source }}
+          puter_path: ${{ steps.stage.outputs.puter_dir }}
+          puter_token: ${{ secrets.PUTER_API_TOKEN }}
+
+      - run: echo "${{ steps.puter_worker.outputs.deploy_action }} ${{ steps.puter_worker.outputs.worker_url }}"

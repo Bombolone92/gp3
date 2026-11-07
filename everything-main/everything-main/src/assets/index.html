@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Track laptops, tools, warranties, assignments, maintenance, and return dates." />
+    <title>AssetDesk - Asset &amp; Equipment Manager</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+    <script>
+      // Stamp the resolved theme before first paint to avoid a flash.
+      try {
+        var mode = localStorage.getItem('assetdesk.theme');
+        var dark =
+          mode === 'dark' ||
+          (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      } catch (e) {
+        /* default light */
+      }
+    </script>
+    <script src="https://js.puter.com/v2/"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript>AssetDesk requires JavaScript.</noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

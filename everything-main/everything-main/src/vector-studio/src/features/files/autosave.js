@@ -1,0 +1,231 @@
+/**
+ * Autosave for crash recovery: every few minutes (and whenever the page is
+ * hidden) dirty documents are written to a recovery store, the app's Puter
+ * folder when signed in and this browser's private file system otherwise.
+ * On startup, copies left behind by a session that is no longer running
+ * are offered for recovery. Copies are removed when a document is saved or
+ * closed without saving.
+ */
+import { h } from '../../lib/dom.js';
+import { uid } from '../../lib/ids.js';
+import { openDialog } from '../../ui/dialogs/dialog.js';
+import { serializeDocument, parseDocument } from './format.js';
+import { RecoveryStore, recoverableEntries } from './recovery.js';
+import { puterBackend, opfsBackend, opfsAvailable } from './backends.js';
+import { relativeTime } from './naming.js';
+import { handleStore } from './handles.js';
+
+const CHANNEL = 'vector-studio-recovery';
+
+export class Autosaver {
+  constructor(app, { store = null, session = uid('s') } = {}) {
+    this.app = app;
+    this.session = session;
+    this.fixedStore = store;
+    this.storeKey = null;
+    this.cached = null;
+    this.saved = new WeakMap(); // editor -> revision last written
+    this.timer = 0;
+    this.busy = null;
+    this.channel = null;
+  }
+
+  /** The recovery store for the current sign-in state (null when nothing can persist). */
+  get store() {
+    if (this.fixedStore) return this.fixedStore;
+    const puter = this.app.puter;
+    const cloud = Boolean(puter?.fs && (this.app.env === 'app' || this.app.user));
+    const local = opfsAvailable();
+    const key = `${cloud}:${local}`;
+    if (key !== this.storeKey) {
+      this.storeKey = key;
+      const backends = [];
+      if (cloud) backends.push(puterBackend(puter, ''));
+      if (local) backends.push(opfsBackend('vector-studio'));
+      this.cached = backends.length ? new RecoveryStore(backends) : null;
+    }
+    return this.cached;
+  }
+
+  get enabled() {
+    return this.app.prefs.get('autosaveEnabled') !== false;
+  }
+
+  get intervalMs() {
+    const m = Number(this.app.prefs.get('autosaveMinutes'));
+    return (Number.isFinite(m) && m >= 0.5 ? Math.min(m, 60) : 2) * 60 * 1000;
+  }
+
+  start() {
+    this.schedule();
+    this.app.prefs.on('change', ({ key }) => {
+      if (key === 'autosaveEnabled' || key === 'autosaveMinutes') this.schedule();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') this.flush();
+    });
+    window.addEventListener('pagehide', () => this.flush());
+    this.app.on('closed', (editor) => this.discard(editor));
+    try {
+      this.channel = new BroadcastChannel(CHANNEL);
+      this.channel.onmessage = (e) => {
+        if (e.data?.type === 'ping') this.channel.postMessage({ type: 'pong', session: this.session });
+      };
+    } catch {
+      this.channel = null;
+    }
+  }
+
+  schedule() {
+    clearInterval(this.timer);
+    this.timer = 0;
+    if (this.enabled) this.timer = setInterval(() => this.flush(), this.intervalMs);
+  }
+
+  recoveryId(editor) {
+    if (!editor.recoveryId) editor.recoveryId = uid('r');
+    return editor.recoveryId;
+  }
+
+  /** Write recovery copies of every dirty document that changed since its last copy. */
+  flush() {
+    if (this.busy) return this.busy;
+    this.busy = this.#flush().finally(() => {
+      this.busy = null;
+    });
+    return this.busy;
+  }
+
+  async #flush() {
+    const store = this.store;
+    if (!store || !this.enabled) return 0;
+    let n = 0;
+    for (const editor of [...this.app.editors]) {
+      const doc = editor.doc;
+      if (!doc.dirty || doc.tx) continue;
+      if (this.saved.get(editor) === doc.revision) continue;
+      const rev = doc.revision;
+      try {
+        const data = await serializeDocument(doc);
+        const f = editor.file;
+        await store.put(this.recoveryId(editor), {
+          name: editor.name,
+          file: f ? { kind: f.kind, path: f.path || null, name: f.name || null, handleId: f.handleId || null } : null,
+          data,
+          revision: rev,
+          session: this.session,
+        });
+        this.saved.set(editor, rev);
+        n++;
+      } catch (err) {
+        console.warn('Autosave failed', err);
+      }
+    }
+    return n;
+  }
+
+  /** Forget a document's recovery copy (saved, or closed without saving). */
+  async discard(editor) {
+    this.saved.delete(editor);
+    if (!editor?.recoveryId) return;
+    try {
+      await this.store?.remove(editor.recoveryId);
+    } catch {
+      // Best effort.
+    }
+  }
+
+  /** Sessions still running in other tabs of this browser. */
+  liveSessions(wait = 250) {
+    return new Promise((resolve) => {
+      const live = new Set();
+      let ch;
+      try {
+        ch = new BroadcastChannel(CHANNEL);
+      } catch {
+        resolve(live);
+        return;
+      }
+      ch.onmessage = (e) => {
+        if (e.data?.type === 'pong' && e.data.session) live.add(e.data.session);
+      };
+      ch.postMessage({ type: 'ping' });
+      setTimeout(() => {
+        ch.close();
+        resolve(live);
+      }, wait);
+    });
+  }
+
+  /** Offer to recover documents left by a session that ended without saving. */
+  async offerRecovery() {
+    const store = this.store;
+    if (!store) return [];
+    let entries;
+    try {
+      entries = recoverableEntries(await store.list(), await this.liveSessions(), this.session);
+    } catch {
+      return [];
+    }
+    if (!entries.length) return [];
+    const checks = entries.map((e) => h('input', { type: 'checkbox', checked: true, id: `rec-${e.id}` }));
+    const list = h(
+      'ul.files-recover-list',
+      entries.map((e, i) =>
+        h(
+          'li',
+          checks[i],
+          h('label', { for: `rec-${e.id}` }, h('span.files-recover-name', e.name || 'Untitled'), h('span.muted', ` ${e.file?.path ? e.file.path.replace(/^\/[^/]+\//, '') : 'Not saved yet'} · ${relativeTime(e.saved)}`)),
+        ),
+      ),
+    );
+    const choice = await openDialog({
+      title: 'Recover Documents',
+      body: h('div.files-recover', h('p.dialog-message', 'Vector Studio did not close normally. These documents had unsaved changes that can be recovered:'), list),
+      buttons: [
+        { label: 'Discard', value: 'discard', left: true, danger: true },
+        { label: 'Not Now', value: null },
+        { label: 'Recover', value: 'recover', primary: true },
+      ],
+    });
+    if (!choice) return [];
+    const opened = [];
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i];
+      if (choice === 'recover' && checks[i].checked) {
+        const ed = await this.recover(e);
+        if (ed) opened.push(ed);
+        else await store.remove(e.id);
+      } else await store.remove(e.id);
+    }
+    if (opened.length) this.app.notify(`Recovered ${opened.length} document${opened.length === 1 ? '' : 's'}. Save to keep the changes.`);
+    return opened;
+  }
+
+  async recover(entry) {
+    const store = this.store;
+    try {
+      const blob = await store.read(entry);
+      if (!blob) return null;
+      const { doc } = await parseDocument(blob);
+      // Recovered work is unsaved until the user saves it.
+      doc.savedRevision = -1;
+      let file = null;
+      const f = entry.file;
+      if (f?.kind === 'puter' && f.path) file = { kind: 'puter', path: f.path, name: f.name };
+      else if (f?.kind === 'local' && f.handleId) {
+        const handle = await handleStore.get(f.handleId);
+        if (handle) file = { kind: 'local', name: f.name, handle, handleId: f.handleId };
+      }
+      // Unsaved recovered work is marked in its name so it is not mistaken for the saved file.
+      if (!file) file = { kind: 'import', format: 'native', name: `${f?.name || entry.name || 'Untitled'} [Recovered]` };
+      const editor = this.app.addDocument(doc, { file });
+      editor.recoveryId = entry.id;
+      this.app.renderTabs();
+      return editor;
+    } catch (err) {
+      console.warn('Recovery failed', err);
+      return null;
+    }
+  }
+}

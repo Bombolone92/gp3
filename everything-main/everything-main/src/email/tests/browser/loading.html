@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base href="/"><title>Loading test fixture</title></head>
+<body>
+<div id="app"></div>
+<script type="module">
+import '../../src/styles/tokens.css';
+import '../../src/styles/base.css';
+import '../../src/styles/app.css';
+import { renderApp } from '../../src/ui/app.js';
+import { renderLoading } from '../../src/ui/gate.js';
+import { createSettings } from '../../src/lib/settings.js';
+import { memoryStorage } from '../../src/lib/readstate.js';
+const root = document.querySelector('#app');
+const mailPath = '/sample/.mail';
+const objectsPath = `${mailPath}/objects`;
+const day = '2026-09-17';
+const name = `001--${btoa('A steady inbox')}`;
+const raw = new Blob(['From: Ana <ana@example.com>\r\nTo: sample@puter.email\r\n'
+  + 'Subject: A steady inbox\r\nDate: Thu, 17 Sep 2026 10:00:00 GMT\r\n'
+  + 'Message-ID: <steady@example.com>\r\nContent-Type: text/plain\r\n\r\n'
+  + 'Here is the complete message.\n' + 'More message text.\n'.repeat(600)]);
+window.fixture = {
+  hold(kind) {
+    this[kind] = new Promise(resolve => { this[`release${kind}`] = resolve; });
+  },
+  mount({ compact = false, count = 1 } = {}) {
+    this.count = count;
+    this.reads = 0;
+    const settings = createSettings('sample', memoryStorage());
+    settings.set('density', compact ? 'compact' : 'default');
+    renderApp(root, { fs, objectsPath, mailPath, settings, sample: true, account: { username: 'sample' } });
+  },
+  gate() { renderLoading(root); },
+};
+const fs = {
+  async readdir(path) {
+    if (path === objectsPath) {
+      await fixture.list;
+      return [{ name: day, is_dir: true }];
+    }
+    if (path === `${objectsPath}/${day}`) return Array.from({ length: fixture.count }, (_, i) => {
+      const filename = fixture.count === 1 ? name : `${String(i).padStart(3, '0')}--${btoa(`Message ${i}`)}`;
+      return { name: filename, path: `${path}/${filename}`, is_dir: false };
+    });
+    return [];
+  },
+  async read(path, options) {
+    fixture.reads++;
+    await (options?.byte_count ? fixture.headers : fixture.body);
+    if (options?.byte_count && fixture.failHeaders) throw new Error('Test header read interrupted');
+    if (!options?.byte_count && fixture.failBody) throw new Error('Test connection interrupted');
+    const content = fixture.count === 1 ? raw : new Blob([(await raw.text())
+      .replace('<steady@example.com>', `<${path}@example.com>`)]);
+    return options?.byte_count ? content.slice(0, options.byte_count) : content;
+  },
+};
+</script>
+</body>
+</html>

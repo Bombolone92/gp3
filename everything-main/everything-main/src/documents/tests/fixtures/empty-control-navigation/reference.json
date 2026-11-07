@@ -1,0 +1,117 @@
+{
+  "native": "Installed native reference, actual desktop-automation keyboard input. Home is Ctrl+Home. X is Shift_L+x. Every captured state saved with Ctrl+S. Reverse exit begins at the empty inside caret restored by Undo; keys describe the equivalent route from the original source. Entry did not enable Undo; exit enabled Undo Create Content Control.",
+  "cases": [
+    {
+      "name": "before",
+      "source": "control.docx",
+      "sourceSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "result": "native-before.docx",
+      "resultSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "keys": [
+        "Home",
+        "Right"
+      ],
+      "text": "AD",
+      "controlText": "",
+      "placeholder": false
+    },
+    {
+      "name": "inside",
+      "source": "control.docx",
+      "sourceSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "result": "native-inside.docx",
+      "resultSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "keys": [
+        "Home",
+        "Right",
+        "Right"
+      ],
+      "text": "AD",
+      "controlText": "",
+      "placeholder": false
+    },
+    {
+      "name": "exit",
+      "source": "control.docx",
+      "sourceSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "result": "native-exit.docx",
+      "resultSha256": "e21ac83b0935e5f6199b3812edb49cc16390b2b278b656fc0b67e5f4a32a759e",
+      "keys": [
+        "Home",
+        "Right",
+        "Right",
+        "Right"
+      ],
+      "text": "A     D",
+      "controlText": "     ",
+      "placeholder": true
+    },
+    {
+      "name": "undo",
+      "source": "control.docx",
+      "sourceSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "result": "native-undo.docx",
+      "resultSha256": "696adcc218d7689fe6691de37b76b3794777043bdfaf4233b46712bfed1a5dae",
+      "keys": [
+        "Home",
+        "Right",
+        "Right",
+        "Right",
+        "Undo"
+      ],
+      "text": "AD",
+      "controlText": "",
+      "placeholder": false
+    },
+    {
+      "name": "exit-left",
+      "source": "control.docx",
+      "sourceSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "result": "native-exit-left.docx",
+      "resultSha256": "02a2d797bceefa318ce51eb4d84b62c9cb33ebfe0a0fd1abfe446d4e4aa2ff70",
+      "keys": [
+        "Home",
+        "Right",
+        "Right",
+        "Left",
+        "X"
+      ],
+      "text": "AX     D",
+      "controlText": "     ",
+      "placeholder": true
+    },
+    {
+      "name": "glossary-exit",
+      "source": "glossary.docx",
+      "sourceSha256": "7216b645f438b209c3bac95a5201686e70891e26a5886b6571975ee9734fe16c",
+      "result": "native-glossary-exit.docx",
+      "resultSha256": "af2d580fff36a0f6beb9550903216563d24973c96f738d48f968f1602a06d674",
+      "keys": [
+        "Home",
+        "Right",
+        "Right",
+        "Right"
+      ],
+      "text": "AFirst promptD",
+      "controlText": "First prompt",
+      "placeholder": true
+    },
+    {
+      "name": "glossary-typed",
+      "source": "glossary.docx",
+      "sourceSha256": "7216b645f438b209c3bac95a5201686e70891e26a5886b6571975ee9734fe16c",
+      "result": "native-glossary-typed.docx",
+      "resultSha256": "f7151e37bbd043d82c8b322459061ff0dc4bfa1feefbca588899dd51cdc52da2",
+      "keys": [
+        "Home",
+        "Right",
+        "Right",
+        "Right",
+        "X"
+      ],
+      "text": "AFirst promptXD",
+      "controlText": "First prompt",
+      "placeholder": true
+    }
+  ]
+}

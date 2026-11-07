@@ -1,0 +1,161 @@
+/* Design tokens. Light values on :root; dark values both for an explicit
+   [data-theme='dark'] and for the system preference when no theme is
+   forced. Every color pair below meets WCAG AA for its intended use. */
+
+:root {
+  --bg: #f4f5f6;
+  --surface: #ffffff;
+  --surface-2: #f4f5f7;
+  --surface-3: #eaecef;
+  --surface-hover: #f0f2f4;
+  --border: #e2e5e9;
+  --border-strong: #c9ced5;
+  --text: #16202b;
+  --text-2: #475262;
+  --text-3: #5f6a79;
+  --text-inverse: #ffffff;
+
+  --accent: #1f5bd0;
+  --accent-hover: #194cb0;
+  --accent-soft: #e9f0fc;
+  --accent-soft-2: #d4e1f8;
+  --on-accent: #ffffff;
+  --accent-text: #1a4fb8;
+
+  --success: #18794e;
+  --success-soft: #e5f4ec;
+  --warning: #8a4b06;
+  --warning-soft: #fdf1dc;
+  --danger: #c0262d;
+  --danger-hover: #a51f25;
+  --danger-soft: #fde9e9;
+  --on-danger: #fff;
+  --toast-danger: #ff9a9a; /* on the dark toast */
+  --info: #0b6f84;
+  --info-soft: #e2f3f6;
+  --neutral: #4c5767;
+  --neutral-soft: #edf0f3;
+
+  --rail: #ffffff;
+  --rail-active: #e9f0fc;
+  --scrim: rgba(13, 20, 28, 0.42);
+  --focus: #1f5bd0;
+
+  /* Chart series, validated for color vision deficiency on --surface. */
+  --series-1: #1f5bd0;
+  --series-2: #eb6834;
+  --grid: #e8eaee;
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  --rail-w: 232px;
+  --rail-w-collapsed: 64px;
+  --topbar-h: 60px;
+  --tabbar-h: 60px;
+
+  color-scheme: light;
+}
+
+/* Dark colors are for the screen only: paper is white, so printing keeps
+   the light ones. */
+@media screen {
+  [data-theme='dark'] {
+    --bg: #0f1216;
+    --surface: #171b21;
+    --surface-2: #1d2229;
+    --surface-3: #262c35;
+    --surface-hover: #212730;
+    --border: #272d36;
+    --border-strong: #3a424e;
+    --text: #edf0f4;
+    --text-2: #aab3c0;
+    --text-3: #8e98a6;
+    --text-inverse: #0f1216;
+
+    --accent: #6f9cff;
+    --accent-hover: #8fb2ff;
+    --accent-soft: #1b2741;
+    --accent-soft-2: #243457;
+    --on-accent: #0b1220;
+    --accent-text: #8fb2ff;
+
+    --success: #4cc38a;
+    --success-soft: #132b20;
+    --warning: #f0b45c;
+    --warning-soft: #2e2312;
+    --danger: #ff7b7b;
+    --danger-hover: #ff9a9a;
+    --danger-soft: #341719;
+    --on-danger: #1a0b0b;
+    --toast-danger: #c0262d; /* on the light toast */
+    --info: #5cc6db;
+    --info-soft: #11292f;
+    --neutral: #aab3c0;
+    --neutral-soft: #232932;
+
+    --rail: #13171c;
+    --rail-active: #1b2741;
+    --scrim: rgba(0, 0, 0, 0.6);
+    --focus: #8fb2ff;
+
+    --series-1: #4f86f0;
+    --series-2: #d95926;
+    --grid: #262c35;
+
+    color-scheme: dark;
+  }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1216;
+    --surface: #171b21;
+    --surface-2: #1d2229;
+    --surface-3: #262c35;
+    --surface-hover: #212730;
+    --border: #272d36;
+    --border-strong: #3a424e;
+    --text: #edf0f4;
+    --text-2: #aab3c0;
+    --text-3: #8e98a6;
+    --text-inverse: #0f1216;
+
+    --accent: #6f9cff;
+    --accent-hover: #8fb2ff;
+    --accent-soft: #1b2741;
+    --accent-soft-2: #243457;
+    --on-accent: #0b1220;
+    --accent-text: #8fb2ff;
+
+    --success: #4cc38a;
+    --success-soft: #132b20;
+    --warning: #f0b45c;
+    --warning-soft: #2e2312;
+    --danger: #ff7b7b;
+    --danger-hover: #ff9a9a;
+    --danger-soft: #341719;
+    --on-danger: #1a0b0b;
+    --toast-danger: #c0262d;
+    --info: #5cc6db;
+    --info-soft: #11292f;
+    --neutral: #aab3c0;
+    --neutral-soft: #232932;
+
+    --rail: #13171c;
+    --rail-active: #1b2741;
+    --scrim: rgba(0, 0, 0, 0.6);
+    --focus: #8fb2ff;
+
+  --series-1: #4f86f0;
+  --series-2: #d95926;
+  --grid: #262c35;
+
+    color-scheme: dark;
+  }
+}

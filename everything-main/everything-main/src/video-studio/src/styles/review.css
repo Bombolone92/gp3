@@ -1,0 +1,895 @@
+/* Share for review: the review page, comment threads, the editor's Review panel and the Share dialog. */
+
+/* Review page ---------------------------------------------------------------- */
+.rv-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+  color: var(--text);
+}
+
+.rv-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--topbar-h, 52px);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.rv-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.rv-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rv-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.rv-header-end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rv-version {
+  max-width: 260px;
+}
+
+.rv-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.rv-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  outline: none;
+}
+
+.rv-stage {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.rv-video-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 200px;
+  background: var(--bg-player, #000);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rv-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  cursor: pointer;
+}
+
+.rv-bigplay {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+
+.rv-bigplay[hidden],
+.rv-video-state[hidden] {
+  display: none;
+}
+
+.rv-video-state {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 12.5px;
+}
+
+.rv-strip {
+  position: relative;
+  height: 28px;
+  cursor: pointer;
+  touch-action: none;
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.rv-strip:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus);
+}
+
+.rv-strip-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 11px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+
+.rv-strip-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+}
+
+.rv-strip-head {
+  position: absolute;
+  top: 4px;
+  width: 2px;
+  height: 20px;
+  margin-left: -1px;
+  background: var(--playhead, var(--text));
+  pointer-events: none;
+}
+
+.rv-strip-wrap {
+  position: relative;
+}
+
+.rv-strip-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rv-mark {
+  pointer-events: auto;
+}
+
+.rv-mark {
+  position: absolute;
+  top: 0;
+  min-width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 5px;
+  background: var(--marker, #f5b83d);
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rv-mark.range {
+  margin-left: 0;
+}
+
+.rv-mark.resolved {
+  background: var(--success);
+  opacity: 0.7;
+}
+
+.rv-mark-count {
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 700;
+  color: #111;
+  padding: 0 3px;
+}
+
+.rv-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rv-controls .spacer,
+.history-head .spacer {
+  flex: 1;
+}
+
+.rv-tc {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rv-timecode {
+  color: var(--text);
+}
+
+.rv-tc-sep,
+.rv-duration {
+  color: var(--text-3);
+}
+
+.rv-side {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+  overflow: auto;
+}
+
+.rv-note,
+.rv-hint,
+.rv-sync {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.rv-sync:empty {
+  display: none;
+}
+
+.rv-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rv-count {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rv-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+/* Composer */
+.rv-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-panel-2, var(--bg-elev));
+}
+
+.rv-composer[hidden] {
+  display: none;
+}
+
+.rv-pin {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.rv-pin-time {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-text, var(--text));
+}
+
+.rv-pin-time[hidden] {
+  display: none;
+}
+
+.rv-textarea {
+  width: 100%;
+  min-height: 56px;
+  resize: vertical;
+  font: inherit;
+  line-height: 1.4;
+  padding: 8px 10px;
+}
+
+.rv-compose-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rv-compose-foot .rv-hint {
+  flex: 1;
+}
+
+.rv-counter {
+  font-size: 11.5px;
+  color: var(--warning);
+}
+
+.rv-form-error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--danger);
+}
+
+.rv-form-error:empty {
+  display: none;
+}
+
+/* Threads */
+.rv-threads,
+.rv-replies {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rv-threads {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rv-thread {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  padding: 10px 12px;
+}
+
+.rv-thread.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.rv-thread.resolved > .rv-comment .rv-text {
+  color: var(--text-2);
+}
+
+.rv-replies {
+  margin: 8px 0 0 12px;
+  padding-left: 10px;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rv-empty {
+  padding: 16px 4px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.rv-comment.pending {
+  opacity: 0.6;
+}
+
+.rv-comment-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  font-size: 12px;
+}
+
+.rv-time {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs, 4px);
+  background: var(--accent-soft);
+  color: var(--accent-text, var(--text));
+}
+
+.rv-time:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.rv-author {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rv-when,
+.rv-edited {
+  color: var(--text-3);
+}
+
+.rv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--success) 20%, transparent);
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.rv-text {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.rv-deleted {
+  font-style: italic;
+  color: var(--text-3);
+}
+
+.rv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.rv-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 26px;
+  padding: 0 6px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.rv-action:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.rv-action.danger:hover:not(:disabled) {
+  color: var(--danger);
+}
+
+.rv-action[hidden] {
+  display: none;
+}
+
+.rv-inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.rv-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* Splash */
+.rv-splash .splash-sub {
+  max-width: 420px;
+}
+
+.rv-splash-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Editor panel ----------------------------------------------------------------- */
+.review-panel {
+  position: fixed;
+  right: calc(var(--right-w, 360px) + 20px);
+  top: 92px;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  max-height: min(70vh, 640px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  z-index: 41;
+}
+
+.review-panel[hidden] {
+  display: none;
+}
+
+.review-panel .history-head {
+  gap: 6px;
+}
+
+.rv-panel-version {
+  max-width: 140px;
+  height: 26px;
+  font-size: 12px;
+}
+
+.rv-panel-version[hidden] {
+  display: none;
+}
+
+.rv-panel-counts {
+  font-weight: 500;
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+
+.rv-panel-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rv-panel-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.review-panel .rv-thread {
+  background: var(--bg-panel);
+  padding: 8px 10px;
+}
+
+.rv-panel-empty {
+  padding: 12px 8px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.rv-panel-empty p {
+  margin: 0;
+}
+
+/* Share dialog ---------------------------------------------------------------- */
+.dialog.rv-share-dialog {
+  width: min(620px, calc(100vw - 32px));
+}
+
+.rv-share-dialog .dialog-body {
+  padding: 4px 20px 12px;
+}
+
+.rv-share-dialog .dialog-actions {
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+}
+
+.rv-share-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.rv-share-info {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.rv-share-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.rv-share {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rv-share-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rv-share-section[hidden] {
+  display: none;
+}
+
+.rv-share-h {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rv-share-intro {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+
+.rv-share-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 8px;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.rv-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rv-progress[hidden] {
+  display: none;
+}
+
+.rv-progress-phase {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.rv-invite-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.rv-link-out {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rv-link-out[hidden] {
+  display: none;
+}
+
+.rv-link-row {
+  display: flex;
+  gap: 8px;
+}
+
+.rv-link {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rv-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-2, var(--bg-elev));
+  font-size: 12.5px;
+}
+
+.rv-row.off {
+  opacity: 0.6;
+}
+
+.rv-row.empty {
+  color: var(--text-2);
+  background: none;
+  padding-left: 0;
+}
+
+.rv-row-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  min-width: 0;
+}
+
+.rv-row-meta {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rv-row .select {
+  flex: none;
+  width: auto;
+  min-width: 132px;
+  height: 28px;
+}
+
+/* Top bar Share button */
+.topbar .share-btn {
+  gap: 6px;
+}
+
+/* Phones and narrow windows ----------------------------------------------------- */
+@media (max-width: 760px) {
+  .rv-page {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .rv-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rv-stage {
+    padding: 0 0 8px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--bg-app);
+  }
+
+  .rv-video-wrap {
+    flex: none;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+    max-height: 45vh;
+    border-radius: 0;
+  }
+
+  .rv-strip-wrap,
+  .rv-controls {
+    margin: 0 12px;
+  }
+
+  .rv-strip {
+    height: 36px;
+  }
+
+  .rv-strip-track {
+    top: 15px;
+  }
+
+  .rv-mark {
+    min-width: 14px;
+    height: 14px;
+    margin-left: -7px;
+    border-radius: 7px;
+  }
+
+  .rv-side {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    overflow: visible;
+    padding: 12px;
+  }
+
+  .rv-header {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+  }
+
+  .rv-header-end {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .rv-version {
+    max-width: none;
+    flex: 1;
+  }
+
+  .rv-compose-foot .rv-hint {
+    display: none;
+  }
+
+  .rv-action {
+    min-height: 34px;
+  }
+
+  .review-panel {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    top: 64px;
+  }
+}
+
+@media (pointer: coarse) {
+  .rv-action,
+  .rv-time,
+  .rv-pin-time {
+    min-height: 34px;
+  }
+}
+
+.rv-closed .rv-sync {
+  color: var(--danger);
+  font-weight: 500;
+}
+
+/* On phones the top bar keeps the Share button as an icon next to Export. */
+.editor[data-layout='phone'] .share-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 18px;
+}
+
+.editor[data-layout='phone'] .share-btn > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}

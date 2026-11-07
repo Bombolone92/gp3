@@ -1,0 +1,223 @@
+import { test, expect } from '@playwright/test';
+
+const input = page => page.getByRole('textbox', { name: 'Document text' });
+const selected = page => input(page).evaluate(el => el.value.slice(el.selectionStart, el.selectionEnd));
+const paragraph = 'This paragraph is long enough to wrap onto a second line of the page, so a triple click on that second line still selects all of it.';
+
+test('a triple click selects the whole paragraph, including wrapped lines, and typing replaces only it', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await input(page).fill(`Title\n${paragraph}\nLast line`);
+  const canvas = page.locator('canvas.canvas-page').first();
+  // The second line of the long paragraph, below the 1in margin at 100% zoom.
+  const second = { x: 300, y: 163 };
+  await canvas.dblclick({ position: second });
+  expect((await selected(page)).trim()).toMatch(/^\S+$/u);
+  await canvas.click({ position: second, clickCount: 3 });
+  expect(await selected(page)).toBe(paragraph);
+  await page.keyboard.insertText('Replaced');
+  await expect(input(page)).toHaveValue('Title\nReplaced\nLast line');
+  await input(page).press('ControlOrMeta+z');
+  await expect(input(page)).toHaveValue(`Title\n${paragraph}\nLast line`);
+  // Shift keeps extending the existing selection rather than taking a paragraph.
+  await canvas.click({ position: { x: 100, y: 108 } });
+  await canvas.click({ position: second, clickCount: 3, modifiers: ['Shift'] });
+  expect(await selected(page)).not.toBe(paragraph);
+});
+
+test('a double click on the right half of a word’s last letter selects that word, not the space after it', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await input(page).fill('hello world again');
+  const canvas = page.locator('canvas.canvas-page').first();
+  // Page-space x of the stops around the o of "hello" and the w of "world", and the line's middle.
+  const geometry = await page.evaluate(() => {
+    const e = window.__docs.current.view.engine, line = e.selectionLayout.lines[0], x = offset => line.stops.find(s => s.offset === offset).x * e.zoom;
+    return { o: [x(4), x(5)], w: [x(6), x(7)], space: x(6), y: (line.y + line.height / 2) * e.zoom };
+  });
+  const at = async x => { await canvas.dblclick({ position: { x, y: geometry.y } }); const text = await selected(page); await page.waitForTimeout(600); return text; };
+  // Just inside the right edge of the o, then just inside the left edge of the w.
+  expect(await at(geometry.o[1] - 1)).toBe('hello');
+  expect(await at(geometry.w[0] + 1)).toBe('world');
+  // The space between them is itself.
+  expect(await at(geometry.o[1] + 1)).toBe(' ');
+  expect(await at(geometry.space - 1)).toBe(' ');
+});
+
+test('holding a selection drag at the bottom edge keeps scrolling and extending the selection', async ({ page }) => {
+  await page.setViewportSize({ width: 1200, height: 800 });
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await input(page).fill(Array.from({ length: 200 }, (_, i) => `Paragraph number ${i}`).join('\n'));
+  const state = () => page.evaluate(() => { const e = window.__docs.current.view.engine; return { scroll: e.host.scrollTop, end: e.model.range[1] }; });
+  const host = await page.evaluate(() => { const h = window.__docs.current.view.engine.host; h.scrollTop = 0; return h.getBoundingClientRect().toJSON(); });
+  const box = await page.locator('canvas.canvas-page').first().boundingBox();
+  await page.mouse.move(box.x + 150, box.y + 110);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 150, host.bottom - 5, { steps: 4 });
+  const start = await state();
+  // The pointer stays still; the view keeps scrolling and the selection follows the text under it.
+  await expect.poll(async () => (await state()).scroll, { timeout: 5000 }).toBeGreaterThan(start.scroll + 400);
+  expect((await state()).end).toBeGreaterThan(start.end);
+  await page.mouse.up();
+  const released = await state();
+  await page.waitForTimeout(300);
+  expect((await state()).scroll).toBe(released.scroll);
+  expect(await input(page).evaluate(el => el.selectionEnd)).toBe(released.end);
+});
+
+test('a double or triple press then drag extends by whole words or paragraphs', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await input(page).fill('hello world again and more\nSecond paragraph here\nThird one');
+  const box = await page.locator('canvas.canvas-page').first().boundingBox();
+  const at = await page.evaluate(() => {
+    const e = window.__docs.current.view.engine, lines = e.selectionLayout.lines;
+    const point = (line, offset) => ({ x: line.stops.find(s => s.offset === offset).x * e.zoom, y: (line.y + line.height / 2) * e.zoom });
+    return { hel: point(lines[0], 2), aga: point(lines[0], 14), sec: point(lines[1], 30) };
+  });
+  const press = async (point, count) => {
+    await page.mouse.move(box.x + point.x, box.y + point.y);
+    for (let n = 1; n <= count; n++) { await page.mouse.down({ clickCount: n }); if (n < count) await page.mouse.up({ clickCount: n }); }
+  };
+  await press(at.hel, 2);
+  expect(await selected(page)).toBe('hello');
+  await page.mouse.move(box.x + at.aga.x, box.y + at.aga.y, { steps: 5 });
+  await page.mouse.up({ clickCount: 2 });
+  expect(await selected(page)).toBe('hello world again');
+  await page.waitForTimeout(600);
+  // Three presses take the paragraph; dragging into the next takes all of it too.
+  await press(at.hel, 3);
+  await page.mouse.move(box.x + at.sec.x, box.y + at.sec.y, { steps: 5 });
+  await page.mouse.up({ clickCount: 3 });
+  expect(await selected(page)).toBe('hello world again and more\nSecond paragraph here');
+});
+
+test('quick presses in one place count as a double press only when nothing came between them', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  const bold = page.getByRole('button', { name: 'Bold', exact: true });
+  await expect(bold).toBeEnabled();
+  await input(page).fill(Array.from({ length: 60 }, (_, n) => `Line number ${n} of the text`).join('\n'));
+  const host = page.locator('.canvas-host');
+  await host.evaluate(el => { el.scrollTop = 0; });
+  const box = await page.locator('canvas.canvas-page').first().boundingBox();
+  const spot = { x: box.x + 100, y: box.y + 200 };
+  const caret = () => input(page).evaluate(el => [el.selectionStart, el.selectionEnd]);
+  // A press on the toolbar between two presses on the page ends the run, as it does natively.
+  await page.mouse.click(spot.x, spot.y);
+  const [at] = await caret();
+  await bold.click();
+  await page.mouse.click(spot.x, spot.y);
+  expect(await caret()).toEqual([at, at]);
+  await page.waitForTimeout(600);
+  // So does a scroll that puts other text under the pointer.
+  await page.mouse.click(spot.x, spot.y);
+  await host.evaluate(el => { el.scrollTop += 120; });
+  await page.mouse.click(spot.x, spot.y);
+  const [moved, end] = await caret();
+  expect(moved).toBe(end);
+  expect(moved).toBeGreaterThan(at);
+  await page.waitForTimeout(600);
+  // Two quick presses in place on the same text still take the word.
+  await page.mouse.click(spot.x, spot.y);
+  await page.mouse.click(spot.x, spot.y);
+  expect(await selected(page)).toMatch(/^\S+$/u);
+});
+
+test('a click in Text mode moves the selection the toolbar acts on', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await page.evaluate(() => window.__docs.current.view.engine.setAccessible(true));
+  await input(page).fill('Hello world');
+  await input(page).evaluate(el => { el.focus(); el.setSelectionRange(6, 11); el.dispatchEvent(new Event('select')); });
+  // A click near the start of the plain text field collapses its selection there.
+  const box = await input(page).boundingBox();
+  await page.mouse.click(box.x + 30, box.y + 36);
+  const native = await input(page).evaluate(el => [el.selectionStart, el.selectionEnd]);
+  expect(native[0]).toBe(native[1]);
+  expect(native[0]).toBeLessThan(6);
+  expect(await page.evaluate(() => [...window.__docs.current.view.engine.model.range])).toEqual(native);
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  expect(await page.evaluate(() => window.__docs.current.view.engine.model.paragraphs[0].runs.some(r => r.bold))).toBe(false);
+});
+
+test('Text mode shows the text in a field that fills the editing area', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await page.locator('canvas.canvas-page').first().click({ position: { x: 150, y: 110 } });
+  await page.keyboard.type('Hello world');
+  await page.getByRole('checkbox', { name: 'Text mode', exact: true }).check();
+  // The field no longer keeps the caret's height, which it followed while hidden.
+  const area = await page.locator('.canvas-host').boundingBox(), field = await input(page).boundingBox();
+  expect(field.height).toBeGreaterThan(area.height - 100);
+  await page.getByRole('checkbox', { name: 'Text mode', exact: true }).uncheck();
+  await input(page).focus();
+  // Hidden again, it follows the caret.
+  const caret = await page.evaluate(() => { const e = window.__docs.current.view.engine; return e.input.getBoundingClientRect().height; });
+  expect(caret).toBeLessThan(40);
+});
+
+test('Text mode scrolls its field to a caret that Enter, Find or Undo places out of view', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await input(page).fill(Array.from({ length: 120 }, (_, i) => `Paragraph ${i} of a document longer than the screen.`).join('\n') + '\nNeedle at the end.');
+  await page.getByRole('checkbox', { name: 'Text mode', exact: true }).check();
+  // Whether the field shows the line its caret is on, by the caret's line among the field's lines.
+  const caretShown = () => input(page).evaluate(el => {
+    // Every paragraph here fits on one line of the field.
+    const style = getComputedStyle(el), top = parseFloat(style.paddingTop), line = (el.scrollHeight - top - parseFloat(style.paddingBottom)) / el.value.split('\n').length;
+    const caretLine = el.value.slice(0, el.selectionEnd).split('\n').length - 1;
+    const first = Math.floor((el.scrollTop - top) / line), last = Math.floor((el.scrollTop + el.clientHeight - top) / line) - 1;
+    return caretLine >= first && caretLine <= last;
+  });
+  // Enter at the foot of the field: the new line comes into view.
+  await input(page).evaluate(el => { el.focus(); el.setSelectionRange(el.value.length, el.value.length); el.scrollTop = el.scrollHeight; el.dispatchEvent(new Event('select')); });
+  for (let i = 0; i < 4; i++) await input(page).press('Enter');
+  expect(await caretShown()).toBe(true);
+  // Find, from the top: the match at the end comes into view.
+  await input(page).evaluate(el => { el.setSelectionRange(0, 0); el.scrollTop = 0; el.dispatchEvent(new Event('select')); });
+  // Find and Replace: Ctrl+H, or Cmd+Shift+H on a Mac.
+  await input(page).press(process.platform === 'darwin' ? 'Meta+Shift+h' : 'Control+h');
+  await page.getByRole('textbox', { name: 'Find text' }).fill('Needle');
+  await expect(page.locator('.canvas-find-count')).toHaveText('1 of 1');
+  expect(await caretShown()).toBe(true);
+  await page.getByRole('button', { name: 'Close find and replace' }).click();
+  // Undo puts the caret back where the Enters were, at the end.
+  await input(page).evaluate(el => { el.scrollTop = 0; });
+  await input(page).press('ControlOrMeta+z');
+  expect(await caretShown()).toBe(true);
+});
+
+test('on a Mac, Control+click keeps the selection for the context menu it opens', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(Navigator.prototype, 'platform', { get: () => 'MacIntel' }));
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await input(page).fill('Hello world again');
+  await page.evaluate(() => { const e = window.__docs.current.view.engine; e.model.select(6, 11); e.syncInput(); e.paint(); });
+  const canvas = page.locator('canvas.canvas-page').first(), box = await canvas.boundingBox();
+  const at = await page.evaluate(() => { const e = window.__docs.current.view.engine, line = e.selectionLayout.lines[0]; return { x: line.stops.find(s => s.offset === 8).x * e.zoom, y: (line.y + line.height / 2) * e.zoom }; });
+  // A Mac reports Control+click as a primary press with Control held, then a context menu event.
+  const point = { clientX: box.x + at.x, clientY: box.y + at.y, ctrlKey: true, button: 0, bubbles: true, cancelable: true };
+  await canvas.dispatchEvent('pointerdown', { ...point, pointerId: 1, pointerType: 'mouse', isPrimary: true });
+  await canvas.dispatchEvent('pointerup', { ...point, pointerId: 1, pointerType: 'mouse', isPrimary: true });
+  await canvas.evaluate((el, point) => el.dispatchEvent(new MouseEvent('contextmenu', point)), point);
+  expect(await selected(page)).toBe('world');
+  await expect(page.getByRole('menuitem', { name: 'Copy', exact: true })).toBeEnabled();
+});
+
+test('a double click on an empty line places the caret there instead of selecting its paragraph mark', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await input(page).fill('Alpha\n\nBravo charlie');
+  const box = await page.locator('canvas.canvas-page').first().boundingBox();
+  const lines = await page.evaluate(() => { const e = window.__docs.current.view.engine; return e.selectionLayout.lines.map(l => ({ x: l.stops.at(-1).x * e.zoom, y: (l.y + l.height / 2) * e.zoom })); });
+  await page.mouse.dblclick(box.x + lines[1].x + 40, box.y + lines[1].y);
+  expect(await input(page).evaluate(el => [el.selectionStart, el.selectionEnd])).toEqual([6, 6]);
+  // Typing fills the empty line rather than replacing its mark and joining the next paragraph.
+  await page.keyboard.type('Xy');
+  await expect(input(page)).toHaveValue('Alpha\nXy\nBravo charlie');
+  await page.waitForTimeout(600);
+  // Past the end of a line, likewise.
+  await page.mouse.dblclick(box.x + lines[0].x + 100, box.y + lines[0].y);
+  expect(await input(page).evaluate(el => [el.selectionStart, el.selectionEnd])).toEqual([5, 5]);
+});

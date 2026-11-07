@@ -1,0 +1,114 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  background: #f6f4f1;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.sv-scroll {
+  min-height: 100%;
+}
+
+.sv-scroll > .sv-root {
+  min-height: 100dvh;
+}
+
+/* Embedded, the frame takes the survey's height (main.js reports it), so the
+   document must size to its content rather than to the frame. The host page
+   shows through while the frame catches up. */
+html.sv-embed,
+body.sv-embed {
+  height: auto;
+  background: transparent;
+}
+
+body.sv-embed .sv-scroll,
+body.sv-embed .sv-scroll > .sv-root,
+body.sv-embed .sv-focus .sv-main {
+  min-height: 0;
+}
+
+/* Viewport units would follow the frame, which follows the content: the
+   loading state would shrink step by step to nothing. */
+body.sv-embed .sv-loading {
+  min-height: 240px;
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: 8px;
+  top: -48px;
+  z-index: 10;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+}
+
+.skip-link:focus {
+  top: 8px;
+}
+
+.sv-loading {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+}
+
+.sv-loading-dot {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d8d4cc;
+  border-top-color: #8a857b;
+  border-radius: 50%;
+  animation: sv-spin 700ms linear infinite;
+}
+
+/* Reduced motion: a slow turn still says "loading" without the spin. */
+@media (prefers-reduced-motion: reduce) {
+  .sv-loading-dot {
+    animation-duration: 2.4s;
+  }
+}
+
+@keyframes sv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sv-lock {
+  display: grid;
+  gap: 12px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  border: 1px solid var(--sv-line);
+  border-radius: var(--sv-radius);
+  background: var(--sv-surface);
+}
+
+.sv-lock h1 {
+  font-size: 20px;
+}
+
+.sv-lock form {
+  display: grid;
+  gap: 10px;
+}

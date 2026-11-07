@@ -1,0 +1,186 @@
+/* Design tokens - light is the default; dark overrides via media query (system)
+   and via [data-theme] stamps set by the in-app theme toggle, which must win
+   in both directions. */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces & ink (cool neutrals) */
+  --page: #f8f9f9;
+  --surface: #fdfdfd;
+  --surface-2: #f0f2f2;
+  --surface-3: #e6e9e8;
+  /* The tab bar's glass: --surface at 90%, kept as rgba because the build
+     targets Safari 15 and color-mix() only arrived in 16.2. */
+  --surface-glass: rgba(253, 253, 253, 0.9);
+  --ink: #101314;
+  --ink-2: #4e5654;
+  /* Tertiary ink carries real text (row meta, stat labels, axis ticks) -
+     it must hold 4.5:1 on --page, --surface, and --surface-2. */
+  --ink-3: #626b68;
+  --hairline: rgba(16, 19, 20, 0.1);
+  --hairline-strong: rgba(16, 19, 20, 0.17);
+  --grid: #e4e7e6;
+  --baseline: #c3c9c7;
+  --scrim: rgba(16, 19, 20, 0.44);
+
+  /* Accent — brand coral #fa7454, deepened to hold 4.5:1 as text on the
+     light surfaces and under white button ink (same OKLCH hue as the brand). */
+  --accent: #c14020;
+  --accent-strong: #ae2d08;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(193, 64, 32, 0.1);
+  /* Accent text reading ON --accent-wash - the active nav item, the avatar,
+     the cart quantity, the sample and sync bars. The wash tints its surface
+     toward the accent, so --accent itself lands at 4.3-4.45:1 there: it holds
+     4.5 on the plain surfaces this file promises, and those are not plain.
+     One step deeper clears it on the wash over --page, the darkest ground of
+     the set. Glyphs on the wash keep --accent; they need 3:1, not 4.5. */
+  --accent-on-wash: #b23b1d;
+  /* The count chip riding on accent-filled bars. It has to move the ground
+     *away* from --accent-ink, not toward it: tinting the coral with the same
+     white the number is written in left that number at 3.6:1, the least
+     legible thing on the bar. A dark scrim of the same weight reads as the
+     same chip and takes the count to 7:1. */
+  --accent-chip: rgba(0, 0, 0, 0.18);
+
+  /* Status (paired with icon/sign, never color alone) */
+  --pos: #006300;
+  --neg: #b02a2a;
+  --critical: #d03b3b;
+  /* Ink on solid --critical (danger buttons) - holds 4.5:1 in both themes. */
+  --critical-ink: #ffffff;
+  --critical-wash: rgba(208, 59, 59, 0.12);
+  --warn-ink: #7a5200;
+  --warn-wash: rgba(250, 178, 25, 0.16);
+
+  /* Chart (single series) */
+  --chart-series: #c14020;
+  --chart-series-strong: #ae2d08;
+
+  /* Product tile washes (decorative identity; name text stays in --ink) */
+  --slot-1: #d9ede6;
+  --slot-2: #dbe7f6;
+  --slot-3: #e6e1f5;
+  --slot-4: #f4e8d2;
+  --slot-5: #f6dfe7;
+  --slot-6: #e3edd5;
+  --slot-7: #eee3d8;
+  --slot-8: #e2e9ee;
+
+  /* Shape */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-full: 999px;
+
+  /* Type */
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Layout */
+  --sidebar-w: 230px;
+  --content-max: 1180px;
+  --cart-w: 340px;
+  --tabbar-h: 62px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Dark values, applied by OS preference unless the app stamped light. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0c0d0d;
+    --surface: #191b1b;
+    --surface-2: #232626;
+    --surface-3: #2c3030;
+    --surface-glass: rgba(25, 27, 27, 0.9);
+    --ink: #f6f7f7;
+    --ink-2: #c0c6c4;
+    --ink-3: #8d9491;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --hairline-strong: rgba(255, 255, 255, 0.18);
+    --grid: #2a2e2d;
+    --baseline: #3a403e;
+    --scrim: rgba(0, 0, 0, 0.6);
+
+    /* On dark surfaces the brand color passes as-is (5.6:1 on --surface-2). */
+    --accent: #fa7454;
+    --accent-strong: #fd8f74;
+    --accent-ink: #4d1002;
+    --accent-wash: rgba(250, 116, 84, 0.15);
+    /* The bright coral already clears 4.5:1 on its own wash here. */
+    --accent-on-wash: #fa7454;
+    /* Dark ink on the light coral: the chip lifts the ground instead. */
+    --accent-chip: rgba(255, 255, 255, 0.22);
+
+    --pos: #0ca30c;
+    --neg: #e66767;
+    --critical: #e66767;
+    /* Dark ink on the lightened critical, like --accent-ink on the coral. */
+    --critical-ink: #3a0a0a;
+    --critical-wash: rgba(230, 103, 103, 0.12);
+    --warn-ink: #fab219;
+    --warn-wash: rgba(250, 178, 25, 0.14);
+
+    /* Resting marks a step deeper than the accent (chart lightness band). */
+    --chart-series: #e76344;
+    --chart-series-strong: #fa7454;
+
+    --slot-1: #17332b;
+    --slot-2: #182a3d;
+    --slot-3: #272040;
+    --slot-4: #392c15;
+    --slot-5: #3a1f2c;
+    --slot-6: #253314;
+    --slot-7: #34281c;
+    --slot-8: #202b33;
+  }
+}
+
+/* Explicit in-app toggle: dark stamp wins over OS-light. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0c0d0d;
+  --surface: #191b1b;
+  --surface-2: #232626;
+  --surface-3: #2c3030;
+  --surface-glass: rgba(25, 27, 27, 0.9);
+  --ink: #f6f7f7;
+  --ink-2: #c0c6c4;
+  --ink-3: #8d9491;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-strong: rgba(255, 255, 255, 0.18);
+  --grid: #2a2e2d;
+  --baseline: #3a403e;
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --accent: #fa7454;
+  --accent-strong: #fd8f74;
+  --accent-ink: #4d1002;
+  --accent-wash: rgba(250, 116, 84, 0.15);
+  --accent-on-wash: #fa7454;
+  --accent-chip: rgba(255, 255, 255, 0.22);
+
+  --pos: #0ca30c;
+  --neg: #e66767;
+  --critical: #e66767;
+  --critical-ink: #3a0a0a;
+  --critical-wash: rgba(230, 103, 103, 0.12);
+  --warn-ink: #fab219;
+  --warn-wash: rgba(250, 178, 25, 0.14);
+
+  --chart-series: #e76344;
+  --chart-series-strong: #fa7454;
+
+  --slot-1: #17332b;
+  --slot-2: #182a3d;
+  --slot-3: #272040;
+  --slot-4: #392c15;
+  --slot-5: #3a1f2c;
+  --slot-6: #253314;
+  --slot-7: #34281c;
+  --slot-8: #202b33;
+}

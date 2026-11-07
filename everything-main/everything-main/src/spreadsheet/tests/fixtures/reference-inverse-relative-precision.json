@@ -1,0 +1,1012 @@
+{
+  "application": "16.113",
+  "method": "250 tiny normal quantiles captured through read-only Evaluate and matrix-assigned worksheet formulas. Each stored formula and wrapped value verified; initially empty scratch range cleared and COUNTA verified zero. Targets span the former absolute interval cutoff, with shape, degree, mantissa, scale and legacy alias variations.",
+  "provenance": {
+    "inverse-relative-native.js": "941b64eb645eb74e9e7f51a9529ee5910e387978e91f722dbc8d43ff9da9ee79",
+    "inverse-relative-native.json": "16c87e4fa935acf5801ce3a17a091af54bf55ff8b013bfc01aa751bbefacfada",
+    "inverse-relative-worksheet.applescript": "c72d0da82ea1b14e6ae7ace378ebaf4a52d3e57373540aa8e245b1361baf9681",
+    "inverse-relative-worksheet-native.txt": "aa78a62c7f86c92a5e2926da87b94a06122ee14c3aba94fc08c19ba5b4ac4c8f"
+  },
+  "cases": [
+    {
+      "expression": "BETA.INV(1e-140,0.5,0.5)",
+      "expected": 2.4674011002723e-280
+    },
+    {
+      "expression": "BETA.INV(1e-140,0.5,1)",
+      "expected": 9.9999999999995e-281
+    },
+    {
+      "expression": "BETA.INV(1e-140,0.5,2)",
+      "expected": 4.4444444444442e-281
+    },
+    {
+      "expression": "F.INV(1e-140,1,1)",
+      "expected": 2.4674011002723e-280
+    },
+    {
+      "expression": "F.INV(1e-140,1,2)",
+      "expected": 1.9999999999999e-280
+    },
+    {
+      "expression": "F.INV(1e-140,1,10)",
+      "expected": 1.6511967750062e-280
+    },
+    {
+      "expression": "CHISQ.INV(1e-140,1)",
+      "expected": 1.5707963267949e-280
+    },
+    {
+      "expression": "GAMMA.INV(1e-140,0.5,1)",
+      "expected": 7.8539816339745e-281
+    },
+    {
+      "expression": "BETA.INV(3e-140,0.5,0.5)",
+      "expected": 2.2206609902453e-279
+    },
+    {
+      "expression": "BETA.INV(3e-140,0.5,1)",
+      "expected": 9.0000000000005e-280
+    },
+    {
+      "expression": "BETA.INV(3e-140,0.5,2)",
+      "expected": 4.0000000000003e-280
+    },
+    {
+      "expression": "F.INV(3e-140,1,1)",
+      "expected": 2.2206609902453e-279
+    },
+    {
+      "expression": "F.INV(3e-140,1,2)",
+      "expected": 1.8000000000001e-279
+    },
+    {
+      "expression": "F.INV(3e-140,1,10)",
+      "expected": 1.4860770975057e-279
+    },
+    {
+      "expression": "CHISQ.INV(3e-140,1)",
+      "expected": 1.4137166941154e-279
+    },
+    {
+      "expression": "GAMMA.INV(3e-140,0.5,1)",
+      "expected": 7.068583470577e-280
+    },
+    {
+      "expression": "BETA.INV(7e-140,0.5,0.5)",
+      "expected": 1.2090265391335e-278
+    },
+    {
+      "expression": "BETA.INV(7e-140,0.5,1)",
+      "expected": 4.9000000000001e-279
+    },
+    {
+      "expression": "BETA.INV(7e-140,0.5,2)",
+      "expected": 2.1777777777778e-279
+    },
+    {
+      "expression": "F.INV(7e-140,1,1)",
+      "expected": 1.2090265391335e-278
+    },
+    {
+      "expression": "F.INV(7e-140,1,2)",
+      "expected": 9.8000000000002e-279
+    },
+    {
+      "expression": "F.INV(7e-140,1,10)",
+      "expected": 8.0908641975309e-279
+    },
+    {
+      "expression": "CHISQ.INV(7e-140,1)",
+      "expected": 7.696902001295e-279
+    },
+    {
+      "expression": "GAMMA.INV(7e-140,0.5,1)",
+      "expected": 3.8484510006475e-279
+    },
+    {
+      "expression": "BETA.INV(1e-145,0.5,0.5)",
+      "expected": 2.4674011002725e-290
+    },
+    {
+      "expression": "BETA.INV(1e-145,0.5,1)",
+      "expected": 1e-290
+    },
+    {
+      "expression": "BETA.INV(1e-145,0.5,2)",
+      "expected": 4.4444444444447e-291
+    },
+    {
+      "expression": "F.INV(1e-145,1,1)",
+      "expected": 2.4674011002725e-290
+    },
+    {
+      "expression": "F.INV(1e-145,1,2)",
+      "expected": 2.0000000000001e-290
+    },
+    {
+      "expression": "F.INV(1e-145,1,10)",
+      "expected": 1.6511967750063e-290
+    },
+    {
+      "expression": "CHISQ.INV(1e-145,1)",
+      "expected": 1.5707963267949e-290
+    },
+    {
+      "expression": "GAMMA.INV(1e-145,0.5,1)",
+      "expected": 7.8539816339745e-291
+    },
+    {
+      "expression": "BETA.INV(3e-145,0.5,0.5)",
+      "expected": 2.2206609902453e-289
+    },
+    {
+      "expression": "BETA.INV(3e-145,0.5,1)",
+      "expected": 9.0000000000003e-290
+    },
+    {
+      "expression": "BETA.INV(3e-145,0.5,2)",
+      "expected": 4.0000000000002e-290
+    },
+    {
+      "expression": "F.INV(3e-145,1,1)",
+      "expected": 2.2206609902453e-289
+    },
+    {
+      "expression": "F.INV(3e-145,1,2)",
+      "expected": 1.8000000000001e-289
+    },
+    {
+      "expression": "F.INV(3e-145,1,10)",
+      "expected": 1.4860770975057e-289
+    },
+    {
+      "expression": "CHISQ.INV(3e-145,1)",
+      "expected": 1.4137166941154e-289
+    },
+    {
+      "expression": "GAMMA.INV(3e-145,0.5,1)",
+      "expected": 7.068583470577e-290
+    },
+    {
+      "expression": "BETA.INV(7e-145,0.5,0.5)",
+      "expected": 1.2090265391335e-288
+    },
+    {
+      "expression": "BETA.INV(7e-145,0.5,1)",
+      "expected": 4.9e-289
+    },
+    {
+      "expression": "BETA.INV(7e-145,0.5,2)",
+      "expected": 2.1777777777778e-289
+    },
+    {
+      "expression": "F.INV(7e-145,1,1)",
+      "expected": 1.2090265391335e-288
+    },
+    {
+      "expression": "F.INV(7e-145,1,2)",
+      "expected": 9.8e-289
+    },
+    {
+      "expression": "F.INV(7e-145,1,10)",
+      "expected": 8.0908641975308e-289
+    },
+    {
+      "expression": "CHISQ.INV(7e-145,1)",
+      "expected": 7.696902001295e-289
+    },
+    {
+      "expression": "GAMMA.INV(7e-145,0.5,1)",
+      "expected": 3.8484510006475e-289
+    },
+    {
+      "expression": "BETA.INV(1e-148,0.5,0.5)",
+      "expected": 2.4674011002724e-296
+    },
+    {
+      "expression": "BETA.INV(1e-148,0.5,1)",
+      "expected": 9.9999999999999e-297
+    },
+    {
+      "expression": "BETA.INV(1e-148,0.5,2)",
+      "expected": 4.4444444444444e-297
+    },
+    {
+      "expression": "F.INV(1e-148,1,1)",
+      "expected": 2.4674011002724e-296
+    },
+    {
+      "expression": "F.INV(1e-148,1,2)",
+      "expected": 2e-296
+    },
+    {
+      "expression": "F.INV(1e-148,1,10)",
+      "expected": 1.6511967750063e-296
+    },
+    {
+      "expression": "CHISQ.INV(1e-148,1)",
+      "expected": 1.5707963267949e-296
+    },
+    {
+      "expression": "GAMMA.INV(1e-148,0.5,1)",
+      "expected": 7.8539816339745e-297
+    },
+    {
+      "expression": "BETA.INV(3e-148,0.5,0.5)",
+      "expected": 2.2206609902451e-295
+    },
+    {
+      "expression": "BETA.INV(3e-148,0.5,1)",
+      "expected": 8.9999999999998e-296
+    },
+    {
+      "expression": "BETA.INV(3e-148,0.5,2)",
+      "expected": 4e-296
+    },
+    {
+      "expression": "F.INV(3e-148,1,1)",
+      "expected": 2.2206609902451e-295
+    },
+    {
+      "expression": "F.INV(3e-148,1,2)",
+      "expected": 1.8e-295
+    },
+    {
+      "expression": "F.INV(3e-148,1,10)",
+      "expected": 1.4860770975056e-295
+    },
+    {
+      "expression": "CHISQ.INV(3e-148,1)",
+      "expected": 1.4137166941154e-295
+    },
+    {
+      "expression": "GAMMA.INV(3e-148,0.5,1)",
+      "expected": 7.068583470577e-296
+    },
+    {
+      "expression": "BETA.INV(7e-148,0.5,0.5)",
+      "expected": 1.2090265391334e-294
+    },
+    {
+      "expression": "BETA.INV(7e-148,0.5,1)",
+      "expected": 4.8999999999997e-295
+    },
+    {
+      "expression": "BETA.INV(7e-148,0.5,2)",
+      "expected": 2.1777777777777e-295
+    },
+    {
+      "expression": "F.INV(7e-148,1,1)",
+      "expected": 1.2090265391334e-294
+    },
+    {
+      "expression": "F.INV(7e-148,1,2)",
+      "expected": 9.7999999999995e-295
+    },
+    {
+      "expression": "F.INV(7e-148,1,10)",
+      "expected": 8.0908641975303e-295
+    },
+    {
+      "expression": "CHISQ.INV(7e-148,1)",
+      "expected": 7.696902001295e-295
+    },
+    {
+      "expression": "GAMMA.INV(7e-148,0.5,1)",
+      "expected": 3.8484510006475e-295
+    },
+    {
+      "expression": "BETA.INV(1e-149,0.5,0.5)",
+      "expected": 2.4674011002724e-298
+    },
+    {
+      "expression": "BETA.INV(1e-149,0.5,1)",
+      "expected": 1e-298
+    },
+    {
+      "expression": "BETA.INV(1e-149,0.5,2)",
+      "expected": 4.4444444444445e-299
+    },
+    {
+      "expression": "F.INV(1e-149,1,1)",
+      "expected": 2.4674011002724e-298
+    },
+    {
+      "expression": "F.INV(1e-149,1,2)",
+      "expected": 2e-298
+    },
+    {
+      "expression": "F.INV(1e-149,1,10)",
+      "expected": 1.6511967750063e-298
+    },
+    {
+      "expression": "CHISQ.INV(1e-149,1)",
+      "expected": 1.5707963267949e-298
+    },
+    {
+      "expression": "GAMMA.INV(1e-149,0.5,1)",
+      "expected": 7.8539816339745e-299
+    },
+    {
+      "expression": "BETA.INV(3e-149,0.5,0.5)",
+      "expected": 2.2206609902452e-297
+    },
+    {
+      "expression": "BETA.INV(3e-149,0.5,1)",
+      "expected": 9e-298
+    },
+    {
+      "expression": "BETA.INV(3e-149,0.5,2)",
+      "expected": 4e-298
+    },
+    {
+      "expression": "F.INV(3e-149,1,1)",
+      "expected": 2.2206609902452e-297
+    },
+    {
+      "expression": "F.INV(3e-149,1,2)",
+      "expected": 1.8e-297
+    },
+    {
+      "expression": "F.INV(3e-149,1,10)",
+      "expected": 1.4860770975056e-297
+    },
+    {
+      "expression": "CHISQ.INV(3e-149,1)",
+      "expected": 1.4137166941154e-297
+    },
+    {
+      "expression": "GAMMA.INV(3e-149,0.5,1)",
+      "expected": 7.068583470577e-298
+    },
+    {
+      "expression": "BETA.INV(7e-149,0.5,0.5)",
+      "expected": 1.2090265391334e-296
+    },
+    {
+      "expression": "BETA.INV(7e-149,0.5,1)",
+      "expected": 4.8999999999998e-297
+    },
+    {
+      "expression": "BETA.INV(7e-149,0.5,2)",
+      "expected": 2.1777777777777e-297
+    },
+    {
+      "expression": "F.INV(7e-149,1,1)",
+      "expected": 1.2090265391334e-296
+    },
+    {
+      "expression": "F.INV(7e-149,1,2)",
+      "expected": 9.7999999999997e-297
+    },
+    {
+      "expression": "F.INV(7e-149,1,10)",
+      "expected": 8.0908641975305e-297
+    },
+    {
+      "expression": "CHISQ.INV(7e-149,1)",
+      "expected": 7.696902001295e-297
+    },
+    {
+      "expression": "GAMMA.INV(7e-149,0.5,1)",
+      "expected": 3.8484510006475e-297
+    },
+    {
+      "expression": "BETA.INV(1e-150,0.5,0.5)",
+      "expected": 2.4674011002725e-300
+    },
+    {
+      "expression": "BETA.INV(1e-150,0.5,1)",
+      "expected": 1e-300
+    },
+    {
+      "expression": "BETA.INV(1e-150,0.5,2)",
+      "expected": 4.4444444444446e-301
+    },
+    {
+      "expression": "F.INV(1e-150,1,1)",
+      "expected": 2.4674011002725e-300
+    },
+    {
+      "expression": "F.INV(1e-150,1,2)",
+      "expected": 2.0000000000001e-300
+    },
+    {
+      "expression": "F.INV(1e-150,1,10)",
+      "expected": 1.6511967750063e-300
+    },
+    {
+      "expression": "CHISQ.INV(1e-150,1)",
+      "expected": 1.5707963267949e-300
+    },
+    {
+      "expression": "GAMMA.INV(1e-150,0.5,1)",
+      "expected": 7.8539816339745e-301
+    },
+    {
+      "expression": "BETA.INV(3e-150,0.5,0.5)",
+      "expected": 2.2206609902452e-299
+    },
+    {
+      "expression": "BETA.INV(3e-150,0.5,1)",
+      "expected": 9.0000000000002e-300
+    },
+    {
+      "expression": "BETA.INV(3e-150,0.5,2)",
+      "expected": 4.0000000000001e-300
+    },
+    {
+      "expression": "F.INV(3e-150,1,1)",
+      "expected": 2.2206609902452e-299
+    },
+    {
+      "expression": "F.INV(3e-150,1,2)",
+      "expected": 1.8e-299
+    },
+    {
+      "expression": "F.INV(3e-150,1,10)",
+      "expected": 1.4860770975057e-299
+    },
+    {
+      "expression": "CHISQ.INV(3e-150,1)",
+      "expected": 1.4137166941154e-299
+    },
+    {
+      "expression": "GAMMA.INV(3e-150,0.5,1)",
+      "expected": 7.068583470577e-300
+    },
+    {
+      "expression": "BETA.INV(7e-150,0.5,0.5)",
+      "expected": 1.2090265391335e-298
+    },
+    {
+      "expression": "BETA.INV(7e-150,0.5,1)",
+      "expected": 4.8999999999999e-299
+    },
+    {
+      "expression": "BETA.INV(7e-150,0.5,2)",
+      "expected": 2.1777777777778e-299
+    },
+    {
+      "expression": "F.INV(7e-150,1,1)",
+      "expected": 1.2090265391335e-298
+    },
+    {
+      "expression": "F.INV(7e-150,1,2)",
+      "expected": 9.7999999999999e-299
+    },
+    {
+      "expression": "F.INV(7e-150,1,10)",
+      "expected": 8.0908641975306e-299
+    },
+    {
+      "expression": "CHISQ.INV(7e-150,1)",
+      "expected": 7.696902001295e-299
+    },
+    {
+      "expression": "GAMMA.INV(7e-150,0.5,1)",
+      "expected": 3.8484510006475e-299
+    },
+    {
+      "expression": "BETA.INV(1e-151,0.5,0.5)",
+      "expected": 2.4674011002725e-302
+    },
+    {
+      "expression": "BETA.INV(1e-151,0.5,1)",
+      "expected": 1e-302
+    },
+    {
+      "expression": "BETA.INV(1e-151,0.5,2)",
+      "expected": 4.4444444444447e-303
+    },
+    {
+      "expression": "F.INV(1e-151,1,1)",
+      "expected": 2.4674011002725e-302
+    },
+    {
+      "expression": "F.INV(1e-151,1,2)",
+      "expected": 2.0000000000001e-302
+    },
+    {
+      "expression": "F.INV(1e-151,1,10)",
+      "expected": 1.6511967750063e-302
+    },
+    {
+      "expression": "CHISQ.INV(1e-151,1)",
+      "expected": 1.5707963267949e-302
+    },
+    {
+      "expression": "GAMMA.INV(1e-151,0.5,1)",
+      "expected": 7.8539816339745e-303
+    },
+    {
+      "expression": "BETA.INV(3e-151,0.5,0.5)",
+      "expected": 2.2206609902453e-301
+    },
+    {
+      "expression": "BETA.INV(3e-151,0.5,1)",
+      "expected": 9.0000000000003e-302
+    },
+    {
+      "expression": "BETA.INV(3e-151,0.5,2)",
+      "expected": 4.0000000000002e-302
+    },
+    {
+      "expression": "F.INV(3e-151,1,1)",
+      "expected": 2.2206609902453e-301
+    },
+    {
+      "expression": "F.INV(3e-151,1,2)",
+      "expected": 1.8000000000001e-301
+    },
+    {
+      "expression": "F.INV(3e-151,1,10)",
+      "expected": 1.4860770975057e-301
+    },
+    {
+      "expression": "CHISQ.INV(3e-151,1)",
+      "expected": 1.4137166941154e-301
+    },
+    {
+      "expression": "GAMMA.INV(3e-151,0.5,1)",
+      "expected": 7.068583470577e-302
+    },
+    {
+      "expression": "BETA.INV(7e-151,0.5,0.5)",
+      "expected": 1.2090265391335e-300
+    },
+    {
+      "expression": "BETA.INV(7e-151,0.5,1)",
+      "expected": 4.9e-301
+    },
+    {
+      "expression": "BETA.INV(7e-151,0.5,2)",
+      "expected": 2.1777777777778e-301
+    },
+    {
+      "expression": "F.INV(7e-151,1,1)",
+      "expected": 1.2090265391335e-300
+    },
+    {
+      "expression": "F.INV(7e-151,1,2)",
+      "expected": 9.8e-301
+    },
+    {
+      "expression": "F.INV(7e-151,1,10)",
+      "expected": 8.0908641975308e-301
+    },
+    {
+      "expression": "CHISQ.INV(7e-151,1)",
+      "expected": 7.696902001295e-301
+    },
+    {
+      "expression": "GAMMA.INV(7e-151,0.5,1)",
+      "expected": 3.8484510006475e-301
+    },
+    {
+      "expression": "BETA.INV(1e-152,0.5,0.5)",
+      "expected": 2.4674011002723e-304
+    },
+    {
+      "expression": "BETA.INV(1e-152,0.5,1)",
+      "expected": 9.9999999999995e-305
+    },
+    {
+      "expression": "BETA.INV(1e-152,0.5,2)",
+      "expected": 4.4444444444443e-305
+    },
+    {
+      "expression": "F.INV(1e-152,1,1)",
+      "expected": 2.4674011002723e-304
+    },
+    {
+      "expression": "F.INV(1e-152,1,2)",
+      "expected": 1.9999999999999e-304
+    },
+    {
+      "expression": "F.INV(1e-152,1,10)",
+      "expected": 1.6511967750062e-304
+    },
+    {
+      "expression": "CHISQ.INV(1e-152,1)",
+      "expected": 1.5707963267949e-304
+    },
+    {
+      "expression": "GAMMA.INV(1e-152,0.5,1)",
+      "expected": 7.8539816339745e-305
+    },
+    {
+      "expression": "BETA.INV(3e-152,0.5,0.5)",
+      "expected": 2.220660990245e-303
+    },
+    {
+      "expression": "BETA.INV(3e-152,0.5,1)",
+      "expected": 8.9999999999995e-304
+    },
+    {
+      "expression": "BETA.INV(3e-152,0.5,2)",
+      "expected": 3.9999999999998e-304
+    },
+    {
+      "expression": "F.INV(3e-152,1,1)",
+      "expected": 2.220660990245e-303
+    },
+    {
+      "expression": "F.INV(3e-152,1,2)",
+      "expected": 1.7999999999999e-303
+    },
+    {
+      "expression": "F.INV(3e-152,1,10)",
+      "expected": 1.4860770975056e-303
+    },
+    {
+      "expression": "CHISQ.INV(3e-152,1)",
+      "expected": 1.4137166941154e-303
+    },
+    {
+      "expression": "GAMMA.INV(3e-152,0.5,1)",
+      "expected": 7.068583470577e-304
+    },
+    {
+      "expression": "BETA.INV(7e-152,0.5,0.5)",
+      "expected": 1.2090265391335e-302
+    },
+    {
+      "expression": "BETA.INV(7e-152,0.5,1)",
+      "expected": 4.9000000000001e-303
+    },
+    {
+      "expression": "BETA.INV(7e-152,0.5,2)",
+      "expected": 2.1777777777779e-303
+    },
+    {
+      "expression": "F.INV(7e-152,1,1)",
+      "expected": 1.2090265391335e-302
+    },
+    {
+      "expression": "F.INV(7e-152,1,2)",
+      "expected": 9.8000000000002e-303
+    },
+    {
+      "expression": "F.INV(7e-152,1,10)",
+      "expected": 8.0908641975309e-303
+    },
+    {
+      "expression": "CHISQ.INV(7e-152,1)",
+      "expected": 7.696902001295e-303
+    },
+    {
+      "expression": "GAMMA.INV(7e-152,0.5,1)",
+      "expected": 3.8484510006475e-303
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,0.5)",
+      "expected": 2.4674011002723e-306
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1)",
+      "expected": 9.9999999999997e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2)",
+      "expected": 4.4444444444443e-307
+    },
+    {
+      "expression": "F.INV(1e-153,1,1)",
+      "expected": 2.4674011002723e-306
+    },
+    {
+      "expression": "F.INV(1e-153,1,2)",
+      "expected": 1.9999999999999e-306
+    },
+    {
+      "expression": "F.INV(1e-153,1,10)",
+      "expected": 1.6511967750062e-306
+    },
+    {
+      "expression": "CHISQ.INV(1e-153,1)",
+      "expected": 1.5707963267949e-306
+    },
+    {
+      "expression": "GAMMA.INV(1e-153,0.5,1)",
+      "expected": 7.8539816339745e-307
+    },
+    {
+      "expression": "BETA.INV(3e-153,0.5,0.5)",
+      "expected": 2.2206609902451e-305
+    },
+    {
+      "expression": "BETA.INV(3e-153,0.5,1)",
+      "expected": 8.9999999999997e-306
+    },
+    {
+      "expression": "BETA.INV(3e-153,0.5,2)",
+      "expected": 3.9999999999999e-306
+    },
+    {
+      "expression": "F.INV(3e-153,1,1)",
+      "expected": 2.2206609902451e-305
+    },
+    {
+      "expression": "F.INV(3e-153,1,2)",
+      "expected": 1.7999999999999e-305
+    },
+    {
+      "expression": "F.INV(3e-153,1,10)",
+      "expected": 1.4860770975056e-305
+    },
+    {
+      "expression": "CHISQ.INV(3e-153,1)",
+      "expected": 1.4137166941154e-305
+    },
+    {
+      "expression": "GAMMA.INV(3e-153,0.5,1)",
+      "expected": 7.068583470577e-306
+    },
+    {
+      "expression": "BETA.INV(7e-153,0.5,0.5)",
+      "expected": 1.2090265391335e-304
+    },
+    {
+      "expression": "BETA.INV(7e-153,0.5,1)",
+      "expected": 4.9000000000002e-305
+    },
+    {
+      "expression": "BETA.INV(7e-153,0.5,2)",
+      "expected": 2.1777777777779e-305
+    },
+    {
+      "expression": "F.INV(7e-153,1,1)",
+      "expected": 1.2090265391335e-304
+    },
+    {
+      "expression": "F.INV(7e-153,1,2)",
+      "expected": 9.8000000000004e-305
+    },
+    {
+      "expression": "F.INV(7e-153,1,10)",
+      "expected": 8.0908641975311e-305
+    },
+    {
+      "expression": "CHISQ.INV(7e-153,1)",
+      "expected": 7.696902001295e-305
+    },
+    {
+      "expression": "GAMMA.INV(7e-153,0.5,1)",
+      "expected": 3.8484510006475e-305
+    },
+    {
+      "expression": "BETA.INV(1e-70,0.25,1)",
+      "expected": 9.9999999999995e-281
+    },
+    {
+      "expression": "BETA.INV(1e-74,0.25,1)",
+      "expected": 9.9999999999999e-297
+    },
+    {
+      "expression": "BETA.INV(1e-75,0.25,1)",
+      "expected": 1e-300
+    },
+    {
+      "expression": "BETA.INV(3e-76,0.25,1)",
+      "expected": 8.1000000000004e-303
+    },
+    {
+      "expression": "BETA.INV(1e-290,1,1)",
+      "expected": 1e-290
+    },
+    {
+      "expression": "BETA.INV(1e-290,1,2)",
+      "expected": 5.0000000000005e-291
+    },
+    {
+      "expression": "GAMMA.INV(1e-290,1,1)",
+      "expected": 1e-290
+    },
+    {
+      "expression": "CHISQ.INV(1e-290,2)",
+      "expected": 2e-290
+    },
+    {
+      "expression": "F.INV(1e-290,2,2)",
+      "expected": 1e-290
+    },
+    {
+      "expression": "BETA.INV(1e-299,1,1)",
+      "expected": 1e-299
+    },
+    {
+      "expression": "BETA.INV(1e-299,1,2)",
+      "expected": 5.0000000000004e-300
+    },
+    {
+      "expression": "GAMMA.INV(1e-299,1,1)",
+      "expected": 1e-299
+    },
+    {
+      "expression": "CHISQ.INV(1e-299,2)",
+      "expected": 2e-299
+    },
+    {
+      "expression": "F.INV(1e-299,2,2)",
+      "expected": 1e-299
+    },
+    {
+      "expression": "BETA.INV(1e-300,1,1)",
+      "expected": 1e-300
+    },
+    {
+      "expression": "BETA.INV(1e-300,1,2)",
+      "expected": 5.0000000000004e-301
+    },
+    {
+      "expression": "GAMMA.INV(1e-300,1,1)",
+      "expected": 1e-300
+    },
+    {
+      "expression": "CHISQ.INV(1e-300,2)",
+      "expected": 2e-300
+    },
+    {
+      "expression": "F.INV(1e-300,2,2)",
+      "expected": 1e-300
+    },
+    {
+      "expression": "BETA.INV(1e-301,1,1)",
+      "expected": 1e-301
+    },
+    {
+      "expression": "BETA.INV(1e-301,1,2)",
+      "expected": 5.0000000000004e-302
+    },
+    {
+      "expression": "GAMMA.INV(1e-301,1,1)",
+      "expected": 1e-301
+    },
+    {
+      "expression": "CHISQ.INV(1e-301,2)",
+      "expected": 2e-301
+    },
+    {
+      "expression": "F.INV(1e-301,2,2)",
+      "expected": 1e-301
+    },
+    {
+      "expression": "BETA.INV(1e-306,1,1)",
+      "expected": 9.9999999999997e-307
+    },
+    {
+      "expression": "BETA.INV(1e-306,1,2)",
+      "expected": 5.0000000000001e-307
+    },
+    {
+      "expression": "GAMMA.INV(1e-306,1,1)",
+      "expected": 1e-306
+    },
+    {
+      "expression": "CHISQ.INV(1e-306,2)",
+      "expected": 2e-306
+    },
+    {
+      "expression": "F.INV(1e-306,2,2)",
+      "expected": 9.9999999999997e-307
+    },
+    {
+      "expression": "BETA.INV(3e-307,1,1)",
+      "expected": 3.0000000000001e-307
+    },
+    {
+      "expression": "BETA.INV(3e-307,1,2)",
+      "expected": 1.5000000000001e-307
+    },
+    {
+      "expression": "GAMMA.INV(3e-307,1,1)",
+      "expected": 3e-307
+    },
+    {
+      "expression": "CHISQ.INV(3e-307,2)",
+      "expected": 6e-307
+    },
+    {
+      "expression": "F.INV(3e-307,2,2)",
+      "expected": 3.0000000000001e-307
+    },
+    {
+      "expression": "GAMMA.INV(1e-149,0.5,0.001)",
+      "expected": 7.8539816339745e-302
+    },
+    {
+      "expression": "GAMMAINV(1e-149,0.5,0.001)",
+      "expected": 7.8539816339745e-302
+    },
+    {
+      "expression": "BETA.INV(1e-149,0.5,1,0,0.001)",
+      "expected": 1e-301
+    },
+    {
+      "expression": "BETAINV(1e-149,0.5,2,0,0.001)",
+      "expected": 4.4444444444445e-302
+    },
+    {
+      "expression": "GAMMA.INV(1e-149,0.5,1000)",
+      "expected": 7.8539816339745e-296
+    },
+    {
+      "expression": "GAMMAINV(1e-149,0.5,1000)",
+      "expected": 7.8539816339745e-296
+    },
+    {
+      "expression": "BETA.INV(1e-149,0.5,1,0,1000)",
+      "expected": 1e-295
+    },
+    {
+      "expression": "BETAINV(1e-149,0.5,2,0,1000)",
+      "expected": 4.4444444444445e-296
+    },
+    {
+      "expression": "GAMMA.INV(1e-150,0.5,0.001)",
+      "expected": 7.8539816339745e-304
+    },
+    {
+      "expression": "GAMMAINV(1e-150,0.5,0.001)",
+      "expected": 7.8539816339745e-304
+    },
+    {
+      "expression": "BETA.INV(1e-150,0.5,1,0,0.001)",
+      "expected": 1e-303
+    },
+    {
+      "expression": "BETAINV(1e-150,0.5,2,0,0.001)",
+      "expected": 4.4444444444446e-304
+    },
+    {
+      "expression": "GAMMA.INV(1e-150,0.5,1000)",
+      "expected": 7.8539816339745e-298
+    },
+    {
+      "expression": "GAMMAINV(1e-150,0.5,1000)",
+      "expected": 7.8539816339745e-298
+    },
+    {
+      "expression": "BETA.INV(1e-150,0.5,1,0,1000)",
+      "expected": 1e-297
+    },
+    {
+      "expression": "BETAINV(1e-150,0.5,2,0,1000)",
+      "expected": 4.4444444444446e-298
+    },
+    {
+      "expression": "GAMMA.INV(1e-151,0.5,0.001)",
+      "expected": 7.8539816339745e-306
+    },
+    {
+      "expression": "GAMMAINV(1e-151,0.5,0.001)",
+      "expected": 7.8539816339745e-306
+    },
+    {
+      "expression": "BETA.INV(1e-151,0.5,1,0,0.001)",
+      "expected": 1e-305
+    },
+    {
+      "expression": "BETAINV(1e-151,0.5,2,0,0.001)",
+      "expected": 4.4444444444447e-306
+    },
+    {
+      "expression": "GAMMA.INV(1e-151,0.5,1000)",
+      "expected": 7.8539816339745e-300
+    },
+    {
+      "expression": "GAMMAINV(1e-151,0.5,1000)",
+      "expected": 7.8539816339745e-300
+    },
+    {
+      "expression": "BETA.INV(1e-151,0.5,1,0,1000)",
+      "expected": 1e-299
+    },
+    {
+      "expression": "BETAINV(1e-151,0.5,2,0,1000)",
+      "expected": 4.4444444444447e-300
+    }
+  ]
+}

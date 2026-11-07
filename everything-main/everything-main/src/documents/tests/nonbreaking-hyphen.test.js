@@ -1,0 +1,98 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync, zipSync, strFromU8, strToU8 } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument, paragraph } from '../src/engine/model.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+import { cellIntrinsicWidths } from '../src/engine/intrinsic-widths.js';
+import { documentBlocks } from '../src/engine/tables.js';
+const folder = 'tests/fixtures/nonbreaking-hyphen/';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const open = name => DocxPackage.open(readFileSync(folder + name + '.docx'));
+const model = p => new TextDocument(p.paragraphs, p.pageSettings, p.numbering, p.styles, p.tables, p.assets);
+const save = async (p, d) => new Uint8Array(await p.export(d.paragraphs, d.pageSettings, d.numbering, d.styles, d.tables, d.assets).arrayBuffer());
+const markers = d => d.paragraphs.flatMap(p => p.runs).filter(r => r.noBreakHyphen);
+it.each(['before', 'after', 'both'])('preserves rich %s marker occurrences and no-op bytes', async position => {
+  const p = await open(position + '-element'), d = model(p);
+  const runs = [...p.paragraphs, ...Object.values(p.pageStories.stories).flatMap(s => s.paragraphs)].flatMap(p => p.runs);
+  expect(runs.filter(r => r.image && r.bold && r.link)).toHaveLength(4);
+  expect(runs.filter(r => r.noBreakHyphen)).toHaveLength(position === 'both' ? 9 : 5);
+  expect(runs.filter(r => r.noBreakHyphen).every(r => r.text === '\u2011')).toBe(true);
+  expect(unzipSync(await save(p, d))).toEqual(p.parts);
+  const unicode = await open(position + '-unicode');
+  expect(markers(model(unicode))).toHaveLength(0);
+});
+it('retains marker identity through formatting, typing, replacement, reopen and exact undo', async () => {
+  const p = await open('both-element'), d = model(p), count = markers(d).length;
+  const at = d.text.indexOf('\u2011');
+  d.select(at, at + 1); expect(d.clipboardText()).toBe('\u2011');
+  d.toggleBold(); expect(markers(model(await DocxPackage.open(await save(p, d))))).toHaveLength(count);
+  d.undo(); expect(unzipSync(await save(p, d))).toEqual(p.parts);
+  d.select(at + 1); d.replace('Z');
+  expect(markers(d)).toHaveLength(count); expect(markers(d).every(r => r.text === '\u2011')).toBe(true);
+  expect(markers(model(await DocxPackage.open(await save(p, d))))).toHaveLength(count);
+  d.undo(); expect(unzipSync(await save(p, d))).toEqual(p.parts);
+  d.select(at, at + 1); d.replace('Q'); expect(markers(d)).toHaveLength(count - 1);
+  expect(markers(model(await DocxPackage.open(await save(p, d))))).toHaveLength(count - 1);
+  d.undo(); expect(unzipSync(await save(p, d))).toEqual(p.parts);
+  expect(d.replaceMatches('\u2011', 'R', {}, true)).toBe(count);
+  expect(markers(model(await DocxPackage.open(await save(p, d))))).toHaveLength(0);
+  d.undo(); expect(unzipSync(await save(p, d))).toEqual(p.parts);
+});
+it('measures hyphen-minus glyphs without offering ASCII hyphen breaks', async () => {
+  const p = await open('semantics');
+  const measure = text => ({ width: [...text].reduce((n, c) => n + (c === '\u2011' ? 20 : 6), 0), ascent: 12, descent: 4 });
+  const layout = layoutDocument(p.paragraphs, measure, pageGeometry(p.pageSettings), p.numbering, p.tables);
+  const lines = p.paragraphs.filter(p => p.runs.some(r => r.noBreakHyphen)).map(p => layout.lines.filter(l => l.paragraphId === p.id).map(l => l.fragments.map(f => f.text).join('')));
+  expect(lines).toHaveLength(2);
+  for (const value of lines) { expect(value.join('')).toContain('example-word'); expect(value.some(l => l.includes('example-word'))).toBe(true); }
+  const a = await open('both-element');
+  const cell = documentBlocks(a.paragraphs, a.tables).find(b => b.table).rows[0].cells[0];
+  const observed = [];
+  cellIntrinsicWidths(cell, text => { observed.push(text); return measure(text); }, pageGeometry(a.pageSettings), a.numbering, {});
+  expect(observed.some(t => t.includes('-'))).toBe(true);
+  expect(observed.some(t => t.includes('\u2011'))).toBe(false);
+});
+it.each(['attribute', 'child', 'text'])('rejects malformed nonbreaking hyphen %s', async kind => {
+  const parts = unzipSync(readFileSync(folder + 'both-element.docx'));
+  const invalid = kind === 'attribute' ? '<w:noBreakHyphen w:val="1"/>' : kind === 'child' ? '<w:noBreakHyphen><w:t>x</w:t></w:noBreakHyphen>' : '<w:noBreakHyphen>x</w:noBreakHyphen>';
+  parts['word/document.xml'] = strToU8(strFromU8(parts['word/document.xml']).replace('<w:noBreakHyphen/>', invalid));
+  await expect(DocxPackage.open(zipSync(parts))).rejects.toThrow(/malformed nonbreaking hyphens/);
+});
+it('retains a combining mark across the marker/run boundary', async () => {
+  const parts = unzipSync(readFileSync(folder + 'semantics.docx'));
+  parts['word/document.xml'] = strToU8(strFromU8(parts['word/document.xml']).replace('<w:noBreakHyphen/>', '<w:noBreakHyphen/><w:t>\u0301</w:t>'));
+  const p = await DocxPackage.open(zipSync(parts)), measured = [];
+  const l = layoutDocument(p.paragraphs, text => { measured.push(text); return { width: text.length * 6, ascent: 12, descent: 4 }; }, pageGeometry(p.pageSettings));
+  expect(l.lines.flatMap(l => l.fragments).some(f => f.text.includes('-\u0301'))).toBe(true);
+  expect(measured.some(t => t.includes('-\u0301'))).toBe(true);
+});
+it('keeps the whole nonbreaking word in a table minimum without splitting its shaping span', () => {
+  const p = paragraph(''), base = p.runs[0];
+  p.runs = [{ ...base, text: 'x aa' }, { ...base, text: '\u2011', noBreakHyphen: true }, { ...base, text: 'bbbb' }];
+  const measured = [], measure = text => { measured.push(text); return { width: text.length * 8, ascent: 12, descent: 4 }; };
+  const metrics = cellIntrinsicWidths({ margins: { left: 0, right: 0 }, content: [{ paragraph: p, index: 0 }] }, measure, { width: 56, height: 500, left: 0, right: 0, top: 0, bottom: 0 }, undefined, []);
+  expect(metrics.min).toBe(56); expect(metrics.max).toBe(72);
+  expect(measured).toContain('aa-bbbb');
+});
+it('retains the marker inside a drawing text box and paints its hyphen-minus glyph', async () => {
+  const parts = unzipSync(readFileSync('tests/fixtures/shape-autofit-recovery/matched.docx'));
+  const xml = new DOMParser().parseFromString(strFromU8(parts['word/document.xml']), 'application/xml');
+  const w = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const box = xml.getElementsByTagNameNS(w, 'txbxContent')[0];
+  const run = box.getElementsByTagNameNS(w, 'r')[0];
+  run.append(xml.createElementNS(w, 'w:noBreakHyphen'));
+  parts['word/document.xml'] = strToU8(new XMLSerializer().serializeToString(xml));
+  const pkg = await DocxPackage.open(zipSync(parts)), paragraphs = [];
+  const visit = node => { if (node.text) paragraphs.push(...node.text.paragraphs); for (const child of node.children || []) visit(child); };
+  for (const asset of Object.values(pkg.assets)) if (asset.scene) visit(asset.scene);
+  const marked = paragraphs.filter(p => p.runs.some(r => r.noBreakHyphen));
+  expect(marked).toHaveLength(1);
+  const l = layoutDocument(marked, text => ({ width: text.length * 8, ascent: 12, descent: 4 }), { width: 500, height: 800, left: 0, right: 0, top: 0, bottom: 0 });
+  expect(l.lines.flatMap(l => l.fragments).map(f => f.text).join('')).toContain('-');
+  expect(unzipSync(new Uint8Array(await pkg.export().arrayBuffer()))).toEqual(parts);
+});

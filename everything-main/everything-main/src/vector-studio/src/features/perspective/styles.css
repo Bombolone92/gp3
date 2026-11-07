@@ -1,0 +1,233 @@
+/* ---- Plane widget (canvas corner while the perspective grid shows) ---- */
+.persp-widget {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-float);
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.persp-widget[hidden] {
+  display: none;
+}
+
+.persp-widget.top-left {
+  top: 8px;
+  left: 8px;
+}
+
+.persp-widget.top-right {
+  top: 8px;
+  right: 8px;
+}
+
+.persp-widget.bottom-left {
+  bottom: 8px;
+  left: 8px;
+}
+
+.persp-widget.bottom-right {
+  bottom: 8px;
+  right: 8px;
+}
+
+.canvas-wrap.has-rulers .persp-widget.top-left {
+  top: 26px;
+  left: 26px;
+}
+
+.canvas-wrap.has-rulers .persp-widget.top-right {
+  top: 26px;
+}
+
+.canvas-wrap.has-rulers .persp-widget.bottom-left {
+  left: 26px;
+}
+
+.persp-widget-svg {
+  display: block;
+  overflow: visible;
+}
+
+.persp-face {
+  cursor: pointer;
+  outline: none;
+}
+
+.persp-face path,
+.persp-face circle {
+  fill: color-mix(in srgb, var(--face, var(--text-3)) 22%, transparent);
+  stroke: var(--text-3);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: fill var(--t-fast);
+}
+
+.persp-face:hover path,
+.persp-face:hover circle {
+  fill: color-mix(in srgb, var(--face, var(--text-3)) 45%, transparent);
+}
+
+.persp-face.active path,
+.persp-face.active circle {
+  fill: var(--face, var(--text-2));
+  stroke: var(--text);
+}
+
+.persp-none circle {
+  fill: var(--bg-elev);
+}
+
+.persp-none path {
+  fill: none;
+  stroke: var(--text-3);
+}
+
+.persp-none.active circle {
+  fill: var(--text-2);
+}
+
+.persp-none.active path {
+  stroke: var(--bg-elev);
+}
+
+.persp-face:focus-visible path,
+.persp-face:focus-visible circle {
+  stroke: var(--focus);
+  stroke-width: 3;
+}
+
+.persp-widget-hide {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+}
+
+/* ---- Dialogs ---- */
+.persp-define {
+  min-width: min(440px, 100%);
+}
+
+.persp-preset,
+.persp-pair {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.persp-preset select,
+.persp-pair input,
+.persp-pair select {
+  flex: 1;
+  min-width: 0;
+}
+
+.persp-axis {
+  color: var(--text-3);
+}
+
+.persp-every input {
+  width: 100%;
+}
+
+.persp-scale-info {
+  grid-column: auto;
+  margin: -2px 0 0 160px;
+}
+
+.persp-presets {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  min-width: min(560px, 100%);
+}
+
+.persp-presets-list,
+.persp-presets-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.persp-preset-list {
+  height: 200px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.persp-preset-list:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.persp-preset-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  cursor: default;
+}
+
+.persp-preset-item:hover {
+  background: var(--bg-hover);
+}
+
+.persp-preset-item[aria-selected='true'] {
+  background: var(--bg-selected);
+}
+
+.persp-preset-tag {
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.persp-preset-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.persp-preset-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  margin: 0;
+}
+
+.persp-preset-details dt {
+  color: var(--text-2);
+}
+
+.persp-preset-details dd {
+  margin: 0;
+}
+
+.persp-text {
+  width: 100%;
+  min-width: min(360px, 100%);
+  font: inherit;
+  resize: vertical;
+}
+
+@media (max-width: 760px) {
+  .persp-scale-info {
+    margin-left: 0;
+  }
+
+  .persp-presets {
+    grid-template-columns: 1fr;
+  }
+
+  .persp-preset-list {
+    height: 150px;
+  }
+}

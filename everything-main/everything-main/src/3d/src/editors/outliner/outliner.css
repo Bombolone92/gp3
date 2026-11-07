@@ -1,0 +1,273 @@
+/* Outliner additions: item hit area, collection color tags, restriction columns, drag and drop,
+   box selection, mode column, data-block user counts and the filter popover. */
+
+.ol-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 0 1 auto;
+  border-radius: 3px;
+  padding-right: 3px;
+}
+.ol-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.ol-row.col-active:not(.selected) {
+  background: rgba(var(--hl-rgb, 255, 255, 255), 0.07);
+}
+.ol-row.indirect .ol-name {
+  font-style: italic;
+  opacity: 0.7;
+}
+.ol-row.match {
+  background: rgba(74, 158, 97, 0.22);
+}
+.ol-row.match.selected {
+  background: var(--c-ol-selected);
+}
+.ol-row.match .ol-name {
+  color: #c2f1cb;
+}
+.ol-row.drop-into {
+  box-shadow: 0 0 0 1px var(--accent) inset;
+  background: rgba(90, 138, 252, 0.12);
+}
+.ol-row.drop-before {
+  box-shadow: 0 2px 0 -0px var(--accent) inset;
+}
+.ol-row.drop-after {
+  box-shadow: 0 -2px 0 0 var(--accent) inset;
+}
+.ol-drop-hint {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: rgb(from var(--g-14, #101113) r g b / 0.92);
+  border: 1px solid var(--g-44, #424244);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  color: var(--t-dd, #dedfe1);
+  white-space: nowrap;
+}
+.ol-box {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  border: 1px dashed rgba(var(--hl-rgb, 255, 255, 255), 0.7);
+  background: rgba(var(--hl-rgb, 255, 255, 255), 0.06);
+}
+.ol-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+.ol-chip-n {
+  font-size: 10px;
+  color: var(--t-aa, #aaabad);
+  margin-right: 2px;
+}
+.ol-toggle-space {
+  width: 22px;
+  height: 20px;
+  flex: none;
+}
+.ol-toggles .ol-toggle {
+  flex: none;
+}
+.ol-row.dim .ol-toggle:not(.off) {
+  color: var(--t-99, #999a9b);
+}
+.ol-mode {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 3px;
+  color: var(--t-88, #87888a);
+  margin-left: 2px;
+}
+button.ol-mode:hover {
+  background: rgba(var(--hl-rgb, 255, 255, 255), 0.1);
+}
+.ol-mode.on {
+  color: var(--t-dd, #dedfe1);
+}
+.ol-users {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.ol-user-count {
+  min-width: 22px;
+  text-align: right;
+  color: var(--t-aa, #aaabad);
+  font-size: 11px;
+  padding-right: 4px;
+}
+.ol-purge {
+  margin-left: 4px;
+  padding: 0 10px;
+}
+.hdr-toggle.ol-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  width: auto;
+  padding: 0 3px;
+}
+.hdr-toggle.ol-filter-btn.on {
+  color: var(--accent);
+}
+
+/* collection color tags */
+.ct-COLOR_01 .icon .c-co.s {
+  stroke: #de5a49;
+}
+.ct-COLOR_02 .icon .c-co.s {
+  stroke: #eb9e35;
+}
+.ct-COLOR_03 .icon .c-co.s {
+  stroke: #e2d346;
+}
+.ct-COLOR_04 .icon .c-co.s {
+  stroke: #61be61;
+}
+.ct-COLOR_05 .icon .c-co.s {
+  stroke: #538ddf;
+}
+.ct-COLOR_06 .icon .c-co.s {
+  stroke: #a368d5;
+}
+.ct-COLOR_07 .icon .c-co.s {
+  stroke: #d56ba2;
+}
+.ct-COLOR_08 .icon .c-co.s {
+  stroke: #977a57;
+}
+
+/* filter popover */
+.olf {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px 8px;
+}
+.olf-head {
+  font-size: 11px;
+  color: var(--t-99, #999a9b);
+  margin: 6px 0 2px;
+}
+.olf-head:first-child {
+  margin-top: 0;
+}
+.olf-cols {
+  display: flex;
+  gap: 1px;
+  margin-bottom: 4px;
+}
+.olf-col {
+  width: 28px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 3px;
+  background: var(--w-field, #28292a);
+  color: var(--t-88, #87888a);
+}
+.olf-col.on {
+  background: var(--accent);
+  color: var(--c-text-on-accent, #ffffff);
+}
+.olf-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+}
+.olf-ic {
+  display: grid;
+  place-items: center;
+  width: 16px;
+}
+.olf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.olf-state {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.olf-state .enum-menu {
+  min-width: 86px;
+}
+.olf-invert {
+  width: 22px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--w-field, #28292a);
+}
+.olf-invert.on {
+  background: var(--accent);
+  color: var(--c-text-on-accent, #ffffff);
+}
+.olf-indent {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ol-spacer-row {
+  flex: none;
+  pointer-events: none;
+}
+.ol-count {
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 7px;
+  background: rgba(var(--hl-rgb, 255, 255, 255), 0.08);
+  color: var(--t-aa, #aaabad);
+  font-size: 10px;
+  line-height: 14px;
+}
+
+/* Data API display mode: property values */
+.ol-api-value {
+  flex: none;
+  width: 42%;
+  max-width: 220px;
+  min-width: 90px;
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+.ol-api-value > * {
+  flex: 1;
+  min-width: 0;
+}
+.ol-api-value .num-field {
+  height: 18px;
+}
+.ol-api-text {
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 3px;
+  background: var(--w-field, #1a1b1c);
+  color: var(--c-text);
+  border: none;
+  font: inherit;
+}
+.ol-api-ro {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--c-text-dim);
+  padding: 0 4px;
+}

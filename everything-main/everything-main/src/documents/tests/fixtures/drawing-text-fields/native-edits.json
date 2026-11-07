@@ -1,0 +1,85 @@
+﻿{
+    "scope":  "Native neighboring text edits in standalone/grouped drawing page fields; separate SaveAs2 result, unchanged source",
+    "frames":  [
+                   {
+                       "fieldsAfter":  [
+                                           {
+                                               "code":  " PAGE \\* MERGEFORMAT ",
+                                               "locked":  false,
+                                               "result":  "99"
+                                           }
+                                       ],
+                       "title":  "Standalone title",
+                       "before":  "Standalone title\rBefore 99 after\r",
+                       "fieldsBefore":  [
+                                            {
+                                                "code":  " PAGE \\* MERGEFORMAT ",
+                                                "locked":  false,
+                                                "result":  "99"
+                                            }
+                                        ],
+                       "after":  "Standalone title\rEdited 99 after\r"
+                   },
+                   {
+                       "fieldsAfter":  [
+                                           {
+                                               "code":  " NUMPAGES \\* MERGEFORMAT ",
+                                               "locked":  false,
+                                               "result":  "99"
+                                           }
+                                       ],
+                       "title":  "Left grouped title",
+                       "before":  "Left grouped title\rBefore 99 after\r",
+                       "fieldsBefore":  [
+                                            {
+                                                "code":  " NUMPAGES \\* MERGEFORMAT ",
+                                                "locked":  false,
+                                                "result":  "99"
+                                            }
+                                        ],
+                       "after":  "Left grouped title\rEdited 99 after\r"
+                   },
+                   {
+                       "fieldsAfter":  [
+                                           {
+                                               "code":  " SECTIONPAGES \\* MERGEFORMAT ",
+                                               "locked":  true,
+                                               "result":  "99"
+                                           },
+                                           {
+                                               "code":  " PAGE \\* MERGEFORMAT ",
+                                               "locked":  true,
+                                               "result":  "99"
+                                           },
+                                           {
+                                               "code":  " PAGE \\* MERGEFORMAT ",
+                                               "locked":  true,
+                                               "result":  "99"
+                                           }
+                                       ],
+                       "title":  "Right grouped title",
+                       "before":  "Right grouped title\rBefore 99 after\r9999\r",
+                       "fieldsBefore":  [
+                                            {
+                                                "code":  " SECTIONPAGES \\* MERGEFORMAT ",
+                                                "locked":  true,
+                                                "result":  "99"
+                                            },
+                                            {
+                                                "code":  " PAGE \\* MERGEFORMAT ",
+                                                "locked":  true,
+                                                "result":  "99"
+                                            },
+                                            {
+                                                "code":  " PAGE \\* MERGEFORMAT ",
+                                                "locked":  true,
+                                                "result":  "99"
+                                            }
+                                        ],
+                       "after":  "Right grouped title\rEdited 99 after\r9999\r"
+                   }
+               ],
+    "sourceSha256":  "58af1bf5fea1d5709f5bdd37cb820dfe1a7947477587e0bc94a475dd34b2864b",
+    "referenceBuild":  "16.0.20326",
+    "sourceUnchanged":  true
+}

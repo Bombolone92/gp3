@@ -1,0 +1,3248 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Every formula was evaluated independently, then assigned to a disposable worksheet and read back through the native value property. All 646 text results agree between these paths. The temporary range was cleared and COUNTA returned zero.",
+  "sources": [
+    {
+      "scriptSha256": "dfcfd8f77ffca2735dcf2dcd2689d278175f14004a18f867b0a4f7f3eb928220",
+      "captureSha256": "6c1bc0496498ae5b1017e8bc2a846b4b866dc3345d33498ee05825833c71b571"
+    },
+    {
+      "scriptSha256": "e626a96329c4aa761840288dabef6142f3a6bd9d419cd1cbac0ad793fd265a50",
+      "captureSha256": "59d2d119e4e329439a6e33ae3ddc33d9feebc750fe1f276faf8c9ae9f834a4d0"
+    }
+  ],
+  "worksheetScriptSha256": "cc26745946a8f7d5fff50f461f8e31f4b84923f59f31c23da3d976677300093b",
+  "worksheetCaptureSha256": "2a23cb08a2a2839df695544c4ca3ef6ed6f3cdbab5e292cf7fa541232527a1e3",
+  "cases": [
+    {
+      "expression": "1e-15",
+      "formula": "(1e-15)&\"\"",
+      "expected": "0.000000000000001"
+    },
+    {
+      "expression": "-(1e-15)",
+      "formula": "(-(1e-15))&\"\"",
+      "expected": "-0.000000000000001"
+    },
+    {
+      "expression": "1e-14",
+      "formula": "(1e-14)&\"\"",
+      "expected": "0.00000000000001"
+    },
+    {
+      "expression": "-(1e-14)",
+      "formula": "(-(1e-14))&\"\"",
+      "expected": "-0.00000000000001"
+    },
+    {
+      "expression": "1e-13",
+      "formula": "(1e-13)&\"\"",
+      "expected": "0.0000000000001"
+    },
+    {
+      "expression": "-(1e-13)",
+      "formula": "(-(1e-13))&\"\"",
+      "expected": "-0.0000000000001"
+    },
+    {
+      "expression": "1e-12",
+      "formula": "(1e-12)&\"\"",
+      "expected": "0.000000000001"
+    },
+    {
+      "expression": "-(1e-12)",
+      "formula": "(-(1e-12))&\"\"",
+      "expected": "-0.000000000001"
+    },
+    {
+      "expression": "1e-11",
+      "formula": "(1e-11)&\"\"",
+      "expected": "0.00000000001"
+    },
+    {
+      "expression": "-(1e-11)",
+      "formula": "(-(1e-11))&\"\"",
+      "expected": "-0.00000000001"
+    },
+    {
+      "expression": "1e-10",
+      "formula": "(1e-10)&\"\"",
+      "expected": "0.0000000001"
+    },
+    {
+      "expression": "-(1e-10)",
+      "formula": "(-(1e-10))&\"\"",
+      "expected": "-0.0000000001"
+    },
+    {
+      "expression": "1e-9",
+      "formula": "(1e-9)&\"\"",
+      "expected": "0.000000001"
+    },
+    {
+      "expression": "-(1e-9)",
+      "formula": "(-(1e-9))&\"\"",
+      "expected": "-0.000000001"
+    },
+    {
+      "expression": "1e-8",
+      "formula": "(1e-8)&\"\"",
+      "expected": "0.00000001"
+    },
+    {
+      "expression": "-(1e-8)",
+      "formula": "(-(1e-8))&\"\"",
+      "expected": "-0.00000001"
+    },
+    {
+      "expression": "1e-7",
+      "formula": "(1e-7)&\"\"",
+      "expected": "0.0000001"
+    },
+    {
+      "expression": "-(1e-7)",
+      "formula": "(-(1e-7))&\"\"",
+      "expected": "-0.0000001"
+    },
+    {
+      "expression": "1e-6",
+      "formula": "(1e-6)&\"\"",
+      "expected": "0.000001"
+    },
+    {
+      "expression": "-(1e-6)",
+      "formula": "(-(1e-6))&\"\"",
+      "expected": "-0.000001"
+    },
+    {
+      "expression": "1e-5",
+      "formula": "(1e-5)&\"\"",
+      "expected": "0.00001"
+    },
+    {
+      "expression": "-(1e-5)",
+      "formula": "(-(1e-5))&\"\"",
+      "expected": "-0.00001"
+    },
+    {
+      "expression": "1e-4",
+      "formula": "(1e-4)&\"\"",
+      "expected": "0.0001"
+    },
+    {
+      "expression": "-(1e-4)",
+      "formula": "(-(1e-4))&\"\"",
+      "expected": "-0.0001"
+    },
+    {
+      "expression": "1e-3",
+      "formula": "(1e-3)&\"\"",
+      "expected": "0.001"
+    },
+    {
+      "expression": "-(1e-3)",
+      "formula": "(-(1e-3))&\"\"",
+      "expected": "-0.001"
+    },
+    {
+      "expression": "1e-2",
+      "formula": "(1e-2)&\"\"",
+      "expected": "0.01"
+    },
+    {
+      "expression": "-(1e-2)",
+      "formula": "(-(1e-2))&\"\"",
+      "expected": "-0.01"
+    },
+    {
+      "expression": "1e-1",
+      "formula": "(1e-1)&\"\"",
+      "expected": "0.1"
+    },
+    {
+      "expression": "-(1e-1)",
+      "formula": "(-(1e-1))&\"\"",
+      "expected": "-0.1"
+    },
+    {
+      "expression": "1e0",
+      "formula": "(1e0)&\"\"",
+      "expected": "1"
+    },
+    {
+      "expression": "-(1e0)",
+      "formula": "(-(1e0))&\"\"",
+      "expected": "-1"
+    },
+    {
+      "expression": "1e1",
+      "formula": "(1e1)&\"\"",
+      "expected": "10"
+    },
+    {
+      "expression": "-(1e1)",
+      "formula": "(-(1e1))&\"\"",
+      "expected": "-10"
+    },
+    {
+      "expression": "1e2",
+      "formula": "(1e2)&\"\"",
+      "expected": "100"
+    },
+    {
+      "expression": "-(1e2)",
+      "formula": "(-(1e2))&\"\"",
+      "expected": "-100"
+    },
+    {
+      "expression": "1e3",
+      "formula": "(1e3)&\"\"",
+      "expected": "1000"
+    },
+    {
+      "expression": "-(1e3)",
+      "formula": "(-(1e3))&\"\"",
+      "expected": "-1000"
+    },
+    {
+      "expression": "1e4",
+      "formula": "(1e4)&\"\"",
+      "expected": "10000"
+    },
+    {
+      "expression": "-(1e4)",
+      "formula": "(-(1e4))&\"\"",
+      "expected": "-10000"
+    },
+    {
+      "expression": "1e5",
+      "formula": "(1e5)&\"\"",
+      "expected": "100000"
+    },
+    {
+      "expression": "-(1e5)",
+      "formula": "(-(1e5))&\"\"",
+      "expected": "-100000"
+    },
+    {
+      "expression": "1e6",
+      "formula": "(1e6)&\"\"",
+      "expected": "1000000"
+    },
+    {
+      "expression": "-(1e6)",
+      "formula": "(-(1e6))&\"\"",
+      "expected": "-1000000"
+    },
+    {
+      "expression": "1e7",
+      "formula": "(1e7)&\"\"",
+      "expected": "10000000"
+    },
+    {
+      "expression": "-(1e7)",
+      "formula": "(-(1e7))&\"\"",
+      "expected": "-10000000"
+    },
+    {
+      "expression": "1e8",
+      "formula": "(1e8)&\"\"",
+      "expected": "100000000"
+    },
+    {
+      "expression": "-(1e8)",
+      "formula": "(-(1e8))&\"\"",
+      "expected": "-100000000"
+    },
+    {
+      "expression": "1e9",
+      "formula": "(1e9)&\"\"",
+      "expected": "1000000000"
+    },
+    {
+      "expression": "-(1e9)",
+      "formula": "(-(1e9))&\"\"",
+      "expected": "-1000000000"
+    },
+    {
+      "expression": "1e10",
+      "formula": "(1e10)&\"\"",
+      "expected": "10000000000"
+    },
+    {
+      "expression": "-(1e10)",
+      "formula": "(-(1e10))&\"\"",
+      "expected": "-10000000000"
+    },
+    {
+      "expression": "1e11",
+      "formula": "(1e11)&\"\"",
+      "expected": "100000000000"
+    },
+    {
+      "expression": "-(1e11)",
+      "formula": "(-(1e11))&\"\"",
+      "expected": "-100000000000"
+    },
+    {
+      "expression": "1e12",
+      "formula": "(1e12)&\"\"",
+      "expected": "1000000000000"
+    },
+    {
+      "expression": "-(1e12)",
+      "formula": "(-(1e12))&\"\"",
+      "expected": "-1000000000000"
+    },
+    {
+      "expression": "1e13",
+      "formula": "(1e13)&\"\"",
+      "expected": "10000000000000"
+    },
+    {
+      "expression": "-(1e13)",
+      "formula": "(-(1e13))&\"\"",
+      "expected": "-10000000000000"
+    },
+    {
+      "expression": "1e14",
+      "formula": "(1e14)&\"\"",
+      "expected": "100000000000000"
+    },
+    {
+      "expression": "-(1e14)",
+      "formula": "(-(1e14))&\"\"",
+      "expected": "-100000000000000"
+    },
+    {
+      "expression": "1e15",
+      "formula": "(1e15)&\"\"",
+      "expected": "1000000000000000"
+    },
+    {
+      "expression": "-(1e15)",
+      "formula": "(-(1e15))&\"\"",
+      "expected": "-1000000000000000"
+    },
+    {
+      "expression": "1e16",
+      "formula": "(1e16)&\"\"",
+      "expected": "10000000000000000"
+    },
+    {
+      "expression": "-(1e16)",
+      "formula": "(-(1e16))&\"\"",
+      "expected": "-10000000000000000"
+    },
+    {
+      "expression": "1e17",
+      "formula": "(1e17)&\"\"",
+      "expected": "100000000000000000"
+    },
+    {
+      "expression": "-(1e17)",
+      "formula": "(-(1e17))&\"\"",
+      "expected": "-100000000000000000"
+    },
+    {
+      "expression": "1e18",
+      "formula": "(1e18)&\"\"",
+      "expected": "1000000000000000000"
+    },
+    {
+      "expression": "-(1e18)",
+      "formula": "(-(1e18))&\"\"",
+      "expected": "-1000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "(1e19)&\"\"",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "-(1e19)",
+      "formula": "(-(1e19))&\"\"",
+      "expected": "-10000000000000000000"
+    },
+    {
+      "expression": "1e20",
+      "formula": "(1e20)&\"\"",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "-(1e20)",
+      "formula": "(-(1e20))&\"\"",
+      "expected": "-1E+20"
+    },
+    {
+      "expression": "1e21",
+      "formula": "(1e21)&\"\"",
+      "expected": "1E+21"
+    },
+    {
+      "expression": "-(1e21)",
+      "formula": "(-(1e21))&\"\"",
+      "expected": "-1E+21"
+    },
+    {
+      "expression": "1e22",
+      "formula": "(1e22)&\"\"",
+      "expected": "1E+22"
+    },
+    {
+      "expression": "-(1e22)",
+      "formula": "(-(1e22))&\"\"",
+      "expected": "-1E+22"
+    },
+    {
+      "expression": "1e23",
+      "formula": "(1e23)&\"\"",
+      "expected": "1E+23"
+    },
+    {
+      "expression": "-(1e23)",
+      "formula": "(-(1e23))&\"\"",
+      "expected": "-1E+23"
+    },
+    {
+      "expression": "1e24",
+      "formula": "(1e24)&\"\"",
+      "expected": "1E+24"
+    },
+    {
+      "expression": "-(1e24)",
+      "formula": "(-(1e24))&\"\"",
+      "expected": "-1E+24"
+    },
+    {
+      "expression": "1e25",
+      "formula": "(1e25)&\"\"",
+      "expected": "1E+25"
+    },
+    {
+      "expression": "-(1e25)",
+      "formula": "(-(1e25))&\"\"",
+      "expected": "-1E+25"
+    },
+    {
+      "expression": "1.23456789012345e-12",
+      "formula": "(1.23456789012345e-12)&\"\"",
+      "expected": "1.23456789012345E-12"
+    },
+    {
+      "expression": "-(1.23456789012345e-12)",
+      "formula": "(-(1.23456789012345e-12))&\"\"",
+      "expected": "-1.23456789012345E-12"
+    },
+    {
+      "expression": "9.99999999999999e-12",
+      "formula": "(9.99999999999999e-12)&\"\"",
+      "expected": "9.99999999999999E-12"
+    },
+    {
+      "expression": "-(9.99999999999999e-12)",
+      "formula": "(-(9.99999999999999e-12))&\"\"",
+      "expected": "-9.99999999999999E-12"
+    },
+    {
+      "expression": "1.23456789012345e-10",
+      "formula": "(1.23456789012345e-10)&\"\"",
+      "expected": "1.23456789012345E-10"
+    },
+    {
+      "expression": "-(1.23456789012345e-10)",
+      "formula": "(-(1.23456789012345e-10))&\"\"",
+      "expected": "-1.23456789012345E-10"
+    },
+    {
+      "expression": "9.99999999999999e-10",
+      "formula": "(9.99999999999999e-10)&\"\"",
+      "expected": "9.99999999999999E-10"
+    },
+    {
+      "expression": "-(9.99999999999999e-10)",
+      "formula": "(-(9.99999999999999e-10))&\"\"",
+      "expected": "-9.99999999999999E-10"
+    },
+    {
+      "expression": "1.23456789012345e-9",
+      "formula": "(1.23456789012345e-9)&\"\"",
+      "expected": "1.23456789012345E-09"
+    },
+    {
+      "expression": "-(1.23456789012345e-9)",
+      "formula": "(-(1.23456789012345e-9))&\"\"",
+      "expected": "-1.23456789012345E-09"
+    },
+    {
+      "expression": "9.99999999999999e-9",
+      "formula": "(9.99999999999999e-9)&\"\"",
+      "expected": "9.99999999999999E-09"
+    },
+    {
+      "expression": "-(9.99999999999999e-9)",
+      "formula": "(-(9.99999999999999e-9))&\"\"",
+      "expected": "-9.99999999999999E-09"
+    },
+    {
+      "expression": "1.23456789012345e-8",
+      "formula": "(1.23456789012345e-8)&\"\"",
+      "expected": "1.23456789012345E-08"
+    },
+    {
+      "expression": "-(1.23456789012345e-8)",
+      "formula": "(-(1.23456789012345e-8))&\"\"",
+      "expected": "-1.23456789012345E-08"
+    },
+    {
+      "expression": "9.99999999999999e-8",
+      "formula": "(9.99999999999999e-8)&\"\"",
+      "expected": "9.99999999999999E-08"
+    },
+    {
+      "expression": "-(9.99999999999999e-8)",
+      "formula": "(-(9.99999999999999e-8))&\"\"",
+      "expected": "-9.99999999999999E-08"
+    },
+    {
+      "expression": "1.23456789012345e-7",
+      "formula": "(1.23456789012345e-7)&\"\"",
+      "expected": "1.23456789012345E-07"
+    },
+    {
+      "expression": "-(1.23456789012345e-7)",
+      "formula": "(-(1.23456789012345e-7))&\"\"",
+      "expected": "-1.23456789012345E-07"
+    },
+    {
+      "expression": "9.99999999999999e-7",
+      "formula": "(9.99999999999999e-7)&\"\"",
+      "expected": "9.99999999999999E-07"
+    },
+    {
+      "expression": "-(9.99999999999999e-7)",
+      "formula": "(-(9.99999999999999e-7))&\"\"",
+      "expected": "-9.99999999999999E-07"
+    },
+    {
+      "expression": "1.23456789012345e-6",
+      "formula": "(1.23456789012345e-6)&\"\"",
+      "expected": "1.23456789012345E-06"
+    },
+    {
+      "expression": "-(1.23456789012345e-6)",
+      "formula": "(-(1.23456789012345e-6))&\"\"",
+      "expected": "-1.23456789012345E-06"
+    },
+    {
+      "expression": "9.99999999999999e-6",
+      "formula": "(9.99999999999999e-6)&\"\"",
+      "expected": "9.99999999999999E-06"
+    },
+    {
+      "expression": "-(9.99999999999999e-6)",
+      "formula": "(-(9.99999999999999e-6))&\"\"",
+      "expected": "-9.99999999999999E-06"
+    },
+    {
+      "expression": "1.23456789012345e-5",
+      "formula": "(1.23456789012345e-5)&\"\"",
+      "expected": "1.23456789012345E-05"
+    },
+    {
+      "expression": "-(1.23456789012345e-5)",
+      "formula": "(-(1.23456789012345e-5))&\"\"",
+      "expected": "-1.23456789012345E-05"
+    },
+    {
+      "expression": "9.99999999999999e-5",
+      "formula": "(9.99999999999999e-5)&\"\"",
+      "expected": "9.99999999999999E-05"
+    },
+    {
+      "expression": "-(9.99999999999999e-5)",
+      "formula": "(-(9.99999999999999e-5))&\"\"",
+      "expected": "-9.99999999999999E-05"
+    },
+    {
+      "expression": "1.23456789012345e-4",
+      "formula": "(1.23456789012345e-4)&\"\"",
+      "expected": "0.000123456789012345"
+    },
+    {
+      "expression": "-(1.23456789012345e-4)",
+      "formula": "(-(1.23456789012345e-4))&\"\"",
+      "expected": "-0.000123456789012345"
+    },
+    {
+      "expression": "9.99999999999999e-4",
+      "formula": "(9.99999999999999e-4)&\"\"",
+      "expected": "0.000999999999999999"
+    },
+    {
+      "expression": "-(9.99999999999999e-4)",
+      "formula": "(-(9.99999999999999e-4))&\"\"",
+      "expected": "-0.000999999999999999"
+    },
+    {
+      "expression": "1.23456789012345e0",
+      "formula": "(1.23456789012345e0)&\"\"",
+      "expected": "1.23456789012345"
+    },
+    {
+      "expression": "-(1.23456789012345e0)",
+      "formula": "(-(1.23456789012345e0))&\"\"",
+      "expected": "-1.23456789012345"
+    },
+    {
+      "expression": "9.99999999999999e0",
+      "formula": "(9.99999999999999e0)&\"\"",
+      "expected": "9.99999999999999"
+    },
+    {
+      "expression": "-(9.99999999999999e0)",
+      "formula": "(-(9.99999999999999e0))&\"\"",
+      "expected": "-9.99999999999999"
+    },
+    {
+      "expression": "1.23456789012345e10",
+      "formula": "(1.23456789012345e10)&\"\"",
+      "expected": "12345678901.2345"
+    },
+    {
+      "expression": "-(1.23456789012345e10)",
+      "formula": "(-(1.23456789012345e10))&\"\"",
+      "expected": "-12345678901.2345"
+    },
+    {
+      "expression": "9.99999999999999e10",
+      "formula": "(9.99999999999999e10)&\"\"",
+      "expected": "99999999999.9999"
+    },
+    {
+      "expression": "-(9.99999999999999e10)",
+      "formula": "(-(9.99999999999999e10))&\"\"",
+      "expected": "-99999999999.9999"
+    },
+    {
+      "expression": "1.23456789012345e11",
+      "formula": "(1.23456789012345e11)&\"\"",
+      "expected": "123456789012.345"
+    },
+    {
+      "expression": "-(1.23456789012345e11)",
+      "formula": "(-(1.23456789012345e11))&\"\"",
+      "expected": "-123456789012.345"
+    },
+    {
+      "expression": "9.99999999999999e11",
+      "formula": "(9.99999999999999e11)&\"\"",
+      "expected": "999999999999.999"
+    },
+    {
+      "expression": "-(9.99999999999999e11)",
+      "formula": "(-(9.99999999999999e11))&\"\"",
+      "expected": "-999999999999.999"
+    },
+    {
+      "expression": "1.23456789012345e12",
+      "formula": "(1.23456789012345e12)&\"\"",
+      "expected": "1234567890123.45"
+    },
+    {
+      "expression": "-(1.23456789012345e12)",
+      "formula": "(-(1.23456789012345e12))&\"\"",
+      "expected": "-1234567890123.45"
+    },
+    {
+      "expression": "9.99999999999999e12",
+      "formula": "(9.99999999999999e12)&\"\"",
+      "expected": "9999999999999.99"
+    },
+    {
+      "expression": "-(9.99999999999999e12)",
+      "formula": "(-(9.99999999999999e12))&\"\"",
+      "expected": "-9999999999999.99"
+    },
+    {
+      "expression": "1.23456789012345e13",
+      "formula": "(1.23456789012345e13)&\"\"",
+      "expected": "12345678901234.5"
+    },
+    {
+      "expression": "-(1.23456789012345e13)",
+      "formula": "(-(1.23456789012345e13))&\"\"",
+      "expected": "-12345678901234.5"
+    },
+    {
+      "expression": "9.99999999999999e13",
+      "formula": "(9.99999999999999e13)&\"\"",
+      "expected": "99999999999999.9"
+    },
+    {
+      "expression": "-(9.99999999999999e13)",
+      "formula": "(-(9.99999999999999e13))&\"\"",
+      "expected": "-99999999999999.9"
+    },
+    {
+      "expression": "1.23456789012345e14",
+      "formula": "(1.23456789012345e14)&\"\"",
+      "expected": "123456789012345"
+    },
+    {
+      "expression": "-(1.23456789012345e14)",
+      "formula": "(-(1.23456789012345e14))&\"\"",
+      "expected": "-123456789012345"
+    },
+    {
+      "expression": "9.99999999999999e14",
+      "formula": "(9.99999999999999e14)&\"\"",
+      "expected": "999999999999999"
+    },
+    {
+      "expression": "-(9.99999999999999e14)",
+      "formula": "(-(9.99999999999999e14))&\"\"",
+      "expected": "-999999999999999"
+    },
+    {
+      "expression": "1.23456789012345e15",
+      "formula": "(1.23456789012345e15)&\"\"",
+      "expected": "1234567890123450"
+    },
+    {
+      "expression": "-(1.23456789012345e15)",
+      "formula": "(-(1.23456789012345e15))&\"\"",
+      "expected": "-1234567890123450"
+    },
+    {
+      "expression": "9.99999999999999e15",
+      "formula": "(9.99999999999999e15)&\"\"",
+      "expected": "9999999999999990"
+    },
+    {
+      "expression": "-(9.99999999999999e15)",
+      "formula": "(-(9.99999999999999e15))&\"\"",
+      "expected": "-9999999999999990"
+    },
+    {
+      "expression": "1.23456789012345e16",
+      "formula": "(1.23456789012345e16)&\"\"",
+      "expected": "12345678901234500"
+    },
+    {
+      "expression": "-(1.23456789012345e16)",
+      "formula": "(-(1.23456789012345e16))&\"\"",
+      "expected": "-12345678901234500"
+    },
+    {
+      "expression": "9.99999999999999e16",
+      "formula": "(9.99999999999999e16)&\"\"",
+      "expected": "99999999999999900"
+    },
+    {
+      "expression": "-(9.99999999999999e16)",
+      "formula": "(-(9.99999999999999e16))&\"\"",
+      "expected": "-99999999999999900"
+    },
+    {
+      "expression": "1.23456789012345e17",
+      "formula": "(1.23456789012345e17)&\"\"",
+      "expected": "123456789012345000"
+    },
+    {
+      "expression": "-(1.23456789012345e17)",
+      "formula": "(-(1.23456789012345e17))&\"\"",
+      "expected": "-123456789012345000"
+    },
+    {
+      "expression": "9.99999999999999e17",
+      "formula": "(9.99999999999999e17)&\"\"",
+      "expected": "999999999999999000"
+    },
+    {
+      "expression": "-(9.99999999999999e17)",
+      "formula": "(-(9.99999999999999e17))&\"\"",
+      "expected": "-999999999999999000"
+    },
+    {
+      "expression": "1.23456789012345e18",
+      "formula": "(1.23456789012345e18)&\"\"",
+      "expected": "1234567890123450000"
+    },
+    {
+      "expression": "-(1.23456789012345e18)",
+      "formula": "(-(1.23456789012345e18))&\"\"",
+      "expected": "-1234567890123450000"
+    },
+    {
+      "expression": "9.99999999999999e18",
+      "formula": "(9.99999999999999e18)&\"\"",
+      "expected": "9999999999999990000"
+    },
+    {
+      "expression": "-(9.99999999999999e18)",
+      "formula": "(-(9.99999999999999e18))&\"\"",
+      "expected": "-9999999999999990000"
+    },
+    {
+      "expression": "1.23456789012345e19",
+      "formula": "(1.23456789012345e19)&\"\"",
+      "expected": "12345678901234500000"
+    },
+    {
+      "expression": "-(1.23456789012345e19)",
+      "formula": "(-(1.23456789012345e19))&\"\"",
+      "expected": "-12345678901234500000"
+    },
+    {
+      "expression": "9.99999999999999e19",
+      "formula": "(9.99999999999999e19)&\"\"",
+      "expected": "99999999999999900000"
+    },
+    {
+      "expression": "-(9.99999999999999e19)",
+      "formula": "(-(9.99999999999999e19))&\"\"",
+      "expected": "-99999999999999900000"
+    },
+    {
+      "expression": "1.23456789012345e20",
+      "formula": "(1.23456789012345e20)&\"\"",
+      "expected": "1.23456789012345E+20"
+    },
+    {
+      "expression": "-(1.23456789012345e20)",
+      "formula": "(-(1.23456789012345e20))&\"\"",
+      "expected": "-1.23456789012345E+20"
+    },
+    {
+      "expression": "9.99999999999999e20",
+      "formula": "(9.99999999999999e20)&\"\"",
+      "expected": "9.99999999999999E+20"
+    },
+    {
+      "expression": "-(9.99999999999999e20)",
+      "formula": "(-(9.99999999999999e20))&\"\"",
+      "expected": "-9.99999999999999E+20"
+    },
+    {
+      "expression": "1.23456789012345e21",
+      "formula": "(1.23456789012345e21)&\"\"",
+      "expected": "1.23456789012345E+21"
+    },
+    {
+      "expression": "-(1.23456789012345e21)",
+      "formula": "(-(1.23456789012345e21))&\"\"",
+      "expected": "-1.23456789012345E+21"
+    },
+    {
+      "expression": "9.99999999999999e21",
+      "formula": "(9.99999999999999e21)&\"\"",
+      "expected": "9.99999999999999E+21"
+    },
+    {
+      "expression": "-(9.99999999999999e21)",
+      "formula": "(-(9.99999999999999e21))&\"\"",
+      "expected": "-9.99999999999999E+21"
+    },
+    {
+      "expression": "1.23456789012345e22",
+      "formula": "(1.23456789012345e22)&\"\"",
+      "expected": "1.23456789012345E+22"
+    },
+    {
+      "expression": "-(1.23456789012345e22)",
+      "formula": "(-(1.23456789012345e22))&\"\"",
+      "expected": "-1.23456789012345E+22"
+    },
+    {
+      "expression": "9.99999999999999e22",
+      "formula": "(9.99999999999999e22)&\"\"",
+      "expected": "9.99999999999999E+22"
+    },
+    {
+      "expression": "-(9.99999999999999e22)",
+      "formula": "(-(9.99999999999999e22))&\"\"",
+      "expected": "-9.99999999999999E+22"
+    },
+    {
+      "expression": "1.23456789012345e99",
+      "formula": "(1.23456789012345e99)&\"\"",
+      "expected": "1.2345678901235E+99"
+    },
+    {
+      "expression": "-(1.23456789012345e99)",
+      "formula": "(-(1.23456789012345e99))&\"\"",
+      "expected": "-1.2345678901235E+99"
+    },
+    {
+      "expression": "9.99999999999999e99",
+      "formula": "(9.99999999999999e99)&\"\"",
+      "expected": "1E+100"
+    },
+    {
+      "expression": "-(9.99999999999999e99)",
+      "formula": "(-(9.99999999999999e99))&\"\"",
+      "expected": "-1E+100"
+    },
+    {
+      "expression": "1.23456789012345e100",
+      "formula": "(1.23456789012345e100)&\"\"",
+      "expected": "1.2345678901235E+100"
+    },
+    {
+      "expression": "-(1.23456789012345e100)",
+      "formula": "(-(1.23456789012345e100))&\"\"",
+      "expected": "-1.2345678901235E+100"
+    },
+    {
+      "expression": "9.99999999999999e100",
+      "formula": "(9.99999999999999e100)&\"\"",
+      "expected": "1E+101"
+    },
+    {
+      "expression": "-(9.99999999999999e100)",
+      "formula": "(-(9.99999999999999e100))&\"\"",
+      "expected": "-1E+101"
+    },
+    {
+      "expression": "1.23456789012345e307",
+      "formula": "(1.23456789012345e307)&\"\"",
+      "expected": "1.2345678901235E+307"
+    },
+    {
+      "expression": "-(1.23456789012345e307)",
+      "formula": "(-(1.23456789012345e307))&\"\"",
+      "expected": "-1.2345678901235E+307"
+    },
+    {
+      "expression": "9.99999999999999e307",
+      "formula": "(9.99999999999999e307)&\"\"",
+      "expected": "1E+308"
+    },
+    {
+      "expression": "-(9.99999999999999e307)",
+      "formula": "(-(9.99999999999999e307))&\"\"",
+      "expected": "-1E+308"
+    },
+    {
+      "expression": "0",
+      "formula": "(0)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-(0)",
+      "formula": "(-(0))&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-0",
+      "formula": "(-0)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-(-0)",
+      "formula": "(-(-0))&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "1/3",
+      "formula": "(1/3)&\"\"",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "-(1/3)",
+      "formula": "(-(1/3))&\"\"",
+      "expected": "-0.333333333333333"
+    },
+    {
+      "expression": "2^53",
+      "formula": "(2^53)&\"\"",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "-(2^53)",
+      "formula": "(-(2^53))&\"\"",
+      "expected": "-9007199254740990"
+    },
+    {
+      "expression": "(2^53)+2",
+      "formula": "((2^53)+2)&\"\"",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "-((2^53)+2)",
+      "formula": "(-((2^53)+2))&\"\"",
+      "expected": "-9007199254740990"
+    },
+    {
+      "expression": "123456789012345*10000",
+      "formula": "(123456789012345*10000)&\"\"",
+      "expected": "1234567890123450000"
+    },
+    {
+      "expression": "-(123456789012345*10000)",
+      "formula": "(-(123456789012345*10000))&\"\"",
+      "expected": "-1234567890123450000"
+    },
+    {
+      "expression": "999999999999999+0.9",
+      "formula": "(999999999999999+0.9)&\"\"",
+      "expected": "1000000000000000"
+    },
+    {
+      "expression": "-(999999999999999+0.9)",
+      "formula": "(-(999999999999999+0.9))&\"\"",
+      "expected": "-1000000000000000"
+    },
+    {
+      "expression": "1e20-32768",
+      "formula": "(1e20-32768)&\"\"",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "-(1e20-32768)",
+      "formula": "(-(1e20-32768))&\"\"",
+      "expected": "-1E+20"
+    },
+    {
+      "expression": "1e20-1e5",
+      "formula": "(1e20-1e5)&\"\"",
+      "expected": "99999999999999900000"
+    },
+    {
+      "expression": "-(1e20-1e5)",
+      "formula": "(-(1e20-1e5))&\"\"",
+      "expected": "-99999999999999900000"
+    },
+    {
+      "expression": "1e20+1e5",
+      "formula": "(1e20+1e5)&\"\"",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "-(1e20+1e5)",
+      "formula": "(-(1e20+1e5))&\"\"",
+      "expected": "-1E+20"
+    },
+    {
+      "expression": "1e-6-1e-20",
+      "formula": "(1e-6-1e-20)&\"\"",
+      "expected": "9.9999999999999E-07"
+    },
+    {
+      "expression": "-(1e-6-1e-20)",
+      "formula": "(-(1e-6-1e-20))&\"\"",
+      "expected": "-9.9999999999999E-07"
+    },
+    {
+      "expression": "1e-6+1e-20",
+      "formula": "(1e-6+1e-20)&\"\"",
+      "expected": "1.00000000000001E-06"
+    },
+    {
+      "expression": "-(1e-6+1e-20)",
+      "formula": "(-(1e-6+1e-20))&\"\"",
+      "expected": "-1.00000000000001E-06"
+    },
+    {
+      "expression": "1e-9-1e-23",
+      "formula": "(1e-9-1e-23)&\"\"",
+      "expected": "9.9999999999999E-10"
+    },
+    {
+      "expression": "-(1e-9-1e-23)",
+      "formula": "(-(1e-9-1e-23))&\"\"",
+      "expected": "-9.9999999999999E-10"
+    },
+    {
+      "expression": "EXP(-710)",
+      "formula": "(EXP(-710))&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-(EXP(-710))",
+      "formula": "(-(EXP(-710)))&\"\"",
+      "expected": "-0"
+    },
+    {
+      "expression": "(2-2^-52)*2^1023",
+      "formula": "((2-2^-52)*2^1023)&\"\"",
+      "expected": "1.7976931348623E+308"
+    },
+    {
+      "expression": "-((2-2^-52)*2^1023)",
+      "formula": "(-((2-2^-52)*2^1023))&\"\"",
+      "expected": "-1.7976931348623E+308"
+    },
+    {
+      "expression": "1e-7",
+      "formula": "CONCAT(1e-7)",
+      "expected": "0.0000001"
+    },
+    {
+      "expression": "1e-7",
+      "formula": "CONCATENATE(1e-7)",
+      "expected": "0.0000001"
+    },
+    {
+      "expression": "1e-7",
+      "formula": "TEXTJOIN(\"\",TRUE,1e-7)",
+      "expected": "0.0000001"
+    },
+    {
+      "expression": "1e-7",
+      "formula": "VALUETOTEXT(1e-7)",
+      "expected": "0.0000001"
+    },
+    {
+      "expression": "1e-7",
+      "formula": "ARRAYTOTEXT(1e-7)",
+      "expected": "0.0000001"
+    },
+    {
+      "expression": "1e-7",
+      "formula": "TEXT(1e-7,\"General\")",
+      "expected": "0.0000001"
+    },
+    {
+      "expression": "1e15",
+      "formula": "CONCAT(1e15)",
+      "expected": "1000000000000000"
+    },
+    {
+      "expression": "1e15",
+      "formula": "CONCATENATE(1e15)",
+      "expected": "1000000000000000"
+    },
+    {
+      "expression": "1e15",
+      "formula": "TEXTJOIN(\"\",TRUE,1e15)",
+      "expected": "1000000000000000"
+    },
+    {
+      "expression": "1e15",
+      "formula": "VALUETOTEXT(1e15)",
+      "expected": "1000000000000000"
+    },
+    {
+      "expression": "1e15",
+      "formula": "ARRAYTOTEXT(1e15)",
+      "expected": "1000000000000000"
+    },
+    {
+      "expression": "1e15",
+      "formula": "TEXT(1e15,\"General\")",
+      "expected": "1E+15"
+    },
+    {
+      "expression": "1e19",
+      "formula": "CONCAT(1e19)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "CONCATENATE(1e19)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "TEXTJOIN(\"\",TRUE,1e19)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "VALUETOTEXT(1e19)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "ARRAYTOTEXT(1e19)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "TEXT(1e19,\"General\")",
+      "expected": "1E+19"
+    },
+    {
+      "expression": "1e20",
+      "formula": "CONCAT(1e20)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "CONCATENATE(1e20)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "TEXTJOIN(\"\",TRUE,1e20)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "VALUETOTEXT(1e20)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "ARRAYTOTEXT(1e20)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "TEXT(1e20,\"General\")",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1.23456789012345e16",
+      "formula": "CONCAT(1.23456789012345e16)",
+      "expected": "12345678901234500"
+    },
+    {
+      "expression": "1.23456789012345e16",
+      "formula": "CONCATENATE(1.23456789012345e16)",
+      "expected": "12345678901234500"
+    },
+    {
+      "expression": "1.23456789012345e16",
+      "formula": "TEXTJOIN(\"\",TRUE,1.23456789012345e16)",
+      "expected": "12345678901234500"
+    },
+    {
+      "expression": "1.23456789012345e16",
+      "formula": "VALUETOTEXT(1.23456789012345e16)",
+      "expected": "12345678901234500"
+    },
+    {
+      "expression": "1.23456789012345e16",
+      "formula": "ARRAYTOTEXT(1.23456789012345e16)",
+      "expected": "12345678901234500"
+    },
+    {
+      "expression": "1.23456789012345e16",
+      "formula": "TEXT(1.23456789012345e16,\"General\")",
+      "expected": "1.23457E+16"
+    },
+    {
+      "expression": "1/3",
+      "formula": "CONCAT(1/3)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "CONCATENATE(1/3)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "TEXTJOIN(\"\",TRUE,1/3)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "VALUETOTEXT(1/3)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "ARRAYTOTEXT(1/3)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "TEXT(1/3,\"General\")",
+      "expected": "0.333333333"
+    },
+    {
+      "expression": "2^53",
+      "formula": "CONCAT(2^53)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "CONCATENATE(2^53)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "TEXTJOIN(\"\",TRUE,2^53)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "VALUETOTEXT(2^53)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "ARRAYTOTEXT(2^53)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "TEXT(2^53,\"General\")",
+      "expected": "9.0072E+15"
+    },
+    {
+      "expression": "1e-308",
+      "formula": "(1e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-1e-308",
+      "formula": "(-1e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "1.2e-308",
+      "formula": "(1.2e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-1.2e-308",
+      "formula": "(-1.2e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "1.2345e-308",
+      "formula": "(1.2345e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-1.2345e-308",
+      "formula": "(-1.2345e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "1.2345678901234e-308",
+      "formula": "(1.2345678901234e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-1.2345678901234e-308",
+      "formula": "(-1.2345678901234e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "1.23456789012345e-308",
+      "formula": "(1.23456789012345e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "-1.23456789012345e-308",
+      "formula": "(-1.23456789012345e-308)&\"\"",
+      "expected": "0"
+    },
+    {
+      "expression": "9.99999999999994e-308",
+      "formula": "(9.99999999999994e-308)&\"\"",
+      "expected": "9.9999999999999E-308"
+    },
+    {
+      "expression": "-9.99999999999994e-308",
+      "formula": "(-9.99999999999994e-308)&\"\"",
+      "expected": "-9.9999999999999E-308"
+    },
+    {
+      "expression": "9.99999999999995e-308",
+      "formula": "(9.99999999999995e-308)&\"\"",
+      "expected": "1E-307"
+    },
+    {
+      "expression": "-9.99999999999995e-308",
+      "formula": "(-9.99999999999995e-308)&\"\"",
+      "expected": "-1E-307"
+    },
+    {
+      "expression": "9.99999999999999e-308",
+      "formula": "(9.99999999999999e-308)&\"\"",
+      "expected": "1E-307"
+    },
+    {
+      "expression": "-9.99999999999999e-308",
+      "formula": "(-9.99999999999999e-308)&\"\"",
+      "expected": "-1E-307"
+    },
+    {
+      "expression": "1e-307",
+      "formula": "(1e-307)&\"\"",
+      "expected": "1E-307"
+    },
+    {
+      "expression": "-1e-307",
+      "formula": "(-1e-307)&\"\"",
+      "expected": "-1E-307"
+    },
+    {
+      "expression": "1.2e-307",
+      "formula": "(1.2e-307)&\"\"",
+      "expected": "1.2E-307"
+    },
+    {
+      "expression": "-1.2e-307",
+      "formula": "(-1.2e-307)&\"\"",
+      "expected": "-1.2E-307"
+    },
+    {
+      "expression": "1.2345e-307",
+      "formula": "(1.2345e-307)&\"\"",
+      "expected": "1.2345E-307"
+    },
+    {
+      "expression": "-1.2345e-307",
+      "formula": "(-1.2345e-307)&\"\"",
+      "expected": "-1.2345E-307"
+    },
+    {
+      "expression": "1.2345678901234e-307",
+      "formula": "(1.2345678901234e-307)&\"\"",
+      "expected": "1.2345678901234E-307"
+    },
+    {
+      "expression": "-1.2345678901234e-307",
+      "formula": "(-1.2345678901234e-307)&\"\"",
+      "expected": "-1.2345678901234E-307"
+    },
+    {
+      "expression": "1.23456789012345e-307",
+      "formula": "(1.23456789012345e-307)&\"\"",
+      "expected": "1.2345678901235E-307"
+    },
+    {
+      "expression": "-1.23456789012345e-307",
+      "formula": "(-1.23456789012345e-307)&\"\"",
+      "expected": "-1.2345678901235E-307"
+    },
+    {
+      "expression": "9.99999999999994e-307",
+      "formula": "(9.99999999999994e-307)&\"\"",
+      "expected": "9.9999999999999E-307"
+    },
+    {
+      "expression": "-9.99999999999994e-307",
+      "formula": "(-9.99999999999994e-307)&\"\"",
+      "expected": "-9.9999999999999E-307"
+    },
+    {
+      "expression": "9.99999999999995e-307",
+      "formula": "(9.99999999999995e-307)&\"\"",
+      "expected": "1E-306"
+    },
+    {
+      "expression": "-9.99999999999995e-307",
+      "formula": "(-9.99999999999995e-307)&\"\"",
+      "expected": "-1E-306"
+    },
+    {
+      "expression": "9.99999999999999e-307",
+      "formula": "(9.99999999999999e-307)&\"\"",
+      "expected": "1E-306"
+    },
+    {
+      "expression": "-9.99999999999999e-307",
+      "formula": "(-9.99999999999999e-307)&\"\"",
+      "expected": "-1E-306"
+    },
+    {
+      "expression": "1e-101",
+      "formula": "(1e-101)&\"\"",
+      "expected": "1E-101"
+    },
+    {
+      "expression": "-1e-101",
+      "formula": "(-1e-101)&\"\"",
+      "expected": "-1E-101"
+    },
+    {
+      "expression": "1.2e-101",
+      "formula": "(1.2e-101)&\"\"",
+      "expected": "1.2E-101"
+    },
+    {
+      "expression": "-1.2e-101",
+      "formula": "(-1.2e-101)&\"\"",
+      "expected": "-1.2E-101"
+    },
+    {
+      "expression": "1.2345e-101",
+      "formula": "(1.2345e-101)&\"\"",
+      "expected": "1.2345E-101"
+    },
+    {
+      "expression": "-1.2345e-101",
+      "formula": "(-1.2345e-101)&\"\"",
+      "expected": "-1.2345E-101"
+    },
+    {
+      "expression": "1.2345678901234e-101",
+      "formula": "(1.2345678901234e-101)&\"\"",
+      "expected": "1.2345678901234E-101"
+    },
+    {
+      "expression": "-1.2345678901234e-101",
+      "formula": "(-1.2345678901234e-101)&\"\"",
+      "expected": "-1.2345678901234E-101"
+    },
+    {
+      "expression": "1.23456789012345e-101",
+      "formula": "(1.23456789012345e-101)&\"\"",
+      "expected": "1.2345678901235E-101"
+    },
+    {
+      "expression": "-1.23456789012345e-101",
+      "formula": "(-1.23456789012345e-101)&\"\"",
+      "expected": "-1.2345678901235E-101"
+    },
+    {
+      "expression": "9.99999999999994e-101",
+      "formula": "(9.99999999999994e-101)&\"\"",
+      "expected": "9.9999999999999E-101"
+    },
+    {
+      "expression": "-9.99999999999994e-101",
+      "formula": "(-9.99999999999994e-101)&\"\"",
+      "expected": "-9.9999999999999E-101"
+    },
+    {
+      "expression": "9.99999999999995e-101",
+      "formula": "(9.99999999999995e-101)&\"\"",
+      "expected": "1E-100"
+    },
+    {
+      "expression": "-9.99999999999995e-101",
+      "formula": "(-9.99999999999995e-101)&\"\"",
+      "expected": "-1E-100"
+    },
+    {
+      "expression": "9.99999999999999e-101",
+      "formula": "(9.99999999999999e-101)&\"\"",
+      "expected": "1E-100"
+    },
+    {
+      "expression": "-9.99999999999999e-101",
+      "formula": "(-9.99999999999999e-101)&\"\"",
+      "expected": "-1E-100"
+    },
+    {
+      "expression": "1e-100",
+      "formula": "(1e-100)&\"\"",
+      "expected": "1E-100"
+    },
+    {
+      "expression": "-1e-100",
+      "formula": "(-1e-100)&\"\"",
+      "expected": "-1E-100"
+    },
+    {
+      "expression": "1.2e-100",
+      "formula": "(1.2e-100)&\"\"",
+      "expected": "1.2E-100"
+    },
+    {
+      "expression": "-1.2e-100",
+      "formula": "(-1.2e-100)&\"\"",
+      "expected": "-1.2E-100"
+    },
+    {
+      "expression": "1.2345e-100",
+      "formula": "(1.2345e-100)&\"\"",
+      "expected": "1.2345E-100"
+    },
+    {
+      "expression": "-1.2345e-100",
+      "formula": "(-1.2345e-100)&\"\"",
+      "expected": "-1.2345E-100"
+    },
+    {
+      "expression": "1.2345678901234e-100",
+      "formula": "(1.2345678901234e-100)&\"\"",
+      "expected": "1.2345678901234E-100"
+    },
+    {
+      "expression": "-1.2345678901234e-100",
+      "formula": "(-1.2345678901234e-100)&\"\"",
+      "expected": "-1.2345678901234E-100"
+    },
+    {
+      "expression": "1.23456789012345e-100",
+      "formula": "(1.23456789012345e-100)&\"\"",
+      "expected": "1.2345678901235E-100"
+    },
+    {
+      "expression": "-1.23456789012345e-100",
+      "formula": "(-1.23456789012345e-100)&\"\"",
+      "expected": "-1.2345678901235E-100"
+    },
+    {
+      "expression": "9.99999999999994e-100",
+      "formula": "(9.99999999999994e-100)&\"\"",
+      "expected": "9.9999999999999E-100"
+    },
+    {
+      "expression": "-9.99999999999994e-100",
+      "formula": "(-9.99999999999994e-100)&\"\"",
+      "expected": "-9.9999999999999E-100"
+    },
+    {
+      "expression": "9.99999999999995e-100",
+      "formula": "(9.99999999999995e-100)&\"\"",
+      "expected": "1E-99"
+    },
+    {
+      "expression": "-9.99999999999995e-100",
+      "formula": "(-9.99999999999995e-100)&\"\"",
+      "expected": "-1E-99"
+    },
+    {
+      "expression": "9.99999999999999e-100",
+      "formula": "(9.99999999999999e-100)&\"\"",
+      "expected": "1E-99"
+    },
+    {
+      "expression": "-9.99999999999999e-100",
+      "formula": "(-9.99999999999999e-100)&\"\"",
+      "expected": "-1E-99"
+    },
+    {
+      "expression": "1e-99",
+      "formula": "(1e-99)&\"\"",
+      "expected": "1E-99"
+    },
+    {
+      "expression": "-1e-99",
+      "formula": "(-1e-99)&\"\"",
+      "expected": "-1E-99"
+    },
+    {
+      "expression": "1.2e-99",
+      "formula": "(1.2e-99)&\"\"",
+      "expected": "1.2E-99"
+    },
+    {
+      "expression": "-1.2e-99",
+      "formula": "(-1.2e-99)&\"\"",
+      "expected": "-1.2E-99"
+    },
+    {
+      "expression": "1.2345e-99",
+      "formula": "(1.2345e-99)&\"\"",
+      "expected": "1.2345E-99"
+    },
+    {
+      "expression": "-1.2345e-99",
+      "formula": "(-1.2345e-99)&\"\"",
+      "expected": "-1.2345E-99"
+    },
+    {
+      "expression": "1.2345678901234e-99",
+      "formula": "(1.2345678901234e-99)&\"\"",
+      "expected": "1.2345678901234E-99"
+    },
+    {
+      "expression": "-1.2345678901234e-99",
+      "formula": "(-1.2345678901234e-99)&\"\"",
+      "expected": "-1.2345678901234E-99"
+    },
+    {
+      "expression": "1.23456789012345e-99",
+      "formula": "(1.23456789012345e-99)&\"\"",
+      "expected": "1.2345678901235E-99"
+    },
+    {
+      "expression": "-1.23456789012345e-99",
+      "formula": "(-1.23456789012345e-99)&\"\"",
+      "expected": "-1.2345678901235E-99"
+    },
+    {
+      "expression": "9.99999999999994e-99",
+      "formula": "(9.99999999999994e-99)&\"\"",
+      "expected": "9.9999999999999E-99"
+    },
+    {
+      "expression": "-9.99999999999994e-99",
+      "formula": "(-9.99999999999994e-99)&\"\"",
+      "expected": "-9.9999999999999E-99"
+    },
+    {
+      "expression": "9.99999999999995e-99",
+      "formula": "(9.99999999999995e-99)&\"\"",
+      "expected": "1E-98"
+    },
+    {
+      "expression": "-9.99999999999995e-99",
+      "formula": "(-9.99999999999995e-99)&\"\"",
+      "expected": "-1E-98"
+    },
+    {
+      "expression": "9.99999999999999e-99",
+      "formula": "(9.99999999999999e-99)&\"\"",
+      "expected": "1E-98"
+    },
+    {
+      "expression": "-9.99999999999999e-99",
+      "formula": "(-9.99999999999999e-99)&\"\"",
+      "expected": "-1E-98"
+    },
+    {
+      "expression": "1e-98",
+      "formula": "(1e-98)&\"\"",
+      "expected": "1E-98"
+    },
+    {
+      "expression": "-1e-98",
+      "formula": "(-1e-98)&\"\"",
+      "expected": "-1E-98"
+    },
+    {
+      "expression": "1.2e-98",
+      "formula": "(1.2e-98)&\"\"",
+      "expected": "1.2E-98"
+    },
+    {
+      "expression": "-1.2e-98",
+      "formula": "(-1.2e-98)&\"\"",
+      "expected": "-1.2E-98"
+    },
+    {
+      "expression": "1.2345e-98",
+      "formula": "(1.2345e-98)&\"\"",
+      "expected": "1.2345E-98"
+    },
+    {
+      "expression": "-1.2345e-98",
+      "formula": "(-1.2345e-98)&\"\"",
+      "expected": "-1.2345E-98"
+    },
+    {
+      "expression": "1.2345678901234e-98",
+      "formula": "(1.2345678901234e-98)&\"\"",
+      "expected": "1.2345678901234E-98"
+    },
+    {
+      "expression": "-1.2345678901234e-98",
+      "formula": "(-1.2345678901234e-98)&\"\"",
+      "expected": "-1.2345678901234E-98"
+    },
+    {
+      "expression": "1.23456789012345e-98",
+      "formula": "(1.23456789012345e-98)&\"\"",
+      "expected": "1.23456789012345E-98"
+    },
+    {
+      "expression": "-1.23456789012345e-98",
+      "formula": "(-1.23456789012345e-98)&\"\"",
+      "expected": "-1.23456789012345E-98"
+    },
+    {
+      "expression": "9.99999999999994e-98",
+      "formula": "(9.99999999999994e-98)&\"\"",
+      "expected": "9.99999999999994E-98"
+    },
+    {
+      "expression": "-9.99999999999994e-98",
+      "formula": "(-9.99999999999994e-98)&\"\"",
+      "expected": "-9.99999999999994E-98"
+    },
+    {
+      "expression": "9.99999999999995e-98",
+      "formula": "(9.99999999999995e-98)&\"\"",
+      "expected": "9.99999999999995E-98"
+    },
+    {
+      "expression": "-9.99999999999995e-98",
+      "formula": "(-9.99999999999995e-98)&\"\"",
+      "expected": "-9.99999999999995E-98"
+    },
+    {
+      "expression": "9.99999999999999e-98",
+      "formula": "(9.99999999999999e-98)&\"\"",
+      "expected": "9.99999999999999E-98"
+    },
+    {
+      "expression": "-9.99999999999999e-98",
+      "formula": "(-9.99999999999999e-98)&\"\"",
+      "expected": "-9.99999999999999E-98"
+    },
+    {
+      "expression": "1e-20",
+      "formula": "(1e-20)&\"\"",
+      "expected": "1E-20"
+    },
+    {
+      "expression": "-1e-20",
+      "formula": "(-1e-20)&\"\"",
+      "expected": "-1E-20"
+    },
+    {
+      "expression": "1.2e-20",
+      "formula": "(1.2e-20)&\"\"",
+      "expected": "1.2E-20"
+    },
+    {
+      "expression": "-1.2e-20",
+      "formula": "(-1.2e-20)&\"\"",
+      "expected": "-1.2E-20"
+    },
+    {
+      "expression": "1.2345e-20",
+      "formula": "(1.2345e-20)&\"\"",
+      "expected": "1.2345E-20"
+    },
+    {
+      "expression": "-1.2345e-20",
+      "formula": "(-1.2345e-20)&\"\"",
+      "expected": "-1.2345E-20"
+    },
+    {
+      "expression": "1.2345678901234e-20",
+      "formula": "(1.2345678901234e-20)&\"\"",
+      "expected": "1.2345678901234E-20"
+    },
+    {
+      "expression": "-1.2345678901234e-20",
+      "formula": "(-1.2345678901234e-20)&\"\"",
+      "expected": "-1.2345678901234E-20"
+    },
+    {
+      "expression": "1.23456789012345e-20",
+      "formula": "(1.23456789012345e-20)&\"\"",
+      "expected": "1.23456789012345E-20"
+    },
+    {
+      "expression": "-1.23456789012345e-20",
+      "formula": "(-1.23456789012345e-20)&\"\"",
+      "expected": "-1.23456789012345E-20"
+    },
+    {
+      "expression": "9.99999999999994e-20",
+      "formula": "(9.99999999999994e-20)&\"\"",
+      "expected": "9.99999999999994E-20"
+    },
+    {
+      "expression": "-9.99999999999994e-20",
+      "formula": "(-9.99999999999994e-20)&\"\"",
+      "expected": "-9.99999999999994E-20"
+    },
+    {
+      "expression": "9.99999999999995e-20",
+      "formula": "(9.99999999999995e-20)&\"\"",
+      "expected": "9.99999999999995E-20"
+    },
+    {
+      "expression": "-9.99999999999995e-20",
+      "formula": "(-9.99999999999995e-20)&\"\"",
+      "expected": "-9.99999999999995E-20"
+    },
+    {
+      "expression": "9.99999999999999e-20",
+      "formula": "(9.99999999999999e-20)&\"\"",
+      "expected": "9.99999999999999E-20"
+    },
+    {
+      "expression": "-9.99999999999999e-20",
+      "formula": "(-9.99999999999999e-20)&\"\"",
+      "expected": "-9.99999999999999E-20"
+    },
+    {
+      "expression": "1e-19",
+      "formula": "(1e-19)&\"\"",
+      "expected": "1E-19"
+    },
+    {
+      "expression": "-1e-19",
+      "formula": "(-1e-19)&\"\"",
+      "expected": "-1E-19"
+    },
+    {
+      "expression": "1.2e-19",
+      "formula": "(1.2e-19)&\"\"",
+      "expected": "1.2E-19"
+    },
+    {
+      "expression": "-1.2e-19",
+      "formula": "(-1.2e-19)&\"\"",
+      "expected": "-1.2E-19"
+    },
+    {
+      "expression": "1.2345e-19",
+      "formula": "(1.2345e-19)&\"\"",
+      "expected": "1.2345E-19"
+    },
+    {
+      "expression": "-1.2345e-19",
+      "formula": "(-1.2345e-19)&\"\"",
+      "expected": "-1.2345E-19"
+    },
+    {
+      "expression": "1.2345678901234e-19",
+      "formula": "(1.2345678901234e-19)&\"\"",
+      "expected": "1.2345678901234E-19"
+    },
+    {
+      "expression": "-1.2345678901234e-19",
+      "formula": "(-1.2345678901234e-19)&\"\"",
+      "expected": "-1.2345678901234E-19"
+    },
+    {
+      "expression": "1.23456789012345e-19",
+      "formula": "(1.23456789012345e-19)&\"\"",
+      "expected": "1.23456789012345E-19"
+    },
+    {
+      "expression": "-1.23456789012345e-19",
+      "formula": "(-1.23456789012345e-19)&\"\"",
+      "expected": "-1.23456789012345E-19"
+    },
+    {
+      "expression": "9.99999999999994e-19",
+      "formula": "(9.99999999999994e-19)&\"\"",
+      "expected": "9.99999999999994E-19"
+    },
+    {
+      "expression": "-9.99999999999994e-19",
+      "formula": "(-9.99999999999994e-19)&\"\"",
+      "expected": "-9.99999999999994E-19"
+    },
+    {
+      "expression": "9.99999999999995e-19",
+      "formula": "(9.99999999999995e-19)&\"\"",
+      "expected": "9.99999999999995E-19"
+    },
+    {
+      "expression": "-9.99999999999995e-19",
+      "formula": "(-9.99999999999995e-19)&\"\"",
+      "expected": "-9.99999999999995E-19"
+    },
+    {
+      "expression": "9.99999999999999e-19",
+      "formula": "(9.99999999999999e-19)&\"\"",
+      "expected": "9.99999999999999E-19"
+    },
+    {
+      "expression": "-9.99999999999999e-19",
+      "formula": "(-9.99999999999999e-19)&\"\"",
+      "expected": "-9.99999999999999E-19"
+    },
+    {
+      "expression": "1e-18",
+      "formula": "(1e-18)&\"\"",
+      "expected": "0.000000000000000001"
+    },
+    {
+      "expression": "-1e-18",
+      "formula": "(-1e-18)&\"\"",
+      "expected": "-0.000000000000000001"
+    },
+    {
+      "expression": "1.2e-18",
+      "formula": "(1.2e-18)&\"\"",
+      "expected": "1.2E-18"
+    },
+    {
+      "expression": "-1.2e-18",
+      "formula": "(-1.2e-18)&\"\"",
+      "expected": "-1.2E-18"
+    },
+    {
+      "expression": "1.2345e-18",
+      "formula": "(1.2345e-18)&\"\"",
+      "expected": "1.2345E-18"
+    },
+    {
+      "expression": "-1.2345e-18",
+      "formula": "(-1.2345e-18)&\"\"",
+      "expected": "-1.2345E-18"
+    },
+    {
+      "expression": "1.2345678901234e-18",
+      "formula": "(1.2345678901234e-18)&\"\"",
+      "expected": "1.2345678901234E-18"
+    },
+    {
+      "expression": "-1.2345678901234e-18",
+      "formula": "(-1.2345678901234e-18)&\"\"",
+      "expected": "-1.2345678901234E-18"
+    },
+    {
+      "expression": "1.23456789012345e-18",
+      "formula": "(1.23456789012345e-18)&\"\"",
+      "expected": "1.23456789012345E-18"
+    },
+    {
+      "expression": "-1.23456789012345e-18",
+      "formula": "(-1.23456789012345e-18)&\"\"",
+      "expected": "-1.23456789012345E-18"
+    },
+    {
+      "expression": "9.99999999999994e-18",
+      "formula": "(9.99999999999994e-18)&\"\"",
+      "expected": "9.99999999999994E-18"
+    },
+    {
+      "expression": "-9.99999999999994e-18",
+      "formula": "(-9.99999999999994e-18)&\"\"",
+      "expected": "-9.99999999999994E-18"
+    },
+    {
+      "expression": "9.99999999999995e-18",
+      "formula": "(9.99999999999995e-18)&\"\"",
+      "expected": "9.99999999999995E-18"
+    },
+    {
+      "expression": "-9.99999999999995e-18",
+      "formula": "(-9.99999999999995e-18)&\"\"",
+      "expected": "-9.99999999999995E-18"
+    },
+    {
+      "expression": "9.99999999999999e-18",
+      "formula": "(9.99999999999999e-18)&\"\"",
+      "expected": "9.99999999999999E-18"
+    },
+    {
+      "expression": "-9.99999999999999e-18",
+      "formula": "(-9.99999999999999e-18)&\"\"",
+      "expected": "-9.99999999999999E-18"
+    },
+    {
+      "expression": "1e-17",
+      "formula": "(1e-17)&\"\"",
+      "expected": "0.00000000000000001"
+    },
+    {
+      "expression": "-1e-17",
+      "formula": "(-1e-17)&\"\"",
+      "expected": "-0.00000000000000001"
+    },
+    {
+      "expression": "1.2e-17",
+      "formula": "(1.2e-17)&\"\"",
+      "expected": "0.000000000000000012"
+    },
+    {
+      "expression": "-1.2e-17",
+      "formula": "(-1.2e-17)&\"\"",
+      "expected": "-0.000000000000000012"
+    },
+    {
+      "expression": "1.2345e-17",
+      "formula": "(1.2345e-17)&\"\"",
+      "expected": "1.2345E-17"
+    },
+    {
+      "expression": "-1.2345e-17",
+      "formula": "(-1.2345e-17)&\"\"",
+      "expected": "-1.2345E-17"
+    },
+    {
+      "expression": "1.2345678901234e-17",
+      "formula": "(1.2345678901234e-17)&\"\"",
+      "expected": "1.2345678901234E-17"
+    },
+    {
+      "expression": "-1.2345678901234e-17",
+      "formula": "(-1.2345678901234e-17)&\"\"",
+      "expected": "-1.2345678901234E-17"
+    },
+    {
+      "expression": "1.23456789012345e-17",
+      "formula": "(1.23456789012345e-17)&\"\"",
+      "expected": "1.23456789012345E-17"
+    },
+    {
+      "expression": "-1.23456789012345e-17",
+      "formula": "(-1.23456789012345e-17)&\"\"",
+      "expected": "-1.23456789012345E-17"
+    },
+    {
+      "expression": "9.99999999999994e-17",
+      "formula": "(9.99999999999994e-17)&\"\"",
+      "expected": "9.99999999999994E-17"
+    },
+    {
+      "expression": "-9.99999999999994e-17",
+      "formula": "(-9.99999999999994e-17)&\"\"",
+      "expected": "-9.99999999999994E-17"
+    },
+    {
+      "expression": "9.99999999999995e-17",
+      "formula": "(9.99999999999995e-17)&\"\"",
+      "expected": "9.99999999999995E-17"
+    },
+    {
+      "expression": "-9.99999999999995e-17",
+      "formula": "(-9.99999999999995e-17)&\"\"",
+      "expected": "-9.99999999999995E-17"
+    },
+    {
+      "expression": "9.99999999999999e-17",
+      "formula": "(9.99999999999999e-17)&\"\"",
+      "expected": "9.99999999999999E-17"
+    },
+    {
+      "expression": "-9.99999999999999e-17",
+      "formula": "(-9.99999999999999e-17)&\"\"",
+      "expected": "-9.99999999999999E-17"
+    },
+    {
+      "expression": "1e-6",
+      "formula": "(1e-6)&\"\"",
+      "expected": "0.000001"
+    },
+    {
+      "expression": "-1e-6",
+      "formula": "(-1e-6)&\"\"",
+      "expected": "-0.000001"
+    },
+    {
+      "expression": "1.2e-6",
+      "formula": "(1.2e-6)&\"\"",
+      "expected": "0.0000012"
+    },
+    {
+      "expression": "-1.2e-6",
+      "formula": "(-1.2e-6)&\"\"",
+      "expected": "-0.0000012"
+    },
+    {
+      "expression": "1.2345e-6",
+      "formula": "(1.2345e-6)&\"\"",
+      "expected": "0.0000012345"
+    },
+    {
+      "expression": "-1.2345e-6",
+      "formula": "(-1.2345e-6)&\"\"",
+      "expected": "-0.0000012345"
+    },
+    {
+      "expression": "1.2345678901234e-6",
+      "formula": "(1.2345678901234e-6)&\"\"",
+      "expected": "1.2345678901234E-06"
+    },
+    {
+      "expression": "-1.2345678901234e-6",
+      "formula": "(-1.2345678901234e-6)&\"\"",
+      "expected": "-1.2345678901234E-06"
+    },
+    {
+      "expression": "1.23456789012345e-6",
+      "formula": "(1.23456789012345e-6)&\"\"",
+      "expected": "1.23456789012345E-06"
+    },
+    {
+      "expression": "-1.23456789012345e-6",
+      "formula": "(-1.23456789012345e-6)&\"\"",
+      "expected": "-1.23456789012345E-06"
+    },
+    {
+      "expression": "9.99999999999994e-6",
+      "formula": "(9.99999999999994e-6)&\"\"",
+      "expected": "9.99999999999994E-06"
+    },
+    {
+      "expression": "-9.99999999999994e-6",
+      "formula": "(-9.99999999999994e-6)&\"\"",
+      "expected": "-9.99999999999994E-06"
+    },
+    {
+      "expression": "9.99999999999995e-6",
+      "formula": "(9.99999999999995e-6)&\"\"",
+      "expected": "9.99999999999995E-06"
+    },
+    {
+      "expression": "-9.99999999999995e-6",
+      "formula": "(-9.99999999999995e-6)&\"\"",
+      "expected": "-9.99999999999995E-06"
+    },
+    {
+      "expression": "9.99999999999999e-6",
+      "formula": "(9.99999999999999e-6)&\"\"",
+      "expected": "9.99999999999999E-06"
+    },
+    {
+      "expression": "-9.99999999999999e-6",
+      "formula": "(-9.99999999999999e-6)&\"\"",
+      "expected": "-9.99999999999999E-06"
+    },
+    {
+      "expression": "1e-5",
+      "formula": "(1e-5)&\"\"",
+      "expected": "0.00001"
+    },
+    {
+      "expression": "-1e-5",
+      "formula": "(-1e-5)&\"\"",
+      "expected": "-0.00001"
+    },
+    {
+      "expression": "1.2e-5",
+      "formula": "(1.2e-5)&\"\"",
+      "expected": "0.000012"
+    },
+    {
+      "expression": "-1.2e-5",
+      "formula": "(-1.2e-5)&\"\"",
+      "expected": "-0.000012"
+    },
+    {
+      "expression": "1.2345e-5",
+      "formula": "(1.2345e-5)&\"\"",
+      "expected": "0.000012345"
+    },
+    {
+      "expression": "-1.2345e-5",
+      "formula": "(-1.2345e-5)&\"\"",
+      "expected": "-0.000012345"
+    },
+    {
+      "expression": "1.2345678901234e-5",
+      "formula": "(1.2345678901234e-5)&\"\"",
+      "expected": "0.000012345678901234"
+    },
+    {
+      "expression": "-1.2345678901234e-5",
+      "formula": "(-1.2345678901234e-5)&\"\"",
+      "expected": "-0.000012345678901234"
+    },
+    {
+      "expression": "1.23456789012345e-5",
+      "formula": "(1.23456789012345e-5)&\"\"",
+      "expected": "1.23456789012345E-05"
+    },
+    {
+      "expression": "-1.23456789012345e-5",
+      "formula": "(-1.23456789012345e-5)&\"\"",
+      "expected": "-1.23456789012345E-05"
+    },
+    {
+      "expression": "9.99999999999994e-5",
+      "formula": "(9.99999999999994e-5)&\"\"",
+      "expected": "9.99999999999994E-05"
+    },
+    {
+      "expression": "-9.99999999999994e-5",
+      "formula": "(-9.99999999999994e-5)&\"\"",
+      "expected": "-9.99999999999994E-05"
+    },
+    {
+      "expression": "9.99999999999995e-5",
+      "formula": "(9.99999999999995e-5)&\"\"",
+      "expected": "9.99999999999995E-05"
+    },
+    {
+      "expression": "-9.99999999999995e-5",
+      "formula": "(-9.99999999999995e-5)&\"\"",
+      "expected": "-9.99999999999995E-05"
+    },
+    {
+      "expression": "9.99999999999999e-5",
+      "formula": "(9.99999999999999e-5)&\"\"",
+      "expected": "9.99999999999999E-05"
+    },
+    {
+      "expression": "-9.99999999999999e-5",
+      "formula": "(-9.99999999999999e-5)&\"\"",
+      "expected": "-9.99999999999999E-05"
+    },
+    {
+      "expression": "1e-4",
+      "formula": "(1e-4)&\"\"",
+      "expected": "0.0001"
+    },
+    {
+      "expression": "-1e-4",
+      "formula": "(-1e-4)&\"\"",
+      "expected": "-0.0001"
+    },
+    {
+      "expression": "1.2e-4",
+      "formula": "(1.2e-4)&\"\"",
+      "expected": "0.00012"
+    },
+    {
+      "expression": "-1.2e-4",
+      "formula": "(-1.2e-4)&\"\"",
+      "expected": "-0.00012"
+    },
+    {
+      "expression": "1.2345e-4",
+      "formula": "(1.2345e-4)&\"\"",
+      "expected": "0.00012345"
+    },
+    {
+      "expression": "-1.2345e-4",
+      "formula": "(-1.2345e-4)&\"\"",
+      "expected": "-0.00012345"
+    },
+    {
+      "expression": "1.2345678901234e-4",
+      "formula": "(1.2345678901234e-4)&\"\"",
+      "expected": "0.00012345678901234"
+    },
+    {
+      "expression": "-1.2345678901234e-4",
+      "formula": "(-1.2345678901234e-4)&\"\"",
+      "expected": "-0.00012345678901234"
+    },
+    {
+      "expression": "1.23456789012345e-4",
+      "formula": "(1.23456789012345e-4)&\"\"",
+      "expected": "0.000123456789012345"
+    },
+    {
+      "expression": "-1.23456789012345e-4",
+      "formula": "(-1.23456789012345e-4)&\"\"",
+      "expected": "-0.000123456789012345"
+    },
+    {
+      "expression": "9.99999999999994e-4",
+      "formula": "(9.99999999999994e-4)&\"\"",
+      "expected": "0.000999999999999994"
+    },
+    {
+      "expression": "-9.99999999999994e-4",
+      "formula": "(-9.99999999999994e-4)&\"\"",
+      "expected": "-0.000999999999999994"
+    },
+    {
+      "expression": "9.99999999999995e-4",
+      "formula": "(9.99999999999995e-4)&\"\"",
+      "expected": "0.000999999999999995"
+    },
+    {
+      "expression": "-9.99999999999995e-4",
+      "formula": "(-9.99999999999995e-4)&\"\"",
+      "expected": "-0.000999999999999995"
+    },
+    {
+      "expression": "9.99999999999999e-4",
+      "formula": "(9.99999999999999e-4)&\"\"",
+      "expected": "0.000999999999999999"
+    },
+    {
+      "expression": "-9.99999999999999e-4",
+      "formula": "(-9.99999999999999e-4)&\"\"",
+      "expected": "-0.000999999999999999"
+    },
+    {
+      "expression": "1e18",
+      "formula": "(1e18)&\"\"",
+      "expected": "1000000000000000000"
+    },
+    {
+      "expression": "-1e18",
+      "formula": "(-1e18)&\"\"",
+      "expected": "-1000000000000000000"
+    },
+    {
+      "expression": "1.2e18",
+      "formula": "(1.2e18)&\"\"",
+      "expected": "1200000000000000000"
+    },
+    {
+      "expression": "-1.2e18",
+      "formula": "(-1.2e18)&\"\"",
+      "expected": "-1200000000000000000"
+    },
+    {
+      "expression": "1.2345e18",
+      "formula": "(1.2345e18)&\"\"",
+      "expected": "1234500000000000000"
+    },
+    {
+      "expression": "-1.2345e18",
+      "formula": "(-1.2345e18)&\"\"",
+      "expected": "-1234500000000000000"
+    },
+    {
+      "expression": "1.2345678901234e18",
+      "formula": "(1.2345678901234e18)&\"\"",
+      "expected": "1234567890123400000"
+    },
+    {
+      "expression": "-1.2345678901234e18",
+      "formula": "(-1.2345678901234e18)&\"\"",
+      "expected": "-1234567890123400000"
+    },
+    {
+      "expression": "1.23456789012345e18",
+      "formula": "(1.23456789012345e18)&\"\"",
+      "expected": "1234567890123450000"
+    },
+    {
+      "expression": "-1.23456789012345e18",
+      "formula": "(-1.23456789012345e18)&\"\"",
+      "expected": "-1234567890123450000"
+    },
+    {
+      "expression": "9.99999999999994e18",
+      "formula": "(9.99999999999994e18)&\"\"",
+      "expected": "9999999999999940000"
+    },
+    {
+      "expression": "-9.99999999999994e18",
+      "formula": "(-9.99999999999994e18)&\"\"",
+      "expected": "-9999999999999940000"
+    },
+    {
+      "expression": "9.99999999999995e18",
+      "formula": "(9.99999999999995e18)&\"\"",
+      "expected": "9999999999999950000"
+    },
+    {
+      "expression": "-9.99999999999995e18",
+      "formula": "(-9.99999999999995e18)&\"\"",
+      "expected": "-9999999999999950000"
+    },
+    {
+      "expression": "9.99999999999999e18",
+      "formula": "(9.99999999999999e18)&\"\"",
+      "expected": "9999999999999990000"
+    },
+    {
+      "expression": "-9.99999999999999e18",
+      "formula": "(-9.99999999999999e18)&\"\"",
+      "expected": "-9999999999999990000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "(1e19)&\"\"",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "-1e19",
+      "formula": "(-1e19)&\"\"",
+      "expected": "-10000000000000000000"
+    },
+    {
+      "expression": "1.2e19",
+      "formula": "(1.2e19)&\"\"",
+      "expected": "12000000000000000000"
+    },
+    {
+      "expression": "-1.2e19",
+      "formula": "(-1.2e19)&\"\"",
+      "expected": "-12000000000000000000"
+    },
+    {
+      "expression": "1.2345e19",
+      "formula": "(1.2345e19)&\"\"",
+      "expected": "12345000000000000000"
+    },
+    {
+      "expression": "-1.2345e19",
+      "formula": "(-1.2345e19)&\"\"",
+      "expected": "-12345000000000000000"
+    },
+    {
+      "expression": "1.2345678901234e19",
+      "formula": "(1.2345678901234e19)&\"\"",
+      "expected": "12345678901234000000"
+    },
+    {
+      "expression": "-1.2345678901234e19",
+      "formula": "(-1.2345678901234e19)&\"\"",
+      "expected": "-12345678901234000000"
+    },
+    {
+      "expression": "1.23456789012345e19",
+      "formula": "(1.23456789012345e19)&\"\"",
+      "expected": "12345678901234500000"
+    },
+    {
+      "expression": "-1.23456789012345e19",
+      "formula": "(-1.23456789012345e19)&\"\"",
+      "expected": "-12345678901234500000"
+    },
+    {
+      "expression": "9.99999999999994e19",
+      "formula": "(9.99999999999994e19)&\"\"",
+      "expected": "99999999999999400000"
+    },
+    {
+      "expression": "-9.99999999999994e19",
+      "formula": "(-9.99999999999994e19)&\"\"",
+      "expected": "-99999999999999400000"
+    },
+    {
+      "expression": "9.99999999999995e19",
+      "formula": "(9.99999999999995e19)&\"\"",
+      "expected": "99999999999999500000"
+    },
+    {
+      "expression": "-9.99999999999995e19",
+      "formula": "(-9.99999999999995e19)&\"\"",
+      "expected": "-99999999999999500000"
+    },
+    {
+      "expression": "9.99999999999999e19",
+      "formula": "(9.99999999999999e19)&\"\"",
+      "expected": "99999999999999900000"
+    },
+    {
+      "expression": "-9.99999999999999e19",
+      "formula": "(-9.99999999999999e19)&\"\"",
+      "expected": "-99999999999999900000"
+    },
+    {
+      "expression": "1e20",
+      "formula": "(1e20)&\"\"",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "-1e20",
+      "formula": "(-1e20)&\"\"",
+      "expected": "-1E+20"
+    },
+    {
+      "expression": "1.2e20",
+      "formula": "(1.2e20)&\"\"",
+      "expected": "1.2E+20"
+    },
+    {
+      "expression": "-1.2e20",
+      "formula": "(-1.2e20)&\"\"",
+      "expected": "-1.2E+20"
+    },
+    {
+      "expression": "1.2345e20",
+      "formula": "(1.2345e20)&\"\"",
+      "expected": "1.2345E+20"
+    },
+    {
+      "expression": "-1.2345e20",
+      "formula": "(-1.2345e20)&\"\"",
+      "expected": "-1.2345E+20"
+    },
+    {
+      "expression": "1.2345678901234e20",
+      "formula": "(1.2345678901234e20)&\"\"",
+      "expected": "1.2345678901234E+20"
+    },
+    {
+      "expression": "-1.2345678901234e20",
+      "formula": "(-1.2345678901234e20)&\"\"",
+      "expected": "-1.2345678901234E+20"
+    },
+    {
+      "expression": "1.23456789012345e20",
+      "formula": "(1.23456789012345e20)&\"\"",
+      "expected": "1.23456789012345E+20"
+    },
+    {
+      "expression": "-1.23456789012345e20",
+      "formula": "(-1.23456789012345e20)&\"\"",
+      "expected": "-1.23456789012345E+20"
+    },
+    {
+      "expression": "9.99999999999994e20",
+      "formula": "(9.99999999999994e20)&\"\"",
+      "expected": "9.99999999999994E+20"
+    },
+    {
+      "expression": "-9.99999999999994e20",
+      "formula": "(-9.99999999999994e20)&\"\"",
+      "expected": "-9.99999999999994E+20"
+    },
+    {
+      "expression": "9.99999999999995e20",
+      "formula": "(9.99999999999995e20)&\"\"",
+      "expected": "9.99999999999995E+20"
+    },
+    {
+      "expression": "-9.99999999999995e20",
+      "formula": "(-9.99999999999995e20)&\"\"",
+      "expected": "-9.99999999999995E+20"
+    },
+    {
+      "expression": "9.99999999999999e20",
+      "formula": "(9.99999999999999e20)&\"\"",
+      "expected": "9.99999999999999E+20"
+    },
+    {
+      "expression": "-9.99999999999999e20",
+      "formula": "(-9.99999999999999e20)&\"\"",
+      "expected": "-9.99999999999999E+20"
+    },
+    {
+      "expression": "1e98",
+      "formula": "(1e98)&\"\"",
+      "expected": "1E+98"
+    },
+    {
+      "expression": "-1e98",
+      "formula": "(-1e98)&\"\"",
+      "expected": "-1E+98"
+    },
+    {
+      "expression": "1.2e98",
+      "formula": "(1.2e98)&\"\"",
+      "expected": "1.2E+98"
+    },
+    {
+      "expression": "-1.2e98",
+      "formula": "(-1.2e98)&\"\"",
+      "expected": "-1.2E+98"
+    },
+    {
+      "expression": "1.2345e98",
+      "formula": "(1.2345e98)&\"\"",
+      "expected": "1.2345E+98"
+    },
+    {
+      "expression": "-1.2345e98",
+      "formula": "(-1.2345e98)&\"\"",
+      "expected": "-1.2345E+98"
+    },
+    {
+      "expression": "1.2345678901234e98",
+      "formula": "(1.2345678901234e98)&\"\"",
+      "expected": "1.2345678901234E+98"
+    },
+    {
+      "expression": "-1.2345678901234e98",
+      "formula": "(-1.2345678901234e98)&\"\"",
+      "expected": "-1.2345678901234E+98"
+    },
+    {
+      "expression": "1.23456789012345e98",
+      "formula": "(1.23456789012345e98)&\"\"",
+      "expected": "1.23456789012345E+98"
+    },
+    {
+      "expression": "-1.23456789012345e98",
+      "formula": "(-1.23456789012345e98)&\"\"",
+      "expected": "-1.23456789012345E+98"
+    },
+    {
+      "expression": "9.99999999999994e98",
+      "formula": "(9.99999999999994e98)&\"\"",
+      "expected": "9.99999999999994E+98"
+    },
+    {
+      "expression": "-9.99999999999994e98",
+      "formula": "(-9.99999999999994e98)&\"\"",
+      "expected": "-9.99999999999994E+98"
+    },
+    {
+      "expression": "9.99999999999995e98",
+      "formula": "(9.99999999999995e98)&\"\"",
+      "expected": "9.99999999999995E+98"
+    },
+    {
+      "expression": "-9.99999999999995e98",
+      "formula": "(-9.99999999999995e98)&\"\"",
+      "expected": "-9.99999999999995E+98"
+    },
+    {
+      "expression": "9.99999999999999e98",
+      "formula": "(9.99999999999999e98)&\"\"",
+      "expected": "9.99999999999999E+98"
+    },
+    {
+      "expression": "-9.99999999999999e98",
+      "formula": "(-9.99999999999999e98)&\"\"",
+      "expected": "-9.99999999999999E+98"
+    },
+    {
+      "expression": "1e99",
+      "formula": "(1e99)&\"\"",
+      "expected": "1E+99"
+    },
+    {
+      "expression": "-1e99",
+      "formula": "(-1e99)&\"\"",
+      "expected": "-1E+99"
+    },
+    {
+      "expression": "1.2e99",
+      "formula": "(1.2e99)&\"\"",
+      "expected": "1.2E+99"
+    },
+    {
+      "expression": "-1.2e99",
+      "formula": "(-1.2e99)&\"\"",
+      "expected": "-1.2E+99"
+    },
+    {
+      "expression": "1.2345e99",
+      "formula": "(1.2345e99)&\"\"",
+      "expected": "1.2345E+99"
+    },
+    {
+      "expression": "-1.2345e99",
+      "formula": "(-1.2345e99)&\"\"",
+      "expected": "-1.2345E+99"
+    },
+    {
+      "expression": "1.2345678901234e99",
+      "formula": "(1.2345678901234e99)&\"\"",
+      "expected": "1.2345678901234E+99"
+    },
+    {
+      "expression": "-1.2345678901234e99",
+      "formula": "(-1.2345678901234e99)&\"\"",
+      "expected": "-1.2345678901234E+99"
+    },
+    {
+      "expression": "1.23456789012345e99",
+      "formula": "(1.23456789012345e99)&\"\"",
+      "expected": "1.2345678901235E+99"
+    },
+    {
+      "expression": "-1.23456789012345e99",
+      "formula": "(-1.23456789012345e99)&\"\"",
+      "expected": "-1.2345678901235E+99"
+    },
+    {
+      "expression": "9.99999999999994e99",
+      "formula": "(9.99999999999994e99)&\"\"",
+      "expected": "9.9999999999999E+99"
+    },
+    {
+      "expression": "-9.99999999999994e99",
+      "formula": "(-9.99999999999994e99)&\"\"",
+      "expected": "-9.9999999999999E+99"
+    },
+    {
+      "expression": "9.99999999999995e99",
+      "formula": "(9.99999999999995e99)&\"\"",
+      "expected": "1E+100"
+    },
+    {
+      "expression": "-9.99999999999995e99",
+      "formula": "(-9.99999999999995e99)&\"\"",
+      "expected": "-1E+100"
+    },
+    {
+      "expression": "9.99999999999999e99",
+      "formula": "(9.99999999999999e99)&\"\"",
+      "expected": "1E+100"
+    },
+    {
+      "expression": "-9.99999999999999e99",
+      "formula": "(-9.99999999999999e99)&\"\"",
+      "expected": "-1E+100"
+    },
+    {
+      "expression": "1e100",
+      "formula": "(1e100)&\"\"",
+      "expected": "1E+100"
+    },
+    {
+      "expression": "-1e100",
+      "formula": "(-1e100)&\"\"",
+      "expected": "-1E+100"
+    },
+    {
+      "expression": "1.2e100",
+      "formula": "(1.2e100)&\"\"",
+      "expected": "1.2E+100"
+    },
+    {
+      "expression": "-1.2e100",
+      "formula": "(-1.2e100)&\"\"",
+      "expected": "-1.2E+100"
+    },
+    {
+      "expression": "1.2345e100",
+      "formula": "(1.2345e100)&\"\"",
+      "expected": "1.2345E+100"
+    },
+    {
+      "expression": "-1.2345e100",
+      "formula": "(-1.2345e100)&\"\"",
+      "expected": "-1.2345E+100"
+    },
+    {
+      "expression": "1.2345678901234e100",
+      "formula": "(1.2345678901234e100)&\"\"",
+      "expected": "1.2345678901234E+100"
+    },
+    {
+      "expression": "-1.2345678901234e100",
+      "formula": "(-1.2345678901234e100)&\"\"",
+      "expected": "-1.2345678901234E+100"
+    },
+    {
+      "expression": "1.23456789012345e100",
+      "formula": "(1.23456789012345e100)&\"\"",
+      "expected": "1.2345678901235E+100"
+    },
+    {
+      "expression": "-1.23456789012345e100",
+      "formula": "(-1.23456789012345e100)&\"\"",
+      "expected": "-1.2345678901235E+100"
+    },
+    {
+      "expression": "9.99999999999994e100",
+      "formula": "(9.99999999999994e100)&\"\"",
+      "expected": "9.9999999999999E+100"
+    },
+    {
+      "expression": "-9.99999999999994e100",
+      "formula": "(-9.99999999999994e100)&\"\"",
+      "expected": "-9.9999999999999E+100"
+    },
+    {
+      "expression": "9.99999999999995e100",
+      "formula": "(9.99999999999995e100)&\"\"",
+      "expected": "1E+101"
+    },
+    {
+      "expression": "-9.99999999999995e100",
+      "formula": "(-9.99999999999995e100)&\"\"",
+      "expected": "-1E+101"
+    },
+    {
+      "expression": "9.99999999999999e100",
+      "formula": "(9.99999999999999e100)&\"\"",
+      "expected": "1E+101"
+    },
+    {
+      "expression": "-9.99999999999999e100",
+      "formula": "(-9.99999999999999e100)&\"\"",
+      "expected": "-1E+101"
+    },
+    {
+      "expression": "1e101",
+      "formula": "(1e101)&\"\"",
+      "expected": "1E+101"
+    },
+    {
+      "expression": "-1e101",
+      "formula": "(-1e101)&\"\"",
+      "expected": "-1E+101"
+    },
+    {
+      "expression": "1.2e101",
+      "formula": "(1.2e101)&\"\"",
+      "expected": "1.2E+101"
+    },
+    {
+      "expression": "-1.2e101",
+      "formula": "(-1.2e101)&\"\"",
+      "expected": "-1.2E+101"
+    },
+    {
+      "expression": "1.2345e101",
+      "formula": "(1.2345e101)&\"\"",
+      "expected": "1.2345E+101"
+    },
+    {
+      "expression": "-1.2345e101",
+      "formula": "(-1.2345e101)&\"\"",
+      "expected": "-1.2345E+101"
+    },
+    {
+      "expression": "1.2345678901234e101",
+      "formula": "(1.2345678901234e101)&\"\"",
+      "expected": "1.2345678901234E+101"
+    },
+    {
+      "expression": "-1.2345678901234e101",
+      "formula": "(-1.2345678901234e101)&\"\"",
+      "expected": "-1.2345678901234E+101"
+    },
+    {
+      "expression": "1.23456789012345e101",
+      "formula": "(1.23456789012345e101)&\"\"",
+      "expected": "1.2345678901235E+101"
+    },
+    {
+      "expression": "-1.23456789012345e101",
+      "formula": "(-1.23456789012345e101)&\"\"",
+      "expected": "-1.2345678901235E+101"
+    },
+    {
+      "expression": "9.99999999999994e101",
+      "formula": "(9.99999999999994e101)&\"\"",
+      "expected": "9.9999999999999E+101"
+    },
+    {
+      "expression": "-9.99999999999994e101",
+      "formula": "(-9.99999999999994e101)&\"\"",
+      "expected": "-9.9999999999999E+101"
+    },
+    {
+      "expression": "9.99999999999995e101",
+      "formula": "(9.99999999999995e101)&\"\"",
+      "expected": "1E+102"
+    },
+    {
+      "expression": "-9.99999999999995e101",
+      "formula": "(-9.99999999999995e101)&\"\"",
+      "expected": "-1E+102"
+    },
+    {
+      "expression": "9.99999999999999e101",
+      "formula": "(9.99999999999999e101)&\"\"",
+      "expected": "1E+102"
+    },
+    {
+      "expression": "-9.99999999999999e101",
+      "formula": "(-9.99999999999999e101)&\"\"",
+      "expected": "-1E+102"
+    },
+    {
+      "expression": "1e307",
+      "formula": "(1e307)&\"\"",
+      "expected": "1E+307"
+    },
+    {
+      "expression": "-1e307",
+      "formula": "(-1e307)&\"\"",
+      "expected": "-1E+307"
+    },
+    {
+      "expression": "1.2e307",
+      "formula": "(1.2e307)&\"\"",
+      "expected": "1.2E+307"
+    },
+    {
+      "expression": "-1.2e307",
+      "formula": "(-1.2e307)&\"\"",
+      "expected": "-1.2E+307"
+    },
+    {
+      "expression": "1.2345e307",
+      "formula": "(1.2345e307)&\"\"",
+      "expected": "1.2345E+307"
+    },
+    {
+      "expression": "-1.2345e307",
+      "formula": "(-1.2345e307)&\"\"",
+      "expected": "-1.2345E+307"
+    },
+    {
+      "expression": "1.2345678901234e307",
+      "formula": "(1.2345678901234e307)&\"\"",
+      "expected": "1.2345678901234E+307"
+    },
+    {
+      "expression": "-1.2345678901234e307",
+      "formula": "(-1.2345678901234e307)&\"\"",
+      "expected": "-1.2345678901234E+307"
+    },
+    {
+      "expression": "1.23456789012345e307",
+      "formula": "(1.23456789012345e307)&\"\"",
+      "expected": "1.2345678901235E+307"
+    },
+    {
+      "expression": "-1.23456789012345e307",
+      "formula": "(-1.23456789012345e307)&\"\"",
+      "expected": "-1.2345678901235E+307"
+    },
+    {
+      "expression": "9.99999999999994e307",
+      "formula": "(9.99999999999994e307)&\"\"",
+      "expected": "9.9999999999999E+307"
+    },
+    {
+      "expression": "-9.99999999999994e307",
+      "formula": "(-9.99999999999994e307)&\"\"",
+      "expected": "-9.9999999999999E+307"
+    },
+    {
+      "expression": "9.99999999999995e307",
+      "formula": "(9.99999999999995e307)&\"\"",
+      "expected": "1E+308"
+    },
+    {
+      "expression": "-9.99999999999995e307",
+      "formula": "(-9.99999999999995e307)&\"\"",
+      "expected": "-1E+308"
+    },
+    {
+      "expression": "9.99999999999999e307",
+      "formula": "(9.99999999999999e307)&\"\"",
+      "expected": "1E+308"
+    },
+    {
+      "expression": "-9.99999999999999e307",
+      "formula": "(-9.99999999999999e307)&\"\"",
+      "expected": "-1E+308"
+    },
+    {
+      "expression": "1e-18",
+      "formula": "VALUETOTEXT(1e-18,0)",
+      "expected": "0.000000000000000001"
+    },
+    {
+      "expression": "1e-18",
+      "formula": "ARRAYTOTEXT(1e-18,0)",
+      "expected": "0.000000000000000001"
+    },
+    {
+      "expression": "1e-18",
+      "formula": "VALUETOTEXT(1e-18,1)",
+      "expected": "0.000000000000000001"
+    },
+    {
+      "expression": "1e-18",
+      "formula": "ARRAYTOTEXT(1e-18,1)",
+      "expected": "{0.000000000000000001}"
+    },
+    {
+      "expression": "1.2e-18",
+      "formula": "VALUETOTEXT(1.2e-18,0)",
+      "expected": "1.2E-18"
+    },
+    {
+      "expression": "1.2e-18",
+      "formula": "ARRAYTOTEXT(1.2e-18,0)",
+      "expected": "1.2E-18"
+    },
+    {
+      "expression": "1.2e-18",
+      "formula": "VALUETOTEXT(1.2e-18,1)",
+      "expected": "1.2E-18"
+    },
+    {
+      "expression": "1.2e-18",
+      "formula": "ARRAYTOTEXT(1.2e-18,1)",
+      "expected": "{1.2E-18}"
+    },
+    {
+      "expression": "1.23e-18",
+      "formula": "VALUETOTEXT(1.23e-18,0)",
+      "expected": "1.23E-18"
+    },
+    {
+      "expression": "1.23e-18",
+      "formula": "ARRAYTOTEXT(1.23e-18,0)",
+      "expected": "1.23E-18"
+    },
+    {
+      "expression": "1.23e-18",
+      "formula": "VALUETOTEXT(1.23e-18,1)",
+      "expected": "1.23E-18"
+    },
+    {
+      "expression": "1.23e-18",
+      "formula": "ARRAYTOTEXT(1.23e-18,1)",
+      "expected": "{1.23E-18}"
+    },
+    {
+      "expression": "1e-19",
+      "formula": "VALUETOTEXT(1e-19,0)",
+      "expected": "1E-19"
+    },
+    {
+      "expression": "1e-19",
+      "formula": "ARRAYTOTEXT(1e-19,0)",
+      "expected": "1E-19"
+    },
+    {
+      "expression": "1e-19",
+      "formula": "VALUETOTEXT(1e-19,1)",
+      "expected": "1E-19"
+    },
+    {
+      "expression": "1e-19",
+      "formula": "ARRAYTOTEXT(1e-19,1)",
+      "expected": "{1E-19}"
+    },
+    {
+      "expression": "1.23456789012345e-4",
+      "formula": "VALUETOTEXT(1.23456789012345e-4,0)",
+      "expected": "0.000123456789012345"
+    },
+    {
+      "expression": "1.23456789012345e-4",
+      "formula": "ARRAYTOTEXT(1.23456789012345e-4,0)",
+      "expected": "0.000123456789012345"
+    },
+    {
+      "expression": "1.23456789012345e-4",
+      "formula": "VALUETOTEXT(1.23456789012345e-4,1)",
+      "expected": "0.000123456789012345"
+    },
+    {
+      "expression": "1.23456789012345e-4",
+      "formula": "ARRAYTOTEXT(1.23456789012345e-4,1)",
+      "expected": "{0.000123456789012345}"
+    },
+    {
+      "expression": "1.2345678901234e-5",
+      "formula": "VALUETOTEXT(1.2345678901234e-5,0)",
+      "expected": "0.000012345678901234"
+    },
+    {
+      "expression": "1.2345678901234e-5",
+      "formula": "ARRAYTOTEXT(1.2345678901234e-5,0)",
+      "expected": "0.000012345678901234"
+    },
+    {
+      "expression": "1.2345678901234e-5",
+      "formula": "VALUETOTEXT(1.2345678901234e-5,1)",
+      "expected": "0.000012345678901234"
+    },
+    {
+      "expression": "1.2345678901234e-5",
+      "formula": "ARRAYTOTEXT(1.2345678901234e-5,1)",
+      "expected": "{0.000012345678901234}"
+    },
+    {
+      "expression": "1.23456789012345e-5",
+      "formula": "VALUETOTEXT(1.23456789012345e-5,0)",
+      "expected": "1.23456789012345E-05"
+    },
+    {
+      "expression": "1.23456789012345e-5",
+      "formula": "ARRAYTOTEXT(1.23456789012345e-5,0)",
+      "expected": "1.23456789012345E-05"
+    },
+    {
+      "expression": "1.23456789012345e-5",
+      "formula": "VALUETOTEXT(1.23456789012345e-5,1)",
+      "expected": "1.23456789012345E-05"
+    },
+    {
+      "expression": "1.23456789012345e-5",
+      "formula": "ARRAYTOTEXT(1.23456789012345e-5,1)",
+      "expected": "{1.23456789012345E-05}"
+    },
+    {
+      "expression": "2.22507385850721e-308",
+      "formula": "VALUETOTEXT(2.22507385850721e-308,0)",
+      "expected": "2.2250738585072E-308"
+    },
+    {
+      "expression": "2.22507385850721e-308",
+      "formula": "ARRAYTOTEXT(2.22507385850721e-308,0)",
+      "expected": "2.2250738585072E-308"
+    },
+    {
+      "expression": "2.22507385850721e-308",
+      "formula": "VALUETOTEXT(2.22507385850721e-308,1)",
+      "expected": "2.2250738585072E-308"
+    },
+    {
+      "expression": "2.22507385850721e-308",
+      "formula": "ARRAYTOTEXT(2.22507385850721e-308,1)",
+      "expected": "{2.2250738585072E-308}"
+    },
+    {
+      "expression": "EXP(-709)",
+      "formula": "VALUETOTEXT(EXP(-709),0)",
+      "expected": "0"
+    },
+    {
+      "expression": "EXP(-709)",
+      "formula": "ARRAYTOTEXT(EXP(-709),0)",
+      "expected": "0"
+    },
+    {
+      "expression": "EXP(-709)",
+      "formula": "VALUETOTEXT(EXP(-709),1)",
+      "expected": "0"
+    },
+    {
+      "expression": "EXP(-709)",
+      "formula": "ARRAYTOTEXT(EXP(-709),1)",
+      "expected": "{0}"
+    },
+    {
+      "expression": "EXP(-710)",
+      "formula": "VALUETOTEXT(EXP(-710),0)",
+      "expected": "0"
+    },
+    {
+      "expression": "EXP(-710)",
+      "formula": "ARRAYTOTEXT(EXP(-710),0)",
+      "expected": "0"
+    },
+    {
+      "expression": "EXP(-710)",
+      "formula": "VALUETOTEXT(EXP(-710),1)",
+      "expected": "0"
+    },
+    {
+      "expression": "EXP(-710)",
+      "formula": "ARRAYTOTEXT(EXP(-710),1)",
+      "expected": "{0}"
+    },
+    {
+      "expression": "2^53",
+      "formula": "VALUETOTEXT(2^53,0)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "ARRAYTOTEXT(2^53,0)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "VALUETOTEXT(2^53,1)",
+      "expected": "9007199254740990"
+    },
+    {
+      "expression": "2^53",
+      "formula": "ARRAYTOTEXT(2^53,1)",
+      "expected": "{9007199254740990}"
+    },
+    {
+      "expression": "1/3",
+      "formula": "VALUETOTEXT(1/3,0)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "ARRAYTOTEXT(1/3,0)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "VALUETOTEXT(1/3,1)",
+      "expected": "0.333333333333333"
+    },
+    {
+      "expression": "1/3",
+      "formula": "ARRAYTOTEXT(1/3,1)",
+      "expected": "{0.333333333333333}"
+    },
+    {
+      "expression": "1e19",
+      "formula": "VALUETOTEXT(1e19,0)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "ARRAYTOTEXT(1e19,0)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "VALUETOTEXT(1e19,1)",
+      "expected": "10000000000000000000"
+    },
+    {
+      "expression": "1e19",
+      "formula": "ARRAYTOTEXT(1e19,1)",
+      "expected": "{10000000000000000000}"
+    },
+    {
+      "expression": "1e20",
+      "formula": "VALUETOTEXT(1e20,0)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "ARRAYTOTEXT(1e20,0)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "VALUETOTEXT(1e20,1)",
+      "expected": "1E+20"
+    },
+    {
+      "expression": "1e20",
+      "formula": "ARRAYTOTEXT(1e20,1)",
+      "expected": "{1E+20}"
+    }
+  ]
+}

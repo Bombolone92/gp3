@@ -1,0 +1,33 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const measure = (text, s) => ({ width: text.length * s.fontSize / 2, ascent: s.fontSize, descent: s.fontSize / 3 });
+for (const name of ['none', 'first', 'second', 'first-start', 'first-end']) it(`final row keep scope: ${name}`, async () => {
+  const p = await DocxPackage.open(readFileSync(`tests/fixtures/table-row-keep-next/${name}.docx`));
+  const l = layoutDocument(p.paragraphs, measure, pageGeometry(p.pageSettings), p.numbering, p.tables);
+  const pageOf = text => l.lines.find(l => l.fragments.map(f => f.text || '').join('') === text)?.page;
+  expect(pageOf('Final label')).toBe(['first', 'first-start'].includes(name) ? 1 : 0);
+  expect(pageOf('Tail')).toBe(1);
+  expect(l.pageCount).toBe(2);
+});
+it('removing the final first-cell keep reflows, exports and exactly undoes', async () => {
+  const bytes = readFileSync('tests/fixtures/table-row-keep-next/first.docx');
+  const p = await DocxPackage.open(bytes), d = new TextDocument(p.paragraphs, p.pageSettings, p.numbering, p.styles, p.tables, p.assets);
+  const labelPage = doc => layoutDocument(doc.paragraphs, measure, pageGeometry(doc.pageSettings), doc.numbering, doc.tables).lines.find(l => l.fragments.some(f => f.text === 'Final label')).page;
+  const save = async () => new Uint8Array(await p.export(d.paragraphs, d.pageSettings, d.numbering, d.styles, d.tables, d.assets).arrayBuffer());
+  expect(labelPage(d)).toBe(1);
+  d.selectCell(d.tables[0].rows[1].cells[0].id); d.setParagraphFormat({ keepNext: false });
+  expect(labelPage(d)).toBe(0);
+  const edited = await save(), parts = unzipSync(edited);
+  for (const [name, value] of Object.entries(unzipSync(bytes))) if (name !== 'word/document.xml') expect(parts[name]).toEqual(value);
+  expect(labelPage(await DocxPackage.open(edited))).toBe(0);
+  d.undo(); expect(labelPage(d)).toBe(1); expect(unzipSync(await save())).toEqual(unzipSync(bytes));
+});

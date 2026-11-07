@@ -1,0 +1,97 @@
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+import { describe, expect, test } from 'bun:test'
+
+/**
+ * `contextTokenCount` is documented twice in `common`, which
+ * scripts/public-export-manifest.txt publishes with its comments intact: on
+ * the session state and on the public agent type. The `agents/` and `.agents/`
+ * copies of that type now re-export it.
+ *
+ * The docstrings once described the same field differently — one as a local
+ * GPT-4o estimate, the other as "the token count from the Anthropic API … via
+ * the /api/v1/token-count endpoint". The runtime no longer calls that
+ * endpoint; the route survives only for old clients. An agent author reading
+ * the second one sizes their history against a number the runtime never asks
+ * for. Nothing typechecks a comment, so this is the only place that can hold
+ * them together.
+ */
+
+// __tests__ → types → src → common → repo root
+const REPO_ROOT = join(import.meta.dir, '..', '..', '..', '..')
+
+const SOURCES = [
+  join(REPO_ROOT, 'common', 'src', 'types', 'session-state.ts'),
+  join(
+    REPO_ROOT,
+    'common',
+    'src',
+    'templates',
+    'initial-agents-dir',
+    'types',
+    'agent-definition.ts',
+  ),
+]
+
+const CANONICAL_TYPES_MODULE =
+  '@codebuff/common/templates/initial-agents-dir/types/agent-definition'
+
+// `agents/` (published) and `.agents/` (local templates, absent from the
+// published export, hence the existence check) used to carry hand-kept copies
+// of the public type, and those copies drifted. They now re-export it.
+const REEXPORTS = [
+  join(REPO_ROOT, 'agents', 'types', 'agent-definition.ts'),
+  join(REPO_ROOT, '.agents', 'types', 'agent-definition.ts'),
+].filter((path) => existsSync(path))
+
+/** The docblock immediately above the `contextTokenCount: number` field. */
+function contextTokenCountDoc(source: string): string {
+  const field = source.indexOf('contextTokenCount: number')
+  expect(field).toBeGreaterThan(-1)
+  const open = source.lastIndexOf('/**', field)
+  expect(open).toBeGreaterThan(-1)
+  return source.slice(open, field)
+}
+
+describe('the contextTokenCount docstrings', () => {
+  test('there is more than one of them, and they all publish', () => {
+    // If this drops to one the rest of the file is trivially true and would
+    // stop meaning anything.
+    expect(SOURCES.length).toBeGreaterThanOrEqual(2)
+  })
+
+  for (const path of REEXPORTS) {
+    const where = path.slice(REPO_ROOT.length + 1)
+    test(`${where} re-exports the canonical type instead of copying it`, () => {
+      const source = readFileSync(path, 'utf8')
+      expect(source, where).toContain(
+        `export type * from '${CANONICAL_TYPES_MODULE}'`,
+      )
+      expect(source, where).not.toContain('contextTokenCount')
+    })
+  }
+
+  for (const path of SOURCES) {
+    const doc = contextTokenCountDoc(readFileSync(path, 'utf8'))
+    const where = path.slice(REPO_ROOT.length + 1)
+
+    test(`${where} does not promise the token-count endpoint`, () => {
+      // The retired round trip. A comment that names an endpoint is a comment
+      // someone will try to call.
+      expect(doc, where).not.toContain('/api/v1/token-count')
+      expect(doc.toLowerCase(), where).not.toContain(
+        'token count from the anthropic api',
+      )
+    })
+
+    test(`${where} says what it actually is`, () => {
+      expect(doc, where).toContain(
+        "Latest model call's reported input + output",
+      )
+      expect(doc.toLowerCase(), where).toContain('estimate')
+      expect(doc.toLowerCase(), where).toContain('never accumulated')
+      expect(doc, where).not.toContain('GPT-4o')
+    })
+  }
+})

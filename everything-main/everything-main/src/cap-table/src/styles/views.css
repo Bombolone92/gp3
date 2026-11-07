@@ -1,0 +1,1005 @@
+/* Auth / intro page */
+
+.auth-view {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px calc(32px + var(--safe-b));
+  max-width: 460px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.auth-logo {
+  border-radius: 20px;
+  margin-bottom: 22px;
+}
+
+.auth-title {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.auth-sub {
+  color: var(--ink-2);
+  font-size: 15px;
+  margin-bottom: 26px;
+  max-width: 380px;
+}
+
+.auth-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+  text-align: left;
+  width: 100%;
+}
+
+.auth-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.auth-feature svg {
+  color: var(--accent);
+  flex: none;
+}
+
+.auth-cta {
+  width: 100%;
+  padding: 13px;
+  font-size: 15px;
+}
+
+.auth-note {
+  margin-top: 16px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* The boot error's ways back - the company's snapshots, a backup file, the
+   other companies - laid out like the Settings cards they stand in for. */
+.recovery-ways {
+  width: 100%;
+  text-align: left;
+  margin-top: 30px;
+}
+
+.recovery-ways h2 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+
+.recovery-ways .auth-sub {
+  margin-bottom: 4px;
+  max-width: none;
+}
+
+.recovery-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin: 18px 0 8px;
+}
+
+/* The one link in running text in the app. Links elsewhere are whole
+   cells; this one sits inside a sentence, and the accent against the note's
+   muted grey is a 1.05:1 difference, so without the underline it was set
+   apart by hue alone (WCAG 1.4.1). */
+.auth-note a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* On the shortest phones (320x568) the page ran to 680px and the one button
+   that matters sat half below the fold. Tighter spacing brings it up. */
+@media (max-height: 620px) {
+  .auth-sub {
+    margin-bottom: 16px;
+  }
+  .auth-features {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+}
+
+/* Dashboard */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Auto-fit rather than a fixed four: the tile set varies (a 409A tile only
+   appears once one is recorded) and the row should stay balanced either way. */
+@media (min-width: 720px) {
+  .stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+}
+
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 560;
+  color: var(--ink-3);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 960px) {
+  .dash-grid {
+    grid-template-columns: 3fr 2fr;
+    align-items: start;
+  }
+}
+
+/* Both dashboard columns are themselves grids of cards, and a grid item's
+   automatic minimum size is its content's - so one wide card would widen the
+   column and push the page sideways. Same reason .card carries min-width: 0. */
+.dash-grid > * {
+  min-width: 0;
+}
+
+/* Activity feed */
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13.5px;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-ic {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  flex: none;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+/* Imminent upcoming events. Compound because .warn is declared earlier. */
+.activity-time.warn {
+  color: var(--warn);
+  font-weight: 560;
+}
+
+/* Same trap for the glyph: .pos and .neg are declared in base.css, and the
+   .activity-ic colour above outranks them by order. The Rule 701 ceilings
+   list and the exercises-without-a-certificate list colour their icons. */
+.activity-ic.pos {
+  color: var(--pos);
+}
+
+.activity-ic.neg {
+  color: var(--neg);
+}
+
+/* Getting-started checklist */
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 6px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.check-item:hover {
+  background: var(--surface-2);
+}
+
+/* Pressed - see the note beside .btn-primary:active in components.css. */
+.check-item:active {
+  background: var(--surface-3);
+}
+
+.check-item .ring {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-full);
+  border: 1.6px solid var(--hairline-strong);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-item.done {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+
+.check-item.done .ring {
+  background: var(--pos);
+  border-color: var(--pos);
+  color: #fff;
+}
+
+/* Needs-attention rows: an overdue record and the action that settles it.
+   Not a .check-item - nothing here is pressed as a whole; the button is. */
+
+.attention-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.attention-row:last-child {
+  border-bottom: none;
+}
+
+.attention-row .attention-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--warn);
+}
+
+.attention-row .t {
+  font-size: 13.5px;
+  font-weight: 570;
+}
+
+.attention-row .s {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* Phone: the action drops under the text rather than squeezing it.
+   The text block needs a floor for that to happen at all: .grow is flex-basis
+   0 with min-width 0, so the line always "fit" and never wrapped - the button
+   sat beside a 62px column of text ten lines tall, then took the 41px margin
+   meant for the wrapped state on top. Same floor .holder-head and
+   .settings-row give their text. */
+@media (max-width: 520px) {
+  .attention-row {
+    flex-wrap: wrap;
+  }
+
+  .attention-row > .grow {
+    min-width: min(200px, 100%);
+  }
+
+  .attention-row .btn {
+    margin-left: 41px;
+  }
+}
+
+/* The same wrap for the width the rows actually get. The dashboard puts this
+   card in a column two fifths of the content wide from 960px, which is 250 to
+   330px of card up to about 1240px - narrower than the phone above, where the
+   rule was written - and the button sat beside a text column 40 to 90px wide,
+   twenty lines tall. The phone rule never fired there. */
+.attention-list {
+  container-type: inline-size;
+}
+
+@container (max-width: 330px) {
+  .attention-row {
+    flex-wrap: wrap;
+  }
+
+  .attention-row > .grow {
+    min-width: min(200px, 100%);
+  }
+
+  .attention-row .btn {
+    margin-left: 41px;
+  }
+}
+
+/* Holder cell (avatar + name + meta) used across tables */
+
+.holder-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.holder-cell .t {
+  font-weight: 570;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The name is an inline link inside a box that clips for the ellipsis, and a
+   focus ring drawn 2px outside the link was clipped on every side but the
+   one the text runs toward - on the stakeholders table, a keyboard user's
+   only way into a holder had no visible focus. Drawn inside the link instead. */
+.holder-cell .t a:focus-visible {
+  outline-offset: -2px;
+  border-radius: 3px;
+}
+
+.holder-cell .s {
+  font-size: 12px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Securities: vesting cell */
+
+.vest-cell {
+  min-width: 130px;
+}
+
+.vest-cell .meter {
+  margin-top: 5px;
+}
+
+/* Cap table: as-of date bar */
+
+.asof-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-bottom: 14px;
+}
+
+.asof-label {
+  flex: none;
+}
+
+.asof-input {
+  width: auto;
+  flex: none;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+/* On a phone the label and the date field take 200px of a 320px row, and
+   the financing chips were left a 90px sliver with its scrollbar hidden:
+   one chip showing, eight more with nothing to say they existed. The strip
+   drops to a row of its own below the field, where it can scroll. */
+@media (max-width: 639px) {
+  .asof-bar {
+    flex-wrap: wrap;
+  }
+
+  .asof-bar .seg-scroll {
+    flex: 1 0 100%;
+  }
+}
+
+@media (pointer: coarse) {
+  .asof-input {
+    font-size: 16px;
+  }
+}
+
+/* Rounds view */
+
+.round-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .round-layout {
+    grid-template-columns: 340px 1fr;
+  }
+}
+
+/* The results column holds tables that are meant to scroll inside their own
+   .table-wrap; without this its track stretches to their min-width instead
+   and the page scrolls sideways on a phone. */
+.round-layout > * {
+  min-width: 0;
+}
+
+.round-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13.5px;
+}
+
+.round-metric:last-child {
+  border-bottom: none;
+}
+
+.round-metric .v {
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+  /* The figure never breaks in two; a label that has to give way wraps
+     instead, as "Unallocated pool after close" does on a phone. */
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Close-a-round: one investor per row (holder, optional type, check size) */
+
+.investor-rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+/* Flex rather than a grid: a row has three controls or four depending on
+   whether the investor is new, and it must wrap on a phone either way. */
+/* The class name column: on a phone the table scrolls sideways regardless,
+   and letting the name wrap put "Series Seed-2 Convertible Pref" on four
+   lines in a 90px cell beside a row of one-line figures. */
+table.data .col-class {
+  min-width: 220px;
+}
+
+.investor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.investor-row > .select-wrap,
+.investor-row > input.input {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+/* Written as input.investor-amount so it outranks the input.input rule above:
+   as a bare class it lost on specificity, the amount took the picker's basis
+   too, and on a phone the two of them filled the line and pushed the remove
+   button onto a line of its own between the row and the new holder's name. */
+.investor-row > input.investor-amount {
+  flex: 1 1 110px;
+}
+
+/* On a phone the picker and the amount shared one line, and a nine-figure
+   check ("1,500,000,000") was cut to "1,500,000,00" in the 98px the amount
+   had left. The row wraps already; the amount takes a line of its own. */
+@media (max-width: 480px) {
+  .investor-row > input.investor-amount {
+    flex-basis: 100%;
+    order: 2;
+  }
+  /* With the amount on its own line the remove button, next in source
+     order, wrapped onto a line of its own between the amount and the new
+     holder's name. It sits at the end of the picker's line instead. */
+  .investor-row > .icon-btn {
+    order: 1;
+  }
+  .investor-row > .investor-new {
+    order: 3;
+  }
+}
+
+.investor-row > .icon-btn {
+  flex: none;
+  margin-left: auto;
+}
+
+/* Name and type for an investor who isn't on the cap table yet: its own full
+   line under the row, so the picker above it never has to move aside. */
+.investor-new {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.investor-new > .select-wrap,
+.investor-new > input.input {
+  flex: 1 1 150px;
+  min-width: 0;
+}
+
+/* Saved-scenario pill: a load button plus an explicit delete button
+   (buttons can't nest, so the pill is a span wrapping both). */
+.scenario-chip {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-full);
+}
+
+.scenario-load {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 4px 6px 12px;
+  border-radius: var(--r-full) 0 0 var(--r-full);
+  font-size: 12.5px;
+  font-weight: 560;
+  color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+}
+
+.scenario-load:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.scenario-load:active {
+  background: var(--surface-3);
+  color: var(--ink);
+  transition-duration: 0s;
+}
+
+.scenario-x {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px 6px 6px;
+  border-radius: 0 var(--r-full) var(--r-full) 0;
+  color: var(--ink-3);
+  transition: background 0.15s, color 0.15s;
+}
+
+.scenario-x:hover {
+  background: var(--surface-2);
+  color: var(--critical);
+}
+
+.scenario-x:active {
+  background: var(--surface-3);
+  color: var(--critical);
+  transition-duration: 0s;
+}
+
+/* Touch: the 44px minimum, as in components.css. The delete half of the pill
+   is a 13px glyph, so it needs the width as much as the height - and the pill
+   stretches its two halves, so the height comes from the load button. */
+@media (pointer: coarse) {
+  .check-item,
+  .scenario-load {
+    min-height: 44px;
+  }
+
+  .scenario-x {
+    min-width: 44px;
+    justify-content: center;
+  }
+}
+
+/* Settings */
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section > h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hairline);
+  flex-wrap: wrap;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+/* Same floor, and the same reason, as .holder-head above: the label and its
+   description carry .grow, whose min-width: 0 let this row always "fit" - so
+   it never wrapped, and on a 360px phone the theme switcher kept its full
+   width while "System follows your device setting" ran down a 69px column. */
+.settings-row > .grow {
+  min-width: min(200px, 100%);
+}
+
+.settings-row .t {
+  font-weight: 560;
+  font-size: 14px;
+}
+
+.settings-row .s {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+/* Onboarding */
+
+.onboard-hero {
+  text-align: center;
+  padding: 8px 8px 18px;
+}
+
+.onboard-hero .onboard-logo {
+  margin-bottom: 14px;
+}
+
+/* img is display: block globally, so text-align can't center it */
+.auth-logo img,
+.onboard-hero .onboard-logo img {
+  margin-inline: auto;
+}
+
+.onboard-hero h3 {
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+
+.onboard-hero p {
+  color: var(--ink-2);
+  font-size: 13.5px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+/* Stakeholder detail */
+
+.back-link {
+  padding: 6px 10px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  border-color: transparent;
+  color: var(--ink-3);
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+.holder-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+/* The name and email may shrink, but not out of existence.
+   .grow carries min-width: 0 so a long name can ellipsize inside a table
+   cell - and that licence is what stopped this row from ever wrapping: a flex
+   line whose middle item can shrink to nothing always "fits", so the four
+   action buttons (which don't shrink) kept their full width and squeezed the
+   identity block down to a few characters per line at laptop widths. A floor
+   makes the line genuinely overflow, which is what puts the buttons on their
+   own line instead. min() so the floor can never exceed the row it sits in. */
+.holder-head > .grow {
+  min-width: min(240px, 100%);
+}
+
+.avatar.avatar-lg {
+  width: 46px;
+  height: 46px;
+  font-size: 16px;
+}
+
+/* The statement header and footer only exist on paper. */
+.print-only {
+  display: none;
+}
+
+.statement-head {
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+.statement-co {
+  font-size: 17px;
+  font-weight: 680;
+}
+
+.statement-meta {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+/* Print: the page already is the statement, so printing just removes the
+   app around it and flattens the scroll containers the screen layout needs. */
+@media print {
+  .sidebar,
+  .tabbar,
+  .topbar,
+  .sample-banner,
+  .bottom-stack,
+  .modal-root,
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  html, body, .app, .shell, .main-col {
+    height: auto;
+    display: block;
+    background: #fff;
+  }
+
+  .main {
+    overflow: visible;
+    height: auto;
+    padding: 0;
+  }
+
+  .main-inner {
+    max-width: none;
+  }
+
+  /* Rows and tiles stay whole; a card or a table does not, because a
+     holdings card or the by-holder table can run longer than a page, and
+     keeping one whole pushed it to the next page - leaving the previous one
+     mostly blank - before the browser fragmented it anyway. */
+  .stat-tile,
+  .activity-item,
+  tr {
+    break-inside: avoid;
+  }
+
+  /* A heading stays with what it heads: the cap table's convertibles title
+     ended a page with its table starting the next. And the statement's
+     disclaimer stays with the statement rather than opening a page alone. */
+  h1, h2, h3, .card-title {
+    break-after: avoid;
+  }
+
+  .statement-footer {
+    break-before: avoid;
+  }
+
+  /* Controls are for the screen. The reports mark theirs no-print one by
+     one; the list views' row actions, filters and header buttons printed as
+     a column of glyphs and a strip of chips. */
+  .btn,
+  .icon-btn,
+  .seg {
+    display: none !important;
+  }
+
+  .card, .table-wrap, .stat-tile {
+    border-color: #d4d4d8;
+  }
+
+  table.data {
+    min-width: 0 !important;
+    font-size: 11px;
+  }
+
+  /* Headings wrap on paper. On screen they stay on one line because the
+     table scrolls; on paper nothing scrolls, and the nine nowrap headings of
+     the stock-comp table ran the table past the sheet's edge with the last
+     columns cut off. Tighter cells for the same reason. */
+  table.data th {
+    white-space: normal;
+  }
+
+  table.data th,
+  table.data td {
+    padding: 6px 8px;
+    /* A cell's on-screen floor (the award column of the stock-comp table
+       asks for 170px inline) is room a sheet of paper does not have. */
+    min-width: 0 !important;
+  }
+
+  /* The avatar is a screen affordance beside a name; on paper it is 44px
+     of every row's width that the last column needs more. */
+  table.data .holder-cell .avatar {
+    display: none;
+  }
+
+  .table-wrap {
+    overflow: visible;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .meter {
+    border: 1px solid #d4d4d8;
+  }
+
+  /* Browsers drop backgrounds in print, and the fill is one: every meter on
+     the printed statement read as an empty track - 0% vested - beside a
+     caption saying otherwise. Same opt-in the forecast columns carry. */
+  .meter-fill {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* Convertible cards on securities view */
+
+.kind-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 640;
+  letter-spacing: 0.03em;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  text-transform: uppercase;
+}
+
+/* History view */
+
+.history-filters {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.history-entry {
+  padding: 16px;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+
+.history-entry-head, .history-entry-foot {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-entry-head .kind-pill {
+  flex-shrink: 0;
+}
+
+/* A transaction id is for matching against an export, not for reading. */
+.history-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.history-change {
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.history-change > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.history-change > summary .kind-pill {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.history-change[open] > summary {
+  margin-bottom: 8px;
+}
+
+/* Field names stay on one line; values may run long (a list of tranches,
+   an attachment record) and wrap inside their cell instead of widening it. */
+.history-table {
+  margin-bottom: 10px;
+}
+
+.history-table table.data {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.history-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.history-table td:first-child {
+  /* Field names whole ("cancellations", not "cancellatio / ns"): the wrapper
+     scrolls when the table is wider than a phone. */
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.history-json > summary {
+  cursor: pointer;
+}
+
+.history-json pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  margin: 6px 0 0;
+}

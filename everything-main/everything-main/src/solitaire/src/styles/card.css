@@ -1,0 +1,166 @@
+.card {
+  position: absolute;
+  top: 0; left: 0;
+  width: var(--card-w);
+  height: var(--card-h);
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: box-shadow .15s, transform .18s cubic-bezier(.2,.7,.2,1), top .22s cubic-bezier(.2,.7,.2,1), left .22s cubic-bezier(.2,.7,.2,1);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.card.face-down {
+  background: linear-gradient(135deg, #2c5e8f 0%, #1f4a73 100%);
+  border-color: rgba(0,0,0,.25);
+  cursor: default;
+}
+.card.face-down::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,.18);
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 4px, transparent 4px 8px);
+}
+.card.face-up { padding: 6px 8px; }
+.card .corner {
+  position: absolute;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.card .corner.tl { top: 5px; left: 6px; }
+.card .corner .rank { font-size: 15px; }
+.card .corner .suit { font-size: 13px; }
+.card.red, .face.red { color: var(--red); }
+.face.black { color: #111; }
+.card.black { color: var(--black); }
+
+.card.draggable:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+.card.dragging {
+  transition: none;
+  z-index: 1000;
+  box-shadow: 0 8px 30px rgba(0,0,0,.4);
+}
+
+/* Simple mode: one corner index, nothing else. This is the small-screen
+   card and it must stay exactly this plain. buildSimpleFace() in
+   cardview.js only ever builds the .corner.tl element now — there is no
+   .corner.br or .center-suit to hide any more, so unlike the old version of
+   this rule there is nothing here to display:none.
+   Scoped on :not(:has(playing-card)), matching the rich-mode convention
+   below, rather than #board[data-mode="simple"]: a simple card is exactly
+   one that does not contain a playing-card element, and that also matches
+   the drag ghost and win-celebration clones, which render outside #board
+   (appended to document.body) and so would otherwise fall back to the
+   unscoped default sizes below instead of these smaller ones. */
+.card:not(:has(playing-card)) .corner.tl { top: 4px; left: 5px; }
+.card:not(:has(playing-card)) .corner .rank { font-size: 14px; }
+.card:not(:has(playing-card)) .corner .suit { font-size: 12px; }
+
+/* Rich mode: real card art via the vendored <playing-card> element. Rich
+   cards also appear outside #board — a dragged ghost and the win-celebration
+   clones are appended to document.body, not the board — so these rules key
+   off the presence of a playing-card element itself (:has), not #board's
+   data-mode, or the ghost/clone art would render unstyled.
+   The element replaces its own children with an <img src="data:image/svg+
+   xml,...">; it provides no sizing on its own, so both it and the img must
+   be told to fill the card box or the art collapses to the image's default
+   box instead of the locked 1:1.4 ratio. */
+.card playing-card,
+.card playing-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* .card.face-up's padding exists so the simple face's corner text sits
+   inset from the edge; a rich face wants padding for breathing room around
+   the vendored SVG art. Vertical 4.2%, horizontal 3% — the 1.4× ratio
+   preserves the card's 1:1.4 aspect ratio when padding resolves against width. */
+.card.face-up:has(playing-card),
+.card.flip-host .face.front:has(playing-card),
+.card.flying .face.front:has(playing-card) {
+  padding: 4.2% 3%;
+}
+/* The simple mode's CSS-gradient back must not print behind the vendored
+   back art. */
+.card.face-down:has(playing-card) { background: none; }
+.card.face-down:has(playing-card)::before { content: none; }
+
+/* ---- Material realism (rich mode only) ---------------------------------- */
+
+/* Defined on :root, not #board — a custom property applies no styling by
+   itself, so this costs nothing, and it means the value resolves anywhere a
+   rich card can render, including the drag ghost that drag.js appends to
+   document.body, outside #board. */
+:root {
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#board[data-mode="rich"] .card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .9),      /* cut top edge */
+    0 0 0 .5px rgba(0, 0, 0, .28),               /* hairline stock edge */
+    0 1px 1px rgba(0, 0, 0, .22),                /* tight contact shadow */
+    0 6px 16px rgba(0, 0, 0, .24);               /* wide ambient shadow */
+  border: none;
+}
+
+/* Grain and gloss. ::after is free on rich cards — the simple-mode faces use
+   child elements, and .face-down::before is suppressed in rich mode. */
+#board[data-mode="rich"] .card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    linear-gradient(125deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, 0) 42%),
+    var(--paper-grain);
+  background-size: auto, 120px 120px;
+  opacity: .5;
+  mix-blend-mode: soft-light;
+}
+
+/* Sub-degree tilt so face-down stacks read as physical paper rather than a
+   printed grid. Face-up cards stay square and readable, so this selector is
+   deliberately limited to .face-down — it must not be widened to .card.
+   The value is a pure function of the card id — see ui/card-tilt.js. */
+#board[data-mode="rich"] .card.face-down {
+  transform: rotate(var(--card-tilt, 0deg));
+}
+
+/* Drag lift. Keyed off :has(playing-card) rather than #board[data-mode=
+   "rich"], matching the convention above (.card.face-up:has(playing-card)
+   etc.): drag.js builds the dragged ghost and appends it to document.body,
+   outside #board, so a #board-scoped selector can never match it. No rotate
+   here — drag.js only ever drags face-up cards (see its faceUp check), and
+   the tilt is reserved for face-down cards per the rule above. */
+.card.dragging:has(playing-card) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .9),
+    0 2px 4px rgba(0, 0, 0, .3),
+    0 18px 40px rgba(0, 0, 0, .42);
+  transform: scale(1.03);
+}
+
+#board[data-mode="rich"] .card.draggable:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .9),
+    0 0 0 .5px rgba(0, 0, 0, .28),
+    0 2px 3px rgba(0, 0, 0, .24),
+    0 12px 28px rgba(0, 0, 0, .3);
+}
+
+/* The grain must not ride along on animating cards — a blended overlay on a
+   transforming element forces a repaint per frame. */
+#board[data-mode="rich"] .card.flying::after,
+#board[data-mode="rich"] .card.flip-host::after { content: none; }

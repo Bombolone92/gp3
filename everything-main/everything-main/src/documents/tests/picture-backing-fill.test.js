@@ -1,0 +1,44 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync, zipSync, strFromU8, strToU8 } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { expectBodyEditParts } from './helpers/expect-body-edit-parts.js';
+const source = readFileSync('tests/fixtures/picture-surfaces/backing.docx');
+const A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const same = (a, b) => { expect(Object.keys(a).sort()).toEqual(Object.keys(b).sort()); for (const name of Object.keys(b)) expect(Buffer.from(a[name]).equals(Buffer.from(b[name])), name).toBe(true); };
+const scenes = p => p.paragraphs.flatMap(paragraph => paragraph.runs.filter(r => r.image).map(r => p.assets[r.image.assetId].scene));
+it('keeps backing independent of texture alpha, crop, outlines, grouping and 3D', async () => {
+  const p = await DocxPackage.open(source), s = scenes(p);
+  expect(s).toHaveLength(10); expect(s[0]).toBeUndefined();
+  expect(s[2].children[0].fill).toBe('#EDEDED');
+  expect(s[3].children[0].fill).toBe('rgba(237,237,237,0.5)');
+  expect(s[5].children[1].image.crop.left).toBe(-25000);
+  expect(s[6].children[1].image.opacity).toBe(.5);
+  expect(s[7]).toMatchObject({ type: 'picture3d', backingFill: { rgb: 'EDEDED', alpha: 1 } });
+  expect(s[8].children[0].children[0].fill).toBe('#EDEDED');
+  expect(s[9].children.map(n => n.type)).toEqual(['shape', 'picture', 'shape']);
+});
+it('preserves picture XML and all unrelated bytes through editing, reopening and exact undo', async () => {
+  const p = await DocxPackage.open(source), d = new TextDocument(p.paragraphs, p.pageSettings, p.numbering, p.styles, p.tables, p.assets);
+  const save = async () => new Uint8Array(await p.export(d.paragraphs, d.pageSettings, d.numbering, d.styles, d.tables, d.assets).arrayBuffer());
+  same(unzipSync(await save()), p.parts); d.select(0); d.replace('Edit ');
+  const reopened = await DocxPackage.open(await save()); expect(scenes(reopened)).toEqual(scenes(p));
+  expectBodyEditParts(reopened.parts, p.parts);
+  d.undo(); same(unzipSync(await save()), p.parts);
+});
+it.each(['conflicting', 'duplicate', 'empty', 'attribute', 'unknown-color'])('rejects %s backing fills', async kind => {
+  const parts = unzipSync(source), doc = new DOMParser().parseFromString(strFromU8(parts['word/document.xml']), 'application/xml');
+  const fill = doc.getElementsByTagNameNS(A, 'solidFill')[0];
+  if (kind === 'conflicting') fill.parentElement.append(doc.createElementNS(A, 'a:noFill'));
+  if (kind === 'duplicate') fill.parentElement.append(fill.cloneNode(true));
+  if (kind === 'empty') fill.replaceChildren();
+  if (kind === 'attribute') fill.setAttribute('unknown', '1');
+  if (kind === 'unknown-color') fill.replaceChildren(doc.createElementNS(A, 'a:unknown'));
+  parts['word/document.xml'] = strToU8(new XMLSerializer().serializeToString(doc));
+  await expect(DocxPackage.open(zipSync(parts))).rejects.toThrow();
+});

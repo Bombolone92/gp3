@@ -1,0 +1,645 @@
+{
+  "provenance": "Forty independent synthetic SmartArt controls regenerated and saved by the native reference application. A TX node sets primary font size and height equal to its secondary font, with absent, explicit, or referenced secondary size and optional literal left margin. Insets and height are saved EMUs. Fractional cases separate initial font calculations from later simultaneous whole-point font trials: default secondary size uses the unrounded initial primary, whereas final margin and dimension references see rounded fonts. Tests exercise initial defaults and caller-applied numeric trials; they do not claim a completed text layout or font-rounding implementation.",
+  "cases": [
+    {
+      "name": "primary 7, secondary None, margin override False",
+      "primary": 7,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 180000,
+        "insets": {
+          "l": 49784,
+          "r": 49784,
+          "t": 49784,
+          "b": 49784
+        }
+      }
+    },
+    {
+      "name": "primary 7, secondary None, margin override True",
+      "primary": 7,
+      "secondary": null,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 180000,
+        "insets": {
+          "l": 38100,
+          "r": 49784,
+          "t": 49784,
+          "b": 49784
+        }
+      }
+    },
+    {
+      "name": "primary 7, secondary 11, margin override False",
+      "primary": 7,
+      "secondary": 11,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 49784,
+          "r": 49784,
+          "t": 49784,
+          "b": 49784
+        }
+      }
+    },
+    {
+      "name": "primary 7, secondary 11, margin override True",
+      "primary": 7,
+      "secondary": 11,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 38100,
+          "r": 49784,
+          "t": 49784,
+          "b": 49784
+        }
+      }
+    },
+    {
+      "name": "primary 13, secondary None, margin override False",
+      "primary": 13,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 360000,
+        "insets": {
+          "l": 92456,
+          "r": 92456,
+          "t": 92456,
+          "b": 92456
+        }
+      }
+    },
+    {
+      "name": "primary 13, secondary None, margin override True",
+      "primary": 13,
+      "secondary": null,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 360000,
+        "insets": {
+          "l": 38100,
+          "r": 92456,
+          "t": 92456,
+          "b": 92456
+        }
+      }
+    },
+    {
+      "name": "primary 13, secondary 11, margin override False",
+      "primary": 13,
+      "secondary": 11,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 92456,
+          "r": 92456,
+          "t": 92456,
+          "b": 92456
+        }
+      }
+    },
+    {
+      "name": "primary 13, secondary 11, margin override True",
+      "primary": 13,
+      "secondary": 11,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 38100,
+          "r": 92456,
+          "t": 92456,
+          "b": 92456
+        }
+      }
+    },
+    {
+      "name": "primary 29, secondary None, margin override False",
+      "primary": 29,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 828000,
+        "insets": {
+          "l": 206248,
+          "r": 206248,
+          "t": 206248,
+          "b": 206248
+        }
+      }
+    },
+    {
+      "name": "primary 29, secondary None, margin override True",
+      "primary": 29,
+      "secondary": null,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 828000,
+        "insets": {
+          "l": 38100,
+          "r": 206248,
+          "t": 206248,
+          "b": 206248
+        }
+      }
+    },
+    {
+      "name": "primary 29, secondary 11, margin override False",
+      "primary": 29,
+      "secondary": 11,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 206248,
+          "r": 206248,
+          "t": 206248,
+          "b": 206248
+        }
+      }
+    },
+    {
+      "name": "primary 29, secondary 11, margin override True",
+      "primary": 29,
+      "secondary": 11,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 38100,
+          "r": 206248,
+          "t": 206248,
+          "b": 206248
+        }
+      }
+    },
+    {
+      "name": "primary 47, secondary None, margin override False",
+      "primary": 47,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 1332000,
+        "insets": {
+          "l": 334264,
+          "r": 334264,
+          "t": 334264,
+          "b": 334264
+        }
+      }
+    },
+    {
+      "name": "primary 47, secondary None, margin override True",
+      "primary": 47,
+      "secondary": null,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 1332000,
+        "insets": {
+          "l": 38100,
+          "r": 334264,
+          "t": 334264,
+          "b": 334264
+        }
+      }
+    },
+    {
+      "name": "primary 47, secondary 11, margin override False",
+      "primary": 47,
+      "secondary": 11,
+      "marginOverride": false,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 334264,
+          "r": 334264,
+          "t": 334264,
+          "b": 334264
+        }
+      }
+    },
+    {
+      "name": "primary 47, secondary 11, margin override True",
+      "primary": 47,
+      "secondary": 11,
+      "marginOverride": true,
+      "width": 60,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 38100,
+          "r": 334264,
+          "t": 334264,
+          "b": 334264
+        }
+      }
+    },
+    {
+      "name": "primary 1, secondary None, margin override False",
+      "primary": 1,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 36000,
+        "insets": {
+          "l": 7112,
+          "r": 7112,
+          "t": 7112,
+          "b": 7112
+        }
+      }
+    },
+    {
+      "name": "primary 1, secondary reference, margin override False",
+      "primary": 1,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 36000,
+        "insets": {
+          "l": 7112,
+          "r": 7112,
+          "t": 7112,
+          "b": 7112
+        }
+      }
+    },
+    {
+      "name": "primary 1, secondary 11.3, margin override False",
+      "primary": 1,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 7112,
+          "r": 7112,
+          "t": 7112,
+          "b": 7112
+        }
+      }
+    },
+    {
+      "name": "primary 1.9, secondary None, margin override False",
+      "primary": 1.9,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 36000,
+        "insets": {
+          "l": 14224,
+          "r": 14224,
+          "t": 14224,
+          "b": 14224
+        }
+      }
+    },
+    {
+      "name": "primary 1.9, secondary reference, margin override False",
+      "primary": 1.9,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 36000,
+        "insets": {
+          "l": 14224,
+          "r": 14224,
+          "t": 14224,
+          "b": 14224
+        }
+      }
+    },
+    {
+      "name": "primary 1.9, secondary 11.3, margin override False",
+      "primary": 1.9,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 14224,
+          "r": 14224,
+          "t": 14224,
+          "b": 14224
+        }
+      }
+    },
+    {
+      "name": "primary 2.5, secondary None, margin override False",
+      "primary": 2.5,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 72000,
+        "insets": {
+          "l": 21336,
+          "r": 21336,
+          "t": 21336,
+          "b": 21336
+        }
+      }
+    },
+    {
+      "name": "primary 2.5, secondary reference, margin override False",
+      "primary": 2.5,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 72000,
+        "insets": {
+          "l": 21336,
+          "r": 21336,
+          "t": 21336,
+          "b": 21336
+        }
+      }
+    },
+    {
+      "name": "primary 2.5, secondary 11.3, margin override False",
+      "primary": 2.5,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 21336,
+          "r": 21336,
+          "t": 21336,
+          "b": 21336
+        }
+      }
+    },
+    {
+      "name": "primary 10.25, secondary None, margin override False",
+      "primary": 10.25,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 288000,
+        "insets": {
+          "l": 71120,
+          "r": 71120,
+          "t": 71120,
+          "b": 71120
+        }
+      }
+    },
+    {
+      "name": "primary 10.25, secondary reference, margin override False",
+      "primary": 10.25,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 288000,
+        "insets": {
+          "l": 71120,
+          "r": 71120,
+          "t": 71120,
+          "b": 71120
+        }
+      }
+    },
+    {
+      "name": "primary 10.25, secondary 11.3, margin override False",
+      "primary": 10.25,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 71120,
+          "r": 71120,
+          "t": 71120,
+          "b": 71120
+        }
+      }
+    },
+    {
+      "name": "primary 10.9, secondary None, margin override False",
+      "primary": 10.9,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 324000,
+        "insets": {
+          "l": 78232,
+          "r": 78232,
+          "t": 78232,
+          "b": 78232
+        }
+      }
+    },
+    {
+      "name": "primary 10.9, secondary reference, margin override False",
+      "primary": 10.9,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 324000,
+        "insets": {
+          "l": 78232,
+          "r": 78232,
+          "t": 78232,
+          "b": 78232
+        }
+      }
+    },
+    {
+      "name": "primary 10.9, secondary 11.3, margin override False",
+      "primary": 10.9,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 78232,
+          "r": 78232,
+          "t": 78232,
+          "b": 78232
+        }
+      }
+    },
+    {
+      "name": "primary 25, secondary None, margin override False",
+      "primary": 25,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 720000,
+        "insets": {
+          "l": 177800,
+          "r": 177800,
+          "t": 177800,
+          "b": 177800
+        }
+      }
+    },
+    {
+      "name": "primary 25, secondary reference, margin override False",
+      "primary": 25,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 720000,
+        "insets": {
+          "l": 177800,
+          "r": 177800,
+          "t": 177800,
+          "b": 177800
+        }
+      }
+    },
+    {
+      "name": "primary 25, secondary 11.3, margin override False",
+      "primary": 25,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 177800,
+          "r": 177800,
+          "t": 177800,
+          "b": 177800
+        }
+      }
+    },
+    {
+      "name": "primary 75, secondary None, margin override False",
+      "primary": 75,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 2124000,
+        "insets": {
+          "l": 533400,
+          "r": 533400,
+          "t": 533400,
+          "b": 533400
+        }
+      }
+    },
+    {
+      "name": "primary 75, secondary reference, margin override False",
+      "primary": 75,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 2124000,
+        "insets": {
+          "l": 533400,
+          "r": 533400,
+          "t": 533400,
+          "b": 533400
+        }
+      }
+    },
+    {
+      "name": "primary 75, secondary 11.3, margin override False",
+      "primary": 75,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 533400,
+          "r": 533400,
+          "t": 533400,
+          "b": 533400
+        }
+      }
+    },
+    {
+      "name": "primary 101, secondary None, margin override False",
+      "primary": 101,
+      "secondary": null,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 2844000,
+        "insets": {
+          "l": 718312,
+          "r": 718312,
+          "t": 718312,
+          "b": 718312
+        }
+      }
+    },
+    {
+      "name": "primary 101, secondary reference, margin override False",
+      "primary": 101,
+      "secondary": "reference",
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 2844000,
+        "insets": {
+          "l": 718312,
+          "r": 718312,
+          "t": 718312,
+          "b": 718312
+        }
+      }
+    },
+    {
+      "name": "primary 101, secondary 11.3, margin override False",
+      "primary": 101,
+      "secondary": 11.3,
+      "marginOverride": false,
+      "width": 180,
+      "expected": {
+        "height": 396000,
+        "insets": {
+          "l": 718312,
+          "r": 718312,
+          "t": 718312,
+          "b": 718312
+        }
+      }
+    }
+  ]
+}

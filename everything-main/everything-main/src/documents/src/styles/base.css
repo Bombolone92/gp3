@@ -1,0 +1,213 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+h1, h2, h3, h4, p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button[disabled] {
+  cursor: default;
+}
+
+input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent-strong);
+  text-decoration: none;
+}
+
+svg {
+  display: block;
+}
+
+/* The browser's own [hidden] rule loses to any class that sets display. */
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* A screen's heading takes focus only to start reading there; it is not a control. */
+h1[tabindex="-1"]:focus {
+  outline: none;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--ink);
+}
+
+/* Hidden until it has the keyboard, then shown over the top bar. */
+.skip-link { position: absolute; left: 8px; top: -100px; z-index: 30; padding: 8px 12px; border-radius: var(--r-sm); background: var(--accent); color: var(--accent-ink); font-weight: 600; text-decoration: none; }
+.skip-link:focus-visible { top: calc(var(--safe-t) + 8px); outline: 3px solid var(--ink); outline-offset: 2px; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Browsers draw placeholders in their own gray (2.6:1 on white in Safari); the theme's muted ink reads. */
+::placeholder { color: var(--ink-3); opacity: 1; }
+
+/* Hover tints only where a pointer can hover. On a touch screen a tapped
+   control would otherwise keep its hover color until the next tap. */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* A progress spinner stopped on its first frame reads as a broken glyph; it keeps turning, slowly. */
+  .spin svg { animation: spin 1.6s linear infinite !important; }
+}
+
+/* App shell: one column, no page scroll; views scroll inside themselves. */
+.app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.view {
+  animation: view-in 0.18s var(--ease-spring);
+}
+
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Boot splash shown by index.html until main.js takes over. */
+.boot-splash {
+  flex: 1;
+  display: grid;
+  place-items: center;
+}
+
+.boot-mark {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  animation: fade-in 0.4s ease;
+}
+
+.boot-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+.spin svg { animation: spin 0.9s linear infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Offline banner */
+.offline-banner {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + var(--safe-b));
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: var(--r-full);
+  background: var(--ink);
+  color: var(--page);
+  font-size: 13px;
+  font-weight: 500;
+  /* Under dialogs and menus (60 and 70): a sheet's buttons must stay reachable while offline. */
+  z-index: 55;
+  animation: fade-in 0.2s ease;
+}
+
+/* In the editor the banner sits above the status bar rather than on top of its controls. */
+body:has(.editor:not(.focus-mode) > .statusbar) .offline-banner {
+  bottom: calc(16px + var(--statusbar-h) + var(--safe-b));
+}
+
+@media print {
+  /* The browser's own print (not the app's) of a dark theme or dark page must still put dark text on white paper. */
+  :root, :root[data-theme="dark"], :root[data-page="dark"] { --paper: #fff; --paper-ink: #111; --paper-link: #2c4c74; --canvas: #fff; color-scheme: light; }
+  body { background: #fff; }
+  .topbar, .toolbar, .statusbar, .findbar, .offline-banner, .toast-root { display: none !important; }
+}
+
+/* Windows contrast themes drop backgrounds and shadows: every pressed, chosen or open state gets an outline
+   in the system's highlight color, and the color swatches keep the colors they stand for. */
+@media (forced-colors: active) {
+  .tb-btn[aria-pressed="true"], .icon-btn[aria-pressed="true"], .icon-btn.active, .find-regex[aria-pressed="true"],
+  .segmented button[aria-checked="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  .menu-btn[aria-expanded="true"], .menu-item[aria-expanded="true"], .menu-item.checked, .outline-item.active, .comment-card.active { outline: 1px solid Highlight; outline-offset: -1px; }
+  .swatch, .tb-color-bar, .color-swatch, .menu-custom-color .color-input { forced-color-adjust: none; }
+  .swatch { border-color: ButtonText; }
+  .swatch:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+  .modal-panel, .menu, .toast { border: 1px solid CanvasText; }
+  /* Pickers whose chosen item is otherwise a tint or a ring: chart types, list styles, layout options, pen colors… */
+  :is(.insert-special-row, .insert-diagram-layout, .insert-chart-type, .pic-pane-tab, .rv-language, .wcc-mention, .fmt-listbox-item,
+    .fmt-level-item, .mm-format-item, .mm-column-item, .ed-proof-suggestion)[aria-selected="true"],
+  :is(.insert-icon, .fmt-preset, .fmt-side-toggles .btn, .fmt-list-tile, .ps-preset, .table-align-grid > button)[aria-pressed="true"],
+  :is(.pic-layout-item, .fmt-symbol, .list-library-tile, .table-pen-item, .table-style-menu .table-style-swatch)[aria-checked="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  .draw-pen-swatch[aria-checked="true"] { outline: 2px solid Highlight; outline-offset: 2px; }
+  .pref-tab[aria-selected="true"], .styles-pane-item.is-current { outline: 2px solid Highlight; outline-offset: -2px; }
+  /* Underlined tabs: the theme paints every tab's clear underline in the text color, so each looked chosen. They keep
+     their own colors, in system colors: only the chosen tab is underlined, in the highlight color. */
+  :root :is(.nav-tab, .styles-pane-tab, .ed-font-tab, .pic-dialog-tab, .pic-pane-tab) { forced-color-adjust: none; color: CanvasText; background: Canvas; border-bottom-color: transparent; }
+  :root :is(.nav-tab, .styles-pane-tab, .ed-font-tab, .pic-dialog-tab, .pic-pane-tab):hover { color: Highlight; background: Canvas; }
+  :root :is(.nav-tab, .styles-pane-tab, .ed-font-tab, .pic-dialog-tab, .pic-pane-tab)[aria-selected="true"] { border-bottom-color: Highlight; }
+  :root :is(.nav-tab, .styles-pane-tab, .ed-font-tab, .pic-dialog-tab, .pic-pane-tab):focus-visible { outline: 2px solid Highlight; outline-offset: -2px; }
+  :root :is(.nav-tab, .styles-pane-tab, .ed-font-tab, .pic-dialog-tab, .pic-pane-tab):disabled { color: GrayText; }
+}

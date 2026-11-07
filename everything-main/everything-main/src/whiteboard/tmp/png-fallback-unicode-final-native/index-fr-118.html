@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#238cfd" />
+    <meta
+      name="description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <title>Whiteboard</title>
+    <meta name="application-name" content="Whiteboard" />
+    <link rel="canonical" href="https://whiteboard.puter.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Whiteboard" />
+    <meta property="og:title" content="Whiteboard" />
+    <meta
+      property="og:description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <meta property="og:url" content="https://whiteboard.puter.com/" />
+    <meta
+      property="og:image"
+      content="https://whiteboard.puter.com/icons/icon-512.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Whiteboard app icon" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Whiteboard" />
+    <meta
+      name="twitter:description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <meta
+      name="twitter:image"
+      content="https://whiteboard.puter.com/icons/icon-512.png"
+    />
+    <meta name="twitter:image:alt" content="Whiteboard app icon" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Whiteboard",
+        "url": "https://whiteboard.puter.com/",
+        "description": "A little space for your next big idea. A personal whiteboard for thinking, planning, and creating.",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Any"
+      }
+    </script>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <script src="https://js.puter.com/v2/" defer></script>
+    <script type="module">localStorage.setItem('whiteboard-theme','light');
+localStorage.setItem('whiteboard-language','fr');
+localStorage.setItem('whiteboard-tour-v1',JSON.stringify({done:true}));
+const fixture={"version":1,"id":"1bb75f23-446c-4f46-accc-490ae5dcb8a4","title":"QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ😀","updated":1790987459125,"favorite":false,"items":[{"id":"9a7cc893-af7b-4471-98c7-b2f668bc19fe","type":"note","x":100,"y":100,"w":190,"h":160,"text":"Original 😀","color":"#f6e7a4","autoFontSize":true,"lang":"fr-CA","textRuns":[{"start":9,"end":11,"style":{"lang":"en-GB"}}]}]};
+await new Promise((resolve,reject)=>{const req=indexedDB.open('whiteboard-v1',3);req.onupgradeneeded=()=>{const db=req.result;for(const name of ['boards','templates'])if(!db.objectStoreNames.contains(name))db.createObjectStore(name,{keyPath:'id'});for(const [name,index]of [['revisions','boardId'],['collaboration','scope']])if(!db.objectStoreNames.contains(name)){const store=db.createObjectStore(name,{keyPath:'id'});store.createIndex(index,index);}};req.onerror=()=>reject(req.error);req.onsuccess=()=>{const db=req.result;const tx=db.transaction('boards','readwrite'),store=tx.objectStore('boards');const existing=store.get(fixture.id);existing.onsuccess=()=>{if(!existing.result)store.put(fixture);};tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>reject(tx.error);};});
+window.ClipboardItem=undefined;await import('/assets/index-C5fOz_Mx.js');</script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BlbulZT3.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
+<script>let filename=null;const downloadDescriptor=Object.getOwnPropertyDescriptor(HTMLAnchorElement.prototype,'download');Object.defineProperty(HTMLAnchorElement.prototype,'download',{...downloadDescriptor,set(value){downloadDescriptor.set.call(this,value);filename={length:this.download.length,valid:this.download.isWellFormed(),tail:this.download.slice(-20)};report();}});function report(){const field=document.querySelector('#board-title');const original=[...document.querySelectorAll('#board-outline [data-id]')].map(x=>({text:x.textContent,valid:x.textContent.isWellFormed(),lang:x.querySelector('[data-user-content]')?.lang,passage:x.querySelector('[lang="en-GB"]')?.textContent}));parent.postMessage({filename,title:field?{length:field.value.length,valid:field.value.isWellFormed(),tail:field.value.slice(-5)}:null,preview:!!document.querySelector('.image-copy-preview img'),retry:!!document.querySelector('#retry-image-copy'),status:document.querySelector('#image-copy-status')?.textContent,original,history:['undo','redo'].map(k=>document.querySelector('[data-action="'+k+'"]')?.disabled),locale:document.documentElement.lang},'*');}new MutationObserver(()=>requestAnimationFrame(report)).observe(document.body,{childList:true,subtree:true,attributes:true});</script>

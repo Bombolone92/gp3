@@ -1,0 +1,779 @@
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  transition: background 0.12s ease, transform 0.08s ease;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--surface-3); }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { background: var(--accent-strong); color: var(--accent-ink); }
+.btn-ghost { background: transparent; }
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-outline { background: transparent; border-color: var(--hairline-strong); }
+.btn-outline:hover { background: var(--surface-2); }
+.btn-danger { background: var(--critical-wash); color: var(--critical); }
+.btn-danger:hover { background: var(--critical); color: var(--critical-ink); }
+.btn-sm { min-height: 32px; padding: 0 12px; font-size: 13px; }
+.btn-block { width: 100%; }
+/* Busy (a press out to the worker) looks as disabled does, but the button stays focusable, so the keyboard is not dropped from it. */
+.btn[disabled], .btn[aria-disabled="true"], .btn[aria-busy="true"] { opacity: 0.55; pointer-events: none; }
+.btn svg { flex: none; }
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  transition: background 0.12s ease, color 0.12s ease;
+  flex: none;
+}
+.icon-btn:hover, .icon-btn[aria-expanded="true"] { background: var(--surface-2); color: var(--ink); }
+.icon-btn.active { color: var(--accent-strong); background: var(--accent-wash); }
+.icon-btn-sm { width: 30px; height: 30px; border-radius: var(--r-xs); }
+/* A finger needs more than a 30 px square: the controls stay the same size
+   to the eye, the hit area grows. Only controls whose sizes this file owns
+   belong here — one app.css (or a later line here) sizes loses this block,
+   so those live in app.css's own coarse block at its end. */
+/* The check keeps its 22 px look; a pointer gets the 24 the guideline asks
+   (WCAG 2.5.8, with the remove button 2px beside it there is no spacing to
+   make up the difference), a finger 34. */
+.view-check { position: relative; }
+.view-check::after { content: ''; position: absolute; inset: -1px; }
+@media (pointer: coarse) {
+  .icon-btn-sm { width: 40px; height: 40px; }
+  .view-check::after { inset: -6px; }
+}
+
+/* ---------- Form fields ---------- */
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.field-label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.field-hint { font-size: 12.5px; color: var(--ink-3); }
+.field-error { font-size: 13px; color: var(--critical); }
+.field-error[hidden] { display: none; }
+
+.input, .textarea, .select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.12s ease;
+}
+.input:focus, .textarea:focus, .select:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+.input[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--critical); }
+.input::placeholder, .textarea::placeholder { color: var(--ink-3); }
+.input:disabled, .textarea:disabled, .select:disabled { color: var(--ink-2); background: var(--surface-2); opacity: 0.8; cursor: not-allowed; }
+.textarea { resize: vertical; min-height: 80px; line-height: 1.45; }
+.input-prefix { position: relative; }
+.input-prefix > span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
+.input-prefix > .input { padding-left: 30px; }
+
+.choice-group { display: flex; flex-direction: column; gap: 6px; }
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  text-align: left;
+}
+.choice:hover { background: var(--surface-2); }
+.choice[aria-checked="true"] { border-color: var(--accent); background: var(--accent-wash); }
+.choice-mark { flex: none; width: 16px; height: 16px; margin-top: 2px; border-radius: 50%; border: 1.5px solid var(--hairline-strong); }
+.choice[aria-checked="true"] .choice-mark { border: 5px solid var(--accent); }
+.choice-text { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.choice-text small { font-size: 12.5px; color: var(--ink-3); }
+.pill-inline { margin-left: 8px; padding: 1px 8px; font-size: 11px; vertical-align: middle; }
+
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 0;
+  text-align: left;
+}
+.switch + .switch { border-top: 1px solid var(--hairline); }
+.switch-text { display: flex; flex-direction: column; gap: 2px; }
+.switch-text small { color: var(--ink-3); font-size: 12.5px; }
+.switch-track {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 26px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  transition: background 0.15s ease;
+}
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  transition: transform 0.15s var(--ease);
+}
+.switch[aria-checked="true"] .switch-track { background: var(--accent); }
+.switch[aria-checked="true"] .switch-track::after { transform: translateX(16px); border-color: transparent; }
+
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  gap: 2px;
+}
+.seg button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.seg button[aria-checked="true"] { background: var(--surface); color: var(--ink); border: 1px solid var(--hairline); }
+.seg button:hover:not([aria-checked="true"]) { color: var(--ink); }
+
+.row { display: flex; align-items: center; gap: 10px; }
+.row-end { justify-content: flex-end; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.muted { color: var(--ink-3); }
+.small { font-size: 13px; }
+.mt { margin-top: 16px; }
+
+/* ---------- Avatars ---------- */
+
+.avatar {
+  --size: 36px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 10px;
+  font-size: calc(var(--size) * 0.4);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: var(--av-8);
+  color: var(--av-8-ink);
+  user-select: none;
+}
+.avatar-sm { --size: 24px; border-radius: 7px; }
+.avatar-xs { --size: 20px; border-radius: 6px; }
+.avatar-lg { --size: 56px; border-radius: 14px; }
+.avatar-xl { --size: 72px; border-radius: 18px; }
+.avatar[data-color="1"] { background: var(--av-1); color: var(--av-1-ink); }
+.avatar[data-color="2"] { background: var(--av-2); color: var(--av-2-ink); }
+.avatar[data-color="3"] { background: var(--av-3); color: var(--av-3-ink); }
+.avatar[data-color="4"] { background: var(--av-4); color: var(--av-4-ink); }
+.avatar[data-color="5"] { background: var(--av-5); color: var(--av-5-ink); }
+.avatar[data-color="6"] { background: var(--av-6); color: var(--av-6-ink); }
+.avatar[data-color="7"] { background: var(--av-7); color: var(--av-7-ink); }
+.avatar[data-color="8"] { background: var(--av-8); color: var(--av-8-ink); }
+.avatar { overflow: visible; }
+.avatar-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.avatar-img[hidden] { display: none; }
+.avatar-group { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 2px; background: none; }
+.avatar-group .avatar { --size: 100%; border-radius: 4px; font-size: 9px; }
+.avatar-group .presence { display: none; }
+
+.presence {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--ink-3);
+}
+.presence.online, .presence.active { background: var(--success); }
+.presence.paused, .presence.dnd { background: var(--critical); }
+.presence.dnd::after { content: ''; position: absolute; left: 2px; right: 2px; top: 50%; height: 1.5px; margin-top: -0.75px; background: var(--surface); border-radius: 1px; }
+/* The hollow away/offline rings are filled with the surface they sit on —
+   not transparent (the avatar's corner would show through the hole) and not
+   a literal white (a lit bulb in the dark theme). */
+.presence.away { background: var(--surface); box-shadow: inset 0 0 0 2px var(--warn); }
+.presence.offline { background: var(--surface); box-shadow: inset 0 0 0 2px var(--ink-3); opacity: 0.6; }
+.presence-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; background: var(--ink-3); }
+.presence-dot.active { background: var(--success); }
+.presence-dot.dnd { background: var(--critical); }
+.presence-dot.away { background: transparent; box-shadow: inset 0 0 0 2px var(--warn); }
+.presence-dot.offline { background: transparent; box-shadow: inset 0 0 0 2px var(--ink-3); }
+
+.status-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 400; color: var(--ink-3); max-width: 220px; vertical-align: middle; margin-left: 6px; }
+.status-chip .status-emoji { font-size: 13px; line-height: 1; }
+.status-chip .status-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status-chip.compact { margin-left: 4px; }
+/* A name with its chips beside it (a status, a role, a workspace's name):
+   the name runs in its own direction and is the part cut short when the row
+   is narrow, so one written right to left loses its end, not its start; the
+   chips keep their place and their room. */
+.name-line { display: flex; align-items: center; min-width: 0; }
+.name-line > .name-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.name-line > :not(.name-text) { flex: none; }
+/* In a sidebar row the chip yields to the name: a status with text and no
+   emoji ("In a meeting until 3pm") is cut short before the name is. */
+.side-item .status-chip { margin-left: 0; flex: 0 1 auto; min-width: 0; max-width: 45%; }
+.status-row { display: flex; gap: 8px; align-items: center; }
+.status-emoji-btn { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: var(--r-sm); border: 1px solid var(--hairline-strong); background: var(--surface); font-size: 20px; color: var(--ink-3); }
+.status-emoji-btn:hover { background: var(--surface-2); }
+.status-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.status-presets .chip { padding: 4px 10px; font-weight: 500; cursor: pointer; }
+.status-presets .chip:hover { background: var(--surface-3); }
+.select { appearance: auto; min-height: 36px; padding: 4px 8px; width: auto; font-size: 13.5px; }
+.sidebar .presence { border-color: var(--sidebar); }
+.sidebar .presence.away, .sidebar .presence.offline { background: var(--sidebar); }
+
+/* ---------- Badges ---------- */
+
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--accent-ink);
+  line-height: 1;
+}
+.badge-soft { background: var(--surface-3); color: var(--ink-2); }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.pill-accent { background: var(--accent-wash); color: var(--accent-strong); }
+.pill-guest { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn-strong); }
+/* Someone from a workspace a channel is shared with: their workspace's name. */
+.pill-org { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-strong); gap: 4px; max-width: 160px; }
+.pill-org > span:first-child { display: inline-grid; flex: none; }
+.pill-org.pill-inline { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pill-app { padding: 1px 6px; font-size: 10.5px; letter-spacing: 0.04em; margin-left: 6px; vertical-align: middle; background: var(--surface-3); color: var(--ink-2); }
+.avatar-bot { border-radius: 8px; }
+.avatar-bot > span { display: grid; }
+.token-example { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; margin: 0; padding: 10px 12px; border-radius: var(--r-sm); border: 1px solid var(--hairline); background: var(--surface-2); font-family: var(--mono); }
+
+/* ---------- Modal ---------- */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+}
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade-in 0.18s ease;
+}
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-height: calc(100dvh - 24px - var(--safe-t));
+  overflow: auto;
+  background: var(--surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  /* The sheet spans the phone's width: the notch's room on either side too
+     (a phone held sideways), as the shell and the huddle window keep it, or
+     a dialog's title, fields and buttons began under the notch. */
+  padding: 8px calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
+  animation: sheet-up 0.26s var(--ease);
+  border: 1px solid var(--hairline);
+}
+.modal-panel:focus-visible { outline: none; }
+/* A leaving dialog is out of the way at once: its fading scrim used to catch
+   the click meant for the page behind it (see modal.js close). */
+.modal-root.closing { pointer-events: none; }
+.modal-root.closing .modal-scrim { animation: fade-out 0.18s ease forwards; }
+.modal-root.closing .modal-panel { animation: sheet-down 0.2s ease forwards; }
+.sheet-handle {
+  width: 40px; height: 4px;
+  border-radius: 2px;
+  background: var(--hairline-strong);
+  margin: 4px auto 10px;
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.modal-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+@media (min-width: 640px) {
+  .modal-root { align-items: center; padding: 20px; }
+  .modal-panel {
+    width: min(480px, 100%);
+    max-height: calc(100dvh - 40px);
+    border-radius: var(--r-lg);
+    padding: 18px 24px 22px;
+    animation: pop-in 0.2s var(--ease);
+  }
+  .modal-panel.wide { width: min(640px, 100%); }
+  .modal-root.closing .modal-panel { animation: fade-out 0.15s ease forwards; }
+  .sheet-handle { display: none; }
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes sheet-down { to { transform: translateY(40px); opacity: 0; } }
+@keyframes pop-in { from { transform: scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+
+body.modal-open { overflow: hidden; }
+
+/* ---------- Image viewer (a bare modal) ---------- */
+
+.modal-root.viewer-root { align-items: stretch; justify-items: stretch; padding: 0; }
+.modal-root.viewer-root .modal-scrim { background: rgba(15, 15, 16, 0.97); }
+.modal-root.viewer-root .modal-panel {
+  width: 100%;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff;
+  overflow: hidden;
+  animation: fade-in 0.18s ease;
+}
+.modal-root.viewer-root.closing .modal-panel { animation: fade-out 0.15s ease forwards; }
+.viewer { display: flex; flex-direction: column; height: 100%; }
+.viewer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* Fixed over the whole window, the viewer keeps the notch's room itself: the name on the left and the buttons on the right sat under it on a phone held sideways. */
+  padding: 10px calc(12px + var(--safe-r)) 10px calc(16px + var(--safe-l));
+  padding-top: calc(10px + var(--safe-t));
+  flex: none;
+}
+.viewer-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.viewer-meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.viewer-name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer-sub { font-size: 12.5px; color: rgba(255, 255, 255, 0.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer-actions { display: flex; align-items: center; gap: 4px; flex: none; }
+.viewer-count { font-size: 12.5px; color: rgba(255, 255, 255, 0.7); margin-right: 8px; font-variant-numeric: tabular-nums; }
+.viewer-root .icon-btn { color: rgba(255, 255, 255, 0.85); }
+.viewer-root .icon-btn:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.viewer-root .icon-btn:focus-visible, .viewer-nav:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.viewer-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  padding: 8px calc(8px + var(--safe-r)) calc(8px + var(--safe-b)) calc(8px + var(--safe-l));
+}
+.viewer-img {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.viewer-video {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+  max-height: 100%;
+  background: #000;
+  border-radius: var(--r-xs);
+  outline: none;
+}
+.viewer-video:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.viewer-stage.can-zoom .viewer-img { cursor: zoom-in; }
+.viewer-stage.zoomed { overflow: auto; }
+.viewer-stage.zoomed .viewer-img { max-width: none; max-height: none; cursor: zoom-out; }
+.viewer-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+}
+.viewer-status.loading { animation: pulse 1.4s ease-in-out infinite; }
+.viewer-status > * { pointer-events: auto; }
+.viewer-status .viewer-fallback { margin-top: 10px; color: #fff; border-color: rgba(255, 255, 255, 0.4); }
+.viewer-status .viewer-fallback:hover { background: rgba(255, 255, 255, 0.12); }
+.viewer-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transition: background 0.12s ease, opacity 0.12s ease;
+}
+.viewer-nav:hover { background: rgba(255, 255, 255, 0.24); }
+.viewer-nav[disabled] { opacity: 0.25; cursor: default; }
+.viewer-nav.prev { left: calc(12px + var(--safe-l)); }
+.viewer-nav.next { right: calc(12px + var(--safe-r)); }
+@media (min-width: 640px) {
+  .viewer-stage { padding: 8px calc(72px + var(--safe-r)) 16px calc(72px + var(--safe-l)); }
+}
+@media (max-width: 639px) {
+  /* On a phone the arrows sit low, clear of the picture, and a swipe does the same. */
+  .viewer-nav { top: auto; bottom: calc(12px + var(--safe-b)); transform: none; width: 40px; height: 40px; }
+}
+
+/* ---------- Menus (popovers) ---------- */
+
+.menu {
+  position: fixed;
+  z-index: 130;
+  min-width: 200px;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 6px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  animation: pop-in 0.14s var(--ease);
+}
+/* A long menu (a row's, with levels, Move to and Leave) on a short window or
+   a phone held sideways scrolls within the viewport rather than losing its
+   last items below the edge. Dialog popovers size themselves. */
+.menu[role="menu"] { max-height: calc(100dvh - 16px - var(--safe-t) - var(--safe-b)); overflow-y: auto; overscroll-behavior: contain; }
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: left;
+  color: var(--ink);
+}
+.menu-item:hover, .menu-item:focus-visible { background: var(--surface-2); outline: none; }
+/* A choice that is not the reader's to make right now (the token of an integration bound to a private channel they are not in): shown, said why in its line, not taken. */
+.menu-item[disabled], .menu-item[aria-disabled="true"] { color: var(--ink-3); cursor: default; }
+.menu-item[disabled]:hover, .menu-item[aria-disabled="true"]:hover { background: none; }
+.menu-item:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.menu-item svg { color: var(--ink-3); flex: none; }
+.menu-item .menu-avatar { --size: 20px; border-radius: 6px; font-size: 9px; flex: none; }
+.menu-item .avatar-group.menu-avatar { --size: 20px; }
+.menu-item .avatar-group.menu-avatar .avatar { --size: 100%; border-radius: 3px; font-size: 7px; }
+.menu-item.danger, .menu-item.danger svg { color: var(--critical); }
+.menu-item[aria-checked="true"] { background: var(--accent-wash); }
+.menu-item .menu-check { margin-left: auto; color: var(--accent-strong); }
+.menu-sep { height: 1px; background: var(--hairline); margin: 6px 4px; }
+.menu-card { display: flex; align-items: center; gap: 10px; padding: 8px 10px 10px; }
+.menu-card .menu-card-mark { width: 36px; height: 36px; border-radius: 9px; font-size: 16px; }
+.menu-card .avatar { --size: 36px; border-radius: 9px; }
+.menu-card-text { display: flex; flex-direction: column; min-width: 0; }
+.menu-card-text strong { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-card-text span { font-size: 12px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A header of the reader's own words (a section's name, their own name and username) wraps inside the menu rather than running out of it. */
+.menu-label { padding: 6px 10px 4px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); overflow-wrap: anywhere; }
+/* The item's words (a workspace's name in the switcher, a channel's in a row's
+   menu, a person's) sit in a bare span beside the icon (see menu.js openMenu):
+   a name of sixty letters with no space to break at ran out of the menu and
+   set it scrolling sideways. It breaks anywhere instead; the icon and check
+   spans this reaches hold an svg, which has nothing to wrap. */
+.menu-item > span { overflow-wrap: anywhere; }
+.menu-item .menu-sub { display: block; font-size: 12px; color: var(--ink-3); }
+.forward-preview { margin-top: 4px; padding: 10px 12px; border-left: 3px solid var(--hairline-strong); background: var(--surface-2); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.forward-preview-head { display: flex; align-items: baseline; gap: 8px; font-size: 13.5px; margin-bottom: 2px; }
+/* The author's name: sixty letters with no space to break at wrap inside the preview rather than running out of the dialog. */
+.forward-preview-head strong { min-width: 0; overflow-wrap: anywhere; }
+.forward-preview-text { font-size: 14px; color: var(--ink-2); overflow-wrap: anywhere; }
+.forward-files-note { margin-top: 6px; }
+.menu-item .menu-kbd { flex: none; font-family: var(--font); font-size: 11px; color: var(--ink-3); padding: 1px 6px; border-radius: 5px; border: 1px solid var(--hairline); min-width: 20px; text-align: center; }
+.menu-item:hover .menu-kbd, .menu-item:focus-visible .menu-kbd { color: var(--ink-2); }
+/* On a screen touched and never hovered (a phone, a tablet without a
+   trackpad) there is no key to press the hint's letter on: the hints go, as
+   the hover bar and the edit hint do, and the menu a long press opens is the
+   labels alone. A tablet with a trackpad reports hover and keeps them. */
+@media (hover: none) and (pointer: coarse) { .menu-item .menu-kbd { display: none; } }
+
+/* ---------- Emoji picker ---------- */
+
+.emoji-pop { max-width: min(360px, calc(100vw - 16px)); }
+.emoji-picker { display: flex; flex-direction: column; width: 344px; max-width: 100%; height: min(420px, 70dvh); position: relative; }
+.emoji-head { display: flex; align-items: center; gap: 6px; padding: 8px 8px 6px; border-bottom: 1px solid var(--hairline); }
+.emoji-search-icon { color: var(--ink-3); display: grid; margin-left: 4px; }
+.emoji-search {
+  flex: 1; min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+}
+.emoji-search:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.emoji-search::-webkit-search-cancel-button { display: none; }
+.emoji-tone { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; font-size: 18px; }
+.emoji-tone:hover, .emoji-tone[aria-expanded="true"] { background: var(--surface-2); }
+.emoji-tones {
+  position: absolute;
+  top: 44px; right: 8px;
+  z-index: 2;
+  display: flex; gap: 2px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+}
+.emoji-tones button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; font-size: 18px; }
+.emoji-tones button:hover, .emoji-tones button:focus-visible { background: var(--surface-2); outline: none; }
+.emoji-tones button:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.emoji-tones button[aria-selected="true"] { background: var(--accent-wash); }
+.emoji-tabs { display: flex; gap: 2px; padding: 4px 6px; border-bottom: 1px solid var(--hairline); overflow-x: auto; scrollbar-width: none; }
+.emoji-tab { display: grid; place-items: center; flex: 1; min-width: 30px; height: 28px; border-radius: 7px; font-size: 15px; filter: grayscale(1); opacity: 0.65; }
+.emoji-tab:hover, .emoji-tab[aria-selected="true"] { background: var(--surface-2); filter: none; opacity: 1; }
+.emoji-body { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 8px; scroll-padding-top: 4px; }
+.emoji-section-title { position: sticky; top: 0; padding: 8px 4px 4px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); background: var(--surface); z-index: 1; }
+.emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; }
+.emoji-cell {
+  display: grid; place-items: center;
+  height: 38px;
+  border-radius: 8px;
+  font-size: 22px;
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", var(--font);
+}
+.emoji-cell:hover, .emoji-cell:focus-visible { background: var(--surface-2); outline: none; }
+.emoji-cell:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.emoji-cell[aria-pressed="true"] { background: var(--accent-wash); }
+.emoji-empty { padding: 32px 12px; text-align: center; color: var(--ink-3); font-size: 13.5px; overflow-wrap: anywhere; } /* quotes what was typed, which may be a pasted run with no space */
+.pick-emoji { display: grid; place-items: center; width: 24px; font-size: 20px; line-height: 1; }
+
+/* ---------- Toast ---------- */
+
+.toast-root {
+  position: fixed;
+  left: 50%;
+  bottom: calc(20px + var(--safe-b));
+  transform: translateX(-50%);
+  z-index: 140;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  width: min(420px, calc(100vw - 32px));
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--page);
+  font-size: 14px;
+  animation: sheet-up 0.22s var(--ease);
+  pointer-events: auto;
+  max-width: 100%;
+}
+.toast svg { flex: none; }
+.toast > span { min-width: 0; overflow-wrap: anywhere; } /* a long file name in the words stays inside the toast */
+.toast-action { margin-left: 6px; font-weight: 700; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+/* The way out of a toast that does not leave on its own: 26px square (the icon keeps its 14). */
+.toast-close { display: grid; place-items: center; flex: none; width: 26px; height: 26px; margin: -4px -6px -4px 0; border-radius: 6px; color: inherit; opacity: 0.8; }
+.toast-close:hover { opacity: 1; background: color-mix(in srgb, var(--page) 16%, transparent); }
+/* The toast is inverted (ink behind page-coloured words), where the accent
+   ring stands at under 3:1 in the dark theme; its controls ring in the words' colour. */
+.toast :is(.toast-action, .toast-close):focus-visible { outline-color: var(--page); }
+@media (pointer: coarse) { .toast-close { width: 32px; height: 32px; margin: -7px -8px -7px 0; } }
+.toast.leaving { animation: fade-out 0.2s ease forwards; }
+
+/* ---------- Skeletons & empty states ---------- */
+
+.skeleton {
+  background: var(--surface-2);
+  border-radius: 8px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.5; } }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  gap: 8px;
+  color: var(--ink-2);
+}
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+/* Both may quote what was searched for or typed: a long unbroken token wraps rather than widening the column. */
+.empty h1, .empty h3 { font-size: 17px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; } /* h1 where the empty state is the main column's own heading (see shell.js placeholderMain) */
+/* A page given the keyboard for want of a control on it (see conversation.js renderBody) shows no ring around the whole page, as a dialog's panel does not. */
+.empty[tabindex]:focus-visible { outline: none; }
+.empty p { max-width: 360px; font-size: 14px; overflow-wrap: anywhere; }
+
+/* ---------- Lists in dialogs ---------- */
+
+.pick-list { display: flex; flex-direction: column; gap: 2px; max-height: 320px; overflow: auto; margin: 0 -8px; padding: 0 8px; }
+.pick-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+.pick-item:hover { background: var(--surface-2); }
+/* A choice that cannot be made right now (one more person once a direct message has its eight): dimmed, no hover light, still in the arrows' walk (see dialogs.js peoplePicker). */
+.pick-item[aria-disabled="true"] { opacity: 0.55; cursor: default; }
+.pick-item[aria-disabled="true"]:hover { background: none; }
+.pick-item[aria-checked="true"], .pick-item[aria-selected="true"] { background: var(--accent-wash); }
+.pick-item .pick-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.pick-item .pick-text strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-item .pick-text > span { font-size: 12.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A line that says something (what a broadcast does and how far it reaches) wraps where the popup is narrow, rather than being cut short. */
+.pick-item .pick-text span.pick-wrap { white-space: normal; overflow-wrap: anywhere; }
+.pick-item .pick-check { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--hairline-strong); color: transparent; flex: none; }
+.pick-item[aria-checked="true"] .pick-check { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+.chip button { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; color: var(--ink-3); }
+.chip button:hover { background: var(--surface-3); color: var(--ink); }
+
+.code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.code-box .btn { letter-spacing: 0; font-family: var(--font); }
+
+.callout {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.callout svg { flex: none; color: var(--ink-3); margin-top: 1px; }
+.callout-danger { background: var(--critical-wash); color: var(--critical); }
+.callout-danger svg { color: var(--critical); }
+
+.color-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.color-dot {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  border: 2px solid transparent;
+  display: grid; place-items: center;
+}
+.color-dot[aria-checked="true"] { border-color: var(--ink); }
+.color-dot svg { color: inherit; }
+
+/* ---------- Forced colours ---------- */
+/* Windows High Contrast and the like paint every background with the
+   system's colours, so an indicator that speaks with a background alone
+   (a presence dot, the chosen segment, a switch's track, an unread badge)
+   falls silent. Status colours are kept as they are (a colour is the
+   information there), and the rest is said with an outline or a border in
+   the system's own colours. */
+@media (forced-colors: active) {
+  .presence, .presence-dot { forced-color-adjust: none; }
+  .badge, .rail-badge { border: 1px solid CanvasText; }
+  .seg button[aria-checked="true"],
+  .side-item[aria-current="page"],
+  .rail-item[aria-current="page"] .rail-icon,
+  .conv-tab[aria-selected="true"],
+  .menu-item[aria-checked="true"],
+  .choice[aria-checked="true"],
+  .emoji-cell[aria-pressed="true"],
+  .reaction[aria-pressed="true"],
+  .color-dot[aria-checked="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  /* Focus shown by an inset shadow and a tinted background elsewhere: both are
+     dropped in forced colours, which would leave the focused item unmarked. */
+  .menu-item:focus-visible, .emoji-cell:focus-visible, .emoji-tones button:focus-visible,
+  .top-drop-scope:focus-visible, .top-drop-main:focus-visible { outline: 2px solid Highlight; outline-offset: -2px; }
+  .switch-track { border: 1px solid CanvasText; }
+  .switch-track::after { border-color: CanvasText; }
+  .switch[aria-checked="true"] .switch-track::after { forced-color-adjust: none; background: Highlight; border-color: Highlight; }
+  .msg-text .mention-me { outline: 1px solid Highlight; }
+  /* In the huddle window the ring around whoever is speaking is a shadow, and
+     a control that is on (the microphone, the camera, the shared screen) says
+     so with a background: both are dropped here, so the ring is an outline and
+     the pressed control is marked the way the other pressed controls are. */
+  .huddle-tile.speaking .avatar, .huddle-tile.speaking .huddle-video { outline: 3px solid Highlight; outline-offset: 0; }
+  .huddle-ctl[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+}

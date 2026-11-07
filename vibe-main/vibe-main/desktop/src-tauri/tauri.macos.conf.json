@@ -1,0 +1,24 @@
+{
+	"bundle": {
+		"externalBin": ["binaries/vibe-server", "binaries/ffmpeg"],
+		"macOS": {
+			"entitlements": "entitlements.plist",
+			"hardenedRuntime": true,
+			"dmg": {
+				"background": "../../design/dmg_background.png",
+				"appPosition": {
+					"x": 145,
+					"y": 130
+				},
+				"applicationFolderPosition": {
+					"x": 560,
+					"y": 130
+				},
+				"windowSize": {
+					"height": 340,
+					"width": 720
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iCam365 控制台</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel2: #1f2630;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #3fb6ff;
+    --accent2: #1f6feb;
+    --ok: #3fb950;
+    --warn: #d29922;
+    --err: #f85149;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 20px 40px; }
+
+  header {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 12px 0 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  header h1 { font-size: 20px; font-weight: 600; letter-spacing: .5px; }
+  header .sub { color: var(--muted); font-size: 12px; }
+
+  .status-row { display: flex; gap: 18px; align-items: center; margin-left: auto; font-size: 13px; color: var(--muted); }
+  .status-row .val { color: var(--text); font-variant-numeric: tabular-nums; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); margin-right: 6px; vertical-align: middle; }
+  .dot.streaming { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .dot.connecting, .dot.reconnecting { background: var(--warn); }
+  .dot.error, .dot.idle { background: var(--err); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 16px; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+  .video-box { position: relative; background: #000; border-radius: 8px; overflow: hidden; min-height: 300px; }
+  .video-box img { display: block; width: 100%; height: auto; min-height: 300px; object-fit: contain; background: #000; }
+  .video-box .placeholder {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 14px; flex-direction: column; gap: 8px;
+  }
+  .video-box .placeholder .spin {
+    width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .panel-title { font-size: 13px; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .ptz-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ptz-pad button {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 0; font-size: 18px; cursor: pointer;
+    transition: background .12s, border-color .12s;
+    user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+  .ptz-pad button:hover { background: #262e3a; border-color: var(--accent2); }
+  .ptz-pad button.active { background: var(--accent2); border-color: var(--accent); color: #fff; }
+  .ptz-pad .stop { font-size: 13px; letter-spacing: 2px; color: var(--muted); }
+  .ptz-pad .stop.active { color: #fff; }
+
+  .lights { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .lights button {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 11px 0; font-size: 14px; cursor: pointer; transition: all .12s;
+  }
+  .lights button:hover { border-color: var(--accent2); }
+  .lights button.on { background: var(--accent2); border-color: var(--accent); color: #fff; }
+
+  .actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .actions button {
+    flex: 1; min-width: 90px; background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 11px 0;
+    font-size: 14px; cursor: pointer; transition: all .12s;
+  }
+  .actions button:hover { border-color: var(--accent2); }
+  .actions button:disabled { opacity: .45; cursor: not-allowed; }
+  .actions button.on { background: var(--accent2); color: #fff; border-color: var(--accent); }
+  .actions button.listening { background: var(--ok); border-color: var(--ok); color: #052; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%);
+    background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 18px; border-radius: 8px; font-size: 13px; opacity: 0;
+    transition: opacity .25s; pointer-events: none; z-index: 10;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>iCam365 控制台</h1>
+    <span class="sub" id="didLabel"></span>
+    <div class="status-row">
+      <span><span class="dot" id="stateDot"></span><span id="stateText">连接中</span></span>
+      <span>帧率 <span class="val" id="fpsVal">-</span></span>
+      <span>画面 <span class="val" id="framesVal">-</span></span>
+      <span>音频 <span class="val" id="audioVal">-</span></span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="panel">
+      <div class="video-box">
+        <canvas id="video" width="640" height="360"></canvas>
+        <div class="placeholder" id="placeholder">
+          <div class="spin"></div>
+          <span>等待画面…</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">云台控制</div>
+      <div class="ptz-pad">
+        <span></span>
+        <button id="btn-up" data-dir="up" title="上 (ArrowUp)">▲</button>
+        <span></span>
+        <button id="btn-left" data-dir="left" title="左 (ArrowLeft)">◀</button>
+        <button id="btn-stop" class="stop" data-dir="stop" title="停止 (Space)">停</button>
+        <button id="btn-right" data-dir="right" title="右 (ArrowRight)">▶</button>
+        <span></span>
+        <button id="btn-down" data-dir="down" title="下 (ArrowDown)">▼</button>
+        <span></span>
+      </div>
+
+      <div class="panel-title" style="margin-top:16px">灯光模式</div>
+      <div class="lights">
+        <button id="light-0" data-mode="0">红外（关白光）</button>
+        <button id="light-1" data-mode="1">全彩</button>
+        <button id="light-2" data-mode="2">智能</button>
+      </div>
+
+      <div class="actions">
+        <button id="btn-snapshot" title="保存当前画面为 JPEG">📷 抓拍</button>
+        <button id="btn-audio">🎙 监听</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const toastEl = $("toast");
+let toastTimer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+}
+
+// ---------- 视频（canvas + MJPEG 流） ----------
+async function startVideo() {
+  const canvas = $("video");
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  let buf = [];
+  img.onload = () => {
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+    $("placeholder") && ($("placeholder").style.display = "none");
+  };
+  while (true) {
+    const r = await fetch("/video?v=" + Date.now(), { cache: "no-store" });
+    if (!r.ok || !r.body) { await new Promise(x => setTimeout(x, 2000)); continue; }
+    const reader = r.body.getReader();
+    const dec = new TextDecoder("latin1");
+    let pending = null;
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = dec.decode(value, { stream: true });
+      buf.push(chunk);
+      let s = buf.join("");
+      let idx;
+      while ((idx = s.indexOf("\xff\xd8")) >= 0) {
+        const end = s.indexOf("\xff\xd9", idx + 2);
+        if (end < 0) break;
+        const jpg = s.slice(idx, end + 2);
+        s = s.slice(end + 2);
+        if (jpg.length > 100) img.src = "data:image/jpeg;base64," + btoa(jpg);
+      }
+      buf = [s];
+    }
+  }
+}
+startVideo();
+
+// ---------- 状态轮询 ----------
+async function refreshStatus() {
+  try {
+    const r = await fetch("/status", { cache: "no-store" });
+    const s = await r.json();
+    $("didLabel").textContent = s.did + (s.peer ? " · " + s.peer : "");
+    $("stateText").textContent = {streaming:"直播中", connecting:"连接中", reconnecting:"重连中", idle:"空闲", error:"无连接"}[s.state] || s.state;
+    $("stateDot").className = "dot " + s.state;
+    $("fpsVal").textContent = s.fps.toFixed(1);
+    $("framesVal").textContent = s.video_frames;
+    $("audioVal").textContent = s.audio_frames;
+    if (s.video_frames > 0) $("placeholder").style.display = "none";
+    if (s.error) toast("错误: " + s.error);
+  } catch (e) { /* 服务器暂不可达 */ }
+}
+setInterval(refreshStatus, 1000);
+refreshStatus();
+
+// ---------- 云台 ----------
+let ptzTimer = null;
+async function ptz(dir) {
+  try {
+    const r = await fetch("/ptz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dir }),
+    });
+    if (!r.ok && r.status !== 503) toast("云台命令失败");
+  } catch (e) { /* ignore */ }
+}
+function ptzDown(dir, btn) {
+  btn.classList.add("active");
+  ptz(dir);
+  clearTimeout(ptzTimer);
+  ptzTimer = setTimeout(() => { ptz("stop"); btn.classList.remove("active"); }, 600);
+}
+function bindPtzButton(btn) {
+  const dir = btn.dataset.dir;
+  btn.addEventListener("pointerdown", ev => { ev.preventDefault(); btn.setPointerCapture(ev.pointerId); ptzDown(dir, btn); });
+  btn.addEventListener("pointerup", () => { clearTimeout(ptzTimer); ptz("stop"); btn.classList.remove("active"); });
+  btn.addEventListener("lostpointercapture", () => { clearTimeout(ptzTimer); ptz("stop"); btn.classList.remove("active"); });
+}
+document.querySelectorAll(".ptz-pad button").forEach(bindPtzButton);
+
+let heldDir = null;
+window.addEventListener("keydown", ev => {
+  const map = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", " ": "stop", Spacebar: "stop" };
+  const dir = map[ev.key];
+  if (!dir) return;
+  ev.preventDefault();
+  if (heldDir === dir) return;
+  heldDir = dir;
+  ptz(dir);
+  const btn = document.querySelector(`.ptz-pad button[data-dir="${dir}"]`);
+  if (btn) btn.classList.add("active");
+});
+window.addEventListener("keyup", ev => {
+  const map = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", " ": "stop", Spacebar: "stop" };
+  const dir = map[ev.key];
+  if (!dir || heldDir !== dir) return;
+  heldDir = null;
+  ptz("stop");
+  const btn = document.querySelector(`.ptz-pad button[data-dir="${dir}"]`);
+  if (btn) btn.classList.remove("active");
+});
+
+// ---------- 灯光 ----------
+const savedLight = parseInt(localStorage.getItem("icam-light") || "1", 10);
+function highlightLight(mode) {
+  document.querySelectorAll(".lights button").forEach(b => b.classList.toggle("on", +b.dataset.mode === mode));
+}
+highlightLight(savedLight);
+document.querySelectorAll(".lights button").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const mode = +btn.dataset.mode;
+    try {
+      const r = await fetch("/lights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode }),
+      });
+      if (r.ok) {
+        localStorage.setItem("icam-light", String(mode));
+        highlightLight(mode);
+        toast("灯光已切换");
+      } else if (r.status === 503) toast("摄像头未连接");
+    } catch (e) { /* ignore */ }
+  });
+});
+
+// ---------- 抓拍 ----------
+$("btn-snapshot").addEventListener("click", async () => {
+  try {
+    const r = await fetch("/snapshot", { cache: "no-store" });
+    if (!r.ok) { toast(r.status === 503 ? "暂无画面" : "抓拍失败"); return; }
+    const b = await r.blob();
+    const a = document.createElement("a");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    a.href = URL.createObjectURL(b);
+    a.download = `icam-${ts}.jpg`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    toast("已保存");
+  } catch (e) { toast("抓拍失败"); }
+});
+
+// ---------- 音频监听 ----------
+let audioCtx = null, audioWs = null, audioOn = false, nextStart = 0;
+function playChunk(buf) {
+  if (!audioCtx) return;
+  const view = new DataView(buf);
+  const n = buf.byteLength / 2;
+  const audioBuf = audioCtx.createBuffer(1, n, 8000);
+  const ch = audioBuf.getChannelData(0);
+  for (let i = 0; i < n; i++) ch[i] = view.getInt16(i * 2, true) / 32768;
+  const src = audioCtx.createBufferSource();
+  src.buffer = audioBuf;
+  src.connect(audioCtx.destination);
+  let t = audioCtx.currentTime;
+  if (nextStart < t) nextStart = t;
+  if (nextStart - t > 2.5) nextStart = t;   // 积压则丢弃
+  src.start(nextStart);
+  nextStart += audioBuf.duration;
+}
+async function setAudio(on) {
+  if (!on) {
+    audioOn = false;
+    if (audioWs) { audioWs.onclose = null; audioWs.close(); audioWs = null; }
+    $("btn-audio").textContent = "🎙 监听";
+    $("btn-audio").classList.remove("on", "listening");
+    return;
+  }
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 8000 });
+    await audioCtx.resume();
+    nextStart = 0;
+    audioOn = true;
+    audioWs = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
+    audioWs.binaryType = "arraybuffer";
+    audioWs.onopen = () => { $("btn-audio").textContent = "🔴 监听中"; $("btn-audio").classList.add("listening"); toast("音频接通"); };
+    audioWs.onmessage = ev => { if (audioOn && typeof ev.data !== "string") playChunk(ev.data); };
+    audioWs.onclose = () => { if (audioOn) { toast("音频流已断开"); } };
+  } catch (e) { toast("音频启动失败: " + e.message); }
+}
+$("btn-audio").addEventListener("click", () => setAudio(!audioOn));
+</script>
+</body>
+</html>

@@ -1,0 +1,1369 @@
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 14.5px;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* aria-disabled is how a control that must stay focusable says it is busy
+   (a rebuild would otherwise have no focusable replacement to hand back
+   to); it should look exactly as disabled as the real thing. */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-strong);
+  }
+}
+
+.btn-ghost {
+  border-color: var(--hairline-strong);
+  color: var(--ink);
+  background: var(--surface);
+}
+
+@media (hover: hover) {
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+}
+
+.btn-danger {
+  background: var(--critical);
+  /* Not #fff: dark mode lightens --critical, and white on it reads ~3.2:1
+     at button-label size. The paired ink holds 4.5:1 in both themes. */
+  color: var(--critical-ink);
+}
+
+.btn-danger-ghost {
+  color: var(--neg);
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+.btn-sm {
+  padding: 6px 11px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+  flex: none;
+}
+
+@media (hover: hover) {
+  .icon-btn:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+}
+
+/* Tablets are the primary hardware; fingertips need the platform floor.
+   Desktop pointers keep the denser layout. */
+@media (pointer: coarse) {
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .btn-sm {
+    padding: 9px 13px;
+  }
+
+  /* The glyph buttons got the floor; the controls beside them never did.
+     A chip is 35px, a segmented choice 38px, a plain button 40px - and
+     between them they are almost everything a cashier taps: the payment
+     method, the option chips on a latte, the category filters, the quick
+     tender amounts. Stated as a minimum, so a control that is already
+     taller (Charge, Complete sale) is untouched. */
+  .btn,
+  .chip,
+  .seg-btn {
+    min-height: 44px;
+  }
+
+  .default-pick {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Last under the floor: the four inline text actions. Each is a single
+     underlined word inside a bar sized to its own text, so each stands
+     19-29px tall - a toast's Undo, the sample banner's Start fresh, the sync
+     bar's Retry, and the cart's Add discount, between them the way back from
+     a mis-tap, out of the demo data, and into a discount. Giving the word
+     itself a 44px box would double the height of every one of those bars,
+     so the word keeps its size and the target grows around it instead.
+
+     Each of the four sits in a row whose only other children are text and
+     glyphs, and the overhang stays inside the padding and margins around
+     it - so the area added is area nothing else could have been pressed in.
+     The 100% floor leaves a control that is already wider than 44px alone. */
+  .toast-action,
+  .sample-banner button,
+  .sync-bar button,
+  .cart-disc-btn {
+    position: relative;
+  }
+
+  .toast-action::after,
+  .sample-banner button::after,
+  .sync-bar button::after,
+  .cart-disc-btn::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Same treatment as .btn:disabled - a stepper at its limit, or the last
+   option choice, has to look unavailable rather than merely ignore the tap.
+   aria-disabled too, for the ones that have to stay in the tab order (see
+   the note above .btn:disabled). */
+.icon-btn:disabled,
+.icon-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* The glyph is the one flex child that can shrink (text is nowrap), so a
+   tight row used to crush it to 0 width and the button lost its icon. */
+.btn svg {
+  flex: none;
+}
+
+/* ---------- Layout helpers ---------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row.wrap {
+  flex-wrap: wrap;
+}
+
+/* In a wrapping row, growing children must keep their content as the wrap
+   basis - `flex: 1` alone zeroes it, so the line never wrapped and the
+   items were squeezed instead. */
+.row.wrap > .grow {
+  flex: 1 1 auto;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.small {
+  font-size: 12.5px;
+}
+
+.muted {
+  color: var(--ink-3);
+}
+
+.loading {
+  padding: 32px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+/* ---------- Forms ---------- */
+
+.field {
+  margin-bottom: 14px;
+}
+
+.label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  /* 16px minimum: iOS Safari force-zooms the page when a focused field's
+     text is any smaller, and the register is used on phones. */
+  font-size: 16px;
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 42px;
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: transparent;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  padding-right: 34px;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.8px solid var(--ink-3);
+  border-bottom: 1.8px solid var(--ink-3);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-3);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-actions {
+  margin-top: 18px;
+}
+
+.check-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.check-field input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+/* Search */
+.search-wrap {
+  position: relative;
+  flex: 1;
+  color: var(--ink-3);
+}
+
+.search-wrap > svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search-input {
+  padding-left: 38px;
+}
+
+/* Segmented control */
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+}
+
+.seg-block {
+  display: flex;
+  width: 100%;
+}
+
+.seg-block .seg-btn {
+  flex: 1;
+}
+
+/* Four tenders don't fit one line on a phone the way three did: the row
+   wraps instead of squeezing "Store credit" to an ellipsis. */
+.seg-wrap {
+  flex-wrap: wrap;
+}
+
+.seg-wrap .seg-btn {
+  flex: 1 1 44%;
+}
+
+.seg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  /* Transparent border reserves the active state's outline, so
+     switching never shifts the row. */
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.seg-btn.active {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--hairline);
+}
+
+/* Chips */
+.chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.chip {
+  padding: 7px 13px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--surface-2);
+  }
+}
+
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.chip-ghost {
+  border-style: dashed;
+  color: var(--ink-3);
+}
+
+/* A chip that isn't a control: a saved phrase, with its own remove button. */
+.chip-static {
+  padding-right: 6px;
+  cursor: default;
+}
+
+.chip-x {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-full);
+  color: var(--ink-3);
+}
+
+@media (hover: hover) {
+  .chip-x:hover {
+    background: var(--surface-3);
+    color: var(--ink);
+  }
+}
+
+/* A chip sitting inside a card head, beside a title rather than under one. */
+.chip-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.chip-row.rank-sort {
+  margin: 0;
+  flex: none;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  white-space: nowrap;
+  flex: none;
+}
+
+.badge-warn {
+  background: var(--warn-wash);
+  color: var(--warn-ink);
+}
+
+.badge-danger {
+  background: var(--critical-wash);
+  color: var(--neg);
+}
+
+/* ---------- Callouts (consequences stated before the button) ---------- */
+
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.callout-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  height: 19px;
+}
+
+.callout strong {
+  color: var(--ink);
+}
+
+.callout-danger {
+  background: var(--critical-wash);
+  color: var(--ink-2);
+}
+
+.callout-danger .callout-ic,
+.callout-danger strong {
+  color: var(--neg);
+}
+
+.callout-warn {
+  background: var(--warn-wash);
+}
+
+.callout-warn .callout-ic,
+.callout-warn strong {
+  color: var(--warn-ink);
+}
+
+.callout-accent {
+  background: var(--accent-wash);
+}
+
+.callout-accent .callout-ic,
+.callout-accent strong {
+  color: var(--accent-on-wash);
+}
+
+/* ---------- Cards & lists ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.card-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.card-divider {
+  height: 1px;
+  background: var(--hairline);
+  margin: 18px 0 16px;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s;
+}
+
+.card-row + .card-row {
+  border-top: 1px solid var(--hairline);
+}
+
+/* Full-bleed rows live inside rounded containers that clip (overflow:
+   hidden), which swallows the default outside focus ring - the first and
+   last rows of every list lost theirs entirely. Drawn inward instead. */
+.card-row:focus-visible,
+.cart-line:focus-visible,
+/* .hold-main, not .hold-row: the row is a plain div - the button inside it
+   is what takes focus, and it spans to the clipped edges. */
+.hold-main:focus-visible,
+.detail-link:focus-visible,
+.export-opt:focus-visible,
+.movement-row:focus-visible,
+.tender-row:focus-visible {
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .card-row:hover {
+    background: var(--surface-2);
+  }
+}
+
+.card-row.voided .card-title,
+.card-row.voided .card-amount {
+  text-decoration: line-through;
+  color: var(--ink-3);
+}
+
+.card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.card-main .card-title {
+  font-size: 14.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-main .card-sub {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-amount {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pay-ic {
+  color: var(--ink-3);
+  flex: none;
+}
+
+/* View headers */
+.view-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.view-title {
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.view-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+
+/* Month navigation */
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.month-label {
+  font-size: 15.5px;
+  font-weight: 700;
+  /* One stepper, not two arrows flung to the ends of an 1180px column with
+     the month adrift between them: paging back through the year meant
+     crossing the whole page between every press. Boxed at a fixed width so
+     Next holds still as the name changes length ("May" against "September"). */
+  min-width: 148px;
+  text-align: center;
+}
+
+.day-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 16px 4px 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.day-total {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+/* Settings rows */
+.setting-row {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.setting-row:last-of-type {
+  border-bottom: 0;
+}
+
+.default-pick {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-full);
+  color: var(--ink-3);
+  border: 1px solid var(--hairline-strong);
+  flex: none;
+}
+
+.default-pick.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.disc-ic {
+  color: var(--ink-3);
+  flex: none;
+}
+
+.cat-row {
+  margin-bottom: 10px;
+}
+
+/* Empty states */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--ink-2);
+}
+
+.empty h3 {
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.empty p {
+  font-size: 13.5px;
+  max-width: 340px;
+  color: var(--ink-3);
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  margin-bottom: 4px;
+}
+
+/* ---------- Modal ---------- */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  align-items: end;
+  justify-items: stretch;
+}
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade-in 0.2s ease;
+}
+
+.modal-panel {
+  position: relative;
+  background: var(--surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  border: 1px solid var(--hairline);
+  border-bottom: 0;
+  padding: 10px 18px calc(18px + var(--safe-b));
+  max-height: min(86dvh, 720px);
+  overflow-y: auto;
+  animation: sheet-up 0.28s var(--ease-spring);
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  margin: 2px auto 10px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  /* Titles carry typed names - a customer, a product, a held sale. A long
+     one pushed the Close button clean off the panel and gave the dialog a
+     horizontal scrollbar; it wraps within the head instead. */
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.modal-root.closing .modal-panel {
+  animation: sheet-down 0.2s ease forwards;
+}
+
+.modal-root.closing .modal-scrim {
+  animation: fade-out 0.2s ease forwards;
+}
+
+@media (min-width: 640px) {
+  .modal-root {
+    align-items: center;
+    justify-items: center;
+    padding: 24px;
+  }
+
+  .modal-panel {
+    width: min(440px, 100%);
+    border-radius: var(--r-lg);
+    border-bottom: 1px solid var(--hairline);
+    padding: 8px 22px 22px;
+    animation: pop-in 0.22s var(--ease-spring);
+  }
+
+  .modal-panel.wide {
+    width: min(640px, 100%);
+  }
+
+  .sheet-handle {
+    display: none;
+  }
+
+  .modal-root.closing .modal-panel {
+    animation: pop-out 0.18s ease forwards;
+  }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(40%); opacity: 0.5; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes sheet-down {
+  to { transform: translateY(30%); opacity: 0; }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.96) translateY(8px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes pop-out {
+  to { transform: scale(0.97); opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* ---------- Toasts ---------- */
+
+.toast-root {
+  position: fixed;
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+
+@media (min-width: 920px) {
+  .toast-root {
+    bottom: 22px;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border-radius: var(--r-full);
+  background: var(--ink);
+  color: var(--page);
+  font-size: 13.5px;
+  font-weight: 600;
+  animation: toast-in 0.25s var(--ease-spring);
+  max-width: 100%;
+}
+
+.toast svg {
+  flex: none;
+}
+
+.toast.leaving {
+  animation: toast-out 0.2s ease forwards;
+}
+
+.toast-action {
+  color: inherit;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  flex: none;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(6px); }
+}
+
+/* ---------- Sample-data banner ---------- */
+
+.sample-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  margin-bottom: 14px;
+  border-radius: var(--r-md);
+  background: var(--accent-wash);
+  color: var(--accent-on-wash);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sample-banner .sample-banner-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+
+.sample-banner button {
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  color: inherit;
+  flex: none;
+}
+
+/* ---------- Offline / sync status ---------- */
+
+.sync-bar {
+  display: none;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  margin-bottom: 14px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.sync-bar.shown {
+  display: flex;
+}
+
+.sync-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+
+.sync-bar button {
+  flex: none;
+  font-weight: 750;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sync-warn {
+  background: var(--warn-wash);
+  color: var(--warn-ink);
+}
+
+.sync-accent {
+  background: var(--accent-wash);
+  color: var(--accent-on-wash);
+}
+
+.sync-danger {
+  background: var(--critical-wash);
+  color: var(--neg);
+}
+
+/* ---------- Stat tiles (dataviz contract) ---------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+}
+
+.stat-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.stat-delta {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stat-delta.up {
+  color: var(--pos);
+}
+
+.stat-delta.down {
+  color: var(--neg);
+}
+
+.stat-note {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+/* ---------- Chart ---------- */
+
+.chart-card {
+  padding-bottom: 10px;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.chart-tick {
+  font-size: 11px;
+  fill: var(--ink-3);
+  font-family: var(--font);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-bar {
+  transition: fill 0.1s;
+}
+
+.chart-bar.hover {
+  fill: var(--chart-series-strong);
+}
+
+.chart-tip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 7px 11px;
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: var(--page);
+  pointer-events: none;
+  z-index: 5;
+  white-space: nowrap;
+}
+
+.chart-tip.show {
+  display: flex;
+}
+
+.tip-value {
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.tip-label {
+  font-size: 11.5px;
+  opacity: 0.75;
+}
+
+/* Data table (chart alternative view) */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 600;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+.data-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.data-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A totals row has to read as the sum of the rows above it, not as one more
+   of them: no hairline under it, and the figures carry the weight. */
+.data-table tfoot th,
+.data-table tfoot td {
+  padding: 9px 8px 3px;
+  border-bottom: 0;
+  border-top: 1px solid var(--hairline-strong);
+  font-weight: 700;
+  text-align: left;
+}
+
+.data-table tfoot td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The last body row's hairline would double up with the footer's own rule. */
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Ranked bars (top products) */
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.rank-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 40%) 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.rank-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rank-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.rank-bar-track {
+  height: 12px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.rank-bar {
+  height: 100%;
+  border-radius: 4px 4px 4px 4px;
+  background: var(--chart-series);
+  min-width: 2px;
+}
+
+/* Net-negative after refunds: the bar has to say so, not just the figure. */
+.rank-bar.negative {
+  background: var(--neg);
+}
+
+.rank-value {
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Key-value rows (categories, payments) */
+.kv-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.kv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.kv-row:last-child {
+  border-bottom: 0;
+}
+
+.kv-row > span:first-child {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kv-ic {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-2);
+}
+
+.kv-sub {
+  color: var(--ink-3);
+  font-size: 12.5px;
+  flex: none;
+}
+
+.kv-value {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+/* ---------- Auth / intro ---------- */
+
+.auth-view {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px 24px calc(32px + var(--safe-b));
+  max-width: 430px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.auth-logo {
+  border-radius: 22px;
+}
+
+.auth-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.auth-sub {
+  color: var(--ink-2);
+  font-size: 15px;
+  max-width: 320px;
+}
+
+.auth-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 14px 0 6px;
+  text-align: left;
+}
+
+.auth-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.auth-feature svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.auth-cta {
+  width: 100%;
+  max-width: 320px;
+  padding: 13px;
+  font-size: 15.5px;
+}
+
+.auth-note {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* Onboarding */
+.onboard-h {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.onboard-p {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  margin-bottom: 16px;
+}

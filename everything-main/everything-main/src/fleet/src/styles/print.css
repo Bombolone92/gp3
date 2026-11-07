@@ -1,0 +1,64 @@
+/* Printing a page (work order, inspection, report): only the content area
+   is shown, full width, on white paper. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  .app {
+    display: block !important;
+    height: auto !important;
+  }
+
+  .rail,
+  .topbar,
+  .tabbar,
+  .demo-banner,
+  .alpha-notice,
+  .toast-region,
+  .no-print,
+  .detail-actions,
+  .page-header .actions,
+  .chart-top button,
+  .grid-toolbar,
+  .bulk-bar,
+  .comment-form,
+  .skip-link {
+    display: none !important;
+  }
+
+  .main-col,
+  .content {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .card {
+    break-inside: avoid;
+    border-color: #ccc !important;
+  }
+
+  /* A printed page is narrower than the phone breakpoint: keep the tables
+     instead of switching to the phone card lists. */
+  .hide-mobile {
+    display: revert !important;
+  }
+
+  .show-mobile {
+    display: none !important;
+  }
+}

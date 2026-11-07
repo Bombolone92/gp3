@@ -1,0 +1,2116 @@
+{
+  "provenance": "Authored semantic-only controls regenerated and saved without repair in the native reference application on September 20, 2026. Missing, zero, partial and explicit composite canvases; fixed/relative children; offsets, zero-size points, aspect ratios, nested composites, and linear fitting in all four directions. Expected EMU rectangles are native observations and are never inputs to reflow. Native omits zero-by-zero drawings; semantic nodes remain present in these tests.",
+  "cases": [
+    {
+      "name": "fixed small",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed positive origin",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:1\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed negative origin",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:2\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"-10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"-5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed separated children",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:3\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"35\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"10\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 3240000,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 2160000,
+            "y": 1080000,
+            "w": 1080000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed overflowing",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:4\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"200\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"100\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 4317187,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 4317187,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "automatic child",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:5\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "relative child",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:6\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "mixed fixed and relative",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"w\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:8\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative parent {\"w\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:9\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "mixed parent {\"w\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:10\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"h\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:11\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative parent {\"h\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:12\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "mixed parent {\"h\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:13\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"w\":0,\"h\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:14\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative parent {\"w\":0,\"h\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:15\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "mixed parent {\"w\":0,\"h\":0}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:16\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"0\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"w\":80}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:17\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative parent {\"w\":80}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:18\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed parent {\"w\":80}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:19\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 1080000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1440000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:20\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative parent {\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:21\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 810000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 0,
+            "h": 810000
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed parent {\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:22\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 1890000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 0,
+            "h": 810000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"w\":80,\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:23\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative parent {\"w\":80,\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:24\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 810000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 810000
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed parent {\"w\":80,\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:25\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 1620000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 617142
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 925714,
+            "w": 1440000,
+            "h": 694285
+          }
+        }
+      ]
+    },
+    {
+      "name": "self dimension width",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:26\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\"  val=\"80\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "self dimension height",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:27\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\"  val=\"45\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "two composites horizontal",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><dgm:cxn modelId=\"11\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:28\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "group",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "two composites vertical",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><dgm:cxn modelId=\"11\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:29\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/><dgm:param type=\"linDir\" val=\"fromT\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "default centered root",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:30\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 1440000,
+            "y": 900000,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 1440000,
+            "y": 900000,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "default centered composite",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:31\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "horizontal overflow",
+      "available": {
+        "w": 30,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "vertical overflow",
+      "available": {
+        "w": 120,
+        "h": 10
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1438593,
+            "h": 360000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1438593,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "both overflow",
+      "available": {
+        "w": 25,
+        "h": 12
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 900000,
+            "h": 432000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 900000,
+            "h": 432000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"w\":80} smaller root",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:17\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 810000,
+            "h": 540000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 810000,
+            "h": 540000
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed parent {\"h\":45} smaller root",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:20\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 810000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 810000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed parent {\"h\":45} smaller root",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:22\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 900000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 423529
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 635294,
+            "w": 405000,
+            "h": 264705
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed parent {\"w\":80,\"h\":45} smaller root",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:25\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 900000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 423529
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 635294,
+            "w": 405000,
+            "h": 264705
+          }
+        }
+      ]
+    },
+    {
+      "name": "aspect 0.5 fixed small",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"ar\" val=\"0.5\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "aspect 0.5 fixed parent {\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:20\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"ar\" val=\"0.5\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "aspect 0.5 fixed parent {\"w\":80,\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:23\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"ar\" val=\"0.5\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "aspect 2 fixed small",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"ar\" val=\"2\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "aspect 2 fixed parent {\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:20\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"ar\" val=\"2\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": []
+    },
+    {
+      "name": "aspect 2 fixed parent {\"w\":80,\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:23\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"ar\" val=\"2\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested explicit composite fixed small",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested explicit composite fixed separated children",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:3\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"35\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"10\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 360000,
+            "y": 180000,
+            "w": 3240000,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 360000,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 2520000,
+            "y": 1260000,
+            "w": 1080000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested explicit composite mixed fixed and relative",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 2340000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 2160000,
+            "h": 1260000
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested explicit composite fixed parent {\"w\":80,\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:23\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 360000,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 360000,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested zero composite fixed small",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:0\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:layoutNode name=\"outer\"><dgm:alg type=\"composite\"/><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested zero composite fixed separated children",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:3\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:layoutNode name=\"outer\"><dgm:alg type=\"composite\"/><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"35\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"10\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 3240000,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 2160000,
+            "y": 1080000,
+            "w": 1080000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested zero composite mixed fixed and relative",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:layoutNode name=\"outer\"><dgm:alg type=\"composite\"/><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "zero outlier fixed separated children",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:3\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"empty\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"empty\" val=\"0\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"empty\" val=\"-300\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"empty\" val=\"400\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"35\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"10\"/></dgm:constrLst><dgm:layoutNode name=\"empty\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 3240000,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 2160000,
+            "y": 1080000,
+            "w": 1080000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "zero outlier fixed parent {\"w\":80,\"h\":45}",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:23\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"empty\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"empty\" val=\"0\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"empty\" val=\"-300\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"empty\" val=\"400\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"empty\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 329142,
+            "h": 82025
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 329142,
+            "h": 82025
+          }
+        }
+      ]
+    },
+    {
+      "name": "tight fixed separated children",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:3\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"10\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"35\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"10\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 959062,
+            "h": 787500
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 479531,
+            "h": 450000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 719296,
+            "y": 675000,
+            "w": 239765,
+            "h": 112500
+          }
+        }
+      ]
+    },
+    {
+      "name": "tight mixed fixed and relative",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 900000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 423529
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 635294,
+            "w": 405000,
+            "h": 264705
+          }
+        }
+      ]
+    },
+    {
+      "name": "tight mixed parent {\"w\":80}",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:19\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"80\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 900000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 423529
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 635294,
+            "w": 405000,
+            "h": 264705
+          }
+        }
+      ]
+    },
+    {
+      "name": "tight mixed parent {\"h\":45}",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:22\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"45\"/></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 900000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 423529
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 635294,
+            "w": 405000,
+            "h": 264705
+          }
+        }
+      ]
+    },
+    {
+      "name": "tight two composites horizontal",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><dgm:cxn modelId=\"11\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:28\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 540000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "group",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 540000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 540000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "tight two composites vertical",
+      "available": {
+        "w": 30,
+        "h": 25
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><dgm:cxn modelId=\"11\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:29\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/><dgm:param type=\"linDir\" val=\"fromT\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 450000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 450000
+          }
+        },
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 450000,
+            "w": 1080000,
+            "h": 450000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 450000,
+            "w": 1080000,
+            "h": 450000
+          }
+        }
+      ]
+    },
+    {
+      "name": "reverse fromR",
+      "available": {
+        "w": 50,
+        "h": 30
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><dgm:cxn modelId=\"11\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:28\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromR\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 900000,
+            "y": 0,
+            "w": 900000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 900000,
+            "y": 0,
+            "w": 900000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 900000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 900000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "reverse fromB",
+      "available": {
+        "w": 50,
+        "h": 30
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><dgm:cxn modelId=\"11\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:28\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromB\"/><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          }
+        },
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          }
+        }
+      ]
+    },
+    {
+      "name": "explicit zero y30 frame30",
+      "available": {
+        "w": 30,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"0\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "explicit zero y30 frame120",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"0\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "explicit zero y400 frame30",
+      "available": {
+        "w": 30,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"400\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"0\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 126000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 126000
+          }
+        }
+      ]
+    },
+    {
+      "name": "explicit zero y400 frame120",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"400\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" val=\"0\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative zero y30 frame30",
+      "available": {
+        "w": 30,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 1080000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 480000
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 405000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative zero y30 frame120",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative zero y400 frame30",
+      "available": {
+        "w": 30,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"400\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 2519999
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 115862
+          }
+        },
+        {
+          "name": "shape1",
+          "bounds": {
+            "x": 0,
+            "y": 2317241,
+            "w": 405000,
+            "h": 202758
+          }
+        }
+      ]
+    },
+    {
+      "name": "relative zero y400 frame120",
+      "available": {
+        "w": 120,
+        "h": 70
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-preferred:7\"><dgm:title val=\"Composite preferred size\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:constrLst></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"l\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape0\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape0\" val=\"40\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape0\" val=\"20\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"shape1\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"shape1\" val=\"400\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"shape1\" refType=\"w\" fact=\"0.5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"shape1\" refType=\"h\" fact=\"0.5\"/></dgm:constrLst><dgm:layoutNode name=\"shape0\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode><dgm:layoutNode name=\"shape1\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf/></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "group",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        },
+        {
+          "name": "shape0",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          }
+        }
+      ]
+    }
+  ]
+}

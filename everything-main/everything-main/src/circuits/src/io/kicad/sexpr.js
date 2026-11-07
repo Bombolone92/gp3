@@ -1,0 +1,125 @@
+// S-expression reader for KiCad files. Lists become arrays; unquoted atoms
+// that look numeric become numbers; every other atom (quoted or not) is a
+// string. The scanner works on char codes so multi-megabyte boards parse fast.
+
+const LPAREN = 40, RPAREN = 41, QUOTE = 34, BACKSLASH = 92;
+
+function isSpace(c) { return c === 32 || c === 9 || c === 10 || c === 13 || c === 12; }
+
+const NUMERIC = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/;
+
+/** Parses text into the top-level list (the first complete expression). */
+export function parseSexpr(text) {
+  const n = text.length;
+  const stack = [];
+  let cur = null;
+  let root = null;
+  let i = 0;
+  while (i < n) {
+    const c = text.charCodeAt(i);
+    if (isSpace(c)) { i++; continue; }
+    if (c === LPAREN) {
+      const list = [];
+      if (cur) { cur.push(list); stack.push(cur); }
+      cur = list;
+      i++;
+      continue;
+    }
+    if (c === RPAREN) {
+      if (!cur) { i++; continue; }
+      if (!stack.length) { root = cur; cur = null; i++; break; }
+      cur = stack.pop();
+      i++;
+      continue;
+    }
+    if (c === QUOTE) {
+      let j = i + 1;
+      let out = '';
+      let start = j;
+      while (j < n) {
+        const d = text.charCodeAt(j);
+        if (d === BACKSLASH) {
+          out += text.slice(start, j);
+          const e = text[j + 1];
+          out += e === 'n' ? '\n' : e === 't' ? '\t' : e === 'r' ? '' : e ?? '';
+          j += 2;
+          start = j;
+          continue;
+        }
+        if (d === QUOTE) break;
+        j++;
+      }
+      out += text.slice(start, j);
+      if (cur) cur.push(out);
+      i = j + 1;
+      continue;
+    }
+    let j = i;
+    while (j < n) {
+      const d = text.charCodeAt(j);
+      if (isSpace(d) || d === LPAREN || d === RPAREN) break;
+      j++;
+    }
+    const atom = text.slice(i, j);
+    if (cur) cur.push(NUMERIC.test(atom) ? Number(atom) : atom);
+    i = j;
+  }
+  if (!root && cur) root = stack.length ? stack[0] : cur;
+  if (!root) throw new Error('The file has no S-expression content.');
+  return root;
+}
+
+export const isList = (x) => Array.isArray(x);
+
+/** First child list whose head is `head`. */
+export function find(list, head) {
+  if (!list) return null;
+  for (let i = 1; i < list.length; i++) {
+    const c = list[i];
+    if (Array.isArray(c) && c[0] === head) return c;
+  }
+  return null;
+}
+
+/** All child lists whose head is `head`. */
+export function findAll(list, head) {
+  const out = [];
+  if (!list) return out;
+  for (let i = 1; i < list.length; i++) {
+    const c = list[i];
+    if (Array.isArray(c) && c[0] === head) out.push(c);
+  }
+  return out;
+}
+
+/** Value at index idx of the child list `head`, or fallback. */
+export function val(list, head, idx = 1, fallback = undefined) {
+  const c = find(list, head);
+  return c && c.length > idx ? c[idx] : fallback;
+}
+
+/** True when the list holds the bare atom `flag` or a child `(flag yes)`. */
+export function hasFlag(list, flag) {
+  if (!list) return false;
+  for (let i = 1; i < list.length; i++) {
+    const c = list[i];
+    if (c === flag) return true;
+    if (Array.isArray(c) && c[0] === flag && (c.length === 1 || c[1] === 'yes' || c[1] === true)) return true;
+  }
+  return false;
+}
+
+/** (xy x y) points of a (pts ...) child as [[x, y], ...] in file units. */
+export function points(list) {
+  const pts = find(list, 'pts');
+  if (!pts) return [];
+  const out = [];
+  for (const p of findAll(pts, 'xy')) out.push([Number(p[1]) || 0, Number(p[2]) || 0]);
+  return out;
+}
+
+/** Named property value: (property "Name" "Value" ...). */
+export function property(list, name) {
+  for (const p of findAll(list, 'property')) if (p[1] === name) return p;
+  return null;
+}

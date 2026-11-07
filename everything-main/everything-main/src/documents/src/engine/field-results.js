@@ -1,0 +1,344 @@
+// Results for the fields Insert → Field, Date & Time and Quick Parts insert (ECMA-376 Part 1
+// §17.16.5): dates and times with a date-time picture switch (§17.16.4.1), document information
+// (AUTHOR, TITLE, SUBJECT, KEYWORDS, COMMENTS, LASTSAVEDBY, DOCPROPERTY, FILENAME, USERNAME…),
+// document statistics (NUMPAGES, NUMWORDS, NUMCHARS) and the general formatting switch (§17.16.4.3).
+// A field is inserted with its current result as cached text, so every consumer shows it at once;
+// Update Field recomputes it from the same evaluator.
+import { fieldInstructionTokens, pageFieldSegments, writePageFieldResult } from './docx-page-fields.js';
+import { serializeFragment } from './docx-compatibility.js';
+import { formatPageNumber } from './page-numbering.js';
+import { numericFieldFormat, formatNumericField } from './numeric-field-format.js';
+import { newBodyField } from './toc.js';
+import { bodyFieldRanges, newFieldEndOrder } from './body-fields.js';
+import { sharedRevision } from './revisions.js';
+import { countWords } from '../core/text.js';
+import { readCoreProperties } from './docx-core-properties.js';
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const pad = (n, size = 2) => String(n).padStart(size, '0');
+
+// Month and day names in a language other than English, as the field's text is marked (w:lang): Word writes
+// "2. Oktober 2026" for DATE \@ "d. MMMM yyyy" in German text. A month next to a day number takes the form
+// the language uses in a date (Russian "2 октября"); on its own, the form it uses alone ("октябрь 2026").
+const localNames = new Map();
+function localName(language, date, unit, width, inDate) {
+  const index = unit === 'month' ? date.getMonth() : date.getDay(), key = `${language}|${unit}|${width}|${inDate}|${index}`;
+  if (localNames.has(key)) return localNames.get(key);
+  let name = null;
+  try {
+    const options = unit === 'month' ? { month: width, ...(inDate ? { day: 'numeric' } : {}) } : { weekday: width };
+    // A day of that month, or of that weekday: 14 January 2001 was a Sunday.
+    const sample = new Date(unit === 'month' ? Date.UTC(2001, index, 15) : Date.UTC(2001, 0, 14 + index));
+    name = new Intl.DateTimeFormat(language, { ...options, timeZone: 'UTC' }).formatToParts(sample).find(part => part.type === unit)?.value || null;
+  } catch { name = null; }
+  localNames.set(key, name);
+  return name;
+}
+const english = language => !language || /^en(-|$)/i.test(language);
+
+/**
+ * Format a date with a date-time picture (§17.16.4.1): M MM MMM MMMM d dd ddd dddd yy yyyy h hh H HH m mm s ss AM/PM am/pm,
+ * 'literal'. `language` (a BCP 47 tag, the field's w:lang) names months and days; English when absent.
+ */
+export function formatDatePicture(date, picture, language = null) {
+  let out = '', i = 0;
+  const local = !english(language);
+  const withDay = /(^|[^d])d{1,2}(?!d)/i.test(picture.replace(/'[^']*'?/g, ''));
+  const month = n => (local && localName(language, date, 'month', n >= 4 ? 'long' : 'short', withDay)) || (n >= 4 ? MONTHS[date.getMonth()] : MONTHS[date.getMonth()].slice(0, 3));
+  const day = n => (local && localName(language, date, 'weekday', n >= 4 ? 'long' : 'short', false)) || (n >= 4 ? DAYS[date.getDay()] : DAYS[date.getDay()].slice(0, 3));
+  const run = ch => { let n = 0; while (picture[i + n] === ch) n++; return n; };
+  while (i < picture.length) {
+    const ch = picture[i];
+    if (ch === "'") { const end = picture.indexOf("'", i + 1); out += end < 0 ? picture.slice(i + 1) : picture.slice(i + 1, end); i = end < 0 ? picture.length : end + 1; continue; }
+    if (/^am\/pm/i.test(picture.slice(i, i + 5))) { const pm = date.getHours() >= 12, token = picture.slice(i, i + 5); out += token === token.toLowerCase() ? (pm ? 'pm' : 'am') : (pm ? 'PM' : 'AM'); i += 5; continue; }
+    const n = run(ch);
+    if (ch === 'M') out += n >= 3 ? month(n) : n === 2 ? pad(date.getMonth() + 1) : String(date.getMonth() + 1);
+    else if (ch === 'd' || ch === 'D') out += n >= 3 ? day(n) : n === 2 ? pad(date.getDate()) : String(date.getDate());
+    else if (ch === 'y' || ch === 'Y') out += n >= 3 ? String(date.getFullYear()) : pad(date.getFullYear() % 100);
+    else if (ch === 'h') { const h = date.getHours() % 12 || 12; out += n >= 2 ? pad(h) : String(h); }
+    else if (ch === 'H') out += n >= 2 ? pad(date.getHours()) : String(date.getHours());
+    else if (ch === 'm') out += n >= 2 ? pad(date.getMinutes()) : String(date.getMinutes());
+    else if (ch === 's' || ch === 'S') out += n >= 2 ? pad(date.getSeconds()) : String(date.getSeconds());
+    else { out += ch; i += 1; continue; }
+    i += n;
+  }
+  return out;
+}
+
+/** Date-time pictures offered by Insert → Date & Time, in the order they are listed. */
+export const DATE_PICTURES = Object.freeze(['M/d/yyyy', 'dddd, MMMM d, yyyy', 'MMMM d, yyyy', 'M/d/yy', 'yyyy-MM-dd', 'd-MMM-yy', 'M.d.yyyy', 'MMM. d, yy', 'd MMMM yyyy', 'MMMM yy', 'MMM-yy',
+  'M/d/yyyy h:mm am/pm', 'M/d/yyyy h:mm:ss am/pm', 'h:mm am/pm', 'h:mm:ss am/pm', 'HH:mm', 'HH:mm:ss']);
+const ORDINAL = n => { const s = n % 100; return `${n}${s >= 11 && s <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th'}`; };
+const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+/** Whole numbers in words, as the CardText switch writes them (up to 999,999). */
+export function cardinalText(n) {
+  if (!Number.isInteger(n) || n < 0 || n > 999999) return String(n);
+  if (n < 20) return ONES[n];
+  if (n < 100) return TENS[Math.floor(n / 10)] + (n % 10 ? `-${ONES[n % 10]}` : '');
+  if (n < 1000) return `${ONES[Math.floor(n / 100)]} hundred${n % 100 ? ` ${cardinalText(n % 100)}` : ''}`;
+  return `${cardinalText(Math.floor(n / 1000))} thousand${n % 1000 ? ` ${cardinalText(n % 1000)}` : ''}`;
+}
+
+/** The general formatting switch (§17.16.4.3) on a result: case and number formats; MERGEFORMAT keeps formatting. */
+export function applyGeneralFormat(text, format) {
+  const f = String(format || '');
+  if (/^upper$/i.test(f)) return text.toLocaleUpperCase();
+  if (/^lower$/i.test(f)) return text.toLocaleLowerCase();
+  if (/^firstcap$/i.test(f)) return text.replace(/\p{L}/u, ch => ch.toLocaleUpperCase());
+  if (/^caps$/i.test(f)) return text.replace(/(^|\s)(\p{L})/gu, (_, gap, ch) => gap + ch.toLocaleUpperCase());
+  const n = Number(text);
+  if (!/^\d+$/.test(text.trim()) || !Number.isSafeInteger(n)) return text;
+  // A number past what a Roman or letter numeral can show stays a number: one field must not stop Update Fields.
+  const numeral = format => { try { return formatPageNumber(n, format); } catch { return text; } };
+  if (f === 'roman') return numeral('lowerRoman');
+  if (f === 'ROMAN') return numeral('upperRoman');
+  if (f === 'alphabetic') return numeral('lowerLetter');
+  if (f === 'ALPHABETIC') return numeral('upperLetter');
+  if (/^ordinal$/i.test(f)) return ORDINAL(n);
+  if (/^cardtext$/i.test(f)) return cardinalText(n);
+  if (/^ordtext$/i.test(f)) { const words = cardinalText(n); return words.replace(/(one|two|three|five|eight|nine|twelve|y|\w+)$/, w => ({ one: 'first', two: 'second', three: 'third', five: 'fifth', eight: 'eighth', nine: 'ninth', twelve: 'twelfth' }[w] || (w.endsWith('y') ? `${w.slice(0, -1)}ieth` : `${w}th`))); }
+  if (/^hex$/i.test(f)) return n.toString(16).toUpperCase();
+  return text;
+}
+
+/**
+ * Core and extended document properties from a package's parts: { title, subject, author, keywords, comments, lastModifiedBy, category, created, modified, company, manager, … }.
+ * Core properties come from the part the package relationship names (Part 2 §11); `core`, when given, holds
+ * them with this session's edits (DocxPackage#coreProperties).
+ */
+export function documentProperties(parts = {}, core = readCoreProperties(parts)) {
+  const read = path => { const bytes = parts[path]; if (!bytes) return null; try { return new DOMParser().parseFromString(typeof bytes === 'string' ? bytes : new TextDecoder().decode(bytes), 'application/xml'); } catch { return null; } };
+  const text = (doc, name) => [...(doc?.documentElement?.children || [])].find(n => n.localName === name)?.textContent?.trim() || '';
+  const app = read('docProps/app.xml');
+  return { title: core.title || '', subject: core.subject || '', author: core.creator || '', keywords: core.keywords || '', comments: core.description || '',
+    lastModifiedBy: core.lastModifiedBy || '', category: core.category || '', status: core.contentStatus || '', created: core.created || '', modified: core.modified || '',
+    company: text(app, 'Company'), manager: text(app, 'Manager'), template: text(app, 'Template') };
+}
+/** The document properties of an open package, including properties changed in File > Properties since it was opened. */
+export const packageDocumentProperties = pkg => documentProperties(pkg?.parts || {}, pkg?.coreProperties);
+
+/**
+ * The fields the Field dialog offers: name, category, a short description in this app's words, the
+ * switches it supports (`formats: 'page'` for the page number formats only), and the property a DOCPROPERTY/INFO field reads. Order is the dialog's order.
+ */
+export const FIELD_CATALOG = Object.freeze([
+  { name: 'DATE', category: 'Date and Time', description: 'Today\u2019s date, updated when fields update', picture: true },
+  { name: 'TIME', category: 'Date and Time', description: 'The current time, updated when fields update', picture: true },
+  { name: 'CREATEDATE', category: 'Date and Time', description: 'When the document was created', picture: true },
+  { name: 'SAVEDATE', category: 'Date and Time', description: 'When the document was last saved', picture: true },
+  { name: 'AUTHOR', category: 'Document Information', description: 'The document\u2019s author', format: true },
+  { name: 'TITLE', category: 'Document Information', description: 'The document\u2019s title property', format: true },
+  { name: 'SUBJECT', category: 'Document Information', description: 'The document\u2019s subject property', format: true },
+  { name: 'KEYWORDS', category: 'Document Information', description: 'The document\u2019s keywords', format: true },
+  { name: 'COMMENTS', category: 'Document Information', description: 'The document\u2019s comments property', format: true },
+  { name: 'LASTSAVEDBY', category: 'Document Information', description: 'Who saved the document last', format: true },
+  { name: 'FILENAME', category: 'Document Information', description: 'The document\u2019s file name', format: true, options: [['\\p', 'Add path to file name']] },
+  { name: 'DOCPROPERTY', category: 'Document Information', description: 'A document property you choose', format: true, argument: 'property' },
+  { name: 'NUMPAGES', category: 'Document Information', description: 'The number of pages', number: true, formats: 'page' },
+  { name: 'NUMWORDS', category: 'Document Information', description: 'The number of words', number: true },
+  { name: 'NUMCHARS', category: 'Document Information', description: 'The number of characters', number: true },
+  { name: 'PAGE', category: 'Numbering', description: 'The number of the page it is on', number: true, formats: 'page' },
+  { name: 'SEQ', category: 'Numbering', description: 'A numbered sequence, such as figure numbers', number: true, argument: 'identifier' },
+  { name: 'REF', category: 'Links and References', description: 'The text of a bookmark', format: true, argument: 'bookmark' },
+  { name: 'USERNAME', category: 'User Information', description: 'Your name', format: true },
+  { name: 'USERINITIALS', category: 'User Information', description: 'Your initials', format: true },
+]);
+export const DOCUMENT_PROPERTY_NAMES = Object.freeze([['Title', 'title'], ['Subject', 'subject'], ['Author', 'author'], ['Keywords', 'keywords'], ['Comments', 'comments'], ['Category', 'category'], ['Status', 'status'], ['Company', 'company'], ['Manager', 'manager'], ['LastSavedBy', 'lastModifiedBy']]);
+export const GENERAL_FORMATS = Object.freeze([['Upper', 'UPPERCASE'], ['Lower', 'lowercase'], ['FirstCap', 'First capital'], ['Caps', 'Title Case']]);
+export const NUMBER_FORMATS = Object.freeze([['Arabic', '1, 2, 3'], ['roman', 'i, ii, iii'], ['ROMAN', 'I, II, III'], ['alphabetic', 'a, b, c'], ['ALPHABETIC', 'A, B, C'], ['Ordinal', '1st, 2nd, 3rd'], ['CardText', 'One, Two, Three'], ['OrdText', 'First, Second, Third']]);
+/** The number formats page fields show (PAGE and NUMPAGES lay out page numbers, not words). */
+export const PAGE_NUMBER_FORMATS = Object.freeze(NUMBER_FORMATS.filter(([format]) => !/^(Ordinal|CardText|OrdText)$/.test(format)));
+
+/** An instruction from the dialog's choices: ` NAME [argument] [\@ "picture"] [\* format] [options] \* MERGEFORMAT `. */
+export function fieldInstruction({ name, argument = '', picture = '', format = '', options = [], preserve = true }) {
+  const quote = value => /[\s"\\]/.test(value) || !value ? `"${String(value).replace(/(["\\])/g, '\\$1')}"` : value;
+  return ` ${[name, argument ? quote(argument) : '', picture ? `\\@ ${quote(picture)}` : '', format ? `\\* ${format}` : '', ...options, preserve ? '\\* MERGEFORMAT' : ''].filter(Boolean).join(' ')} `;
+}
+
+/**
+ * The result an instruction shows now, or null when this evaluator does not compute that field.
+ * context: { now: Date, properties, fileName, path, user: { name, initials }, pages, text, bookmarks: Map(name → text) }.
+ */
+export function evaluateField(instruction, context = {}) {
+  let tokens; try { tokens = fieldInstructionTokens(instruction); } catch { return null; }
+  const name = tokens[0]?.toUpperCase(), now = context.now || new Date(), properties = context.properties || {};
+  let picture = null, formats = [], argument = null, path = false, numberPicture = null;
+  for (let i = 1; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t === '\\@') picture = tokens[++i] ?? '';
+    else if (t === '\\#') numberPicture = tokens[++i] ?? null;
+    else if (t === '\\*') formats.push(tokens[++i] ?? '');
+    else if (t === '\\p') path = true;
+    else if (!t.startsWith('\\') && argument === null) argument = t;
+    else if (t.startsWith('\\')) { if (['\\s', '\\r'].includes(t)) i++; }
+  }
+  const dated = (value, fallback) => {
+    const date = value instanceof Date ? value : value ? new Date(value) : null;
+    if (!date || Number.isNaN(date.getTime())) return '';
+    return formatDatePicture(date, picture ?? fallback, context.language);
+  };
+  const words = text => countWords(String(text || '').replace(/\ufffc/g, ' '));
+  let value;
+  switch (name) {
+    case 'DATE': value = dated(now, 'M/d/yyyy'); break;
+    case 'TIME': value = dated(now, 'h:mm am/pm'); break;
+    case 'CREATEDATE': value = dated(properties.created, 'M/d/yyyy h:mm:ss am/pm'); break;
+    case 'SAVEDATE': value = dated(properties.modified, 'M/d/yyyy h:mm:ss am/pm'); break;
+    // These take a new value as their argument ({ AUTHOR "New Name" }), which is then their result.
+    case 'AUTHOR': value = argument ?? (properties.author || ''); break;
+    case 'TITLE': value = argument ?? (properties.title || ''); break;
+    case 'SUBJECT': value = argument ?? (properties.subject || ''); break;
+    case 'KEYWORDS': value = argument ?? (properties.keywords || ''); break;
+    case 'COMMENTS': value = argument ?? (properties.comments || ''); break;
+    case 'LASTSAVEDBY': value = properties.lastModifiedBy || ''; break;
+    case 'FILENAME': value = path && context.path ? context.path : context.fileName || ''; break;
+    case 'USERNAME': value = context.user?.name || ''; break;
+    case 'USERINITIALS': value = context.user?.initials || (context.user?.name || '').split(/\s+/).map(w => w[0] || '').join('').toUpperCase(); break;
+    case 'DOCPROPERTY': {
+      const key = DOCUMENT_PROPERTY_NAMES.find(([label]) => label.toLowerCase() === String(argument || '').toLowerCase())?.[1];
+      if (!key) return null;
+      value = properties[key] || ''; break;
+    }
+    case 'NUMPAGES': if (!Number.isInteger(context.pages)) return null; value = String(context.pages); break;
+    case 'PAGE': {
+      // `page` is the page's number and `pageFormat` its section's number format. A number format switch
+      // (\* roman) formats the number itself, overriding the section's format (§17.16.4.3).
+      if (!Number.isInteger(context.page) || context.page < 0) return null;
+      const switched = formats.some(f => /^(arabic|arabicdash|roman|alphabetic)$/i.test(f));
+      try { value = switched ? String(context.page) : formatPageNumber(context.page, context.pageFormat || 'decimal'); } catch { value = String(context.page); }
+      break;
+    }
+    case 'NUMWORDS': if (context.text === undefined) return null; value = String(words(context.text)); break;
+    case 'NUMCHARS': if (context.text === undefined) return null; value = String([...String(context.text).replace(/[\s\ufffc]/gu, '')].length); break;
+    default: return null;
+  }
+  // A numeric picture (§17.16.4.2) formats the counts: NUMWORDS \# "#,##0" shows 1,234.
+  if (numberPicture !== null && ['NUMPAGES', 'NUMWORDS', 'NUMCHARS'].includes(name)) {
+    try { value = formatNumericField(Number(value), numericFieldFormat(numberPicture)); } catch { /* the plain number */ }
+  }
+  for (const format of formats) {
+    if (/^mergeformat$/i.test(format) || /^charformat$/i.test(format)) continue;
+    value = name === 'PAGE' && /^arabic$/i.test(format) ? String(context.page) : name === 'PAGE' && /^arabicdash$/i.test(format) ? `- ${context.page} -` : applyGeneralFormat(value, format);
+  }
+  return value;
+}
+
+/**
+ * Insert a body field at the caret (replacing a selection) with its result as cached text. Runs inside
+ * an engine transaction. An empty result shows as nothing, as fields with no value do.
+ */
+export function insertBodyField(model, instruction, result) {
+  const text = String(result ?? '').replace(/[\n\f\v]/g, ' ');
+  const field = newBodyField(instruction);
+  if (field.type === 'HYPERLINK' || field.type === 'TOC') throw new Error('Insert that field from its own command.');
+  // Text typed at an empty field result fills it; a new field beside it leaves it empty.
+  const [from, to] = model.range;
+  const empty = from === to && model.hasBodyFields ? new Set(bodyFieldRanges(model.paragraphs).filter(r => r.start === from && r.end === from).map(r => r.field.id)) : new Set();
+  model.replace(text);
+  // With Track Changes on, the result follows the struck-out selection: it ends at the caret.
+  const start = model.selection.focus - text.length;
+  let at = 0, index = 0;
+  while (index < model.paragraphs.length - 1 && at + model.paragraphs[index].runs.reduce((n, r) => n + r.text.length, 0) < start) at += model.paragraphs[index++].runs.reduce((n, r) => n + r.text.length, 0) + 1;
+  const p = model.paragraphs[index], order = Math.max(0, ...model.paragraphs.flatMap(q => (q.fieldMarkers || []).map(m => m.order ?? 0))) + 1;
+  for (const marker of p.fieldMarkers || []) if (marker.type === 'end' && empty.has(marker.field.id)) marker.offset = start - at;
+  const end = start - at + text.length, endOrder = text ? newFieldEndOrder(p, end, order + 1) : order + 1;
+  // With Track Changes on, the field's code is part of the insertion its result is (§17.13.5.18).
+  if (model.trackChanges) field.revision = { ...(text && sharedRevision(model.paragraphs, start, start + text.length) || model.newRevision('ins')) };
+  (p.fieldMarkers ||= []).push({ type: 'start', field, offset: start - at, order }, { type: 'end', field, offset: end, order: endOrder });
+  model.hasBodyFields = true;
+  bodyFieldRanges(model.paragraphs);
+  model.select(start + text.length);
+  model.didChange();
+  return field;
+}
+
+// The open document's information (properties, file name, user, page count) comes from the editor.
+// Without it only the clock-based fields are recomputed, so cached document information is never blanked.
+let contextProvider = null;
+export function setFieldContextProvider(provider) { contextProvider = provider; }
+export const fieldEvaluationContext = () => contextProvider?.() || null;
+
+/** The language of the text at `offset` in paragraph `p` (the run there, else the one before it). */
+export function languageAt(p, offset) {
+  let at = 0, before = null;
+  for (const run of p?.runs || []) {
+    if (run.text && offset < at + run.text.length && offset >= at) return run.fontLanguage || null;
+    if (run.text && at < offset) before = run;
+    at += run.text.length;
+  }
+  return before?.fontLanguage || p?.markFormat?.fontLanguage || null;
+}
+
+const DATED = new Set(['DATE', 'TIME', 'CREATEDATE', 'SAVEDATE']);
+
+/** Fields this evaluator recomputes, with the text they should show now: [{ range, text }]. */
+export function fieldResultPlan(model, context = fieldEvaluationContext()) {
+  const changes = [], text = model.text, ranges = bodyFieldRanges(model.paragraphs);
+  let starts;
+  // A date's month and day names are in the language of the field's text.
+  const language = range => {
+    if (!starts) { starts = new Map(); let at = 0; for (const p of model.paragraphs) { starts.set(p.id, [p, at]); at += p.runs.reduce((n, r) => n + r.text.length, 0) + 1; } }
+    const [p, at] = starts.get(range.startParagraph) || [];
+    return p ? languageAt(p, range.start - at) : null;
+  };
+  const parents = new Set(ranges.map(r => r.parentId).filter(Boolean));
+  for (const range of ranges) {
+    if (range.parentId || parents.has(range.field.id)) continue;
+    // A body PAGE field keeps the number it was given: the context's page is the caret's, not the field's.
+    if (range.field.locked || ['SEQ', 'REF', 'PAGE'].includes(range.field.type)) continue;
+    if (!context && !['DATE', 'TIME'].includes(range.field.type)) continue;
+    const value = evaluateField(range.field.instruction, { ...(context || {}), text, ...(DATED.has(range.field.type) ? { language: language(range) } : {}) });
+    if (value !== null && text.slice(range.start, range.end) !== value) changes.push({ range, text: value });
+  }
+  return changes;
+}
+
+const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+// Results that follow pagination (headers and footers draw them live) or that this evaluator does not compute.
+const LIVE_STORY_FIELDS = new Set(['PAGE', 'NUMPAGES', 'SECTIONPAGES']);
+
+/**
+ * Update Fields in a header or footer (its story model): fields this evaluator computes (DATE, FILENAME,
+ * AUTHOR, NUMWORDS…) get their current result. A story field is one atomic run holding the field's saved
+ * envelope, so the new result is written into that envelope, with the old result's run formatting, as the
+ * saved file will hold it. Locked fields, page numbers and fields it cannot evaluate are left alone.
+ * One undo step; returns the number of fields changed.
+ */
+export function updateStoryFields(model, context = fieldEvaluationContext()) {
+  const changes = [];
+  for (const [pi, p] of model.paragraphs.entries()) for (const [ri, run] of p.runs.entries()) {
+    const field = run.field;
+    if (!field || field.locked || LIVE_STORY_FIELDS.has(field.type)) continue;
+    const value = evaluateField(field.instruction, { ...(context || {}), text: context?.text ?? '', language: run.fontLanguage || null });
+    if (value === null || value === field.cachedText) continue;
+    let source;
+    try {
+      const doc = new DOMParser().parseFromString(`<w:p xmlns:w="${W}"/>`, 'application/xml');
+      const envelope = new DOMParser().parseFromString(`<w:p xmlns:w="${W}">${field.source}</w:p>`, 'application/xml').documentElement;
+      const [segment] = pageFieldSegments(envelope);
+      const old = segment?.resultNodes?.find(n => n.namespaceURI === W && n.localName === 'r');
+      const result = doc.createElementNS(W, 'w:r');
+      const properties = old && [...old.children].find(n => n.namespaceURI === W && n.localName === 'rPr');
+      if (properties) result.append(doc.importNode(properties, true));
+      const lines = String(value).split(/\r\n?|\n|\v/);
+      lines.forEach((line, i) => {
+        if (i) result.append(doc.createElementNS(W, 'w:br'));
+        if (!line) return;
+        const t = doc.createElementNS(W, 'w:t'); t.setAttribute('xml:space', 'preserve'); t.textContent = line; result.append(t);
+      });
+      source = writePageFieldResult(field, value ? [result] : [], doc).map(serializeFragment).join('');
+    } catch { continue; } // An envelope this writer cannot rewrite keeps its saved result.
+    changes.push({ pi, ri, field: { ...field, source, cachedText: value } });
+  }
+  if (!changes.length) return 0;
+  model.checkpoint();
+  for (const { pi, ri, field } of changes) {
+    const p = model.paragraphs[pi];
+    model.paragraphs[pi] = { ...p, runs: p.runs.map((run, i) => i === ri ? { ...run, field } : run) };
+  }
+  model.didChange();
+  return changes.length;
+}
+

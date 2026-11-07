@@ -1,0 +1,50 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { reopenDocx } from './helpers/reopen-docx.js';
+
+test('a new header picture retains its own relationships through body editing and reopening', async ({ page }, info) => {
+  await page.goto('/playground.html');
+  const generated = await page.evaluate(async bytes => {
+    const { DocxPackage } = await import('/src/engine/docx.js');
+    const { imageWriter, R, A } = await import('/src/engine/docx-images.js');
+    const { zipSync, strToU8, strFromU8 } = await import('/node_modules/.vite/deps/fflate.js');
+    const pkg = await DocxPackage.open(new Uint8Array(bytes)), parts = { ...pkg.parts };
+    const path = 'word/stories/header.xml';
+    const old = pkg.pageStories.stories[path].paragraphs.flatMap(p => p.runs).find(r => r.image && pkg.assets[r.image.assetId]?.bytes).image;
+    const image = { ...old, id: 900, name: 'New header control picture' };
+    delete image.shell; delete image.relId;
+    const doc = new DOMParser().parseFromString(strFromU8(parts[path]), 'application/xml');
+    const drawing = imageWriter(parts, [{ runs: [{ image }] }], pkg.assets, doc, path)(image);
+    const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    const paragraph = doc.createElementNS(W, 'w:p'), run = doc.createElementNS(W, 'w:r');
+    run.append(drawing); paragraph.append(run); doc.documentElement.append(paragraph);
+    parts[path] = strToU8(new XMLSerializer().serializeToString(doc));
+    const reopened = await DocxPackage.open(zipSync(parts));
+    const added = reopened.pageStories.stories[path].paragraphs.flatMap(p => p.runs).find(r => r.image?.id === 900)?.image;
+    return { bytes: [...zipSync(parts)], assetId: added?.assetId, relation: drawing.getElementsByTagNameNS(A, 'blip')[0].getAttributeNS(R, 'embed'), bodyRelsUnchanged: parts['word/_rels/document.xml.rels'] === pkg.parts['word/_rels/document.xml.rels'] };
+  }, [...readFileSync('public/fixtures/header-drawings.docx')]);
+  expect(generated.bodyRelsUnchanged).toBe(true);
+  expect(generated.assetId).toMatch(/^word\/media\/canvas-image/);
+  expect(generated.relation).toMatch(/^rImage/);
+  const source = Buffer.from(generated.bytes), path = info.outputPath('story-picture.docx');
+  writeFileSync(path, source);
+  await page.getByLabel('Open DOCX file').setInputFiles(path);
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue('Body page 1\ufffc\nBody page 2\nBody page 3');
+  await expect(input).toHaveJSProperty('readOnly', false);
+  const original = await input.inputValue(), parts = unzipSync(source);
+  const save = async name => {
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+    const destination = info.outputPath(name + '.docx'); await (await download).saveAs(destination);
+    return destination;
+  };
+  expect(unzipSync(readFileSync(await save('noedit')))).toEqual(parts);
+  await input.focus(); await input.press('ControlOrMeta+Home'); await page.keyboard.insertText('Edit ');
+  const editedText = await input.inputValue(), edited = await save('edited'), editedParts = unzipSync(readFileSync(edited));
+  for (const [name, bytes] of Object.entries(parts)) if (name !== 'word/document.xml') expect(editedParts[name], name).toEqual(bytes);
+  await input.press('ControlOrMeta+z'); await expect(input).toHaveValue(original);
+  expect(unzipSync(readFileSync(await save('undo')))).toEqual(parts);
+  await reopenDocx(page, input, edited, editedText);
+});

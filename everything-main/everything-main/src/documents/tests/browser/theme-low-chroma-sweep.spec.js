@@ -1,0 +1,35 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {unzipSync} from 'fflate';
+import {reopenDocx} from './helpers/reopen-docx.js';
+const source='tests/fixtures/theme-low-chroma-sweep/control.docx';
+test('low-chroma native control preserves its package through editing and reopening',async({page},info)=>{
+ test.setTimeout(240000);
+ const bytes=readFileSync(source),parts=unzipSync(bytes),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/playground.html',{waitUntil:'domcontentloaded'});
+ const openedAt=Date.now();
+ await page.getByLabel('Open DOCX file').setInputFiles(source);
+  const input=page.getByRole('textbox',{name:'Document text'});
+ await input.waitFor({state:'attached',timeout:180000});
+ await expect(input).toHaveValue(/^C000/);await expect(input).toHaveJSProperty('readOnly',false);
+ await expect(page.locator('canvas.canvas-page')).toHaveCount(15);
+ const openMs=Date.now()-openedAt;
+ const original=await input.inputValue();expect(original.match(/C\d{3}/g)).toHaveLength(512);
+ const save=async(label,edited)=>{
+  const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();
+  const path=info.outputPath(`${label}.docx`);await(await pending).saveAs(path);
+  const out=unzipSync(readFileSync(path));expect(Object.keys(out).sort()).toEqual(Object.keys(parts).sort());
+  for(const name of Object.keys(parts))if(!edited||name!=='word/document.xml')expect(out[name],name).toEqual(parts[name]);
+  return path;
+ };
+ await save('noedit',false);
+ await input.focus();await input.press('ControlOrMeta+Home');await page.keyboard.insertText('Edited ');
+ await expect(input).toHaveValue('Edited '+original);const edited=await save('edited',true);
+ await input.press('ControlOrMeta+z');await expect(input).toHaveValue(original);await save('undo',false);
+ const reopenedAt=Date.now();
+ await reopenDocx(page,input,edited,'Edited '+original,{timeout:180000});await expect(page.locator('canvas.canvas-page')).toHaveCount(15);
+ await info.attach('load-timings',{body:JSON.stringify({openMs,reopenMs:Date.now()-reopenedAt}),contentType:'application/json'});
+ await input.blur();await page.locator('canvas.canvas-page').first().screenshot({path:info.outputPath('first-page.png')});
+ await expect(page.locator('#playground-error')).toBeEmpty();expect(errors).toEqual([]);
+});

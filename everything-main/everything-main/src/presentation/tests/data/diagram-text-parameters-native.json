@@ -1,0 +1,2308 @@
+{
+  "description": "Independent native reference Save As results for synthetic TX parameter controls. Null means the native reference application replaced the authored layout with its default diagram, not a valid geometry result. Inputs come from original unsaved controls. Output covers alignment, spacing, anchoring and vertical writing only, not rotation/growth geometry.",
+  "models": [
+    "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"1\"><dgm:prSet custT=\"0\"/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang=\"en-US\" sz=\"1400\"/><a:t>Text 1</a:t></a:r></a:p></dgm:t></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet custT=\"0\"/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang=\"en-US\" sz=\"1400\"/><a:t>Text 2</a:t></a:r></a:p></dgm:t></dgm:pt><dgm:pt modelId=\"101\" type=\"parTrans\" cxnId=\"200\"/><dgm:pt modelId=\"501\" type=\"sibTrans\" cxnId=\"200\"/><dgm:pt modelId=\"102\" type=\"parTrans\" cxnId=\"201\"/><dgm:pt modelId=\"502\" type=\"sibTrans\" cxnId=\"201\"/></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"200\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" parTransId=\"101\" sibTransId=\"501\"/><dgm:cxn modelId=\"201\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\" parTransId=\"102\" sibTransId=\"502\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+    "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"><dgm:prSet/></dgm:pt><dgm:pt modelId=\"1\"><dgm:prSet custT=\"0\"/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang=\"en-US\" sz=\"1400\"/><a:t>Text 1</a:t></a:r></a:p><a:p><a:r><a:t>More 1</a:t></a:r></a:p></dgm:t></dgm:pt><dgm:pt modelId=\"2\"><dgm:prSet custT=\"0\"/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang=\"en-US\" sz=\"1400\"/><a:t>Text 2</a:t></a:r></a:p><a:p><a:r><a:t>More 2</a:t></a:r></a:p></dgm:t></dgm:pt><dgm:pt modelId=\"101\" type=\"parTrans\" cxnId=\"200\"/><dgm:pt modelId=\"501\" type=\"sibTrans\" cxnId=\"200\"/><dgm:pt modelId=\"102\" type=\"parTrans\" cxnId=\"201\"/><dgm:pt modelId=\"502\" type=\"sibTrans\" cxnId=\"201\"/></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"200\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" parTransId=\"101\" sibTransId=\"501\"/><dgm:cxn modelId=\"201\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\" parTransId=\"102\" sibTransId=\"502\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>"
+  ],
+  "layouts": [
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:0\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:1\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"0\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:2\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"12.3456\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:3\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"1000\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:4\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"-1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:5\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"1001\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:6\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"1e2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:7\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\" 90 \"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:8\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"NaN\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:9\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"INF\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:10\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpPar\" val=\"\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:11\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"0\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:12\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"12.3456\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:13\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"1000\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:14\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"-1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:15\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"1001\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:16\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"1e2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:17\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\" 90 \"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:18\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"NaN\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:19\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"INF\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:20\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpCh\" val=\"\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:21\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"0\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:22\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"12.3456\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:23\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"1000\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:24\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"-1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:25\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"1001\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:26\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"1e2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:27\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\" 90 \"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:28\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"NaN\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:29\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"INF\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:30\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfParP\" val=\"\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:31\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"0\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:32\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"12.3456\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:33\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"1000\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:34\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"-1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:35\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"1001\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:36\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"1e2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:37\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\" 90 \"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:38\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"NaN\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:39\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"INF\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:40\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"lnSpAfChP\" val=\"\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:41\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"parTxLTRAlign\" val=\"l\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:42\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"parTxLTRAlign\" val=\"r\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:43\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"parTxLTRAlign\" val=\"just\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:44\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"parTxLTRAlign\" val=\"ctr\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:45\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"parTxLTRAlign\" val=\"bad\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:46\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"shpTxLTRAlignCh\" val=\"l\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:47\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"shpTxLTRAlignCh\" val=\"r\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:48\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"shpTxLTRAlignCh\" val=\"just\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:49\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"shpTxLTRAlignCh\" val=\"ctr\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:50\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"shpTxLTRAlignCh\" val=\"bad\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:51\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVert\" val=\"t\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:52\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVert\" val=\"mid\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:53\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVert\" val=\"b\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:54\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVert\" val=\"ctr\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:55\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVert\" val=\"bad\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:56\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVertCh\" val=\"t\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:57\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVertCh\" val=\"mid\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:58\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorVertCh\" val=\"b\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:59\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorHorz\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:60\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorHorz\" val=\"ctr\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:61\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorHorzCh\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:62\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txAnchorHorzCh\" val=\"ctr\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:63\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txBlDir\" val=\"horz\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:64\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txBlDir\" val=\"vert\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:65\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txDir\" val=\"fromT\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:66\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"txDir\" val=\"fromB\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:67\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"autoTxRot\" val=\"none\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:68\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"autoTxRot\" val=\"upr\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameters:69\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"autoTxRot\" val=\"grav\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:0\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:1\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:2\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:3\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:4\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"ch\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:5\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"ch\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:6\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"ch\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:7\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"ch\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:8\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:9\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"1\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:10\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:11\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:12\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\".5\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:13\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"+12\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:14\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"12.\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:15\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"1E-2\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:16\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"-INF\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:17\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"nan\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:18\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"Infinity\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:19\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"abc\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:20\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"0x10\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:21\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"1,5\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:22\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\" 12\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:23\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"12 \"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:24\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"1e309\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:25\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"1e-999\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:26\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"-0\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:27\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"0.0005\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:28\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"0.0015\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:29\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"0.0025\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:30\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"999.9999\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:31\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"lnSpPar\" val=\"1000.0001\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"desOrSelf\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:32\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"parTxLTRAlign\" val=\" l \"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:33\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"parTxLTRAlign\" val=\"\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:34\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"parTxLTRAlign\" val=\"justified\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:35\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"parTxLTRAlign\" val=\"dist\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+    "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:diagram-text-parameter-selection:36\"><dgm:title val=\"Custom fonts and levels\"/><dgm:desc val=\"\"/><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\"/><dgm:param type=\"vertAlign\" val=\"none\"/></dgm:alg><dgm:shape/><dgm:presOf/><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"text\" styleLbl=\"node1\"><dgm:alg type=\"tx\"><dgm:param type=\"stBulletLvl\" val=\"2\"/><dgm:param type=\"parTxLTRAlign\" val=\"L\"/></dgm:alg><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"150\"/><dgm:constr type=\"h\" val=\"80\"/><dgm:constr type=\"primFontSz\" val=\"30\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><dgm:constr type=\"rMarg\" refType=\"secFontSz\" fact=\"0.1\"/><dgm:constr type=\"tMarg\" val=\"0\"/><dgm:constr type=\"bMarg\" val=\"0\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>"
+  ],
+  "cases": [
+    {
+      "name": "diagram-text-parameters: 1",
+      "model": 0,
+      "layout": 0,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 2",
+      "model": 0,
+      "layout": 1,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 0,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 3",
+      "model": 0,
+      "layout": 2,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 12346,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 4",
+      "model": 0,
+      "layout": 3,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 1000000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 5",
+      "model": 0,
+      "layout": 4,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 6",
+      "model": 0,
+      "layout": 5,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 7",
+      "model": 0,
+      "layout": 6,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 100000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 8",
+      "model": 0,
+      "layout": 7,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 9",
+      "model": 0,
+      "layout": 8,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 10",
+      "model": 0,
+      "layout": 9,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 11",
+      "model": 0,
+      "layout": 10,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 0,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 12",
+      "model": 0,
+      "layout": 11,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 0,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 13",
+      "model": 0,
+      "layout": 12,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 12346,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 14",
+      "model": 0,
+      "layout": 13,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 1000000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 15",
+      "model": 0,
+      "layout": 14,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 16",
+      "model": 0,
+      "layout": 15,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 17",
+      "model": 0,
+      "layout": 16,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 100000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 18",
+      "model": 0,
+      "layout": 17,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 19",
+      "model": 0,
+      "layout": 18,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 20",
+      "model": 0,
+      "layout": 19,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 21",
+      "model": 0,
+      "layout": 20,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 0,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 22",
+      "model": 0,
+      "layout": 21,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 0
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 23",
+      "model": 0,
+      "layout": 22,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 12346
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 24",
+      "model": 0,
+      "layout": 23,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 1000000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 25",
+      "model": 0,
+      "layout": 24,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 26",
+      "model": 0,
+      "layout": 25,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 27",
+      "model": 0,
+      "layout": 26,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 100000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 28",
+      "model": 0,
+      "layout": 27,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 29",
+      "model": 0,
+      "layout": 28,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 30",
+      "model": 0,
+      "layout": 29,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 31",
+      "model": 0,
+      "layout": 30,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 0
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 32",
+      "model": 0,
+      "layout": 31,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 33",
+      "model": 0,
+      "layout": 32,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 12346
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 34",
+      "model": 0,
+      "layout": 33,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 1000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 35",
+      "model": 0,
+      "layout": 34,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 36",
+      "model": 0,
+      "layout": 35,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 37",
+      "model": 0,
+      "layout": 36,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 100000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 38",
+      "model": 0,
+      "layout": 37,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 39",
+      "model": 0,
+      "layout": 38,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 40",
+      "model": 0,
+      "layout": 39,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 41",
+      "model": 0,
+      "layout": 40,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 42",
+      "model": 0,
+      "layout": 41,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 43",
+      "model": 0,
+      "layout": 42,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 44",
+      "model": 0,
+      "layout": 43,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 45",
+      "model": 0,
+      "layout": 44,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 46",
+      "model": 0,
+      "layout": 45,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 47",
+      "model": 0,
+      "layout": 46,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 48",
+      "model": 0,
+      "layout": 47,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "r",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "r",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 49",
+      "model": 0,
+      "layout": 48,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 50",
+      "model": 0,
+      "layout": 49,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 51",
+      "model": 0,
+      "layout": 50,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 52",
+      "model": 0,
+      "layout": 51,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 53",
+      "model": 0,
+      "layout": 52,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 54",
+      "model": 0,
+      "layout": 53,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 55",
+      "model": 0,
+      "layout": 54,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 56",
+      "model": 0,
+      "layout": 55,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameters: 57",
+      "model": 0,
+      "layout": 56,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 58",
+      "model": 0,
+      "layout": 57,
+      "expected": {
+        "body": {
+          "anchor": "ctr",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 59",
+      "model": 0,
+      "layout": 58,
+      "expected": {
+        "body": {
+          "anchor": "b",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 60",
+      "model": 0,
+      "layout": 59,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 61",
+      "model": 0,
+      "layout": 60,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 62",
+      "model": 0,
+      "layout": 61,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 63",
+      "model": 0,
+      "layout": 62,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "1",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 64",
+      "model": 0,
+      "layout": 63,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 65",
+      "model": 0,
+      "layout": 64,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "vert"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 66",
+      "model": 0,
+      "layout": 65,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 67",
+      "model": 0,
+      "layout": 66,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 68",
+      "model": 0,
+      "layout": 67,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 69",
+      "model": 0,
+      "layout": 68,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameters: 70",
+      "model": 0,
+      "layout": 69,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 1",
+      "model": 0,
+      "layout": 70,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 2",
+      "model": 1,
+      "layout": 71,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 3",
+      "model": 0,
+      "layout": 72,
+      "expected": {
+        "body": {
+          "anchor": "ctr",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 4",
+      "model": 1,
+      "layout": 73,
+      "expected": {
+        "body": {
+          "anchor": "ctr",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 5",
+      "model": 0,
+      "layout": 74,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 6",
+      "model": 1,
+      "layout": 75,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 7",
+      "model": 0,
+      "layout": 76,
+      "expected": {
+        "body": {
+          "anchor": "ctr",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 8",
+      "model": 1,
+      "layout": 77,
+      "expected": {
+        "body": {
+          "anchor": "ctr",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "ctr",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 9",
+      "model": 0,
+      "layout": 78,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 10",
+      "model": 1,
+      "layout": 79,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 11",
+      "model": 0,
+      "layout": 80,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 12",
+      "model": 1,
+      "layout": 81,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 13",
+      "model": 0,
+      "layout": 82,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 500,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 14",
+      "model": 0,
+      "layout": 83,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 12000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 15",
+      "model": 0,
+      "layout": 84,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 12000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 16",
+      "model": 0,
+      "layout": 85,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 10,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 17",
+      "model": 0,
+      "layout": 86,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 18",
+      "model": 0,
+      "layout": 87,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 19",
+      "model": 0,
+      "layout": 88,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 20",
+      "model": 0,
+      "layout": 89,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 21",
+      "model": 0,
+      "layout": 90,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 22",
+      "model": 0,
+      "layout": 91,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 23",
+      "model": 0,
+      "layout": 92,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 12000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 24",
+      "model": 0,
+      "layout": 93,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 25",
+      "model": 0,
+      "layout": 94,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 26",
+      "model": 0,
+      "layout": 95,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 0,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 27",
+      "model": 0,
+      "layout": 96,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 0,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 28",
+      "model": 0,
+      "layout": 97,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 1,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 29",
+      "model": 0,
+      "layout": 98,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 2,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 30",
+      "model": 0,
+      "layout": 99,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 3,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 31",
+      "model": 0,
+      "layout": 100,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 1000000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 32",
+      "model": 0,
+      "layout": 101,
+      "expected": {
+        "body": {
+          "anchor": "t",
+          "anchorCtr": "0",
+          "vert": "horz"
+        },
+        "paragraphs": [
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 35000
+          },
+          {
+            "alignment": "l",
+            "lineSpacing": 90000,
+            "spaceAfter": 15000
+          }
+        ]
+      }
+    },
+    {
+      "name": "diagram-text-parameter-selection: 33",
+      "model": 0,
+      "layout": 102,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 34",
+      "model": 0,
+      "layout": 103,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 35",
+      "model": 0,
+      "layout": 104,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 36",
+      "model": 0,
+      "layout": 105,
+      "expected": null
+    },
+    {
+      "name": "diagram-text-parameter-selection: 37",
+      "model": 0,
+      "layout": 106,
+      "expected": null
+    }
+  ]
+}

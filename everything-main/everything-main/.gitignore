@@ -1,0 +1,59 @@
+# Dependencies and package-manager caches (including nested apps)
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
+.yarn/build-state.yml
+
+# Build output and tooling caches
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+.astro/
+.vite/
+.parcel-cache/
+.cache/
+.turbo/
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+
+# Test and coverage output
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# Local environment files; keep shareable templates
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+
+# Logs and local deployment state
+*.log
+.vercel/
+.netlify/
+
+# OS and editor temporary files
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+.idea/
+*.swp
+*.swo
+*~
+
+# Local Python tooling used for asset scripts
+.venv/
+venv/
+__pycache__/
+*.pyc

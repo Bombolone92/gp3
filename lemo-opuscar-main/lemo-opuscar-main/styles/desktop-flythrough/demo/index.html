@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Desktop Flythrough · Before the Ding</title>
+<style>
+@font-face{font-family:IS;font-weight:400 700;src:url(fonts/InstrumentSans.ttf) format('truetype')}
+@font-face{font-family:PM;font-weight:500;src:url(fonts/IBMPlexMono-Medium.ttf) format('truetype')}
+@font-face{font-family:PM;font-weight:600;src:url(fonts/IBMPlexMono-SemiBold.ttf) format('truetype')}
+@font-face{font-family:SC;font-weight:100 900;src:url(fonts/NotoSansSC-sub.ttf) format('truetype')}
+:root{--paper:#e2e8f5;--ink:#171c2e;--accent:#2f5bff}
+html,body{margin:0;background:#e6e3e0;overflow:hidden;width:1920px;height:1080px}
+canvas{display:block;position:absolute;left:0;top:0}
+#sub{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:6px;
+  max-width:1720px;padding:14px 34px 16px;border-radius:18px;background:rgba(23,28,46,.72);pointer-events:none}
+#sub .zh{font:700 40px/1.25 IS,SC;color:#fff;letter-spacing:.02em;white-space:nowrap}
+#sub .en{font:500 26px/1.25 IS;color:#d6dcea;white-space:nowrap}
+#credit{position:absolute;left:50%;bottom:72px;transform:translateX(-50%);display:none;font:700 44px IS;color:var(--ink);letter-spacing:.02em;
+  padding:12px 34px;border-radius:18px;background:rgba(251,252,255,.82)}
+</style></head><body>
+<div id="sub"><div class="zh"></div><div class="en"></div></div>
+<div id="credit">LemoLab × Claude Opus 5.5</div>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module" src="./src/main.js"></script>
+</body></html>

@@ -1,0 +1,98 @@
+/**
+ * In-place text entry. A small editor floats next to the insertion point
+ * while the canvas shows a live preview of the real drafting text.
+ */
+import { h } from './dom.js';
+
+export class TextEditor {
+  constructor(app) {
+    this.app = app;
+    this.current = null;
+  }
+
+  /**
+   * opts: { anchor: {x, y} world, multiline, initial, onChange(value), onDone(value | null) }
+   * Returns a handle with close().
+   */
+  open(opts) {
+    this.current?.close(true);
+    const app = this.app;
+    const field = opts.multiline
+      ? h('textarea.input.te-field', { rows: 4, 'aria-label': 'Text', spellcheck: 'true' })
+      : h('input.input.te-field', { type: 'text', 'aria-label': 'Text', spellcheck: 'true', autocomplete: 'off' });
+    field.value = opts.initial ?? '';
+    const ok = h('button.btn.sm.primary', { type: 'button' }, 'Done');
+    const cancel = h('button.btn.sm.ghost', { type: 'button' }, 'Cancel');
+    const hint = h('span.te-hint', opts.multiline ? 'Ctrl+Enter to finish' : 'Enter to finish');
+    const el = h('div.text-editor', { role: 'dialog', 'aria-label': opts.multiline ? 'Multiline text' : 'Text' }, field, h('div.te-bar', hint, cancel, ok));
+    app.shell.canvasWrap.append(el);
+
+    const place = () => {
+      const s = app.camera.toScreen(opts.anchor.x, opts.anchor.y);
+      const wrap = app.shell.canvasWrap.getBoundingClientRect();
+      const w = el.offsetWidth,
+        ht = el.offsetHeight;
+      let x = s.x + 12,
+        y = s.y + 12;
+      if (x + w > wrap.width - 8) x = Math.max(8, s.x - w - 12);
+      if (y + ht > wrap.height - 8) y = Math.max(8, s.y - ht - 12);
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    };
+    place();
+    let done = false;
+    const finish = (value) => {
+      if (done) return;
+      done = true;
+      el.remove();
+      window.removeEventListener('pointerdown', outside, true);
+      this.current = null;
+      app.focusCanvas();
+      opts.onDone(value);
+    };
+    const outside = (e) => {
+      if (el.contains(e.target)) return;
+      // Clicking the canvas finishes the text, like pressing Enter.
+      if (e.target === app.shell.overlay) {
+        e.stopPropagation();
+        e.preventDefault();
+        finish(field.value);
+      }
+    };
+    field.addEventListener('input', () => opts.onChange?.(field.value));
+    // Escape works from anywhere in the editor, including its buttons.
+    el.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        finish(null);
+      }
+    });
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (!opts.multiline || e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        finish(field.value);
+      }
+    });
+    ok.addEventListener('click', () => finish(field.value));
+    cancel.addEventListener('click', () => finish(null));
+    setTimeout(() => window.addEventListener('pointerdown', outside, true));
+    requestAnimationFrame(() => {
+      field.focus();
+      if (opts.initial) field.select?.();
+    });
+    if (opts.initial) opts.onChange?.(opts.initial);
+    const handle = {
+      close: (silent) => {
+        if (done) return;
+        done = true;
+        el.remove();
+        window.removeEventListener('pointerdown', outside, true);
+        this.current = null;
+        if (!silent) app.focusCanvas();
+      },
+    };
+    this.current = handle;
+    return handle;
+  }
+}

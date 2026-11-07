@@ -1,0 +1,1775 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "259 pairs, each compared with =, < and > through native Evaluate and an opened native XLSX workbook. All stored input formulas and three worksheet results match; EXACT separately preserves the original strings. Includes 205 pairs also captured through native duplicate/unique display formatting and COUNTIF. Native prefix behavior is not a transitive text identity.",
+  "provenance": {
+    "text-comparison-native-controls.mjs": "563b8d7e6385c6585527320f86bee89e3065ac42b56cb97539a1b20e3336b276",
+    "text-comparison-native.xlsx": "2fc2d26b45dea52c9dd50689e45d174dd5d547b10abac668af4de16562faa7fd",
+    "text-comparison-native-read.js": "6b86803e27e93a82dab597eaafbe14fce3347b43964d0760c6f8ac0d0bfca19f",
+    "text-comparison-native-results.json": "ea6982c02dc5854f46586c00ee9f89b1715e8cbef550909903576f2e68059959",
+    "duplicate-unicode-native-results.json": "3dd3a79acecd9f7c73a9e3a92e713485d9b2362076ec612dd1e30978ab5e16d3",
+    "duplicate-edge-native-results.json": "c996edaa0f794587fb311eb46a0ddfcd4e6b069e9fe7120da37d5f9e4ed39d1a",
+    "duplicate-trailing-compare.json": "051d12eaf55ec85aeb8f1b1448085745460ab4a0539da7fece0e1c35588e32ef",
+    "duplicate-prefix-compare.json": "1a30730130fd48a0f656ae8e42691dc72e3a0af2bf1e2de2b4698360a0e21f64"
+  },
+  "cases": [
+    {
+      "a": "xß",
+      "b": "xß",
+      "label": "compat ß",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xß",
+      "b": "xSS",
+      "label": "case ß",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xẞ",
+      "b": "xẞ",
+      "label": "compat ẞ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xẞ",
+      "b": "xẞ",
+      "label": "case ẞ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xﬀ",
+      "b": "xff",
+      "label": "compat ﬀ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬀ",
+      "b": "xFF",
+      "label": "case ﬀ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬁ",
+      "b": "xfi",
+      "label": "compat ﬁ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬁ",
+      "b": "xFI",
+      "label": "case ﬁ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬂ",
+      "b": "xfl",
+      "label": "compat ﬂ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬂ",
+      "b": "xFL",
+      "label": "case ﬂ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬃ",
+      "b": "xffi",
+      "label": "compat ﬃ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬃ",
+      "b": "xFFI",
+      "label": "case ﬃ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬄ",
+      "b": "xffl",
+      "label": "compat ﬄ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬄ",
+      "b": "xFFL",
+      "label": "case ﬄ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬅ",
+      "b": "xst",
+      "label": "compat ﬅ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬅ",
+      "b": "xST",
+      "label": "case ﬅ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬆ",
+      "b": "xst",
+      "label": "compat ﬆ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xﬆ",
+      "b": "xST",
+      "label": "case ﬆ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xſ",
+      "b": "xs",
+      "label": "compat ſ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xſ",
+      "b": "xS",
+      "label": "case ſ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǄ",
+      "b": "xDŽ",
+      "label": "compat Ǆ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǄ",
+      "b": "xǄ",
+      "label": "case Ǆ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xǅ",
+      "b": "xDž",
+      "label": "compat ǅ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǅ",
+      "b": "xǄ",
+      "label": "case ǅ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǆ",
+      "b": "xdž",
+      "label": "compat ǆ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǆ",
+      "b": "xǄ",
+      "label": "case ǆ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǇ",
+      "b": "xLJ",
+      "label": "compat Ǉ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǇ",
+      "b": "xǇ",
+      "label": "case Ǉ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xǈ",
+      "b": "xLj",
+      "label": "compat ǈ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǈ",
+      "b": "xǇ",
+      "label": "case ǈ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǉ",
+      "b": "xlj",
+      "label": "compat ǉ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǉ",
+      "b": "xǇ",
+      "label": "case ǉ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǊ",
+      "b": "xNJ",
+      "label": "compat Ǌ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǊ",
+      "b": "xǊ",
+      "label": "case Ǌ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xǋ",
+      "b": "xNj",
+      "label": "compat ǋ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǋ",
+      "b": "xǊ",
+      "label": "case ǋ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǌ",
+      "b": "xnj",
+      "label": "compat ǌ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǌ",
+      "b": "xǊ",
+      "label": "case ǌ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǱ",
+      "b": "xDZ",
+      "label": "compat Ǳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǱ",
+      "b": "xǱ",
+      "label": "case Ǳ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xǲ",
+      "b": "xDz",
+      "label": "compat ǲ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǲ",
+      "b": "xǱ",
+      "label": "case ǲ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǳ",
+      "b": "xdz",
+      "label": "compat ǳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xǳ",
+      "b": "xǱ",
+      "label": "case ǳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xĲ",
+      "b": "xIJ",
+      "label": "compat Ĳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xĲ",
+      "b": "xĲ",
+      "label": "case Ĳ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xĳ",
+      "b": "xij",
+      "label": "compat ĳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xĳ",
+      "b": "xĲ",
+      "label": "case ĳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xŒ",
+      "b": "xŒ",
+      "label": "compat Œ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xŒ",
+      "b": "xŒ",
+      "label": "case Œ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xœ",
+      "b": "xœ",
+      "label": "compat œ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xœ",
+      "b": "xŒ",
+      "label": "case œ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xÆ",
+      "b": "xÆ",
+      "label": "compat Æ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xÆ",
+      "b": "xÆ",
+      "label": "case Æ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xæ",
+      "b": "xæ",
+      "label": "compat æ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xæ",
+      "b": "xÆ",
+      "label": "case æ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xŁ",
+      "b": "xŁ",
+      "label": "compat Ł",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xŁ",
+      "b": "xŁ",
+      "label": "case Ł",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xł",
+      "b": "xł",
+      "label": "compat ł",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xł",
+      "b": "xŁ",
+      "label": "case ł",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xØ",
+      "b": "xØ",
+      "label": "compat Ø",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xØ",
+      "b": "xØ",
+      "label": "case Ø",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xø",
+      "b": "xø",
+      "label": "compat ø",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xø",
+      "b": "xØ",
+      "label": "case ø",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xÐ",
+      "b": "xÐ",
+      "label": "compat Ð",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xÐ",
+      "b": "xÐ",
+      "label": "case Ð",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xð",
+      "b": "xð",
+      "label": "compat ð",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xð",
+      "b": "xÐ",
+      "label": "case ð",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xĐ",
+      "b": "xĐ",
+      "label": "compat Đ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xĐ",
+      "b": "xĐ",
+      "label": "case Đ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xđ",
+      "b": "xđ",
+      "label": "compat đ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xđ",
+      "b": "xĐ",
+      "label": "case đ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xĦ",
+      "b": "xĦ",
+      "label": "compat Ħ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xĦ",
+      "b": "xĦ",
+      "label": "case Ħ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xħ",
+      "b": "xħ",
+      "label": "compat ħ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xħ",
+      "b": "xĦ",
+      "label": "case ħ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xı",
+      "b": "xı",
+      "label": "compat ı",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xı",
+      "b": "xI",
+      "label": "case ı",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "xİ",
+      "b": "xİ",
+      "label": "compat İ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xİ",
+      "b": "xİ",
+      "label": "case İ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xſ",
+      "b": "xs",
+      "label": "compat ſ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xſ",
+      "b": "xS",
+      "label": "case ſ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xK",
+      "b": "xK",
+      "label": "compat K",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xK",
+      "b": "xK",
+      "label": "case K",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xÅ",
+      "b": "xÅ",
+      "label": "compat Å",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xÅ",
+      "b": "xÅ",
+      "label": "case Å",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x℉",
+      "b": "x°F",
+      "label": "compat ℉",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x℉",
+      "b": "x℉",
+      "label": "case ℉",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x℃",
+      "b": "x°C",
+      "label": "compat ℃",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x℃",
+      "b": "x℃",
+      "label": "case ℃",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x℡",
+      "b": "xTEL",
+      "label": "compat ℡",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x℡",
+      "b": "x℡",
+      "label": "case ℡",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x№",
+      "b": "xNo",
+      "label": "compat №",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x№",
+      "b": "x№",
+      "label": "case №",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x™",
+      "b": "xTM",
+      "label": "compat ™",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x™",
+      "b": "x™",
+      "label": "case ™",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x℠",
+      "b": "xSM",
+      "label": "compat ℠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x℠",
+      "b": "x℠",
+      "label": "case ℠",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x℻",
+      "b": "xFAX",
+      "label": "compat ℻",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x℻",
+      "b": "x℻",
+      "label": "case ℻",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x㍑",
+      "b": "xリットル",
+      "label": "compat ㍑",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x㍑",
+      "b": "x㍑",
+      "label": "case ㍑",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x㎒",
+      "b": "xMHz",
+      "label": "compat ㎒",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x㎒",
+      "b": "x㎒",
+      "label": "case ㎒",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xⒶ",
+      "b": "xA",
+      "label": "compat Ⓐ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xⒶ",
+      "b": "xⒶ",
+      "label": "case Ⓐ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xⓐ",
+      "b": "xa",
+      "label": "compat ⓐ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xⓐ",
+      "b": "xⒶ",
+      "label": "case ⓐ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xＡ",
+      "b": "xA",
+      "label": "compat Ａ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xＡ",
+      "b": "xＡ",
+      "label": "case Ａ",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xａ",
+      "b": "xa",
+      "label": "compat ａ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xａ",
+      "b": "xＡ",
+      "label": "case ａ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x𝐀",
+      "b": "xA",
+      "label": "compat 𝐀",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x𝐀",
+      "b": "x𝐀",
+      "label": "case 𝐀",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "x𝐚",
+      "b": "xa",
+      "label": "compat 𝐚",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x𝐚",
+      "b": "x𝐚",
+      "label": "case 𝐚",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "xᾀ",
+      "b": "xᾀ",
+      "label": "compat ᾀ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xᾀ",
+      "b": "xἈΙ",
+      "label": "case ᾀ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xᾈ",
+      "b": "xᾈ",
+      "label": "compat ᾈ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xᾈ",
+      "b": "xἈΙ",
+      "label": "case ᾈ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xᾴ",
+      "b": "xᾴ",
+      "label": "compat ᾴ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xᾴ",
+      "b": "xΆΙ",
+      "label": "case ᾴ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xᾳ",
+      "b": "xᾳ",
+      "label": "compat ᾳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xᾳ",
+      "b": "xΑΙ",
+      "label": "case ᾳ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xᾼ",
+      "b": "xᾼ",
+      "label": "compat ᾼ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xᾼ",
+      "b": "xΑΙ",
+      "label": "case ᾼ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xῳ",
+      "b": "xῳ",
+      "label": "compat ῳ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xῳ",
+      "b": "xΩΙ",
+      "label": "case ῳ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xῼ",
+      "b": "xῼ",
+      "label": "compat ῼ",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xῼ",
+      "b": "xΩΙ",
+      "label": "case ῼ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x­y",
+      "label": "ignorable ad",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x͏y",
+      "label": "ignorable 34f",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x؜y",
+      "label": "ignorable 61c",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x᠎y",
+      "label": "ignorable 180e",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x​y",
+      "label": "ignorable 200b",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‌y",
+      "label": "ignorable 200c",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‍y",
+      "label": "ignorable 200d",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‎y",
+      "label": "ignorable 200e",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‏y",
+      "label": "ignorable 200f",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‪y",
+      "label": "ignorable 202a",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‫y",
+      "label": "ignorable 202b",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‬y",
+      "label": "ignorable 202c",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‭y",
+      "label": "ignorable 202d",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x‮y",
+      "label": "ignorable 202e",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁠y",
+      "label": "ignorable 2060",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁡y",
+      "label": "ignorable 2061",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁢y",
+      "label": "ignorable 2062",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁣y",
+      "label": "ignorable 2063",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁤y",
+      "label": "ignorable 2064",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁦y",
+      "label": "ignorable 2066",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁧y",
+      "label": "ignorable 2067",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁨y",
+      "label": "ignorable 2068",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x⁩y",
+      "label": "ignorable 2069",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x︀y",
+      "label": "ignorable fe00",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x︎y",
+      "label": "ignorable fe0e",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x️y",
+      "label": "ignorable fe0f",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x﻿y",
+      "label": "ignorable feff",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xy",
+      "b": "x󠄀y",
+      "label": "ignorable e0100",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xss",
+      "b": "xß",
+      "label": "expansion ss",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xSS",
+      "b": "xẞ",
+      "label": "expansion SS",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xst",
+      "b": "xﬅ",
+      "label": "expansion st",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "xæ",
+      "b": "xae",
+      "label": "expansion æ",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "xœ",
+      "b": "xoe",
+      "label": "expansion œ",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "xı",
+      "b": "xi",
+      "label": "expansion ı",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "xİ",
+      "b": "xi",
+      "label": "expansion İ",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "xᾀ",
+      "b": "xἀι",
+      "label": "expansion ᾀ",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "xά",
+      "b": "xά",
+      "label": "expansion ά",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x℉",
+      "b": "x°F",
+      "label": "expansion ℉",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "x①",
+      "b": "x1",
+      "label": "expansion ①",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "­ab",
+      "label": "leading ad",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a­b",
+      "label": "middle ad",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab­",
+      "label": "trailing ad",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "­",
+      "label": "only ad",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "͏ab",
+      "label": "leading 34f",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a͏b",
+      "label": "middle 34f",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab͏",
+      "label": "trailing 34f",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "͏",
+      "label": "only 34f",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "​ab",
+      "label": "leading 200b",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a​b",
+      "label": "middle 200b",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab​",
+      "label": "trailing 200b",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "​",
+      "label": "only 200b",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "‌ab",
+      "label": "leading 200c",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a‌b",
+      "label": "middle 200c",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab‌",
+      "label": "trailing 200c",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "‌",
+      "label": "only 200c",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "‍ab",
+      "label": "leading 200d",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a‍b",
+      "label": "middle 200d",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab‍",
+      "label": "trailing 200d",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "‍",
+      "label": "only 200d",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "⁠ab",
+      "label": "leading 2060",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a⁠b",
+      "label": "middle 2060",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab⁠",
+      "label": "trailing 2060",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "⁠",
+      "label": "only 2060",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "️ab",
+      "label": "leading fe0f",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a️b",
+      "label": "middle fe0f",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab️",
+      "label": "trailing fe0f",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "️",
+      "label": "only fe0f",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "﻿ab",
+      "label": "leading feff",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a﻿b",
+      "label": "middle feff",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab﻿",
+      "label": "trailing feff",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "﻿",
+      "label": "only feff",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "󠄀ab",
+      "label": "leading e0100",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a󠄀b",
+      "label": "middle e0100",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "ab󠄀",
+      "label": "trailing e0100",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "󠄀",
+      "label": "only e0100",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "a​",
+      "b": "a⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a​",
+      "b": "a⁠⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a​",
+      "b": "a",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a​",
+      "b": "​⁠",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a​",
+      "b": "",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a️",
+      "b": "a⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a️",
+      "b": "a⁠⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a️",
+      "b": "a",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a️",
+      "b": "​⁠",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a️",
+      "b": "",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a­",
+      "b": "a⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a­",
+      "b": "a⁠⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a­",
+      "b": "a",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a­",
+      "b": "​⁠",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a­",
+      "b": "",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a​️",
+      "b": "a⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a​️",
+      "b": "a⁠⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "a​️",
+      "b": "a",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a​️",
+      "b": "​⁠",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "a​️",
+      "b": "",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "​",
+      "b": "a⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "​",
+      "b": "a⁠⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "​",
+      "b": "a",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "​",
+      "b": "​⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "​",
+      "b": "",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "️",
+      "b": "a⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "️",
+      "b": "a⁠⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "️",
+      "b": "a",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "️",
+      "b": "​⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "️",
+      "b": "",
+      "expected": 1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "a⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "a⁠⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "a",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "​⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "",
+      "b": "",
+      "expected": 0,
+      "exact": true
+    },
+    {
+      "a": "a",
+      "b": "a​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "a",
+      "b": "A​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "A",
+      "b": "a​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "aB​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "Ab​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ab",
+      "b": "a​b",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "​",
+      "b": "️",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "️",
+      "b": "​⁠",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "​",
+      "b": "​⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "a​",
+      "b": "a​⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "a​",
+      "b": "A​⁠",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ss",
+      "b": "ß​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ß",
+      "b": "ss​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "é",
+      "b": "é​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "é",
+      "b": "É​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "é",
+      "b": "é​",
+      "expected": -1,
+      "exact": false
+    },
+    {
+      "a": "ß",
+      "b": "SS",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "ẞ",
+      "b": "SS",
+      "expected": 0,
+      "exact": false
+    },
+    {
+      "a": "aᾀ",
+      "b": "aἀι",
+      "expected": -1,
+      "exact": false
+    }
+  ]
+}

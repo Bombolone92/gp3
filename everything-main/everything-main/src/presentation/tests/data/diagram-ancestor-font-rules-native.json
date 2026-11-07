@@ -1,0 +1,2373 @@
+{
+  "provenance": "Owned synthetic DiagramML, regenerated in the native reference application on 2026-10-11. Expected native drawing geometry in EMU and displayed font sizes in points. Browser glyph inputs were refreshed after complete-span shaping and are actual app measurements, independent of the rule-fitting implementation. Duplicate-name v1 controls were rejected as evidence. v2 has unique layout names. Nested/leaf-rule and ch-font-selector execution remain explicit diagnostics; width-first font now matches native after complete-span shaping. No reference-application drawing/style/font assets are included. Three preceding native overflow controls retain exhausted/inactive font limits and deliberately report fits:false; their complete bounds and fonts independently match the actual browser. Twenty-four new owned customized-ancestor controls have independent native bounds, displayed fonts and body margins, all four LIN directions, derived geometry, fractional authored fonts and automatic/custom peers. They deliberately retain physical overflow. Expected numeric primary fonts round the native first-character size to whole points; authored displayed sizes remain separately recorded. Rejected malformed fractional v1 probes are excluded.",
+  "cases": [
+    {
+      "name": "ancestor shared",
+      "nativePage": 1,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:0\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,22,17,0,0,0,0]": {
+          "requiredHeight": 48.1924072265625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,13,10,0,0,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,17,13,0,0,0,0]": {
+          "requiredHeight": 31.032989501953118,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,15,12,0,0,0,0]": {
+          "requiredHeight": 27.382049560546875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,14,11,0,0,0,0]": {
+          "requiredHeight": 20.445263671875,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "local independent",
+      "nativePage": 2,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:1\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" val=\"5\"/></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,22,17,0,0,0,0]": {
+          "requiredHeight": 48.1924072265625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,13,10,0,0,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,17,13,0,0,0,0]": {
+          "requiredHeight": 31.032989501953118,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,15,12,0,0,0,0]": {
+          "requiredHeight": 27.382049560546875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,14,11,0,0,0,0]": {
+          "requiredHeight": 20.445263671875,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "ancestor large interval",
+      "nativePage": 3,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:2\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"997\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,997,778,0,0,0,0]": {
+          "requiredHeight": 16379.94204711914,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,501,391,0,0,0,0]": {
+          "requiredHeight": 8231.04409790039,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,253,197,0,0,0,0]": {
+          "requiredHeight": 4064.2263427734374,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,129,101,0,0,0,0]": {
+          "requiredHeight": 1648.3993835449219,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,67,52,0,0,0,0]": {
+          "requiredHeight": 440.30335693359376,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,36,28,0,0,0,0]": {
+          "requiredHeight": 131.433837890625,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,20,16,0,0,0,0]": {
+          "requiredHeight": 43.811279296875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,12,9,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,16,12,0,0,0,0]": {
+          "requiredHeight": 29.20751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,14,11,0,0,0,0]": {
+          "requiredHeight": 20.445263671875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,13,10,0,0,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "local large interval",
+      "nativePage": 4,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:3\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"997\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" val=\"5\"/></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,997,778,0,0,0,0]": {
+          "requiredHeight": 16379.94204711914,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,501,391,0,0,0,0]": {
+          "requiredHeight": 8231.04409790039,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,253,197,0,0,0,0]": {
+          "requiredHeight": 4064.2263427734374,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,129,101,0,0,0,0]": {
+          "requiredHeight": 1648.3993835449219,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,67,52,0,0,0,0]": {
+          "requiredHeight": 440.30335693359376,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,36,28,0,0,0,0]": {
+          "requiredHeight": 131.433837890625,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,20,16,0,0,0,0]": {
+          "requiredHeight": 43.811279296875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,12,9,0,0,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,16,12,0,0,0,0]": {
+          "requiredHeight": 29.20751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,14,11,0,0,0,0]": {
+          "requiredHeight": 20.445263671875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,13,10,0,0,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "ancestor maximum",
+      "nativePage": 5,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:4\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" max=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,22,17,0,0,0,0]": {
+          "requiredHeight": 48.1924072265625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,13,10,0,0,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,17,13,0,0,0,0]": {
+          "requiredHeight": 31.032989501953118,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,15,12,0,0,0,0]": {
+          "requiredHeight": 27.382049560546875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,14,11,0,0,0,0]": {
+          "requiredHeight": 20.445263671875,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "ancestor factor zero",
+      "nativePage": 6,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:5\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" fact=\"0\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",39.9609375,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"b\",\"2\",39.9609375,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        }
+      },
+      "fits": false,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 40
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1438593,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "ancestor equality",
+      "nativePage": 7,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:6\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\" op=\"equ\" val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,22,17,0,0,0,0]": {
+          "requiredHeight": 48.1924072265625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,13,10,0,0,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,17,13,0,0,0,0]": {
+          "requiredHeight": 31.032989501953118,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,15,12,0,0,0,0]": {
+          "requiredHeight": 27.382049560546875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,14,11,0,0,0,0]": {
+          "requiredHeight": 20.445263671875,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "ancestor with height rules",
+      "nativePage": 8,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:7\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {},
+      "unsupported": "unsupported diagram container adjustment rules"
+    },
+    {
+      "name": "font then width",
+      "nativePage": 9,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:8\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"70\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/><d:rule type=\"w\" for=\"ch\" val=\"10\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",49.9609375,20,5,4,0,0,0,0]": {
+          "requiredHeight": 1.825469970703125,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",49.9609375,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1798593,
+            "h": 720000
+          },
+          "font": 5
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1798593,
+            "y": 0,
+            "w": 1798593,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "width then font",
+      "nativePage": 10,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:9\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"70\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"w\" for=\"ch\" val=\"10\"/><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",49.9609375,20,40,31,0,0,0,0]": {
+          "requiredHeight": 116.83007812499997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",49.9609375,20,5,4,0,0,0,0]": {
+          "requiredHeight": 1.825469970703125,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",49.9609375,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",49.9609375,20,22,17,0,0,0,0]": {
+          "requiredHeight": 40.16033935546875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",49.9609375,20,13,10,0,0,0,0]": {
+          "requiredHeight": 14.238665771484374,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",49.9609375,20,17,13,0,0,0,0]": {
+          "requiredHeight": 24.826391601562495,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",49.9609375,20,15,12,0,0,0,0]": {
+          "requiredHeight": 16.429229736328125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",49.9609375,20,16,12,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1798593,
+            "h": 720000
+          },
+          "font": 16
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1798593,
+            "y": 0,
+            "w": 1798593,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "named des target with fitting peer",
+      "nativePage": 11,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:10\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"40\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,8,6,0,0,0,0]": {
+          "requiredHeight": 2.920751953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,22,17,0,0,0,0]": {
+          "requiredHeight": 48.1924072265625,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,13,10,0,0,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,17,13,0,0,0,0]": {
+          "requiredHeight": 31.032989501953118,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,15,12,0,0,0,0]": {
+          "requiredHeight": 27.382049560546875,
+          "wordFits": true
+        },
+        "[\"a\",\"1\",40,20,14,11,0,0,0,0]": {
+          "requiredHeight": 20.445263671875,
+          "wordFits": true
+        }
+      },
+      "fits": true,
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8
+        }
+      ]
+    },
+    {
+      "name": "named ch target with fitting peer",
+      "nativePage": 12,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>OK</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:11\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {},
+      "unsupported": "unsupported diagram container adjustment rules"
+    },
+    {
+      "name": "custom source-like",
+      "nativePage": 13,
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals help teams build durable plans. Shared evidence guides each decision and helps every participant understand the next practical step.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:12\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"1.5\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {},
+      "unsupported": "unsupported diagram container adjustment rules"
+    },
+    {
+      "name": "custom taller",
+      "nativePage": 14,
+      "available": {
+        "w": 100,
+        "h": 110
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals help teams build durable plans. Shared evidence guides each decision and helps every participant understand the next practical step.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:13\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"110\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"1.5\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {},
+      "unsupported": "unsupported diagram container adjustment rules"
+    },
+    {
+      "name": "custom narrower",
+      "nativePage": 15,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals help teams build durable plans. Shared evidence guides each decision and helps every participant understand the next practical step.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:14\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"100\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"1.5\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {},
+      "unsupported": "unsupported diagram container adjustment rules"
+    },
+    {
+      "name": "custom short body",
+      "nativePage": 16,
+      "available": {
+        "w": 100,
+        "h": 78
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Plan</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1800\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"1\" destId=\"2\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:parent-font-control:15\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"80\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"78\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"65\"/><d:constr type=\"h\" for=\"des\" forName=\"primary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"1.5\"/><d:constr type=\"h\" for=\"des\" forName=\"secondary\" refFor=\"des\" refForName=\"primary\" refType=\"primFontSz\" fact=\"0.5\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"primary\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"primary\" refType=\"w\"/><d:constr type=\"w\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"w\" fact=\"0.8\"/><d:constr type=\"t\" for=\"ch\" forName=\"secondary\" refFor=\"ch\" refForName=\"primary\" refType=\"h\" fact=\"1.125\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"primary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"h\" op=\"lte\" refType=\"w\" fact=\"0.4\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"secondary\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"des\" ptType=\"node\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/><d:constr type=\"secFontSz\" val=\"65\"/><d:constr type=\"primFontSz\" refType=\"secFontSz\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "measurements": {},
+      "unsupported": "unsupported diagram container adjustment rules"
+    },
+    {
+      "name": "overflowing peer: font named descendant",
+      "nativeFamily": "preceding mixed-content v2",
+      "nativePage": 2,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:mixed-content-control:v2:1\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/><d:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,36,28,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",39.9609375,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",39.9609375,20,36,28,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        }
+      },
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 5
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1438593,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 36
+        }
+      ]
+    },
+    {
+      "name": "overflowing peer: font named descendant zero",
+      "nativeFamily": "preceding mixed-content v2",
+      "nativePage": 7,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:mixed-content-control:v2:6\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/><d:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" fact=\"0\" val=\"NaN\" max=\"NaN\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"b\",\"2\",40,20,36,28,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",39.9609375,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"b\",\"2\",39.9609375,20,36,28,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        }
+      },
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 40
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1438593,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 36
+        }
+      ]
+    },
+    {
+      "name": "overflowing peer: font named descendant maximum",
+      "nativeFamily": "preceding mixed-content v2",
+      "nativePage": 8,
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:mixed-content-control:v2:7\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/><d:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"a\"  val=\"40\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"a\" max=\"5\" val=\"NaN\" fact=\"NaN\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"a\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"b\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst></d:ruleLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "measurements": {
+        "[\"a\",\"1\",40,20,40,31,0,0,0,0]": {
+          "requiredHeight": 146.03759765624997,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",40,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",40,20,36,28,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"a\",\"1\",39.9609375,20,5,4,0,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"b\",\"2\",39.9609375,20,36,28,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        }
+      },
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 5
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "bounds": {
+            "x": 1438593,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 36
+        }
+      ]
+    },
+    {
+      "name": "fromL: custom both, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:0\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromL: custom both, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:1\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 1080000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1440000,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,30,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromL: custom target, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:2\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromL: custom target, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:3\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 1080000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1440000,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,30,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom both, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:4\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,15,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,15,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom both, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:5\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 345600
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 345600,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,9.6,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom target, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:6\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,15,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,15,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom target, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-ownership:7\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 345600
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 345600,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,9.6,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromR: custom both, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:0\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromR\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromR: custom both, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:1\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromR\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 1080000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,30,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromR: custom target, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:2\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromR\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromR: custom target, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:3\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromR\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 1080000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,30,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromB: custom both, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:4\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromB\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,15,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,15,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromB: custom both, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:5\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromB\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1440000,
+            "h": 345600
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,9.6,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromB: custom target, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:6\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromB\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,15,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,15,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromB: custom target, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2100\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:7\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromB\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1440000,
+            "h": 345600
+          },
+          "font": 21,
+          "displayFont": 21.0,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 8,
+          "displayFont": 8.0,
+          "margins": {
+            "lMarg": 10160,
+            "rMarg": 10160,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"peer\",\"2\",40,20,8,6,0.8,0.8,0,0]": {
+          "requiredHeight": 8.762255859375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,9.6,21,16,2.1,2.1,0,0]": {
+          "requiredHeight": 46.00184326171875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromL: custom peer, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:8\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 13,
+          "displayFont": 13.0,
+          "margins": {
+            "lMarg": 16510,
+            "rMarg": 16510,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,65,51,6.5,6.5,0,0]": {
+          "requiredHeight": 498.353302001953,
+          "wordFits": false
+        },
+        "[\"target\",\"1\",40,20,5,4,0.5,0.5,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,20,35,27,3.5,3.5,0,0]": {
+          "requiredHeight": 127.78289794921875,
+          "wordFits": false
+        },
+        "[\"target\",\"1\",40,20,20,16,2,2,0,0]": {
+          "requiredHeight": 43.811279296875,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,20,12,9,1.2000000000000002,1.2000000000000002,0,0]": {
+          "requiredHeight": 13.1433837890625,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,20,16,12,1.6,1.6,0,0]": {
+          "requiredHeight": 29.20751953125,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,20,14,11,1.4000000000000001,1.4000000000000001,0,0]": {
+          "requiredHeight": 25.55657958984375,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,20,13,10,1.3,1.3,0,0]": {
+          "requiredHeight": 18.9848876953125,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromL: custom peer, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:9\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 306000,
+            "w": 1438593,
+            "h": 108000
+          },
+          "font": 5,
+          "displayFont": 5.0,
+          "margins": {
+            "lMarg": 6350,
+            "rMarg": 6350,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1438593,
+            "y": 0,
+            "w": 1438593,
+            "h": 720000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,3,5,4,0.5,0.5,0,0]": {
+          "requiredHeight": 3.650939941406249,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",39.9609375,3,5,4,0.5,0.5,0,0]": {
+          "requiredHeight": 3.650939941406249,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",39.9609375,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromL: custom fractional, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2140\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1760\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:10\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 21,
+          "displayFont": 21.4,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1440000,
+            "y": 0,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 18,
+          "displayFont": 17.6,
+          "margins": {
+            "lMarg": 22860,
+            "rMarg": 22860,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,17,2.1,2.1,0,0]": {
+          "requiredHeight": 46.87806884765625,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,18,14,1.8,1.8,0,0]": {
+          "requiredHeight": 38.55392578125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromL: custom fractional, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2140\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1760\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:11\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromL\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 1080000
+          },
+          "font": 21,
+          "displayFont": 21.4,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 1440000,
+            "y": 180000,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 18,
+          "displayFont": 17.6,
+          "margins": {
+            "lMarg": 22860,
+            "rMarg": 22860,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,30,21,17,2.1,2.1,0,0]": {
+          "requiredHeight": 46.87806884765625,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,18,14,1.8,1.8,0,0]": {
+          "requiredHeight": 38.55392578125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom peer, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:12\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 5,
+          "displayFont": 5.0,
+          "margins": {
+            "lMarg": 6350,
+            "rMarg": 6350,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,5,4,0.5,0.5,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,15,5,4,0.5,0.5,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,15,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom peer, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr ><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1700\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:13\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 107894
+          },
+          "font": 5,
+          "displayFont": 5.0,
+          "margins": {
+            "lMarg": 6350,
+            "rMarg": 6350,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 107894,
+            "w": 1440000,
+            "h": 719296
+          },
+          "font": 17,
+          "displayFont": 17.0,
+          "margins": {
+            "lMarg": 21590,
+            "rMarg": 21590,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,3,5,4,0.5,0.5,0,0]": {
+          "requiredHeight": 3.650939941406249,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,2.9970703125,5,4,0.5,0.5,0,0]": {
+          "requiredHeight": 3.650939941406249,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,19.98046875,17,13,1.7000000000000002,1.7000000000000002,0,0]": {
+          "requiredHeight": 37.239587402343744,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom fractional, fixed height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2140\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1760\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:14\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 21,
+          "displayFont": 21.4,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1440000,
+            "h": 540000
+          },
+          "font": 18,
+          "displayFont": 17.6,
+          "margins": {
+            "lMarg": 22860,
+            "rMarg": 22860,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,20,21,17,2.1,2.1,0,0]": {
+          "requiredHeight": 46.87806884765625,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,18,14,1.8,1.8,0,0]": {
+          "requiredHeight": 38.55392578125,
+          "wordFits": true
+        },
+        "[\"target\",\"1\",40,15,21,17,2.1,2.1,0,0]": {
+          "requiredHeight": 46.87806884765625,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,15,18,14,1.8,1.8,0,0]": {
+          "requiredHeight": 38.55392578125001,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "fromT: custom fractional, font-derived height",
+      "available": {
+        "w": 100,
+        "h": 30
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"2140\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>A long customized heading needs room for each word.</a:t></a:r></a:p></d:t></d:pt><d:pt modelId=\"2\" type=\"node\"><d:prSet custT=\"1\"/><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr sz=\"1760\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Another paragraph contains useful details and takes several lines.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/><d:cxn modelId=\"102\" srcId=\"0\" destId=\"2\" srcOrd=\"1\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:ancestor-custom-extension-r2:15\"><d:title val=\"Ancestor rule customization ownership\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"linDir\" val=\"fromT\"/><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" val=\"40\"/><d:constr type=\"h\" for=\"ch\" val=\"20\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"65\"/><d:constr type=\"primFontSz\" for=\"des\" forName=\"peer\" val=\"8\"/><d:constr type=\"h\" for=\"des\" forName=\"target\" refType=\"primFontSz\" refFor=\"des\" refForName=\"target\" fact=\"0.6\"/></d:constrLst><d:ruleLst><d:rule type=\"primFontSz\" for=\"des\" forName=\"target\" val=\"5\"/></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"target\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach><d:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><d:layoutNode name=\"peer\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"rMarg\" refType=\"primFontSz\" fact=\"0.1\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "fits": false,
+      "expected": [
+        {
+          "name": "target",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1440000,
+            "h": 345600
+          },
+          "font": 21,
+          "displayFont": 21.4,
+          "margins": {
+            "lMarg": 26670,
+            "rMarg": 26670,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        },
+        {
+          "name": "peer",
+          "bounds": {
+            "x": 0,
+            "y": 345600,
+            "w": 1440000,
+            "h": 720000
+          },
+          "font": 18,
+          "displayFont": 17.6,
+          "margins": {
+            "lMarg": 22860,
+            "rMarg": 22860,
+            "tMarg": 0,
+            "bMarg": 0
+          }
+        }
+      ],
+      "measurements": {
+        "[\"target\",\"1\",40,9.6,21,17,2.1,2.1,0,0]": {
+          "requiredHeight": 46.87806884765625,
+          "wordFits": true
+        },
+        "[\"peer\",\"2\",40,20,18,14,1.8,1.8,0,0]": {
+          "requiredHeight": 38.55392578125,
+          "wordFits": true
+        }
+      }
+    }
+  ]
+}

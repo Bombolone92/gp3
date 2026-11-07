@@ -1,0 +1,292 @@
+import { defineConfig, devices } from '@playwright/test';
+// E2E_PORT lets parallel checkouts run their own server.
+const port = Number(process.env.E2E_PORT) || 5186;
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: true,
+  use: { baseURL: `http://127.0.0.1:${port}`, trace: 'retain-on-failure' },
+  // A first render fetches and compiles the PDF.js worker and takes a few seconds even on an
+  // idle machine, so the default five seconds left little margin for a loaded one.
+  expect: { timeout: 10000 },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-modal-focus`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: '**/modal-close-focus.spec.js',
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-picture-open`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: ['**/picture-open-cancellation.spec.js', '**/picture-batch-reads.spec.js'],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-compression-render`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/compression-render-cancellation.spec.js',
+        '**/compression-encode-cancellation.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-leave-save`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/leave-save-race.spec.js',
+        '**/save-account-destination.spec.js',
+        '**/save-account-cancellation.spec.js',
+        '**/export-size-budget.spec.js',
+        '**/native-encryption.spec.js',
+        '**/sign-out-focus.spec.js',
+        '**/sign-out-continuation.spec.js',
+        '**/sign-out-pending.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-cloud-read`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/cloud-read-cancellation.spec.js',
+        '**/cloud-read-account.spec.js',
+        '**/cloud-read-size.spec.js',
+        '**/cloud-picker-continuation.spec.js',
+        '**/desktop-open-subscription.spec.js',
+        '**/desktop-init.spec.js',
+        '**/sdk-messages.spec.js',
+        '**/account-init-race.spec.js',
+        '**/sdk-account-change.spec.js',
+        '**/sdk-startup-session.spec.js',
+      ],
+    })),
+    {
+      name: 'firefox-text',
+      use: { ...devices['Desktop Firefox'] },
+      testMatch: [
+        '**/direct-editing.spec.js',
+        '**/selection-geometry.spec.js',
+        '**/text-line-input.spec.js',
+        '**/text-drop.spec.js',
+        '**/search.spec.js',
+        '**/search-navigation.spec.js',
+        '**/search-pending-navigation.spec.js',
+        '**/pending-search-choice.spec.js',
+        '**/search-refresh-navigation.spec.js',
+      ],
+    },
+    {
+      name: 'webkit-shapes',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: ['**/shapes.spec.js', '**/shape-numeric.spec.js'],
+    },
+    {
+      name: 'firefox-page-marks',
+      use: { ...devices['Desktop Firefox'] },
+      testMatch: '**/page-marks.spec.js',
+    },
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-library`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/library-focus.spec.js',
+        '**/library-account-continuation.spec.js',
+        '**/library-account-errors.spec.js',
+        '**/library-dialog-account.spec.js',
+        '**/library-refresh.spec.js',
+        '**/library-profile.spec.js',
+        '**/library-dates.spec.js',
+        '**/settings-account.spec.js',
+        '**/sign-in-pending.spec.js',
+        '**/sign-in-continuation.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-dialog-opening`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: '**/dialog-opening.spec.js',
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-password-prompts`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/password-draft.spec.js',
+        '**/native-decryption.spec.js',
+        '**/object-stream-crypt.spec.js',
+        '**/embedded-file-filter.spec.js',
+        '**/new-protection-crypt.spec.js',
+        '**/xmp-crypt.spec.js',
+        '**/content-crypt.spec.js',
+        '**/flatten-crypt.spec.js',
+        '**/form-crypt.spec.js',
+        '**/image-replacement-crypt.spec.js',
+        '**/protection-dialog-opening.spec.js',
+        '**/protection-continuation.spec.js',
+        '**/document-open-dialogs.spec.js',
+        '**/open-race.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-protected-header`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: ['**/protected-header.spec.js', '**/document-name-layout.spec.js'],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-precision`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/interaction-precision.spec.js',
+        '**/object-selection.spec.js',
+        '**/object-pointer-keys.spec.js',
+        '**/object-fit-commit.spec.js',
+        '**/object-close-focus.spec.js',
+        '**/properties-scroll.spec.js',
+      ],
+    })),
+    {
+      name: 'webkit-signature-images',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: '**/image-orientation.spec.js',
+      grep: /signature preserves/,
+    },
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-typed-marks`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: '**/typed-mark-dialogs.spec.js',
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-page-imports`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/insert-pages.spec.js',
+        '**/import-dialog-opening.spec.js',
+        '**/session-size-budget.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-form-focus`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: ['**/form-focus.spec.js', '**/form-selection.spec.js', '**/form-scroll.spec.js'],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-file-drops`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: '**/workspace.spec.js',
+      grep: /a file dragged onto the page|a file dropped while a dialog is open|dropping text into a draft/,
+    })),
+    {
+      name: 'webkit-focus-rings',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: '**/workspace.spec.js',
+      grep: /keyboard focus rings stay visible/,
+    },
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-note-focus`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/note-focus.spec.js',
+        '**/note-save-continuity.spec.js',
+        '**/markup-focus.spec.js',
+        '**/markup-save-continuity.spec.js',
+        '**/comment-focus.spec.js',
+        '**/comment-navigation.spec.js',
+        '**/comment-identity.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-text-focus`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/text-focus.spec.js',
+        '**/text-save-input.spec.js',
+        '**/selection-dock-continuity.spec.js',
+        '**/deselect-focus.spec.js',
+        '**/text-checkpoint-focus.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-link-focus`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: [
+        '**/link-focus.spec.js',
+        '**/link-navigation.spec.js',
+        '**/link-dialog-race.spec.js',
+      ],
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-insert-focus`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: '**/insert-focus.spec.js',
+    })),
+    ...['firefox', 'webkit'].map((browser) => ({
+      name: `${browser}-print`,
+      use: { ...devices[browser === 'firefox' ? 'Desktop Firefox' : 'Desktop Safari'] },
+      testMatch: '**/print.spec.js',
+    })),
+    {
+      name: 'firefox-grouped-text',
+      use: { ...devices['Desktop Firefox'] },
+      testMatch: '**/app.spec.js',
+      grep: /plain paste|saved paragraphs preserve typed breaks|paragraph wrapping retains pasted|mixed-format multiline/,
+    },
+    {
+      name: 'webkit-grouped-text',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: '**/app.spec.js',
+      grep: /plain paste|saved paragraphs preserve typed breaks|paragraph wrapping retains pasted|mixed-format multiline/,
+    },
+    {
+      name: 'webkit-objects',
+      // WebKit rounds synthetic pointer positions to whole pixels, so these point-exact
+      // gestures need the page at its whole-pixel 150% fit, which the tools pane and rail
+      // leave room for only in a wider window.
+      use: { ...devices['Desktop Safari'], viewport: { width: 1440, height: 900 } },
+      testMatch: '**/app.spec.js',
+      grep: /image|drawing|shape|replacement/i,
+      // Native multi-touch coverage uses Chromium's input protocol.
+      grepInvert: /touch selects a shape|image touch gestures|a second touch/i,
+    },
+    {
+      name: 'webkit-links',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: '**/links.spec.js',
+      // Playwright WebKit does not expose clipboard permission emulation.
+      grepInvert: /clipboard API/,
+    },
+    {
+      name: 'webkit-outline',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: [
+        '**/organizer.spec.js',
+        '**/outline.spec.js',
+        '**/sidebar-continuity.spec.js',
+        '**/destination-page.spec.js',
+      ],
+    },
+    {
+      name: 'webkit-text',
+      use: { ...devices['Desktop Safari'] },
+      testMatch: [
+        '**/text-line-input.spec.js',
+        '**/text-drop.spec.js',
+        '**/text-numeric.spec.js',
+        '**/text-paint.spec.js',
+        '**/direct-editing.spec.js',
+        '**/text-formatting.spec.js',
+        '**/search.spec.js',
+        '**/search-navigation.spec.js',
+        '**/search-pending-navigation.spec.js',
+        '**/pending-search-choice.spec.js',
+        '**/search-refresh-navigation.spec.js',
+        '**/selection-geometry.spec.js',
+        '**/history-queue.spec.js',
+        '**/zoom-pending.spec.js',
+        '**/navigation-pending.spec.js',
+      ],
+    },
+  ],
+  webServer: {
+    command: `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`,
+    url: `http://127.0.0.1:${port}`,
+    reuseExistingServer: false,
+  },
+});

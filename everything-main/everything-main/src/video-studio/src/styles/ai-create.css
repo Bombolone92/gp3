@@ -1,0 +1,178 @@
+/* Script to video and Find highlights dialogs. */
+.aic-dialog .dialog-body {
+  max-height: min(68vh, 680px);
+  overflow-y: auto;
+}
+
+.aic-dialog .dialog-actions .spacer {
+  flex: 1;
+}
+
+.aic-step {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aic-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.aic-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.aic-hint {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.aic-hint:empty {
+  display: none;
+}
+
+.aic-fixed {
+  font-size: 13px;
+  color: var(--text);
+  padding: 6px 0;
+}
+
+.aic-script {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.aic-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.aic-row .select {
+  width: auto;
+  min-width: 0;
+}
+
+.aic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.aic-grid .segmented {
+  flex-wrap: wrap;
+}
+
+/* Scenes */
+.aic-scenes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aic-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-panel-2);
+}
+
+.aic-scene-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aic-scene-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-text);
+}
+
+.aic-scene .textarea {
+  min-height: 0;
+  resize: vertical;
+}
+
+.aic-picture {
+  color: var(--text-2);
+}
+
+/* Highlights */
+.aic-cands {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aic-cand {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-panel-2);
+}
+
+.aic-cand-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aic-cand-head input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.aic-title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.aic-cand-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.aic-excerpt {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+@media (max-width: 560px) {
+  .aic-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aic-row > .btn {
+    flex: 1 1 100%;
+  }
+}

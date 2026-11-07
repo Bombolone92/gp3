@@ -1,0 +1,44 @@
+{
+  "referenceVersion": "16.0.20326",
+  "cases": [
+    {
+      "name": "before",
+      "source": "../empty-control-home-end/control.docx",
+      "sourceSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "result": "native-before.docx",
+      "resultSha256": "494df53fe09c7aee1dfc814592d9ca254322ef1d427a795bbd087af8bd8b3258",
+      "text": "XA     D",
+      "controlText": "     ",
+      "placeholder": true
+    },
+    {
+      "name": "after",
+      "source": "../empty-control-home-end/control.docx",
+      "sourceSha256": "9739f8a45126545395f927f05ee74003d22da8d6f4ad6c223b9a562d1cd41e16",
+      "result": "native-after.docx",
+      "resultSha256": "111968efd9471bb092e8d0af5f349d56f55555ef617e16af0b8af1dc4ee916de",
+      "text": "A     DX",
+      "controlText": "     ",
+      "placeholder": true
+    },
+    {
+      "name": "wrapped-below",
+      "source": "../empty-control-home-end/wrapped.docx",
+      "sourceSha256": "8413029f7916cfba7a5e852e17f1236225378a25c83d998f582423c0627f16fa",
+      "result": "native-wrapped-below.docx",
+      "resultSha256": "071c3faf9faa54b34239648afaba8e2b6e7e0c51ff73e70ff3bda36ccd14ce9a",
+      "text": "APrompt01 Prompt02 Prompt03 Prompt04 Prompt05 Prompt06 Prompt07 Prompt08 Prompt09 Prompt10 Prompt11 Prompt12 Prompt13 Prompt14 Prompt15 Prompt16 Prompt17 Prompt18 Prompt19 Prompt20 Prompt21 Prompt22 Prompt23 Prompt24 Prompt25 Prompt26 Prompt27 Prompt28 Prompt29 Prompt30 Prompt31 Prompt32 Prompt33 Prompt34 Prompt35 Prompt36 Prompt37 Prompt38 Prompt39 Prompt40DX",
+      "controlText": "Prompt01 Prompt02 Prompt03 Prompt04 Prompt05 Prompt06 Prompt07 Prompt08 Prompt09 Prompt10 Prompt11 Prompt12 Prompt13 Prompt14 Prompt15 Prompt16 Prompt17 Prompt18 Prompt19 Prompt20 Prompt21 Prompt22 Prompt23 Prompt24 Prompt25 Prompt26 Prompt27 Prompt28 Prompt29 Prompt30 Prompt31 Prompt32 Prompt33 Prompt34 Prompt35 Prompt36 Prompt37 Prompt38 Prompt39 Prompt40",
+      "placeholder": true
+    }
+  ],
+  "unresolved": {
+    "name": "wrapped-first-line",
+    "source": "../empty-control-home-end/wrapped.docx",
+    "result": "native-wrapped-first-line.docx",
+    "resultSha256": "d5be7d9a5ac22f14f6db2529ff6196cbd0fd21d4177c3347535fcba537b3e2ae",
+    "text": "AX",
+    "controlCount": 0,
+    "note": "First exit click at (220,254) selects restored prompt plus D. Repeated in the native reference; ordinary click after restoration selects prompt alone. Not modeled by this change."
+  }
+}

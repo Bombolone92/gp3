@@ -1,0 +1,892 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Each expression was evaluated independently and assigned as a worksheet formula. Probes distinguish zero, signs and error types without serializing subnormal numeric values. All 176 results agreed; the temporary range was cleared and COUNTA returned zero.",
+  "hashes": {
+    "evaluate.applescript": "b51a39b1ec6b8a8a7f685b88859002ab683e6d6560b331b290b2271492a84cc8",
+    "evaluate-native.txt": "a6c74dfbe75d7e9ad9a49a3c6b1f5cf3dc36369ede7ad9cd09789c7f1f4857ac",
+    "worksheet.applescript": "77744ef3a5fa0c0c1ccee2f73cd95bd5bab77b813c7910adf4ca3b883283017a",
+    "worksheet-native.txt": "8f754274a086b4a29f137224a0b284dc0f06e9e4c4c007770b1d8d5e156e8b71"
+  },
+  "cases": [
+    {
+      "expression": "(1e-307)*0.1",
+      "formula": "LET(v,(1e-307)*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(1e-307)/0.1",
+      "formula": "LET(v,(1e-307)/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)*1",
+      "formula": "LET(v,(1e-307)*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)/1",
+      "formula": "LET(v,(1e-307)/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)*2",
+      "formula": "LET(v,(1e-307)*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)/2",
+      "formula": "LET(v,(1e-307)/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)*10",
+      "formula": "LET(v,(1e-307)*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)/10",
+      "formula": "LET(v,(1e-307)/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(1e-307)*1e307",
+      "formula": "LET(v,(1e-307)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)/1e307",
+      "formula": "LET(v,(1e-307)/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(1e-307)%",
+      "formula": "LET(v,(1e-307)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((1e-307)%)%",
+      "formula": "LET(v,((1e-307)%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((1e-307)/10)*1e307",
+      "formula": "LET(v,((1e-307)/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((1e-307)*0.1)*1e307",
+      "formula": "LET(v,((1e-307)*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((1e-307)%)*1e307",
+      "formula": "LET(v,((1e-307)%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-1e-307)*0.1",
+      "formula": "LET(v,(-1e-307)*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-1e-307)/0.1",
+      "formula": "LET(v,(-1e-307)/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-1e-307)*1",
+      "formula": "LET(v,(-1e-307)*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-1e-307)/1",
+      "formula": "LET(v,(-1e-307)/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-1e-307)*2",
+      "formula": "LET(v,(-1e-307)*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-1e-307)/2",
+      "formula": "LET(v,(-1e-307)/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-1e-307)*10",
+      "formula": "LET(v,(-1e-307)*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-1e-307)/10",
+      "formula": "LET(v,(-1e-307)/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-1e-307)*1e307",
+      "formula": "LET(v,(-1e-307)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-1e-307)/1e307",
+      "formula": "LET(v,(-1e-307)/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-1e-307)%",
+      "formula": "LET(v,(-1e-307)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-1e-307)%)%",
+      "formula": "LET(v,((-1e-307)%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-1e-307)/10)*1e307",
+      "formula": "LET(v,((-1e-307)/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-1e-307)*0.1)*1e307",
+      "formula": "LET(v,((-1e-307)*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-1e-307)%)*1e307",
+      "formula": "LET(v,((-1e-307)%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(2^-1022)*0.1",
+      "formula": "LET(v,(2^-1022)*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(2^-1022)/0.1",
+      "formula": "LET(v,(2^-1022)/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(2^-1022)*1",
+      "formula": "LET(v,(2^-1022)*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(2^-1022)/1",
+      "formula": "LET(v,(2^-1022)/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(2^-1022)*2",
+      "formula": "LET(v,(2^-1022)*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(2^-1022)/2",
+      "formula": "LET(v,(2^-1022)/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(2^-1022)*10",
+      "formula": "LET(v,(2^-1022)*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(2^-1022)/10",
+      "formula": "LET(v,(2^-1022)/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(2^-1022)*1e307",
+      "formula": "LET(v,(2^-1022)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(2^-1022)/1e307",
+      "formula": "LET(v,(2^-1022)/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(2^-1022)%",
+      "formula": "LET(v,(2^-1022)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((2^-1022)%)%",
+      "formula": "LET(v,((2^-1022)%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((2^-1022)/10)*1e307",
+      "formula": "LET(v,((2^-1022)/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((2^-1022)*0.1)*1e307",
+      "formula": "LET(v,((2^-1022)*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((2^-1022)%)*1e307",
+      "formula": "LET(v,((2^-1022)%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-(2^-1022))*0.1",
+      "formula": "LET(v,(-(2^-1022))*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-(2^-1022))/0.1",
+      "formula": "LET(v,(-(2^-1022))/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-(2^-1022))*1",
+      "formula": "LET(v,(-(2^-1022))*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-(2^-1022))/1",
+      "formula": "LET(v,(-(2^-1022))/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-(2^-1022))*2",
+      "formula": "LET(v,(-(2^-1022))*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-(2^-1022))/2",
+      "formula": "LET(v,(-(2^-1022))/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-(2^-1022))*10",
+      "formula": "LET(v,(-(2^-1022))*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-(2^-1022))/10",
+      "formula": "LET(v,(-(2^-1022))/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-(2^-1022))*1e307",
+      "formula": "LET(v,(-(2^-1022))*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-(2^-1022))/1e307",
+      "formula": "LET(v,(-(2^-1022))/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-(2^-1022))%",
+      "formula": "LET(v,(-(2^-1022))%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-(2^-1022))%)%",
+      "formula": "LET(v,((-(2^-1022))%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-(2^-1022))/10)*1e307",
+      "formula": "LET(v,((-(2^-1022))/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-(2^-1022))*0.1)*1e307",
+      "formula": "LET(v,((-(2^-1022))*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-(2^-1022))%)*1e307",
+      "formula": "LET(v,((-(2^-1022))%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-709))*0.1",
+      "formula": "LET(v,(EXP(-709))*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-709))/0.1",
+      "formula": "LET(v,(EXP(-709))/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-709))*1",
+      "formula": "LET(v,(EXP(-709))*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-709))/1",
+      "formula": "LET(v,(EXP(-709))/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-709))*2",
+      "formula": "LET(v,(EXP(-709))*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-709))/2",
+      "formula": "LET(v,(EXP(-709))/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-709))*10",
+      "formula": "LET(v,(EXP(-709))*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-709))/10",
+      "formula": "LET(v,(EXP(-709))/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-709))*1e307",
+      "formula": "LET(v,(EXP(-709))*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-709))/1e307",
+      "formula": "LET(v,(EXP(-709))/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-709))%",
+      "formula": "LET(v,(EXP(-709))%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-709))%)%",
+      "formula": "LET(v,((EXP(-709))%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-709))/10)*1e307",
+      "formula": "LET(v,((EXP(-709))/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-709))*0.1)*1e307",
+      "formula": "LET(v,((EXP(-709))*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-709))%)*1e307",
+      "formula": "LET(v,((EXP(-709))%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-709))*0.1",
+      "formula": "LET(v,(-EXP(-709))*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-709))/0.1",
+      "formula": "LET(v,(-EXP(-709))/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-709))*1",
+      "formula": "LET(v,(-EXP(-709))*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-709))/1",
+      "formula": "LET(v,(-EXP(-709))/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-709))*2",
+      "formula": "LET(v,(-EXP(-709))*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-709))/2",
+      "formula": "LET(v,(-EXP(-709))/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-709))*10",
+      "formula": "LET(v,(-EXP(-709))*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-709))/10",
+      "formula": "LET(v,(-EXP(-709))/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-709))*1e307",
+      "formula": "LET(v,(-EXP(-709))*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-709))/1e307",
+      "formula": "LET(v,(-EXP(-709))/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-709))%",
+      "formula": "LET(v,(-EXP(-709))%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-709))%)%",
+      "formula": "LET(v,((-EXP(-709))%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-709))/10)*1e307",
+      "formula": "LET(v,((-EXP(-709))/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-709))*0.1)*1e307",
+      "formula": "LET(v,((-EXP(-709))*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-709))%)*1e307",
+      "formula": "LET(v,((-EXP(-709))%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))*0.1",
+      "formula": "LET(v,(EXP(-710))*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))/0.1",
+      "formula": "LET(v,(EXP(-710))/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-710))*1",
+      "formula": "LET(v,(EXP(-710))*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))/1",
+      "formula": "LET(v,(EXP(-710))/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))*2",
+      "formula": "LET(v,(EXP(-710))*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))/2",
+      "formula": "LET(v,(EXP(-710))/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))*10",
+      "formula": "LET(v,(EXP(-710))*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-710))/10",
+      "formula": "LET(v,(EXP(-710))/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))*1e307",
+      "formula": "LET(v,(EXP(-710))*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-710))/1e307",
+      "formula": "LET(v,(EXP(-710))/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(EXP(-710))%",
+      "formula": "LET(v,(EXP(-710))%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-710))%)%",
+      "formula": "LET(v,((EXP(-710))%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-710))/10)*1e307",
+      "formula": "LET(v,((EXP(-710))/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-710))*0.1)*1e307",
+      "formula": "LET(v,((EXP(-710))*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((EXP(-710))%)*1e307",
+      "formula": "LET(v,((EXP(-710))%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))*0.1",
+      "formula": "LET(v,(-EXP(-710))*0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))/0.1",
+      "formula": "LET(v,(-EXP(-710))/0.1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-710))*1",
+      "formula": "LET(v,(-EXP(-710))*1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))/1",
+      "formula": "LET(v,(-EXP(-710))/1,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))*2",
+      "formula": "LET(v,(-EXP(-710))*2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))/2",
+      "formula": "LET(v,(-EXP(-710))/2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))*10",
+      "formula": "LET(v,(-EXP(-710))*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-710))/10",
+      "formula": "LET(v,(-EXP(-710))/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))*1e307",
+      "formula": "LET(v,(-EXP(-710))*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-710))/1e307",
+      "formula": "LET(v,(-EXP(-710))/1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(-EXP(-710))%",
+      "formula": "LET(v,(-EXP(-710))%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-710))%)%",
+      "formula": "LET(v,((-EXP(-710))%)%,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-710))/10)*1e307",
+      "formula": "LET(v,((-EXP(-710))/10)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-710))*0.1)*1e307",
+      "formula": "LET(v,((-EXP(-710))*0.1)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "((-EXP(-710))%)*1e307",
+      "formula": "LET(v,((-EXP(-710))%)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(0)/(EXP(-709))",
+      "formula": "LET(v,(0)/(EXP(-709)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(0)/(EXP(-710))",
+      "formula": "LET(v,(0)/(EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(0)/(-EXP(-710))",
+      "formula": "LET(v,(0)/(-EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(0)/(2^-1022)",
+      "formula": "LET(v,(0)/(2^-1022),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(0)/(-(2^-1022))",
+      "formula": "LET(v,(0)/(-(2^-1022)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "(1e-307)/(EXP(-709))",
+      "formula": "LET(v,(1e-307)/(EXP(-709)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(1e-307)/(EXP(-710))",
+      "formula": "LET(v,(1e-307)/(EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(1e-307)/(-EXP(-710))",
+      "formula": "LET(v,(1e-307)/(-EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(1e-307)/(2^-1022)",
+      "formula": "LET(v,(1e-307)/(2^-1022),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-307)/(-(2^-1022))",
+      "formula": "LET(v,(1e-307)/(-(2^-1022)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(EXP(-710))/(EXP(-709))",
+      "formula": "LET(v,(EXP(-710))/(EXP(-709)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(EXP(-710))/(EXP(-710))",
+      "formula": "LET(v,(EXP(-710))/(EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(EXP(-710))/(-EXP(-710))",
+      "formula": "LET(v,(EXP(-710))/(-EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(EXP(-710))/(2^-1022)",
+      "formula": "LET(v,(EXP(-710))/(2^-1022),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(EXP(-710))/(-(2^-1022))",
+      "formula": "LET(v,(EXP(-710))/(-(2^-1022)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-710))/(EXP(-709))",
+      "formula": "LET(v,(-EXP(-710))/(EXP(-709)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(-EXP(-710))/(EXP(-710))",
+      "formula": "LET(v,(-EXP(-710))/(EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(-EXP(-710))/(-EXP(-710))",
+      "formula": "LET(v,(-EXP(-710))/(-EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(-EXP(-710))/(2^-1022)",
+      "formula": "LET(v,(-EXP(-710))/(2^-1022),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "(-EXP(-710))/(-(2^-1022))",
+      "formula": "LET(v,(-EXP(-710))/(-(2^-1022)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1)/(EXP(-709))",
+      "formula": "LET(v,(1)/(EXP(-709)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(1)/(EXP(-710))",
+      "formula": "LET(v,(1)/(EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(1)/(-EXP(-710))",
+      "formula": "LET(v,(1)/(-EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "(1)/(2^-1022)",
+      "formula": "LET(v,(1)/(2^-1022),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1)/(-(2^-1022))",
+      "formula": "LET(v,(1)/(-(2^-1022)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "2^-1022*(1-2^-52)",
+      "formula": "LET(v,2^-1022*(1-2^-52),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "2^-1022*(1+2^-52)",
+      "formula": "LET(v,2^-1022*(1+2^-52),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "2.2250738585072e-307/10",
+      "formula": "LET(v,2.2250738585072e-307/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "2.22507385850721e-307/10",
+      "formula": "LET(v,2.22507385850721e-307/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "1e307*10",
+      "formula": "LET(v,1e307*10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "1e307*100",
+      "formula": "LET(v,1e307*100,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "0/0",
+      "formula": "LET(v,0/0,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "\"1e-307\"/10",
+      "formula": "LET(v,\"1e-307\"/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "TRUE*1e-307/10",
+      "formula": "LET(v,TRUE*1e-307/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "\"x\"/10",
+      "formula": "LET(v,\"x\"/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR3"
+    },
+    {
+      "expression": "NA()/10",
+      "formula": "LET(v,NA()/10,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "INDEX({1e-307,1}/10,1,1)",
+      "formula": "LET(v,INDEX({1e-307,1}/10,1,1),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "INDEX({1e-307,1}/10,1,2)",
+      "formula": "LET(v,INDEX({1e-307,1}/10,1,2),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUM({1e-307,1e-307}/10)",
+      "formula": "LET(v,SUM({1e-307,1e-307}/10),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUM({1e-307,1e-307}%)",
+      "formula": "LET(v,SUM({1e-307,1e-307}%),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "LAMBDA(x,x/10)(1e-307)",
+      "formula": "LET(v,LAMBDA(x,x/10)(1e-307),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "LET(x,1e-307/10,x*1e307)",
+      "formula": "LET(v,LET(x,1e-307/10,x*1e307),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUM(MAP({1,2},LAMBDA(x,x*1e-307/100)))",
+      "formula": "LET(v,SUM(MAP({1,2},LAMBDA(x,x*1e-307/100))),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "REDUCE(1e-307,{10,10},LAMBDA(a,b,a/b))",
+      "formula": "LET(v,REDUCE(1e-307,{10,10},LAMBDA(a,b,a/b)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUM(SCAN(1e-307,{10,10},LAMBDA(a,b,a/b)))",
+      "formula": "LET(v,SUM(SCAN(1e-307,{10,10},LAMBDA(a,b,a/b))),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "EXP(-710)",
+      "formula": "LET(v,EXP(-710),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "EXP(-710)+0",
+      "formula": "LET(v,EXP(-710)+0,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "EXP(-710)+EXP(-710)",
+      "formula": "LET(v,EXP(-710)+EXP(-710),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "EXP(-710)-(-EXP(-710))",
+      "formula": "LET(v,EXP(-710)-(-EXP(-710)),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "1e-154^2",
+      "formula": "LET(v,1e-154^2,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(1e-154^2)*1e307",
+      "formula": "LET(v,(1e-154^2)*1e307,IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "IFERROR(1/(1e-307/10),99)",
+      "formula": "LET(v,IFERROR(1/(1e-307/10),99),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "IFERROR(EXP(-710)/EXP(-710),99)",
+      "formula": "LET(v,IFERROR(EXP(-710)/EXP(-710),99),IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "(-1e-307/10)&\"\"",
+      "formula": "LET(v,(-1e-307/10)&\"\",IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "0"
+    },
+    {
+      "expression": "(-1e-307*0.1)&\"\"",
+      "formula": "LET(v,(-1e-307*0.1)&\"\",IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "0"
+    },
+    {
+      "expression": "((-1e-307)%)&\"\"",
+      "formula": "LET(v,((-1e-307)%)&\"\",IFERROR(IF(ISTEXT(v),v,IF(ISLOGICAL(v),IF(v,\"TRUE\",\"FALSE\"),IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")))),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "0"
+    }
+  ]
+}

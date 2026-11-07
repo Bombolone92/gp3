@@ -1,0 +1,1143 @@
+{
+  "referenceBuild": "16.0.20430",
+  "method": "Detached Range.Text on already-open visible independently authored controls; SaveAs2 to separate references, then Undo. Source bytes preserved. XML semantics only; no font programs or rendered glyphs inspected.",
+  "cases": [
+    {
+      "fixture": "formats",
+      "name": "delete-first",
+      "sourceSha256": "f0eb854a55c686fc4cafc771963362b5542d03e20d968141a1be491e71638d17",
+      "nativeExportSha256": "c09759ea71efb63c12cae3de05afdb4eaf63f992171ead4b578c38f5c11b538e",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaryCharlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "formats",
+      "name": "replace-first",
+      "sourceSha256": "f0eb854a55c686fc4cafc771963362b5542d03e20d968141a1be491e71638d17",
+      "nativeExportSha256": "78b246dcb5309e555874c666fb38eaa8dee91900ca8accec6e1244051c224f04",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedarlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "formats",
+      "name": "replace-to-second",
+      "sourceSha256": "f0eb854a55c686fc4cafc771963362b5542d03e20d968141a1be491e71638d17",
+      "nativeExportSha256": "4c9293bfe4f036965cbed41f32fca433f587e17c082573d3f284794778d0a960",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedlta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "formats",
+      "name": "replace-both",
+      "sourceSha256": "f0eb854a55c686fc4cafc771963362b5542d03e20d968141a1be491e71638d17",
+      "nativeExportSha256": "fb7ff452c7cd52bbc0d4111fa3bcc6eb20397c94c9f03d128142038f67aef332",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedho final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "formats",
+      "name": "multiline",
+      "sourceSha256": "f0eb854a55c686fc4cafc771963362b5542d03e20d968141a1be491e71638d17",
+      "nativeExportSha256": "97c40519a8636b740f136cbd31dadc03f47919ab03e371ba009e6675a8ed0cfc",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaOne",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Twoarlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "table",
+      "name": "delete-first",
+      "sourceSha256": "3bb3424a3ba3f3188df4a251ef12fd8ff578cf4d09bfb0f55caad28b28bca73f",
+      "nativeExportSha256": "01c4f4dcddb5bd29d861c4d94a610f250d01dea57c36e4519d2db418922f16e1",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaryCharlie second",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Table middle",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 1
+      }
+    },
+    {
+      "fixture": "table",
+      "name": "replace-first",
+      "sourceSha256": "3bb3424a3ba3f3188df4a251ef12fd8ff578cf4d09bfb0f55caad28b28bca73f",
+      "nativeExportSha256": "7170d170abbd2b48de47c145889811ac124b763c916f56318223221c945e6846",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedarlie second",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Table middle",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 1
+      }
+    },
+    {
+      "fixture": "table",
+      "name": "replace-to-second",
+      "sourceSha256": "3bb3424a3ba3f3188df4a251ef12fd8ff578cf4d09bfb0f55caad28b28bca73f",
+      "nativeExportSha256": "6d071180bdbf005fac02e3ce13e8a33f1c3b3fcf52e2f46a4dfb5c5fa519757b",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedlta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "table",
+      "name": "replace-both",
+      "sourceSha256": "3bb3424a3ba3f3188df4a251ef12fd8ff578cf4d09bfb0f55caad28b28bca73f",
+      "nativeExportSha256": "f3f50a27583a5ddd78fc1f3d5b3962a09a0e7a094efab0e62ec76db3e4952053",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedho final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "inheritance",
+      "name": "delete-first",
+      "sourceSha256": "eb22d26562861585efce9cb62d08ce516c5dbb32cfb880762b2920cfb8313773",
+      "nativeExportSha256": "8bf8815ef14408a815e66d6e9b88491eb567c835c0586cf9e885ef07997a5c18",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaryCharlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "inheritance",
+      "name": "replace-first",
+      "sourceSha256": "eb22d26562861585efce9cb62d08ce516c5dbb32cfb880762b2920cfb8313773",
+      "nativeExportSha256": "450f446812c2e1e9403f2d8c3da30c1d496f771910c4bb4fd5ec7cbfbff392c0",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedarlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "inheritance",
+      "name": "replace-to-second",
+      "sourceSha256": "eb22d26562861585efce9cb62d08ce516c5dbb32cfb880762b2920cfb8313773",
+      "nativeExportSha256": "e50e1a87444f9bceff0eaad142c9fdca19472706ce8b24420a1a29e209fc44f5",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedlta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "inheritance",
+      "name": "replace-both",
+      "sourceSha256": "eb22d26562861585efce9cb62d08ce516c5dbb32cfb880762b2920cfb8313773",
+      "nativeExportSha256": "9574d7bb2a06c3d1325826dde40ecc8c5b5524838407168389ed77550c92e16b",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedho final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "inheritance",
+      "name": "multiline",
+      "sourceSha256": "eb22d26562861585efce9cb62d08ce516c5dbb32cfb880762b2920cfb8313773",
+      "nativeExportSha256": "c6fb108a85234bb63df55d9765cc551e2d822628a78f42ef2b221776ac0b61e6",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaOne",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Twoarlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "implicit-final",
+      "name": "delete-first",
+      "sourceSha256": "0a3735eb06e57e2c0193bb4d504f67b457287d396a1fc67b9a23b0809e6d25a0",
+      "nativeExportSha256": "25e44b430e0a2b5c4344616f2453674c12da953117e424e7d88df567dd063ac7",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaryCharlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 72.0,
+            "firstPageDifferent": false,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "implicit-final",
+      "name": "replace-first",
+      "sourceSha256": "0a3735eb06e57e2c0193bb4d504f67b457287d396a1fc67b9a23b0809e6d25a0",
+      "nativeExportSha256": "afb1c39b5a1e20adabddab84a75fe1ac5f4a8f6631adcc4c68f858105ae7df18",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedarlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 72.0,
+            "firstPageDifferent": false,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "implicit-final",
+      "name": "replace-to-second",
+      "sourceSha256": "0a3735eb06e57e2c0193bb4d504f67b457287d396a1fc67b9a23b0809e6d25a0",
+      "nativeExportSha256": "bbf88706c78aaca87723268b9c53f7986a0a8ebada3d2ee943ed80423153938e",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedlta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 72.0,
+            "firstPageDifferent": false,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "implicit-final",
+      "name": "replace-both",
+      "sourceSha256": "0a3735eb06e57e2c0193bb4d504f67b457287d396a1fc67b9a23b0809e6d25a0",
+      "nativeExportSha256": "70bf7e5bd0c9497be44275d8193ebad0141c6a9112e3f8e017ae9fb368338815",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaEditedho final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 72.0,
+            "firstPageDifferent": false,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "implicit-final",
+      "name": "multiline",
+      "sourceSha256": "0a3735eb06e57e2c0193bb4d504f67b457287d396a1fc67b9a23b0809e6d25a0",
+      "nativeExportSha256": "632bf2aa5bae0db62b7a8e8bf15e6d5fb4edb295345fa3f5fb68ca97ba2e755d",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false
+          },
+          {
+            "text": "Bravo boundaOne",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Twoarlie second",
+            "alignment": "center",
+            "sectionEnd": false
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "firstPageDifferent": true,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 72.0,
+            "firstPageDifferent": false,
+            "header": "Header 1",
+            "headerFirst": "Header First",
+            "headerEven": "Header Even",
+            "footer": "Footer 1",
+            "footerFirst": "Footer First",
+            "footerEven": "Footer Even"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "boundary-table",
+      "name": "delete-first",
+      "sourceSha256": "83e0f9ea11e252a7f39935d6265c3a2debb9697bf610be6e6819c7a47c5c5a13",
+      "nativeExportSha256": "ca28c38af7b653e67d859eda6c810d96a810e0435dc8a5b4e2ce322b2549d873",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          },
+          {
+            "text": "Bravo boundaryTable middle",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": true
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true,
+            "inTable": false
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 1
+      }
+    },
+    {
+      "fixture": "boundary-table",
+      "name": "replace-at-break",
+      "sourceSha256": "83e0f9ea11e252a7f39935d6265c3a2debb9697bf610be6e6819c7a47c5c5a13",
+      "nativeExportSha256": "d3bd263f67716d0cc82273056733976c8d2de86f1be8516d2ff6a65debcd20b0",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          },
+          {
+            "text": "Bravo boundaryEditedTable middle",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": true
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true,
+            "inTable": false
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 1
+      }
+    },
+    {
+      "fixture": "boundary-table",
+      "name": "insert-text",
+      "sourceSha256": "83e0f9ea11e252a7f39935d6265c3a2debb9697bf610be6e6819c7a47c5c5a13",
+      "nativeExportSha256": "c3ca3afd41f8709018733dd2a79ad1cfabc995d307fb9a0b97ab2e0860ade302",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          },
+          {
+            "text": "Bravo boundaryNewTable middle",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": true
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true,
+            "inTable": false
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 1
+      }
+    },
+    {
+      "fixture": "boundary-table",
+      "name": "replace-both",
+      "sourceSha256": "83e0f9ea11e252a7f39935d6265c3a2debb9697bf610be6e6819c7a47c5c5a13",
+      "nativeExportSha256": "409a18197bd4cf601e19c8e9f4387d8bed62ee6b9646d29cc329e35f4bf288b7",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          },
+          {
+            "text": "Bravo boundaEditedho final",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 0
+      }
+    },
+    {
+      "fixture": "boundary-table",
+      "name": "multiline-at-break",
+      "sourceSha256": "83e0f9ea11e252a7f39935d6265c3a2debb9697bf610be6e6819c7a47c5c5a13",
+      "nativeExportSha256": "2a739e6676e03741320dcc1eb27822ba65c0341b1ff0b7e7ef4681875bb804e6",
+      "expected": {
+        "paragraphs": [
+          {
+            "text": "Alpha first",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          },
+          {
+            "text": "Bravo boundaryOne",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": true
+          },
+          {
+            "text": "TwoTable middle",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": true
+          },
+          {
+            "text": "Delta boundary",
+            "alignment": "left",
+            "sectionEnd": true,
+            "inTable": false
+          },
+          {
+            "text": "Echo final",
+            "alignment": "left",
+            "sectionEnd": false,
+            "inTable": false
+          }
+        ],
+        "sections": [
+          {
+            "width": 792.0,
+            "height": 612.0,
+            "left": 36.0,
+            "header": "Header 2"
+          },
+          {
+            "width": 612.0,
+            "height": 792.0,
+            "left": 108.0,
+            "header": "Header 3"
+          }
+        ],
+        "tables": 1
+      }
+    }
+  ]
+}

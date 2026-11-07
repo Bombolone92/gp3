@@ -1,0 +1,1078 @@
+/* ---------- Grid ---------- */
+
+.grid {
+  --row-header-w: 48px;
+  --col-header-h: 26px;
+  --grid-font-size: 13px;
+  --grid-line: var(--grid);
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--row-header-w) minmax(0, 1fr);
+  grid-template-rows: var(--col-header-h) minmax(0, 1fr);
+  min-height: 0;
+  height: 100%;
+  background: var(--surface);
+  /* Zoom scales the default text with the cell geometry; explicitly sized cells are scaled inline. */
+  font-size: calc(var(--grid-font-size) * var(--zoom, 1));
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    --row-header-w: 36px;
+  }
+}
+
+/* Hide headings while retaining independent outline controls in their gutter. */
+.grid.no-headers .grid-corner, .grid.no-headers .hcell, .grid.no-headers .freeze-bar { visibility: hidden; }
+
+/* Resolve grid lines against the sheet palette, not the dark header palette
+   where .grid originally defines this inherited custom property. */
+.grid-viewport, .frz-layer, .grid > .grid-editor { --grid-line: var(--grid); }
+
+.grid-corner {
+  grid-area: 1 / 1;
+  position: relative; /* the select-all triangle below is placed against this cell, not the whole grid */
+  background: var(--surface-2);
+  border-right: 1px solid var(--hairline-strong);
+  border-bottom: 1px solid var(--hairline-strong);
+  border-radius: 0;
+  z-index: 3;
+}
+
+.grid-corner::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 9px 9px;
+  border-color: transparent transparent var(--ink-3) transparent;
+  opacity: 0.85; /* about 3.4:1 on the header surface, so the select-all mark is seen */
+}
+
+@media (hover: hover) {
+  .grid-corner:hover::after {
+    border-bottom-color: var(--accent);
+    opacity: 1;
+  }
+}
+
+.grid-corner:focus-visible {
+  outline-offset: -2px;
+}
+
+.grid-colhead-clip {
+  grid-area: 1 / 2;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--hairline-strong);
+  z-index: 2;
+}
+
+.grid-rowhead-clip {
+  grid-area: 2 / 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-right: 1px solid var(--hairline-strong);
+  z-index: 2;
+}
+
+.grid-colhead,
+.grid-rowhead {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.grid-colhead { height: 100%; }
+.grid-rowhead { width: 100%; }
+
+.hcell {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: var(--ink-3);
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.1s;
+  /* A finger dragged along the headers selects lines; the browser must not take it for a scroll. */
+  touch-action: none;
+}
+
+.grid-colhead .hcell,
+.grid-colhead-frozen .hcell {
+  top: 0;
+  height: 100%;
+  border-right: 1px solid var(--grid-line);
+}
+
+.grid-rowhead .hcell,
+.grid-rowhead-frozen .hcell {
+  left: 0;
+  width: 100%;
+  padding-left: var(--outline-w, 0px);
+  border-bottom: 1px solid var(--grid-line);
+}
+
+.grid-colhead .hcell,
+.grid-colhead-frozen .hcell { padding-top: var(--outline-h, 0px); }
+
+/* Outline groups: brackets in the header gutter with a collapse/expand button. */
+.outline-line {
+  position: absolute;
+  background: var(--ink-3);
+  opacity: 0.85; /* about 3.6:1 on the light gutter and 4:1 on the dark one; 0.7 fell short of 3:1 */
+  pointer-events: none;
+}
+.grid-rowhead .outline-line { width: 2px; }
+.grid-colhead .outline-line { height: 2px; }
+
+.outline-btn {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 1px solid var(--ink-3);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: 600 11px/12px var(--font);
+  cursor: pointer;
+  z-index: 1;
+}
+
+@media (hover: hover) { .outline-btn:hover { border-color: var(--accent); color: var(--accent); } }
+/* Tiny controls keep a pointer target of 24px (WCAG 2.5.8) without growing on screen: 14px plus 5px around. */
+.outline-btn::before { content: ""; position: absolute; inset: -5px; }
+
+/* The outline's level buttons (1, 2, 3 …) over the corner: one per bracket column, side by side. */
+.outline-levels { grid-area: 1 / 1; position: relative; z-index: 4; pointer-events: none; }
+.grid.no-headers .outline-levels { visibility: hidden; }
+.outline-level {
+  position: absolute;
+  width: 12px;
+  height: 14px;
+  padding: 0;
+  border: 1px solid var(--ink-3);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: 600 10px/12px var(--font);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.outline-level[data-axis="col"] { width: 14px; height: 12px; line-height: 10px; }
+@media (hover: hover) { .outline-level:hover { border-color: var(--accent); color: var(--accent); } }
+.outline-level::before { content: ""; position: absolute; inset: -5px 0; }
+.outline-level[data-axis="col"]::before { inset: 0 -5px; }
+.chart-resize::before { content: ""; position: absolute; inset: -6px; }
+
+@media (hover: hover) { .hcell:hover { background: var(--surface-3); color: var(--ink); } }
+.hcell.hl { background: var(--surface-3); color: var(--ink); }
+.hcell.sel { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* Resize handles sit on the trailing edge of each header cell. */
+.col-resizer {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 9px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1;
+}
+
+.row-resizer {
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 9px;
+  cursor: row-resize;
+  z-index: 1;
+}
+
+@media (hover: hover) {
+  .col-resizer:hover, .row-resizer:hover {
+    background: var(--accent-wash);
+  }
+}
+
+/* The freeze marks and the frozen boundary read at 3:1 or better against the sheet in both themes. */
+.freeze-bar { position: absolute; z-index: 7; background: var(--ink-3); opacity: 0.8; border-radius: 2px; touch-action: none; }
+.freeze-bar.v { top: 0; width: 5px; cursor: col-resize; }
+.freeze-bar.h { left: 0; height: 5px; cursor: row-resize; }
+.freeze-bar.dragging { background: var(--accent); opacity: 1; }
+@media (hover: hover) { .freeze-bar:hover { background: var(--accent); opacity: 1; } }
+.grid.no-headers .freeze-bar { display: none; }
+
+.resize-guide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: var(--accent);
+}
+
+.resize-guide.col { width: 1px; height: 100%; }
+.resize-guide.row { height: 1px; width: 100%; }
+.resize-guide.move-ok { background: var(--accent); }
+.resize-guide.move-ok.col { width: 3px; margin-left: -1px; }
+.resize-guide.move-ok.row { height: 3px; margin-top: -1px; }
+.resize-guide.move-no { background: var(--critical); opacity: 0.6; }
+.resize-feedback {
+  position: absolute;
+  z-index: 11;
+  pointer-events: none;
+  padding: 5px 8px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hcell.sel { cursor: grab; }
+.grid.reordering, .grid.reordering .hcell { cursor: grabbing; }
+/* Header strips capture resize drags, so keep their cursor after the handle loses the pointer. */
+.grid.resizing-col, .grid.resizing-col .grid-colhead-clip { cursor: col-resize; }
+.grid.resizing-row, .grid.resizing-row .grid-rowhead-clip { cursor: row-resize; }
+.grid.painting .grid-viewport, .grid.painting .cell { cursor: copy; }
+.grid.protected .fill-handle { display: none; }
+.grid-tables { position: absolute; top: 0; left: 0; }
+/* A finger on the corner drags it; the browser must not take the drag for a scroll and cancel it. */
+.table-handle { position: absolute; top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; z-index: 4; touch-action: none; }
+.table-handle::before { content: ""; position: absolute; inset: -7px; } /* a 24px pointer target around the 10px corner */
+.table-handle::after { content: ""; position: absolute; right: 1px; bottom: 1px; width: 0; height: 0; border-style: solid; border-width: 0 0 7px 7px; border-color: transparent transparent var(--ink-3) transparent; opacity: 0.85; } /* 0.7 fell short of 3:1 on the paper, as the outline brackets did */
+@media (hover: hover) { .table-handle:hover::after { border-bottom-color: var(--accent); opacity: 1; } }
+.table-preview { border: 2px dashed var(--accent); background: transparent; pointer-events: none; }
+.grid.protected .table-handle { display: none; }
+.grid.no-gridlines .cell { border-right-color: transparent; border-bottom-color: transparent; }
+.grid.no-gridlines .cell.bb { border-bottom-color: var(--ink); }
+.grid.no-gridlines .cell.br { border-right-color: var(--ink); }
+
+.grid-viewport {
+  grid-area: 2 / 2;
+  position: relative;
+  overflow: auto;
+  overscroll-behavior: contain;
+  outline: none;
+  scrollbar-gutter: auto;
+  -webkit-overflow-scrolling: touch;
+  /* A finger scrolls the sheet; two pinched zoom the sheet (grid.js), not the whole page. */
+  touch-action: pan-x pan-y;
+  cursor: cell;
+  /* Grid lines are drawn on the viewport background so blank cells cost
+     nothing; cells then only paint their own content. */
+  background-color: var(--surface);
+  /* A stacking context of its own, so the editor, previews and popovers in the canvas stay under the
+     frozen panes (z-index 4 and 5 in the grid) when their cells scroll beneath them. */
+  z-index: 1;
+}
+
+/* The active cell's border is the grid's focus indicator, so the viewport draws no ring of its own;
+   it fades while the focus is elsewhere, and tabbing into the grid visibly brings it back. */
+.grid-viewport:focus-visible {
+  box-shadow: none;
+}
+
+.grid:not(:focus-within) .sel-active {
+  opacity: 0.55;
+}
+
+.grid-canvas {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.grid-cells {
+  position: absolute;
+  inset: 0;
+}
+
+.grid-row {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.cell {
+  position: absolute;
+  top: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--cell-text-inset, 2px);
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
+  white-space: pre;
+  overflow: hidden;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.cell.rot .rot-text { display: inline-block; white-space: pre; line-height: 1.2; transform-origin: center; }
+/* Angled text: the box of its turned bounds is what the cell aligns; the text turns about its centre inside it. */
+.cell.rot .rot-bounds { position: relative; flex: none; }
+.cell.rot .rot-bounds > .rot-text { position: absolute; left: 50%; top: 50%; }
+.cell.rot.vert .rot-text { writing-mode: vertical-rl; }
+.cell.rot.vert.up .rot-text { transform: rotate(180deg); }
+.cell .cf-icon { display: inline-block; flex: none; margin-right: 5px; font-size: 0.8em; line-height: 1; letter-spacing: -1px; }
+.cell.has-icon.ar .cf-icon { margin-right: auto; }
+.cell.al { justify-content: flex-start; }
+.cell.ac { justify-content: center; }
+.cell.ar { justify-content: flex-end; }
+.cell.b { font-weight: 600; }
+.cell.i { font-style: italic; }
+.cell.u { text-decoration: underline; }
+.cell.s { text-decoration: line-through; }
+.cell.u.s { text-decoration: underline line-through; }
+.cell.wrap { white-space: pre-wrap; overflow-wrap: anywhere; align-items: flex-start; line-height: 1.3; }
+/* A number never wraps: too wide for its cell it shows ### (or a shorter General form) on one line. */
+.cell.wrap.num { white-space: pre; overflow-wrap: normal; }
+.cell.err { color: var(--critical); font-weight: 600; }
+.cell.vt { align-items: flex-start; padding-top: 3px; }
+.cell.vm { align-items: center; padding-top: 0; }
+.cell.vb { align-items: flex-end; padding-bottom: 3px; }
+/* Wrapped lines fill the rows fitted for them (heightForLines: 1.3 lines a line, nothing more) in every font, as in
+   Calibri: the 4px kept above the first line and 3px below the last were the room of the old fit's 8 extra pixels,
+   and in a fitted row of Arial (a LibreOffice or Google Sheets file) they pushed the last line's descenders out. */
+.cell.wrap { padding-top: 0; padding-bottom: 0; }
+/* Retain the compact vertical metrics of existing Calibri workbooks.
+   Horizontal text margins are independent of the font. */
+.cell.calibri { padding-top: 0; padding-bottom: 0; line-height: 1.2; }
+/* Wrapped lines keep the pitch their rows are fitted for (heightForLines: 1.3 lines), in Calibri as in any
+   font, so the text fills its fitted row as Excel's does rather than leaving a line's worth of it empty. */
+.cell.wrap.calibri { line-height: 1.3; }
+.cell.bt { border-top: 1px solid var(--ink); }
+.cell.bl { border-left: 1px solid var(--ink); }
+.cell.bb { border-bottom-color: var(--ink); }
+.cell.br { border-right-color: var(--ink); }
+/* A cell fill covers its gridlines. Explicit borders still draw above it. */
+.cell.filled:not(.spill) { --grid-line: transparent; }
+.cell.overflow { color: var(--ink-3); justify-content: center; }
+.cell.sparkline { padding: 1px; }
+.cell.img-cell { padding: 1px; justify-content: center; overflow: hidden; }
+/* A picture in a cell fills the cell's box whole and in proportion; object-position (set per cell) aligns it. */
+.cell.img-cell img { display: block; width: 100%; height: 100%; min-width: 0; object-fit: contain; }
+.cell.img-cell.fit-stretch img { object-fit: fill; }
+.cell.img-cell.fit-original img { width: auto; height: auto; max-width: none; max-height: none; object-fit: none; }
+.cell.sparkline svg { display: block; width: 100%; height: 100%; }
+.cell.formula-text { font-family: var(--mono); font-size: 0.92em; color: var(--ink-2); }
+/* Spilled and array results read in the cells' own colour. */
+/* A cell a hidden row or column has left with no extent: it is in the DOM only so the grid's cursor
+   (aria-activedescendant) names a node that exists, and must draw nothing — with box-sizing:
+   border-box its borders and padding would still keep a pixel at the hidden line. */
+.cell.sizeless { border: 0; padding: 0; }
+.cell.spill { z-index: 1; background: var(--cell-default-bg, var(--surface)); }
+.cell.merged { z-index: 1; background-color: var(--cell-default-bg, var(--surface)); }
+.cell[style*="background-color"].spill { z-index: 1; }
+/* A running label's own fill is a layer the size of its cell, over a surface backing that hides the grid lines under the
+   text and stops at a painted neighbour (on either side of the cell), so that neighbour's fill shows under the text. */
+.cell.spill.spill-over-fill {
+  background:
+    linear-gradient(var(--spill-bg, transparent), var(--spill-bg, transparent)) var(--spill-own-x, 0) 0 / var(--spill-own, 0) 100% no-repeat,
+    var(--spill-lines),
+    linear-gradient(var(--surface), var(--surface)) var(--spill-back-x, 0) 0 / var(--spill-opaque) 100% no-repeat;
+  /* Paint through transparent gridline borders without moving text, indents,
+     dropdown arrows or font-specific padding inside the original box. */
+  background-origin: border-box;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+/* A label's borders stay on its own cell while its text runs over the neighbours: the wide node is left
+   borderless, a box the size of the cell inside it carries the borders, and the node paints the grid lines under the
+   overflow itself (its own gridline borders would have run around the whole overflow box). The padding keeps the text
+   where the gridline borders had it. */
+.cell.spill.spill-bordered, .cell.spill.spill-over-fill {
+  --spill-lines:
+    linear-gradient(var(--spill-line, var(--grid-line)), var(--spill-line, var(--grid-line))) var(--spill-back-x, 0px) 100% / var(--spill-opaque, 100%) 1px no-repeat,
+    linear-gradient(var(--spill-line, var(--grid-line)), var(--spill-line, var(--grid-line))) calc(var(--spill-back-x, 0px) + var(--spill-opaque, 100%) - 1px) 0 / 1px 100% no-repeat;
+}
+.cell.spill.spill-bordered {
+  border-right: 0;
+  border-bottom: 0;
+  padding-right: 5px;
+  padding-bottom: 1px;
+  background: var(--spill-lines), var(--surface);
+}
+.cell.spill.spill-over-fill.spill-bordered {
+  background:
+    linear-gradient(var(--spill-bg, transparent), var(--spill-bg, transparent)) var(--spill-own-x, 0) 0 / var(--spill-own, 0) 100% no-repeat,
+    var(--spill-lines),
+    linear-gradient(var(--surface), var(--surface)) var(--spill-back-x, 0) 0 / var(--spill-opaque) 100% no-repeat;
+  background-origin: border-box;
+}
+.grid.no-gridlines .cell.spill.spill-bordered, .grid.no-gridlines .cell.spill.spill-over-fill { --spill-line: transparent; }
+.cell-border { position: absolute; top: 0; left: var(--spill-own-x, 0); width: var(--spill-own); height: 100%; box-sizing: border-box; pointer-events: none; }
+.cell-border.bt { border-top: 1px solid var(--ink); }
+.cell-border.bl { border-left: 1px solid var(--ink); }
+.cell-border.bb { border-bottom: 1px solid var(--ink); }
+.cell-border.br { border-right: 1px solid var(--ink); }
+
+/* Selection overlays live in the scrolling canvas so they track the cells. */
+.sel-range,
+.sel-active,
+.fill-preview,
+.ref-hl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.sel-range {
+  background: var(--accent-wash);
+  border: 1px solid var(--accent);
+  z-index: 2;
+  display: none;
+}
+
+.sel-range.multi { display: block; }
+.sel-extras .sel-range { display: block; }
+
+.sel-active {
+  border: 2px solid var(--accent);
+  /* A surface-coloured line inside the border: nothing on a plain cell,
+     and the mark of the cursor on a filled one, where the dark theme's accent reads under 3:1. */
+  box-shadow: inset 0 0 0 1px var(--surface);
+  z-index: 3;
+}
+
+.grid.editing .sel-active {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.fill-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  background: var(--accent);
+  border: 1.5px solid var(--surface);
+  border-radius: 2px;
+  cursor: crosshair;
+  z-index: 4;
+  touch-action: none;
+  will-change: transform;
+}
+
+.fill-handle::after {
+  /* A slightly larger invisible hit area, kept clear of the cell's own buttons. */
+  content: "";
+  position: absolute;
+  inset: -5px;
+}
+
+/* Scrolled under a frozen pane, which lets pointer events through, the handle must not take the press or show its crosshair. */
+.fill-handle.under-pane { pointer-events: none; }
+/* Zoomed far out the cells are smaller than the handle's hit area: it keeps to the handle drawn, leaving the
+   neighbouring cells to their own clicks. */
+.fill-handle.tight::after { inset: 0; }
+
+.fill-preview {
+  border: 1.5px dashed var(--accent-strong);
+  z-index: 2;
+}
+
+.move-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 2px solid var(--accent-strong);
+  background: var(--accent-wash);
+  z-index: 5;
+  will-change: transform;
+}
+.move-preview[hidden] { display: none; }
+.grid-viewport.can-move { cursor: move; }
+
+/* The cells cut and waiting for their paste: a dashed box. */
+.cut-range {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 1.5px dashed var(--accent);
+  z-index: 2;
+  will-change: transform;
+}
+.cut-range[hidden] { display: none; }
+
+/* Charts float over the cells and scroll with them. */
+.grid-objects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.chart-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  pointer-events: auto;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  overflow: visible;
+  cursor: move;
+  user-select: none;
+  will-change: transform;
+  outline: none;
+}
+/* A finger moves a selected box; the browser must not scroll the sheet with it instead. One not selected
+   lets the finger scroll the sheet, and a tap selects it (see chartPointerDown). */
+.chart-box.selected { touch-action: none; }
+.chart-body { position: absolute; inset: 0; overflow: hidden; border-radius: var(--r-sm); }
+.chart-body svg { display: block; width: 100%; height: 100%; font-family: var(--font); }
+.image-box { background: transparent; }
+.chart-box.transparent { background: transparent; }
+.text-box { background: var(--surface); }
+.text-box.borderless { background: transparent; }
+.chart-box.borderless:not(.selected) { border-color: transparent; }
+/* Native artwork owns its full box, including subpixel connector strokes. */
+.chart-box.image-box.borderless { border-width: 0; }
+.chart-box.borderless, .chart-box.borderless .chart-body { border-radius: 0; }
+.text-body { position: absolute; inset: 0; display: flex; padding: 8px 10px; box-sizing: border-box; overflow: hidden; font-family: var(--font); line-height: 1.35; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+.text-body > span { display: block; width: 100%; }
+.chart-body img { display: block; width: 100%; height: 100%; object-fit: fill; user-select: none; -webkit-user-drag: none; }
+.chart-box.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.chart-tools {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: none;
+  gap: 4px;
+  padding: 2px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 6px;
+}
+.chart-box.selected .chart-tools { display: flex; }
+.chart-tool {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+@media (hover: hover) { .chart-tool:hover { background: var(--surface-3); color: var(--ink); } }
+.chart-resize {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+  border-radius: 3px;
+  cursor: nwse-resize;
+  display: none;
+  touch-action: none;
+}
+.chart-box.selected .chart-resize { display: block; }
+/* A protected sheet's objects do not move or resize (see chartPointerDown): no corner to drag, no move cursor. */
+.grid.protected .chart-box.selected .chart-resize { display: none; }
+.grid.protected .chart-box { cursor: default; }
+
+.ref-layer,
+.hl-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.find-hl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 1.5px solid var(--warn);
+  background: rgba(234, 179, 8, 0.16); /* for browsers without color-mix (Safari before 16.2) */
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  z-index: 2;
+}
+
+.find-hl.current {
+  background: rgba(234, 179, 8, 0.34);
+  background: color-mix(in srgb, var(--warn) 32%, transparent);
+}
+
+.ref-hl {
+  border: 1.5px solid var(--series-1);
+  background: var(--accent-wash);
+  background: color-mix(in srgb, var(--series-1) 12%, transparent);
+  z-index: 2;
+}
+
+.ref-hl[data-color="2"] { border-color: var(--series-2); background: var(--accent-wash); background: color-mix(in srgb, var(--series-2) 12%, transparent); }
+.ref-hl[data-color="3"] { border-color: var(--series-3); background: var(--accent-wash); background: color-mix(in srgb, var(--series-3) 12%, transparent); }
+.ref-hl[data-color="4"] { border-color: var(--series-4); background: var(--accent-wash); background: color-mix(in srgb, var(--series-4) 12%, transparent); }
+.ref-hl[data-color="5"] { border-color: var(--series-5); background: var(--accent-wash); background: color-mix(in srgb, var(--series-5) 12%, transparent); }
+.ref-hl[data-color="6"] { border-color: var(--series-7); background: var(--accent-wash); background: color-mix(in srgb, var(--series-7) 12%, transparent); }
+
+.grid-editor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 var(--cell-text-inset, 2px);
+  border: 2px solid var(--accent);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--grid-font-size);
+  line-height: 1.2;
+  resize: none;
+  outline: none;
+  overflow: hidden;
+  white-space: pre;
+  /* Each line's direction follows its first strong letter, so Hebrew or Arabic is typed right to left (the grid sets dir=auto too). */
+  unicode-bidi: plaintext;
+  z-index: 5;
+  /* The grid sets padding-top and height: one line sits where the cell draws it, more lines grow the box. */
+}
+
+.grid-editor.wrap { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.3; }
+.grid-editor.calibri { line-height: 1.2; }
+.grid-editor.wrap.calibri { line-height: 1.3; }
+.grid-editor[hidden] { display: none; }
+.grid-editor.offsheet { opacity: 0; pointer-events: none; left: 0 !important; top: 0 !important; width: 1px !important; height: 1px !important; min-width: 0 !important; }
+
+@media (pointer: coarse) {
+  .grid-viewport { cursor: default; }
+  .grid-editor { font-size: 16px; }
+  /* 25px under a finger (WCAG 2.5.8): on a touch screen the handle is the only way to drag a range out. */
+  .fill-handle::after { inset: -8px; }
+  /* A fingertip lands a few pixels either side of a column's edge; the heading keeps most of its width for the
+     tap that selects the column. Rows are too short to give their strip more without taking that tap. */
+  .col-resizer { right: -8px; width: 17px; }
+}
+
+/* Formula hints under the cell editor */
+.fx-hints {
+  position: absolute;
+  z-index: 12;
+  min-width: 220px;
+  max-width: min(420px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  padding: 4px;
+  font-size: 12.5px;
+  user-select: none;
+}
+
+.fx-hints[hidden] { display: none; }
+
+.fx-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+
+.fx-item.selected { background: var(--accent-wash); color: var(--ink); }
+.fx-name { font-family: var(--mono); font-weight: 600; color: var(--ink); font-size: 12px; }
+.fx-item.selected .fx-name { color: var(--accent-strong); }
+.fx-desc { color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.fx-item.selected .fx-desc { color: var(--ink-2); } /* the third ink is 4.4:1 on the dark wash */
+.fx-signature { padding: 5px 8px 2px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); white-space: normal; }
+.fx-signature + .fx-desc { padding: 0 8px 4px; }
+.fx-arg.current { color: var(--accent-strong); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+
+/* Frozen panes */
+.frz-layer {
+  position: absolute;
+  top: var(--col-header-h);
+  left: var(--row-header-w);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--surface);
+  z-index: 4;
+}
+
+.frz-layer[hidden] { display: none; }
+.frz-corner { z-index: 5; }
+.frz-track { position: absolute; top: 0; left: 0; will-change: transform; }
+.frz-cells, .frz-overlays { position: absolute; top: 0; left: 0; }
+.frz-overlays .fill-handle { pointer-events: none; }
+/* A frozen cell's editor is hosted by the grid, outside the pane's clip, at the cell's place on the screen; it paints over the panes, as the popovers do. */
+.grid > .grid-editor { z-index: 6; }
+
+/* The boundary between frozen and scrolling content, visible at 3:1 or better in both themes. The frozen
+   corner lies over both bands' ends, so it draws their two lines along its own edges. */
+.frz-rows::after, .frz-corner::after, .grid-rowhead-frozen::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--ink-3);
+  opacity: 0.8;
+}
+
+.frz-cols::after, .frz-corner::before, .grid-colhead-frozen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 2px;
+  background: var(--ink-3);
+  opacity: 0.8;
+}
+.frz-corner::before { z-index: 1; } /* over the cells, which the corner's ::before would otherwise lie under */
+
+.grid-colhead-frozen,
+.grid-rowhead-frozen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--surface-2);
+  z-index: 1;
+}
+
+.grid-colhead-frozen { height: 100%; }
+.grid-rowhead-frozen { width: 100%; }
+.grid-colhead-frozen[hidden], .grid-rowhead-frozen[hidden] { display: none; }
+
+/* The grid area is the positioning context for the frozen layers. */
+.grid { isolation: isolate; }
+
+/* A hidden row or column leaves a mark on the neighbouring header. */
+.hcell.after-hidden::before,
+.hcell.before-hidden::after {
+  content: "";
+  position: absolute;
+  background: var(--accent);
+  opacity: 0.85;
+  pointer-events: none;
+}
+/* On a selected header, whose fill is the accent itself, the mark is drawn in the accent ink instead:
+   an accent mark there was 1:1, and selecting the column beside a hidden one hid the only sign of it. */
+.hcell.sel.after-hidden::before,
+.hcell.sel.before-hidden::after { background: var(--accent-ink); }
+
+.grid-colhead .hcell.after-hidden::before,
+.grid-colhead-frozen .hcell.after-hidden::before { left: 0; top: 6px; bottom: 6px; width: 2px; }
+.grid-colhead .hcell.before-hidden::after,
+.grid-colhead-frozen .hcell.before-hidden::after { right: 0; top: 6px; bottom: 6px; width: 2px; }
+.grid-rowhead .hcell.after-hidden::before,
+.grid-rowhead-frozen .hcell.after-hidden::before { top: 0; left: 6px; right: 6px; height: 2px; }
+.grid-rowhead .hcell.before-hidden::after,
+.grid-rowhead-frozen .hcell.before-hidden::after { bottom: 0; left: 6px; right: 6px; height: 2px; }
+
+/* Notes */
+.cell.has-note::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 7px 7px 0;
+  border-color: transparent var(--warn) transparent transparent;
+}
+
+.note-pop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  max-width: 260px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--warn);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.note-pop[hidden] { display: none; }
+/* A frozen cell's popover is hosted by the grid, outside the pane's clip; scrolled out of the viewport along the cell's free axis it goes out of sight. */
+.note-pop.offscreen, .prompt-pop.offscreen, .link-pop.offscreen, .cell-list-button.offscreen { visibility: hidden; }
+
+.prompt-pop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  max-width: 280px;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--ink);
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+.prompt-pop[hidden] { display: none; }
+.prompt-title { display: block; margin-bottom: 4px; }
+
+/* Links */
+.cell.link { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+@media (hover: hover) { .cell.link:hover { text-decoration-color: var(--accent); } }
+.link-pop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 360px;
+  padding: 6px 8px 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  color: var(--ink);
+  pointer-events: auto;
+  cursor: default;
+  will-change: transform;
+}
+.link-pop[hidden] { display: none; }
+.link-pop-url {
+  color: var(--accent);
+  text-decoration: underline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+.link-pop-btn {
+  flex: none;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 500;
+}
+@media (hover: hover) { .link-pop-btn:hover { background: var(--surface-3); color: var(--ink); } }
+
+/* Data validation */
+.cell-list-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  padding: 0;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--ink-2);
+  touch-action: manipulation;
+}
+.cell-list-button[hidden], .chart-sheet .cell-list-button { display: none; }
+@media (hover: hover) { .cell-list-button:hover { background: var(--surface-2); color: var(--ink); } }
+.cell.list-inline:not(.filter-head) { padding-right: calc(16px + var(--cell-text-inset, 2px)); }
+.cell.list-inline:not(.filter-head)::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -5px;
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.cell.chip-cell { overflow: hidden; }
+.cell .chip {
+  display: inline-block;
+  max-width: 100%;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 0.92em;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+/* The box is an element inside the cell (it carries the checkbox role and state); the cell itself stays a gridcell of its row. */
+.cell.checkbox { justify-content: center; cursor: pointer; }
+.cell.checkbox .checkbox-box {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid var(--ink-3);
+  background: var(--surface);
+  box-sizing: border-box;
+}
+.cell.checkbox.checked .checkbox-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12l5 5 9-10'/></svg>");
+  background-size: 11px 11px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.cell.checkbox.excel-checkbox .checkbox-box {
+  border: 1px solid #000;
+  border-radius: 0;
+  background-color: #fff;
+  forced-color-adjust: none;
+}
+.cell.checkbox.excel-checkbox.checked .checkbox-box {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5'><path d='M5 12l5 5 9-10'/></svg>");
+}
+
+.cell.invalid::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 7px 0 0;
+  border-color: var(--critical) transparent transparent transparent;
+}
+
+/* Filter */
+.cell.filter-head { padding-right: calc(18px + var(--cell-text-inset, 2px)); }
+.cell.filter-head::after {
+  content: "";
+  position: absolute;
+  right: calc(4px + var(--spill-right, 0px));
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 4px;
+  background-color: var(--surface-2);
+  background-image: var(--filter-glyph); /* per theme, like the select arrow */
+  background-size: 11px 11px;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+}
+
+.cell.filter-head.filter-on::after {
+  background-color: var(--accent);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 5h18l-7 8v6l-4-2v-4z'/></svg>");
+}
+
+/* A filter button or a dropdown chevron takes the cell's ::after, where a note's or a comment's corner mark is
+   otherwise drawn: in those cells the mark is a background layer in the same corner instead. */
+.cell.filter-head.has-note, .cell.list-inline.has-note,
+.cell.filter-head.has-comment, .cell.list-inline.has-comment {
+  background-image: linear-gradient(to bottom left, var(--corner-mark) 50%, transparent 50%);
+  background-size: 7px 7px;
+  background-position: top right;
+  background-repeat: no-repeat;
+}
+.cell.has-note { --corner-mark: var(--warn); }
+.cell.has-comment { --corner-mark: var(--comment-mark); }
+.cell.has-comment.comment-done { --corner-mark: var(--comment-mark-done); }
+
+.hcell.filtered { color: var(--accent-strong); }
+/* Selected, a filtered row's number is ink on the accent fill like its neighbours': the accent-strong
+   that marks it otherwise reads 1.3:1 on that fill, and Ctrl+A blanked every visible row number. */
+.hcell.filtered.sel { color: var(--accent-ink); }
+
+/* Windows High Contrast (forced colors) flattens every background to the system canvas, so anything
+   drawn only as a fill vanished: the fill handle, the selection wash, the selected header, the freeze
+   bars, the resize guide, outline brackets and the frozen boundary. System colour keywords survive
+   the flattening, so those are drawn in them; the marks whose colours carry meaning (a rule's data bar
+   or fill, a chip, a ticked box) keep their own. */
+@media (forced-colors: active) {
+  .fill-handle { background: Highlight; border-color: Canvas; outline: 1px solid CanvasText; }
+  .chart-resize { background: Highlight; border-color: Canvas; outline: 1px solid CanvasText; }
+  .sel-range { border: 2px solid Highlight; background: transparent; }
+  .sel-active { border-color: Highlight; }
+  .fill-preview, .move-preview, .cut-range, .table-preview, .ref-hl { border-color: Highlight; background: transparent; }
+  .find-hl { border-color: CanvasText; background: transparent; }
+  .find-hl.current { border-width: 3px; }
+  .hcell.sel { background: Highlight; color: HighlightText; border-color: Highlight; }
+  .hcell.hl { outline: 2px solid Highlight; outline-offset: -3px; }
+  .freeze-bar, .outline-line, .frz-rows::after, .frz-cols::after, .frz-corner::after, .frz-corner::before, .grid-rowhead-frozen::after, .grid-colhead-frozen::after { background: CanvasText; opacity: 1; }
+  .freeze-bar.dragging { background: Highlight; }
+  .resize-guide { background: Highlight; }
+  .resize-guide.move-no { background: GrayText; opacity: 1; }
+  .table-handle::after, .grid-corner::after { border-bottom-color: CanvasText; opacity: 1; }
+  .cell.has-note::after { border-right-color: CanvasText; }
+  .cell.invalid::before { border-top-color: CanvasText; }
+  .cell.cf, .cell .chip, .cell.checkbox.checked .checkbox-box { forced-color-adjust: none; }
+}
+
+/* A native chartsheet is an object canvas, with no cell or header surface. */
+.grid.chart-sheet { grid-template-columns: 0 minmax(0, 1fr); grid-template-rows: 0 minmax(0, 1fr); }
+.grid.chart-sheet > :not(.grid-viewport),
+.grid.chart-sheet .grid-canvas > :not(.grid-objects) { display: none; }
+.grid.chart-sheet .grid-viewport { background: var(--surface-2); cursor: default; }
+.chart-sheet-primary .chart-resize { display: none; }
+.grid.chart-sheet .grid-canvas { min-width: 0; min-height: 0; margin-inline: auto; }
+
+/* Worksheet Form scroll bars from a file retain their imported dimensions. */
+.form-scroll { display: flex; width: 100%; height: 100%; background: #eee; color: #333; cursor: default; touch-action: none; }
+.form-scroll button { flex: 0 0 auto; width: 18px; max-width: 25%; padding: 0; border: 1px solid #aaa; border-radius: 0; font-size: 9px; background: #eee; color: inherit; }
+.form-scroll-track { position: relative; flex: 1; min-width: 0; background: #e4e4e4; }
+.form-scroll-track:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.form-scroll-thumb { position: absolute; top: 0; bottom: 0; width: 18px; max-width: 100%; left: calc((100% - 18px) * var(--scroll-position)); background: #ccc; border: 1px solid #999; box-sizing: border-box; }
+.form-scroll.vertical { flex-direction: column; }
+.form-scroll.vertical button { width: 100%; max-width: none; height: 18px; max-height: 25%; }
+.form-scroll.vertical .form-scroll-track { min-height: 0; }
+.form-scroll.vertical .form-scroll-thumb { width: 100%; max-height: 100%; height: 18px; left: 0; top: calc((100% - 18px) * var(--scroll-position)); bottom: auto; }
+
+/* Native sparklines sit behind cell text and controls without changing values. */
+.cell.has-native-sparkline { isolation: isolate; }
+.native-sparkline { position: absolute; inset: 1px; z-index: -1; pointer-events: none; line-height: 0; overflow: hidden; }
+.native-sparkline svg { display: block; width: 100%; height: 100%; }

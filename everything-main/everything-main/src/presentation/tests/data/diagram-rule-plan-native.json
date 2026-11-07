@@ -1,0 +1,561 @@
+{
+  "provenance": "Synthetic DiagramML controls independently regenerated and saved by the native reference application. Native layout rejection tests numeric-mode validity both with and without overflow. Native active versus inactive factor adjustments distinguish own-scope reference formulas from inherited values. These tests resolve the declared rule limit in the original scope; they do not claim to reproduce the fitted value chosen by the native reference application. Geometry/font search outcomes remain a separate stage.",
+  "cases": [
+    {
+      "name": "validation overflow false empty",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" />",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow false val=\"10\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 30,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "validation overflow false fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow false max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "maximum",
+        "current": 30,
+        "limit": 40.0
+      }
+    },
+    {
+      "name": "validation overflow false val=\"10\" fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow false val=\"10\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow false fact=\"0.1\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow false val=\"10\" fact=\"0.1\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"0.1\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow true empty",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" />",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow true val=\"10\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "validation overflow true fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow true max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "maximum",
+        "current": 70,
+        "limit": 40.0
+      }
+    },
+    {
+      "name": "validation overflow true val=\"10\" fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow true val=\"10\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow true fact=\"0.1\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "validation overflow true val=\"10\" fact=\"0.1\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"0.1\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "factor local-ref alias empty",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" forName=\"alias\" refType=\"userA\" fact=\"0.5\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": {
+        "mode": "factor",
+        "current": 20,
+        "limit": 4
+      }
+    },
+    {
+      "name": "factor local-ref alias alias",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" forName=\"alias\" refType=\"userA\" fact=\"0.5\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"alias\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": {
+        "mode": "factor",
+        "current": 20,
+        "limit": 4
+      }
+    },
+    {
+      "name": "factor inherited-ref alias empty",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": null
+    },
+    {
+      "name": "factor inherited-ref alias alias",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"alias\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": null
+    },
+    {
+      "name": "factor inherited-ref-local-literal alias empty",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" forName=\"alias\" val=\"11\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": null
+    },
+    {
+      "name": "factor inherited-ref-local-literal alias alias",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.5\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" forName=\"alias\" val=\"11\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"alias\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": null
+    },
+    {
+      "name": "factor inherited-literal-local-ref alias empty",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" forName=\"alias\" refType=\"userA\" fact=\"0.5\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": null
+    },
+    {
+      "name": "factor inherited-literal-local-ref alias alias",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"userA\" val=\"40\"/><dgm:constr type=\"primFontSz\" forName=\"alias\" refType=\"userA\" fact=\"0.5\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" forName=\"alias\" fact=\"0.1\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": 0,
+      "plan": null
+    },
+    {
+      "name": "reference literal val=\"10\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference literal fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference literal val=\"10\" fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference literal fact=\"0.1\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference literal val=\"10\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference literal max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "maximum",
+        "current": 70,
+        "limit": 40.0
+      }
+    },
+    {
+      "name": "reference literal val=\"NaN\" fact=\"0.1\" max=\"NaN\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"NaN\" fact=\"0.1\" max=\"NaN\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference literal val=\"10\" fact=\"NaN\" max=\"NaN\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"NaN\" max=\"NaN\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference width-ref val=\"10\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference width-ref fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "factor",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference width-ref val=\"10\" fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference width-ref fact=\"0.1\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference width-ref val=\"10\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference width-ref max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "maximum",
+        "current": 70,
+        "limit": 40.0
+      }
+    },
+    {
+      "name": "reference width-ref val=\"NaN\" fact=\"0.1\" max=\"NaN\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"NaN\" fact=\"0.1\" max=\"NaN\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "factor",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference width-ref val=\"10\" fact=\"NaN\" max=\"NaN\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"w\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"NaN\" max=\"NaN\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference user-ref val=\"10\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference user-ref fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "factor",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference user-ref val=\"10\" fact=\"0.1\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference user-ref fact=\"0.1\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" fact=\"0.1\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference user-ref val=\"10\" max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": true,
+      "ownerIndex": -1,
+      "plan": null
+    },
+    {
+      "name": "reference user-ref max=\"40\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" max=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "maximum",
+        "current": 70,
+        "limit": 40.0
+      }
+    },
+    {
+      "name": "reference user-ref val=\"NaN\" fact=\"0.1\" max=\"NaN\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"NaN\" fact=\"0.1\" max=\"NaN\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "factor",
+        "current": 70,
+        "limit": 10.0
+      }
+    },
+    {
+      "name": "reference user-ref val=\"10\" fact=\"NaN\" max=\"NaN\"",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"userA\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" refType=\"userA\" fact=\"0.7\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"20\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"10\" fact=\"NaN\" max=\"NaN\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rejected": false,
+      "ownerIndex": -1,
+      "plan": {
+        "mode": "value",
+        "current": 70,
+        "limit": 10.0
+      }
+    }
+  ]
+}

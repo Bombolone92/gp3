@@ -1,0 +1,243 @@
+{
+  "referenceBuild": "16.0.20430.20140",
+  "method": "Visible owned copies opened with the document-opening helper. Native keyboard selection (eleven Shift+Right characters), Ctrl+B, Ctrl+S to capture mark declarations before Enter, then collapse with Right, Enter and literal text insertion. Partial-body first moves Right seven times. The direct-format body uses Ctrl+End, Enter and text insertion. Source fixtures unchanged. XML declarations only; no font programs read.",
+  "cases": [
+    {
+      "fixture": "body",
+      "sourceSha256": "3c81ff4369292321f14aef93aaf5d31b8b7719b26df2c3e44137e2d5592c8494",
+      "after": {
+        "sha256": "9c7275d9b5840ccd99e6f7723f1251f9a5efd67a107e85dcc7d56139005de577",
+        "paragraphs": [
+          {
+            "text": "Plain Styled tail",
+            "inTable": false,
+            "mark": {
+              "b": "1",
+              "i": "1",
+              "color": "2244AA"
+            },
+            "runs": [
+              {
+                "text": "Plain ",
+                "properties": {}
+              },
+              {
+                "text": "Styled tail",
+                "properties": {
+                  "b": "1",
+                  "i": "1",
+                  "color": "2244AA"
+                }
+              }
+            ]
+          },
+          {
+            "text": "Added paragraph",
+            "inTable": false,
+            "mark": {},
+            "runs": [
+              {
+                "text": "Added paragraph",
+                "properties": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "toggle-cell",
+      "sourceSha256": "9b436f0cf7c6ba6e33f889097246a5e292d4663101a18b07ff41cdb8f21c4963",
+      "beforeEnter": {
+        "sha256": "cca6ec90a9b8660a551ccda84c1c4dac6083ff9146a3779c03b71d0bde82a33d",
+        "paragraphs": [
+          {
+            "text": "Styled tail",
+            "inTable": true,
+            "mark": {
+              "b": "1",
+              "bCs": "1",
+              "i": "1"
+            },
+            "runs": [
+              {
+                "text": "Styled tail",
+                "properties": {
+                  "b": "1",
+                  "bCs": "1",
+                  "i": "1"
+                }
+              }
+            ]
+          },
+          {
+            "text": "End sentinel",
+            "inTable": false,
+            "mark": {},
+            "runs": [
+              {
+                "text": "End sentinel",
+                "properties": {}
+              }
+            ]
+          }
+        ]
+      },
+      "after": {
+        "sha256": "5e57398c60f8a56cff31324bcc89c708dd94b37ed79a916e0dd90adf66c29686",
+        "paragraphs": [
+          {
+            "text": "Styled tail",
+            "inTable": true,
+            "mark": {
+              "b": "1",
+              "bCs": "1",
+              "i": "1"
+            },
+            "runs": [
+              {
+                "text": "Styled tail",
+                "properties": {
+                  "b": "1",
+                  "bCs": "1",
+                  "i": "1"
+                }
+              }
+            ]
+          },
+          {
+            "text": "Added paragraph",
+            "inTable": true,
+            "mark": {
+              "b": "1",
+              "bCs": "1",
+              "i": "1"
+            },
+            "runs": [
+              {
+                "text": "Added paragraph",
+                "properties": {
+                  "b": "1",
+                  "bCs": "1",
+                  "i": "1"
+                }
+              }
+            ]
+          },
+          {
+            "text": "End sentinel",
+            "inTable": false,
+            "mark": {},
+            "runs": [
+              {
+                "text": "End sentinel",
+                "properties": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "toggle-body",
+      "sourceSha256": "52a171d372b4f4ac359e72bc5ac688e316df426040f672496e13edc72e671fb8",
+      "beforeEnter": {
+        "sha256": "e97e58495e716d84ee9655d976a422f6d8a499856c88fb27dd41769f5fdb3638",
+        "paragraphs": [
+          {
+            "text": "Styled tail",
+            "inTable": false,
+            "mark": {
+              "b": "1",
+              "bCs": "1",
+              "i": "1"
+            },
+            "runs": [
+              {
+                "text": "Styled tail",
+                "properties": {
+                  "b": "1",
+                  "bCs": "1",
+                  "i": "1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "after": {
+        "sha256": "2fb46a23540f63523d82bd4577c5b6dd08ad7c22b98e0d3bccbc1c65c3ee38fe",
+        "paragraphs": [
+          {
+            "text": "Styled tail",
+            "inTable": false,
+            "mark": {
+              "b": "1",
+              "bCs": "1",
+              "i": "1"
+            },
+            "runs": [
+              {
+                "text": "Styled tail",
+                "properties": {
+                  "b": "1",
+                  "bCs": "1",
+                  "i": "1"
+                }
+              }
+            ]
+          },
+          {
+            "text": "Added paragraph",
+            "inTable": false,
+            "mark": {
+              "b": "1",
+              "bCs": "1",
+              "i": "1"
+            },
+            "runs": [
+              {
+                "text": "Added paragraph",
+                "properties": {
+                  "b": "1",
+                  "bCs": "1",
+                  "i": "1"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "partial-body",
+      "sourceSha256": "456626c46fa73ddc829203194b16608e7af8f69e93274e058c831c6016744bd2",
+      "afterFormat": {
+        "sha256": "5f1036ea45bead106e61759c8399759fd5a478c694ca8395b54b7bf50f2879ee",
+        "paragraphs": [
+          {
+            "text": "Prefix Styled tail",
+            "inTable": false,
+            "mark": {
+              "i": "1"
+            },
+            "runs": [
+              {
+                "text": "Prefix ",
+                "properties": {}
+              },
+              {
+                "text": "Styled tail",
+                "properties": {
+                  "b": "1",
+                  "bCs": "1",
+                  "i": "1"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

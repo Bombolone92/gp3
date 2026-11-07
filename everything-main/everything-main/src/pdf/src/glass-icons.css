@@ -1,0 +1,272 @@
+/* The PDF editor's command icons (src/lib/glass-icons.js). Everything down to the PDF section is
+   copied verbatim from the Spreadsheet app's src/styles/icons.css (and its pen-colour rules from
+   draw.css), so the shared icons render identically in both apps. The PDF uses the same theme
+   mechanism: prefers-color-scheme, overridden by :root[data-theme]. */
+:root {
+  --ico-ink: #2c2c2e;
+  --ico-line: #636366;
+  --ico-glass-rim: #ffffff;
+  --ico-knock: var(--surface, #ffffff);
+  --ico-paper: #eceef3;
+  --ico-paper-top: #ffffff;
+  --ico-blue: #007aff;
+  --ico-blue-soft: #b9d8ff;
+  --ico-blue-soft-top: #e6f1ff;
+  --ico-blue-top: #4ea3ff;
+  --ico-blue-deep: #0064d9;
+  --ico-green: #1fa34a;
+  --ico-green-soft: #b6ecc6;
+  --ico-green-soft-top: #e5f8ea;
+  --ico-green-top: #5bd77d;
+  --ico-green-deep: #1f9a45;
+  --ico-red: #e8352b;
+  --ico-red-soft: #ffc0bb;
+  --ico-red-soft-top: #ffe8e6;
+  --ico-red-top: #ff6c62;
+  --ico-red-deep: #de2419;
+  --ico-yellow: #f2b600;
+  --ico-yellow-soft: #ffe58a;
+  --ico-yellow-soft-top: #fff7d1;
+  --ico-yellow-top: #ffdb4d;
+  --ico-yellow-deep: #f2b100;
+  --ico-amber: #ea8600;
+  --ico-amber-soft: #ffd59c;
+  --ico-amber-soft-top: #fff1dd;
+  --ico-amber-top: #ffb340;
+  --ico-amber-deep: #ef7f00;
+  --ico-purple: #a845d6;
+  --ico-purple-soft: #e5c2f7;
+  --ico-purple-soft-top: #f7ebfd;
+  --ico-purple-top: #cb83f2;
+  --ico-purple-deep: #9a3bcc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --ico-ink: #e5e5ea;
+    --ico-line: #aeaeb2;
+    --ico-glass-rim: #6a6a70;
+    --ico-paper: #2b2b2f;
+    --ico-paper-top: #424247;
+    --ico-blue: #4ea1ff;
+    --ico-blue-soft: #1d3f68;
+    --ico-blue-soft-top: #2f5a8f;
+    --ico-blue-top: #5fb0ff;
+    --ico-blue-deep: #0a72e6;
+    --ico-green: #3ad763;
+    --ico-green-soft: #18422a;
+    --ico-green-soft-top: #29613f;
+    --ico-green-top: #5fe285;
+    --ico-green-deep: #21a648;
+    --ico-red: #ff6b62;
+    --ico-red-soft: #4d1f1d;
+    --ico-red-soft-top: #713230;
+    --ico-red-top: #ff8077;
+    --ico-red-deep: #e2352c;
+    --ico-yellow: #ffd60a;
+    --ico-yellow-soft: #4f4213;
+    --ico-yellow-soft-top: #6f5d1c;
+    --ico-yellow-top: #ffe35a;
+    --ico-yellow-deep: #e6b800;
+    --ico-amber: #ffa733;
+    --ico-amber-soft: #4f3514;
+    --ico-amber-soft-top: #71501f;
+    --ico-amber-top: #ffbd5c;
+    --ico-amber-deep: #e88a00;
+    --ico-purple: #d58cff;
+    --ico-purple-soft: #43264f;
+    --ico-purple-soft-top: #613a72;
+    --ico-purple-top: #de9dff;
+    --ico-purple-deep: #a64fdb;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ico-ink: #e5e5ea;
+  --ico-line: #aeaeb2;
+  --ico-glass-rim: #6a6a70;
+  --ico-paper: #2b2b2f;
+  --ico-paper-top: #424247;
+  --ico-blue: #4ea1ff;
+  --ico-blue-soft: #1d3f68;
+  --ico-blue-soft-top: #2f5a8f;
+  --ico-blue-top: #5fb0ff;
+  --ico-blue-deep: #0a72e6;
+  --ico-green: #3ad763;
+  --ico-green-soft: #18422a;
+  --ico-green-soft-top: #29613f;
+  --ico-green-top: #5fe285;
+  --ico-green-deep: #21a648;
+  --ico-red: #ff6b62;
+  --ico-red-soft: #4d1f1d;
+  --ico-red-soft-top: #713230;
+  --ico-red-top: #ff8077;
+  --ico-red-deep: #e2352c;
+  --ico-yellow: #ffd60a;
+  --ico-yellow-soft: #4f4213;
+  --ico-yellow-soft-top: #6f5d1c;
+  --ico-yellow-top: #ffe35a;
+  --ico-yellow-deep: #e6b800;
+  --ico-amber: #ffa733;
+  --ico-amber-soft: #4f3514;
+  --ico-amber-soft-top: #71501f;
+  --ico-amber-top: #ffbd5c;
+  --ico-amber-deep: #e88a00;
+  --ico-purple: #d58cff;
+  --ico-purple-soft: #43264f;
+  --ico-purple-soft-top: #613a72;
+  --ico-purple-top: #de9dff;
+  --ico-purple-deep: #a64fdb;
+}
+
+svg.ico {
+  color: var(--ico-ink);
+  flex: none;
+  overflow: visible;
+}
+button:disabled svg.ico,
+[aria-disabled="true"] svg.ico { opacity: 0.4; filter: saturate(0.6); }
+svg.ico * { stroke-width: 0.9; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+svg.ico .thick { stroke-width: 1.3; }
+svg.ico .grip { stroke-width: 1.9; }
+svg.ico .dash { stroke-dasharray: 1.5 1.5; stroke-linecap: butt; }
+svg.ico .ln { opacity: 0.35; }
+svg.ico .o { fill: none; stroke: currentColor; }
+svg.ico .of { fill: url(#ico-g-paper) var(--ico-paper); stroke: var(--ico-line); }
+svg.ico .s { fill: currentColor; stroke: none; }
+svg.ico .w { fill: none; stroke: var(--ico-paper-top); }
+svg.ico .tx { fill: currentColor; stroke: none; }
+svg.ico .txb { fill: url(#ico-g-blue-solid) var(--ico-blue); stroke: none; }
+svg.ico .txb2 { fill: var(--ico-blue); stroke: none; }
+svg.ico .txw { fill: #fff; stroke: none; }
+/* Badges: a ring of the surface colour cuts the badge out of the drawing; its sign is white. */
+svg.ico .knock { fill: var(--ico-knock); stroke: none; }
+svg.ico .wh { fill: none; stroke: #fff; }
+svg.ico .glint { fill: #fff; stroke: none; opacity: 0.85; }
+/* Layers that let what lies under them show through, as stacked glass does. */
+svg.ico .glassy { fill-opacity: 0.78; }
+/* Framed shapes take a hairline; outlines and signs keep the full weight. */
+svg.ico .of, svg.ico .bf, svg.ico .gf, svg.ico .rf, svg.ico .yf, svg.ico .nf, svg.ico .pf { stroke-width: 0.75; }
+svg.ico .b { fill: none; stroke: var(--ico-blue); }
+svg.ico .bf { fill: url(#ico-g-blue-soft) var(--ico-blue-soft); stroke: var(--ico-blue); }
+svg.ico .bs { fill: url(#ico-g-blue-solid) var(--ico-blue); stroke: none; }
+svg.ico .bw { fill: url(#ico-g-blue-soft) var(--ico-blue-soft); stroke: none; }
+svg.ico .g { fill: none; stroke: var(--ico-green); }
+svg.ico .gf { fill: url(#ico-g-green-soft) var(--ico-green-soft); stroke: var(--ico-green); }
+svg.ico .gs { fill: url(#ico-g-green-solid) var(--ico-green); stroke: none; }
+svg.ico .gw { fill: url(#ico-g-green-soft) var(--ico-green-soft); stroke: none; }
+svg.ico .r { fill: none; stroke: var(--ico-red); }
+svg.ico .rf { fill: url(#ico-g-red-soft) var(--ico-red-soft); stroke: var(--ico-red); }
+svg.ico .rs { fill: url(#ico-g-red-solid) var(--ico-red); stroke: none; }
+svg.ico .rw { fill: url(#ico-g-red-soft) var(--ico-red-soft); stroke: none; }
+svg.ico .n { fill: none; stroke: var(--ico-amber); }
+svg.ico .nf { fill: url(#ico-g-amber-soft) var(--ico-amber-soft); stroke: var(--ico-amber); }
+svg.ico .ns { fill: url(#ico-g-amber-solid) var(--ico-amber); stroke: none; }
+svg.ico .nw { fill: url(#ico-g-amber-soft) var(--ico-amber-soft); stroke: none; }
+svg.ico .p { fill: none; stroke: var(--ico-purple); }
+svg.ico .pf { fill: url(#ico-g-purple-soft) var(--ico-purple-soft); stroke: var(--ico-purple); }
+svg.ico .ps { fill: url(#ico-g-purple-solid) var(--ico-purple); stroke: none; }
+svg.ico .pw { fill: url(#ico-g-purple-soft) var(--ico-purple-soft); stroke: none; }
+svg.ico .y { fill: none; stroke: var(--ico-yellow); stroke-width: 2.5; }
+svg.ico .yf { fill: url(#ico-g-yellow-soft) var(--ico-yellow-soft); stroke: var(--ico-amber); }
+svg.ico .ys { fill: url(#ico-g-yellow-solid) var(--ico-yellow); stroke: none; }
+svg.ico .ink { fill: var(--pen-color, currentColor); stroke: none; }
+svg.ico .inkf { fill: var(--pen-color, currentColor); stroke: currentColor; }
+
+/* ---- PDF ---- */
+/* The badges' knock ring takes the colour of the bar the icon sits on. */
+.editor-topbar,
+.tools-pane {
+  --ico-knock: var(--chrome);
+}
+.menu {
+  --ico-knock: var(--surface);
+}
+
+/* Glass command buttons, as the Spreadsheet's ribbon: hover and pressed states are frosted pills,
+   lit along the top edge, that the icons sit in. The values match its chrome.css. Box shadows only,
+   so no bar changes size. */
+:root {
+  --cmd-glass: linear-gradient(rgba(255, 255, 255, 0.95), rgba(243, 245, 249, 0.8));
+  --cmd-glass-pressed: linear-gradient(rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.16));
+  --cmd-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --cmd-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 0 0 0.5px rgba(0, 122, 255, 0.3);
+  /* The chosen tool keeps a firmer blue ring than a passing press, so it reads at a glance. */
+  --cmd-glass-active-edge: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(0, 122, 255, 0.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --cmd-glass: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+    --cmd-glass-pressed: linear-gradient(rgba(10, 132, 255, 0.24), rgba(10, 132, 255, 0.16));
+    --cmd-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 0.5px rgba(255, 255, 255, 0.12), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --cmd-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 0.5px rgba(10, 132, 255, 0.45);
+    --cmd-glass-active-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px rgba(10, 132, 255, 0.75);
+  }
+}
+:root[data-theme='dark'] {
+  --cmd-glass: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+  --cmd-glass-pressed: linear-gradient(rgba(10, 132, 255, 0.24), rgba(10, 132, 255, 0.16));
+  --cmd-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 0.5px rgba(255, 255, 255, 0.12), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --cmd-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 0.5px rgba(10, 132, 255, 0.45);
+  --cmd-glass-active-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px rgba(10, 132, 255, 0.75);
+}
+.appbar .icon-btn,
+.editor .quick-tools .tool-btn,
+.right-rail .sidebar-tab,
+.right-rail > .icon-btn,
+.organize-toolbar .icon-btn {
+  transition: background-color 0.12s, box-shadow 0.12s;
+}
+@media (hover: hover) {
+  .appbar .icon-btn:hover:is(:not(:disabled), .busy-enabled),
+  .editor .quick-tools .tool-btn:hover:is(:not(:disabled), .busy-enabled),
+  .right-rail .sidebar-tab:hover,
+  .right-rail > .icon-btn:hover:is(:not(:disabled), .busy-enabled),
+  .organize-toolbar .icon-btn:hover:is(:not(:disabled), .busy-enabled) {
+    background: var(--cmd-glass);
+    box-shadow: var(--cmd-glass-edge);
+  }
+}
+.appbar .icon-btn:active:is(:not(:disabled), .busy-enabled),
+.editor .quick-tools .tool-btn:active:is(:not(:disabled), .busy-enabled),
+.right-rail .sidebar-tab:active,
+.right-rail > .icon-btn:active:is(:not(:disabled), .busy-enabled),
+.organize-toolbar .icon-btn:active:is(:not(:disabled), .busy-enabled) {
+  background: var(--cmd-glass-pressed);
+  box-shadow: var(--cmd-glass-pressed-edge);
+}
+/* The chosen tool and the open panel: a pressed glass pill, in place of the solid fill that would
+   swallow a coloured icon. */
+.editor .quick-tools .tool-btn[aria-pressed='true'],
+.editor .quick-tools .tool-btn[aria-pressed='true']:hover:is(:not(:disabled), .busy-enabled),
+.editor:not(.hide-pages) .right-rail .sidebar-tab[aria-selected='true'],
+.editor:not(.hide-pages) .right-rail .sidebar-tab[aria-selected='true']:hover {
+  background: var(--cmd-glass-pressed);
+  box-shadow: var(--cmd-glass-active-edge);
+  color: var(--ink);
+}
+.tool-options .style-toggle[aria-pressed='true'],
+.tool-options .style-toggle[aria-pressed='mixed'] {
+  background: var(--cmd-glass-pressed);
+  box-shadow: var(--cmd-glass-pressed-edge);
+}
+@media (prefers-reduced-motion: reduce) {
+  .appbar .icon-btn,
+  .editor .quick-tools .tool-btn,
+  .right-rail .sidebar-tab,
+  .right-rail > .icon-btn,
+  .organize-toolbar .icon-btn {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .editor .quick-tools .tool-btn,
+  .right-rail .sidebar-tab,
+  .appbar .icon-btn {
+    box-shadow: none;
+  }
+  .editor:not(.hide-pages) .right-rail .sidebar-tab[aria-selected='true'] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}

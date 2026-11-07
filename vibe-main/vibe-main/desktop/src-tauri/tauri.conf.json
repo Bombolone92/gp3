@@ -1,0 +1,47 @@
+{
+	"$schema": "./gen/schemas/desktop-schema.json",
+	"productName": "vibe",
+	"version": "3.3.0",
+	"identifier": "github.com.thewh1teagle.vibe",
+	"app": {
+		"macOSPrivateApi": true,
+		"windows": [],
+		"withGlobalTauri": true,
+		"security": {
+			"assetProtocol": {
+				"scope": {
+					"allow": ["**"],
+					"deny": [],
+					"requireLiteralLeadingDot": false
+				},
+				"enable": true
+			},
+			"csp": null
+		}
+	},
+	"build": {
+		"beforeDevCommand": "pnpm dev",
+		"beforeBuildCommand": "pnpm build",
+		"frontendDist": "../dist",
+		"devUrl": "http://localhost:1420"
+	},
+	"bundle": {
+		"active": true,
+		"targets": ["nsis", "deb", "rpm", "dmg", "app"],
+		"createUpdaterArtifacts": true,
+		"icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+		"externalBin": ["binaries/vibe-server"]
+	},
+	"plugins": {
+		"updater": {
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZFNTJENkIxNTM4NTQxODgKUldTSVFZVlRzZFpTL21VWTBzak1IMTA1ZjdNVHA0MXQ3Y20wa2F2U24zVGl6WUUvTGVoQi8wN1kK",
+			"endpoints": ["https://thewh1teagle.github.io/vibe/updater/stable.json"]
+		},
+		"deep-link": {
+			"mobile": [],
+			"desktop": {
+				"schemes": ["vibe"]
+			}
+		}
+	}
+}

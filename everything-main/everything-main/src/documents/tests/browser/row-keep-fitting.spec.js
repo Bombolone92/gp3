@@ -1,0 +1,30 @@
+import {reopenDocx} from './helpers/reopen-docx.js';
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const folder='tests/fixtures/row-keep-fitting';
+const refs=JSON.parse(readFileSync(`${folder}/reference.json`));
+for(const [name,ref] of Object.entries(refs))test(`row keep fitting native comparison: ${name}`,async({page},info)=>{
+ for(const [file,hash]of Object.entries(ref.hashes))expect(createHash('sha256').update(readFileSync(`${folder}/${file}`)).digest('hex')).toBe(hash);
+ await page.goto('/playground.html');
+ expect(await page.evaluate(async()=>{try{await new FontFace('Arial check','local("Arial")').load();return true;}catch{return false;}})).toBe(true);
+ const actual=await page.evaluate(async bytes=>{
+  const{DocxPackage}=await import('/src/engine/docx.js');const{layoutDocument}=await import('/src/engine/layout.js');const{pageGeometry}=await import('/src/engine/page-settings.js');const{loadCanvasFonts,measureCanvasText}=await import('/src/engine/canvas-text.js');
+  const p=await DocxPackage.open(Uint8Array.from(bytes));await loadCanvasFonts(p);const ctx=document.createElement('canvas').getContext('2d');
+  const l=layoutDocument(p.paragraphs,(t,s)=>measureCanvasText(ctx,t,s),pageGeometry(p.pageSettings),p.numbering,p.tables);
+  return {pages:l.pages.length,lines:l.lines.map(x=>({page:x.page+1,text:x.fragments.map(f=>f.text||'').join('')}))};
+ },[...readFileSync(`${folder}/${name}.docx`)]);
+ expect(actual.pages).toBe(ref.pages);
+ const markers=Object.fromEntries(Object.keys(ref.markers).map(m=>[m,actual.lines.filter(l=>l.text===m).map(l=>l.page)]));
+ for(const pages of Object.values(markers))expect(pages).toHaveLength(1);
+ expect(markers).toEqual(ref.markers);
+ await page.getByLabel('Open DOCX file').setInputFiles(`${folder}/${name}.docx`);
+ const input=page.getByRole('textbox',{name:'Document text'});
+ await expect(input).toHaveValue(/^Spacer/);await expect(input).toHaveJSProperty('readOnly',false);
+ const original=await input.inputValue();await input.press('ControlOrMeta+Home');await page.keyboard.insertText('Edited ');
+ const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();
+ const path=info.outputPath('edited.docx');await(await pending).saveAs(path);
+ await input.press('ControlOrMeta+z');await expect(input).toHaveValue(original);
+ await reopenDocx(page,input,path,'Edited '+original);
+ await expect(page.locator('canvas.canvas-page')).toHaveCount(ref.pages);await expect(page.locator('#playground-error')).toBeEmpty();
+});

@@ -1,0 +1,3 @@
+Independent XML/OPC fixture tools/canvas_anchor_spacing_fixture.py extends the independently authored page/margin anchor probe. Inherited spacing is +2pt; alternate drawing runs override it with -1pt. The native reference PDF/FlatOPC captured without saving source. Source SHA256: 5edbb74e5492f29e2c11dc65c03a1f618831f51e64d245baecac33367218163f.
+
+Blue image bounds in bounds.json are sampled at 72dpi from the native reference PDF. Raster edge rounding gives the page-bottom image a one-point difference; all positions agree with the original zero-spacing probe. No font metrics are inferred from these image bounds.

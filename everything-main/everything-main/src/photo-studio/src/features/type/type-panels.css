@@ -1,0 +1,26 @@
+/* Glyphs panel */
+.glyphs-panel { --glyph-size: 30px; padding: 8px; display: grid; gap: 6px; align-content: start; font-size: 11px; max-height: 70vh; grid-template-rows: auto auto auto auto minmax(0, 1fr) auto; }
+.gl-font, .gl-head { display: flex; gap: 6px; align-items: center; }
+.gl-font select { flex: 1; min-width: 0; }
+.gl-head select { flex: 1; min-width: 0; }
+.gl-head input[type='range'] { width: 80px; }
+.gl-label { color: var(--muted); }
+.gl-recent { display: flex; flex-wrap: wrap; gap: 2px; min-height: 26px; align-items: center; }
+.gl-recent .gl-cell { width: 26px; height: 26px; font-size: 16px; }
+.gl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--glyph-size), 1fr)); gap: 1px; overflow: auto; min-height: 120px; max-height: 50vh; background: var(--line-soft); border: 1px solid var(--line-soft); }
+.gl-cell { min-height: 0; height: var(--glyph-size); padding: 0; border: 0; border-radius: 0; background: var(--input); color: var(--text); font-size: calc(var(--glyph-size) * 0.6); line-height: 1; display: grid; place-items: center; font-family: inherit; font-weight: inherit; font-style: inherit; }
+.gl-cell:hover, .gl-cell:focus-visible { background: var(--accent-fill); color: var(--accent-text); outline: none; }
+.gl-info { color: var(--muted); min-height: 14px; font-variant-numeric: tabular-nums; }
+
+/* Character and Paragraph Styles panels */
+.text-styles-panel { display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 160px; max-height: 60vh; font-size: 12px; }
+.ts-list { overflow: auto; padding: 4px 0; }
+.ts-row { display: flex; align-items: center; gap: 6px; padding: 4px 10px; cursor: default; white-space: nowrap; }
+.ts-row:hover { background: var(--hover); }
+.ts-row[aria-selected='true'] { background: var(--row-selected); }
+.ts-row:first-child .ts-name { color: var(--muted); }
+.ts-row[aria-selected='true']:first-child .ts-name { color: inherit; }
+.ts-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ts-override { font-weight: 700; }
+.ts-footer { display: flex; align-items: center; gap: 2px; padding: 3px 6px; border-top: 1px solid var(--line); background: var(--panel-tab); }
+.ts-note { flex: 1; color: var(--muted); font-size: 11px; }

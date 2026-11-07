@@ -1,0 +1,150 @@
+# Changelog
+
+All notable changes to the @codebuff/sdk package will be documented in this file.
+
+## [Unreleased]
+
+- `code_search` no longer reports "Found 0 matches" for `-l`, `-c`, `--count-matches`, `--files-with-matches`, `--files-without-match` or `--files`: ripgrep prints those as plain text even with `--json`, and the parser dropped every line. They now return filenames or `path:count` lines under the usual global and output limits, with `.env` files left out as in a normal search. `--files` ignores the pattern. Flags that leave nothing to read (`-q`, `--type-list`, `--help`, `--version`, `--generate`, `--pcre2-version`, `--no-json`) return an error instead of an empty result.
+
+- **Security / breaking:** a fresh session no longer imports `process.cwd()/.agents` or its parent `.agents` when no agents were supplied. Agent files are executable modules (importing one runs its top-level code), so a cloned repository's `.agents` ran on the developer's machine before any prompt or approval. Now `agentDefinitions`, when given, is the whole answer: an empty array loads nothing (it used to fall back to the directories above, re-importing what a host's trust gate had just refused). With `agentDefinitions` omitted, only `~/.agents` is loaded, or the directories in the new `agentDirs` option (`run`, `CodebuffClient`, `initialSessionState`, `generateInitialRunState`). To keep loading a repository's agents, pass `agentDirs: [path.join(repo, '.agents')]` once you trust it, or pass `agentDefinitions` from `loadLocalAgents({ agentDirs })`. `loadLocalAgents()` called with no directories still searches the old defaults. A string agent id that came only from a repository `.agents` file is no longer found locally and may resolve from the `codebuff/<id>` registry; set `disableAgentRegistry: true` if that fallback is unwanted.
+
+- New `skipSymbolIndex` run option: the run builds the file tree but skips the tree-sitter parse of every project file, leaving `fileTokenScores` and `tokenCallers` empty. Set it when your agents do not use the file-picker, `read_subtree` symbols or `read_files`' `referencedBy`.
+
+- `compactRunState` now rewrites a run's history into at most 12k tokens (`MECHANICAL_HISTORY_TOKENS`) of summary plus a working set of file reads, whatever `maxContextLength` allows; it used to fill the budget. The newest read of each file not edited since comes back whole and every other read becomes an outline stub, so expect a much smaller `nextTokens`. The live request and the newest tool results are kept whole on top of the cap.
+
+- **Security:** `read_url` now connects only to an address it has just validated. Resolution and the private/reserved-address check happen in the connection's own `lookup`, and the host is refused if any answer is blocked, so a hostname can no longer pass the check with one answer and connect with another. Every redirect hop is validated the same way. More non-routable ranges are refused: IPv4-compatible IPv6 (`::a.b.c.d`), 198.18.0.0/15, `fec0::/10` and `64:ff9b:1::/48`. The tool call passes only `url` and `max_chars` through to `readUrl`. Under Bun with a proxy variable set, Bun's `fetch` is still used so the proxy keeps working.
+
+- **Security:** a runtime `NEXT_PUBLIC_CODEBUFF_APP_URL` / `CODEBUFF_APP_URL` override is honoured only for a `codebuff.com` / `freebuff.com` host (or a subdomain) over https, or a loopback host. Every request carrying your API key goes to that URL, so any other host now also needs `CODEBUFF_ALLOW_CUSTOM_APP_URL=1` in the environment; without it the override is ignored with a one-line warning and the bundled URL is used.
+
+- **Security:** the published package no longer ships sourcemaps. They carried the full source of every bundled workspace module.
+
+- Removed in an earlier unreleased change and noted here for 0.10.7 users: the `CODEBUFF_CLAUDE_OAUTH_TOKEN` environment variable (direct Claude OAuth routing) is gone; the SDK no longer reads it.
+
+- `spawn_agents` results from `last_message` agents now arrive as plain text. Each result's `value` is the child's final answer (the text of its last turn, without reasoning or think tags) instead of `{ type: 'lastMessage', value: Message[] }`, and a child whose last turn has no text reports `{ type: 'error', message: 'No response from agent' }`. `handleSteps` code that walked the `lastMessage` message array must read the string instead. Structured-output results and the `output` returned by `run()` are unchanged.
+
+- `run()` now returns promptly when its `signal` aborts during the user lookup or agent-run registration that precede the first model request. Those requests had no signal and retried through a backoff, so a socket that never answered held the run for the whole retry budget; they now end on abort and the run resolves with `Run cancelled by user.`
+
+- Dropped `knowledge.md` from the knowledge-file priority list; the SDK now picks up `AGENTS.md` then `CLAUDE.md` (per directory, and `~/.AGENTS.md`/`~/.CLAUDE.md` in the home directory). Existing `knowledge.md` files are no longer read. The `PRIMARY_KNOWLEDGE_FILE_NAME` export was removed with it; use `KNOWLEDGE_FILE_NAMES[0]`.
+
+## [0.10.7]
+
+- New code editing tool `apply_patch` which works well with Codex models (e.g. openai/gpt-5.3-codex)
+- `write_file` is now a deterministic tool that creates or replaces the file. Previously, it also accepted edit snippet comments which could expand to keep a portion of the previous file, e.g. "// ... rest of the function ...". That behavior is removed to keep things simple. `str_replace` or `apply_patch` should be used if not overwriting the whole file.
+
+## [0.10.6]
+
+Added `skillsDir` parameter to specify a directory to load skills from.
+
+## [0.10.5]
+
+Fixed a bug with missing tool calls/results.
+
+## [0.10.4]
+
+Updated with various agent runtime improvements.
+
+## [0.10.1]
+
+More reliable tool calls!
+
+## [0.10.0]
+
+Lots of changes in the implementation, including native tool calls under the hood. Minimal changes in the public API.
+
+## [0.4.3]
+
+### Added
+
+- Exported `processToolCallBuffer` and state helpers so SDK consumers can strip `<codebuff_tool_call>` segments mid-stream.
+- CLI now consumes the shared helper to avoid leaking XML when responses arrive without token streaming.
+- Extra regression tests covering multi-chunk tool-call payloads based on the CLI log case ("I'll help you commit").
+
+## [0.4.2]
+
+### Added
+
+- XML tool call filtering in stream chunks - filters out `<codebuff_tool_call>` tags while preserving response text
+- Stateful parser handles tags split across chunk boundaries
+- 50-character safety buffer for split tag detection
+- Comprehensive unit tests (17 test cases)
+
+## [0.3.1]
+
+- `CodebuffClient.run` now does not return `null`. Instead, the `CodebuffClient.run(...).output.type` will be `'error'`.
+
+## [0.3.0]
+
+- New more intuitive interface for `CodebuffClient` and `CodebuffClient.run`.
+
+## [0.1.30]
+
+Types updates.
+
+## [0.1.20]
+
+- You can now retrieve the output of an agent in `result.output` if result is the output of an awaited `client.run(...)` call.
+- cwd is optional in the CodebuffClient constructor.
+- You can pass in `extraToolResults` into a run() call to include more info to the agent.
+
+## [0.1.17]
+
+### Added
+
+- You can now get an API key from the [Codebuff website](https://www.codebuff.com/profile?tab=api-keys)!
+- You can provide your own custom tools!
+
+### Updated
+
+- Updated types and docs
+
+## [0.1.9] - 2025-08-13
+
+### Added
+
+- `closeConnection` method in `CodebuffClient`
+
+### Changed
+
+- Automatic parsing of `knowledgeFiles` if not provided
+
+### Fixed
+
+- `maxAgentSteps` resets every run
+- `CodebuffClient` no longer requires binary to be installed
+
+## [0.1.8] - 2025-08-13
+
+### Added
+
+- `withAdditionalMessage` and `withMessageHistory` functions
+  - Add images, files, or other messages to a previous run
+  - Modify the history of any run
+- `initialSessionState` and `generateInitialRunState` functions
+  - Create a SessionState or RunState object from scratch
+
+### Removed
+
+- `getInitialSessionState` function
+
+## [0.1.7] - 2025-08-12
+
+### Updated types! AgentConfig has been renamed to AgentDefinition.
+
+## [0.1.5] - 2025-08-09
+
+### Added
+
+- Complete `CodebuffClient`
+- Better docs
+- New `run()` api
+
+## [0.0.1] - 2025-08-05
+
+### Added
+
+- Initial release of the Codebuff SDK
+- `CodebuffClient` class for interacting with Codebuff agents
+- `runNewChat` method for starting new chat sessions
+- TypeScript support with full type definitions
+- Support for all Codebuff agent types
+- Event streaming for real-time responses

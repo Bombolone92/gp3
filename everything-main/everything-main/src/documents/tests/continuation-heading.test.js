@@ -1,0 +1,21 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { JSDOM } from 'jsdom';
+import { DocxPackage } from '../src/engine/docx.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { paragraphText } from '../src/engine/model.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => dom.window.close());
+const word = JSON.parse(readFileSync('tests/fixtures/continuation-borders/native-heading-pages.json', 'utf8'));
+for (const keep of [0, 1]) it(`keeps the heading with its fully merged table in the native keep-${keep} probe`, async () => {
+  const name = `continuation-keep-heading-${keep}`;
+  const pkg = await DocxPackage.open(readFileSync(`public/fixtures/continuation-headings/${name}.docx`));
+  const result = layoutDocument(pkg.paragraphs, text => ({ width: text.length * 8, ascent: 10, descent: 10 }), pageGeometry(pkg.pageSettings), pkg.numbering, pkg.tables);
+  const heading = pkg.paragraphs.find(p => paragraphText(p) === 'Heading');
+  const owner = pkg.paragraphs.find(p => paragraphText(p).startsWith('Word '));
+  const reference = word[`${name}-native.pdf`];
+  expect(result.lines.find(l => l.paragraphId === heading.id).page).toBe(reference.find(p => p.text.includes('Heading')).page);
+  expect(result.lines.find(l => l.paragraphId === owner.id).page).toBe(reference.find(p => p.text.includes('Word')).page);
+});

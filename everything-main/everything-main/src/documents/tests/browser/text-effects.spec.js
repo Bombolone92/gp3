@@ -1,0 +1,33 @@
+import { test, expect } from '@playwright/test';
+import { onTab, downloadDocx } from './helpers/editor-tools.js';
+import { reopenDocx } from './helpers/reopen-docx.js';
+
+test('Text Effects add an outline and a shadow that undo, save and reopen', async ({ page }, info) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await input.fill('Effects here');
+  await onTab(page, 'home');
+  await input.press('ControlOrMeta+a');
+  const pixels = () => page.locator('canvas.canvas-page').first().evaluate(c => c.toDataURL());
+  const plain = await pixels();
+  const choose = async name => { await page.getByRole('button', { name: 'Text Effects', exact: true }).click(); await page.getByRole('menuitemradio', { name, exact: true }).click(); await expect(page.getByRole('menu')).toHaveCount(0); };
+  await choose('Medium Outline (1½ pt)');
+  await choose('Offset: Bottom');
+  await expect.poll(pixels).not.toBe(plain);
+  await page.getByRole('button', { name: 'Text Effects', exact: true }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'Offset: Bottom', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('menuitemradio', { name: 'Medium Outline (1½ pt)', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await page.keyboard.press('Escape');
+  const path = info.outputPath('text-effects.docx');
+  const download = page.waitForEvent('download'); await downloadDocx(page); await (await download).saveAs(path);
+  await reopenDocx(page, input, path, 'Effects here');
+  await input.press('ControlOrMeta+a');
+  await page.getByRole('button', { name: 'Text Effects', exact: true }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'Offset: Bottom', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('menuitemradio', { name: 'No Shadow', exact: true }).click();
+  await page.getByRole('button', { name: 'Text Effects', exact: true }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'No Shadow', exact: true })).toHaveAttribute('aria-checked', 'true');
+  expect(errors).toEqual([]);
+});

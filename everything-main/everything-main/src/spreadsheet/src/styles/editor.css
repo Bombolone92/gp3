@@ -1,0 +1,1052 @@
+/* ---------- Editor layout ---------- */
+
+.editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+}
+
+/* Focus mode: just the cells, the sheet tabs, and the status bar. */
+.editor.focus-mode .toolbar, .editor.focus-mode .formula-bar { display: none; }
+
+/* Header: the title row, across the window, ruled off from the sheet's column and the assistant under it. */
+.editor-header {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+  flex: none;
+}
+.editor-menubar { flex: none; border-bottom: 1px solid var(--hairline); background: var(--surface); }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: calc(var(--topbar-h) + var(--safe-t));
+  padding: var(--safe-t) 10px 0 8px;
+  flex: none;
+}
+
+/* Menu bar: File, Edit, View… left-aligned under the title; scrolls sideways when narrow. */
+.menubar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--menubar-h);
+  /* As far from the title row's rule above as from the menu bar's own below. */
+  padding: 4px 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  flex: none;
+}
+
+.menubar::-webkit-scrollbar { display: none; }
+
+/* With a mouse there is no way to scroll a hidden-scrollbar strip: in a window too narrow for the
+   eight titles they wrap onto a second row instead, so Help stays in reach. Touch keeps the swipe. */
+@media (pointer: fine) {
+  .menubar { flex-wrap: wrap; height: auto; min-height: var(--menubar-h); overflow: visible; }
+}
+
+.menubar-btn {
+  flex: none;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: var(--r-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+
+.menubar-btn.open, .menubar-btn[aria-expanded="true"] { background: var(--surface-2); color: var(--ink); }
+@media (hover: hover) { .menubar-btn:hover { background: var(--surface-2); color: var(--ink); } }
+.menubar-btn:focus-visible { outline-offset: -2px; }
+
+.topbar .brand-mark { width: 28px; height: 28px; border-radius: 8px; }
+.topbar-title-wrap { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+
+.doc-title {
+  font-weight: 600;
+  font-size: 15px;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+@media (hover: hover) { .doc-title:hover { background: var(--surface-2); } }
+
+.save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  flex: none;
+}
+
+.save-status svg { flex: none; }
+.save-status[disabled] { cursor: default; opacity: 1; }
+.save-status.saved { color: var(--ink-3); }
+.save-status.saving { color: var(--ink-3); }
+.save-status.unsaved { color: var(--warn); }
+.save-status.error, .save-status.offline { color: var(--critical); }
+/* Not signed in: the pill is the invitation to save, not a warning. */
+.save-status.signed-out { color: var(--ink-2); cursor: pointer; padding: 3px 8px; border-radius: var(--r-sm); }
+@media (hover: hover) { .save-status.signed-out:hover { background: var(--surface-2); } }
+
+.topbar-actions { display: flex; align-items: center; gap: 2px; flex: none; }
+
+@media (max-width: 640px) {
+  /* The label leaves the narrow bar but stays in the live region, so "Saved" is still announced. The
+     signed-out pill keeps its label on show: "Sign in to save" is the button's only text. */
+  .save-status:not(.signed-out) .save-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .topbar .desktop-only { display: none; }
+  .doc-title { font-size: 14px; }
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--toolbar-h);
+  padding: 0 8px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  flex: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.toolbar::-webkit-scrollbar { display: none; }
+
+.tb-group { display: flex; align-items: center; gap: 2px; flex: none; }
+
+/* With a mouse there is no natural way to scroll a hidden-scrollbar strip: when the buttons
+   do not fit beside the assistant, the toolbar wraps within its available width. Touch screens keep the swipe. */
+@media (pointer: fine) {
+  .toolbar { flex-wrap: wrap; height: auto; min-height: var(--toolbar-h); row-gap: 0; padding-block: 2px; overflow: visible; }
+  /* A group wider than the toolbar would otherwise poke out and give the page a sideways scrollbar. */
+  .tb-group { flex: 0 1 auto; flex-wrap: wrap; min-width: 0; }
+}
+
+/* A narrow editor starts with essentials. Expanded tools scroll within a bounded area, keeping
+   cells and the collapse control available even in a short window. */
+.toolbar-tools, .toolbar-tool-content { display: contents; }
+.toolbar.toolbar-narrow {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: var(--toolbar-h);
+  padding-block: 4px;
+  overflow: visible;
+}
+.toolbar.toolbar-narrow .tb-group { flex: 0 1 auto; flex-wrap: wrap; min-width: 0; }
+.toolbar.toolbar-narrow:not(.toolbar-expanded) { flex-wrap: nowrap; }
+.toolbar.toolbar-narrow:not(.toolbar-expanded) .tb-group { flex: none; flex-wrap: nowrap; }
+/* The format label yields space before an essential control is pushed onto its own row. */
+.toolbar.toolbar-narrow:not(.toolbar-expanded) .tb-group:has(.tb-fmt) { flex: 0 1 120px; }
+.toolbar.toolbar-narrow:not(.toolbar-expanded) .tb-fmt { width: 120px; max-width: 100%; min-width: 64px; }
+.toolbar.toolbar-narrow.toolbar-expanded { position: relative; flex-wrap: nowrap; align-items: flex-start; }
+.toolbar.toolbar-narrow.toolbar-expanded .tb-group { display: contents; }
+.toolbar.toolbar-narrow.toolbar-expanded .toolbar-tools {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: flex-start;
+  gap: 2px;
+  min-width: 0;
+  margin-right: 34px;
+  max-height: min(160px, 20dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scroll-padding-block: 4px;
+}
+.toolbar.toolbar-narrow.toolbar-expanded .tb-expand { position: absolute; top: 4px; right: 8px; }
+.tb-expand { margin-left: auto; }
+
+.tb-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--hairline-strong);
+  margin: 0 6px;
+  flex: none;
+}
+
+.tb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 6px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  position: relative;
+  flex: none;
+  transition: background 0.12s, color 0.12s;
+}
+
+@media (hover: hover) { .tb-btn:hover { background: var(--surface-2); color: var(--ink); } }
+.tb-btn[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-strong); }
+.tb-btn[disabled] { opacity: 0.4; cursor: default; }
+@media (hover: hover) { .tb-btn[disabled]:hover { background: transparent; color: inherit; } }
+.tb-btn:focus-visible { outline-offset: -2px; }
+
+.tb-color { flex-direction: column; gap: 0; padding-top: 3px; }
+.tb-color > span:first-child { display: block; }
+
+.color-bar {
+  display: block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 1px;
+  background: var(--ink);
+}
+
+.color-bar.no-fill {
+  background: transparent;
+  outline: 1px dashed var(--ink-3);
+  outline-offset: -1px;
+}
+
+/* The three value pickers (format, font, size) show their current value in one type style. */
+.tb-fmt, .tb-font-label, .tb-size { font-size: 13px; font-weight: 500; }
+
+/* Reserve the same space for every format, including long custom codes. */
+.tb-fmt { width: 144px; padding: 0 6px 0 10px; }
+.tb-fmt > span:last-child { flex: none; }
+.filter-cond-row { display: flex; flex-direction: column; gap: 6px; padding: 4px 10px 8px; }
+.filter-cond-row .input, .filter-cond-row .select { font-size: 13px; padding: 6px 8px; }
+.filter-cond-row .select { padding-right: 30px; background-position: right 8px center; }
+.filter-cond-row [hidden] { display: none; }
+.filter-values.dimmed { opacity: 0.45; }
+
+.tb-font {
+  /* Fixed like the number-format button, so the toolbar does not shift when the font name changes. */
+  width: 120px;
+  padding: 0 4px 0 8px;
+  gap: 2px;
+  justify-content: space-between;
+}
+
+.tb-font-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.tb-size { padding: 0 4px 0 8px; min-width: 48px; }
+.tb-size-label { min-width: 16px; text-align: center; font-variant-numeric: tabular-nums; }
+.tb-fmt-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+/* Formula bar */
+.formula-bar {
+  display: flex;
+  align-items: stretch;
+  height: var(--formulabar-h);
+  border-bottom: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  flex: none;
+}
+
+.name-box {
+  width: 92px;
+  flex: none;
+  border: 0;
+  border-right: 1px solid var(--hairline);
+  background: transparent;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--ink-2);
+  outline: none;
+}
+
+.name-box:focus { background: var(--accent-wash); color: var(--ink); outline: none; box-shadow: inset 0 -2px 0 var(--accent); }
+
+.fx-btn {
+  width: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+  border-right: 1px solid var(--hairline);
+}
+
+@media (hover: hover) { .fx-btn:hover { color: var(--accent-strong); background: var(--surface-2); } }
+.fx-btn:focus-visible { outline-offset: -2px; }
+
+.formula-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0 12px;
+  font-size: 13.5px;
+  font-family: var(--font);
+  color: var(--ink);
+  outline: none;
+}
+
+.formula-input:focus { box-shadow: inset 0 -2px 0 var(--accent); }
+/* A spilled cell's formula, which only the array's first cell can change. */
+.formula-input.spilled { color: var(--ink-3); }
+.fx-actions {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 2px;
+  height: calc(var(--formulabar-h) - 1px);
+  padding: 0 4px;
+  flex: none;
+}
+.fx-actions[hidden] { display: none; }
+.fx-action {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+}
+.fx-apply { color: var(--accent-strong); background: var(--accent-wash); }
+@media (hover: hover) {
+  .fx-action:hover { color: var(--ink); background: var(--surface-2); }
+  .fx-apply:hover { color: var(--accent-ink); background: var(--accent); }
+}
+.fx-action:focus-visible { outline-offset: -2px; }
+.formula-input {
+  resize: none;
+  overflow: hidden;
+  white-space: pre;
+  line-height: calc(var(--formulabar-h) - 1px);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.name-menu-btn {
+  flex: none;
+  width: 24px;
+  border: 0;
+  border-right: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.name-menu-btn:focus-visible { color: var(--ink); background: var(--accent-wash); }
+@media (hover: hover) { .name-menu-btn:hover { color: var(--ink); background: var(--accent-wash); } }
+/* The wash alone is far below the 3:1 a focus indicator needs; the inset ring is the app's keyboard-focus mark. */
+.name-menu-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.formula-bar.expanded .name-menu-btn { align-items: start; padding-top: 12px; }
+.formula-bar.expanded { height: auto; }
+.formula-bar.expanded .formula-input {
+  height: 112px;
+  padding: 8px 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: auto;
+}
+.fx-expand {
+  flex: none;
+  width: 30px;
+  border: 0;
+  border-left: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.fx-expand:focus-visible { color: var(--ink); background: var(--accent-wash); }
+@media (hover: hover) { .fx-expand:hover { color: var(--ink); background: var(--accent-wash); } }
+.fx-expand:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.formula-bar.expanded .fx-expand { align-items: start; padding-top: 10px; }
+
+@media (max-width: 640px) {
+  .name-box { width: 72px; }
+}
+
+@media (pointer: coarse) {
+  .formula-input, .name-box { font-size: 16px; }
+}
+
+/* Grid host */
+/* A notice between the formula bar and the sheet: blocked outside content, with its decision. */
+.notice-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--critical-wash);
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+  font-size: 13px;
+}
+.notice-icon { display: inline-flex; color: var(--critical); flex: none; }
+.notice-text { flex: 1; min-width: 0; }
+.notice-actions { display: flex; gap: 6px; flex: none; }
+
+.editor-grid {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* Sheet tabs */
+.sheet-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--tabs-h);
+  padding: 0 6px;
+  border-top: 1px solid var(--hairline-strong);
+  background: var(--surface-2);
+  flex: none;
+}
+
+.tab-add, .tab-all { width: 32px; height: 32px; }
+.tab-navigation { display: flex; align-items: center; gap: 2px; flex: none; }
+.tab-scroll-btn { width: 28px; height: 32px; }
+.tab-scroll-btn[aria-disabled="true"], .tab-add[aria-disabled="true"] { opacity: 0.35; cursor: default; background: none; color: var(--ink-3); }
+.tab-scroll-btn:focus-visible { outline-offset: -2px; }
+/* The bar is already the second surface an icon button's hover fills with: its buttons take the third, as the tabs do. */
+@media (hover: hover) { .sheet-tabs .icon-btn:hover:not([aria-disabled="true"]) { background: var(--surface-3); } }
+
+/* The scrolling strip: the tablist of tabs, with the active sheet's options button placed over it. */
+.tab-list {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+  position: relative;
+}
+
+.tab-list::-webkit-scrollbar { display: none; }
+
+.tab-strip { display: flex; align-items: stretch; gap: 2px; height: 100%; flex: none; }
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0 4px 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  border-radius: 0;
+  flex: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tab:not(.active) { padding-right: 14px; }
+@media (hover: hover) { .tab:hover { color: var(--ink); background: var(--surface-3); } }
+.tab.active { color: var(--accent-strong); background: var(--surface); }
+
+/* The active tab's chip. Its options button lives beside the tablist (a tablist may own only tabs) and is
+   laid over the chip's end, so the chip keeps 4px + 24px + 4px of room there. */
+.tab-item {
+  display: inline-flex;
+  align-items: stretch;
+  flex: none;
+  position: relative;
+}
+.tab-item.active { background: var(--surface); padding-right: 32px; }
+.tab-list > .tab-menu-btn { position: absolute; top: 50%; transform: translateY(-50%); }
+
+.tab-item.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0; /* the strip clips anything above the tab, which hid half of this line */
+  height: 2px;
+  background: var(--accent);
+}
+
+.tab:focus-visible { outline-offset: -2px; }
+
+/* A colored tab shows its color as a bar along the bottom edge. */
+.tab-item.colored .tab::before { display: none; }
+.tab.colored::before,
+.tab-item.colored::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 4px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--tab-color);
+}
+
+.tab-item.colored::before { bottom: 3px; }
+
+.tab-menu-btn {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--ink-3);
+}
+
+@media (hover: hover) { .tab-menu-btn:hover { background: var(--surface-2); color: var(--ink); } }
+
+/* Status bar. A minimum, not a height, as the toolbar and the menu bar already are: at 200% text-only
+   zoom the 12px line box is 34.8px and a fixed 28px bar cut the ascenders and descenders off the sums
+   on the left and the error explanation on the right. The bar grows instead; the grid gives up the room. */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: calc(var(--statusbar-h) + var(--safe-b));
+  padding: 0 14px var(--safe-b);
+  border-top: 1px solid var(--hairline);
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--ink-2);
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-left, .status-right { display: flex; align-items: center; gap: 16px; min-width: 0; overflow: hidden; }
+/* Statistics that do not fit leave the bar whole, the first of them first, as in Excel: clipped, a Sum of 607.5 read
+   "Sum: 60". They are laid out from the right (each takes an order counting down to the Sum, so the reading order
+   stays the bar's), and those that wrap past the one line are out of sight. */
+.status-right { flex-direction: row-reverse; flex-wrap: wrap; max-height: 1lh; }
+/* The same on the left, from its start: the rows a filter shows read "1,028 of 1,199 rows shown" or not at all.
+   One that has a line to itself and still does not fit ends in an ellipsis, rather than a cut-off figure. */
+.status-left { flex-wrap: wrap; max-height: 1lh; }
+.status-left > .status-item, .status-right > .status-item { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.status-item { white-space: nowrap; font-weight: 600; }
+.status-item .muted { font-weight: 500; }
+
+.status-right-wrap { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+.zoom-box { display: flex; align-items: center; gap: 2px; flex: none; }
+
+/* 24px targets inside the 28px status bar. */
+.zoom-btn {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--ink-3);
+}
+
+@media (hover: hover) { .zoom-btn:hover { background: var(--surface-2); color: var(--ink); } }
+.zoom-btn[aria-disabled="true"] { opacity: 0.35; cursor: default; background: none; color: var(--ink-3); }
+
+.zoom-label {
+  min-width: 42px;
+  min-height: 24px;
+  padding: 3px 4px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) { .zoom-label:hover { background: var(--surface-2); } }
+
+/* The touch zone the toolbar buttons have, for the small controls of the other bars, drawn as they are:
+   the menu titles, the name box's names button, the formula bar's expander and its Cancel and Apply, the active tab's options
+   button and the zoom controls. The zone grows sideways only where the room beside a control is its own:
+   the options button sits in the active chip's padding, a zoom button has the bar's gap beside it. */
+@media (pointer: coarse) {
+  .menubar-btn, .name-menu-btn, .fx-expand, .fx-action, .zoom-btn, .zoom-label { position: relative; }
+  .menubar-btn::after, .name-menu-btn::after, .fx-expand::after, .fx-action::after, .tab-menu-btn::after, .zoom-btn::after, .zoom-label::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: max(100%, 40px);
+    transform: translate(-50%, -50%);
+  }
+  .tab-menu-btn::after, .zoom-btn::after { width: max(100%, 32px); }
+}
+
+/* By the sheet's column, not the window: with the assistant open beside the sheet on a 768px tablet the column
+   is about 390px wide, and the bar laid out for the window pushed the zoom controls out past its edge. */
+@container sheet-column (max-width: 900px) {
+  .status-extra { display: none; }
+}
+
+@container sheet-column (max-width: 640px) {
+  .status-right { display: none; }
+  /* "Accessibility: No issues" left the zoom controls no room on a phone and was cut off mid-word ("No issue"). Its
+     icon, which carries the state, stands for it there; the words stay for screen readers. */
+  .status-a11y-text { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+}
+
+/* Function picker search */
+.fn-search {
+  padding: 4px 6px 6px;
+}
+
+.fn-search .input { padding: 7px 10px; font-size: 13px; }
+.fn-list { max-height: 260px; overflow-y: auto; }
+
+/* Offline banner: a strip above the screen, in the flow, so it covers no control. */
+.offline-banner {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--ink);
+  color: var(--page);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.offline-banner svg { flex: none; }
+
+/* Find and replace */
+.find-panel {
+  position: absolute;
+  top: 8px;
+  /* --find-right moves the panel aside for an open task pane (chrome.css); the width keeps it inside the grid. */
+  right: var(--find-right, 24px);
+  z-index: 20;
+  width: min(440px, calc(100% - var(--find-right, 24px) - 8px));
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-top: 44px;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: pop-in 0.16s var(--ease-spring);
+}
+
+.find-panel[hidden] { display: none; }
+.find-panel.find-bottom { top: auto; bottom: 16px; }
+.find-panel.find-expanded { width: min(640px, calc(100% - var(--find-right, 24px) - 8px)); max-height: calc(100% - 64px); }
+.find-panel > * { flex-shrink: 0; }
+.find-query { position: sticky; top: 0; z-index: 1; background: var(--surface); }
+
+.find-row { display: flex; align-items: center; gap: 4px; }
+.find-row[hidden] { display: none; }
+.find-row .input { flex: 1; min-width: 0; padding: 7px 10px; font-size: 13.5px; }
+.find-replace { padding-left: 40px; }
+.find-replace .btn { flex: none; }
+
+.find-count {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.find-count.none { color: var(--critical); }
+
+.find-summary { display: flex; align-items: center; gap: 8px; padding-left: 40px; }
+.find-options-toggle, .find-all-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+@media (hover: hover) { .find-options-toggle:hover, .find-all-toggle:hover { background: var(--surface-2); } }
+.find-options-toggle.active { color: var(--accent); }
+.find-options-chevron { display: flex; }
+.find-options-toggle[aria-expanded="true"] .find-options-chevron { transform: rotate(180deg); }
+
+.find-options { gap: 14px; padding: 2px 4px 2px 40px; flex-wrap: wrap; }
+
+.find-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.find-option input { margin: 0; accent-color: var(--accent); width: 14px; height: 14px; }
+
+.find-all-toggle { margin-left: 0; }
+.find-results[hidden] { display: none; }
+.find-results { border-top: 1px solid var(--hairline); padding-top: 6px; flex: 1 1 auto; min-height: 70px; display: flex; flex-direction: column; }
+.find-results-header { display: flex; flex: none; align-items: center; gap: 4px; margin-bottom: 6px; }
+.find-results-summary { flex: 1; color: var(--ink-2); font-size: 12px; overflow-wrap: anywhere; }
+.find-results-header .btn { padding: 4px 8px; }
+.find-results-header [aria-disabled="true"] { opacity: .4; cursor: default; }
+.find-results-scroll { flex: 1; min-height: 0; max-height: 180px; overflow: auto; overscroll-behavior: contain; scroll-padding-top: 30px; }
+.find-results-scroll[hidden] { display: none; }
+.find-results-table { width: 100%; min-width: 480px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 12px; }
+.find-results-table th { position: sticky; top: 0; z-index: 1; text-align: left; padding: 6px 8px; background: var(--surface-2); border-bottom: 1px solid var(--hairline-strong); }
+.find-results-table th:nth-child(1) { width: 22%; }
+.find-results-table th:nth-child(2) { width: 14%; }
+.find-results-table th:nth-child(3) { width: 28%; }
+.find-results-table td { padding: 4px 8px; border-bottom: 1px solid var(--hairline); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.find-results-table tr.current { background: var(--surface-3); }
+.find-result-cell { padding: 3px 0; border: 0; background: transparent; color: var(--accent-strong); font: inherit; cursor: pointer; text-decoration: underline; }
+.find-result-cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .find-panel, .find-panel.find-expanded { right: 8px; left: 8px; width: auto; }
+  .find-replace, .find-options, .find-summary { padding-left: 0; }
+}
+
+/* ---------- Print ---------- */
+
+.print-root { display: none; }
+
+.print-tokens { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: -6px 0 10px; }
+.print-tokens .btn-sm { padding: 3px 8px; font-size: 12px; }
+.print-tokens-hint { flex-basis: 100%; }
+
+@media print {
+  @page { margin: 12mm; }
+
+  body { background: #fff; color: #000; }
+  body.printing .app, body.printing .toast-root, body.printing .menu, body.printing .modal-root, body.printing .palette-root { display: none !important; }
+  body.printing .print-root { display: block; }
+}
+
+/* Print-only elements also need their final styles during hidden preflight layout. */
+.print-root.print-measuring { display: block; position: fixed; inset: 0 auto auto 0; visibility: hidden; pointer-events: none; contain: layout; }
+
+.print-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.print-title { font-size: 14pt; font-weight: 700; }
+.print-sub { font-size: 10pt; color: #555; }
+.print-foot { margin-top: 8px; font-size: 8pt; color: #6b6b6b; } /* 5.3:1 on white; #777 fell just short of 4.5:1 */
+.print-section.page-break { break-before: page; page-break-before: always; }
+
+.print-table {
+  isolation: isolate;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 9.5pt;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-table td {
+  border: 1px solid #ccc;
+  padding: 2px 2px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  vertical-align: middle;
+  /* Fills, data bars and rule colours are part of the sheet: print them even where the browser drops backgrounds by default. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* A definite zero minimum lets the inner percentage height resolve against
+   the final cell height, including merged rows, without enlarging the row. */
+.print-table .constrained { height: 0; padding: 0; }
+.print-cell-box { position: relative; height: 100%; text-overflow: inherit; text-decoration: inherit; }
+.print-cell {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: 2px 2px;
+  align-content: unsafe center;
+  overflow: hidden;
+  text-overflow: inherit;
+  text-decoration: inherit;
+}
+.print-table td.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Turned text, as the grid draws it: its line box is just the turned text, with no strut above or below it. */
+.print-table td.rot .print-cell { line-height: 0; }
+.print-table td.rot .rot-text { display: inline-block; white-space: pre; line-height: 1.2; vertical-align: top; transform-origin: center; }
+.print-table td.rot .rot-text.up, .print-table td.rot .rot-text.down { writing-mode: vertical-rl; }
+.print-table td.rot .rot-text.up { transform: rotate(180deg); }
+/* Angled text: the box of its turned bounds is what the cell aligns; the text turns about its centre inside it. */
+.print-table td.rot .rot-bounds { display: inline-block; position: relative; vertical-align: top; }
+.print-table td.rot .rot-bounds > .rot-text { position: absolute; left: 50%; top: 50%; }
+/* A label that runs over the empty cells beside it, as on screen: the cell lets it out, the span stops it at the last empty cell. */
+.print-table td.spill { overflow: visible; text-overflow: clip; }
+.print-table td.spill > .print-cell-box > .print-cell { right: auto; z-index: 1; text-overflow: clip; }
+.print-table td.sparkline > .print-cell-box > .print-cell { padding: 1px 2px; }
+.print-table td.sparkline svg { display: block; max-width: 100%; height: auto; }
+/* An IMAGE() cell's picture: fitted inside the cell, stretched to fill it, or at its own size and cut at the cell's edges, as the grid shows it. */
+.print-table td.image > .print-cell-box > .print-cell { padding: 1px 2px; }
+.print-table td.image img { display: inline-block; vertical-align: middle; object-fit: contain; }
+.print-table td.image.fit-stretch img { object-fit: fill; }
+.print-sheet { position: relative; }
+/* Explicit fragments reserve content space but may paint into page margins.
+   Containment keeps that paint from changing browser shrink-to-fit geometry.
+   Clip to the allocated ink bounds: fractional layout rounding must not send
+   a border's leading edge onto the preceding physical page. */
+.print-page { position: relative; break-inside: avoid; overflow: clip; }
+.print-page-overflow { contain: strict; overflow: clip; overflow-clip-margin: var(--print-overflow-margin, 0px); }
+.print-page-clip { position: absolute; overflow: hidden; }
+.print-object { position: absolute; overflow: hidden; background: #fff; break-inside: avoid; }
+.print-object svg, .print-object img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.print-object.print-text { border: 1px solid #999; border-radius: 3px; }
+.print-object.print-text.borderless { border-color: transparent; }
+.print-object .text-body { position: absolute; inset: 0; display: flex; padding: 8px 10px; box-sizing: border-box; overflow: hidden; line-height: 1.35; white-space: pre-wrap; word-break: break-word; }
+.print-object .text-body > span { display: block; width: 100%; }
+.print-table td.err { color: #b00; font-weight: 600; }
+.print-table tr { break-inside: avoid; }
+/* An invisible gridline must not compete with a real border on its neighbour
+   in the collapsed-border algorithm. Cell backgrounds meet without a border. */
+.print-table.no-grid td, .print-table td.filled { border: none; }
+.print-table.actual { width: auto; }
+.print-table thead { display: table-header-group; }
+.print-table th.print-hdr {
+  border: 1px solid #ccc;
+  background: #f2f2f2;
+  color: #555;
+  font-size: 8pt;
+  font-weight: 600;
+  text-align: center;
+  padding: 0;
+}
+.print-table th.print-hdr > .print-cell-box > .print-cell { padding: 2px 3px; }
+
+/* Named ranges manager */
+.names-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; max-height: 260px; overflow-y: auto; }
+/* Both of these scrollers clip anything outside their content box — overflow-y: auto computes overflow-x
+   to auto as well — and a row is exactly as wide as that box, so a ring drawn 2px outside lost its left
+   and right sides, and the top of the first row's. Inset, as the settings list and the home rows are. */
+.names-list :focus-visible, .cf-list :focus-visible { outline-offset: -2px; }
+.names-row { display: flex; align-items: center; gap: 4px; }
+.names-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+@media (hover: hover) { .names-main:hover { background: var(--surface-2); } }
+.names-name { font-weight: 600; font-size: 13.5px; }
+.names-ref { font-family: var(--mono); font-size: 12px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.names-fields { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+@media (max-width: 480px) { .names-fields { grid-template-columns: 1fr; } }
+.names-review-tools { display: flex; align-items: center; gap: 8px; }
+.names-review-tools .input { min-width: 0; flex: 1; }
+.names-review-tools .select-wrap { max-width: 210px; }
+.names-review-pages { margin: 10px 0; }
+.names-review-pages [role="status"] { flex: 1; }
+.names-review-scroll { display: block; max-height: 270px; border: 1px solid var(--hairline); border-radius: var(--r-sm); }
+.names-review { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; min-width: 650px; }
+.names-review th { position: sticky; top: 0; background: var(--surface-2); z-index: 1; text-align: left; }
+.names-review th, .names-review td { padding: 6px 8px; border-bottom: 1px solid var(--hairline); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.names-review th button { width: 100%; text-align: left; font-weight: 600; }
+.names-review th[aria-sort="ascending"] button::after { content: ' ↑'; }
+.names-review th[aria-sort="descending"] button::after { content: ' ↓'; }
+.names-review th:nth-child(1) { width: 21%; }
+.names-review th:nth-child(2) { width: 17%; }
+.names-review th:nth-child(3) { width: 25%; }
+.names-review th:nth-child(4) { width: 14%; }
+.names-review th:nth-child(5) { width: 13%; }
+.names-review th:nth-child(6) { width: 80px; }
+.names-review .names-main { padding: 4px 0; width: 100%; display: block; overflow: hidden; text-overflow: ellipsis; }
+.names-review .names-name { font-size: 12px; }
+.names-review-actions .icon-btn { width: 28px; height: 28px; display: inline-flex; }
+@media (min-width: 640px) { .modal-panel.names-manager { max-width: 900px; } }
+@media (max-width: 639px) {
+  .names-review-tools { flex-wrap: wrap; }
+  .names-review-tools .input { flex-basis: 100%; }
+  .names-review-scroll { max-height: 180px; }
+}
+
+.modal-panel.names-editor { max-width: 520px; }
+.names-editor-fields { display: grid; gap: 14px; }
+.names-editor-fields .field { display: grid; grid-template-columns: 80px minmax(0, 1fr); align-items: start; gap: 8px 12px; }
+.names-editor-fields .field-label { padding-top: 8px; }
+.names-editor-fields .field-hint { grid-column: 2; }
+.names-editor-fields textarea { resize: none; }
+.names-editor-reference { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.names-editor-reference .input { flex: 1; min-width: 0; font-family: var(--mono); }
+.names-editor-reference .icon-btn { flex: none; }
+.names-editor-footer { margin-top: 20px; }
+.names-editor-footer > button:first-child { margin-right: auto; }
+@media (max-width: 639px) {
+  .names-editor-fields .field { grid-template-columns: 1fr; gap: 6px; }
+  .names-editor-fields .field-label { padding-top: 0; }
+  .names-editor-fields .field-hint { grid-column: 1; }
+  .names-editor-footer { flex-wrap: wrap; }
+}
+
+/* Conditional formatting manager */
+.cf-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; max-height: 220px; overflow-y: auto; }
+.cf-preview { display: inline-grid; place-items: center; width: 34px; height: 22px; border-radius: 5px; font-size: 12px; flex: none; }
+.cf-values { display: flex; gap: 8px; }
+.cf-values .input[hidden] { display: none; }
+.cf-values[hidden] { display: none; }
+.cf-values .find-option { flex: none; white-space: nowrap; }
+.cf-style[hidden] { display: none; }
+.cf-swatches { padding: 2px 0 0; grid-template-columns: repeat(auto-fill, 28px); }
+.cf-form .field { margin-bottom: 12px; }
+
+/* Data validation */
+.dv-dialog { display: flex; flex-direction: column; overflow: hidden; }
+.dv-dialog .modal-head, .dv-dialog .sheet-handle { flex: none; }
+.dv-body, .dv-form { display: flex; flex-direction: column; min-height: 0; }
+.dv-rules { flex: none; margin-bottom: 12px; }
+.dv-rules summary { cursor: pointer; padding: 6px 0; font-size: 13px; font-weight: 600; }
+.dv-rules .cf-list { max-height: 100px; margin: 8px 0 0; }
+.dv-tabs { flex: none; margin-bottom: 16px; }
+.dv-tabs .seg-btn { flex: 1; white-space: nowrap; }
+.dv-tabs .seg-btn[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+@media (forced-colors: active) {
+  .dv-tabs .seg-btn[aria-selected="true"] { background: Highlight; color: HighlightText; }
+  .dv-tabs .seg-btn[aria-selected="true"]:focus-visible { outline-color: HighlightText; }
+}
+.dv-panels { min-height: 0; overflow-y: auto; padding: 2px; }
+.dv-panel[hidden] { display: none; }
+.dv-panel .find-option { margin-bottom: 12px; }
+.dv-panel textarea { resize: vertical; min-height: 70px; }
+.dv-actions { flex: none; margin-top: 14px; }
+.dv-form > .field-error { flex: none; }
+@media (max-width: 480px) { .dv-tabs .seg-btn { padding: 8px 6px; font-size: 12px; } }
+
+/* Sort dialog */
+.modal-panel.sort-dialog { max-width: 920px; display: flex; flex-direction: column; overflow: hidden; }
+.sort-dialog .modal-head, .sort-dialog .sheet-handle { flex: none; }
+.sort-form { display: flex; flex-direction: column; min-height: 0; }
+.sort-form > :not(.sort-level-scroll) { flex: none; }
+.sort-options { display: flex; align-items: center; gap: 24px; margin-bottom: 12px; }
+.sort-options .field { flex: 1; min-width: 0; margin: 0; }
+.sort-flags { flex: 1; min-width: 0; }
+.sort-level-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.sort-level-count { margin-left: auto; color: var(--ink-3); font-size: 12px; }
+.sort-level-scroll { border: 1px solid var(--hairline); border-radius: var(--r-sm); min-height: 40px; max-height: 280px; overflow: auto; }
+.sort-level-head, .sort-level { display: grid; grid-template-columns: 58px minmax(90px, 1fr) 110px 170px 95px 32px; align-items: center; gap: 8px; padding: 8px; min-width: 670px; }
+.sort-level-head { position: sticky; top: 0; z-index: 1; background: var(--surface-2); font-size: 12px; color: var(--ink-3); border-bottom: 1px solid var(--hairline); }
+.sort-level { border-bottom: 1px solid var(--hairline); }
+.sort-level:last-child { border-bottom: 0; }
+.sort-level.selected { background: var(--surface-2); }
+.sort-priority { font-size: 12px; font-weight: 600; }
+.sort-field { min-width: 0; }
+.sort-field-label { display: none; }
+.sort-level .select, .sort-level .input { width: 100%; padding: 8px 10px; font-size: 13px; }
+.sort-level [hidden] { display: none; }
+.sort-no-color { color: var(--ink-3); padding: 8px 10px; }
+.sort-fill.inactive .select-wrap { display: none; }
+.sort-level-scroll :focus-visible { outline-offset: -2px; }
+@media (max-width: 640px) {
+  .sort-options { align-items: stretch; flex-direction: column; gap: 8px; }
+  .sort-level-head { display: none; }
+  .sort-level { min-width: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 12px; padding: 12px; }
+  .sort-priority { grid-column: 1; }
+  .sort-level > .icon-btn { grid-row: 1; grid-column: 2; justify-self: end; }
+  .sort-field-label { display: block; margin-bottom: 4px; color: var(--ink-3); font-size: 11px; }
+  .sort-no-color { display: block; padding: 8px 0; }
+  .sort-level-scroll { max-height: 40vh; }
+}
+
+/* Filter menu */
+.filter-values { max-height: 220px; overflow-y: auto; padding: 2px 4px; display: flex; flex-direction: column; gap: 1px; }
+.filter-value { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+@media (hover: hover) { .filter-value:hover { background: var(--surface-2); } }
+.filter-value input { margin: 0; accent-color: var(--accent); width: 14px; height: 14px; flex: none; }
+.filter-value-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.filter-count { color: var(--ink-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+.filter-summary { padding: 6px 10px 2px; font-size: 12px; color: var(--ink-3); }
+.filter-actions { display: flex; align-items: center; gap: 4px; padding: 6px 4px 2px; }
+
+/* An error in the active cell is explained in the status bar. */
+.status-error { color: var(--critical); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw; }
+
+.tab-lock { display: inline-flex; align-items: center; color: var(--ink-3); margin-right: 4px; }
+
+/* Forced colours (see the note in components.css): the formula bar's focus marks are inset shadows, a
+   pressed toolbar button, an open menu title and the active tab are fills, the toolbar separator is a
+   filled box, and the colour bars under the text and fill buttons and along a coloured tab are colours. */
+@media (forced-colors: active) {
+  .name-box:focus, .formula-input:focus, .name-menu-btn:focus-visible, .fx-expand:focus-visible { outline: 2px solid transparent; outline-offset: -2px; }
+  .tb-btn[aria-pressed="true"], .menubar-btn.open, .menubar-btn[aria-expanded="true"], .tab.active { background: Highlight; color: HighlightText; }
+  /* Their focus ring sits inside that fill, so it takes the fill's text colour rather than the fill's own. */
+  .tb-btn[aria-pressed="true"]:focus-visible, .menubar-btn.open:focus-visible, .menubar-btn[aria-expanded="true"]:focus-visible, .tab.active:focus-visible { outline-color: HighlightText; }
+  .tab-item.active::after { background: Highlight; }
+  .tb-sep { width: 0; background: none; border-left: 1px solid CanvasText; }
+  .color-bar, .tab.colored::before, .tab-item.colored::before, .cf-preview { forced-color-adjust: none; }
+  .color-bar.no-fill { outline-color: CanvasText; }
+}
+
+.print-table td.has-native-sparkline .print-cell { isolation: isolate; }
+.print-table .native-sparkline { position: absolute; inset: 1px; z-index: -1; pointer-events: none; line-height: 0; overflow: hidden; }
+.print-table .native-sparkline svg { display: block; width: 100%; height: 100%; }
+
+/* Cell mode (Ready, Enter, Edit, Point) and view shortcuts, shown or hidden from the bar's right-click menu. */
+.status-left-wrap { display: flex; align-items: center; gap: 16px; min-width: 0; overflow: hidden; }
+.status-mode { font-weight: 500; color: var(--ink-3); min-width: 38px; }
+.status-views { display: flex; align-items: center; gap: 2px; flex: none; }
+.status-view[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); }
+.status-view:disabled { opacity: 0.35; cursor: default; }
+@container sheet-column (max-width: 640px) { .status-views, .status-mode { display: none; } }
+
+/* Dragging a sheet tab: a bar marks where it will land; the pointer shows a copy while Ctrl or Option is held. */
+.sheet-tabs .tab-list { position: relative; }
+.tab-drop-marker { position: absolute; top: 4px; bottom: 4px; width: 3px; border-radius: 2px; background: var(--accent); pointer-events: none; z-index: 2; }
+.sheet-tabs.tab-dragging .tab { cursor: grabbing; }
+.sheet-tabs.tab-copying .tab { cursor: copy; }
+
+/* Grouped sheets: every tab in the group is drawn as selected, the active one keeps its accent. */
+.tab.grouped:not(.active) { background: var(--surface); color: var(--ink); }
+.doc-group-badge { flex: none; font-size: 12px; font-weight: 600; color: var(--accent-strong); padding: 1px 6px; border-radius: 4px; background: var(--accent-wash); white-space: nowrap; }

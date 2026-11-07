@@ -1,0 +1,5 @@
+# Picture alpha probes
+
+Original fixture and RGBA PNGs authored by tools/picture_alpha_fixture.py using only the Python standard library. The reference application exported one page without saving the source. The JSON binds source and PDF hashes and records the four stripe-center colors in each row, sampled from a 4px/pt raster of the PDF. Source pixel RGB is (200,40,80), alpha is 255/128/64/0. A contrasting blue original-image layer proves the main BLIP supplies display pixels; the reference application does not reapply the stored brightness/contrast effect.
+
+Cases include absent/default, zero, one unit, 50%, 90%, identity, 150%/200%/500%, percentage spelling and two successive 50% modifiers. Mixed 200% then 50% and 50% then 200% both produce 50%: the reference application clamps each amount before multiplying, instead of increasing source pixel opacity. The reference verifies source-alpha multiplication and preservation, rather than only a solid opaque image over white. Browser samples allow three RGB levels for native reference PDF versus canvas compositing quantization.

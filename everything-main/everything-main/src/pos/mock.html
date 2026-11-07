@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Point of Sale (mock dev)</title>
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem('pos:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    })();
+  </script>
+  <script src="./dev/puter-mock.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div id="app" class="app"></div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+name: Lint Rust
+
+on:
+    # push:
+    #   branches:
+    #     - main
+    pull_request:
+        paths:
+            - '.github/workflows/lint.yml'
+            - 'desktop/src-tauri/**'
+            - 'cli/src/**'
+    workflow_dispatch:
+
+env:
+    RUST_BACKTRACE: 1
+    CARGO_PROFILE_DEV_DEBUG: 0 # This would add unnecessary bloat to the target folder, decreasing cache efficiency.
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    fmt:
+        runs-on: macos-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: install Rust stable and rustfmt
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  components: rustfmt
+
+            - name: Run cargo fmt
+              run: cargo fmt --manifest-path Cargo.toml --all -- --check
+
+    clippy:
+        runs-on: macos-latest
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: install Rust stable and clippy
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  components: clippy
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: desktop/package.json
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: desktop/pnpm-lock.yaml
+
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.6.0
+
+            - name: Fetch the sidecars
+              run: chore setup
+
+            - name: install node deps
+              run: pnpm install
+              working-directory: ./desktop
+            - name: build react
+              run: pnpm build
+              working-directory: ./desktop
+
+            - uses: Swatinem/rust-cache@v2
+
+            - name: run Clippy
+              run: cargo clippy --manifest-path Cargo.toml --all-targets -- -D warnings

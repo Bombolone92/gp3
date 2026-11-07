@@ -1,0 +1,852 @@
+/* The survey as respondents see it. Everything is scoped to .sv-root and
+   driven by the survey theme's custom properties (applySurveyTheme), so the
+   same styles serve the public page and the builder's preview. */
+.sv-root {
+  --sv-accent: #c2410c;
+  --sv-on-accent: #fff;
+  --sv-bg: #f6f4f1;
+  --sv-surface: #fff;
+  --sv-text: #1f1d1a;
+  --sv-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sv-radius: 10px;
+  --sv-muted: color-mix(in srgb, var(--sv-text) 66%, var(--sv-surface));
+  /* The same, for text on the page background (the welcome message, page
+     descriptions, the footer): 4.5:1 or more there with every built-in
+     theme, where the question area's muted color falls short. */
+  --sv-muted-bg: color-mix(in srgb, var(--sv-text) 72%, var(--sv-bg));
+  --sv-line: color-mix(in srgb, var(--sv-text) 18%, var(--sv-surface));
+  /* Control boundaries (inputs, scales, tiles): 3:1 or more against the
+     surface with every built-in theme, as WCAG 1.4.11 asks. Custom colors
+     with less text contrast give less. */
+  --sv-line-strong: color-mix(in srgb, var(--sv-text) 50%, var(--sv-surface));
+  --sv-soft: color-mix(in srgb, var(--sv-accent) 10%, var(--sv-surface));
+  --sv-error: #c0262d;
+  color-scheme: light;
+  min-height: 100%;
+  background: var(--sv-bg);
+  color: var(--sv-text);
+  font-family: var(--sv-font);
+  font-size: 16px;
+  line-height: 1.5;
+  /* A long link or token in any text must wrap rather than widen the page. */
+  overflow-wrap: anywhere;
+}
+
+.sv-root[data-sv-dark='true'] {
+  --sv-error: #ff8a8f;
+  color-scheme: dark;
+}
+
+.sv-root *:focus-visible {
+  outline: 2px solid var(--sv-accent);
+  outline-offset: 2px;
+}
+
+.sv-shell {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 32px 20px 24px;
+}
+
+.sv-preview-note {
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border: 1px dashed var(--sv-line-strong);
+  border-radius: var(--sv-radius);
+  color: var(--sv-muted-bg);
+  font-size: 13px;
+  text-align: center;
+}
+
+.sv-progress {
+  position: relative;
+  height: 6px;
+  margin: 0 0 24px;
+  border-radius: 999px;
+  background: var(--sv-line);
+  overflow: hidden;
+}
+
+.sv-foot .sv-progress {
+  margin: 0 0 20px;
+}
+
+.sv-progress-fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sv-accent);
+  transition: width 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.sv-head {
+  margin-bottom: 20px;
+}
+
+.sv-logo {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.sv-logo img {
+  max-height: 64px;
+  max-width: 240px;
+  object-fit: contain;
+}
+
+.sv-logo-center {
+  justify-content: center;
+}
+
+.sv-logo-right {
+  justify-content: flex-end;
+}
+
+.sv-title {
+  font-size: clamp(24px, 4vw, 32px);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.sv-main {
+  outline: none;
+}
+
+.sv-page {
+  display: grid;
+  gap: 16px;
+}
+
+.sv-survey-desc,
+.sv-desc {
+  color: var(--sv-muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sv-survey-desc,
+.sv-page-head .sv-desc {
+  color: var(--sv-muted-bg);
+}
+
+.sv-page-head {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.sv-page-title {
+  font-size: 20px;
+  font-weight: 650;
+}
+
+.sv-q {
+  margin: 0;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--sv-line);
+  border-radius: var(--sv-radius);
+  background: var(--sv-surface);
+  transition: border-color 140ms;
+}
+
+.sv-q.sv-has-error {
+  border-color: var(--sv-error);
+}
+
+.sv-q > .sv-desc {
+  margin: -6px 0 12px;
+  font-size: 15px;
+}
+
+.sv-qtitle {
+  display: block;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  float: none;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.sv-qtitle label {
+  cursor: default;
+}
+
+/* Physical sides: float: inline-start needs Chrome 118 or later. */
+fieldset.sv-q > legend.sv-qtitle {
+  float: left;
+}
+
+.sv-root[dir='rtl'] fieldset.sv-q > legend.sv-qtitle {
+  float: right;
+}
+
+fieldset.sv-q > legend.sv-qtitle + * {
+  clear: both;
+}
+
+.sv-num {
+  margin-inline-end: 6px;
+  color: var(--sv-muted);
+  font-weight: 500;
+}
+
+.sv-req {
+  margin-inline-start: 4px;
+  color: var(--sv-error);
+}
+
+.sv-statement {
+  border-style: dashed;
+}
+
+.sv-statement-title {
+  font-size: 17px;
+  font-weight: 600;
+  white-space: pre-wrap;
+}
+
+.sv-statement .sv-desc {
+  margin-top: 6px;
+}
+
+.sv-error {
+  margin-top: 10px;
+  color: var(--sv-error);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sv-error::before {
+  content: '! ';
+  font-weight: 700;
+}
+
+.sv-hint {
+  margin: 0 0 8px;
+  color: var(--sv-muted);
+  font-size: 14px;
+}
+
+.sv-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+/* ---- Inputs ---- */
+.sv-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--sv-line-strong);
+  border-radius: calc(var(--sv-radius) * 0.7);
+  background: var(--sv-surface);
+  color: var(--sv-text);
+  font: inherit;
+}
+
+.sv-input:focus {
+  outline: none;
+  border-color: var(--sv-accent);
+  box-shadow: 0 0 0 1px var(--sv-accent);
+}
+
+.sv-input[aria-invalid='true'] {
+  border-color: var(--sv-error);
+}
+
+.sv-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.sv-select {
+  appearance: none;
+  padding-inline-end: 40px;
+}
+
+.sv-select-wrap {
+  position: relative;
+}
+
+.sv-select-wrap::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 16px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -6px;
+  border-right: 2px solid var(--sv-muted);
+  border-bottom: 2px solid var(--sv-muted);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.sv-dropdown {
+  display: grid;
+  gap: 8px;
+  max-width: 420px;
+}
+
+/* ---- Choice lists ---- */
+.sv-choices {
+  display: grid;
+  gap: 2px;
+}
+
+.sv-layout-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.sv-layout-columns {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  column-gap: 16px;
+}
+
+.sv-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-radius: calc(var(--sv-radius) * 0.7);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.sv-choice:hover {
+  background: var(--sv-soft);
+}
+
+.sv-choice input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--sv-accent);
+  cursor: pointer;
+}
+
+.sv-other {
+  display: grid;
+  gap: 4px;
+}
+
+.sv-other-input {
+  margin-inline-start: 32px;
+  width: calc(100% - 32px);
+}
+
+/* Tile answers: each choice is a bordered button-like box. */
+.sv-root[data-sv-answers='tiles'] .sv-choices {
+  gap: 8px;
+}
+
+.sv-root[data-sv-answers='tiles'] .sv-choice {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--sv-line-strong);
+}
+
+.sv-root[data-sv-answers='tiles'] .sv-choice:has(input:checked) {
+  border-color: var(--sv-accent);
+  background: var(--sv-soft);
+  box-shadow: inset 0 0 0 1px var(--sv-accent);
+}
+
+/* ---- Rating ---- */
+.sv-rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sv-rating-item {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  color: var(--sv-line-strong);
+  cursor: pointer;
+  transition: color 100ms, transform 100ms;
+}
+
+.sv-rating-item .sv-shape {
+  width: 34px;
+  height: 34px;
+  fill: currentColor;
+}
+
+.sv-rating-item.sv-on {
+  color: var(--sv-accent);
+}
+
+.sv-rating-item:active {
+  transform: scale(0.92);
+}
+
+.sv-rating input:focus-visible + .sv-rating-item {
+  outline: 2px solid var(--sv-accent);
+  outline-offset: 1px;
+}
+
+.sv-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  color: var(--sv-muted);
+  font-size: 13px;
+}
+
+/* ---- 0-10 scale ---- */
+.sv-nps {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.sv-nps-item {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  border: 1px solid var(--sv-line-strong);
+  border-radius: calc(var(--sv-radius) * 0.6);
+  background: var(--sv-surface);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sv-nps-item:hover {
+  background: var(--sv-soft);
+}
+
+.sv-nps input:checked + .sv-nps-item {
+  border-color: var(--sv-accent);
+  background: var(--sv-accent);
+  color: var(--sv-on-accent);
+}
+
+.sv-nps input:focus-visible + .sv-nps-item {
+  outline: 2px solid var(--sv-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Grid (matrix) ---- */
+.sv-matrix-wrap {
+  overflow-x: auto;
+}
+
+.sv-matrix {
+  /* Column widths come from whole words; a wide grid scrolls instead. */
+  overflow-wrap: normal;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sv-matrix th,
+.sv-matrix td {
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.sv-matrix thead th {
+  font-weight: 500;
+  color: var(--sv-muted);
+  vertical-align: bottom;
+}
+
+.sv-matrix tbody th {
+  text-align: start;
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.sv-matrix tbody tr {
+  border-top: 1px solid var(--sv-line);
+}
+
+.sv-cell {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.sv-cell input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--sv-accent);
+  cursor: pointer;
+}
+
+.sv-cell-label {
+  display: none;
+}
+
+/* Narrow (600px or less, as the renderer marks it, so the builder's phone
+   preview matches phones): each row becomes its own list of options. */
+:where(.sv-root[data-sv-narrow]) .sv-matrix thead {
+  display: none;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-matrix,
+:where(.sv-root[data-sv-narrow]) .sv-matrix tbody,
+:where(.sv-root[data-sv-narrow]) .sv-matrix tr,
+:where(.sv-root[data-sv-narrow]) .sv-matrix th,
+:where(.sv-root[data-sv-narrow]) .sv-matrix td {
+  display: block;
+  width: 100%;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-matrix tbody tr {
+  padding: 8px 0;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-matrix tbody th {
+  padding: 4px 0 6px;
+  font-weight: 600;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-matrix td {
+  padding: 0;
+  text-align: start;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-cell {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 40px;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-cell-label {
+  display: inline;
+}
+
+/* ---- Slider ---- */
+.sv-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sv-range {
+  flex: 1;
+  height: 32px;
+  accent-color: var(--sv-accent);
+  cursor: pointer;
+}
+
+.sv-slider:not(.sv-set) .sv-range {
+  opacity: 0.6;
+}
+
+.sv-slider-value {
+  min-width: 96px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: end;
+}
+
+.sv-slider:not(.sv-set) .sv-slider-value {
+  color: var(--sv-muted);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+/* ---- Ranking ---- */
+.sv-rank {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sv-rank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--sv-line-strong);
+  border-radius: calc(var(--sv-radius) * 0.7);
+  background: var(--sv-surface);
+}
+
+.sv-rank:not(.sv-set) .sv-rank-item {
+  border-style: dashed;
+}
+
+.sv-rank-item.sv-dragging {
+  border-color: var(--sv-accent);
+  background: var(--sv-soft);
+}
+
+.sv-rank-pos {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sv-soft);
+  color: var(--sv-accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sv-rank-handle {
+  color: var(--sv-muted);
+  cursor: grab;
+  touch-action: none;
+  padding: 6px 2px;
+}
+
+.sv-rank-label {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.sv-rank-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--sv-line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sv-text);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.sv-rank-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.sv-link-btn {
+  margin-top: 8px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--sv-accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---- Fields ---- */
+.sv-fields {
+  display: grid;
+  gap: 12px;
+}
+
+.sv-field {
+  display: grid;
+  gap: 4px;
+}
+
+.sv-field label {
+  font-size: 14px;
+  color: var(--sv-muted);
+}
+
+.sv-datetime {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sv-date,
+.sv-time {
+  width: auto;
+  min-width: 160px;
+}
+
+/* ---- Navigation ---- */
+.sv-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.sv-btn {
+  min-width: 112px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: calc(var(--sv-radius) * 0.8);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sv-btn-primary {
+  background: var(--sv-accent);
+  color: var(--sv-on-accent);
+}
+
+/* A link styled as a button (an embedded survey's "Continue"). */
+a.sv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.sv-btn-primary:hover {
+  filter: brightness(0.94);
+}
+
+.sv-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.sv-btn-secondary {
+  margin-inline-end: auto;
+  border-color: var(--sv-line-strong);
+  background: var(--sv-surface);
+  color: var(--sv-text);
+}
+
+.sv-banner {
+  padding: 12px 14px;
+  border: 1px solid var(--sv-error);
+  border-radius: var(--sv-radius);
+  background: var(--sv-surface);
+  color: var(--sv-error);
+  font-weight: 500;
+}
+
+.sv-hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---- End screens ---- */
+.sv-end {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 48px 24px;
+  border: 1px solid var(--sv-line);
+  border-radius: var(--sv-radius);
+  background: var(--sv-surface);
+  text-align: center;
+}
+
+.sv-end-mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--sv-soft);
+  color: var(--sv-accent);
+}
+
+.sv-end-mark svg {
+  width: 28px;
+  height: 28px;
+}
+
+.sv-end-title {
+  font-size: 22px;
+  font-weight: 700;
+  outline: none;
+}
+
+.sv-end-msg {
+  max-width: 480px;
+  color: var(--sv-muted);
+  white-space: pre-wrap;
+}
+
+.sv-foot {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.sv-foot a {
+  color: var(--sv-muted-bg);
+  text-decoration: none;
+}
+
+.sv-foot a:hover {
+  text-decoration: underline;
+}
+
+/* ---- One question at a time ---- */
+.sv-focus .sv-main {
+  min-height: 46vh;
+  display: grid;
+  align-content: center;
+}
+
+.sv-focus .sv-q {
+  padding: 28px;
+}
+
+.sv-focus .sv-qtitle {
+  font-size: 21px;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-shell {
+  padding: 20px 14px 16px;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-q {
+  padding: 16px;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-nps {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-btn {
+  flex: 1;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-btn-secondary {
+  flex: 0 0 auto;
+}
+
+:where(.sv-root[data-sv-narrow]) .sv-rating-item {
+  width: 40px;
+  height: 40px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-root * {
+    transition: none !important;
+  }
+}

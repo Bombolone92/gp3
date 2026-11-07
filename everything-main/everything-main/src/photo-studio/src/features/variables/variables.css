@@ -1,0 +1,54 @@
+/* Variables and data sets dialogs */
+.var-dialog { width: 520px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 48px); overflow-y: auto; }
+.var-dialog .var-error { color: var(--danger, #e5484d); min-height: 1.2em; margin: 8px 0 0; }
+.var-dialog .var-error:empty { display: none; }
+.var-layer-row { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: end; }
+.var-layer-row .dialog-field { margin: 0; }
+.var-layer-row .icon-button { height: 30px; min-width: 28px; font-size: 18px; line-height: 1; }
+.var-kind { border: 1px solid var(--line-soft); border-radius: 4px; padding: 4px 12px 8px; margin: 12px 0 0; }
+.var-kind legend { padding: 0 4px; font-size: 12px; font-weight: 600; }
+.var-kind legend .checkbox-field { display: flex; gap: 6px; align-items: center; }
+.var-kind .dialog-field { margin: 8px 0; }
+.var-kind p { margin: 4px 0 0; font-size: 11px; line-height: 1.5; }
+.var-note { margin: 12px 0 0; font-size: 11px; }
+.var-kind .checkbox-field { display: flex; font-size: 12px; margin: 6px 0; }
+.var-pixel-row { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: start; }
+.var-align { border: 0; padding: 0; margin: 8px 0; font-size: 12px; }
+.var-align legend { font-weight: 400; padding: 0 0 7px; }
+.var-align-grid { display: grid; grid-template-columns: repeat(3, 18px); gap: 3px; }
+.var-align-grid label { position: relative; width: 18px; height: 18px; }
+.var-align-grid input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.var-align-grid span { display: block; width: 18px; height: 18px; border: 1px solid var(--input-line); border-radius: 2px; background: var(--input); }
+.var-align-grid input:checked + span { background: var(--accent); border-color: var(--accent); }
+.var-align-grid input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+.var-align-grid input:disabled + span { opacity: 0.5; }
+.ds-dialog { width: min(900px, calc(100vw - 32px)); max-width: min(900px, calc(100vw - 32px)); }
+.ds-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.ds-toolbar button, .ds-footer button { padding: 4px 10px; border: 1px solid var(--input-line); border-radius: 3px; }
+.ds-spacer { flex: 1; }
+.ds-table-wrap { max-height: min(50dvh, 420px); overflow: auto; border: 1px solid var(--line-soft); border-radius: 3px; }
+.ds-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.ds-table th, .ds-table td { border-bottom: 1px solid var(--line-soft); padding: 3px 4px; text-align: left; vertical-align: middle; }
+.ds-table thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; font-weight: 600; white-space: nowrap; }
+.ds-table thead small { display: block; font-weight: 400; color: var(--muted); font-size: 10px; }
+.ds-table input[type='text'], .ds-table textarea { width: 100%; min-width: 110px; padding: 3px 6px; font: inherit; resize: vertical; min-height: 24px; }
+.ds-table th[scope='row'] input { min-width: 120px; font-weight: 600; }
+.ds-table input[type='checkbox'] { margin: 0 4px; }
+.ds-table tr.selected > * { background: var(--row-selected); }
+.ds-footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; font-size: 12px; }
+.ds-footer .checkbox-field { display: flex; margin: 0; }
+.ds-folder { font-size: 12px; }
+.ds-apply select[size] { width: 100%; }
+.ds-errors { font-size: 12px; margin: 0 0 8px 18px; line-height: 1.6; }
+.ds-progress { width: 380px; max-width: calc(100vw - 32px); }
+.ds-progress progress { width: 100%; height: 10px; }
+.ds-progress .ds-progress-text { margin: 8px 0 0; }
+.ds-export { width: 440px; max-width: calc(100vw - 32px); }
+@media (max-width: 600px) {
+  .var-pixel-row { grid-template-columns: 1fr; }
+}
+/* Dialogs that preview on the canvas sit low and keep the canvas visible. */
+dialog.ds-dialog { margin: auto auto 16px; max-height: min(60dvh, 560px); overflow-y: auto; }
+dialog.ds-apply { width: 340px; margin: auto 16px 16px auto; }
+dialog.ds-dialog::backdrop, dialog.ds-apply::backdrop { background: transparent; }
+.ds-table thead th:first-child { width: 200px; }

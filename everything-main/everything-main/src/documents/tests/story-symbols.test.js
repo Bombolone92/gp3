@@ -1,0 +1,50 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { StorySession } from '../src/engine/story-session.js';
+const folder = 'tests/fixtures/story-symbols/';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+it.each(['before', 'after', 'both'])('imports %s symbols in body, table, header and footer without fallback', async position => {
+  const source = readFileSync(folder + position + '-symbol.docx');
+  const pkg = await DocxPackage.open(source);
+  expect(pkg.readOnly).not.toBe(true);
+  const stories = Object.values(pkg.pageStories.stories);
+  const runs = [...pkg.paragraphs, ...stories.flatMap(s => s.paragraphs)].flatMap(p => p.runs);
+  expect(runs.filter(r => r.bodySymbol)).toHaveLength(position === 'both' ? 8 : 4);
+  expect(runs.filter(r => r.image && r.bold && r.link)).toHaveLength(4);
+  for (const story of stories) {
+    expect(story.editable).toBe(true);
+    expect(story.paragraphs.flatMap(p => p.runs).filter(r => r.bodySymbol)).toHaveLength(position === 'both' ? 2 : 1);
+    const d = new TextDocument(story.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, story.tables, pkg.assets);
+    const runs = story.paragraphs[0].runs;
+    const index = runs.findIndex(r => r.bodySymbol), marker = runs[index];
+    const at = runs.slice(0, index).reduce((n, r) => n + r.text.length, 0); d.select(at, at + 1);
+    expect(d.clipboardText()).toBe(String.fromCharCode(parseInt(marker.bodySymbol.code, 16)));
+  }
+  expect(unzipSync(new Uint8Array(await pkg.export().arrayBuffer()))).toEqual(unzipSync(source));
+});
+it.each(['header', 'footer'])('preserves %s symbol identity through editing, export, reopen and exact undo', async kind => {
+  const source = readFileSync(folder + 'before-symbol.docx'), pkg = await DocxPackage.open(source);
+  const body = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets);
+  const session = new StorySession(body, pkg.pageStories), path = `word/${kind}1.xml`, d = session.activate(path);
+  const at = d.text.indexOf('\ufffc'); d.select(at, at + 1);
+  const save = async () => new Uint8Array(await session.export(pkg).arrayBuffer());
+  session.run(d => d.toggleBold());
+  const edited = await save(), reopened = await DocxPackage.open(edited);
+  expect(reopened.pageStories.stories[path].paragraphs.flatMap(p => p.runs).find(r => r.bodySymbol)).toMatchObject({ bold: false, bodySymbol: { font: 'Wingdings', code: 'F031' } });
+  const parts = unzipSync(edited);
+  for (const [name, bytes] of Object.entries(pkg.parts)) if (name !== path) expect(parts[name]).toEqual(bytes);
+  session.undo(); expect(unzipSync(await save())).toEqual(pkg.parts);
+  d.select(at + 1); session.run(d => d.replace('Z'));
+  expect(d.paragraphs.flatMap(p => p.runs).find(r => r.text.includes('Z')).bodySymbol).toBeUndefined();
+  expect((await DocxPackage.open(await save())).pageStories.stories[path].paragraphs.flatMap(p => p.runs).filter(r => r.bodySymbol)).toHaveLength(1);
+  session.undo(); expect(unzipSync(await save())).toEqual(pkg.parts);
+  d.select(at, at + 1); session.run(d => d.replace('Q'));
+  expect((await DocxPackage.open(await save())).pageStories.stories[path].paragraphs.flatMap(p => p.runs).filter(r => r.bodySymbol)).toHaveLength(0);
+  session.undo(); expect(unzipSync(await save())).toEqual(pkg.parts);
+});

@@ -1,0 +1,183 @@
+.panel-libraries {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.lib-top,
+.lib-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px 0;
+}
+
+.lib-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.lib-search {
+  flex: 1;
+  min-width: 0;
+}
+
+.lib-content {
+  flex: 1;
+  min-height: 120px;
+  overflow: auto;
+  padding: 4px 10px 10px;
+}
+
+.lib-section + .lib-section {
+  margin-top: 8px;
+}
+
+.lib-heading {
+  margin: 8px 0 6px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.lib-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lib-content.grid .lib-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 6px;
+}
+
+.lib-content.grid .lib-items.kind-color,
+.lib-content.grid .lib-items.kind-gradient {
+  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+}
+
+.lib-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 3px 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.lib-item:hover {
+  background: var(--bg-hover);
+}
+
+.lib-item:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.lib-content.grid .lib-item {
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+}
+
+.lib-content.grid .kind-color .lib-item,
+.lib-content.grid .kind-gradient .lib-item {
+  padding: 0;
+  border: 0;
+}
+
+.lib-content.grid .kind-color .lib-name,
+.lib-content.grid .kind-gradient .lib-name {
+  display: none;
+}
+
+.lib-swatch {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--radius-xs);
+}
+
+.lib-content.grid .lib-swatch {
+  width: 100%;
+  height: 28px;
+}
+
+.lib-thumb {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  object-fit: contain;
+  background: var(--pasteboard);
+  border-radius: var(--radius-xs);
+}
+
+.lib-content.grid .lib-thumb {
+  width: 100%;
+  height: 56px;
+}
+
+.lib-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  color: var(--text-2);
+}
+
+.lib-type {
+  font-size: 18px;
+  color: var(--text);
+}
+
+.lib-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+}
+
+.lib-content.grid .lib-name {
+  width: 100%;
+  text-align: center;
+}
+
+.lib-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+}
+
+.lib-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lib-where {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.lib-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  color: var(--text-2);
+}
+
+.lib-empty p {
+  margin: 0;
+}

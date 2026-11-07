@@ -1,0 +1,246 @@
+/* The document title, menus and everyday formatting form three quiet rows. */
+.canvas-workspace { min-width: 0; }
+.canvas-header { flex: none; border-bottom: 1px solid var(--hairline); background: var(--surface); }
+.canvas-topbar {
+  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;
+  height: calc(48px + var(--safe-t)); padding: var(--safe-t) calc(12px + var(--safe-r)) 0 calc(8px + var(--safe-l));
+  border: 0;
+}
+.canvas-brand { flex: none; width: 28px; height: 28px; border-radius: 8px; }
+.canvas-title-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.canvas-title {
+  flex: 0 1 auto; width: 24ch; min-width: 0; max-width: 100%; padding: 5px 8px;
+  border: 1px solid transparent; border-radius: var(--r-sm); color: var(--ink);
+  background: transparent; font: 600 15px/1.4 var(--font); text-overflow: ellipsis;
+}
+@media (hover: hover) { .canvas-title:hover { border-color: transparent; background: var(--surface-2); } }
+.canvas-title:focus { border-color: var(--control-border); background: var(--surface); }
+.canvas-save-status { flex: none; min-width: 0; gap: 5px; padding: 5px 4px; border-radius: 6px; font-size: 12px; }
+.canvas-save-status .save-label { display: inline; }
+.canvas-save-status.saving svg { animation: spin 1s linear infinite; }
+.canvas-title-actions { display: flex; align-items: center; flex: none; gap: 6px; }
+.canvas-download {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 32px; padding: 0 11px; border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm); font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.canvas-download:disabled { opacity: .4; }
+@media (hover: hover) { .canvas-download:not(:disabled):hover { background: var(--surface-2); } }
+.canvas-header .menubar {
+  min-height: 30px; height: auto; margin: 0; padding: 0 calc(8px + var(--safe-r)) 4px calc(8px + var(--safe-l));
+  gap: 2px; flex-wrap: wrap;
+}
+.canvas-header .menu-btn { height: 26px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+.canvas-header .menu-btn[aria-expanded='true'] { color: var(--ink); }
+.canvas-toolbar-shell { position: relative; flex: none; min-width: 0; border-bottom: 1px solid var(--hairline); }
+.canvas-toolbar-shell::before, .canvas-toolbar-shell::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40px; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 1; }
+.canvas-toolbar-shell::before { left: 0; background: linear-gradient(to right, var(--surface), transparent); }
+.canvas-toolbar-shell::after { right: 0; background: linear-gradient(to left, var(--surface), transparent); }
+.canvas-toolbar-shell.more-before::before, .canvas-toolbar-shell.more-after::after { opacity: 1; }
+.canvas-color-tool { display: flex; justify-content: center; gap: 3px; width: 46px; }
+.canvas-color-tool[aria-expanded="true"] { background: var(--surface-2); color: var(--ink); }
+.canvas-color-icon { position: relative; display: grid; place-items: center; width: 22px; height: 25px; padding-bottom: 4px; }
+.canvas-color-indicator { position: absolute; bottom: 0; left: 1px; right: 1px; height: 4px; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--control-border); forced-color-adjust: none; }
+.canvas-color-indicator.is-mixed { background: linear-gradient(90deg, #e06666 0 33%, #6aa84f 33% 66%, #6fa8dc 66%); }
+.canvas-color-indicator.is-none { background: linear-gradient(135deg, transparent 44%, var(--critical) 44% 56%, transparent 56%) !important; }
+.canvas-toolbar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 2px 0;
+  min-height: 42px; padding: 4px calc(10px + var(--safe-r)) 4px calc(10px + var(--safe-l)); border: 0;
+}
+.canvas-tool-group { display: flex; align-items: center; flex: none; gap: 1px; padding: 0 7px; border-right: 1px solid var(--hairline); }
+.canvas-tool-group:first-child { padding-left: 0; }
+.canvas-tool-group:last-child, .canvas-tool-group.row-end { border-right-color: transparent; }
+.canvas-tool-group:last-child { padding-right: 0; }
+.canvas-toolbar-shell .canvas-tool {
+  flex: none; width: 30px; height: 30px; padding: 0; color: var(--ink-2);
+  border: 1px solid transparent; border-radius: 5px;
+}
+.canvas-toolbar-shell .canvas-tool svg { width: 18px; height: 18px; }
+.canvas-toolbar-shell .canvas-color-tool { width: 43px; }
+.canvas-toolbar-shell .canvas-color-tool > svg { width: 12px; height: 12px; }
+.canvas-toolbar-shell .canvas-tool:disabled { opacity: .35; }
+.canvas-toolbar-shell .canvas-tool[aria-pressed='true'], .canvas-toolbar-shell .canvas-tool[aria-expanded='true'] {
+  background: var(--accent-wash); border-color: var(--accent); color: var(--accent-strong);
+}
+.canvas-toolbar-shell .canvas-tool[aria-pressed='mixed'] { border: 1px dashed var(--ink-3); }
+.canvas-font-label { display: inline-block; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 9px 0 3px; font-size: 12px; color: var(--ink-2); }
+.canvas-toolbar-shell select, .canvas-toolbar-shell .canvas-spacing {
+  height: 30px; min-width: 0; padding: 4px 7px; border: 1px solid transparent;
+  border-radius: 5px; font-size: 12px; background-color: transparent; color: var(--ink);
+}
+.canvas-toolbar-shell select { padding-right: 24px; appearance: none; background-image: var(--select-chevron); background-repeat: no-repeat; background-position: right 6px center; }
+.canvas-toolbar-shell select:hover, .canvas-toolbar-shell .canvas-spacing:hover { border-color: var(--hairline-strong); background-color: var(--surface-2); }
+.canvas-toolbar-shell select:focus, .canvas-toolbar-shell .canvas-spacing:focus { border-color: var(--control-border); }
+.canvas-toolbar .canvas-style-select { width: 142px; }
+.canvas-toolbar .canvas-spacing { width: 54px; border-color: var(--hairline-strong); }
+/* The size box offers its presets from the arrow beside it, as a word processor's does; spin arrows would leave no room for the number. */
+.canvas-spacing.ribbon-size { appearance: textfield; -moz-appearance: textfield; }
+.canvas-spacing.ribbon-size::-webkit-inner-spin-button, .canvas-spacing.ribbon-size::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+.canvas-advanced {
+  display: flex; flex-wrap: wrap; gap: 12px 22px; padding: 12px 14px;
+  max-height: 30vh; overflow: auto; overscroll-behavior: contain;
+  border-top: 1px solid var(--hairline); background: var(--surface-2);
+}
+.canvas-advanced-section { flex: 1 1 260px; min-width: 0; }
+.canvas-advanced-section h2 { font-size: 11px; font-weight: 600; color: var(--ink-3); margin: 0 0 6px; }
+.canvas-advanced-controls { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.canvas-tool-field { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-2); max-width: 100%; }
+.canvas-tool-field > span { white-space: nowrap; }
+.canvas-advanced select { max-width: 100%; background-color: var(--surface); }
+.canvas-advanced .canvas-spacing { width: 57px; background-color: var(--surface); }
+.canvas-advanced .canvas-style-select { max-width: 180px; }
+.canvas-statusbar { display: flex; justify-content: space-between; flex: none; flex-wrap: nowrap; align-items: center; min-height: 32px; padding: 4px 14px; gap: 14px; font-size: 11px; color: var(--ink-2); border-top: 1px solid var(--hairline); }
+.canvas-statusbar:has(.canvas-story-area:not([hidden])) { flex-wrap: wrap; }
+.canvas-story-area select { max-width: 12rem; }
+.canvas-story-area[hidden] { display: none; }
+.canvas-text-mode { display: flex; align-items: center; margin-left: auto; gap: 5px; white-space: nowrap; }
+.canvas-text-mode input { accent-color: var(--accent); margin: 0; }
+.canvas-zoom { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.canvas-zoom select { appearance: none; color: var(--ink); background: var(--surface) var(--select-chevron) no-repeat right 4px center; border: 1px solid transparent; border-radius: 4px; font-size: 11px; padding: 3px 20px 3px 6px; cursor: pointer; }
+@media (hover: hover) { .canvas-zoom select:hover { border-color: var(--hairline-strong); background-color: var(--surface-2); } }
+.canvas-zoom select:focus-visible { border-color: var(--control-border); }
+.playground-nav { padding: 6px 12px; gap: 12px; font-size: 12px; }
+.playground-nav .btn { font-size: 12px; padding: 5px 9px; min-height: 30px; }
+.playground-samples summary { cursor: pointer; color: var(--ink-2); }
+.playground-sample-list {
+  position: absolute; z-index: 20; right: 12px; margin-top: 8px; padding: 16px;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px;
+  width: min(520px, calc(100vw - 24px)); max-height: 55vh; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--hairline-strong); border-radius: var(--r-sm);
+}
+
+@media (max-width: 640px) {
+  .canvas-topbar { padding-inline: 6px; gap: 2px; }
+  .canvas-brand { display: none; }
+  .canvas-title-wrap { gap: 2px; }
+  .canvas-title { font-size: 14px; padding-inline: 5px; }
+  .canvas-save-status:not(.signed-out) .save-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .canvas-save-status.signed-out { font-size: 11px; padding-inline: 2px; }
+  .canvas-save-status.signed-out svg { display: none; }
+  .canvas-title-actions { gap: 2px; }
+  .canvas-download { min-width: 32px; padding: 0; border-color: transparent; }
+  .canvas-download span { display: none; }
+  .canvas-header .menubar { padding-inline: 5px; }
+  .canvas-header .menu-btn { padding-inline: 8px; }
+  .canvas-toolbar { padding-inline: 6px; row-gap: 4px; }
+  .canvas-tool-group { padding-inline: 4px; }
+  .canvas-font-label { display: none; }
+  .canvas-advanced { padding: 8px; }
+  .canvas-statusbar { padding-inline: 8px; gap: 8px; }
+}
+@media (pointer: coarse) {
+  .canvas-toolbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; }
+  .canvas-toolbar-shell .canvas-tool { width: 34px; height: 34px; }
+  .canvas-header .menu-btn { min-height: 32px; }
+}
+
+/* Persistent navigation and contextual tools share the document's vertical space. */
+.canvas-editor-body { display: flex; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+.canvas-editor-content { display: flex; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+.canvas-navigation { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 0 0 64px; padding: 8px 4px; border-right: 1px solid var(--hairline); background: var(--surface); }
+.canvas-navigation .canvas-tool { display: flex; flex-direction: column; gap: 5px; width: 54px; min-height: 54px; padding: 6px 3px; font-size: 11px; color: var(--ink-2); }
+.canvas-navigation .canvas-tool[aria-expanded='true'] { background: var(--accent-wash); color: var(--accent-strong); box-shadow: inset 0 0 0 1px var(--accent); }
+.canvas-navigation .canvas-tool:disabled { opacity: .4; }
+.canvas-document-surface { min-width: 0; }
+.canvas-inspector, .canvas-outline-panel { flex: 0 0 290px; width: 290px; min-height: 0; background: var(--surface); color: var(--ink); }
+/* Side panes give up width before the page does: however many are open, the page keeps room to read. */
+@media (min-width: 701px) {
+  .canvas-editor-content > .canvas-document-surface { min-width: min(360px, 40vw); }
+  /* Three panes at their least and the page at its least share the window. */
+  .canvas-editor-content > :is(.canvas-inspector, .canvas-outline-panel, .review-pane, .canvas-find) { flex-shrink: 1; min-width: min(200px, 20vw); }
+}
+.canvas-advanced.canvas-inspector { display: flex; flex-direction: column; flex-wrap: nowrap; gap: 0; padding: 0; max-height: none; border: 0; border-left: 1px solid var(--hairline); overflow: hidden; }
+.canvas-outline-panel { display: flex; flex-direction: column; border-right: 1px solid var(--hairline); }
+.canvas-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--hairline); flex-shrink: 0; }
+.canvas-panel-heading h2 { margin: 0; color: var(--ink); font-size: 13px; font-weight: 600; }
+.canvas-panel-scroll { overflow: auto; min-height: 0; padding: 12px; overscroll-behavior: contain; }
+.canvas-inspector .canvas-advanced-section { margin-bottom: 20px; }
+.canvas-inspector .canvas-advanced-section h2 { margin-bottom: 9px; font-size: 12px; color: var(--ink-2); }
+.canvas-inspector .canvas-advanced-controls { display: flex; flex-direction: column; align-items: stretch; gap: 5px; }
+.inspector-label { display: none; }
+.canvas-inspector .inspector-label { display: inline; text-align: start; }
+.canvas-inspector .canvas-tool { display: flex; align-items: center; gap: 9px; width: 100%; height: auto; min-height: 34px; padding: 6px 8px; border-radius: 6px; font-size: 12px; color: var(--ink-2); }
+.canvas-inspector .canvas-tool svg { flex-shrink: 0; width: 17px; height: 17px; }
+.canvas-inspector .canvas-tool[aria-pressed='true'] { background: var(--accent-wash); color: var(--accent-strong); }
+.canvas-inspector .canvas-tool:disabled { opacity: .4; }
+.canvas-inspector .canvas-tool-field { display: flex; justify-content: space-between; font-size: 12px; }
+.canvas-inspector select, .canvas-inspector input { min-width: 0; max-width: 160px; border: 1px solid var(--hairline-strong); border-radius: 5px; padding: 6px; background: var(--surface); color: var(--ink); }
+/* The inspector's menus share the toolbar's chevron rather than the browser's. */
+.canvas-inspector select { appearance: none; padding-right: 26px; background: var(--surface) var(--select-chevron) no-repeat right 8px center; cursor: pointer; }
+.canvas-inspector select:hover:not(:disabled) { border-color: var(--control-border); }
+.canvas-inspector-details { font-size: 12px; border-top: 1px solid var(--hairline); padding-top: 12px; }
+.canvas-inspector-details summary { cursor: pointer; padding: 4px 0 12px; font-weight: 600; }
+.canvas-inspector-details section > h2 { display: none; }
+.canvas-outline-entry { width: 100%; gap: 8px; font-size: 12px; min-height: 36px; }
+.canvas-outline-entry[aria-current] { background: var(--accent-wash); color: var(--accent-strong); font-weight: 600; }
+.canvas-outline-page { margin-left: auto; }
+.canvas-toolbar .canvas-font-label { display: inline-block; min-width: 104px; max-width: 155px; height: 30px; padding: 4px 22px 4px 7px; border: 1px solid transparent; border-radius: 5px; background: var(--select-chevron) no-repeat right 5px center; text-align: start; }
+@media (hover: hover) { .canvas-font-label:hover { background-color: var(--surface-2); border-color: var(--hairline-strong); } }
+.canvas-toolbar .canvas-style-select { width: 120px; }
+.canvas-inspector[hidden], .canvas-outline-panel[hidden], .canvas-advanced-section[hidden] { display: none; }
+
+.editor-popover { width: min(340px, calc(100vw - 16px)); min-width: 0; padding: 12px; }
+.popover-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; font-size: 13px; }
+.editor-popover .field { margin-bottom: 10px; }
+.editor-popover .field-hint { font-size: 11px; line-height: 1.5; margin: 8px 0 12px; }
+.editor-popover form > .input { width: 100%; }
+.link-card { position: fixed; z-index: 90; display: flex; align-items: center; gap: 4px; max-width: min(420px, calc(100vw - 16px)); padding: 4px 4px 4px 10px; background: var(--surface); border: 1px solid var(--hairline-strong); border-radius: var(--r-md); box-shadow: 0 4px 14px rgb(0 0 0 / 14%); font-size: 13px; animation: menu-in 0.12s ease; }
+.link-card[hidden] { display: none; }
+.link-card-icon { display: inline-flex; color: var(--ink-3); }
+.link-card-address, .link-card-note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 6px 0 2px; }
+.link-card-address { color: var(--accent-strong); text-decoration: underline; cursor: pointer; }
+.link-card-note { color: var(--ink-3); }
+.link-card-address.is-retained { color: var(--ink-2); text-decoration: none; cursor: text; }
+.link-card-note { flex: 0 0 auto; font-size: 12px; }
+.link-card-note[hidden] { display: none; }
+.font-picker-list { display: flex; flex-direction: column; max-height: 310px; overflow: auto; }
+.font-choice { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 42px; padding: 8px; border-radius: 5px; text-align: start; font-size: 16px; }
+.font-choice small { font: 10px var(--font); color: var(--ink-3); }
+.font-choice:hover, .font-choice[aria-pressed='true'] { background: var(--accent-wash); color: var(--accent-strong); }
+/* On the tinted row the muted note fell under 4.5:1 in the dark theme (4.06): it takes the row's own text color. */
+.font-choice:hover small, .font-choice[aria-pressed='true'] small { color: inherit; }
+.table-size-palette { width: 292px; min-width: 0; padding: 12px; }
+.table-size-grid { gap: 4px; padding: 8px 0; }
+.table-size-grid .table-size-cell { width: 28px; height: 25px; border-radius: 3px; background: var(--surface); border: 1px solid var(--hairline-strong); }
+.table-size-grid .table-size-cell.is-preview { background: var(--accent-wash); border-color: var(--accent); }
+.table-size-custom { display: flex; align-items: end; gap: 8px; font-size: 11px; }
+.table-size-custom label { flex: 1; min-width: 0; display: grid; gap: 5px; }
+.table-size-custom input { width: 100%; padding: 7px; }
+
+@media (max-width: 700px) {
+  .canvas-editor-body { flex-direction: column; }
+  /* Panes stack under the page here, and two or more open at once can be taller than the window:
+     the column scrolls rather than cutting the last of them off below the status bar. */
+  .canvas-editor-content { flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
+  .canvas-navigation { flex: none; flex-direction: row; justify-content: flex-start; gap: 4px; padding: 4px 8px; border-right: 0; border-bottom: 1px solid var(--hairline); }
+  .canvas-navigation .canvas-tool { flex-direction: row; width: auto; min-width: 44px; min-height: 44px; gap: 8px; padding: 8px 12px; font-size: 12px; }
+  .canvas-document-surface { order: 0; min-height: 130px; }
+  .canvas-advanced.canvas-inspector, .canvas-outline-panel { position: relative; order: 1; flex: 0 0 auto; z-index: 35; width: 100%; max-height: min(60dvh, calc(100% - 130px)); border-radius: 16px 16px 0 0; box-shadow: 0 -8px 32px #0002; border: 1px solid var(--hairline-strong); }
+  .canvas-panel-heading { padding: 8px 14px; }
+  .canvas-panel-heading .icon-btn { width: 44px; height: 44px; }
+  .canvas-toolbar { flex-wrap: nowrap; overflow: visible; justify-content: space-between; min-height: 52px; padding: 4px 6px; }
+  .canvas-toolbar .canvas-tool-group { padding: 0 3px; border: 0; }
+  .canvas-toolbar .canvas-tool-group:empty { display: none; }
+  .canvas-toolbar-shell .canvas-tool, .canvas-toolbar-shell .canvas-color-tool { width: 44px; height: 44px; }
+  .canvas-toolbar .canvas-color-tool > .inspector-label { display: none; }
+  .canvas-inspector .canvas-tool-group { display: flex; flex-wrap: wrap; border: 0; padding: 0; gap: 5px; }
+  .canvas-inspector .canvas-tool { min-height: 44px; }
+  .canvas-inspector .canvas-font-label { display: inline-block; padding: 8px 26px 8px 8px; border: 1px solid var(--hairline-strong); border-radius: 5px; background: var(--select-chevron) no-repeat right 6px center; max-width: 180px; min-height: 44px; font-size: 13px; }
+  .canvas-inspector select, .canvas-inspector input { min-height: 44px; }
+  .canvas-inspector .canvas-font-label + input { width: 72px; }
+  .canvas-header .menu-btn { min-height: 44px; padding-inline: 8px; }
+  .canvas-pages { padding: 12px; }
+  .font-choice, .editor-popover button.btn { min-height: 44px; }
+}
+
+/* Keyboard shortcuts are for keyboards; on the narrowest phones Help would wrap the menu bar. */
+@media (max-width: 359px) { .canvas-header .canvas-help-menu { display: none; } }
+
+/* Undo/redo, five 44px text controls and More need 384px in one row. Narrower
+   phones stack the text controls in two rows instead of scrolling them away. */
+@media (max-width: 383px) {
+  .canvas-toolbar .canvas-tool-group[aria-label='Text formatting'] {
+    display: grid;
+    grid-template-columns: repeat(3, 44px);
+  }
+}

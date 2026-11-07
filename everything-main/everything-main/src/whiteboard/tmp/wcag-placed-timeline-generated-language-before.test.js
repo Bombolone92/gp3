@@ -1,0 +1,23287 @@
+import { createPeerHub } from "../tests/peer-hub.js";
+import { captureCamera } from "../src/collaboration/attention.js";
+import test from "node:test";
+import assert from "node:assert/strict";
+import { JSDOM } from "jsdom";
+import { IDBFactory } from "fake-indexeddb";
+import { appBundle } from "../tests/app-bundle.js";
+import { createCanvas } from "../tests/canvas.js";
+import axe from "axe-core";
+import { Image as NativeImage } from "@napi-rs/canvas";
+import { board, item } from "../src/model.js";
+import { TEMPLATE_CATALOG } from "../src/templates.js";
+import { SHAPE_FAMILIES } from "../src/shapes.js";
+import { CLIPBOARD_TYPE, clipboardFormats } from "../src/transfer.js";
+import { SharedDocument } from "../src/collaboration/document.js";
+import { textLinkRects } from "../src/text-links.js";
+import { encode, hash } from "../src/collaboration/protocol.js";
+import {
+  environment,
+  owner,
+  editor as collaborator,
+  viewer,
+} from "../tests/collaboration-helpers.js";
+
+const code = await appBundle();
+async function setup(
+  puter,
+  {
+    asyncDialogClose = false,
+    imageClass = NativeImage,
+    digestGate,
+    url = "https://whiteboard.test",
+    indexedDB,
+    preferences = {},
+  } = {},
+) {
+  const dom = new JSDOM('<div id="app"></div><div id="toast"></div>', {
+    url,
+    runScripts: "outside-only",
+    pretendToBeVisual: true,
+  });
+  const w = dom.window;
+  for (const [key, value] of Object.entries(preferences))
+    w.localStorage.setItem(key, value);
+  // Board data is JSON-compatible. Keep cloned objects in the browser realm,
+  // as native structuredClone does, so Yjs recognizes their constructors.
+  w.structuredClone = (value) => w.JSON.parse(w.JSON.stringify(value));
+  w.TextEncoder = TextEncoder;
+  w.TextDecoder = TextDecoder;
+  Object.defineProperty(w.crypto, "subtle", {
+    value: digestGate
+      ? new Proxy(crypto.subtle, {
+          get(target, key) {
+            if (key === "digest")
+              return async (...args) => {
+                await digestGate();
+                return target.digest(...args);
+              };
+            const value = target[key];
+            return typeof value === "function" ? value.bind(target) : value;
+          },
+        })
+      : crypto.subtle,
+  });
+  w.indexedDB = indexedDB || new IDBFactory();
+  w.matchMedia = () => ({ matches: false, addEventListener() {} });
+  w.puter = puter;
+  w.Image = imageClass;
+  const downloads = [];
+  w.URL.createObjectURL = (blob) => {
+    downloads.push(blob);
+    return "blob:test";
+  };
+  w.URL.revokeObjectURL = () => {};
+  const names = [];
+  w.HTMLAnchorElement.prototype.click = function () {
+    if (this.download) names.push(this.download);
+  };
+  w.HTMLCanvasElement.prototype.setPointerCapture = () => {};
+  w.HTMLCanvasElement.prototype.getContext = function () {
+    if (
+      !this._native ||
+      this._native.width !== this.width ||
+      this._native.height !== this.height
+    )
+      this._native = createCanvas(this.width, this.height);
+    const ctx = this._native.getContext("2d");
+    if (!ctx._domCanvasImages) {
+      const drawImage = ctx.drawImage;
+      ctx.drawImage = function (image, ...args) {
+        return drawImage.call(this, image._native || image, ...args);
+      };
+      ctx._domCanvasImages = true;
+    }
+    return ctx;
+  };
+  w.HTMLCanvasElement.prototype.toDataURL = function () {
+    return this._native.toDataURL("image/png");
+  };
+  w.HTMLCanvasElement.prototype.toBlob = function (cb) {
+    cb(new w.Blob([this._native.toBuffer("image/png")], { type: "image/png" }));
+  };
+  w.HTMLDialogElement.prototype.showModal = function () {
+    this.open = true;
+  };
+  w.HTMLDialogElement.prototype.close = function () {
+    this.open = false;
+    const close = () => this.dispatchEvent(new w.Event("close"));
+    if (asyncDialogClose) w.setTimeout(close, 0);
+    else close();
+  };
+  await w.eval(`(async()=>{${code}\n})()`);
+  const tick = () => new Promise((r) => setTimeout(r, 25));
+  const click = async (selector) => {
+    const el = w.document.querySelector(selector);
+    assert.ok(el, selector);
+    const opensBoard =
+      el.dataset.action === "new" ||
+      (!w.document.querySelector("#canvas") &&
+        (el.dataset.use || el.dataset.template));
+    el.click();
+    await tick();
+    if (opensBoard) {
+      const deadline = Date.now() + 3000;
+      while (!w.document.querySelector("#canvas") && Date.now() < deadline)
+        await tick();
+      assert.ok(w.document.querySelector("#canvas"), "Board finished opening");
+    }
+  };
+  return {
+    w,
+    doc: w.document,
+    click,
+    tick,
+    downloads,
+    names,
+    close: () => w.close(),
+  };
+}
+
+function transferData(formats = {}, files = []) {
+  const values = new Map(Object.entries(formats));
+  return {
+    files,
+    get types() {
+      return [...values.keys(), ...(files.length ? ["Files"] : [])];
+    },
+    getData(type) {
+      return values.get(type) || "";
+    },
+    setData(type, value) {
+      values.set(type, value);
+    },
+  };
+}
+
+test("character shortcuts can be turned off from the library and editor", async () => {
+  const a = await setup();
+  const key = (target, name, options = {}) => {
+    const event = new a.w.KeyboardEvent("keydown", {
+      key: name,
+      bubbles: true,
+      cancelable: true,
+      ...options,
+    });
+    target.dispatchEvent(event);
+    return event;
+  };
+  try {
+    const libraryButton = a.doc.querySelector('[data-action="new"]');
+    libraryButton.focus();
+    key(libraryButton, "?", { shiftKey: true });
+    assert.ok(a.doc.querySelector("dialog[open]"));
+    const toggle = a.doc.querySelector("#character-shortcuts");
+    assert.ok(
+      toggle,
+      "A mechanism to turn off character shortcuts is available",
+    );
+    assert.equal(toggle.checked, true);
+    toggle.click();
+    assert.equal(
+      a.w.localStorage.getItem("whiteboard-character-shortcuts"),
+      "false",
+    );
+    a.doc.querySelector("dialog").close();
+    key(libraryButton, "?", { shiftKey: true });
+    assert.equal(a.doc.querySelector("dialog[open]"), null);
+    await a.click('[data-action="new"]');
+    const button = a.doc.querySelector('[data-action="tool-select"]');
+    button.focus();
+    const count = a.doc.querySelectorAll("#board-outline [data-id]").length;
+    for (const name of [
+      "n",
+      "N",
+      "t",
+      "r",
+      "o",
+      "f",
+      "v",
+      "h",
+      "a",
+      "p",
+      "c",
+      "m",
+      "s",
+      "?",
+    ])
+      assert.equal(
+        key(button, name, { shiftKey: name === "N" || name === "?" })
+          .defaultPrevented,
+        false,
+      );
+    assert.equal(
+      a.doc.querySelectorAll("#board-outline [data-id]").length,
+      count,
+    );
+    assert.equal(a.doc.querySelector("dialog[open]"), null);
+    assert.equal(a.doc.querySelector("#minimap").hidden, true);
+    assert.equal(key(button, "k", { ctrlKey: true }).defaultPrevented, true);
+    assert.ok(a.doc.querySelector("#command-search"));
+    a.doc.querySelector("dialog").close();
+    await a.click('[data-action="more-tools"]');
+    await a.click('[data-feature="help"]');
+    assert.equal(a.doc.querySelector("#character-shortcuts").checked, false);
+    a.doc.querySelector("#character-shortcuts").click();
+    a.doc.querySelector("dialog").close();
+    key(button, "m");
+    assert.equal(a.doc.querySelector("#minimap").hidden, false);
+  } finally {
+    a.close();
+  }
+});
+
+test("selection movement is available without dragging and keeps frame contents and connectors together", async () => {
+  const a = await setup();
+  try {
+    await a.click('[data-action="new"]');
+    const frame = item("frame", 0, 0, { text: "Section", w: 500, h: 400 }),
+      child = item("note", 50, 80, { text: "Inside", parentId: frame.id }),
+      other = item("note", 800, 80, { text: "Outside" }),
+      connection = item("arrow", 0, 0, { startId: child.id, endId: other.id });
+    dispatchTransfer(
+      a,
+      "paste",
+      transferData(clipboardFormats([frame, child, other, connection])),
+    );
+    await a.tick();
+    const original = allClipboard(a),
+      selected = original.find((i) => i.text === "Section");
+    await a.click(`#board-outline [data-id="${selected.id}"]`);
+    await a.click('[data-action="organize"]');
+    await a.click('[data-organize="move"]');
+    const dialog = a.doc.querySelector("dialog[open]");
+    assert.equal(a.doc.activeElement, dialog.querySelector("#move-x"));
+    dialog.querySelector("#move-x").value = "100.5";
+    dialog.querySelector("#move-y").value = "-40.25";
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new a.w.Event("submit", { cancelable: true }));
+    assert.equal(a.doc.querySelector("dialog[open]"), null);
+    const moved = allClipboard(a);
+    for (const before of original.filter((i) =>
+      ["Section", "Inside"].includes(i.text),
+    )) {
+      const after = moved.find((i) => i.id === before.id);
+      assert.equal(after.x, before.x + 100.5);
+      assert.equal(after.y, before.y - 40.25);
+    }
+    assert.deepEqual(
+      moved.find((i) => i.text === "Outside"),
+      original.find((i) => i.text === "Outside"),
+    );
+    assert.notEqual(
+      moved.find((i) => i.type === "arrow").x,
+      original.find((i) => i.type === "arrow").x,
+    );
+    await a.click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(a), original);
+    await a.click('[data-action="redo"]');
+    assert.deepEqual(allClipboard(a), moved);
+    await a.click(`#board-outline [data-id="${selected.id}"]`);
+    await a.click('[data-action="organize"]');
+    await a.click('[data-organize="move"]');
+    a.doc
+      .querySelector("dialog form")
+      .dispatchEvent(new a.w.Event("submit", { cancelable: true }));
+    await a.click('[data-action="undo"]');
+    assert.deepEqual(
+      allClipboard(a),
+      original,
+      "Zero distance adds no undo step",
+    );
+  } finally {
+    a.close();
+  }
+});
+
+test("the move command validates limits, cancels without changes, and persists its result", async () => {
+  const a = await setup();
+  try {
+    await a.click('[data-action="new"]');
+    dispatchTransfer(
+      a,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("pen", 0, 0, {
+            points: [
+              [0, 0],
+              [100, 100],
+            ],
+            w: 100,
+            h: 100,
+          }),
+        ]),
+      ),
+    );
+    await a.tick();
+    const original = selectedClipboard(a);
+    const open = async () => {
+      await a.click('[data-action="commands"]');
+      paletteQuery(a, "Move selection");
+      await a.click('[data-command="move-selection"]');
+      assert.equal(a.doc.activeElement.id, "move-x");
+      return a.doc.querySelector("dialog[open]");
+    };
+    let dialog = await open();
+    dialog.querySelector("#move-x").value = "2000000";
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new a.w.Event("submit", { cancelable: true }));
+    assert.equal(dialog.open, true);
+    assert.equal(dialog.querySelector("#move-error").hidden, false);
+    assert.equal(a.doc.activeElement.id, "move-x");
+    dialog.close();
+    assert.deepEqual(selectedClipboard(a), original);
+    dialog = await open();
+    a.w.eval(axe.source);
+    const audit = await a.w.axe.run(dialog, {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(audit.violations.length, 0);
+    dialog.querySelector("#move-x").value = "-12.5";
+    dialog.querySelector("#move-y").value = "23.75";
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new a.w.Event("submit", { cancelable: true }));
+    const moved = selectedClipboard(a);
+    assert.equal(moved[0].x, original[0].x - 12.5);
+    assert.equal(moved[0].y, original[0].y + 23.75);
+    assert.deepEqual(moved[0].points, original[0].points);
+    await a.click('[data-action="home"]');
+    const deadline = Date.now() + 3000;
+    while (!a.doc.querySelector("[data-open]") && Date.now() < deadline)
+      await a.tick();
+    await a.click("[data-open]");
+    await a.click("#board-outline button");
+    assert.deepEqual(selectedClipboard(a), moved);
+  } finally {
+    a.close();
+  }
+});
+
+test("move dialog refuses changed geometry and revoked shared edit access", async () => {
+  const room = "move-dialog-stale",
+    box = item("rect", 100, 100, { text: "Shared box" }),
+    shared = await sharedEditors(room, [box]);
+  try {
+    const [a, b] = shared.apps;
+    const open = async () => {
+      await b.click(`#board-outline [data-id="${box.id}"]`);
+      await b.click('[data-action="commands"]');
+      paletteQuery(b, "Move selection");
+      await b.click('[data-command="move-selection"]');
+      b.doc.querySelector("#move-x").value = "100";
+      return b.doc.querySelector("dialog[open]");
+    };
+    let dialog = await open();
+    await a.click(`#board-outline [data-id="${box.id}"]`);
+    a.doc.querySelector("#canvas").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await shared.until(
+      async () =>
+        (await storedSharedBoard(b, room))?.items.find((i) => i.id === box.id)
+          ?.x === 101,
+      "Remote move received while the dialog is open",
+    );
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    assert.equal(b.doc.querySelector("dialog[open]"), null);
+    assert.equal(selectedClipboard(b)[0].x, 101);
+    assert.match(
+      b.doc.querySelector("#toast").textContent,
+      /selection changed/,
+    );
+    dialog = await open();
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "viewer",
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => b.doc.querySelector(".editor.shared-viewer"),
+      "Viewer access received",
+    );
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    assert.equal(dialog.open, true);
+    assert.match(dialog.textContent, /read-only/);
+    dialog.close();
+    assert.equal(selectedClipboard(b)[0].x, 101);
+    assert.equal(b.doc.querySelector('[data-action="undo"]').disabled, true);
+    await b.tick();
+  } finally {
+    shared.close();
+  }
+});
+
+test("text toolbar accessible names contain their visible labels in both languages", async () => {
+  for (const language of ["en", "fr"]) {
+    const a = await setup(undefined, {
+      preferences: { "whiteboard-language": language },
+    });
+    try {
+      await a.click('[data-action="new"]');
+      dispatchTransfer(
+        a,
+        "paste",
+        transferData(
+          clipboardFormats([item("text", 0, 0, { text: "Example" })]),
+        ),
+      );
+      await a.tick();
+      await a.click('[data-action="edit"]');
+      for (const selector of [
+        "#auto-height-text",
+        "#text-highlight-clear",
+        '[data-action="finish-text"]',
+        "#text-color-auto",
+        '[data-action="cancel-text"]',
+      ]) {
+        const button = a.doc.querySelector(selector);
+        assert.ok(button, selector);
+        const label = button.textContent.trim().toLocaleLowerCase(),
+          name = (button.getAttribute("aria-label") || button.textContent)
+            .trim()
+            .toLocaleLowerCase();
+        assert.ok(
+          name.includes(label),
+          `${language} ${selector}: ${name} includes ${label}`,
+        );
+      }
+    } finally {
+      a.close();
+    }
+  }
+});
+
+test("character shortcut preferences load on startup and follow other tabs", async () => {
+  const a = await setup(undefined, {
+    preferences: { "whiteboard-character-shortcuts": "false" },
+  });
+  try {
+    await a.click('[data-action="help"]');
+    const input = a.doc.querySelector("#character-shortcuts");
+    assert.equal(input.checked, false);
+    a.w.dispatchEvent(
+      new a.w.StorageEvent("storage", {
+        key: "whiteboard-character-shortcuts",
+        newValue: "true",
+      }),
+    );
+    assert.equal(input.checked, true);
+    a.w.dispatchEvent(
+      new a.w.StorageEvent("storage", {
+        key: "whiteboard-character-shortcuts",
+        newValue: "false",
+      }),
+    );
+    assert.equal(input.checked, false);
+    a.doc.querySelector("dialog").close();
+    a.doc
+      .querySelector('[data-action="new"]')
+      .dispatchEvent(
+        new a.w.KeyboardEvent("keydown", { key: "?", bubbles: true }),
+      );
+    assert.equal(a.doc.querySelector("dialog[open]"), null);
+    a.w.dispatchEvent(new a.w.StorageEvent("storage", { key: null }));
+    a.doc
+      .querySelector('[data-action="new"]')
+      .dispatchEvent(
+        new a.w.KeyboardEvent("keydown", { key: "?", bubbles: true }),
+      );
+    assert.equal(a.doc.querySelector("#character-shortcuts").checked, true);
+  } finally {
+    a.close();
+  }
+});
+
+async function storedSharedBoard(app, room) {
+  const database = await new Promise((resolve, reject) => {
+    const request = app.w.indexedDB.open("whiteboard-v1", 3);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  try {
+    return await new Promise((resolve, reject) => {
+      const transaction = database.transaction("boards", "readonly");
+      const request = transaction.objectStore("boards").getAll();
+      transaction.oncomplete = () =>
+        resolve(request.result.find((b) => b.shared?.room === room));
+      transaction.onerror = () => reject(transaction.error);
+    });
+  } finally {
+    database.close();
+  }
+}
+
+test("built editors join the same board, show participants, synchronize text and enforce viewer access", async () => {
+  const env = environment();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Team canvas",
+    items: [item("note", 30, 30, { text: "Shared thought" })],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const editorInvite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const viewerInvite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "viewer",
+  });
+  const ownerSDK = env.sdk(owner);
+  const workerKey = "whiteboard-collaboration-worker-v1";
+  const workerPath = "whiteboard/whiteboard-worker.js";
+  const updatedWorker = "/* whiteboard-worker build=faceb00cfaceb00c at=200 */";
+  await ownerSDK.kv.set(workerKey, {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path: workerPath,
+    build: "0000000000000000",
+    builtAt: 100,
+  });
+  await ownerSDK.fs.write(workerPath, "Old worker");
+  const exec = ownerSDK.workers.exec;
+  ownerSDK.workers.exec = async (url, options) => {
+    if (url.endsWith("/health")) {
+      assert.equal(options.headers["x-puter-no-auth"], "1");
+      return Response.json({ build: env.data.get(workerKey).build });
+    }
+    return exec(url, options);
+  };
+  let digestReady, releaseDigest;
+  const a = await setup(ownerSDK, { digestGate: () => digestReady }),
+    b = await setup(env.sdk(collaborator)),
+    c = await setup(env.sdk(viewer));
+  let workerChecks = 0;
+  let releaseUpdate;
+  const updateReady = new Promise((resolve) => {
+    releaseUpdate = resolve;
+  });
+  a.w.fetch = async (url) => {
+    assert.equal(url, "/worker/whiteboard-worker.js");
+    workerChecks++;
+    await updateReady;
+    return new Response(updatedWorker);
+  };
+  const until = async (condition, message) => {
+    const deadline = Date.now() + 5000;
+    while (!condition() && Date.now() < deadline) await a.tick();
+    assert.ok(condition(), typeof message === "function" ? message() : message);
+  };
+  const join = async (app, token = "", objectId = "") => {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${token}${objectId ? `&object=${objectId}` : ""}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(
+        new app.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    await until(
+      () => !app.doc.querySelector("#join-link"),
+      () => app.doc.querySelector("#join-error")?.textContent || "Board joined",
+    );
+  };
+  try {
+    await join(a);
+    assert.ok(
+      a.doc.querySelector("#canvas"),
+      "Editing opens before the update finishes",
+    );
+    releaseUpdate();
+    await until(
+      () => env.files.get(workerPath) === updatedWorker,
+      "Opening an existing board updates its owner's worker",
+    );
+    await join(b, editorInvite.token);
+    await join(c, viewerInvite.token, initial.items[0].id);
+    assert.equal(
+      selectedClipboard(c)[0].id,
+      initial.items[0].id,
+      "Shared object URLs focus their destination after joining",
+    );
+    assert.equal(
+      new URLSearchParams(c.w.location.hash.slice(1)).has("invite"),
+      false,
+    );
+    await until(
+      () => a.doc.querySelector(".participants")?.textContent.startsWith("3"),
+      "Participant roster updates",
+    );
+    // Changing someone's access keeps keyboard focus on their access picker.
+    await a.click('[data-action="participants"]');
+    const access = () =>
+      a.doc.querySelector(`select[aria-label="Access for ${viewer.username}"]`);
+    await until(access, "The participant list loads");
+    // Browsers move focus to the page when the focused control is disabled;
+    // jsdom does not, and does not blur a disabled control either.
+    const change = async (role) => {
+      access().focus();
+      access().value = role;
+      access().dispatchEvent(new a.w.Event("change"));
+      assert.equal(access().disabled, true);
+      access().disabled = false;
+      access().blur();
+      access().disabled = true;
+      await until(() => !access().disabled, "The access change finishes");
+      assert.equal(a.doc.activeElement, access());
+    };
+    await change("commenter");
+    await change("viewer");
+    a.doc.querySelector("dialog[open]").close();
+    assert.equal(c.doc.querySelector("#board-title").disabled, true);
+    assert.equal(
+      c.doc.querySelector('[data-action="tool-note"]').disabled,
+      true,
+    );
+    c.doc.querySelector("#canvas").dispatchEvent(
+      new c.w.KeyboardEvent("keydown", {
+        key: "N",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(c.doc.querySelector("#bulk-ideas"), null);
+    await c.click("#board-outline button");
+    assert.equal(
+      c.doc.querySelector("#quick-ports").hidden,
+      true,
+      "Viewers have no creation handles",
+    );
+    assert.equal(c.doc.querySelector('[data-action="shapes"]').disabled, true);
+    c.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new c.w.KeyboardEvent("keydown", { key: "s", bubbles: true }),
+      );
+    assert.equal(c.doc.querySelector(".shape-library"), null);
+    dispatchTransfer(c, "paste", transferData({ "text/plain": "a\tb\nc\td" }));
+    assert.equal(c.doc.querySelector(".bulk-form"), null);
+    assert.equal(c.doc.querySelectorAll("#board-outline button").length, 1);
+    await b.click("#board-outline button");
+    b.doc.querySelector("#canvas").dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    const text = b.doc.querySelector("#canvas-text-editor");
+    assert.ok(text);
+    await b.tick();
+    text.value = "Bob is typing live";
+    text.dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    await until(
+      () =>
+        a.doc
+          .querySelector("#board-outline")
+          ?.textContent.includes("Bob is typing live"),
+      "Remote text arrives without closing the text editor",
+    );
+    assert.equal(
+      b.doc.querySelector("#canvas-text-editor"),
+      text,
+      "Remote activity preserves the editor element",
+    );
+    text.setSelectionRange(7, 13);
+    await b.click("#format-bold");
+    await a.click("#board-outline button");
+    await c.click("#board-outline button");
+    await until(
+      () =>
+        selectedClipboard(a)[0].textRuns?.[0]?.style.bold &&
+        selectedClipboard(c)[0].textRuns?.[0]?.style.bold,
+      "Range formatting reaches the editor and viewer",
+    );
+    assert.deepEqual(selectedClipboard(a)[0].textRuns, [
+      { start: 7, end: 13, style: { bold: true } },
+    ]);
+    text.dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "z",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await until(
+      () =>
+        !selectedClipboard(a)[0].textRuns && !selectedClipboard(c)[0].textRuns,
+      "Shared formatting undo leaves previously typed text intact",
+    );
+    assert.equal(text.value, "Bob is typing live");
+    text.setSelectionRange(7, 13);
+    await b.click("#text-link-options");
+    b.doc.querySelector("#text-link-url").value = "https://example.com/shared";
+    b.doc
+      .querySelector(".text-link-form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    await until(
+      () =>
+        selectedClipboard(a)[0].textRuns?.some((r) => r.style.link) &&
+        selectedClipboard(c)[0].textRuns?.some((r) => r.style.link),
+      "Text links reach the owner and viewer",
+    );
+    await c.click("#text-link-access");
+    assert.equal(
+      c.doc.querySelector("#text-link-preview a").href,
+      "https://example.com/shared",
+    );
+    assert.equal(
+      [...c.doc.querySelectorAll("#text-link-preview button")].some(
+        (b) => b.textContent === "Edit link",
+      ),
+      false,
+    );
+    await c.click("#text-link-options");
+    assert.equal(
+      c.doc.querySelector("#text-link-url"),
+      null,
+      "Viewer cannot insert a link",
+    );
+    text.dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "z",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await until(
+      () =>
+        !selectedClipboard(a)[0].textRuns && !selectedClipboard(c)[0].textRuns,
+      "Link undo preserves the text on all clients",
+    );
+    assert.equal(
+      c.doc.querySelector("#text-link-preview"),
+      null,
+      "A remote link change closes the stale destination",
+    );
+    assert.equal(text.value, "Bob is typing live");
+    b.doc.querySelector("#font-family").value = "roboto-mono";
+    b.doc.querySelector("#font-family").dispatchEvent(new b.w.Event("change"));
+    await until(
+      () =>
+        [a, c].every(
+          (app) => selectedClipboard(app)[0].fontFamily === "roboto-mono",
+        ),
+      "Font family reaches the owner and viewer while editing",
+    );
+    assert.match(text.style.fontFamily, /Roboto Mono/);
+    c.doc.querySelector("#font-family").value = "caveat";
+    c.doc.querySelector("#font-family").dispatchEvent(new c.w.Event("change"));
+    assert.equal(
+      selectedClipboard(c)[0].fontFamily,
+      "roboto-mono",
+      "Viewer cannot change font family",
+    );
+    text.dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "z",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await until(
+      () => [a, c].every((app) => !selectedClipboard(app)[0].fontFamily),
+      "Shared family undo leaves live text intact",
+    );
+    assert.equal(text.value, "Bob is typing live");
+    await b.click("#text-list-options");
+    await b.click("#list-number");
+    await until(
+      () =>
+        selectedClipboard(a)[0].textBlocks?.[0]?.list === "number" &&
+        selectedClipboard(c)[0].textBlocks?.[0]?.list === "number",
+      "List formatting reaches the owner and viewer while editing",
+    );
+    assert.equal(
+      c.doc.querySelector(".editor").classList.contains("shared-viewer"),
+      true,
+    );
+    await c.click("#list-number");
+    assert.equal(
+      selectedClipboard(c)[0].textBlocks[0].list,
+      "number",
+      "Viewer commands cannot change the shared list",
+    );
+    text.dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "z",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await until(
+      () =>
+        !selectedClipboard(a)[0].textBlocks &&
+        !selectedClipboard(c)[0].textBlocks,
+      "Shared list undo leaves the text intact on all three clients",
+    );
+    assert.equal(text.value, "Bob is typing live");
+    text.dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await b.click('[data-action="undo"]');
+    await until(
+      () =>
+        a.doc
+          .querySelector("#board-outline")
+          ?.textContent.includes("Shared thought"),
+      "Collaborative undo propagates",
+    );
+    await a.click("#board-outline button");
+    await b.click("#board-outline button");
+    for (const app of [a, b])
+      app.doc.querySelector("#canvas").dispatchEvent(
+        new app.w.KeyboardEvent("keydown", {
+          key: "Enter",
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    await a.tick();
+    const left = a.doc.querySelector("#canvas-text-editor"),
+      right = b.doc.querySelector("#canvas-text-editor");
+    left.value = "Shared thought Alice";
+    right.value = "Shared thought Bob";
+    left.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    right.dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    await until(
+      () =>
+        [left, right].every(
+          (field) =>
+            field.value.includes("Alice") && field.value.includes("Bob"),
+        ),
+      "Concurrent typing merges in both live editors",
+    );
+    left.dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () => right.value.includes("Bob") && !right.value.includes("Alice"),
+      "Alice's undo keeps Bob's concurrent text",
+    );
+    c.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new c.w.KeyboardEvent("keydown", { key: "n", bubbles: true }),
+      );
+    assert.equal(
+      c.doc.querySelectorAll("#board-outline button").length,
+      1,
+      "Viewer cannot add a note with the keyboard",
+    );
+    await a.click('[data-action="add-note"]');
+    a.doc.querySelector("#canvas-text-editor").value = "Foreground note";
+    a.doc.querySelector("#canvas-text-editor").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await until(
+      () => c.doc.querySelectorAll("#board-outline button").length === 2,
+      "New object reaches the viewer",
+    );
+    await a.click(`#board-outline [data-id="${initial.items[0].id}"]`);
+    a.doc.querySelector("#canvas").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "]",
+        code: "BracketRight",
+        ctrlKey: true,
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    const topId = (app) =>
+      app.doc.querySelector("#board-outline button:last-child")?.dataset.id;
+    await until(
+      () => [a, b, c].every((app) => topId(app) === initial.items[0].id),
+      "Bring to front preserves layer order in all built editors",
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () => [a, b, c].every((app) => topId(app) !== initial.items[0].id),
+      "Undo restores shared layers",
+    );
+    // A remote style change must survive the next endpoint pointer update.
+    await b.click('[data-action="finish-text"]');
+    const foregroundId = [
+      ...a.doc.querySelectorAll("#board-outline button"),
+    ].find((button) => button.textContent.includes("Foreground note")).dataset
+      .id;
+    await a.click(`#board-outline [data-id="${foregroundId}"]`);
+    await a.click("#format-bold");
+    a.doc.querySelector("#font-size").value = "36";
+    a.doc.querySelector("#font-size").dispatchEvent(new a.w.Event("change"));
+    await a.click("#copy-style");
+    for (const app of [a, b, c])
+      await app.click(`#board-outline [data-id="${initial.items[0].id}"]`);
+    const beforeStyle = selectedClipboard(a)[0];
+    await a.click("#paste-style");
+    await until(
+      () =>
+        [b, c].every(
+          (app) =>
+            selectedClipboard(app)[0].fontSize === 36 &&
+            selectedClipboard(app)[0].bold === true,
+        ),
+      "Style paste reaches the other editor and viewer",
+    );
+    await c.click("#copy-style");
+    assert.ok(
+      c.w.localStorage.getItem("whiteboard-copied-style"),
+      "Viewers can copy appearance",
+    );
+    c.doc.querySelector("#canvas").dispatchEvent(
+      new c.w.KeyboardEvent("keydown", {
+        key: "v",
+        code: "KeyV",
+        ctrlKey: true,
+        altKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.match(c.doc.querySelector("#toast").textContent, /read-only/);
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        [b, c].every(
+          (app) =>
+            selectedClipboard(app)[0].fontSize === beforeStyle.fontSize &&
+            selectedClipboard(app)[0].bold === beforeStyle.bold,
+        ),
+      "A single shared undo restores the previous appearance",
+    );
+    assert.equal(selectedClipboard(c)[0].text, beforeStyle.text);
+    await a.click('[data-action="reset-zoom"]');
+    dispatchTransfer(
+      a,
+      "drop",
+      transferData(
+        clipboardFormats([
+          item("arrow", 0, 0, { w: 200, h: 100, text: "Shared connection" }),
+        ]),
+      ),
+      a.doc.querySelector("#canvas"),
+      { clientX: 600, clientY: 400 },
+    );
+    await until(
+      () =>
+        b.doc
+          .querySelector("#board-outline")
+          ?.textContent.includes("Shared connection"),
+      "Connector reaches other editors",
+    );
+    const connectionId = [
+      ...a.doc.querySelectorAll("#board-outline button"),
+    ].find((button) => button.textContent.includes("Shared connection")).dataset
+      .id;
+    for (const app of [a, b, c])
+      await app.click(`#board-outline [data-id="${connectionId}"]`);
+    const copiedLine = (app) => {
+      const data = transferData();
+      dispatchTransfer(app, "copy", data);
+      return JSON.parse(data.getData(CLIPBOARD_TYPE)).items[0];
+    };
+    const pointer = (type, clientX, clientY) =>
+      a.doc.querySelector("#canvas").dispatchEvent(
+        new a.w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX,
+          clientY,
+          altKey: true,
+        }),
+      );
+    pointer("pointerdown", 800, 500);
+    pointer("pointermove", 830, 510);
+    await b.click('[data-color="#dce5f7"]');
+    const lineType = b.doc.querySelector("#line-lineType");
+    lineType.value = "curved";
+    lineType.dispatchEvent(new b.w.Event("change", { bubbles: true }));
+    await until(
+      () => copiedLine(a).lineType === "curved",
+      "Remote style arrives during endpoint movement",
+    );
+    assert.equal(copiedLine(b).color, "#dce5f7", "author has chosen color");
+    assert.equal(
+      copiedLine(a).color,
+      "#dce5f7",
+      "remote color before the next pointer movement",
+    );
+    pointer("pointermove", 850, 540);
+    assert.equal(
+      copiedLine(a).color,
+      "#dce5f7",
+      "remote color after the next pointer movement",
+    );
+    pointer("pointerup", 850, 540);
+    await until(
+      () => copiedLine(c).w === 250 && copiedLine(c).h === 140,
+      "Viewer sees the committed endpoint geometry",
+    );
+    for (const app of [a, b, c]) {
+      assert.equal(
+        copiedLine(app).color,
+        "#dce5f7",
+        `color in editor ${[a, b, c].indexOf(app)}`,
+      );
+      assert.equal(copiedLine(app).lineType, "curved");
+      assert.equal(copiedLine(app).text, "Shared connection");
+    }
+    await b.click('[data-action="shapes"]');
+    await b.click('[data-shape="diamond"]');
+    await b.click('[data-action="finish-text"]');
+    await until(
+      () =>
+        a.doc.querySelector("#board-outline").textContent.includes("Diamond"),
+      "Shapes reach collaborators",
+    );
+    const shapeId = [...a.doc.querySelectorAll("#board-outline button")].find(
+      (btn) => btn.textContent.includes("Diamond"),
+    ).dataset.id;
+    await a.click(`#board-outline [data-id="${shapeId}"]`);
+    await a.click('[data-action="change-shape"]');
+    await a.click('[data-shape="cylinder"]');
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc
+            .querySelector("#board-outline")
+            .textContent.includes("Cylinder"),
+        ),
+      "Shape conversion reaches editors and viewers",
+    );
+    const beforeQuick = a.doc.querySelectorAll("#board-outline button").length;
+    await a.click('[data-quick-direction="right"]');
+    await a.click('[data-action="finish-text"]');
+    await until(
+      () =>
+        [a, b, c].every(
+          (app) =>
+            app.doc.querySelectorAll("#board-outline button").length ===
+            beforeQuick + 2,
+        ),
+      "Quick-created shape and connector reach all participants",
+    );
+    assert.equal(c.doc.querySelector("#quick-ports").hidden, true);
+    const fittedId = selectedClipboard(a)[0].id;
+    if (
+      a.doc.querySelector("#auto-fit-text").getAttribute("aria-pressed") !==
+      "true"
+    )
+      await a.click("#auto-fit-text");
+    await a.click("#auto-fit-text");
+    await b.click(`#board-outline [data-id="${fittedId}"]`);
+    await c.click(`#board-outline [data-id="${fittedId}"]`);
+    await until(
+      () =>
+        b.doc.querySelector("#auto-fit-text")?.getAttribute("aria-pressed") ===
+        "false",
+      "Automatic sizing preference reaches the other editor",
+    );
+    assert.ok(
+      c.doc.querySelector(".editor").classList.contains("shared-viewer"),
+    );
+    const viewerSizing = selectedClipboard(c)[0].autoFontSize;
+    await c.click("#auto-fit-text");
+    assert.equal(
+      selectedClipboard(c)[0].autoFontSize,
+      viewerSizing,
+      "Viewer guard rejects sizing changes even if invoked outside the hidden toolbar",
+    );
+    await a.click("#auto-fit-text");
+    await until(
+      () =>
+        b.doc.querySelector("#auto-fit-text")?.getAttribute("aria-pressed") ===
+        "true",
+      "Re-enabling fitting reaches the other editor",
+    );
+    await a.click('[data-action="edit"]');
+    await b.click('[data-action="edit"]');
+    const fitInput = a.doc.querySelector("#canvas-text-editor");
+    fitInput.value =
+      "A shared thought with enough words to fit across several lines inside this shape.";
+    fitInput.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    await until(
+      () =>
+        b.doc.querySelector("#canvas-text-editor")?.value === fitInput.value,
+      "Remote text arrives while the recipient editor is open",
+    );
+    assert.equal(
+      b.doc.querySelector("#canvas-text-editor").style.fontSize,
+      fitInput.style.fontSize,
+      "Both editors derive the same size after the remote text update",
+    );
+    assert.ok(parseFloat(fitInput.style.fontSize) < 19);
+    await a.click('[data-action="finish-text"]');
+    await b.click('[data-action="finish-text"]');
+    await c.click('[data-action="commands"]');
+    paletteQuery(c, "Sticky note");
+    assert.equal(
+      c.doc
+        .querySelector('[data-command="add:note"]')
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    await c.click('[data-command="add:note"]');
+    assert.match(
+      c.doc.querySelector("#command-error").textContent,
+      /read-only/,
+    );
+    c.doc.querySelector("dialog").close();
+    await a.click('[data-action="commands"]');
+    paletteQuery(a, "Delete selection");
+    assert.equal(
+      a.doc
+        .querySelector('[data-command="delete"]')
+        .getAttribute("aria-disabled"),
+      null,
+    );
+    await b.click('[data-action="lock"]');
+    await until(
+      () =>
+        a.doc
+          .querySelector('[data-command="delete"]')
+          ?.getAttribute("aria-disabled") === "true",
+      "Remote locking updates an open command palette",
+    );
+    await a.click('[data-command="delete"]');
+    assert.match(a.doc.querySelector("#command-error").textContent, /Unlock/);
+    a.doc.querySelector("dialog").close();
+    assert.equal(selectedClipboard(a)[0].id, fittedId);
+    await b.click('[data-action="lock"]');
+    // Hold local recovery hashing so the new editor opens before the previous
+    // collaboration commit settles. The first input must still synchronize.
+    digestReady = new Promise((resolve) => {
+      releaseDigest = resolve;
+    });
+    await a.click('[data-action="commands"]');
+    paletteQuery(a, "Text");
+    await a.click('[data-command="add:text"]');
+    const growing = a.doc.querySelector("#canvas-text-editor");
+    growing.value =
+      "Shared growing text\nA paragraph with enough detail to wrap as its width changes.\nFinal line";
+    growing.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    releaseDigest();
+    digestReady = null;
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc
+            .querySelector("#board-outline")
+            .textContent.includes("Shared growing text"),
+        ),
+      "Automatically growing text reaches every client",
+    );
+    const textId = [...b.doc.querySelectorAll("#board-outline button")].find(
+      (button) => button.textContent.includes("Shared growing text"),
+    ).dataset.id;
+    await b.click(`#board-outline [data-id="${textId}"]`);
+    await c.click(`#board-outline [data-id="${textId}"]`);
+    await b.click('[data-action="edit"]');
+    assert.equal(
+      b.doc.querySelector("#canvas-text-editor").style.height,
+      growing.style.height,
+    );
+    await b.click('[data-action="finish-text"]');
+    await b.click('[data-action="resize"]');
+    const sharedWidth = b.doc.querySelector("#resize-width");
+    sharedWidth.value = "140";
+    sharedWidth.dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    b.doc
+      .querySelector("dialog form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    await until(
+      () => Math.abs(parseFloat(growing.style.width) - 140) < 1e-6,
+      "Remote width changes rewrap the active text editor",
+    );
+    const resizedText = selectedClipboard(b)[0];
+    assert.equal(parseFloat(growing.style.height), resizedText.h);
+    growing.value += "\nOne more shared line.\nAnd another.";
+    growing.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    await until(
+      () => selectedClipboard(b)[0].text.endsWith("And another."),
+      "Further typing merges with the other editor’s width",
+    );
+    await a.click('[data-action="finish-text"]');
+    await until(
+      () => selectedClipboard(b)[0].h === selectedClipboard(a)[0].h,
+      "All clients derive the same saved height",
+    );
+    const viewerHeightMode = selectedClipboard(c)[0].autoHeight;
+    await c.click("#auto-height-text");
+    assert.equal(
+      selectedClipboard(c)[0].autoHeight,
+      viewerHeightMode,
+      "Viewer cannot change height mode",
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () => selectedClipboard(b)[0].text === selectedClipboard(a)[0].text,
+      "Shared undo propagates text and derived height",
+    );
+    assert.ok(
+      Math.abs(selectedClipboard(a)[0].w - 140) < 1e-6,
+      "Local text undo preserves the collaborator’s resize",
+    );
+    const sharedImage = await insertCropFixture(a);
+    await until(
+      () =>
+        b.doc.querySelector(`[data-id="${sharedImage.id}"]`) &&
+        c.doc.querySelector(`[data-id="${sharedImage.id}"]`),
+      "Shared image assets arrive in both clients",
+    );
+    await b.click(`[data-id="${sharedImage.id}"]`);
+    await c.click(`[data-id="${sharedImage.id}"]`);
+    await a.click('[data-action="crop-image"]');
+    cropField(a, "w", 200);
+    cropField(a, "x", 200);
+    await a.click('.crop-panel [type="submit"]');
+    await until(
+      () =>
+        selectedClipboard(b)[0].crop?.x === 0.5 &&
+        selectedClipboard(c)[0].crop?.x === 0.5,
+      "Crop and geometry reach editors and viewers",
+    );
+    assert.equal(selectedClipboard(b)[0].w, 200);
+    assert.equal(selectedClipboard(b)[0].src, sharedImage.src);
+    await c.click('[data-action="crop-image"]');
+    assert.equal(
+      c.doc.querySelector(".image-crop-dialog"),
+      null,
+      "Viewer cannot enter crop mode",
+    );
+    await a.click('[data-action="crop-image"]');
+    cropField(a, "h", 120);
+    await b.click('[data-action="lock"]');
+    await until(
+      () => !a.doc.querySelector(".image-crop-dialog"),
+      "A collaborator’s lock cancels an unsaved crop",
+    );
+    assert.equal(selectedClipboard(a)[0].crop.h, 1);
+    await b.click('[data-action="lock"]');
+    await until(
+      () => !selectedClipboard(a)[0].locked,
+      "Unlock reaches the crop client",
+    );
+    await a.click('[data-action="crop-image"]');
+    cropField(a, "h", 120);
+    await b.click('[data-action="resize"]');
+    b.doc.querySelector("#resize-width").value = "100";
+    b.doc
+      .querySelector("#resize-width")
+      .dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    b.doc
+      .querySelector("dialog form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    await until(
+      () => !a.doc.querySelector(".image-crop-dialog"),
+      "Remote geometry closes a stale crop draft",
+    );
+    assert.equal(selectedClipboard(a)[0].w, 100);
+    assert.equal(selectedClipboard(a)[0].crop.h, 1);
+    await a.click('[data-action="crop-image"]');
+    await a.click("#crop-reset");
+    await a.click('.crop-panel [type="submit"]');
+    await until(
+      () => !selectedClipboard(b)[0].crop,
+      "Reset publishes the original extent at its current scale",
+    );
+    assert.equal(selectedClipboard(b)[0].w, 200);
+    await a.click('[data-action="undo"]');
+    await until(
+      () => [b, c].every((app) => selectedClipboard(app)[0].crop?.x === 0.5),
+      "Shared undo restores the previous crop",
+    );
+    assert.equal(
+      selectedClipboard(b)[0].w,
+      100,
+      "Undo preserves the collaborator’s latest scale",
+    );
+    await b.click('[data-action="minimap"]');
+    await c.click('[data-action="minimap"]');
+    const beforeMap = b.doc.querySelector("#minimap-canvas").toDataURL();
+    const viewerView = renderedView(c),
+      viewerImage = selectedClipboard(c);
+    const beforeObjects = b.doc.querySelectorAll(
+      "#board-outline button",
+    ).length;
+    dispatchTransfer(
+      a,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("rect", -5000, 0, { w: 200, h: 200, color: "#ff0000" }),
+          item("rect", 5000, 0, { w: 200, h: 200, color: "#0000ff" }),
+        ]),
+      ),
+    );
+    await until(
+      () =>
+        b.doc.querySelectorAll("#board-outline button").length ===
+          beforeObjects + 2 &&
+        c.doc.querySelectorAll("#board-outline button").length ===
+          beforeObjects + 2,
+      "Remote content updates reach open minimaps",
+    );
+    assert.notEqual(
+      b.doc.querySelector("#minimap-canvas").toDataURL(),
+      beforeMap,
+    );
+    assert.deepEqual(
+      renderedView(c),
+      viewerView,
+      "Remote board edits preserve each viewer’s camera",
+    );
+    mapKey(c, "ArrowRight");
+    assert.equal(renderedView(c).x, viewerView.x - 40);
+    assert.deepEqual(
+      selectedClipboard(c),
+      viewerImage,
+      "Viewer map navigation does not edit the selection",
+    );
+    const viewerPanStart = renderedView(c);
+    const viewerTarget = viewerImage[0];
+    const touchX =
+      viewerPanStart.x +
+      (viewerTarget.x + viewerTarget.w / 2) * viewerPanStart.z;
+    const touchY =
+      viewerPanStart.y +
+      (viewerTarget.y + viewerTarget.h / 2) * viewerPanStart.z;
+    canvasPointer(c, "pointerdown", 30, touchX, touchY);
+    canvasPointer(c, "pointermove", 30, touchX + 50, touchY + 20);
+    canvasPointer(c, "pointerup", 30, touchX + 50, touchY + 20);
+    assert.ok(
+      Math.abs(renderedView(c).x - viewerPanStart.x - 50) < 0.001,
+      "Viewers can pan over selected objects",
+    );
+    const beforeTouch = renderedView(c);
+    canvasPointer(c, "pointerdown", 31, 400, 300);
+    canvasPointer(c, "pointerdown", 32, 600, 300);
+    canvasPointer(c, "pointermove", 32, 700, 320);
+    const touchView = renderedView(c);
+    assert.ok(touchView.z > beforeTouch.z);
+    assert.deepEqual(selectedClipboard(c), viewerImage);
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        b.doc.querySelectorAll("#board-outline button").length ===
+        beforeObjects,
+      "Remote undo restores overview content",
+    );
+    assert.deepEqual(
+      renderedView(c),
+      touchView,
+      "Shared edits preserve the viewer's active pinch",
+    );
+    canvasPointer(c, "pointerup", 32, 700, 320);
+    canvasPointer(c, "pointerup", 31, 400, 300);
+    assert.deepEqual(selectedClipboard(c), viewerImage);
+    assert.equal(b.doc.querySelector("#minimap-canvas").toDataURL(), beforeMap);
+    dispatchTransfer(
+      a,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("note", 0, 0, {
+            text: "Copy source",
+            fontFamily: "caveat",
+            textRuns: [{ start: 0, end: 4, style: { bold: true } }],
+          }),
+        ]),
+      ),
+    );
+    const copySource = selectedClipboard(a)[0];
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc.querySelector(`[data-id="${copySource.id}"]`),
+        ),
+      "Duplication source reaches every client",
+    );
+    await b.click(`[data-id="${copySource.id}"]`);
+    await c.click(`[data-id="${copySource.id}"]`);
+    const duplicateKey = (app) =>
+      app.doc.querySelector("#canvas").dispatchEvent(
+        new app.w.KeyboardEvent("keydown", {
+          key: "ArrowRight",
+          altKey: true,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    const copyCount = c.doc.querySelectorAll("#board-outline button").length;
+    duplicateKey(c);
+    assert.equal(
+      c.doc.querySelectorAll("#board-outline button").length,
+      copyCount,
+      "Viewer cannot duplicate",
+    );
+    duplicateKey(b);
+    const sharedCopy = selectedClipboard(b)[0];
+    assert.notEqual(sharedCopy.id, copySource.id);
+    await until(
+      () =>
+        [a, c].every((app) =>
+          app.doc.querySelector(`[data-id="${sharedCopy.id}"]`),
+        ),
+      "Directional copies propagate to editors and viewers",
+    );
+    await c.click(`[data-id="${sharedCopy.id}"]`);
+    assert.deepEqual(selectedClipboard(c)[0], sharedCopy);
+    await b.click('[data-action="undo"]');
+    await until(
+      () =>
+        [a, c].every(
+          (app) => !app.doc.querySelector(`[data-id="${sharedCopy.id}"]`),
+        ),
+      "Shared undo removes only the duplicate",
+    );
+    await b.click(`[data-id="${copySource.id}"]`);
+    b.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    const copyView = renderedView(b),
+      copyX = copyView.x + (copySource.x + 30) * copyView.z,
+      copyY = copyView.y + (copySource.y + 30) * copyView.z;
+    const copyPointer = (type, delta = 0) =>
+      canvasPointer(b, type, 71, copyX + delta, copyY + delta / 2, {
+        pointerType: "mouse",
+        altKey: true,
+      });
+    copyPointer("pointerdown");
+    copyPointer("pointermove", 100);
+    const pendingCopy = selectedClipboard(b)[0];
+    assert.notEqual(pendingCopy.id, copySource.id);
+    assert.equal(
+      c.doc.querySelector(`[data-id="${pendingCopy.id}"]`),
+      null,
+      "A provisional copy is not published",
+    );
+    await a.click(`[data-id="${copySource.id}"]`);
+    const sourceColor = a.doc.querySelector("#fill-color");
+    sourceColor.value = "#ddffaa";
+    sourceColor.dispatchEvent(new a.w.Event("change"));
+    const savedDeadline = Date.now() + 5000;
+    let stored;
+    do {
+      await b.tick();
+      stored = await storedSharedBoard(b, initial.id);
+    } while (
+      stored?.items.find((i) => i.id === copySource.id)?.color !== "#ddffaa" &&
+      Date.now() < savedDeadline
+    );
+    assert.equal(
+      stored.items.find((i) => i.id === copySource.id).color,
+      "#ddffaa",
+    );
+    assert.equal(
+      stored.items.some((i) => i.id === pendingCopy.id),
+      false,
+      "Remote updates save committed content without a provisional copy",
+    );
+    await a.click('[data-action="lock"]');
+    await until(
+      () => !b.doc.querySelector(`[data-id="${pendingCopy.id}"]`),
+      "Remote locking cancels the provisional copy",
+    );
+    assert.equal(selectedClipboard(b)[0].id, copySource.id);
+    assert.equal(
+      selectedClipboard(b)[0].color,
+      "#ddffaa",
+      "Cancellation retains the collaborator's edit",
+    );
+    assert.equal(selectedClipboard(b)[0].locked, true);
+    assert.equal(
+      b.doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "Cancelled duplication retains shared redo",
+    );
+    copyPointer("pointerup", 100);
+    await a.click('[data-action="lock"]');
+    await until(() => !selectedClipboard(b)[0].locked, "Remote unlock arrives");
+    copyPointer("pointerdown");
+    copyPointer("pointermove", 150);
+    copyPointer("pointerup", 150);
+    const draggedCopy = selectedClipboard(b)[0];
+    await until(
+      () =>
+        [a, c].every((app) =>
+          app.doc.querySelector(`[data-id="${draggedCopy.id}"]`),
+        ),
+      "Committed copy drag reaches every client",
+    );
+    await b.click('[data-action="undo"]');
+    await until(
+      () =>
+        [a, c].every(
+          (app) => !app.doc.querySelector(`[data-id="${draggedCopy.id}"]`),
+        ),
+      "Copy drag is one shared undo step",
+    );
+    await b.click(`[data-id="${copySource.id}"]`);
+    assert.equal(selectedClipboard(b)[0].color, "#ddffaa");
+    // Comments use independent shared records and never consume object undo.
+    for (const app of [a, b, c])
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1200,
+        height: 900,
+      });
+    await a.click(`[data-id="${copySource.id}"]`);
+    await a.click('[data-action="add-comment"]');
+    a.doc.querySelector("#comment-text").value = "Owner review";
+    await a.click('#comment-form [type="submit"]');
+    const discussion = a.doc.querySelector("[data-thread]").dataset.thread;
+    await b.click('[data-action="comments"]');
+    await c.click('[data-action="comments"]');
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc.querySelector(`[data-thread="${discussion}"]`),
+        ),
+      "Shared discussion arrives",
+    );
+    await b.click(`[data-thread="${discussion}"]`);
+    await c.click(`[data-thread="${discussion}"]`);
+    assert.equal(
+      b.doc.querySelector("[data-edit-comment]"),
+      null,
+      "Another author's words are protected",
+    );
+    assert.equal(c.doc.querySelector("#comment-new").disabled, true);
+    assert.equal(c.doc.querySelector("#comment-resolve").disabled, true);
+    assert.equal(c.doc.querySelector("#comment-form").hidden, true);
+    c.doc.querySelector("#comment-text").value = "Viewer forgery";
+    c.doc
+      .querySelector("#comment-form")
+      .dispatchEvent(
+        new c.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    b.doc.querySelector("#comment-text").value = "Unsent collaborator draft";
+    b.doc.querySelector("#comment-text").dispatchEvent(new b.w.Event("input"));
+    a.doc.querySelector("#comment-text").value = "Owner follow-up";
+    await a.click('#comment-form [type="submit"]');
+    await until(
+      () => b.doc.querySelectorAll(".comment-message").length === 2,
+      "Live reply arrives",
+    );
+    assert.equal(
+      b.doc.querySelector("#comment-text").value,
+      "Unsent collaborator draft",
+    );
+    await b.click('#comment-form [type="submit"]');
+    await until(
+      () =>
+        [a, c].every(
+          (app) => app.doc.querySelectorAll(".comment-message").length === 3,
+        ),
+      "Editor reply reaches owner and viewer",
+    );
+    assert.equal(b.doc.querySelectorAll("[data-edit-comment]").length, 1);
+    assert.equal(c.doc.querySelectorAll("[data-edit-comment]").length, 0);
+    await b.click("#comment-resolve");
+    await until(
+      () =>
+        a.doc.querySelector("#comment-resolve").textContent ===
+        "Reopen discussion",
+      "Resolution synchronizes",
+    );
+    await a.click("#comment-resolve");
+    await until(
+      () =>
+        b.doc.querySelector("#comment-resolve").textContent ===
+        "Resolve discussion",
+      "Reopening synchronizes",
+    );
+    await b.click('[data-action="redo"]');
+    await until(
+      () =>
+        [a, c].every((app) =>
+          app.doc.querySelector(`[data-id="${draggedCopy.id}"]`),
+        ),
+      "Comment activity preserves shared redo",
+    );
+    await b.click('[data-action="undo"]');
+    assert.equal(
+      b.doc.querySelectorAll(".comment-message").length,
+      3,
+      "Board undo retains discussions",
+    );
+    const savedComments = await storedSharedBoard(b, initial.id);
+    assert.equal(savedComments.comments[0].messages.length, 3);
+    await a.click(`[data-id="${copySource.id}"]`);
+    await a.click('[data-action="object-link"]');
+    a.doc.querySelector("#object-link-url").value =
+      "https://example.com/shared-destination";
+    await a.click('#object-link-form [type="submit"]');
+    await b.click('[data-action="object-link"]');
+    await c.click(`[data-id="${copySource.id}"]`);
+    await c.click("#object-link-access");
+    await until(
+      () =>
+        [b, c].every(
+          (app) =>
+            app.doc.querySelector("#object-link-current a")?.href ===
+            "https://example.com/shared-destination",
+        ),
+      "Object link reaches editor and viewer",
+    );
+    assert.equal(c.doc.querySelector("#object-link-form").hidden, true);
+    c.doc.querySelector("#object-link-url").value =
+      "https://example.com/viewer-forgery";
+    c.doc
+      .querySelector("#object-link-form")
+      .dispatchEvent(new c.w.Event("submit", { cancelable: true }));
+    assert.equal(
+      c.doc.querySelector("#object-link-current a").href,
+      "https://example.com/shared-destination",
+    );
+    await a.click('[data-action="object-link"]');
+    a.doc.querySelector("#object-link-url").value =
+      "https://example.com/stale-draft";
+    await b.click("#object-link-close");
+    await b.click('[data-action="object-link"]');
+    b.doc.querySelector("#object-link-url").value =
+      "https://example.com/new-destination";
+    await b.click('#object-link-form [type="submit"]');
+    await until(
+      () =>
+        a.doc.querySelector("#object-link-current a")?.href ===
+        "https://example.com/new-destination",
+      "Changed link arrives without replacing draft",
+    );
+    assert.equal(
+      a.doc.querySelector("#object-link-url").value,
+      "https://example.com/stale-draft",
+    );
+    await a.click('#object-link-form [type="submit"]');
+    assert.match(
+      a.doc.querySelector("#object-link-error").textContent,
+      /changed/,
+    );
+    await b.click('[data-action="undo"]');
+    await until(
+      () =>
+        c.doc.querySelector("#object-link-current a")?.href ===
+        "https://example.com/shared-destination",
+      "Shared link undo restores prior destination",
+    );
+    dispatchTransfer(
+      a,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("table", 1200, 1200, {
+            w: 340,
+            h: 150,
+            cells: [
+              ["Team", "Status"],
+              ["", ""],
+            ],
+          }),
+        ]),
+      ),
+    );
+    const sharedTable = selectedClipboard(a)[0];
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc.querySelector(`[data-id="${sharedTable.id}"]`),
+        ),
+      "Table reaches all participants",
+    );
+    for (const app of [a, b, c]) {
+      await app.click(`[data-id="${sharedTable.id}"]`);
+      await app.click("#table-cell-access");
+    }
+    const tableKey = (app, key, options = {}) =>
+      app.doc.activeElement.dispatchEvent(
+        new app.w.KeyboardEvent("keydown", {
+          key,
+          bubbles: true,
+          cancelable: true,
+          ...options,
+        }),
+      );
+    const setTableSize = (app, axis, value) => {
+      const field = app.doc.querySelector(`#table-${axis}-size`);
+      field.value = String(value);
+      field.dispatchEvent(new app.w.Event("change"));
+    };
+    tableKey(b, "ArrowRight");
+    setTableSize(a, "column", 250);
+    setTableSize(b, "column", 310);
+    await until(
+      () => c.doc.querySelector("#table-column-size")?.value === "250",
+      "Viewer receives column resize",
+    );
+    tableKey(a, "ArrowRight");
+    await until(
+      () => a.doc.querySelector("#table-column-size")?.value === "310",
+      "Independent column resizes merge",
+    );
+    assert.equal(c.doc.querySelector("#table-column-size").disabled, true);
+    setTableSize(c, "column", 999);
+    await a.click('[data-action="undo"]');
+    await until(
+      () => c.doc.querySelector("#table-column-size")?.value === "170",
+      "Column undo retains remote sizing",
+    );
+    await a.click(`[data-id="${sharedTable.id}"]`);
+    await a.click("#table-cell-access");
+    tableKey(a, "ArrowRight");
+    assert.equal(a.doc.querySelector("#table-column-size").value, "310");
+    tableKey(a, "ArrowLeft");
+    tableKey(b, "ArrowLeft");
+    tableKey(a, "ArrowDown");
+    tableKey(a, "Enter");
+    tableKey(b, "ArrowDown");
+    tableKey(b, "ArrowRight");
+    tableKey(b, "Enter");
+    a.doc.querySelector("#table-cell-input").value = "Owner cell";
+    b.doc.querySelector("#table-cell-input").value = "Editor cell";
+    for (const [app, tag] of [
+      [a, "en-CA"],
+      [b, "en-GB"],
+    ]) {
+      app.doc.querySelector("#table-cell-input").setSelectionRange(0, 0);
+      await app.click("#table-cell-language");
+      app.doc.querySelector("#table-cell-input-language-tag").value = tag;
+      await app.click("#table-cell-input-language-save");
+      app.doc.querySelector("#table-cell-input").focus();
+    }
+    tableKey(a, "Enter", { ctrlKey: true });
+    await until(
+      () =>
+        b.doc
+          .querySelector("#board-outline")
+          .textContent.includes("Owner cell"),
+      "Other-cell edits arrive during a cell draft",
+    );
+    assert.equal(b.doc.querySelector("#table-cell-input").value, "Editor cell");
+    tableKey(b, "Enter", { ctrlKey: true });
+    await until(
+      () =>
+        [a, c].every((app) =>
+          app.doc
+            .querySelector("#board-outline")
+            .textContent.includes("Editor cell"),
+        ),
+      "Independent cell edits both survive",
+    );
+    assert.equal(
+      a.doc.querySelector(
+        `#board-outline [data-id="${sharedTable.id}"] [lang="en-CA"]`,
+      ).textContent,
+      "Owner cell",
+    );
+    assert.equal(
+      b.doc.querySelector(
+        `#board-outline [data-id="${sharedTable.id}"] [lang="en-GB"]`,
+      ).textContent,
+      "Editor cell",
+    );
+    assert.equal(c.doc.querySelector("#table-cell-edit").disabled, true);
+    dispatchTransfer(
+      c,
+      "paste",
+      transferData({ "text/plain": "Forbidden cell" }),
+    );
+    assert.match(
+      c.doc.querySelector("#table-cell-error").textContent,
+      /protected/,
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        !c.doc
+          .querySelector("#board-outline")
+          .textContent.includes("Owner cell"),
+      "Shared cell undo removes only the owner's edit",
+    );
+    assert.ok(
+      c.doc.querySelector("#board-outline").textContent.includes("Editor cell"),
+    );
+    await a.click(`[data-id="${sharedTable.id}"]`);
+    await a.click("#table-cell-access");
+    tableKey(a, "ArrowDown");
+    tableKey(a, "ArrowRight");
+    tableKey(a, "Enter");
+    a.doc.querySelector("#table-cell-input").value =
+      "Private conflicting draft";
+    tableKey(b, "Enter");
+    b.doc.querySelector("#table-cell-input").value = "Remote cell";
+    tableKey(b, "Enter", { ctrlKey: true });
+    await until(
+      () => !a.doc.querySelector("#table-cell-error").hidden,
+      "Same-cell remote edits flag a stale draft",
+    );
+    tableKey(a, "Enter", { ctrlKey: true });
+    assert.equal(
+      a.doc.querySelector("#table-cell-input").value,
+      "Private conflicting draft",
+    );
+    await until(
+      () =>
+        c.doc
+          .querySelector("#board-outline")
+          .textContent.includes("Remote cell"),
+      "Viewer receives the competing cell edit",
+    );
+    for (const app of [a, b, c])
+      if (app.doc.querySelector("#table-cell-done"))
+        await app.click("#table-cell-done");
+    const tagCatalog = [
+      { id: "shared-a", name: "Urgent", color: "#c43b3b" },
+      { id: "shared-b", name: "Research", color: "#27834b" },
+      { id: "shared-c", name: "Review", color: "#365dc4" },
+    ];
+    dispatchTransfer(
+      a,
+      "paste",
+      transferData(
+        clipboardFormats(
+          [
+            item("note", 1800, 1200, {
+              text: "Shared tagged idea",
+              tagIds: tagCatalog.map((t) => t.id),
+            }),
+          ],
+          tagCatalog,
+        ),
+      ),
+    );
+    const taggedNote = selectedClipboard(a)[0];
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc.querySelector(`[data-id="${taggedNote.id}"]`),
+        ),
+      "Tagged note reaches all participants",
+    );
+    for (const app of [a, b, c]) {
+      await app.click(`[data-id="${taggedNote.id}"]`);
+      await app.click("#tag-access");
+    }
+    assert.equal(c.doc.querySelector("#tag-save").disabled, true);
+    await a.click('[data-tag="shared-b"][data-tag-action="toggle"]');
+    await b.click('[data-tag="shared-c"][data-tag-action="toggle"]');
+    await until(
+      () =>
+        ["shared-b", "shared-c"].every(
+          (id) =>
+            c.doc
+              .querySelector(`[data-tag="${id}"][data-tag-action="toggle"]`)
+              ?.getAttribute("aria-checked") === "false",
+        ),
+      "Independent tag removals merge",
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        c.doc
+          .querySelector('[data-tag="shared-b"][data-tag-action="toggle"]')
+          ?.getAttribute("aria-checked") === "true",
+      "Tag undo restores only local assignment",
+    );
+    assert.equal(
+      c.doc
+        .querySelector('[data-tag="shared-c"][data-tag-action="toggle"]')
+        .getAttribute("aria-checked"),
+      "false",
+    );
+    await b.click('[data-tag="shared-a"][data-tag-action="edit"]');
+    b.doc.querySelector("#tag-name").value = "Shared priority";
+    b.doc
+      .querySelector("#tag-form")
+      .dispatchEvent(
+        new b.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    await until(
+      () =>
+        c.doc
+          .querySelector("#tag-list")
+          ?.textContent.includes("Shared priority"),
+      "Tag rename reaches viewer",
+    );
+    c.doc.querySelector("#tag-name").value = "Forbidden";
+    c.doc
+      .querySelector("#tag-form")
+      .dispatchEvent(
+        new c.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    assert.match(c.doc.querySelector("#tag-error").textContent, /protected/);
+    for (const app of [a, b, c])
+      if (app.doc.querySelector("#tag-close")) await app.click("#tag-close");
+    await a.click(`[data-id="${taggedNote.id}"]`);
+    await a.click('[data-action="cluster"]');
+    a.doc.querySelector("#cluster-mode").value = "one";
+    a.doc.querySelector("#cluster-mode").dispatchEvent(new a.w.Event("change"));
+    a.doc.querySelector("#cluster-name").value = "Shared cluster";
+    a.doc.querySelector("#cluster-name").dispatchEvent(new a.w.Event("input"));
+    a.doc
+      .querySelector("#cluster-form")
+      .dispatchEvent(
+        new a.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    const clustered = selectedClipboard(a),
+      clusterFrame = clustered.find((i) => i.type === "frame");
+    assert.equal(
+      clustered.find((i) => i.id === taggedNote.id).parentId,
+      clusterFrame.id,
+    );
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc.querySelector(`[data-id="${clusterFrame.id}"]`),
+        ),
+      "Cluster frames reach collaborators and viewers",
+    );
+    await c.click(`[data-id="${clusterFrame.id}"]`);
+    assert.equal(
+      selectedClipboard(c).find((i) => i.id === taggedNote.id).parentId,
+      clusterFrame.id,
+    );
+    await c.click('[data-action="more-tools"]');
+    await c.click('[data-feature="cluster"]');
+    assert.equal(c.doc.querySelector("#cluster-form"), null);
+    assert.match(c.doc.querySelector("#toast").textContent, /read-only/);
+    await b.click(`[data-id="${taggedNote.id}"]`);
+    await b.click('[data-action="edit"]');
+    b.doc.querySelector("#canvas-text-editor").value =
+      "Peer content in cluster";
+    b.doc
+      .querySelector("#canvas-text-editor")
+      .dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    await b.click('[data-action="finish-text"]');
+    await until(
+      () =>
+        a.doc
+          .querySelector("#board-outline")
+          .textContent.includes("Peer content in cluster"),
+      "Cluster retains incoming content edits",
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        [b, c].every(
+          (app) => !app.doc.querySelector(`[data-id="${clusterFrame.id}"]`),
+        ),
+      "Shared Undo removes only the clustering operation",
+    );
+    await a.click(`[data-id="${taggedNote.id}"]`);
+    const restoredClusterNote = selectedClipboard(a)[0];
+    assert.equal(restoredClusterNote.text, "Peer content in cluster");
+    assert.equal(restoredClusterNote.x, taggedNote.x);
+    assert.equal(restoredClusterNote.y, taggedNote.y);
+    await a.click('[data-action="more-tools"]');
+    await a.click('[data-feature="mind-map"]');
+    a.doc.querySelector("#canvas-text-editor").value = "Shared mind map";
+    mindKey(a, "Enter", { ctrlKey: true });
+    const mindRoot = selectedClipboard(a)[0];
+    await until(
+      () =>
+        [b, c].every((app) =>
+          app.doc.querySelector(`[data-id="${mindRoot.id}"]`),
+        ),
+      "Mind map root reaches all clients",
+    );
+    for (const app of [a, b, c]) await app.click(`[data-id="${mindRoot.id}"]`);
+    assert.equal(c.doc.querySelector("#mind-ports").hidden, true);
+    await a.click('[data-mind-direction="right"]');
+    mindKey(b, "Tab");
+    a.doc.querySelector("#canvas-text-editor").value = "Owner branch";
+    b.doc.querySelector("#canvas-text-editor").value = "Editor branch";
+    mindKey(a, "Enter", { ctrlKey: true });
+    mindKey(b, "Enter", { ctrlKey: true });
+    await until(
+      () =>
+        [a, b, c].every((app) => {
+          const text = app.doc.querySelector("#board-outline").textContent;
+          return (
+            text.includes("Owner branch") && text.includes("Editor branch")
+          );
+        }),
+      "Concurrent branches and text survive on every client",
+    );
+    for (const app of [a, b, c]) await app.click(`[data-id="${mindRoot.id}"]`);
+    const ownerTree = selectedClipboard(a),
+      editorTree = selectedClipboard(b);
+    assert.deepEqual(ownerTree, editorTree);
+    const branches = ownerTree.filter((i) => i.mindMap.parent);
+    assert.equal(branches.length, 2);
+    assert.ok(
+      Math.abs(branches[0].y - branches[1].y) >= branches[0].h + 28,
+      "Concurrent branches receive distinct automatic positions",
+    );
+    mindKey(c, "Tab");
+    assert.equal(
+      c.doc.querySelector("#canvas-text-editor"),
+      null,
+      "Viewer cannot add a node through a forced key event",
+    );
+    assert.equal(selectedClipboard(c).length, 3);
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        !c.doc
+          .querySelector("#board-outline")
+          .textContent.includes("Owner branch"),
+      "Shared text undo reaches the viewer",
+    );
+    assert.ok(
+      c.doc
+        .querySelector("#board-outline")
+        .textContent.includes("Editor branch"),
+    );
+    const ownBranchId = branches.find((i) => i.text === "Owner branch").id;
+    const parentBranchId = branches.find((i) => i.text === "Editor branch").id;
+    a.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    await a.click(`[data-id="${mindRoot.id}"]`);
+    const dragTree = selectedClipboard(a),
+      fromNode = dragTree.find((i) => i.id === ownBranchId),
+      toNode = dragTree.find((i) => i.id === parentBranchId);
+    const dragPoint = (node) => {
+      const v = renderedView(a);
+      return [
+        v.x + (node.x + node.w / 2) * v.z,
+        v.y + (node.y + node.h / 2) * v.z,
+      ];
+    };
+    const branchPointer = (type, node) =>
+      canvasPointer(a, type, 77, ...dragPoint(node), { pointerType: "mouse" });
+    branchPointer("pointerdown", fromNode);
+    branchPointer("pointermove", toNode);
+    assert.match(
+      a.doc.querySelector("#mind-drop-hint").textContent,
+      /Release to attach/,
+    );
+    await b.click(`[data-id="${ownBranchId}"]`);
+    mindKey(b, "F2");
+    b.doc.querySelector("#canvas-text-editor").value = "Collaborator branch";
+    mindKey(b, "Enter", { ctrlKey: true });
+    await until(
+      () =>
+        a.doc
+          .querySelector("#board-outline")
+          .textContent.includes("Collaborator branch"),
+      "Remote text reaches the active drag",
+    );
+    assert.equal(a.doc.querySelector("#mind-drop-hint").hidden, false);
+    branchPointer("pointerup", toNode);
+    await until(
+      () =>
+        selectedClipboard(c).find((i) => i.id === ownBranchId)?.mindMap
+          .parent === parentBranchId,
+      "Drag reassignment reaches the viewer",
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        selectedClipboard(c).find((i) => i.id === ownBranchId)?.mindMap
+          .parent === mindRoot.id,
+      "One shared undo restores the parent",
+    );
+    assert.equal(
+      selectedClipboard(c).find((i) => i.id === ownBranchId).text,
+      "Collaborator branch",
+    );
+    await a.click(`[data-id="${mindRoot.id}"]`);
+    branchPointer("pointerdown", fromNode);
+    branchPointer("pointermove", toNode);
+    await b.click(`[data-id="${parentBranchId}"]`);
+    await b.click('[data-action="lock"]');
+    await until(
+      () =>
+        a.doc.querySelector("#mind-drop-hint").textContent.includes("Unlock"),
+      "A newly protected drop target invalidates the preview",
+    );
+    branchPointer("pointerup", toNode);
+    await a.click(`[data-id="${mindRoot.id}"]`);
+    assert.equal(
+      selectedClipboard(a).find((i) => i.id === ownBranchId).mindMap.parent,
+      mindRoot.id,
+    );
+    assert.equal(
+      selectedClipboard(a).find((i) => i.id === parentBranchId).locked,
+      true,
+    );
+    assert.equal(
+      a.doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "Rejected shared drop preserves redo",
+    );
+    await b.click('[data-action="lock"]');
+    await until(
+      () => !selectedClipboard(a).find((i) => i.id === parentBranchId)?.locked,
+      "The parent unlock reaches the owner",
+    );
+    branchPointer("pointerdown", fromNode);
+    branchPointer("pointermove", toNode);
+    await b.click(`[data-id="${ownBranchId}"]`);
+    mindKey(b, "ArrowDown", { shiftKey: true });
+    await until(
+      () => a.doc.querySelector("#mind-drop-hint").hidden,
+      "Remote branch geometry cancels the active drag",
+    );
+    branchPointer("pointerup", toNode);
+    await a.click(`[data-id="${mindRoot.id}"]`);
+    await until(
+      () =>
+        selectedClipboard(c).find((i) => i.id === ownBranchId)?.y ===
+        fromNode.y + 10,
+      "The remote movement reaches the viewer",
+    );
+    const afterRemoteMove = selectedClipboard(a).find(
+      (i) => i.id === ownBranchId,
+    );
+    assert.equal(afterRemoteMove.y, fromNode.y + 10);
+    assert.equal(afterRemoteMove.mindMap.parent, mindRoot.id);
+    assert.equal(afterRemoteMove.text, "Collaborator branch");
+    await b.click(`[data-id="${ownBranchId}"]`);
+    mindKey(b, "F2");
+    b.doc.querySelector("#canvas-text-editor").value = "Draft during collapse";
+    await a.click(`[data-id="${mindRoot.id}"]`);
+    await a.click('[data-action="mind-collapse"]');
+    await until(
+      () => !c.doc.querySelector(`[data-id="${ownBranchId}"]`),
+      "Shared collapse hides descendants for the viewer",
+    );
+    assert.equal(
+      b.doc.querySelector("#canvas-text-editor").value,
+      "Draft during collapse",
+    );
+    assert.ok(
+      b.doc.querySelector(`[data-id="${ownBranchId}"]`),
+      "A remote collapse does not hide an active local draft",
+    );
+    mindKey(b, "Enter", { ctrlKey: true });
+    await until(
+      () => !b.doc.querySelector(`[data-id="${ownBranchId}"]`),
+      "Finishing the draft restores shared collapse",
+    );
+    await c.click(`[data-id="${mindRoot.id}"]`);
+    mindKey(c, "ArrowRight");
+    assert.ok(
+      c.doc.querySelector(`[data-id="${ownBranchId}"]`),
+      "Viewers can expand locally",
+    );
+    assert.equal(
+      selectedClipboard(c).find((i) => i.id === mindRoot.id).mindCollapsed,
+      true,
+      "Viewer expansion leaves board data unchanged",
+    );
+    assert.equal(a.doc.querySelector(`[data-id="${ownBranchId}"]`), null);
+    await until(
+      () =>
+        selectedClipboard(a).find((i) => i.id === ownBranchId)?.text ===
+        "Draft during collapse",
+      "The draft edit reaches the owner while its branch remains collapsed",
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () => a.doc.querySelector(`[data-id="${ownBranchId}"]`),
+      "Undo reopens the shared branch",
+    );
+    assert.equal(
+      selectedClipboard(a).find((i) => i.id === ownBranchId).text,
+      "Draft during collapse",
+    );
+    await until(
+      () => b.doc.querySelector(`[data-id="${ownBranchId}"]`),
+      "The shared undo reaches the editor before its next collapse",
+    );
+    const beforeCollapseDrag = selectedClipboard(a).find(
+      (i) => i.id === ownBranchId,
+    );
+    branchPointer("pointerdown", beforeCollapseDrag);
+    branchPointer("pointermove", toNode);
+    await b.click(`[data-id="${mindRoot.id}"]`);
+    await b.click('[data-action="mind-collapse"]');
+    await until(
+      () => a.doc.querySelector("#mind-drop-hint").hidden,
+      "Remote collapse cancels a hidden active drag",
+    );
+    branchPointer("pointerup", toNode);
+    await a.click(`[data-id="${mindRoot.id}"]`);
+    assert.deepEqual(
+      selectedClipboard(a).find((i) => i.id === ownBranchId),
+      beforeCollapseDrag,
+      "Cancelled movement preserves remote state and original geometry",
+    );
+    assert.ok(
+      c.doc.querySelector(`[data-id="${ownBranchId}"]`),
+      "A viewer's local expansion survives subsequent shared collapse",
+    );
+    for (const app of [a, b, c]) await app.click('[data-action="timer"]');
+    assert.equal(c.doc.querySelector("#timer-start").disabled, true);
+    await a.click("#timer-start");
+    await until(
+      () =>
+        [b, c].every(
+          (app) =>
+            app.doc.querySelector("#timer-state").textContent ===
+            "Counting down",
+        ),
+      "Timer starts for every participant",
+    );
+    await b.click('[data-timer-command="pause"]');
+    await until(
+      () =>
+        [a, c].every(
+          (app) =>
+            app.doc.querySelector("#timer-state").textContent === "Paused",
+        ),
+      "Editors pause the shared timer",
+    );
+    const frozen = a.doc.querySelector("#timer-countdown").textContent;
+    c.doc.querySelector('[data-timer-command="resume"]').disabled = false;
+    await c.click('[data-timer-command="resume"]');
+    assert.equal(
+      c.doc.querySelector("#timer-state").textContent,
+      "Paused",
+      "Viewer cannot force timer actions",
+    );
+    await a.click('[data-action="undo"]');
+    assert.equal(
+      a.doc.querySelector("#timer-countdown").textContent,
+      frozen,
+      "Drawing Undo retains timer state",
+    );
+    await a.click('[data-timer-extra="60000"]');
+    await until(
+      () =>
+        [b, c].every(
+          (app) =>
+            app.doc.querySelector("#timer-countdown").textContent ===
+            a.doc.querySelector("#timer-countdown").textContent,
+        ),
+      "Time extension reaches peers",
+    );
+    await a.click('[data-timer-command="stop"]');
+    await until(
+      () =>
+        [b, c].every(
+          (app) =>
+            app.doc.querySelector("#timer-state").textContent === "Ready",
+        ),
+      "Reset reaches peers",
+    );
+    assert.equal(workerChecks, 1, "A connected board checks its worker once");
+    await Promise.all([
+      a.click('[data-action="home"]'),
+      b.click('[data-action="home"]'),
+      c.click('[data-action="home"]'),
+    ]);
+    await until(
+      () => [a, b, c].every((app) => app.doc.querySelector(".library")),
+      "Queued edits finish and all editors leave before their DOMs are destroyed",
+    );
+  } finally {
+    releaseDigest?.();
+    releaseUpdate();
+    a.close();
+    b.close();
+    c.close();
+  }
+});
+
+test("commenters use the Comment tool and a comment-only selection toolbar", async () => {
+  const env = environment();
+  const note = item("note", 30, 30, { text: "Shared thought" });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Team canvas",
+    items: [note],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const { token } = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "commenter",
+  });
+  const c = await setup(env.sdk(viewer));
+  try {
+    await c.click('[data-action="join-shared"]');
+    c.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${token}`;
+    c.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(
+        new c.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    for (let n = 0; n < 200 && c.doc.querySelector("#join-link"); n++)
+      await c.tick();
+    await c.tick();
+    const tool = c.doc.querySelector('[data-action="tool-comment"]');
+    assert.equal(tool.disabled, false);
+    assert.equal(
+      c.doc.querySelector('[data-action="tool-note"]').disabled,
+      true,
+    );
+    c.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new c.w.KeyboardEvent("keydown", { key: "c", bubbles: true }),
+      );
+    await c.tick();
+    assert.equal(tool.getAttribute("aria-pressed"), "true");
+    await c.click('[data-action="tool-select"]');
+    await c.click(`#board-outline [data-id="${note.id}"]`);
+    const editor = c.doc.querySelector(".editor");
+    assert.ok(editor.classList.contains("shared-commenter"));
+    assert.deepEqual(
+      [...c.doc.querySelectorAll("#selection-tools [data-action]")].map(
+        (b) => b.dataset.action,
+      ),
+      ["add-comment", "copy-image"],
+    );
+  } finally {
+    c.close();
+  }
+});
+
+test("failed sharing clears its progress status and leaves the personal board editable and retryable", async () => {
+  const env = environment(),
+    puter = env.sdk(owner);
+  const build = "faceb00cfaceb00c";
+  await puter.kv.set("whiteboard-collaboration-worker-v1", {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path: "whiteboard/whiteboard-worker.js",
+    build,
+    builtAt: 200,
+  });
+  let requests = 0;
+  puter.workers.exec = async (url) => {
+    if (url.endsWith("/health")) return Response.json({ build });
+    requests++;
+    return Response.json({ message: "Worker unavailable" }, { status: 500 });
+  };
+  const app = await setup(puter);
+  app.w.fetch = async () =>
+    new Response(`/* whiteboard-worker build=${build} at=200 */`);
+  try {
+    await app.click('[data-action="new"]');
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      await app.click('[data-action="share"]');
+      const deadline = Date.now() + 3000;
+      while (requests < attempt && Date.now() < deadline) await app.tick();
+      await app.tick();
+      assert.equal(requests, attempt);
+      assert.equal(
+        app.doc.querySelector("#toast").textContent,
+        "Worker unavailable",
+      );
+      assert.equal(
+        app.doc.querySelector("dialog[open]"),
+        null,
+        "A failed share leaves no progress dialog open",
+      );
+      assert.equal(
+        app.doc.querySelector("#save-state").textContent,
+        "Sharing failed · try again",
+      );
+      assert.equal(app.doc.querySelector("#board-title").disabled, false);
+      assert.equal(
+        app.doc.querySelector(".board-tag").textContent,
+        "Personal board",
+      );
+    }
+    await app.click('[data-action="add-note"]');
+    assert.ok(
+      app.doc.querySelector("#canvas-text-editor"),
+      "Personal editing remains available",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("an owner can update an existing worker even when joining it fails", async () => {
+  const env = environment(),
+    puter = env.sdk(owner);
+  const key = "whiteboard-collaboration-worker-v1";
+  const path = "whiteboard/whiteboard-worker.js";
+  const source = "/* whiteboard-worker build=faceb00cfaceb00c at=200 */";
+  await puter.kv.set(key, {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path,
+    build: "0000000000000000",
+    builtAt: 100,
+  });
+  puter.workers.exec = async (url) =>
+    url.endsWith("/health")
+      ? Response.json({ build: env.data.get(key).build })
+      : Response.json(
+          { message: "Old worker could not join." },
+          { status: 500 },
+        );
+  const app = await setup(puter);
+  app.w.fetch = async () => new Response(source);
+  try {
+    await app.click('[data-action="join-shared"]');
+    const field = app.doc.querySelector("#join-link");
+    field.value =
+      "https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=existing-board";
+    field
+      .closest("form")
+      .dispatchEvent(
+        new app.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    const deadline = Date.now() + 3000;
+    while (
+      (env.files.get(path) !== source ||
+        !app.doc
+          .querySelector("#join-error")
+          ?.textContent.includes("Old worker could not join.")) &&
+      Date.now() < deadline
+    )
+      await app.tick();
+    assert.equal(
+      env.files.get(path),
+      source,
+      "A failing join does not prevent the owner's update",
+    );
+    assert.match(
+      app.doc.querySelector("#join-error").textContent,
+      /Old worker could not join/,
+    );
+    assert.ok(
+      app.doc.querySelector("#join-link"),
+      "The owner can retry joining",
+    );
+  } finally {
+    app.close();
+  }
+});
+function dispatchTransfer(app, type, data, target, point = {}) {
+  const event = new app.w.Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperty(
+    event,
+    ["copy", "cut", "paste"].includes(type) ? "clipboardData" : "dataTransfer",
+    { value: data },
+  );
+  Object.assign(event, point);
+  (target || app.doc.querySelector("#canvas")).dispatchEvent(event);
+  return event;
+}
+
+test("system clipboard copies across independent sessions, cuts undoably, and never pastes stale objects", async () => {
+  const source = await setup(),
+    target = await setup();
+  try {
+    await source.click('[data-action="new"]');
+    await source.click('[data-action="add-note"]');
+    source.doc.querySelector("#canvas-text-editor").value = "Across sessions";
+    await source.click('[data-action="finish-text"]');
+    await source.click("#format-bold");
+    const clipboard = transferData();
+    assert.equal(
+      dispatchTransfer(source, "copy", clipboard).defaultPrevented,
+      true,
+    );
+    assert.equal(clipboard.getData("text/plain"), "Across sessions");
+    assert.ok(clipboard.getData(CLIPBOARD_TYPE));
+    await target.click('[data-action="new"]');
+    dispatchTransfer(target, "paste", clipboard);
+    await target.tick();
+    assert.match(
+      target.doc.querySelector("#board-outline").textContent,
+      /Across sessions/,
+    );
+    assert.equal(
+      target.doc.querySelector("#format-bold").getAttribute("aria-pressed"),
+      "true",
+    );
+    const copiedId = target.doc.querySelector("#board-outline button").dataset
+      .id;
+    assert.notEqual(
+      copiedId,
+      source.doc.querySelector("#board-outline button").dataset.id,
+    );
+    dispatchTransfer(
+      target,
+      "paste",
+      transferData({ "text/plain": "External clipboard content" }),
+    );
+    await target.tick();
+    assert.equal(
+      target.doc.querySelectorAll("#board-outline button").length,
+      2,
+    );
+    assert.match(
+      target.doc.querySelector("#board-outline").textContent,
+      /External clipboard content/,
+    );
+    const cut = transferData();
+    dispatchTransfer(target, "cut", cut);
+    assert.equal(
+      target.doc.querySelectorAll("#board-outline button").length,
+      1,
+    );
+    assert.equal(cut.getData("text/plain"), "External clipboard content");
+    await target.click('[data-action="undo"]');
+    assert.equal(
+      target.doc.querySelectorAll("#board-outline button").length,
+      2,
+    );
+    await target.click('[data-action="home"]');
+    await target.click("[data-open]");
+    assert.match(
+      target.doc.querySelector("#board-outline").textContent,
+      /External clipboard content/,
+    );
+  } finally {
+    source.close();
+    target.close();
+  }
+});
+
+test("clipboard preserves native input editing and rejects malformed fragments without losing selected objects", async () => {
+  const app = await setup();
+  const { doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    assert.equal(
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({ "text/plain": "Native text" }),
+        input,
+      ).defaultPrevented,
+      true,
+    );
+    assert.equal(
+      input.value,
+      "Native text",
+      "Paste edits the text surface without inserting board objects",
+    );
+    assert.equal(
+      dispatchTransfer(app, "cut", transferData(), input).defaultPrevented,
+      false,
+    );
+    await click('[data-action="finish-text"]');
+    const broken = transferData();
+    broken.setData = () => {
+      throw Error("Unavailable");
+    };
+    dispatchTransfer(app, "cut", broken);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    assert.match(doc.querySelector("#toast").textContent, /Could not copy/);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ [CLIPBOARD_TYPE]: "invalid JSON" }),
+    );
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "https://example.com/guide" }),
+    );
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /Link: example.com/,
+    );
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "<script>literal</script>" }),
+    );
+    assert.ok(!doc.querySelector("#board-outline script"));
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /<script>literal<\/script>/,
+    );
+    await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("dropping multiple real images and attachments inserts one undoable batch; image paste uses decoded pixels", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  const png = createCanvas(8, 4).toBuffer("image/png");
+  try {
+    await click('[data-action="new"]');
+    const files = [
+      new w.File([png], "one.png", { type: "image/png" }),
+      new w.File([png], "two.png", { type: "image/png" }),
+      new w.File(["Notes"], "notes.txt", { type: "text/plain" }),
+    ];
+    const data = transferData({}, files);
+    dispatchTransfer(app, "dragenter", data);
+    assert.ok(
+      doc.querySelector(".canvas-wrap").classList.contains("drop-target"),
+    );
+    dispatchTransfer(app, "drop", data, null, { clientX: 300, clientY: 260 });
+    await tick();
+    await tick();
+    assert.ok(
+      !doc.querySelector(".canvas-wrap").classList.contains("drop-target"),
+    );
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /Attachment: notes.txt/,
+    );
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    await click('[data-action="redo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    dispatchTransfer(app, "paste", transferData({}, [files[0]]));
+    await tick();
+    await tick();
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 4);
+    const bad = new w.File(["<svg></svg>"], "fake.png", { type: "image/png" });
+    dispatchTransfer(app, "drop", transferData({}, [files[0], bad]), null, {
+      clientX: 100,
+      clientY: 100,
+    });
+    await tick();
+    await tick();
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      4,
+      "a failed batch inserts no partial content",
+    );
+    assert.match(doc.querySelector("#toast").textContent, /decode/);
+  } finally {
+    app.close();
+  }
+});
+
+test("files dropped into a frame become part of its editable clipboard fragment", async () => {
+  const app = await setup();
+  try {
+    await app.click('[data-action="new"]');
+    await app.click('[data-action="tool-frame"]');
+    const canvas = app.doc.querySelector("#canvas");
+    canvas.dispatchEvent(
+      new app.w.MouseEvent("pointerdown", {
+        clientX: 200,
+        clientY: 200,
+        button: 0,
+        bubbles: true,
+      }),
+    );
+    canvas.dispatchEvent(
+      new app.w.MouseEvent("pointerup", {
+        clientX: 200,
+        clientY: 200,
+        button: 0,
+        bubbles: true,
+      }),
+    );
+    const png = createCanvas(8, 4).toBuffer("image/png");
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData({}, [
+        new app.w.File([png], "in-frame.png", { type: "image/png" }),
+      ]),
+      canvas,
+      { clientX: 250, clientY: 250 },
+    );
+    await app.tick();
+    await app.tick();
+    await app.click("#board-outline button");
+    const clipboard = transferData();
+    dispatchTransfer(app, "copy", clipboard);
+    const { items } = JSON.parse(clipboard.getData(CLIPBOARD_TYPE));
+    assert.equal(items.length, 2);
+    assert.equal(
+      items.find((i) => i.type === "image").parentId,
+      items.find((i) => i.type === "frame").id,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("an image finishing after navigation cannot insert into a different board", async () => {
+  let release;
+  const blocked = new Promise((resolve) => (release = resolve));
+  class SlowImage extends NativeImage {
+    async decode() {
+      await blocked;
+      return super.decode();
+    }
+  }
+  const app = await setup(undefined, { imageClass: SlowImage });
+  try {
+    await app.click('[data-action="new"]');
+    const png = createCanvas(4, 4).toBuffer("image/png");
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({}, [
+        new app.w.File([png], "slow.png", { type: "image/png" }),
+      ]),
+    );
+    await app.tick();
+    await app.click('[data-action="home"]');
+    await app.click('[data-action="new"]');
+    release();
+    await app.tick();
+    await app.tick();
+    assert.equal(app.doc.querySelectorAll("#board-outline button").length, 0);
+    await app.click('[data-action="home"]');
+    assert.equal(app.doc.querySelectorAll(".board-card").length, 2);
+  } finally {
+    release();
+    app.close();
+  }
+});
+
+test("the zoom button is named by the zoom it shows and describes resetting it", async () => {
+  const app = await setup();
+  const { doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="zoom-in"]');
+    const zoom = doc.querySelector('[data-action="reset-zoom"]');
+    assert.match(zoom.textContent, /^\d+%$/);
+    assert.notEqual(zoom.textContent, "100%");
+    assert.equal(zoom.hasAttribute("aria-label"), false);
+    assert.equal(zoom.title, "Reset zoom to 100 percent");
+    await click('[data-action="reset-zoom"]');
+    assert.equal(zoom.textContent, "100%");
+    const language = doc.querySelector("#language");
+    language.value = "fr";
+    language.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+    await app.tick();
+    assert.equal(
+      doc.querySelector('[data-action="reset-zoom"]').title,
+      "Rétablir le zoom à 100 %",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("a large paste lands centred in the view, not hanging off its edge", async () => {
+  const app = await setup();
+  const { doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1280,
+      height: 720,
+    });
+    await click('[data-action="zoom-in"]');
+    await click('[data-action="zoom-in"]');
+    const frame = item("frame", 0, 0, { w: 800, h: 500, text: "Big" });
+    dispatchTransfer(app, "paste", transferData(clipboardFormats([frame])));
+    await tick();
+    const [pasted] = selectedClipboard(app);
+    const v = renderedView(app);
+    const middle = {
+      x: v.x + (pasted.x + pasted.w / 2) * v.z,
+      y: v.y + (pasted.y + pasted.h / 2) * v.z,
+    };
+    // Within a grid step of the middle of the canvas.
+    assert.ok(Math.abs(middle.x - 640) <= 30 * v.z, JSON.stringify(middle));
+    assert.ok(Math.abs(middle.y - 360) <= 30 * v.z, JSON.stringify(middle));
+    // Pasting again steps the copy aside rather than on top of it.
+    dispatchTransfer(app, "paste", transferData(clipboardFormats([frame])));
+    await tick();
+    const [again] = selectedClipboard(app);
+    assert.notDeepEqual([again.x, again.y], [pasted.x, pasted.y]);
+  } finally {
+    app.close();
+  }
+});
+
+test("viewers can read connector endpoints and frame and group relationships from the object outline", async () => {
+  const frame = item("frame", 0, 0, { w: 700, h: 500, text: "Review" });
+  const first = item("note", 50, 70, {
+    text: "Proposed",
+    parentId: frame.id,
+    groupId: "review-group",
+  });
+  const second = item("note", 400, 70, {
+    text: "Approuvé",
+    lang: "fr",
+    parentId: frame.id,
+    groupId: "review-group",
+  });
+  const connection = item("arrow", 240, 150, {
+    w: 160,
+    h: 0,
+    text: "Review decision",
+    startId: first.id,
+    endId: second.id,
+  });
+  const room = "accessible-object-relationships";
+  const shared = await sharedEditors(room, [frame, first, second, connection]);
+  try {
+    const [, app] = shared.apps;
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "viewer",
+    });
+    app.w.dispatchEvent(new app.w.Event("online"));
+    await shared.until(
+      () => app.doc.querySelector(".editor.shared-viewer"),
+      "Viewer access received",
+    );
+    const description = (button) => {
+      const id = button.getAttribute("aria-describedby");
+      assert.ok(
+        id,
+        "the object has a programmatically associated relationship description",
+      );
+      const node = app.doc.getElementById(id);
+      assert.ok(node, "the description resolves to an element");
+      return node;
+    };
+    const connectorDescription = description(
+      app.doc.querySelector(`#board-outline [data-id="${connection.id}"]`),
+    );
+    assert.match(connectorDescription.textContent, /Start object:.*Proposed/);
+    assert.match(connectorDescription.textContent, /End object:.*Approuvé/);
+    assert.match(connectorDescription.textContent, /End: Arrowhead/);
+    assert.equal(
+      connectorDescription.querySelector('[lang="fr"]').textContent,
+      "Approuvé",
+    );
+    const firstDescription = description(
+      app.doc.querySelector(`#board-outline [data-id="${first.id}"]`),
+    );
+    assert.match(firstDescription.textContent, /In frame:.*Review/);
+    assert.match(firstDescription.textContent, /Group 1.*2 visible objects/);
+    await app.click(`#board-outline [data-id="${connection.id}"]`);
+    await app.click('[data-action="connection-endpoints"]');
+    assert.equal(app.doc.querySelector("dialog[open]"), null);
+    assert.match(app.doc.querySelector("#toast").textContent, /read-only/);
+    await app.click('[data-action="objects"]');
+    assert.equal(
+      description(app.doc.querySelector(`[data-object="${connection.id}"]`))
+        .textContent,
+      connectorDescription.textContent,
+    );
+    app.w.eval(axe.source);
+    const scan = await app.w.axe.run(app.doc.querySelector("dialog[open]"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    app.doc.querySelector("dialog[open]").close();
+    await commitAs(shared.env.service, owner, room, (board) => {
+      board.items.find((i) => i.id === second.id).text = "Révisé";
+    });
+    app.w.dispatchEvent(new app.w.Event("online"));
+    await shared.until(
+      () =>
+        description(
+          app.doc.querySelector(`#board-outline [data-id="${connection.id}"]`),
+        ).textContent.includes("Révisé"),
+      "A changed endpoint name updates the relationship description",
+    );
+    await commitAs(shared.env.service, owner, room, (board) => {
+      board.workshop = { settings: { hide: [second.id] } };
+    });
+    app.w.dispatchEvent(new app.w.Event("online"));
+    await shared.until(
+      () => !app.doc.querySelector(`#board-outline [data-id="${second.id}"]`),
+      "The facilitator hid the endpoint",
+    );
+    assert.match(
+      description(
+        app.doc.querySelector(`#board-outline [data-id="${connection.id}"]`),
+      ).textContent,
+      /End object: Hidden object/,
+    );
+    assert.match(
+      description(
+        app.doc.querySelector(`#board-outline [data-id="${first.id}"]`),
+      ).textContent,
+      /Group 1.*1 visible object/,
+    );
+    assert.ok(
+      !app.doc.querySelector("#board-outline").textContent.includes("Révisé"),
+    );
+    await app.click('[data-action="objects"]');
+    assert.ok(
+      !app.doc.querySelector(".object-list").textContent.includes("Révisé"),
+    );
+    assert.match(
+      description(app.doc.querySelector(`[data-object="${connection.id}"]`))
+        .textContent,
+      /End object: Hidden object/,
+    );
+  } finally {
+    shared.close();
+  }
+});
+
+test("the object outline is kept while panning and follows edits", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("note", 0, 0, { text: "First" }),
+          item("note", 300, 0, { text: "Second" }),
+        ]),
+      ),
+    );
+    await tick();
+    const buttons = () => [...doc.querySelectorAll("#board-outline button")];
+    const before = buttons();
+    doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new w.WheelEvent("wheel", { deltaX: 40, deltaY: 30, bubbles: true }),
+      );
+    await tick();
+    assert.ok(
+      buttons().every((b, n) => b === before[n]),
+      "panning leaves the outline as it was",
+    );
+    await click('[data-action="lock"]');
+    assert.ok(
+      buttons().every((b) => /^Locked · Sticky note:/.test(b.textContent)),
+    );
+    await click('[data-action="lock"]');
+    await click(`#board-outline [data-id="${before[0].dataset.id}"]`);
+    assert.deepEqual(
+      buttons().map((b) => b.getAttribute("aria-pressed")),
+      ["true", "false"],
+    );
+    await click('[data-action="edit"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Renamed";
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(buttons()[0].textContent, "Sticky note: Renamed");
+    await tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("Shift-click selects and deselects an entire group", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    const pointer = (x, shiftKey = false) => {
+      for (const type of ["pointerdown", "pointerup"])
+        canvas.dispatchEvent(
+          new w.MouseEvent(type, {
+            bubbles: true,
+            clientX: x,
+            clientY: 200,
+            button: 0,
+            shiftKey,
+          }),
+        );
+    };
+    await click('[data-action="tool-note"]');
+    assert.equal(
+      doc.querySelector("#tool-hint").textContent,
+      "Click the canvas to add a sticky note",
+    );
+    pointer(200);
+    // Placing the note returns to the select tool, and the hint says so.
+    assert.equal(
+      doc
+        .querySelector('[data-action="tool-select"]')
+        .getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.equal(
+      doc.querySelector("#tool-hint").textContent,
+      "Select and move · Double-click to edit · Space to pan",
+    );
+    await click('[data-action="tool-note"]');
+    pointer(500);
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await click('[data-action="organize"]');
+    await click('[data-organize="group"]');
+    pointer(800);
+    pointer(220, true);
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      2,
+    );
+    pointer(520, true);
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      0,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("grouping shortcuts with nothing to group keep redo and say why", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("note", 0, 0, { text: "One" }),
+          item("note", 300, 0, { text: "Two" }),
+        ]),
+      ),
+    );
+    await app.tick();
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([item("note", 0, 0, { text: "Alone" })])),
+    );
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click("#board-outline button");
+    const key = (options) => {
+      const error = [];
+      const report = (e) => error.push(e.error);
+      w.addEventListener("error", report);
+      doc.querySelector("#canvas").dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key: "g",
+          ctrlKey: true,
+          bubbles: true,
+          cancelable: true,
+          ...options,
+        }),
+      );
+      w.removeEventListener("error", report);
+      return error;
+    };
+    assert.deepEqual(key({}), []);
+    assert.match(doc.querySelector("#toast").textContent, /at least two/);
+    assert.deepEqual(key({ shiftKey: true }), []);
+    assert.match(doc.querySelector("#toast").textContent, /group first/);
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "redo is still there",
+    );
+    await click('[data-action="redo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+  } finally {
+    app.close();
+  }
+});
+
+test("legacy composition keys keep the inline text draft instead of finishing or cancelling it", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "下書き";
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    for (const options of [
+      { key: "Escape" },
+      { key: "Enter", ctrlKey: true },
+      { key: "k", ctrlKey: true },
+    ]) {
+      const event = new w.KeyboardEvent("keydown", {
+        ...options,
+        keyCode: 229,
+        bubbles: true,
+        cancelable: true,
+      });
+      input.dispatchEvent(event);
+      assert.equal(doc.querySelector("#canvas-text-editor"), input);
+      assert.equal(doc.activeElement, input);
+      assert.equal(input.value, "下書き");
+      assert.equal(doc.querySelector("#text-link-url"), null);
+      assert.equal(event.defaultPrevented, false);
+    }
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    assert.equal(selectedClipboard(app)[0].text, "下書き");
+    await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("inline editing commits once, cancels safely, and persists literal user text", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  const key = (target, value, options = {}) =>
+    target.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: value,
+        bubbles: true,
+        cancelable: true,
+        ...options,
+      }),
+    );
+  const content = "A real idea\n<script>alert('no')</script> café 🪴";
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    assert.equal(
+      doc.activeElement.id,
+      "canvas-text-editor",
+      "new notes are ready to type immediately",
+    );
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = content;
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    key(input, "Delete");
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    key(input, "Enter", { ctrlKey: true, isComposing: true });
+    assert.equal(
+      doc.activeElement,
+      input,
+      "IME composition does not finish editing",
+    );
+    key(input, "Enter", { ctrlKey: true });
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    assert.match(doc.querySelector("#board-outline").textContent, /café 🪴/);
+    assert.equal(doc.querySelector("#board-outline script"), null);
+    await click('[data-action="undo"]');
+    assert.doesNotMatch(
+      doc.querySelector("#board-outline").textContent,
+      /A real idea/,
+    );
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    await click('[data-action="edit"]');
+    doc.querySelector("#canvas-text-editor").value = "Discard me";
+    key(doc.querySelector("#canvas-text-editor"), "Escape");
+    assert.doesNotMatch(
+      doc.querySelector("#board-outline").textContent,
+      /Discard me/,
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    assert.ok(
+      doc.querySelector("#board-outline").textContent.includes(content),
+    );
+    await click("#board-outline button");
+    assert.equal(
+      key(doc.querySelector("#canvas"), "Enter"),
+      false,
+      "opening the editor cancels the native Enter action so selected text is not replaced",
+    );
+    assert.equal(doc.querySelector("#canvas-text-editor").value, content);
+    doc.querySelector("#canvas-text-editor").value = "Committed on navigation";
+    await click('[data-action="home"]');
+    await tick();
+    await click("[data-open]");
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /Committed on navigation/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("typography supports mixed selections, focus retention, undo, and JSON round trips", async () => {
+  const app = await setup();
+  const { w, doc, click, tick, downloads } = app;
+  const change = (id, value) => {
+    const input = doc.querySelector(id);
+    input.value = value;
+    input.dispatchEvent(new w.Event("change", { bubbles: true }));
+  };
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    await click('[data-action="duplicate"]');
+    doc.querySelector("#format-bold").focus();
+    await click("#format-bold");
+    assert.equal(doc.activeElement.id, "format-bold");
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(
+      doc.querySelector("#format-bold").getAttribute("aria-pressed"),
+      "mixed",
+    );
+    await click("#format-bold");
+    assert.equal(
+      doc.querySelector("#format-bold").getAttribute("aria-pressed"),
+      "true",
+    );
+    change("#font-size", "30");
+    change("#text-align", "right");
+    change("#text-color", "#923355");
+    await click("#format-italic");
+    await click("#format-underline");
+    await click('[data-action="undo"]');
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(
+      doc.querySelector("#format-underline").getAttribute("aria-pressed"),
+      "false",
+    );
+    await click('[data-action="export"]');
+    change("#export-format", "json");
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    const text = await new Promise((resolve) => {
+      const reader = new w.FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsText(downloads[0]);
+    });
+    const b = JSON.parse(text);
+    assert.equal(b.items.length, 2);
+    for (const i of b.items) {
+      assert.equal(i.bold, true);
+      assert.equal(i.italic, true);
+      assert.equal(i.fontSize, 30);
+      assert.equal(i.textColor, "#923355");
+      assert.equal(i.textAlign, "right");
+      assert.ok(!i.underline);
+    }
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.equal(doc.querySelector("#font-size").value, "30");
+    assert.equal(doc.querySelector("#text-align").value, "right");
+    assert.equal(doc.querySelector("#text-color").value, "#923355");
+    await click("#text-color-auto");
+    assert.equal(doc.querySelector("#text-color").value, "#30342f");
+  } finally {
+    app.close();
+  }
+});
+
+test("inline text survives formatting and viewport changes without replacing the editor", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    await click('[data-action="edit"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Draft while styling";
+    input.setSelectionRange(5, 10);
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "b",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.querySelector("#canvas-text-editor"), input);
+    assert.equal(input.selectionStart, 5);
+    assert.deepEqual(JSON.parse(JSON.stringify(input.textRuns)), [
+      { start: 5, end: 10, style: { bold: true } },
+    ]);
+    assert.equal(input.querySelectorAll("span")[1].style.fontWeight, "600");
+    const toolbarButton = doc.querySelector("#format-bold");
+    const before = input.style.transform;
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.WheelEvent("wheel", {
+        deltaY: -50,
+        ctrlKey: true,
+        cancelable: true,
+      }),
+    );
+    assert.notEqual(input.style.transform, before);
+    assert.equal(
+      doc.querySelector("#format-bold"),
+      toolbarButton,
+      "panning and zoom do not rebuild the toolbar",
+    );
+    assert.equal(input.value, "Draft while styling");
+    await click('[data-action="finish-text"]');
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /Draft while styling/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("separate object-list clicks select an arbitrary subset without dragging or modifiers", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("rect", 0, 0, { text: "First" }),
+      item("rect", 250, 0, { text: "Middle" }),
+      item("rect", 500, 0, { text: "Last" }),
+    ]);
+    const objects = allClipboard(app);
+    await click('[data-action="objects"]');
+    assert.ok(
+      doc.querySelector("#objects-multiple"),
+      "a click alternative to marquee and Shift selection is available",
+    );
+    await click("#objects-multiple");
+    // Start with all selected, then remove the middle object with one click.
+    await click(`[data-object="${objects[1].id}"]`);
+    assert.ok(doc.querySelector("dialog"));
+    assert.equal(
+      doc
+        .querySelector(`[data-object="${objects[0].id}"]`)
+        .getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.equal(
+      doc
+        .querySelector(`[data-object="${objects[1].id}"]`)
+        .getAttribute("aria-pressed"),
+      "false",
+    );
+    const search = doc.querySelector("#object-search");
+    search.value = "Last";
+    search.dispatchEvent(new w.Event("input", { bubbles: true }));
+    await click(`[data-object="${objects[2].id}"]`);
+    await click(`[data-object="${objects[2].id}"]`);
+    w.eval(axe.source);
+    const results = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(results.violations.length, 0);
+    await click("#objects-done");
+    assert.equal(doc.activeElement.id, "canvas");
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.id),
+      [objects[0].id, objects[2].id],
+    );
+    await click('[data-action="undo"]');
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      0,
+      "selection adds no board history",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("object-list multiple selection keeps grouped members together and exposes French instructions", async () => {
+  const app = await setup(undefined, {
+    preferences: { "whiteboard-language": "fr" },
+  });
+  const { doc, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("rect", 0, 0, { text: "Grouped first", groupId: "pair" }),
+      item("rect", 250, 0, { text: "Grouped second", groupId: "pair" }),
+      item("rect", 500, 0, { text: "Separate" }),
+    ]);
+    const objects = allClipboard(app);
+    // The ordinary single-object selection remains available.
+    await click('[data-action="objects"]');
+    await click(`[data-object="${objects[2].id}"]`);
+    await click('[data-action="objects"]');
+    assert.match(
+      doc.querySelector("dialog").textContent,
+      /Sélectionner plusieurs objets/,
+    );
+    await click("#objects-multiple");
+    await click(`[data-object="${objects[0].id}"]`);
+    assert.equal(
+      doc
+        .querySelector(`[data-object="${objects[1].id}"]`)
+        .getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.equal(
+      doc.querySelector("#objects-selection-status").textContent,
+      "3 sélectionné(s)",
+    );
+    await click(`[data-object="${objects[1].id}"]`);
+    assert.equal(
+      doc
+        .querySelector(`[data-object="${objects[0].id}"]`)
+        .getAttribute("aria-pressed"),
+      "false",
+    );
+    await click("#objects-done");
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.id),
+      [objects[2].id],
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("native asynchronous dialog closing preserves object-navigation focus", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    doc.querySelector("#canvas-text-editor").value = "Preserve my text";
+    await click('[data-action="finish-text"]');
+    await click('[data-action="objects"]');
+    await click("[data-object]");
+    assert.equal(doc.activeElement.id, "canvas");
+    const enter = new w.KeyboardEvent("keydown", {
+      key: "Enter",
+      bubbles: true,
+      cancelable: true,
+    });
+    doc.activeElement.dispatchEvent(enter);
+    assert.equal(enter.defaultPrevented, true);
+    assert.equal(doc.activeElement.id, "canvas-text-editor");
+    assert.equal(doc.activeElement.value, "Preserve my text");
+  } finally {
+    app.close();
+  }
+});
+
+test("object Properties preserve language ranges after separate prefix and suffix edits", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("note", 0, 0, {
+        text: 'Hello. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 7, end: 22, style: { lang: "fr", bold: true } }],
+      }),
+    ]);
+    const original = selectedClipboard(app)[0];
+    await click('[data-action="properties"]');
+    const field = doc.querySelector("#object-text");
+    assert.equal(
+      field.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.match(field.querySelector('[lang="en-CA"]').textContent, /Hello\./);
+    assert.equal(field.querySelector("img"), null);
+    field.setSelectionRange(0, 0);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({
+        "text/plain": "NEW ",
+        "text/html": '<b lang="de">NEW </b>',
+      }),
+      field,
+    );
+    assert.equal(field.value, "NEW " + original.text);
+    assert.equal(
+      field.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(field.querySelector('[lang="de"]'), null);
+    field.setSelectionRange(field.value.length, field.value.length);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": " END" }),
+      field,
+    );
+    assert.equal(
+      field.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    w.eval(axe.source);
+    const scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click('dialog [type="submit"]');
+    const saved = selectedClipboard(app)[0];
+    assert.equal(saved.text, "NEW " + original.text + " END");
+    assert.deepEqual(saved.textRuns, [
+      { start: 11, end: 26, style: { lang: "fr", bold: true } },
+    ]);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app)[0], original);
+    await click('[data-action="redo"]');
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`#board-outline [data-id="${original.id}"]`);
+    await click('[data-action="properties"]');
+    assert.equal(
+      doc.querySelector('#object-text [lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    doc.querySelector("dialog").close();
+  } finally {
+    app.close();
+  }
+});
+
+for (const type of ["link", "file"])
+  test(`${type} label editing preserves language ranges after separate prefix and suffix edits`, async () => {
+    const app = await setup();
+    const { doc, w, click } = app;
+    try {
+      const content =
+        type === "link"
+          ? { url: "https://example.com/" }
+          : {
+              fileName: "notes.txt",
+              data: "data:application/octet-stream;base64,SGVsbG8=",
+            };
+      await rotationFixture(app, [
+        item(type, 0, 0, {
+          ...content,
+          text: 'Hello. Bonjour à tous. <img src="bad">',
+          lang: "en-CA",
+          textRuns: [{ start: 7, end: 22, style: { lang: "fr", bold: true } }],
+        }),
+        item(type, 400, 0, {
+          ...content,
+          text: "Bonjour à tous.",
+          lang: "fr-CA",
+        }),
+      ]);
+      const objects = selectedClipboard(app),
+        original = objects.find((i) => i.lang === "en-CA"),
+        whole = objects.find((i) => i.lang === "fr-CA");
+      await click(`#board-outline [data-id="${whole.id}"]`);
+      await click('[data-action="edit"]');
+      assert.equal(
+        doc.querySelector(`#${type}-label [lang="fr-CA"]`).textContent,
+        whole.text,
+      );
+      doc.querySelector("dialog").close();
+      await click(`#board-outline [data-id="${original.id}"]`);
+      await click('[data-action="edit"]');
+      const field = doc.querySelector(`#${type}-label`);
+      assert.equal(
+        field.querySelector('[lang="fr"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.match(
+        field.querySelector('[lang="en-CA"]').textContent,
+        /Hello\./,
+      );
+      assert.equal(field.querySelector("img"), null);
+      assert.equal(field.getAttribute("aria-multiline"), "false");
+      field.setSelectionRange(0, 0);
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({
+          "text/plain": "NEW ",
+          "text/html": '<b lang="de">NEW </b>',
+        }),
+        field,
+      );
+      assert.equal(field.value, "NEW " + original.text);
+      assert.equal(
+        field.querySelector('[lang="fr"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(field.querySelector('[lang="de"]'), null);
+      field.setSelectionRange(field.value.length, field.value.length);
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({ "text/plain": " END" }),
+        field,
+      );
+      assert.equal(
+        field.querySelector('[lang="fr"]').textContent,
+        "Bonjour à tous.",
+      );
+      w.eval(axe.source);
+      const scan = await w.axe.run(doc.querySelector("dialog"), {
+        rules: { "color-contrast": { enabled: false } },
+      });
+      assert.equal(scan.violations.length, 0);
+      await click("dialog .primary");
+      const saved = selectedClipboard(app)[0];
+      assert.equal(saved.text, "NEW " + original.text + " END");
+      assert.deepEqual(saved.textRuns, [
+        { start: 11, end: 26, style: { lang: "fr", bold: true } },
+      ]);
+      await click('[data-action="undo"]');
+      assert.deepEqual(
+        allClipboard(app).find((i) => i.id === original.id),
+        original,
+      );
+      await click('[data-action="redo"]');
+      await click('[data-action="home"]');
+      await click("[data-open]");
+      await click(`#board-outline [data-id="${original.id}"]`);
+      await click('[data-action="edit"]');
+      assert.equal(
+        doc.querySelector(`#${type}-label [lang="fr"]`).textContent,
+        "Bonjour à tous.",
+      );
+      doc.querySelector("dialog").close();
+    } finally {
+      app.close();
+    }
+  });
+
+test("link label validation and single-line submission remain available in both languages", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    for (const language of ["en", "fr"]) {
+      doc.querySelector("#language").value = language;
+      doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+      await app.tick();
+      await click('[data-action="more-tools"]');
+      await click('[data-feature="link"]');
+      const field = doc.querySelector("#link-label");
+      assert.equal(field.getAttribute("aria-required"), "true");
+      doc.querySelector("#link-url").value = "https://example.com/";
+      doc.querySelector("dialog form").requestSubmit();
+      assert.ok(doc.querySelector("dialog[open]"));
+      assert.equal(field.getAttribute("aria-invalid"), "true");
+      assert.equal(doc.activeElement, field);
+      assert.match(
+        doc.querySelector("#toast").textContent,
+        language === "fr" ? /Saisissez un libellé/ : /Enter a label/,
+      );
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({ "text/plain": "Docs" }),
+        field,
+      );
+      assert.equal(field.hasAttribute("aria-invalid"), false);
+      field.dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key: "Enter",
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await app.tick();
+      assert.equal(doc.querySelector("dialog[open]"), null);
+      assert.equal(selectedClipboard(app)[0].text, "Docs");
+      const saved =
+        language === "fr"
+          ? "Enregistré sur cet appareil"
+          : "Saved on this device";
+      const deadline = Date.now() + 3000;
+      while (
+        doc.querySelector("#save-state").textContent !== saved &&
+        Date.now() < deadline
+      )
+        await app.tick();
+      assert.equal(doc.querySelector("#save-state").textContent, saved);
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("table-editing fields retain the table's authored language through row changes", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("table", 0, 0, {
+        cells: [
+          ["Bonjour à tous.", '<img src="bad">'],
+          ["Deuxième ligne", "Texte"],
+        ],
+        lang: "fr-CA",
+        w: 560,
+        h: 200,
+      }),
+    ]);
+    const original = selectedClipboard(app)[0];
+    await click('[data-action="properties"]');
+    const check = () => {
+      const fields = [...doc.querySelectorAll('#cell-editor [role="textbox"]')];
+      assert.ok(fields.length >= 4);
+      for (const field of fields)
+        assert.equal(field.getAttribute("lang"), "fr-CA");
+      assert.equal(doc.querySelector("#cell-editor img"), null);
+      assert.equal(
+        doc.querySelector('[data-table="row"]').hasAttribute("lang"),
+        false,
+      );
+    };
+    check();
+    const field = doc.querySelector('[data-row="0"][data-col="0"]');
+    const label = doc.getElementById(field.getAttribute("aria-labelledby"));
+    assert.equal(label.textContent, "Row 1, Column 1");
+    assert.equal(
+      label.hasAttribute("lang"),
+      false,
+      "the control label follows the interface language",
+    );
+    field.value = "Bonjour à tout le monde.";
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    await click('[data-table="row"]');
+    check();
+    assert.equal(
+      doc.querySelectorAll('#cell-editor [role="textbox"]').length,
+      6,
+    );
+    w.eval(axe.source);
+    const scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click("dialog .primary");
+    const saved = selectedClipboard(app)[0];
+    assert.equal(saved.cells[0][0], "Bonjour à tout le monde.");
+    assert.equal(saved.lang, "fr-CA");
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app)[0], original);
+    await click('[data-action="redo"]');
+    await click(`#board-outline [data-id="${original.id}"]`);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-action="properties"]');
+    check();
+    assert.match(
+      doc.querySelector('[data-table="row"]').textContent,
+      /Ajouter une ligne/,
+    );
+    doc.querySelector("dialog").close();
+  } finally {
+    app.close();
+  }
+});
+
+test("image and drawing alternative-text fields inherit their authored language", async () => {
+  const app = await setup();
+  const { doc, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("image", 0, 0, {
+        src: createCanvas(2, 2).toDataURL(),
+        alt: "Bonjour à tous.",
+        lang: "fr-CA",
+      }),
+      item("pen", 400, 0, {
+        points: [
+          [0, 0],
+          [100, 100],
+        ],
+        w: 100,
+        h: 100,
+        alt: "Bonjour à tous.",
+        lang: "fr-CA",
+      }),
+    ]);
+    const objects = selectedClipboard(app);
+    await click(
+      `#board-outline [data-id="${objects.find((i) => i.type === "image").id}"]`,
+    );
+    await click('[data-action="properties"]');
+    assert.equal(
+      doc.querySelector("#object-alt").getAttribute("lang"),
+      "fr-CA",
+    );
+    doc.querySelector("dialog").close();
+    for (const i of objects) {
+      await click(`#board-outline [data-id="${i.id}"]`);
+      await click('[data-action="commands"]');
+      const search = doc.querySelector("#command-search");
+      search.value = "Alternative text";
+      search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+      await click('[data-command="alt-text"]');
+      assert.equal(
+        doc.querySelector("#alt-text").getAttribute("lang"),
+        "fr-CA",
+      );
+      assert.equal(doc.querySelector("#alt-text").value, i.alt);
+      doc.querySelector("dialog").close();
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("frame navigation and frame choices preserve authored language tags", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("frame", 0, 0, {
+        w: 500,
+        h: 400,
+        text: "Bonjour à tous.",
+        lang: "fr-CA",
+      }),
+      item("frame", 600, 0, {
+        w: 500,
+        h: 400,
+        text: 'Welcome. Bonjour à tous. <img src="bad">',
+        textRuns: [{ start: 9, end: 24, style: { lang: "fr" } }],
+      }),
+      item("frame", 1200, 0, { text: "", lang: "fr" }),
+    ]);
+    const checkNames = (root) => {
+      assert.equal(
+        root.querySelector('[lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(
+        root.querySelector('[lang="fr"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(
+        root.querySelector("img"),
+        null,
+        "authored names remain literal text",
+      );
+    };
+    await click('[data-action="frames"]');
+    checkNames(doc.querySelector(".frame-list"));
+    const navigation = doc.querySelector(".frame-go");
+    assert.ok(
+      !navigation.hasAttribute("aria-label"),
+      "the name uses tagged content",
+    );
+    assert.match(navigation.textContent, /Go to frame.*Bonjour à tous\./);
+    assert.equal(
+      doc.querySelectorAll(".frame-go [lang]").length,
+      2,
+      "a translated fallback does not inherit an empty frame's authored language",
+    );
+    await click("#present-frames");
+    checkNames(doc.querySelector(".slide-choices"));
+    assert.equal(doc.querySelectorAll(".slide-choices [lang]").length, 2);
+    doc.querySelector("dialog").close();
+    await click('[data-action="export"]');
+    const scope = doc.querySelector("#export-scope");
+    scope.value = "frames";
+    scope.dispatchEvent(new w.Event("change", { bubbles: true }));
+    assert.equal(doc.querySelector("#export-frames").hidden, false);
+    checkNames(doc.querySelector("#export-frames"));
+    w.eval(axe.source);
+    const results = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(results.violations.length, 0);
+    doc.querySelector("dialog").close();
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-action="frames"]');
+    checkNames(doc.querySelector(".frame-list"));
+    assert.equal(
+      doc.querySelectorAll(".frame-go strong")[2].textContent,
+      "Cadre",
+    );
+    assert.match(
+      doc.querySelectorAll(".frame-go strong")[1].textContent,
+      /Welcome\./,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("organize frame choices preserve whole-title and passage languages", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("note", -300, 0, { text: "Move me" }),
+      item("frame", 0, 0, { text: "Bonjour à tous.", lang: "fr-CA" }),
+      item("frame", 600, 0, {
+        text: 'Welcome. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 9, end: 24, style: { lang: "fr" } }],
+      }),
+      item("frame", 1200, 0, { text: "", lang: "fr" }),
+    ]);
+    const objects = selectedClipboard(app),
+      mover = objects.find((i) => i.type === "note"),
+      target = objects.find((i) => i.lang === "fr-CA");
+    await click(`#board-outline [data-id="${mover.id}"]`);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="organize"]');
+    const choices = doc.querySelector("#parent-frame");
+    assert.equal(
+      choices.querySelector('[lang="fr-CA"]').textContent,
+      target.text,
+    );
+    assert.equal(
+      choices.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.match(
+      choices.querySelector('[lang="en-CA"]').textContent,
+      /Welcome\./,
+    );
+    assert.equal(choices.querySelector("img"), null);
+    assert.equal(choices.querySelectorAll("[lang]").length, 3);
+    assert.equal(choices.querySelector("input:checked").value, "");
+    choices.querySelector(`input[value="${target.id}"]`).click();
+    w.eval(axe.source);
+    const results = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(results.violations.length, 0);
+    await click("#assign-frame");
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(
+      selectedClipboard(app).find((i) => i.id === mover.id).parentId,
+      target.id,
+    );
+    await click(`#board-outline [data-id="${mover.id}"]`);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="organize"]');
+    const translated = doc.querySelector("#parent-frame");
+    assert.equal(
+      translated.querySelector('[lang="fr-CA"]').textContent,
+      target.text,
+    );
+    assert.match(
+      translated.querySelector('[lang="en-CA"]').textContent,
+      /Welcome\./,
+    );
+    assert.match(translated.textContent, /Aucun cadre/);
+    assert.match(translated.textContent, /Cadre sans titre/);
+    translated.querySelector('input[value=""]').click();
+    await click("#assign-frame");
+    assert.equal(selectedClipboard(app)[0].parentId, undefined);
+  } finally {
+    app.close();
+  }
+});
+
+test("history frame choices preserve the saved title languages and restore the chosen frame", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("frame", 0, 0, { text: "Bonjour à tous.", lang: "fr-CA" }),
+      item("frame", 600, 0, {
+        text: 'Welcome. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 9, end: 24, style: { lang: "fr" } }],
+      }),
+      item("frame", 1200, 0, { text: "", lang: "fr" }),
+    ]);
+    const original = selectedClipboard(app).find((i) => i.lang === "en-CA");
+    const history = async () => {
+      await click('[data-action="more-tools"]');
+      await click('[data-feature="history"]');
+    };
+    await history();
+    doc.querySelector("#checkpoint-label").value = "Language checkpoint";
+    await click("#checkpoint-create");
+    for (
+      let n = 0;
+      n < 100 && !doc.querySelector("[data-revision-options]");
+      n++
+    )
+      await app.tick();
+    doc.querySelector("dialog[open]").close();
+    await click(`#board-outline [data-id="${original.id}"]`);
+    await click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "Changed title";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    await history();
+    let row;
+    for (let n = 0; n < 100 && !row; n++) {
+      row = [...doc.querySelectorAll("#local-revisions .revision-row")].find(
+        (r) => r.querySelector("strong").textContent === "Language checkpoint",
+      );
+      if (!row) await app.tick();
+    }
+    assert.ok(row, "the authored checkpoint is available");
+    row.querySelector("[data-revision-options]").click();
+    for (let n = 0; n < 100 && !doc.querySelector("#restore-frame"); n++)
+      await app.tick();
+    const choices = doc.querySelector("#restore-frame");
+    assert.equal(
+      choices.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(
+      choices.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(
+      choices.querySelector('[lang="en-CA"]').textContent,
+      original.text,
+    );
+    assert.equal(choices.querySelector("img"), null);
+    assert.equal(choices.querySelectorAll("[lang]").length, 3);
+    choices.querySelector(`input[value="${original.id}"]`).click();
+    await click('[data-part="frame"]');
+    for (let n = 0; n < 100 && doc.querySelector("dialog[open]"); n++)
+      await app.tick();
+    assert.equal(doc.querySelector("dialog[open]"), null);
+    await click(`#board-outline [data-id="${original.id}"]`);
+    assert.equal(selectedClipboard(app)[0].text, original.text);
+    assert.deepEqual(selectedClipboard(app)[0].textRuns, original.textRuns);
+  } finally {
+    app.close();
+  }
+});
+
+test("presentation names and slide outlines preserve authored language tags", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const frame = item("frame", 0, 0, {
+      w: 500,
+      h: 400,
+      text: "Bonjour à tous.",
+      lang: "fr-CA",
+    });
+    const mixed = item("frame", 600, 0, {
+      w: 500,
+      h: 400,
+      text: "Welcome. Bonjour à tous.",
+      textRuns: [{ start: 9, end: 24, style: { lang: "fr" } }],
+    });
+    await rotationFixture(app, [
+      frame,
+      item("note", 50, 80, {
+        text: "Hello. Buenos días.",
+        parentId: frame.id,
+        textRuns: [{ start: 7, end: 19, style: { lang: "es" } }],
+      }),
+      mixed,
+    ]);
+    await click('[data-action="present"]');
+    await click("#start-presentation");
+    const canvas = doc.querySelector("#slide-canvas");
+    const status = doc.querySelector("#slide-count");
+    assert.equal(
+      status.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(
+      doc.getElementById(canvas.getAttribute("aria-labelledby")).textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(
+      doc.querySelector('#slide-outline [lang="es"]').textContent,
+      "Buenos días.",
+    );
+    assert.match(
+      doc.querySelector("#slide-outline").textContent,
+      /Sticky note: Hello\. Buenos días\./,
+    );
+    await click("#slide-next");
+    assert.equal(
+      status.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(status.textContent, "2 / 2 · Welcome. Bonjour à tous.");
+    w.eval(axe.source);
+    const results = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(results.violations.length, 0);
+    await click("#slide-exit");
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="present"]');
+    await click("#start-presentation");
+    assert.equal(
+      doc.querySelector('#slide-count [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(doc.documentElement.lang, "en");
+    await click("#slide-exit");
+    await click("#board-outline button");
+    await click('[data-action="present"]');
+    await click("#present-selection");
+    assert.equal(
+      doc.querySelector("#slide-title").textContent,
+      "Selected objects",
+    );
+    assert.equal(
+      doc.querySelector("#slide-title [lang]"),
+      null,
+      "a selection title stays in the interface language",
+    );
+    assert.equal(
+      doc.querySelector('#slide-outline [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("authored language tags distinguish a French phrase from the English interface", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Welcome. Bonjour à tous.";
+    input.setSelectionRange(9, input.value.length);
+    assert.ok(
+      doc.querySelector("#content-language-options"),
+      "authors can identify the language of a selected phrase",
+    );
+    await click("#content-language-options");
+    doc.querySelector("#content-language-tag").value = "fr-CA";
+    await click("#content-language-save");
+    assert.equal(
+      input.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    await click('[data-action="finish-text"]');
+    assert.equal(doc.documentElement.lang, "en");
+    const outline = doc.querySelector("#board-outline button");
+    assert.equal(
+      outline.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.deepEqual(selectedClipboard(app)[0].textRuns, [
+      { start: 9, end: 24, style: { lang: "fr-CA" } },
+    ]);
+    await click('[data-action="board-search"]');
+    const search = doc.querySelector("#board-search-input");
+    search.value = "Bonjour";
+    search.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(
+      doc.querySelector('[data-result] [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    await click("#search-close");
+    await click('[data-action="objects"]');
+    assert.equal(
+      doc.querySelector('[data-object] [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    await click("[data-object]");
+    await click("#content-language-options");
+    doc.querySelector("#content-language-tag").value = "en-CA";
+    await click("#content-language-save");
+    assert.equal(selectedClipboard(app)[0].lang, "en-CA");
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].lang, undefined);
+    await click('[data-action="redo"]');
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].lang, "en-CA");
+    await click("#content-language-options");
+    doc.querySelector("#content-language-tag").value = 'fr" onclick="bad';
+    await click("#content-language-save");
+    assert.match(
+      doc.querySelector("#content-language-error").textContent,
+      /language tag/,
+    );
+    doc.querySelector("#canvas").focus();
+    assert.equal(selectedClipboard(app)[0].lang, "en-CA");
+    doc.querySelector("#content-language-tag").value = "";
+    await click("#content-language-save");
+    assert.equal(selectedClipboard(app)[0].lang, undefined);
+    w.eval(axe.source);
+    const result = await w.axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(result.violations.length, 0);
+  } finally {
+    app.close();
+  }
+});
+
+test("comment passage languages are accessible, survive reopening and keep the UI language", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    await click('[data-action="add-note"]');
+    await click('[data-action="finish-text"]');
+    await click('[data-action="add-comment"]');
+    const box = doc.querySelector("#comment-text");
+    box.value = "Hello. Bonjour à tous.";
+    box.setSelectionRange(7, box.value.length);
+    await click("#comment-language-options");
+    w.eval(axe.source);
+    const result = await w.axe.run(doc.querySelector("#comments-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(result.violations.length, 0);
+    doc.querySelector("#comment-language-tag").value = "fr-CA";
+    await click("#comment-language-save");
+    await click('#comment-form [type="submit"]');
+    assert.equal(
+      doc.querySelector('.comment-message [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(
+      doc.querySelector('#comment-pins [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    await click("#comments-close");
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="comments"]');
+    await click("[data-thread]");
+    assert.equal(doc.documentElement.lang, "en");
+    assert.equal(
+      doc.querySelector('.comment-message [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("content language applies to drawings and table cells without translating their authored content", async () => {
+  const app = await setup(undefined, {
+    preferences: { "whiteboard-language": "fr" },
+  });
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("pen", 0, 0, {
+        w: 100,
+        h: 100,
+        points: [
+          [0, 0],
+          [100, 100],
+        ],
+        alt: "Sales rise",
+      }),
+      item("table", 200, 0, {
+        w: 300,
+        h: 150,
+        cells: [
+          ["Name", "Role"],
+          ["Alex", "Writer"],
+        ],
+      }),
+    ]);
+    const objects = allClipboard(app);
+    for (const object of objects) {
+      await click(`[data-id="${object.id}"]`);
+      await click("#content-language-options");
+      assert.match(
+        doc.querySelector("#content-language-controls").textContent,
+        /Code de langue/,
+      );
+      doc.querySelector("#content-language-tag").value = "en";
+      await click("#content-language-save");
+      assert.equal(
+        doc.querySelector(`[data-id="${object.id}"] [lang="en"]`).textContent,
+        object.alt || object.cells.flat().join(" · "),
+      );
+    }
+    await click('[data-action="edit"]');
+    assert.equal(doc.querySelector("#table-active-cell").lang, "en");
+    assert.equal(doc.querySelector("#table-active-cell").textContent, "Name");
+    await click("#table-cell-edit");
+    assert.equal(doc.querySelector("#table-cell-input").lang, "en");
+    await click("#table-cell-done");
+    await click(`[data-id="${objects[0].id}"]`);
+    await click("#content-language-options");
+    const tag = doc.querySelector("#content-language-tag");
+    tag.value = "es";
+    tag.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.activeElement.id, "content-language-options");
+    assert.equal(selectedClipboard(app)[0].lang, "en");
+  } finally {
+    app.close();
+  }
+});
+
+test("French controls preserve user content and switch back to English", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  const changeLanguage = async (value) => {
+    doc.querySelector("#language").value = value;
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+  };
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    await click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "New board";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await changeLanguage("fr");
+    assert.equal(doc.documentElement.lang, "fr");
+    assert.equal(w.localStorage.getItem("whiteboard-language"), "fr");
+    assert.match(doc.querySelector("#board-outline").textContent, /New board/);
+    assert.equal(
+      doc
+        .querySelector('[data-action="more-tools"]')
+        .getAttribute("aria-label"),
+      "Autres outils",
+    );
+    await changeLanguage("en");
+    assert.equal(
+      doc
+        .querySelector('[data-action="more-tools"]')
+        .getAttribute("aria-label"),
+      "More tools",
+    );
+    assert.match(doc.querySelector("#board-outline").textContent, /New board/);
+  } finally {
+    app.close();
+  }
+});
+
+test("checkpoints restore content and trash preserves boards for recovery", async () => {
+  const app = await setup();
+  const { doc, click, tick } = app;
+  const count = () => doc.querySelectorAll("#board-outline [data-id]").length;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="history"]');
+    doc.querySelector("#checkpoint-label").value = "One idea";
+    await click("#checkpoint-create");
+    await click("dialog .dialog-header button");
+    await click('[data-action="duplicate"]');
+    assert.equal(count(), 2);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="history"]');
+    const row = [...doc.querySelectorAll(".revision-row")].find((r) =>
+      r.textContent.includes("One idea"),
+    );
+    assert.ok(row);
+    row.querySelector("button").click();
+    await tick();
+    assert.equal(count(), 1);
+    await click('[data-action="home"]');
+    await click("[data-more]");
+    await click("#remove-board");
+    await click("#confirm-delete");
+    assert.equal(doc.querySelectorAll(".board-card").length, 0);
+    doc.querySelector('[data-filter="trash"]').focus();
+    await click('[data-filter="trash"]');
+    assert.equal(doc.querySelectorAll(".board-card").length, 1);
+    assert.equal(
+      doc.activeElement.dataset.filter,
+      "trash",
+      "The keyboard stays on the chosen list",
+    );
+    assert.equal(
+      doc.querySelector('[data-filter="trash"]').getAttribute("aria-current"),
+      "page",
+    );
+    assert.ok(
+      !doc.querySelector('[data-filter="all"]').hasAttribute("aria-current"),
+    );
+    await click("[data-open]");
+    await click("#restore-board");
+    await click('[data-filter="all"]');
+    await click("[data-open]");
+    assert.equal(count(), 1);
+  } finally {
+    app.close();
+  }
+});
+
+test("specialist templates present ordered frames and insert reusable content", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  const count = () => doc.querySelectorAll("#board-outline [data-id]").length;
+  try {
+    await click('[data-action="templates"]');
+    assert.equal(
+      doc.querySelectorAll("[data-use]").length,
+      TEMPLATE_CATALOG.length,
+    );
+    await click('[data-use="journey"]');
+    const originalCount = count();
+    assert.ok(originalCount >= 10);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="present"]');
+    await click("#start-presentation");
+    assert.match(doc.querySelector("#slide-count").textContent, /^1 \/ 5/);
+    await click("#slide-next");
+    assert.match(doc.querySelector("#slide-count").textContent, /^2 \/ 5/);
+    await click("#slide-exit");
+    assert.equal(count(), originalCount);
+    await click("#board-outline [data-id]");
+    const selectedCount = doc.querySelectorAll(
+      '#board-outline [aria-pressed="true"]',
+    ).length;
+    await click('[data-action="organize"]');
+    await click('[data-organize="snippet"]');
+    doc.querySelector("#snippet-name").value = "My reusable section";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="templates"]');
+    await click("[data-custom]");
+    assert.equal(count(), originalCount + selectedCount);
+    await click('[data-action="undo"]');
+    assert.equal(count(), originalCount);
+  } finally {
+    app.close();
+  }
+});
+
+test("library, editor, and extended tools have accessible control structure", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    w.eval(axe.source);
+    const check = async () => {
+      const result = await w.axe.run(doc, {
+        rules: { "color-contrast": { enabled: false } },
+      });
+      assert.deepEqual(
+        Array.from(
+          result.violations,
+          (v) => `${v.id}: ${v.nodes.map((n) => n.target).join(", ")}`,
+        ),
+        [],
+      );
+    };
+    await check();
+    await click('[data-action="new"]');
+    await check();
+    await click('[data-action="add-note"]');
+    await check();
+    await click('[data-action="edit"]');
+    await check();
+    await click('[data-action="cancel-text"]');
+    await click('[data-action="more-tools"]');
+    await check();
+  } finally {
+    app.close();
+  }
+});
+test("create, edit, duplicate, undo, redo, and reopen a persisted board", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 1);
+    await click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "A tested idea";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    await tick();
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /A tested idea/,
+    );
+    await click('[data-action="duplicate"]');
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 2);
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 1);
+    await click('[data-action="redo"]');
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 2);
+    await click('[data-action="home"]');
+    assert.equal(doc.querySelectorAll(".board-card").length, 1);
+    await click("[data-open]");
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 2);
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /A tested idea/,
+    );
+  } finally {
+    app.close();
+  }
+});
+test("theme defaults to system, updates dark mode, and search/favorites filter the library", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    assert.equal(doc.querySelector("#theme").value, "system");
+    doc.querySelector("#theme").value = "dark";
+    doc.querySelector("#theme").dispatchEvent(new w.Event("change"));
+    assert.equal(doc.documentElement.dataset.theme, "dark");
+    await click('[data-template="brainstorm"]');
+    await click('[data-action="home"]');
+    await click("[data-favorite]");
+    await click('[data-filter="favorites"]');
+    assert.equal(doc.querySelectorAll(".board-card").length, 1);
+    doc.querySelector("#search").value = "no match";
+    doc.querySelector("#search").dispatchEvent(new w.Event("input"));
+    assert.equal(doc.querySelectorAll(".board-card").length, 0);
+    assert.match(
+      doc.querySelector("#board-grid").textContent,
+      /No boards found/,
+    );
+  } finally {
+    app.close();
+  }
+});
+test("keyboard creation and editing preserve input text; deletion is undoable", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.body.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "n", bubbles: true }),
+    );
+    await tick();
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 1);
+    await click('[data-action="properties"]');
+    const input = doc.querySelector("#object-text");
+    input.value = "Notes";
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Delete", bubbles: true }),
+    );
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 1);
+    await click('[aria-label="Close dialog"]');
+    doc.body.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Delete", bubbles: true }),
+    );
+    await tick();
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 0);
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 1);
+  } finally {
+    app.close();
+  }
+});
+test("Puter app environment never renders a logout option", async () => {
+  const app = await setup({
+    env: "app",
+    auth: { isSignedIn: () => true },
+    fs: {
+      read: async () => {
+        throw { code: "subject_does_not_exist" };
+      },
+      readdir: async () => [],
+    },
+  });
+  try {
+    await app.click('[data-action="cloud"]');
+    await app.click("#connect-cloud");
+    assert.doesNotMatch(
+      app.doc.querySelector("dialog").textContent,
+      /Disconnect|Sign out|Log out/,
+    );
+  } finally {
+    app.close();
+  }
+});
+test("disconnecting Puter on the organization boards list returns to all boards", async () => {
+  const env = environment();
+  const { adminCall } = await import("../worker/admin.js");
+  const org = env.service.org;
+  await adminCall(org, env.service, owner, { op: "org.setup", name: "CDS" });
+  const sdk = env.sdk(owner);
+  await sdk.kv.set("whiteboard-organization-v1", {
+    server: "https://whiteboard-test.puter.work",
+  });
+  const exec = sdk.workers.exec;
+  sdk.workers.exec = async (url, options) => {
+    const input = JSON.parse(options.body);
+    if (
+      /^(org|email|notifications|prefs|library|spaces|teams)\./.test(input.op)
+    )
+      return adminCall(org, env.service, owner, input).then(
+        (result) => Response.json(result),
+        (error) =>
+          Response.json({ message: error.message }, { status: error.status }),
+      );
+    return exec(url, options);
+  };
+  sdk.auth.signOut = () => {};
+  // The account has no cloud boards yet.
+  const read = sdk.fs.read;
+  sdk.fs.read = async (path, ...rest) => {
+    if (String(path).endsWith("catalog.json"))
+      throw { code: "subject_does_not_exist" };
+    return read(path, ...rest);
+  };
+  sdk.fs.readdir = async () => [];
+  const app = await setup(sdk);
+  try {
+    const orgFilter = () =>
+      app.doc.querySelector('[data-filter="organization"]');
+    for (let n = 0; n < 200 && !orgFilter(); n++) await app.tick();
+    await app.click('[data-filter="organization"]');
+    assert.equal(
+      app.doc.querySelector(".library-top strong").textContent,
+      "Organization boards",
+    );
+    await app.click('[data-action="cloud"]');
+    await app.click("#connect-cloud");
+    const disconnect = () =>
+      [...app.doc.querySelectorAll("dialog button")].find(
+        (b) => b.textContent === "Disconnect Puter",
+      );
+    for (let n = 0; n < 200 && !disconnect(); n++) await app.tick();
+    disconnect().click();
+    for (let n = 0; n < 200 && orgFilter(); n++) await app.tick();
+    const active = app.doc.querySelector('[aria-current="page"]');
+    assert.equal(active?.dataset.filter, "all");
+    assert.equal(
+      app.doc.querySelector(".library-top strong").textContent,
+      "All boards",
+    );
+    assert.equal(app.doc.querySelector(".board-filters").hidden, false);
+  } finally {
+    app.close();
+  }
+});
+test("website environment offers disconnect after connecting", async () => {
+  const app = await setup({
+    env: "web",
+    auth: { isSignedIn: () => true },
+    fs: {
+      read: async () => {
+        throw { code: "subject_does_not_exist" };
+      },
+      readdir: async () => [],
+    },
+  });
+  try {
+    await app.click('[data-action="cloud"]');
+    await app.click("#connect-cloud");
+    assert.match(
+      app.doc.querySelector("dialog").textContent,
+      /Disconnect Puter/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("PNG export contains actual raster bytes and board rendering uses Canvas", async () => {
+  const app = await setup();
+  try {
+    await app.click('[data-template="brainstorm"]');
+    // Opening a board can take more than a tick on a busy test machine.
+    const settle = async (ready) => {
+      for (let n = 0; n < 200 && !ready(); n++) await app.tick();
+    };
+    await settle(() => app.doc.querySelector("#canvas"));
+    assert.equal(app.doc.querySelector("#canvas").tagName, "CANVAS");
+    assert.equal(app.doc.querySelectorAll("#canvas svg").length, 0);
+    // A title of only symbols still gives the file a name.
+    const title = app.doc.querySelector("#board-title");
+    title.value = "???";
+    title.dispatchEvent(new app.w.Event("change"));
+    await app.click('[data-action="export"]');
+    app.doc.querySelector("#export-format").value = "png";
+    app.doc
+      .querySelector("dialog form")
+      .dispatchEvent(
+        new app.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    await settle(() => app.downloads.length);
+    assert.equal(app.downloads.length, 1);
+    assert.equal(app.downloads[0].type, "image/png");
+    assert.deepEqual(app.names, ["Whiteboard.png"]);
+    const bytes = await new Promise((resolve) => {
+      const reader = new app.w.FileReader();
+      reader.onload = () => resolve(new Uint8Array(reader.result));
+      reader.readAsArrayBuffer(app.downloads[0]);
+    });
+    assert.deepEqual([...bytes.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    // Vowel signs and accents typed as separate marks stay in the name.
+    for (const name of ["नमस्ते दुनिया", "Réunion d’équipe"]) {
+      title.value = name;
+      title.dispatchEvent(new app.w.Event("change"));
+      await app.click('[data-action="export"]');
+      app.doc.querySelector("#export-format").value = "png";
+      app.doc
+        .querySelector("dialog form")
+        .dispatchEvent(
+          new app.w.Event("submit", { bubbles: true, cancelable: true }),
+        );
+      const count = app.names.length;
+      await settle(() => app.names.length > count);
+    }
+    assert.deepEqual(app.names.slice(1), [
+      "नमस्ते दुनिया.png",
+      "Réunion déquipe.png",
+    ]);
+  } finally {
+    app.close();
+  }
+});
+
+function imageClipboard(app, write) {
+  app.w.ClipboardItem = class {
+    constructor(data) {
+      this.data = data;
+    }
+    static supports(type) {
+      return type === "image/png";
+    }
+  };
+  Object.defineProperty(app.w.navigator, "clipboard", {
+    configurable: true,
+    value: { write },
+  });
+}
+async function blobBytes(app, blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new app.w.FileReader();
+    reader.onload = () => resolve(Buffer.from(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsArrayBuffer(blob);
+  });
+}
+async function pngCanvas(app, blob) {
+  const bytes = await blobBytes(app, blob);
+  const image = new NativeImage();
+  await new Promise((resolve, reject) => {
+    image.onload = resolve;
+    image.onerror = reject;
+    image.src = bytes;
+  });
+  const canvas = createCanvas(image.width, image.height);
+  canvas.getContext("2d").drawImage(image, 0, 0);
+  return canvas;
+}
+
+test("copy as image writes a real PNG of a locked frame and its contents without changing selection or history", async () => {
+  const app = await setup();
+  try {
+    await app.click('[data-action="new"]');
+    const frame = item("frame", 0, 0, {
+      w: 400,
+      h: 260,
+      text: "Selected frame",
+      locked: true,
+    });
+    const note = item("note", 60, 80, {
+      w: 120,
+      h: 100,
+      parentId: frame.id,
+      color: "#ff0000",
+      text: "Included",
+    });
+    const outside = item("note", 600, 0, { text: "Exclude", color: "#0000ff" });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([frame, note, outside])),
+    );
+    await app.click("#board-outline button");
+    const selected = () =>
+      [...app.doc.querySelectorAll('#board-outline [aria-pressed="true"]')].map(
+        (b) => b.dataset.id,
+      );
+    const before = selected();
+    const undo = app.doc.querySelector('[data-action="undo"]').disabled;
+    const redo = app.doc.querySelector('[data-action="redo"]').disabled;
+    let blob,
+      writing = 0,
+      clicked = false;
+    imageClipboard(app, async ([entry]) => {
+      assert.equal(
+        clicked,
+        true,
+        "write is initiated in the user gesture, before rendering awaits fonts",
+      );
+      assert.deepEqual(Object.keys(entry.data), ["image/png"]);
+      assert.equal(typeof entry.data["image/png"].then, "function");
+      writing++;
+      blob = await entry.data["image/png"];
+    });
+    clicked = true;
+    app.doc.querySelector('[data-action="copy-image"]').click();
+    clicked = false;
+    await app.tick();
+    assert.equal(writing, 1);
+    assert.equal(blob.type, "image/png");
+    const canvas = await pngCanvas(app, blob);
+    assert.equal(canvas.width, 880);
+    assert.equal(canvas.height, 600);
+    assert.deepEqual(
+      [...canvas.getContext("2d").getImageData(190, 330, 1, 1).data],
+      [255, 0, 0, 255],
+    );
+    assert.deepEqual(
+      [...canvas.getContext("2d").getImageData(4, 4, 1, 1).data],
+      [255, 255, 255, 255],
+    );
+    assert.deepEqual(selected(), before);
+    assert.equal(app.doc.querySelector('[data-action="undo"]').disabled, undo);
+    assert.equal(app.doc.querySelector('[data-action="redo"]').disabled, redo);
+    assert.match(app.doc.querySelector("#toast").textContent, /Image copied/);
+    // Paste the actual clipboard PNG back through the existing file-transfer path.
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({}, [
+        new app.w.File([blob], "Selection.png", { type: "image/png" }),
+      ]),
+    );
+    await app.tick();
+    await app.tick();
+    assert.match(app.doc.querySelector("#board-outline").textContent, /Image:/);
+    await app.click('[data-action="undo"]');
+    assert.equal(app.doc.querySelectorAll("#board-outline button").length, 3);
+  } finally {
+    app.close();
+  }
+});
+
+test("copy image snapshots the requested objects, ignores repeat requests, caps output, and preserves text-field shortcuts", async () => {
+  const app = await setup();
+  let release;
+  try {
+    await app.click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("rect", 0, 0, { w: 10000, h: 100, color: "#ff0000" }),
+        ]),
+      ),
+    );
+    Object.defineProperty(app.doc, "fonts", {
+      value: {
+        ready: new Promise((r) => {
+          release = r;
+        }),
+      },
+    });
+    let calls = 0,
+      blob;
+    imageClipboard(app, async ([entry]) => {
+      calls++;
+      blob = await entry.data["image/png"];
+    });
+    const key = (target, extra = {}) => {
+      const event = new app.w.KeyboardEvent("keydown", {
+        key: "C",
+        ctrlKey: true,
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      });
+      target.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    assert.equal(key(app.doc.querySelector("#board-title")), false);
+    assert.equal(calls, 0);
+    assert.equal(key(app.doc.querySelector("#canvas")), true);
+    assert.equal(calls, 1);
+    key(app.doc.querySelector("#canvas"), { repeat: true });
+    await app.click('[data-action="copy-image"]');
+    assert.equal(calls, 1);
+    await app.click('[data-color="#dce5f7"]');
+    release();
+    await app.tick();
+    const image = await pngCanvas(app, blob);
+    assert.equal(image.width, 4096);
+    assert.ok(image.height <= 4096);
+    assert.deepEqual(
+      [...image.getContext("2d").getImageData(100, 25, 1, 1).data],
+      [255, 0, 0, 255],
+      "later recoloring does not change the image requested earlier",
+    );
+    assert.match(app.doc.querySelector("#toast").textContent, /Image copied/);
+  } finally {
+    release?.();
+    app.close();
+  }
+});
+
+test("blocked image copy provides a PNG preview, a fresh-gesture retry, download, and translated accessible controls", async () => {
+  const app = await setup();
+  try {
+    await app.click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([item("note", 0, 0, { text: "Clipboard fallback" })]),
+      ),
+    );
+    let calls = 0;
+    imageClipboard(app, async ([entry]) => {
+      calls++;
+      if (calls === 1)
+        throw new app.w.DOMException("Denied", "NotAllowedError");
+      assert.equal(
+        entry.data["image/png"].type,
+        "image/png",
+        "retry reuses a prepared Blob",
+      );
+    });
+    const revoked = [];
+    app.w.URL.revokeObjectURL = (url) => revoked.push(url);
+    await app.click('[data-action="copy-image"]');
+    assert.ok(app.doc.querySelector(".image-copy-preview img"));
+    assert.equal(app.downloads[0].type, "image/png");
+    const audit = await axe.run(app.doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      audit.violations.map((v) => v.id),
+      [],
+    );
+    await app.click("#retry-image-copy");
+    assert.equal(calls, 2);
+    assert.equal(app.doc.querySelector("dialog"), null);
+    assert.equal(revoked.length, 1);
+    app.w.ClipboardItem = undefined;
+    app.doc.querySelector("#language").value = "fr";
+    app.doc.querySelector("#language").dispatchEvent(new app.w.Event("change"));
+    await app.click("#board-outline button");
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="copy-image"]');
+    assert.equal(
+      app.doc.querySelector("dialog").getAttribute("aria-label"),
+      "Copier en tant qu’image",
+    );
+    assert.equal(app.doc.querySelector("#retry-image-copy"), null);
+    assert.match(
+      app.doc.querySelector("#image-copy-status").textContent,
+      /Votre navigateur/,
+    );
+    await app.click("#download-selection-image");
+    assert.equal(app.downloads.at(-1).type, "image/png");
+    assert.equal(app.doc.querySelector("dialog"), null);
+    assert.equal(revoked.length, 2);
+  } finally {
+    app.close();
+  }
+});
+
+test("leaving the board cancels a pending image copy; raster failures do not claim success or disturb the board", async () => {
+  const app = await setup();
+  let release;
+  try {
+    await app.click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([item("note", 0, 0, { text: "Keep me" })])),
+    );
+    Object.defineProperty(app.doc, "fonts", {
+      value: {
+        ready: new Promise((r) => {
+          release = r;
+        }),
+      },
+    });
+    let cancelled = false;
+    imageClipboard(app, async ([entry]) => {
+      try {
+        await entry.data["image/png"];
+      } catch (error) {
+        cancelled = true;
+        throw error;
+      }
+    });
+    await app.click('[data-action="copy-image"]');
+    await app.click('[data-action="home"]');
+    release();
+    await app.tick();
+    assert.equal(cancelled, true);
+    assert.equal(app.doc.querySelector("dialog"), null);
+    await app.click("[data-open]");
+    await app.click("#board-outline button");
+    app.w.HTMLCanvasElement.prototype.toBlob = (callback) => callback(null);
+    await app.click('[data-action="copy-image"]');
+    assert.match(
+      app.doc.querySelector("#toast").textContent,
+      /Could not prepare/,
+    );
+    assert.equal(app.doc.querySelector("dialog"), null);
+    assert.equal(app.doc.querySelectorAll("#board-outline button").length, 1);
+  } finally {
+    release?.();
+    app.close();
+  }
+});
+test("canvas pointer placement, geometric selection, and double tap edit work together", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="tool-note"]');
+    const canvas = doc.querySelector("#canvas");
+    const pointer = (type, x, y) =>
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          clientX: x,
+          clientY: y,
+          button: 0,
+        }),
+      );
+    pointer("pointerdown", 200, 200);
+    pointer("pointerup", 200, 200);
+    await tick();
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 1);
+    pointer("pointerdown", 220, 220);
+    pointer("pointerup", 220, 220);
+    pointer("pointerdown", 220, 220);
+    await tick();
+    assert.ok(doc.querySelector("#canvas-text-editor"));
+    assert.equal(doc.activeElement.id, "canvas-text-editor");
+  } finally {
+    app.close();
+  }
+});
+
+test("arrangement controls distribute and align atomically, preserve redo on no-ops, and persist", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  const selectAll = () =>
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+  const copied = () => {
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+  };
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("rect", 0, 0, { w: 80, h: 50, text: "A" }),
+          item("rect", 120, 100, { w: 120, h: 80, text: "B" }),
+          item("rect", 500, 200, { w: 40, h: 100, text: "C" }),
+        ]),
+      ),
+    );
+    const initial = copied();
+    await click('[data-action="organize"]');
+    assert.equal(
+      doc.querySelector('[data-organize="horizontal"]').disabled,
+      false,
+    );
+    assert.equal(doc.querySelector('[data-organize="front"]').disabled, true);
+    await click('[data-organize="horizontal"]');
+    const spaced = copied();
+    assert.equal(spaced[0].x, initial[0].x);
+    assert.equal(spaced[2].x, initial[2].x);
+    assert.equal(
+      spaced[1].x - spaced[0].x - spaced[0].w,
+      spaced[2].x - spaced[1].x - spaced[1].w,
+    );
+    await click('[data-action="organize"]');
+    await click('[data-organize="bottom"]');
+    const aligned = copied();
+    assert.ok(aligned.every((i) => i.y + i.h === aligned[0].y + aligned[0].h));
+    await click('[data-action="organize"]');
+    await click('[data-organize="bottom"]'); // Already aligned; do not add history.
+    await click('[data-action="undo"]');
+    selectAll();
+    assert.deepEqual(copied(), spaced);
+    await click('[data-action="organize"]');
+    await click('[data-organize="horizontal"]'); // No-op must preserve redo.
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="redo"]');
+    selectAll();
+    assert.deepEqual(copied(), aligned);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    selectAll();
+    assert.deepEqual(copied(), aligned);
+    await click("#board-outline button");
+    await click('[data-action="organize"]');
+    assert.equal(
+      doc.querySelector('[data-organize="horizontal"]').disabled,
+      true,
+    );
+    assert.equal(doc.querySelector('[data-organize="right"]').disabled, true);
+    const results = await axe.run(doc.querySelector("dialog[open]"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      results.violations.map((v) => v.id),
+      [],
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("layer menu and keyboard shortcuts preserve selection, undo correctly, and leave text inputs alone", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  const order = () =>
+    [...doc.querySelectorAll("#board-outline button")]
+      .map((b) => b.textContent.split(": ")[1])
+      .join("");
+  const shortcut = (
+    code,
+    shiftKey = false,
+    target = doc.querySelector("#canvas"),
+  ) => {
+    const e = new w.KeyboardEvent("keydown", {
+      key: code === "BracketRight" ? "]" : "[",
+      code,
+      ctrlKey: true,
+      shiftKey,
+      bubbles: true,
+      cancelable: true,
+    });
+    target.dispatchEvent(e);
+    return e;
+  };
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats(
+          ["A", "B", "C"].map((text) => item("rect", 0, 0, { text })),
+        ),
+      ),
+    );
+    await click("#board-outline button");
+    const selectedId = doc.querySelector('#board-outline [aria-pressed="true"]')
+      .dataset.id;
+    await click('[data-action="organize"]');
+    assert.equal(doc.querySelector('[data-organize="back"]').disabled, true);
+    await click('[data-organize="forward"]');
+    assert.equal(order(), "BAC");
+    assert.equal(
+      doc.querySelector('#board-outline [aria-pressed="true"]').dataset.id,
+      selectedId,
+    );
+    assert.equal(shortcut("BracketRight", true).defaultPrevented, true);
+    assert.equal(order(), "BCA");
+    shortcut("BracketLeft");
+    assert.equal(order(), "BAC");
+    shortcut("BracketLeft", true);
+    assert.equal(order(), "ABC");
+    shortcut("BracketLeft", true); // At back; no history entry.
+    await click('[data-action="undo"]');
+    assert.equal(order(), "BAC");
+    await click('[data-action="redo"]');
+    assert.equal(order(), "ABC");
+    await click("#board-outline button");
+    assert.equal(
+      shortcut("BracketRight", true, doc.querySelector("#board-title"))
+        .defaultPrevented,
+      false,
+    );
+    assert.equal(order(), "ABC");
+    await click('[data-action="edit"]');
+    assert.equal(
+      shortcut("BracketRight", true, doc.querySelector("#canvas-text-editor"))
+        .defaultPrevented,
+      false,
+    );
+    await click('[data-action="finish-text"]');
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    assert.equal(order(), "ABC");
+  } finally {
+    app.close();
+  }
+});
+
+test("locked selection blocks editing, drag, cut, deletion, formatting, and grouping without consuming undo", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  const key = (key, options = {}) =>
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...options,
+      }),
+    );
+  const copy = () => {
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+  };
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([item("note", 0, 0, { text: "Keep safe" })]),
+      ),
+    );
+    const original = copy()[0];
+    await click('[data-action="lock"]');
+    const locked = copy();
+    assert.equal(locked[0].locked, true);
+    assert.match(doc.querySelector("#board-outline").textContent, /Locked/);
+    assert.equal(
+      doc.querySelector('[data-action="lock"]').getAttribute("aria-label"),
+      "Unlock selection",
+    );
+    assert.equal(doc.querySelector("#fill-color"), null);
+    assert.equal(doc.querySelector('[data-action="delete"]'), null);
+    for (const [name, options] of [
+      ["ArrowRight", {}],
+      ["Delete", {}],
+      ["Enter", {}],
+      ["b", { ctrlKey: true }],
+      ["g", { ctrlKey: true }],
+      ["]", { ctrlKey: true, code: "BracketRight" }],
+    ])
+      key(name, options);
+    const canvas = doc.querySelector("#canvas");
+    const start = { clientX: original.x + 120, clientY: original.y + 95 };
+    for (const [type, point] of [
+      ["pointerdown", start],
+      [
+        "pointermove",
+        { clientX: start.clientX + 80, clientY: start.clientY + 90 },
+      ],
+      ["pointerup", start],
+    ])
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, { bubbles: true, button: 0, ...point }),
+      );
+    const clipboard = transferData({ "text/plain": "Existing clipboard" });
+    dispatchTransfer(app, "cut", clipboard);
+    assert.equal(clipboard.getData("text/plain"), "Existing clipboard");
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    assert.deepEqual(copy(), locked);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="organize"]');
+    assert.match(doc.querySelector("#toast").textContent, /Unlock protected/);
+    assert.equal(doc.querySelector("dialog[open]"), null);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(copy()[0], original);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    assert.equal(copy()[0].locked, true);
+    key("L", { ctrlKey: true, shiftKey: true });
+    assert.equal(copy()[0].locked, undefined);
+    key("ArrowRight");
+    assert.equal(copy()[0].x, original.x + 1);
+    await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("frame-only locks leave contents editable; bulk selection skips locks; unlock all persists and undoes", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  const key = (key, extra = {}) =>
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key,
+        ctrlKey: true,
+        bubbles: true,
+        ...extra,
+      }),
+    );
+  const copy = () => {
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+  };
+  try {
+    await click('[data-action="new"]');
+    const frame = item("frame", 0, 0, { w: 600, h: 400, text: "Frame" });
+    const child = item("note", 50, 70, { parentId: frame.id, text: "Inside" });
+    const locked = item("note", 800, 0, { locked: true, text: "Outside" });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([frame, child, locked])),
+    );
+    await click("#board-outline button");
+    assert.equal(
+      doc.querySelector('[data-action="lock"]').getAttribute("aria-label"),
+      "Lock frame",
+    );
+    await click('[data-action="lock"]');
+    assert.equal(copy().find((i) => i.type === "frame").locked, true);
+    assert.equal(copy().find((i) => i.type === "note").locked, undefined);
+    const inside = copy().find((i) => i.type === "note");
+    const canvas = doc.querySelector("#canvas");
+    for (const [type, dx] of [
+      ["pointerdown", 0],
+      ["pointermove", 20],
+      ["pointerup", 20],
+    ]) {
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: inside.x + 120 + dx,
+          clientY: inside.y + 95,
+        }),
+      );
+    }
+    assert.equal(copy().length, 1);
+    assert.equal(copy()[0].x, inside.x + 20);
+    key("a");
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      1,
+    );
+    assert.equal(copy()[0].text, "Inside");
+    key("Enter", { ctrlKey: false });
+    assert.equal(doc.querySelector("#canvas-text-editor").value, "Inside");
+    await click('[data-action="finish-text"]');
+    await click('[data-action="lock"]');
+    key("a");
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      0,
+    );
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="unlock-all"]');
+    key("a");
+    assert.ok(copy().every((i) => !i.locked));
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    assert.ok(
+      [...doc.querySelectorAll("#board-outline button")].every((b) =>
+        b.textContent.includes("Locked"),
+      ),
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    assert.ok(
+      [...doc.querySelectorAll("#board-outline button")].every((b) =>
+        b.textContent.includes("Locked"),
+      ),
+    );
+    await click("#board-outline button");
+    const results = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      results.violations.map((v) => v.id),
+      [],
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("marquee skips protected groups, explicit selection unlocks them, and lock controls retain focus in French", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    const items = [
+      item("rect", 0, 0, { text: "Frozen", groupId: "pair", locked: true }),
+      item("rect", 250, 0, { text: "Group mate", groupId: "pair" }),
+      item("rect", 500, 0, { text: "Free" }),
+    ];
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats(items)),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    for (const [type, clientX, clientY] of [
+      ["pointerdown", 100, 100],
+      ["pointermove", 1100, 600],
+      ["pointerup", 1100, 600],
+    ])
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, { bubbles: true, button: 0, clientX, clientY }),
+      );
+    const selected = doc.querySelectorAll(
+      '#board-outline [aria-pressed="true"]',
+    );
+    assert.equal(selected.length, 1);
+    assert.match(selected[0].textContent, /Free/);
+    await click("#board-outline button");
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      2,
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    assert.equal(
+      doc.querySelector("#selection-lock").getAttribute("aria-label"),
+      "Déverrouiller la sélection",
+    );
+    doc.querySelector("#selection-lock").focus();
+    await click("#selection-lock");
+    assert.equal(doc.activeElement.id, "selection-lock");
+    assert.equal(
+      doc.querySelector("#selection-lock").getAttribute("aria-label"),
+      "Verrouiller la sélection",
+    );
+    await click("#selection-lock");
+    assert.equal(doc.activeElement.id, "selection-lock");
+    assert.equal(
+      [...doc.querySelectorAll("#board-outline button")].filter((b) =>
+        b.textContent.startsWith("Verrouillé"),
+      ).length,
+      2,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("locking during a pointer gesture finishes the move and prevents subsequent pointer updates", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats([item("rect", 0, 0)])),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    const pointer = (type, clientX) =>
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX,
+          clientY: 220,
+        }),
+      );
+    pointer("pointerdown", 220);
+    pointer("pointermove", 250);
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "L",
+        ctrlKey: true,
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    const copy = () => {
+      const data = transferData();
+      dispatchTransfer(app, "copy", data);
+      return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+    };
+    const locked = copy();
+    assert.equal(locked[0].locked, true);
+    pointer("pointermove", 400);
+    pointer("pointerup", 400);
+    assert.deepEqual(copy(), locked);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(copy()[0].locked, undefined);
+    assert.equal(copy()[0].x, locked[0].x);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(copy()[0].x, locked[0].x - 30);
+  } finally {
+    app.close();
+  }
+});
+
+async function snappingBoard(app) {
+  await app.click('[data-action="new"]');
+  const canvas = app.doc.querySelector("#canvas");
+  canvas.getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1000,
+    height: 800,
+  });
+  dispatchTransfer(
+    app,
+    "drop",
+    transferData(
+      clipboardFormats([
+        item("rect", 0, 0, { w: 100, h: 80, text: "Moving" }),
+        item("rect", 300, 200, { w: 100, h: 80, text: "Target", locked: true }),
+      ]),
+    ),
+    canvas,
+    { clientX: 200, clientY: 200 },
+  );
+  await app.click("#board-outline button");
+  const pointer = (type, clientX, clientY, extra = {}) =>
+    canvas.dispatchEvent(
+      new app.w.MouseEvent(type, {
+        bubbles: true,
+        button: 0,
+        clientX,
+        clientY,
+        ...extra,
+      }),
+    );
+  const copy = () => {
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+  };
+  const key = (type, key, extra = {}) =>
+    canvas.dispatchEvent(
+      new app.w.KeyboardEvent(type, {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      }),
+    );
+  return { canvas, pointer, copy, key };
+}
+
+test("connector drawing, styling, label editing, reconnection and history work through the built editor", async () => {
+  const app = await setup();
+  const { doc, w, click, tick } = app;
+  try {
+    const { pointer, copy, key } = await snappingBoard(app);
+    // Both nodes are editable for select-all clipboard inspection.
+    await click("#board-outline button:nth-child(2)");
+    await click('[data-action="lock"]');
+    const all = () => {
+      key("keydown", "a", { ctrlKey: true });
+      return copy();
+    };
+    const nodes = all();
+    const offset = { x: 200 - nodes[0].x, y: 200 - nodes[0].y };
+    await click('[data-action="tool-arrow"]');
+    pointer("pointerdown", 250, 240);
+    pointer("pointermove", 550, 440);
+    pointer("pointerup", 550, 440);
+    const original = all().find((i) => i.type === "arrow");
+    assert.equal(original.startId, nodes[0].id);
+    assert.equal(original.endId, nodes[1].id);
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 2);
+    await click('[data-action="redo"]');
+    await click('[data-action="tool-select"]');
+    const selectLine = () => click(`#board-outline [data-id="${original.id}"]`);
+    await selectLine();
+    const change = async (selector, value) => {
+      const input = doc.querySelector(selector);
+      assert.ok(input, selector);
+      input.value = value;
+      input.dispatchEvent(new w.Event("change", { bubbles: true }));
+      await tick();
+    };
+    await change("#line-lineType", "curved");
+    await change("#line-lineStyle", "dashed");
+    await change("#line-lineWidth", "6");
+    await change("#line-startCap", "circle");
+    await change("#line-endCap", "none");
+    await click('[data-action="edit"]');
+    const editor = doc.querySelector("#canvas-text-editor");
+    editor.value = "Approved\nNext step <script>";
+    editor.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.ok(parseFloat(editor.style.height) > 45);
+    await click('[data-action="finish-text"]');
+    const styled = all().find((i) => i.id === original.id);
+    assert.equal(styled.lineType, "curved");
+    assert.equal(styled.lineWidth, 6);
+    assert.equal(styled.startCap, "circle");
+    assert.equal(styled.endCap, "none");
+    assert.equal(styled.text, "Approved\nNext step <script>");
+    assert.equal(doc.querySelectorAll("script").length, 0);
+    await selectLine();
+    const end = {
+      x: styled.x + styled.w + offset.x,
+      y: styled.y + styled.h + offset.y,
+    };
+    pointer("pointerdown", end.x, end.y);
+    pointer("pointermove", 720, 600, { altKey: true });
+    key("keydown", "Escape");
+    assert.deepEqual(
+      all().find((i) => i.id === original.id),
+      styled,
+    );
+    await selectLine();
+    pointer("pointerdown", end.x, end.y);
+    pointer("pointermove", 720, 600, { altKey: true });
+    pointer("pointerup", 720, 600);
+    const detached = all().find((i) => i.id === original.id);
+    assert.equal(detached.startId, nodes[0].id);
+    assert.equal(detached.endId, undefined);
+    assert.equal(detached.x + detached.w + offset.x, 720);
+    await click('[data-action="undo"]');
+    assert.deepEqual(
+      all().find((i) => i.id === original.id),
+      styled,
+    );
+    await selectLine();
+    pointer("pointerdown", end.x, end.y);
+    pointer("pointermove", 800, 660);
+    pointer("pointercancel", 800, 660);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="redo"]');
+    await selectLine();
+    await click('[data-action="connection-endpoints"]');
+    assert.equal(
+      doc.querySelector("#connection-start input:checked").value,
+      nodes[0].id,
+    );
+    assert.equal(doc.querySelector("#connection-end input:checked").value, "");
+    doc.querySelector(`#connection-end input[value="${nodes[1].id}"]`).click();
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(
+        new w.Event("submit", { cancelable: true, bubbles: true }),
+      );
+    assert.equal(all().find((i) => i.id === original.id).endId, nodes[1].id);
+    await selectLine();
+    const audit = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      audit.violations.map((v) => v.id),
+      [],
+    );
+    await change("#language", "fr");
+    await selectLine();
+    assert.equal(
+      doc
+        .querySelector('[data-action="connection-endpoints"]')
+        .getAttribute("aria-label"),
+      "Extrémités de connexion",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await selectLine();
+    assert.equal(doc.querySelector("#line-lineType").value, "curved");
+    assert.equal(doc.querySelector("#line-lineStyle").value, "dashed");
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#line-lineType"), null);
+    pointer("pointerdown", end.x, end.y);
+    pointer("pointermove", 900, 700);
+    pointer("pointerup", 900, 700);
+    await selectLine();
+    assert.equal(copy()[0].locked, true);
+  } finally {
+    app.close();
+  }
+});
+
+test("connection endpoint choices preserve authored languages while changing attachments", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const first = item("rect", 0, 0, {
+        text: "Bonjour à tous.",
+        lang: "fr-CA",
+      }),
+      second = item("note", 400, 0, {
+        text: 'Welcome. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 9, end: 24, style: { lang: "fr" } }],
+      });
+    await rotationFixture(app, [
+      first,
+      second,
+      item("arrow", 190, 80, {
+        w: 210,
+        h: 0,
+        startId: first.id,
+        endId: second.id,
+      }),
+    ]);
+    const objects = allClipboard(app),
+      line = objects.find((i) => i.type === "arrow"),
+      mixed = objects.find((i) => i.lang === "en-CA");
+    await click(`#board-outline [data-id="${line.id}"]`);
+    await click('[data-action="connection-endpoints"]');
+    for (const end of ["start", "end"]) {
+      const choices = doc.querySelector(`#connection-${end}`);
+      assert.equal(
+        choices.querySelector('[lang="fr-CA"]').textContent,
+        first.text,
+      );
+      assert.match(
+        choices.querySelector('[lang="en-CA"]').textContent,
+        /Welcome\./,
+      );
+      assert.equal(
+        choices.querySelector('[lang="fr"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(choices.querySelector("img"), null);
+    }
+    const start = doc.querySelector("#connection-start");
+    start.querySelector("details").open = true;
+    const choice = start.querySelector(`input[value="${mixed.id}"]`);
+    choice.focus();
+    choice.click();
+    assert.equal(start.querySelector("details").open, true);
+    assert.equal(doc.activeElement, choice);
+    assert.match(
+      start.querySelector('summary [lang="en-CA"]').textContent,
+      /Welcome\./,
+    );
+    assert.equal(doc.querySelector("#connection-start-position").hidden, true);
+    const end = doc.querySelector("#connection-end");
+    end.querySelector("details").open = true;
+    end.querySelector('input[value=""]').click();
+    assert.equal(doc.querySelector("#connection-end-position").hidden, false);
+    assert.equal(doc.querySelector("#connection-end-x").disabled, false);
+    doc.querySelector("#connection-end-x").value = "750";
+    doc.querySelector("#connection-end-y").value = "250";
+    w.eval(axe.source);
+    const scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click('dialog [type="submit"]');
+    const saved = allClipboard(app).find((i) => i.id === line.id);
+    assert.equal(saved.startId, mixed.id);
+    assert.equal(saved.endId, undefined);
+    assert.equal(saved.x + saved.w, 750);
+    assert.equal(saved.y + saved.h, 250);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), objects);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click(`#board-outline [data-id="${line.id}"]`);
+    await click('[data-action="connection-endpoints"]');
+    assert.match(
+      doc.querySelector("#connection-start legend").textContent,
+      /Objet de départ/,
+    );
+    assert.match(
+      doc.querySelector('#connection-end summary [lang="en-CA"]').textContent,
+      /Welcome\./,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("a connector's free endpoint has precise pointer-operable position fields and atomic undo", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const node = item("rect", 0, 0, { w: 100, h: 100, text: "Node" });
+    await rotationFixture(app, [
+      node,
+      item("arrow", 100, 50, { w: 100, h: 50, startId: node.id }),
+    ]);
+    const original = allClipboard(app),
+      line = original.find((i) => i.type === "arrow");
+    await click(`#board-outline [data-id="${line.id}"]`);
+    await click('[data-action="connection-endpoints"]');
+    const x = doc.querySelector("#connection-end-x"),
+      y = doc.querySelector("#connection-end-y");
+    assert.ok(
+      x && y,
+      "A free endpoint can be positioned without dragging its handle",
+    );
+    assert.equal(doc.querySelector("#connection-start-position").hidden, true);
+    assert.equal(x.disabled, false);
+    x.value = "-200.5";
+    y.value = "300.25";
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(audit.violations.length, 0);
+    await click('dialog [type="submit"]');
+    const moved = allClipboard(app),
+      after = moved.find((i) => i.id === line.id);
+    assert.equal(after.x + after.w, -200.5);
+    assert.equal(after.y + after.h, 300.25);
+    assert.equal(after.startId, line.startId);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), original);
+    await click('[data-action="redo"]');
+    assert.deepEqual(allClipboard(app), moved);
+    await click(`#board-outline [data-id="${line.id}"]`);
+    await click('[data-action="connection-endpoints"]');
+    await click('dialog [type="submit"]');
+    await click('[data-action="undo"]');
+    assert.deepEqual(
+      allClipboard(app),
+      original,
+      "Unchanged endpoint fields add no history step",
+    );
+    await click('[data-action="redo"]');
+    await click(`#board-outline [data-id="${line.id}"]`);
+    await click('[data-action="connection-endpoints"]');
+    doc.querySelector("#connection-end-x").value = "2000000";
+    await click('dialog [type="submit"]');
+    assert.equal(doc.querySelector("dialog").open, true);
+    doc.querySelector("dialog").close();
+    assert.deepEqual(allClipboard(app), moved);
+  } finally {
+    app.close();
+  }
+});
+
+test("exact endpoint positions reject stale geometry and lost access while preserving remote labels", async () => {
+  const room = "exact-endpoints-shared",
+    node = item("rect", 0, 0, { w: 100, h: 100, text: "Node" }),
+    line = item("arrow", 100, 50, { w: 100, h: 50, startId: node.id });
+  const shared = await sharedEditors(room, [node, line]);
+  try {
+    const [a, b] = shared.apps;
+    const open = async (app) => {
+      await app.click(`#board-outline [data-id="${line.id}"]`);
+      await app.click('[data-action="connection-endpoints"]');
+      return app.doc.querySelector("dialog[open]");
+    };
+    let dialog = await open(b);
+    await open(a);
+    a.doc.querySelector("#connection-end-x").value = "250";
+    await a.click('dialog [type="submit"]');
+    await shared.until(async () => {
+      const next = (await storedSharedBoard(b, room))?.items.find(
+        (i) => i.id === line.id,
+      );
+      return next && next.x + next.w === 250;
+    }, "Remote endpoint movement received");
+    dialog.querySelector("#connection-end-x").value = "300";
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    assert.equal(dialog.open, true);
+    assert.match(dialog.textContent, /object changed/);
+    dialog.close();
+    dialog = await open(b);
+    await a.click('[data-action="edit"]');
+    a.doc.querySelector("#canvas-text-editor").value = "Collaborator label";
+    await a.click('[data-action="finish-text"]');
+    await shared.until(
+      async () =>
+        (await storedSharedBoard(b, room))?.items.find((i) => i.id === line.id)
+          ?.text === "Collaborator label",
+      "Remote label received without moving endpoints",
+    );
+    dialog.querySelector("#connection-end-x").value = "275";
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    assert.equal(b.doc.querySelector("dialog[open]"), null);
+    const after = allClipboard(b).find((i) => i.id === line.id);
+    assert.equal(after.x + after.w, 275);
+    assert.equal(after.text, "Collaborator label");
+    await shared.until(async () => {
+      const next = (await storedSharedBoard(a, room))?.items.find(
+        (i) => i.id === line.id,
+      );
+      return next && next.x + next.w === 275;
+    }, "Endpoint move reaches the other editor");
+    dialog = await open(b);
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "viewer",
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => b.doc.querySelector(".editor.shared-viewer"),
+      "Revoked access received",
+    );
+    dialog.querySelector("#connection-end-x").value = "300";
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    assert.equal(dialog.open, true);
+    assert.match(dialog.textContent, /read-only/);
+    dialog.close();
+    assert.equal(
+      allClipboard(b).find((i) => i.id === line.id).x +
+        allClipboard(b).find((i) => i.id === line.id).w,
+      275,
+    );
+  } finally {
+    shared.close();
+  }
+});
+
+test("cancelled connector creation preserves redo; free endpoints support Shift and pointer cancellation", async () => {
+  const app = await setup();
+  try {
+    const { pointer, key, copy } = await snappingBoard(app);
+    await app.click('[data-action="tool-arrow"]');
+    pointer("pointerdown", 700, 200, { altKey: true });
+    pointer("pointermove", 800, 230, { altKey: true, shiftKey: true });
+    pointer("pointerup", 800, 230);
+    assert.ok(Math.abs(copy()[0].h) < 1e-8);
+    await app.click('[data-action="undo"]');
+    pointer("pointerdown", 700, 200);
+    pointer("pointermove", 800, 300);
+    key("keydown", "Escape");
+    assert.equal(app.doc.querySelectorAll("#board-outline button").length, 2);
+    assert.equal(app.doc.querySelector('[data-action="redo"]').disabled, false);
+    pointer("pointerdown", 700, 200);
+    pointer("pointerup", 700, 200);
+    assert.equal(app.doc.querySelector('[data-action="redo"]').disabled, false);
+  } finally {
+    app.close();
+  }
+});
+
+test("drag snapping is precise, Alt updates it immediately, and the gesture commits as one undo step", async () => {
+  const app = await setup();
+  try {
+    const { canvas, pointer, copy, key } = await snappingBoard(app);
+    const original = copy()[0];
+    const guidePixel = () => {
+      const [r, g, b, a] = canvas._native
+        .getContext("2d")
+        .getImageData(550, 391, 1, 1).data;
+      return a > 0 && r > g + 40 && b > g + 40;
+    };
+    pointer("pointerdown", 220, 220);
+    pointer("pointermove", 517, 417);
+    assert.equal(
+      guidePixel(),
+      true,
+      "Alignment guide is painted on the native canvas",
+    );
+    assert.equal(copy()[0].x, original.x + 300);
+    assert.equal(copy()[0].y, original.y + 200);
+    key("keydown", "Alt", { altKey: true });
+    assert.equal(guidePixel(), false, "Bypassing snapping clears the guide");
+    assert.equal(copy()[0].x, original.x + 297);
+    assert.equal(copy()[0].y, original.y + 197);
+    key("keyup", "Alt");
+    assert.equal(copy()[0].x, original.x + 300);
+    pointer("pointermove", 518, 418); // Uses starting geometry, without accumulating prior snapping.
+    assert.equal(copy()[0].x, original.x + 300);
+    pointer("pointerup", 518, 418);
+    assert.equal(guidePixel(), false, "Guides disappear after the gesture");
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    assert.deepEqual(copy()[0], original);
+    await app.click('[data-action="redo"]');
+    await app.click("#board-outline button");
+    assert.equal(copy()[0].x, original.x + 300);
+  } finally {
+    app.close();
+  }
+});
+
+test("Escape and pointer cancellation restore the scene and preserve redo, including resize gestures", async () => {
+  const app = await setup();
+  try {
+    const { pointer, copy, key } = await snappingBoard(app);
+    const original = copy()[0];
+    pointer("pointerdown", 220, 220);
+    pointer("pointermove", 517, 417);
+    pointer("pointerup", 517, 417);
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    pointer("pointerdown", 230, 230);
+    pointer("pointermove", 280, 300);
+    key("keydown", "Escape");
+    assert.deepEqual(copy()[0], original);
+    assert.equal(app.doc.querySelector('[data-action="redo"]').disabled, false);
+    pointer("pointerdown", 300, 280); // bottom-right resize handle
+    pointer("pointermove", 497, 397);
+    assert.equal(copy()[0].w, 300);
+    assert.equal(copy()[0].h, 200);
+    pointer("pointercancel", 497, 397);
+    assert.deepEqual(copy()[0], original);
+    assert.equal(app.doc.querySelector('[data-action="redo"]').disabled, false);
+    pointer("pointerdown", 300, 280);
+    pointer("pointerup", 300, 280); // Click without resize.
+    assert.equal(app.doc.querySelector('[data-action="redo"]').disabled, false);
+    await app.click('[data-action="redo"]');
+    await app.click("#board-outline button");
+    assert.equal(copy()[0].x, original.x + 300);
+  } finally {
+    app.close();
+  }
+});
+
+test("snapping toggle persists without changing undo history and keyboard nudges remain unsnapped", async () => {
+  const app = await setup();
+  try {
+    const { pointer, copy, key } = await snappingBoard(app);
+    const original = copy()[0];
+    await app.click('[data-action="toggle-snapping"]');
+    assert.equal(app.w.localStorage.getItem("whiteboard-snapping"), "false");
+    assert.equal(
+      app.doc
+        .querySelector('[data-action="toggle-snapping"]')
+        .getAttribute("aria-pressed"),
+      "false",
+    );
+    pointer("pointerdown", 220, 220);
+    pointer("pointermove", 517, 417);
+    pointer("pointerup", 517, 417);
+    assert.equal(copy()[0].x, original.x + 297);
+    await app.click('[data-action="toggle-snapping"]');
+    key("keydown", "ArrowRight");
+    assert.equal(copy()[0].x, original.x + 298);
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    assert.equal(copy()[0].x, original.x + 297);
+    await app.click('[data-action="toggle-snapping"]');
+    await app.click('[data-action="home"]');
+    await app.click("[data-open]");
+    assert.equal(
+      app.doc
+        .querySelector('[data-action="toggle-snapping"]')
+        .getAttribute("aria-pressed"),
+      "false",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("a grouped drag snaps the whole selection and keeps attached connectors following its nodes", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    const a = item("rect", 0, 0, { w: 100, h: 80, groupId: "pair", text: "A" });
+    const b = item("rect", 150, 20, {
+      w: 100,
+      h: 80,
+      groupId: "pair",
+      text: "B",
+    });
+    const target = item("rect", 500, 200, { w: 100, h: 80, text: "Target" });
+    const arrow = item("arrow", 100, 40, {
+      w: 400,
+      h: 200,
+      startId: a.id,
+      endId: target.id,
+    });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats([a, b, target, arrow])),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    const all = () => {
+      canvas.dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key: "a",
+          ctrlKey: true,
+          bubbles: true,
+        }),
+      );
+      const data = transferData();
+      dispatchTransfer(app, "copy", data);
+      return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+    };
+    const before = all();
+    await click("#board-outline button");
+    for (const [type, clientX, clientY] of [
+      ["pointerdown", 220, 220],
+      ["pointermove", 467, 317],
+      ["pointerup", 467, 317],
+    ])
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, { bubbles: true, button: 0, clientX, clientY }),
+      );
+    const moved = all();
+    assert.equal(moved[0].x - before[0].x, 250);
+    assert.equal(moved[0].y - before[0].y, 100);
+    assert.equal(moved[1].x - moved[0].x, before[1].x - before[0].x);
+    assert.equal(moved[1].y - moved[0].y, before[1].y - before[0].y);
+    assert.deepEqual(moved[2], before[2]);
+    assert.notEqual(moved[3].x, before[3].x);
+    assert.equal(moved[3].startId, moved[0].id);
+    await click('[data-action="undo"]');
+    assert.deepEqual(all(), before);
+  } finally {
+    app.close();
+  }
+});
+
+test("leaving canvas focus commits a pending snapped gesture before navigation and persistence", async () => {
+  const app = await setup();
+  try {
+    const { canvas, pointer, copy } = await snappingBoard(app);
+    const original = copy()[0];
+    pointer("pointerdown", 220, 220);
+    pointer("pointermove", 517, 417);
+    app.doc.querySelector("#board-title").focus();
+    pointer("pointermove", 650, 550); // A finished gesture must ignore stale pointer updates.
+    canvas.focus();
+    assert.equal(copy()[0].x, original.x + 300);
+    await app.click('[data-action="home"]');
+    // A board card is named by its title and described by its details.
+    const card = app.doc.querySelector("[data-open]");
+    assert.match(
+      app.doc.getElementById(card.getAttribute("aria-describedby")).textContent,
+      /\d+ objects/,
+    );
+    await app.click("[data-open]");
+    await app.click("#board-outline button");
+    assert.equal(copy()[0].x, original.x + 300);
+    app.doc.querySelector("#language").value = "fr";
+    app.doc.querySelector("#language").dispatchEvent(new app.w.Event("change"));
+    await app.tick();
+    assert.equal(
+      app.doc
+        .querySelector('[data-action="toggle-snapping"]')
+        .getAttribute("aria-label"),
+      "Alignement magnétique",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+async function resizeBoard(app) {
+  await app.click('[data-action="new"]');
+  const canvas = app.doc.querySelector("#canvas");
+  canvas.getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1000,
+    height: 800,
+  });
+  dispatchTransfer(
+    app,
+    "drop",
+    transferData(
+      clipboardFormats([
+        item("rect", 0, 20, {
+          w: 100,
+          h: 80,
+          fontSize: 20,
+          text: "A",
+          groupId: "pair",
+        }),
+        item("rect", 150, 0, {
+          w: 100,
+          h: 80,
+          fontSize: 16,
+          text: "B",
+          groupId: "pair",
+        }),
+      ]),
+    ),
+    canvas,
+    { clientX: 200, clientY: 200 },
+  );
+  await app.click("#board-outline button");
+  const copy = () => {
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+  };
+  const pointer = (type, clientX, clientY, extra = {}) =>
+    canvas.dispatchEvent(
+      new app.w.MouseEvent(type, {
+        bubbles: true,
+        button: 0,
+        clientX,
+        clientY,
+        ...extra,
+      }),
+    );
+  const key = (type, key, extra = {}) =>
+    canvas.dispatchEvent(
+      new app.w.KeyboardEvent(type, {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      }),
+    );
+  return { canvas, copy, pointer, key };
+}
+
+test("group corner resizing preserves proportions, Shift changes aspect, and cancellation/undo preserve the original scene", async () => {
+  const app = await setup();
+  try {
+    const { canvas, copy, pointer, key } = await resizeBoard(app);
+    const original = copy();
+    const handle = canvas._native
+      .getContext("2d")
+      .getImageData(450, 300, 1, 1).data;
+    assert.ok(
+      handle[0] > 240 && handle[1] > 240 && handle[2] > 240,
+      "Shared corner handle is visible",
+    );
+    pointer("pointerdown", 450, 300);
+    pointer("pointermove", 700, 350, { altKey: true });
+    assert.equal(copy()[0].w, 200);
+    assert.equal(copy()[0].h, 160);
+    assert.equal(copy()[0].fontSize, 40);
+    assert.equal(
+      copy()[1].x - copy()[0].x,
+      (original[1].x - original[0].x) * 2,
+    );
+    key("keydown", "Shift", { shiftKey: true, altKey: true });
+    assert.equal(copy()[0].w, 200);
+    assert.equal(copy()[0].h, 120);
+    assert.equal(copy()[0].fontSize, 30);
+    key("keyup", "Shift", { altKey: true });
+    assert.equal(copy()[0].h, 160);
+    key("keydown", "Escape");
+    assert.deepEqual(copy(), original);
+    pointer("pointerdown", 450, 300);
+    pointer("pointermove", 700, 350, { altKey: true });
+    pointer("pointerup", 700, 350);
+    const resized = copy();
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    assert.deepEqual(copy(), original);
+    await app.click('[data-action="redo"]');
+    await app.click("#board-outline button");
+    assert.deepEqual(copy(), resized);
+    await app.click('[data-action="home"]');
+    await app.click("[data-open]");
+    await app.click("#board-outline button");
+    assert.deepEqual(copy(), resized);
+  } finally {
+    app.close();
+  }
+});
+
+test("numeric resize supports dimensions, optional text scaling, validation, accessible controls, and no-op undo", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    const { copy } = await resizeBoard(app);
+    const original = copy();
+    await click('[data-action="resize"]');
+    const results = await axe.run(doc.querySelector("dialog[open]"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      results.violations.map((v) => v.id),
+      [],
+    );
+    const width = doc.querySelector("#resize-width");
+    width.value = "500";
+    width.dispatchEvent(new w.Event("input"));
+    assert.equal(doc.querySelector("#resize-height").value, "200");
+    await click("#resize-text");
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.equal(copy()[0].w, 200);
+    assert.equal(copy()[0].fontSize, 20);
+    await click('[data-action="resize"]');
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(copy(), original);
+    await click('[data-action="resize"]');
+    doc.querySelector("#resize-width").value = "1";
+    doc.querySelector("#resize-width").dispatchEvent(new w.Event("input"));
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.ok(doc.querySelector("dialog[open]"));
+    assert.match(doc.querySelector("#toast").textContent, /Size adjusted/);
+    await click("dialog .icon-btn");
+    assert.deepEqual(copy(), original);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+  } finally {
+    app.close();
+  }
+});
+
+test("frame boundary resizing leaves content in place, while select-all keyboard resizing scales the whole frame", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    const frame = item("frame", 0, 0, { w: 600, h: 400, text: "Frame" }),
+      child = item("note", 100, 100, { parentId: frame.id, text: "Child" });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats([frame, child])),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    await click("#board-outline button");
+    const copy = () => {
+      const data = transferData();
+      dispatchTransfer(app, "copy", data);
+      return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+    };
+    const original = copy();
+    assert.equal(
+      doc.querySelector('[data-action="resize"]').getAttribute("aria-label"),
+      "Resize frame",
+    );
+    await click('[data-action="resize"]');
+    assert.match(
+      doc.querySelector("dialog").textContent,
+      /Frame contents stay in place/,
+    );
+    assert.equal(doc.querySelector("#resize-text"), null);
+    doc.querySelector("#resize-width").value = "900";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.deepEqual(copy()[1], original[1]);
+    assert.equal(copy()[0].w, 900);
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "+",
+        ctrlKey: true,
+        altKey: true,
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.ok(Math.abs(copy()[0].w - 990) < 1e-8);
+    assert.ok(Math.abs(copy()[1].w - original[1].w * 1.1) < 1e-8);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(copy()[0].w, 900);
+    assert.deepEqual(copy()[1], original[1]);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    assert.equal(
+      doc.querySelector('[data-action="resize"]').getAttribute("aria-label"),
+      "Redimensionner le cadre",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+async function searchableBoard(app, count = 3) {
+  await app.click('[data-action="new"]');
+  const canvas = app.doc.querySelector("#canvas");
+  canvas.getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1000,
+    height: 800,
+  });
+  const items = Array.from({ length: count }, (_, n) =>
+    item(n === 1 ? "text" : "note", n * 900, 0, {
+      text:
+        n === 0
+          ? "Café <script>literal</script> launch"
+          : `Launch milestone ${n}`,
+      locked: n === 0,
+    }),
+  );
+  dispatchTransfer(app, "drop", transferData(clipboardFormats(items)), canvas, {
+    clientX: 200,
+    clientY: 200,
+  });
+  await app.tick();
+  const key = (target, key, extra = {}) => {
+    const event = new app.w.KeyboardEvent("keydown", {
+      key,
+      bubbles: true,
+      cancelable: true,
+      ...extra,
+    });
+    target.dispatchEvent(event);
+    return event;
+  };
+  const find = (value) => {
+    const input = app.doc.querySelector("#board-search-input");
+    input.value = value;
+    input.dispatchEvent(new app.w.Event("input"));
+    return input;
+  };
+  return { canvas, key, find };
+}
+
+test("board Find navigates and highlights without editing, selects locked results, preserves shortcuts and history", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  const { doc, click, w } = app;
+  try {
+    const { canvas, key, find } = await searchableBoard(app);
+    canvas.focus();
+    assert.equal(key(canvas, "f", { ctrlKey: true }).defaultPrevented, true);
+    assert.equal(doc.activeElement.id, "board-search-input");
+    assert.equal(
+      doc
+        .querySelector('[data-action="board-search"]')
+        .getAttribute("aria-expanded"),
+      "true",
+    );
+    const input = find("launch");
+    assert.equal(doc.querySelectorAll("[data-result]").length, 3);
+    assert.equal(doc.querySelector("#board-search-results script"), null);
+    assert.match(
+      doc.querySelector("#board-search-results").textContent,
+      /<script>literal<\/script>/,
+    );
+    key(input, "Enter");
+    assert.equal(
+      doc.querySelector("#board-search-position").textContent,
+      "1 / 3",
+    );
+    assert.equal(doc.activeElement, input);
+    key(input, "Enter", { shiftKey: true });
+    assert.equal(
+      doc.querySelector("#board-search-position").textContent,
+      "3 / 3",
+    );
+    key(input, "ArrowDown");
+    assert.equal(
+      doc.querySelector("#board-search-position").textContent,
+      "1 / 3",
+    );
+    key(input, "Delete");
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    await click("#search-select");
+    assert.equal(doc.querySelector("#board-search"), null);
+    assert.equal(doc.activeElement, canvas);
+    assert.match(
+      doc.querySelector("#selection-tools").textContent,
+      /Protected selection/,
+    );
+    // Searching and navigating added no undo steps: undo removes the drop batch.
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    await click('[data-action="redo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    const title = doc.querySelector("#board-title");
+    title.focus();
+    assert.equal(key(title, "f", { metaKey: true }).defaultPrevented, false);
+    assert.equal(doc.querySelector("#board-search"), null);
+    await click('[data-action="board-search"]');
+    find("no match");
+    assert.equal(doc.querySelector('[data-step="1"]').disabled, true);
+    assert.match(
+      doc.querySelector("#board-search-empty").textContent,
+      /No matching/,
+    );
+    key(doc.activeElement, "Escape");
+    assert.equal(doc.activeElement, canvas);
+    assert.equal(
+      doc
+        .querySelector('[data-action="board-search"]')
+        .getAttribute("aria-expanded"),
+      "false",
+    );
+    // French controls do not translate authored search results.
+    const language = doc.querySelector("#language");
+    language.value = "fr";
+    language.dispatchEvent(new w.Event("change"));
+    await click('[data-action="board-search"]');
+    find("cafe");
+    assert.equal(
+      doc.querySelector("#board-search").getAttribute("aria-label"),
+      "Rechercher dans le tableau",
+    );
+    assert.equal(
+      doc.querySelector("#board-search-count").textContent,
+      "1 résultat(s)",
+    );
+    assert.match(
+      doc.querySelector("#board-search-results").textContent,
+      /Café/,
+    );
+    w.eval(axe.source);
+    const report = await w.axe.run(doc.querySelector("main"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      report.violations.length,
+      0,
+      JSON.stringify(report.violations),
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("search results are paged, type-filtered, refreshed after undo, and cleared across boards", async () => {
+  const app = await setup();
+  const { doc, click, w } = app;
+  try {
+    const { find, key } = await searchableBoard(app, 125);
+    await click('[data-action="board-search"]');
+    const input = find("launch");
+    assert.equal(
+      doc.querySelector("#board-search-count").textContent,
+      "125 results",
+    );
+    assert.equal(doc.querySelectorAll("[data-result]").length, 50);
+    await click('[data-page="1"]');
+    assert.ok(doc.querySelector('[data-result="50"]'));
+    doc.querySelector('[data-page="1"]').focus();
+    await click('[data-page="1"]');
+    assert.equal(doc.querySelectorAll("[data-result]").length, 25);
+    assert.equal(doc.querySelector('[data-page="1"]').disabled, true);
+    assert.equal(
+      doc.activeElement,
+      doc.querySelector('[data-page="-1"]'),
+      "The last page hands focus from Next to Previous",
+    );
+    key(input, "Enter", { shiftKey: true });
+    assert.equal(
+      doc.querySelector("#board-search-position").textContent,
+      "125 / 125",
+    );
+    const filter = doc.querySelector("#board-search select");
+    filter.value = "text";
+    filter.dispatchEvent(new w.Event("change"));
+    assert.equal(
+      doc.querySelector("#board-search-count").textContent,
+      "1 result",
+    );
+    await click('[data-action="undo"]');
+    assert.equal(
+      doc.querySelector("#board-search-count").textContent,
+      "0 results",
+    );
+    await click('[data-action="redo"]');
+    assert.equal(
+      doc.querySelector("#board-search-count").textContent,
+      "1 result",
+    );
+    await click('[data-action="home"]');
+    assert.equal(doc.querySelector("#board-search"), null);
+    await click('[data-action="new"]');
+    await click('[data-action="board-search"]');
+    assert.equal(doc.querySelector("#board-search-input").value, "");
+    assert.equal(
+      doc.querySelector("#board-search-count").textContent,
+      "0 results",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("search highlights are transient canvas pixels, IME-safe, and navigation reveals distant matches", async () => {
+  const app = await setup();
+  const { doc, click, w, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    const items = [
+      item("rect", 0, 0, { text: "Target", color: "#f6e7a4", w: 160, h: 120 }),
+      item("rect", 300, 0, { text: "Other", color: "#f6e7a4", w: 160, h: 120 }),
+      item("rect", 2000, 0, {
+        text: "Target distant",
+        color: "#f6e7a4",
+        w: 160,
+        h: 120,
+      }),
+    ];
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats(items)),
+      canvas,
+      { clientX: 100, clientY: 200 },
+    );
+    await tick();
+    const pixel = (x, y) => [
+      ...canvas._native.getContext("2d").getImageData(x, y, 1, 1).data,
+    ];
+    const original = pixel(420, 280);
+    assert.deepEqual(original, [246, 231, 164, 255]);
+    await click('[data-action="board-search"]');
+    const input = doc.querySelector("#board-search-input");
+    input.value = "Target";
+    input.dispatchEvent(new w.InputEvent("input", { isComposing: true }));
+    assert.equal(doc.querySelectorAll("[data-result]").length, 0);
+    input.dispatchEvent(new w.CompositionEvent("compositionend"));
+    assert.equal(doc.querySelectorAll("[data-result]").length, 2);
+    assert.deepEqual(
+      pixel(120, 280),
+      original,
+      "matched fill remains full opacity",
+    );
+    assert.ok(
+      Math.abs(pixel(420, 280)[3] - 255 * 0.25) <= 1,
+      "nonmatching objects are dimmed",
+    );
+    const normaliseAlpha = pixel(420, 280);
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        isComposing: true,
+        bubbles: true,
+      }),
+    );
+    assert.ok(
+      doc.querySelector("#board-search"),
+      "IME Escape does not close search",
+    );
+    input.value = "Other";
+    input.dispatchEvent(new w.Event("input"));
+    assert.deepEqual(pixel(420, 280), original);
+    assert.equal(pixel(120, 280)[3], normaliseAlpha[3]);
+    await click("#search-close");
+    assert.deepEqual(pixel(420, 280), original, "closing removes dimming");
+    await click('[data-action="board-search"]');
+    const nextInput = doc.querySelector("#board-search-input");
+    nextInput.value = "distant";
+    nextInput.dispatchEvent(new w.Event("input"));
+    doc.querySelector("#board-search").getBoundingClientRect = () => ({
+      left: 640,
+      top: 68,
+      right: 980,
+      bottom: 500,
+      width: 340,
+      height: 432,
+    });
+    nextInput.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    // Focus fits the object into the unobscured area to the left of the panel.
+    assert.deepEqual(pixel(314, 350), original);
+    assert.equal(
+      doc.querySelector("#board-search-position").textContent,
+      "1 / 1",
+    );
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      3,
+      "preview does not change selection",
+    );
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 600,
+      height: 800,
+    });
+    doc.querySelector("#board-search").getBoundingClientRect = () => ({
+      left: 10,
+      top: 62,
+      right: 590,
+      bottom: 300,
+      width: 580,
+      height: 238,
+    });
+    nextInput.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    assert.deepEqual(
+      pixel(300, 540),
+      original,
+      "narrow-screen navigation reveals the match below search",
+    );
+    // On a phone, where the panel leaves too little room below it, the
+    // match is framed readably for when the panel closes, not at 15%.
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 390,
+      height: 605,
+    });
+    doc.querySelector("#board-search").getBoundingClientRect = () => ({
+      left: 10,
+      top: 62,
+      right: 380,
+      bottom: 425,
+      width: 370,
+      height: 363,
+    });
+    nextInput.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    assert.ok(
+      parseInt(doc.querySelector(".zoom-label").textContent) >= 50,
+      doc.querySelector(".zoom-label").textContent,
+    );
+    await click('[data-result="0"]');
+    const clipboard = transferData({ "text/plain": "keep clipboard" });
+    dispatchTransfer(app, "copy", clipboard, doc.activeElement);
+    assert.equal(clipboard.getData("text/plain"), "keep clipboard");
+    assert.equal(clipboard.getData(CLIPBOARD_TYPE), "");
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "do not insert" }),
+      doc.activeElement,
+    );
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+  } finally {
+    app.close();
+  }
+});
+
+function selectedClipboard(app) {
+  const data = transferData();
+  dispatchTransfer(app, "copy", data);
+  return JSON.parse(data.getData(CLIPBOARD_TYPE)).items;
+}
+
+function renderedView(app) {
+  const m = app.doc.querySelector("#canvas").getContext("2d").getTransform(),
+    d = Math.min(app.w.devicePixelRatio || 1, 2);
+  return { x: m.e / d, y: m.f / d, z: m.a / d };
+}
+function mapKey(app, key, extra = {}) {
+  const event = new app.w.KeyboardEvent("keydown", {
+    key,
+    bubbles: true,
+    cancelable: true,
+    ...extra,
+  });
+  app.doc.querySelector("#minimap-canvas").dispatchEvent(event);
+  return event;
+}
+
+test("minimap jumps and drags the camera without changing selection, history, or clipboard content", async () => {
+  const app = await setup();
+  const { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 700,
+    });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("rect", -1500, 0, { w: 200, h: 160, color: "#ff0000" }),
+          item("rect", 2500, 0, { w: 200, h: 160, color: "#00ff00" }),
+        ]),
+      ),
+    );
+    await tick();
+    const originals = selectedClipboard(app);
+    await click('[data-action="duplicate"]');
+    await click('[data-action="undo"]');
+    await click(`[data-id="${originals[0].id}"]`);
+    const selected = selectedClipboard(app),
+      redo = () => doc.querySelector('[data-action="redo"]').disabled;
+    assert.equal(doc.querySelector("#minimap").hidden, true);
+    assert.equal(redo(), false);
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "m",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.querySelector("#minimap").hidden, false);
+    assert.equal(
+      doc
+        .querySelector('[data-action="minimap"]')
+        .getAttribute("aria-expanded"),
+      "true",
+    );
+    const map = doc.querySelector("#minimap-canvas");
+    map.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 220,
+      height: 148,
+    });
+    assert.equal(doc.activeElement, map);
+    const ctx = map.getContext("2d"),
+      data = ctx.getImageData(0, 0, map.width, map.height).data;
+    const green = [];
+    for (let p = 0; p < data.length; p += 4)
+      if (data[p] === 0 && data[p + 1] === 255 && data[p + 2] === 0)
+        green.push({
+          x: (p / 4) % map.width,
+          y: Math.floor(p / 4 / map.width),
+        });
+    assert.ok(green.length);
+    const point = {
+      x: green.reduce((sum, p) => sum + p.x, 0) / green.length,
+      y: green.reduce((sum, p) => sum + p.y, 0) / green.length,
+    };
+    const pointer = (type, x, y) =>
+      map.dispatchEvent(
+        new w.MouseEvent(type, {
+          clientX: x,
+          clientY: y,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    const start = renderedView(app);
+    pointer("pointerdown", point.x, point.y);
+    pointer("pointerup", point.x, point.y);
+    const jumped = renderedView(app),
+      far = originals[1];
+    assert.equal(jumped.z, start.z);
+    assert.ok(Math.abs((500 - jumped.x) / jumped.z - (far.x + far.w / 2)) < 70);
+    assert.deepEqual(selectedClipboard(app), selected);
+    assert.equal(redo(), false);
+    mapKey(app, "ArrowRight");
+    assert.ok(Math.abs(renderedView(app).x - (jumped.x - 40)) < 0.001);
+    mapKey(app, "ArrowDown", { shiftKey: true });
+    assert.ok(Math.abs(renderedView(app).y - (jumped.y - 160)) < 0.001);
+    mapKey(app, "Delete");
+    mapKey(app, "d", { ctrlKey: true });
+    mapKey(app, "n");
+    assert.deepEqual(selectedClipboard(app), selected);
+    assert.equal(redo(), false);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 2);
+    const clipboard = transferData();
+    dispatchTransfer(app, "copy", clipboard, map);
+    assert.equal(clipboard.getData(CLIPBOARD_TYPE), "");
+    mapKey(app, "+", { ctrlKey: true });
+    assert.ok(renderedView(app).z > 1);
+    mapKey(app, "0", { ctrlKey: true });
+    assert.equal(renderedView(app).z, 1);
+    const beforeDrag = renderedView(app);
+    pointer("pointerdown", 20, 20);
+    pointer("pointermove", 50, 30);
+    pointer("pointercancel", 50, 30);
+    assert.deepEqual(renderedView(app), beforeDrag);
+    pointer("pointerdown", 20, 20);
+    pointer("pointermove", 50, 30);
+    mapKey(app, "Escape");
+    assert.deepEqual(renderedView(app), beforeDrag);
+    assert.equal(doc.querySelector("#minimap").hidden, false);
+    mapKey(app, "Escape");
+    assert.equal(doc.querySelector("#minimap").hidden, true);
+    assert.equal(
+      doc.activeElement,
+      doc.querySelector('[data-action="minimap"]'),
+    );
+    assert.equal(redo(), false);
+    await click('[data-action="minimap"]');
+    const checks = await axe.run(doc.querySelector("#minimap"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    assert.equal(
+      doc.querySelector("#minimap").hidden,
+      false,
+      "Visibility persists across saved boards",
+    );
+    const language = doc.querySelector("#language");
+    language.value = "fr";
+    language.dispatchEvent(new w.Event("change"));
+    await tick();
+    assert.equal(
+      doc.querySelector("#minimap").getAttribute("aria-label"),
+      "Mini-carte",
+    );
+    assert.equal(
+      doc.querySelector("#minimap-canvas").getAttribute("aria-label"),
+      "Parcourir le tableau",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("minimap follows edits and search while standard navigation shortcuts preserve editable fields", async () => {
+  const app = await setup();
+  const { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    let width = 1000;
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width,
+      height: 700,
+    });
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Map me";
+    const key = new w.KeyboardEvent("keydown", {
+      key: "m",
+      bubbles: true,
+      cancelable: true,
+    });
+    input.dispatchEvent(key);
+    assert.equal(key.defaultPrevented, false);
+    assert.equal(doc.querySelector("#minimap").hidden, true);
+    await click('[data-action="minimap"]');
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    assert.equal(selectedClipboard(app)[0].text, "Map me");
+    const image = () => doc.querySelector("#minimap-canvas").toDataURL();
+    const before = image();
+    await click('[data-color="#dce5f7"]');
+    assert.notEqual(
+      image(),
+      before,
+      "Committed styling refreshes the cached overview",
+    );
+    await click('[data-action="undo"]');
+    assert.equal(image(), before);
+    await click('[data-action="board-search"]');
+    assert.equal(doc.querySelector("#minimap").hidden, false);
+    width = 390;
+    w.dispatchEvent(new w.Event("resize"));
+    assert.equal(
+      doc.querySelector("#minimap").hidden,
+      true,
+      "Search and map do not overlap on a narrow canvas",
+    );
+    await click('[data-action="minimap"]');
+    assert.equal(doc.querySelector("#board-search"), null);
+    assert.equal(doc.querySelector("#minimap").hidden, false);
+    await click('[data-action="commands"]');
+    paletteQuery(app, "minimap");
+    await click("[data-command]");
+    assert.equal(doc.querySelector("#minimap").hidden, true);
+    const canvas = doc.querySelector("#canvas");
+    const send = (key, extra = {}) => {
+      const e = new w.KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      });
+      canvas.dispatchEvent(e);
+      return e;
+    };
+    send("0", { ctrlKey: true });
+    assert.equal(renderedView(app).z, 1);
+    send("+", { ctrlKey: true });
+    assert.ok(renderedView(app).z > 1);
+    send("-", { ctrlKey: true });
+    assert.equal(renderedView(app).z, 1);
+    const p = renderedView(app);
+    send("ArrowRight");
+    assert.equal(
+      renderedView(app).x,
+      p.x - 40,
+      "Arrow keys pan an unselected board",
+    );
+    await click("#board-outline button");
+    const old = selectedClipboard(app)[0];
+    send("ArrowRight");
+    assert.equal(
+      selectedClipboard(app)[0].x,
+      old.x + 1,
+      "Selected objects retain arrow-key movement",
+    );
+    send("2", { altKey: true, code: "Digit2" });
+    assert.ok(renderedView(app).z > 1);
+    send("1", { altKey: true, code: "Digit1" });
+    assert.ok(renderedView(app).z <= 1.25);
+    const title = doc.querySelector("#board-title");
+    const native = new w.KeyboardEvent("keydown", {
+      key: "+",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    title.dispatchEvent(native);
+    assert.equal(native.defaultPrevented, false);
+    await click('[data-action="minimap"]');
+    await click('[data-action="present"]');
+    await click("#start-presentation");
+    const slide = doc.querySelector("#slide-canvas");
+    slide.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "m",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(
+      doc.querySelector("#minimap").hidden,
+      false,
+      "Presentation key handling does not toggle the board map",
+    );
+    await click("#slide-exit");
+    await tick();
+  } finally {
+    app.close();
+  }
+});
+
+function cropFixture() {
+  const c = createCanvas(400, 240),
+    ctx = c.getContext("2d");
+  for (const [color, x, y] of [
+    ["#ff0000", 0, 0],
+    ["#00ff00", 200, 0],
+    ["#0000ff", 0, 120],
+    ["#ffff00", 200, 120],
+  ]) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, 200, 120);
+  }
+  return item("image", 0, 0, { w: 400, h: 240, src: c.toDataURL() });
+}
+async function insertCropFixture(app) {
+  app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1000,
+    height: 700,
+    right: 1000,
+    bottom: 700,
+  });
+  dispatchTransfer(
+    app,
+    "paste",
+    transferData(clipboardFormats([cropFixture()])),
+  );
+  await app.tick();
+  return selectedClipboard(app)[0];
+}
+function cropField(app, key, value) {
+  const input = app.doc.querySelector(`.image-crop-dialog [name="${key}"]`);
+  input.value = String(value);
+  input.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+}
+
+test("image cropping preserves drafts and no-op history, exports exact pixels, and restores the original", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  const { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    const original = await insertCropFixture(app);
+    await click('[data-action="duplicate"]');
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    const redo = () => doc.querySelector('[data-action="redo"]').disabled;
+    assert.equal(redo(), false);
+    await click('[data-action="crop-image"]');
+    assert.equal(doc.activeElement, doc.querySelector(".crop-move"));
+    const checks = await axe.run(doc.querySelector(".image-crop-dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    await click('.crop-panel [type="submit"]');
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    assert.equal(redo(), false, "An unchanged crop preserves redo");
+    await click('[data-action="edit"]');
+    cropField(app, "w", 200);
+    cropField(app, "h", 120);
+    cropField(app, "x", 200);
+    doc.querySelector(".crop-move").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.deepEqual(
+      selectedClipboard(app)[0],
+      original,
+      "Draft cancellation leaves source and geometry unchanged",
+    );
+    assert.equal(redo(), false);
+    await click('[data-action="crop-image"]');
+    cropField(app, "w", 200);
+    cropField(app, "h", 120);
+    cropField(app, "x", 200);
+    await click('.crop-panel [type="submit"]');
+    const cropped = selectedClipboard(app)[0];
+    assert.deepEqual(cropped.crop, {
+      x: 0.5,
+      y: 0,
+      w: 0.5,
+      h: 0.5,
+      sourceAspect: 400 / 240,
+    });
+    assert.equal(cropped.src, original.src);
+    assert.deepEqual(
+      [cropped.x, cropped.y, cropped.w, cropped.h],
+      [original.x + 200, original.y, 200, 120],
+    );
+    assert.equal(doc.activeElement, doc.querySelector("#canvas"));
+    let copied;
+    imageClipboard(app, async ([entry]) => {
+      copied = await entry.data["image/png"];
+    });
+    await click('[data-action="copy-image"]');
+    for (let n = 0; n < 30 && !copied; n++) await tick();
+    assert.ok(copied);
+    const raster = await pngCanvas(app, copied),
+      pixels = raster.getContext("2d");
+    assert.deepEqual(
+      [...pixels.getImageData(raster.width / 2, raster.height / 2, 1, 1).data],
+      [0, 255, 0, 255],
+    );
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0], cropped);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.deepEqual(
+      selectedClipboard(app)[0],
+      cropped,
+      "Crop survives saving and reopening",
+    );
+    await click('[data-action="crop-image"]');
+    await click("#crop-reset");
+    await click('.crop-panel [type="submit"]');
+    assert.deepEqual(selectedClipboard(app)[0], original);
+  } finally {
+    app.close();
+  }
+});
+
+test("crop handles support pointer cancellation, keyboard pixels, ratios, oval masks and zoom", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await insertCropFixture(app);
+    await click('[data-action="crop-image"]');
+    const right = doc.querySelector('[data-crop-handle="e"]'),
+      box = doc.querySelector(".crop-box");
+    const event = (type, x, y, target = right, extra = {}) =>
+      target.dispatchEvent(
+        new w.MouseEvent(type, {
+          clientX: x,
+          clientY: y,
+          bubbles: true,
+          cancelable: true,
+          ...extra,
+        }),
+      );
+    const width = parseFloat(box.style.width);
+    event("pointerdown", 500, 200);
+    event("pointermove", 500 - width / 2, 200);
+    assert.equal(+doc.querySelector('[name="w"]').value, 200);
+    event("pointercancel", 500 - width / 2, 200);
+    assert.equal(+doc.querySelector('[name="w"]').value, 400);
+    event("pointerdown", 500, 200);
+    event("pointermove", 500 - width / 2, 200);
+    event("pointerup", 500 - width / 2, 200);
+    assert.equal(+doc.querySelector('[name="w"]').value, 200);
+    const move = doc.querySelector(".crop-move");
+    move.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(+doc.querySelector('[name="x"]').value, 10);
+    const ratio = doc.querySelector("#crop-ratio");
+    ratio.value = "1";
+    ratio.dispatchEvent(new w.Event("change"));
+    assert.equal(
+      +doc.querySelector('[name="w"]').value,
+      +doc.querySelector('[name="h"]').value,
+    );
+    const mask = doc.querySelector("#crop-mask");
+    mask.value = "ellipse";
+    mask.dispatchEvent(new w.Event("change"));
+    assert.ok(box.classList.contains("crop-ellipse"));
+    const beforeZoom = parseFloat(box.style.width);
+    doc.querySelector(".crop-stage").dispatchEvent(
+      new w.WheelEvent("wheel", {
+        ctrlKey: true,
+        deltaY: -20,
+        clientX: 300,
+        clientY: 300,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.ok(parseFloat(box.style.width) > beforeZoom);
+    assert.equal(+doc.querySelector('[name="w"]').value, 200);
+    move.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await app.tick();
+    const saved = selectedClipboard(app)[0];
+    assert.equal(saved.crop.mask, "ellipse");
+    assert.equal(saved.w, saved.h);
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector('[data-action="crop-image"]'), null);
+    await click('[data-action="commands"]');
+    paletteQuery(app, "crop");
+    assert.match(doc.querySelector("dialog").textContent, /Unlock protected/);
+    doc.querySelector("dialog").close();
+    await app.tick();
+    await click('[data-action="lock"]');
+    const language = doc.querySelector("#language");
+    language.value = "fr";
+    language.dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-action="crop-image"]');
+    assert.equal(
+      doc.querySelector(".image-crop-dialog").getAttribute("aria-label"),
+      "Recadrer l’image",
+    );
+    assert.match(doc.querySelector("#crop-reset").textContent, /Rétablir/);
+  } finally {
+    app.close();
+  }
+});
+
+test("crop edge snapping shows a guide, Alt bypasses it, and outside click applies atomically", async () => {
+  const app = await setup();
+  const { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    const original = await insertCropFixture(app);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([item("rect", 0, 0, { w: 60, h: 60 })])),
+    );
+    await tick();
+    // Numeric properties move the neighbor through the normal serialized board import.
+    const contents = allClipboard(app);
+    contents.find((i) => i.type === "rect").x = original.x + 200;
+    contents.find((i) => i.type === "rect").y = original.y + 300;
+    await click('[data-action="delete"]');
+    dispatchTransfer(app, "paste", transferData(clipboardFormats(contents)));
+    await tick();
+    const img = allClipboard(app).find((i) => i.type === "image");
+    await click(`[data-id="${img.id}"]`);
+    await click('[data-action="crop-image"]');
+    const box = doc.querySelector(".crop-box"),
+      handle = doc.querySelector('[data-crop-handle="e"]');
+    const z = parseFloat(box.style.width) / 400;
+    const pointer = (type, x, extra = {}) =>
+      handle.dispatchEvent(
+        new w.MouseEvent(type, {
+          clientX: x,
+          clientY: 200,
+          bubbles: true,
+          cancelable: true,
+          ...extra,
+        }),
+      );
+    pointer("pointerdown", 600);
+    pointer("pointermove", 600 - 198 * z);
+    assert.equal(+doc.querySelector('[name="w"]').value, 200);
+    const canvas = doc.querySelector("#canvas"),
+      ctx = canvas.getContext("2d");
+    const imageRight = parseFloat(box.style.left) + parseFloat(box.style.width);
+    const y = parseFloat(box.style.top) + parseFloat(box.style.height) + 30;
+    const guided = [
+      ...ctx.getImageData(Math.round(imageRight) - 2, Math.round(y), 5, 14)
+        .data,
+    ];
+    pointer("pointermove", 600 - 198 * z, { altKey: true });
+    assert.equal(+doc.querySelector('[name="w"]').value, 202);
+    assert.notDeepEqual(
+      [
+        ...ctx.getImageData(Math.round(imageRight) - 2, Math.round(y), 5, 14)
+          .data,
+      ],
+      guided,
+      "Canvas guide appears only when snapped",
+    );
+    pointer("pointerup", 600 - 198 * z, { altKey: true });
+    const stage = doc.querySelector(".crop-stage");
+    for (const type of ["pointerdown", "pointerup"])
+      stage.dispatchEvent(
+        new w.MouseEvent(type, {
+          clientX: 20,
+          clientY: 600,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    assert.equal(doc.querySelector(".image-crop-dialog"), null);
+    assert.ok(Math.abs(selectedClipboard(app)[0].w - 202) < 1e-8);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${img.id}"]`);
+    assert.equal(selectedClipboard(app)[0].crop, undefined);
+    assert.equal(selectedClipboard(app)[0].w, 400);
+  } finally {
+    app.close();
+  }
+});
+
+test("delayed or failed image decoding cannot open a crop on another board", async () => {
+  const releases = [];
+  class PausedImage extends NativeImage {
+    set src(value) {
+      releases.push(() => {
+        super.src = value;
+      });
+    }
+  }
+  const app = await setup(undefined, { imageClass: PausedImage });
+  try {
+    await app.click('[data-action="new"]');
+    await insertCropFixture(app);
+    app.doc.querySelector('[data-action="crop-image"]').click();
+    await app.tick();
+    assert.equal(app.doc.querySelector(".image-crop-dialog"), null);
+    await app.click('[data-action="home"]');
+    await app.click('[data-action="new"]');
+    releases.splice(0).forEach((release) => release());
+    await app.tick();
+    await app.tick();
+    assert.equal(app.doc.querySelector(".image-crop-dialog"), null);
+    assert.equal(app.doc.querySelectorAll("#board-outline button").length, 0);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("image", 0, 0, {
+            src: "data:image/png;base64,AA==",
+            w: 100,
+            h: 100,
+          }),
+        ]),
+      ),
+    );
+    await app.tick();
+    app.doc.querySelector('[data-action="crop-image"]').click();
+    releases.splice(0).forEach((release) => release());
+    await app.tick();
+    assert.equal(app.doc.querySelector(".image-crop-dialog"), null);
+    assert.match(
+      app.doc.querySelector("#toast").textContent,
+      /decode an image/,
+    );
+  } finally {
+    app.close();
+  }
+});
+function allClipboard(app) {
+  app.doc.querySelector("#canvas").dispatchEvent(
+    new app.w.KeyboardEvent("keydown", {
+      key: "a",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  return selectedClipboard(app);
+}
+
+function paletteQuery(app, query) {
+  const input = app.doc.querySelector("#command-search");
+  assert.ok(input, "Command search is open");
+  input.value = query;
+  input.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+  return input;
+}
+
+test("command palette supports keyboard search, IME, paging, cancellation and direct creation without stealing text shortcuts", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  const { doc, w, click } = app;
+  const key = (target, value, extra = {}) =>
+    target.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: value,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      }),
+    );
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.focus();
+    assert.equal(key(canvas, "k", { ctrlKey: true }), false);
+    assert.equal(doc.activeElement.id, "command-search");
+    const palette = doc.querySelector(".command-palette");
+    assert.equal(palette.querySelectorAll('[role="option"]').length, 50);
+    const input = paletteQuery(app, "");
+    const first = input.getAttribute("aria-activedescendant");
+    key(input, "ArrowDown");
+    assert.notEqual(input.getAttribute("aria-activedescendant"), first);
+    key(input, "PageDown");
+    assert.ok(palette.querySelectorAll('[role="option"]').length <= 50);
+    assert.equal(palette.querySelector("#commands-prev").disabled, false);
+    key(input, "PageUp");
+    const checks = await axe.run(palette, {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    paletteQuery(app, "No such command <img src=x onerror=bad()>");
+    assert.equal(palette.querySelectorAll('[role="option"]').length, 0);
+    assert.equal(input.hasAttribute("aria-activedescendant"), false);
+    key(input, "Enter");
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    paletteQuery(app, "post-it");
+    input.dispatchEvent(new w.Event("compositionstart"));
+    key(input, "Enter", { isComposing: true });
+    key(input, "Escape", { keyCode: 229 });
+    assert.ok(palette.open);
+    assert.equal(
+      palette.dispatchEvent(new w.Event("cancel", { cancelable: true })),
+      false,
+    );
+    input.dispatchEvent(new w.Event("compositionend"));
+    key(input, "Enter");
+    await app.tick();
+    assert.equal(doc.querySelector(".command-palette"), null);
+    const editor = doc.querySelector("#canvas-text-editor");
+    assert.equal(
+      doc.activeElement,
+      editor,
+      "Late dialog close does not steal editor focus",
+    );
+    editor.value = "Created through command search";
+    assert.equal(
+      key(editor, "k", { metaKey: true }),
+      true,
+      "Native text shortcuts are not intercepted",
+    );
+    assert.equal(doc.querySelector(".command-palette"), null);
+    await click('[data-action="finish-text"]');
+    const before = selectedClipboard(app);
+    await click('[data-action="commands"]');
+    const search = paletteQuery(app, "delete");
+    key(search, "Escape");
+    await app.tick();
+    assert.deepEqual(selectedClipboard(app), before);
+    await click('[data-action="undo"]');
+    assert.equal(
+      allClipboard(app)[0].text,
+      "",
+      "Opening/searching/cancelling adds no undo step",
+    );
+    const redo = doc.querySelector('[data-action="redo"]');
+    assert.equal(redo.disabled, false);
+    await click('[data-action="commands"]');
+    key(doc.querySelector("#command-search"), "k", { ctrlKey: true });
+    await app.tick();
+    assert.equal(doc.querySelector(".command-palette"), null);
+    assert.equal(redo.disabled, false);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="commands"]');
+    paletteQuery(app, "find on board");
+    await click('[data-command="board-search"]');
+    assert.equal(doc.activeElement.id, "board-search-input");
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("command palette executes arrangement and formatting atomically and explains unavailable selection commands", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  const run = async (query, id) => {
+    await click('[data-action="commands"]');
+    paletteQuery(app, query);
+    await click(`[data-command="${id}"]`);
+  };
+  try {
+    await click('[data-action="new"]');
+    await run("delete", "delete");
+    assert.ok(doc.querySelector(".command-palette").open);
+    assert.match(doc.querySelector("#command-error").textContent, /Select/);
+    doc.querySelector("dialog").close();
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("note", 0, 0, { text: "First" }),
+          item("rect", 400, 80),
+          item("ellipse", 800, 160),
+        ]),
+      ),
+    );
+    const original = selectedClipboard(app);
+    await run("align top", "arrange:top");
+    const aligned = selectedClipboard(app);
+    assert.ok(aligned.every((i) => i.y === aligned[0].y));
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), original);
+    await click('[data-action="redo"]');
+    allClipboard(app);
+    await run("group selection", "arrange:group");
+    assert.ok(selectedClipboard(app).every((i) => i.groupId));
+    await run("bold", "format:bold");
+    assert.ok(selectedClipboard(app).every((i) => i.bold));
+    await run("ungroup", "arrange:ungroup");
+    assert.ok(selectedClipboard(app).every((i) => !i.groupId));
+    await click("#board-outline button:first-child");
+    await run("lock selection", "lock");
+    const locked = selectedClipboard(app);
+    await run("delete", "delete");
+    assert.match(doc.querySelector("#command-error").textContent, /Unlock/);
+    doc.querySelector("dialog").close();
+    assert.deepEqual(selectedClipboard(app), locked);
+    await run("unlock selection", "lock");
+    assert.ok(!selectedClipboard(app)[0].locked);
+    await run("decision", "shape:diamond");
+    assert.equal(doc.activeElement.id, "canvas-text-editor");
+    await click('[data-action="finish-text"]');
+    assert.equal(selectedClipboard(app)[0].shape, "diamond");
+    await run("text", "add:text");
+    assert.equal(doc.activeElement.id, "canvas-text-editor");
+    await click('[data-action="finish-text"]');
+    assert.equal(selectedClipboard(app)[0].type, "text");
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("command palette searches literal recent-board names, preserves navigation saves and translates commands", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  const { doc, w, click } = app;
+  const name = (value) => {
+    doc.querySelector("#board-title").value = value;
+    doc.querySelector("#board-title").dispatchEvent(new w.Event("change"));
+  };
+  try {
+    await click('[data-action="new"]');
+    name("Research café <img src=x onerror=window.bad=true>");
+    await click('[data-action="add-note"]');
+    doc.querySelector("#canvas-text-editor").value = "Saved before switching";
+    await click('[data-action="finish-text"]');
+    await click('[data-action="home"]');
+    const firstId = doc.querySelector("[data-open]").dataset.open;
+    await click('[data-action="new"]');
+    name("Undo");
+    await click('[data-action="commands"]');
+    paletteQuery(app, "research cafe");
+    assert.equal(doc.querySelector("#command-results img"), null);
+    assert.equal(w.bad, undefined);
+    await click(`[data-command="board:${firstId}"]`);
+    await app.tick();
+    assert.match(doc.querySelector("#board-title").value, /Research café/);
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /Saved before switching/,
+    );
+    assert.equal(
+      JSON.parse(w.localStorage.getItem("whiteboard-recent-boards"))[0],
+      firstId,
+    );
+    await click('[data-action="home"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-action="commands"]');
+    const query = paletteQuery(app, "Undo");
+    assert.equal(
+      query.getAttribute("placeholder"),
+      "Rechercher des commandes et des tableaux",
+    );
+    assert.equal(
+      doc.querySelector("#command-results strong").textContent,
+      "Undo",
+      "Board names are never translated",
+    );
+    await click('[data-command^="board:"]');
+    await click('[data-action="commands"]');
+    paletteQuery(app, "note adhesive");
+    await click('[data-command="add:note"]');
+    await click('[data-action="finish-text"]');
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("automatic text height grows drafts, follows typography and width, cancels cleanly and persists", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  const change = (selector, value, event = "change") => {
+    const control = doc.querySelector(selector);
+    control.value = value;
+    control.dispatchEvent(new w.Event(event, { bubbles: true }));
+  };
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    await click('[data-action="commands"]');
+    paletteQuery(app, "Text");
+    await click('[data-command="add:text"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    const initialHeight = parseFloat(input.style.height);
+    assert.equal(
+      doc.querySelector("#auto-height-text").getAttribute("aria-pressed"),
+      "true",
+    );
+    const content =
+      "A paragraph with enough detail to wrap inside a chosen width.\n".repeat(
+        8,
+      );
+    input.value = content;
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.ok(parseFloat(input.style.height) > initialHeight);
+    assert.equal(parseFloat(input.style.fontSize), 28);
+    assert.ok(
+      parseFloat(input.style.top) < 320,
+      "The viewport follows the typing caret",
+    );
+    assert.equal(
+      input.style.overflow,
+      "hidden",
+      "Scrollbar gutters cannot change wrapping width",
+    );
+    input.setSelectionRange(0, 0);
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Home", bubbles: true }),
+    );
+    await app.tick();
+    assert.ok(
+      parseFloat(input.style.top) >= 119,
+      "Keyboard navigation reveals the beginning of a tall box",
+    );
+    assert.equal(input.scrollTop, 0);
+    assert.doesNotMatch(
+      doc.querySelector("#board-outline").textContent,
+      /A paragraph/,
+      "Draft text is not saved",
+    );
+    input.setSelectionRange(3, 12);
+    await click("#format-bold");
+    assert.equal(doc.querySelector("#canvas-text-editor"), input);
+    assert.equal(input.selectionStart, 3);
+    assert.equal(input.selectionEnd, 12);
+    const draftHeight = parseFloat(input.style.height);
+    await click('[data-action="finish-text"]');
+    const saved = selectedClipboard(app)[0];
+    assert.equal(saved.text, content);
+    assert.equal(saved.h, draftHeight);
+    assert.equal(saved.w, 280);
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app)[0].text, "Your text");
+    assert.equal(selectedClipboard(app)[0].h, initialHeight);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    await click('[data-action="edit"]');
+    change("#canvas-text-editor", "Short", "input");
+    assert.equal(
+      parseFloat(doc.querySelector("#canvas-text-editor").style.height),
+      initialHeight,
+    );
+    await click('[data-action="cancel-text"]');
+    assert.deepEqual(selectedClipboard(app)[0], saved);
+    await click('[data-action="resize"]');
+    assert.equal(doc.querySelector("#resize-height").readOnly, true);
+    change("#resize-width", "560", "input");
+    assert.ok(+doc.querySelector("#resize-height").value < saved.h);
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    const wider = selectedClipboard(app)[0];
+    assert.equal(wider.w, 560);
+    assert.ok(wider.h < saved.h);
+    assert.equal(wider.fontSize, saved.fontSize);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app)[0], saved);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    change("#font-size", "40");
+    assert.ok(selectedClipboard(app)[0].h > wider.h);
+    await click('[data-action="properties"]');
+    assert.equal(doc.querySelector("#object-height").readOnly, true);
+    doc.querySelector("dialog").close();
+    const checks = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    const final = selectedClipboard(app)[0];
+    await click('[data-action="home"]');
+    change("#language", "fr");
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0], final);
+    assert.equal(
+      doc.querySelector("#auto-height-text").textContent,
+      "Hauteur auto",
+    );
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#auto-height-text"), null);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("automatic height preserves manual layouts, handles mixed selections and pointer resize cancellation with connectors", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    const manual = item("text", 0, 0, {
+      w: 240,
+      h: 180,
+      text: "First longer line\nSecond longer line\nThird longer line",
+    });
+    const flowing = item("text", 400, 0, {
+      autoHeight: true,
+      w: 280,
+      text: "A longer thought with useful detail that wraps across lines.",
+    });
+    const note = item("note", 800, 0, { text: "A note" });
+    const line = item("arrow", 0, 0, { startId: manual.id, endId: flowing.id });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats([manual, flowing, note, line])),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    await app.tick();
+    const imported = allClipboard(app);
+    assert.equal(imported[0].h, 180);
+    assert.equal(
+      doc.querySelector("#auto-height-text").getAttribute("aria-pressed"),
+      "mixed",
+    );
+    await click("#auto-height-text");
+    const enabled = selectedClipboard(app);
+    assert.equal(enabled[0].autoHeight, true);
+    assert.equal(enabled[1].autoHeight, true);
+    assert.equal(enabled[2].autoHeight, undefined);
+    assert.equal(enabled[2].h, imported[2].h);
+    const id = enabled[0].id;
+    await click(`#board-outline [data-id="${id}"]`);
+    const before = selectedClipboard(app)[0];
+    const pointer = (type, x, y) =>
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          clientX: x + 110,
+          clientY: y + 85,
+          bubbles: true,
+          button: 0,
+          altKey: true,
+        }),
+      );
+    pointer("pointerdown", before.x + before.w, before.y + before.h);
+    pointer("pointermove", before.x + before.w / 2, before.y + before.h + 200);
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.deepEqual(
+      allClipboard(app),
+      enabled,
+      "Cancelling restores text boxes and their connectors",
+    );
+    await click(`#board-outline [data-id="${id}"]`);
+    pointer("pointerdown", before.x + before.w, before.y + before.h);
+    pointer("pointermove", before.x + before.w / 2, before.y + before.h + 200);
+    pointer("pointerup", before.x + before.w / 2, before.y + before.h + 200);
+    const resized = selectedClipboard(app)[0];
+    assert.equal(resized.w, before.w / 2);
+    assert.ok(resized.h > before.h);
+    assert.equal(resized.fontSize, before.fontSize);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), enabled);
+    await click(`#board-outline [data-id="${id}"]`);
+    const size = doc.querySelector("#font-size");
+    size.value = "8";
+    size.dispatchEvent(new w.Event("change", { bubbles: true }));
+    await click("#auto-height-text");
+    const fixed = selectedClipboard(app)[0];
+    assert.ok(fixed.h < 45);
+    await click('[data-action="properties"]');
+    assert.equal(
+      doc.querySelector("dialog form").reportValidity(),
+      true,
+      "A compact text box remains editable after disabling automatic height",
+    );
+    doc.querySelector("dialog").close();
+    await click('[data-action="edit"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "More\nlines\nthan\nbefore\nwhile\nfixed";
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(parseFloat(input.style.height), fixed.h);
+    await click('[data-action="finish-text"]');
+    assert.equal(selectedClipboard(app)[0].h, fixed.h);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("automatically growing text exports its final line and image copying keeps the original layout during delayed rendering", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  let releaseFonts;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("text", 0, 0, {
+            autoHeight: true,
+            w: 280,
+            h: 1,
+            fontSize: 28,
+            textColor: "#ff0000",
+            text: "FIRST\nSECOND\nLAST",
+          }),
+        ]),
+      ),
+    );
+    await app.tick();
+    const before = selectedClipboard(app)[0];
+    assert.equal(before.h, 114);
+    const ready = new Promise((resolve) => {
+      releaseFonts = resolve;
+    });
+    Object.defineProperty(doc, "fonts", {
+      configurable: true,
+      value: { ready },
+    });
+    let copied;
+    imageClipboard(app, async ([entry]) => {
+      copied = await entry.data["image/png"];
+    });
+    await click('[data-action="copy-image"]');
+    const font = doc.querySelector("#font-size");
+    font.value = "56";
+    font.dispatchEvent(new w.Event("change", { bubbles: true }));
+    assert.equal(selectedClipboard(app)[0].h, 227);
+    releaseFonts();
+    await app.tick();
+    const image = await pngCanvas(app, copied);
+    assert.equal(image.height, (before.h + 40) * 2);
+    const hasRed = (canvas, y, height) => {
+      const pixels = canvas
+        .getContext("2d")
+        .getImageData(0, y, canvas.width, height).data;
+      return pixels.some(
+        (v, n) =>
+          n % 4 === 0 &&
+          v > 200 &&
+          pixels[n + 1] < 100 &&
+          pixels[n + 2] < 100 &&
+          pixels[n + 3] > 0,
+      );
+    };
+    assert.ok(hasRed(image, Math.floor((20 + 2 * 28 * 1.35) * 2), 70));
+    await click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "png";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    await app.tick();
+    const exported = await pngCanvas(app, app.downloads[0]);
+    assert.equal(exported.height, (227 + 60) * 2);
+    assert.ok(
+      hasRed(exported, Math.floor((30 + 2 * 56 * 1.35) * 2), 130),
+      "Export contains the last line at the new font size",
+    );
+    await click('[data-action="home"]');
+  } finally {
+    releaseFonts?.();
+    app.close();
+  }
+});
+
+test("automatic text fitting updates live, cancels drafts, resizes, and persists with accessible controls", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  const content =
+    "A useful idea needs room for details. Keep all of these words visible while the note stays the same size. The final sentence should be easy to see.";
+  const change = (selector, value) => {
+    const control = doc.querySelector(selector);
+    control.value = value;
+    control.dispatchEvent(new w.Event("change", { bubbles: true }));
+  };
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    const originalSize = parseFloat(input.style.fontSize);
+    assert.equal(
+      doc.querySelector("#auto-fit-text").getAttribute("aria-pressed"),
+      "true",
+    );
+    input.value = content;
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    const fittedSize = parseFloat(input.style.fontSize);
+    assert.ok(fittedSize >= 8 && fittedSize < originalSize);
+    assert.equal(doc.querySelector("#text-fit-status").hidden, true);
+    assert.doesNotMatch(
+      doc.querySelector("#board-outline").textContent,
+      /A useful idea/,
+      "Local drafts do not mutate saved text",
+    );
+    input.setSelectionRange(10, 16);
+    await click("#format-bold");
+    assert.equal(doc.querySelector("#canvas-text-editor"), input);
+    assert.equal(input.selectionStart, 10);
+    assert.equal(input.selectionEnd, 16);
+    await click('[data-action="finish-text"]');
+    const saved = selectedClipboard(app)[0];
+    assert.equal(saved.text, content);
+    assert.equal(saved.autoFontSize, true);
+    assert.equal(
+      saved.fontSize,
+      undefined,
+      "Derived size does not replace the chosen maximum",
+    );
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app)[0].text, "");
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    await click('[data-action="edit"]');
+    const draft = doc.querySelector("#canvas-text-editor");
+    draft.value = "short";
+    draft.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(parseFloat(draft.style.fontSize), originalSize);
+    draft.value = "many lines\n".repeat(200);
+    draft.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(parseFloat(draft.style.fontSize), 8);
+    assert.equal(doc.querySelector("#text-fit-status").hidden, false);
+    assert.match(doc.querySelector("#text-fit-status").textContent, /Enlarge/);
+    await click('[data-action="cancel-text"]');
+    assert.equal(selectedClipboard(app)[0].text, content);
+    assert.equal(doc.querySelector("#text-fit-status").hidden, true);
+    doc.querySelector("#auto-fit-text").focus();
+    await click("#auto-fit-text");
+    assert.equal(doc.activeElement.id, "auto-fit-text");
+    assert.equal(selectedClipboard(app)[0].autoFontSize, false);
+    assert.equal(doc.querySelector("#font-size").title, "Font size");
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app)[0].autoFontSize, true);
+    await click('[data-action="resize"]');
+    change("#resize-width", "380");
+    change("#resize-height", "320");
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    await click('[data-action="edit"]');
+    assert.equal(
+      parseFloat(doc.querySelector("#canvas-text-editor").style.fontSize),
+      originalSize,
+    );
+    await click('[data-action="finish-text"]');
+    change("#font-size", "32");
+    assert.equal(selectedClipboard(app)[0].fontSize, 32);
+    assert.equal(doc.querySelector("#font-size").title, "Maximum font size");
+    const checks = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    await click('[data-action="home"]');
+    change("#language", "fr");
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.equal(
+      doc.querySelector("#auto-fit-text").getAttribute("aria-label"),
+      "Ajuster automatiquement le texte",
+    );
+    assert.equal(selectedClipboard(app)[0].autoFontSize, true);
+    assert.equal(selectedClipboard(app)[0].text, content);
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#auto-fit-text"), null);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("automatic fitting treats legacy notes as manual and applies mixed selections only to supported objects", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const legacy = item("note", 0, 0, { text: "Old layout" });
+    delete legacy.autoFontSize;
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          legacy,
+          item("ellipse", 300, 0, { text: "Shape" }),
+          item("text", 600, 0, { text: "Text" }),
+        ]),
+      ),
+    );
+    await click("#board-outline button:first-child");
+    assert.equal(
+      doc.querySelector("#auto-fit-text").getAttribute("aria-pressed"),
+      "false",
+    );
+    await click("#auto-fit-text");
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(
+      doc.querySelector("#auto-fit-text").getAttribute("aria-pressed"),
+      "mixed",
+    );
+    await click("#auto-fit-text");
+    const items = selectedClipboard(app);
+    assert.equal(items[0].autoFontSize, true);
+    assert.equal(items[1].autoFontSize, true);
+    assert.equal(items[2].autoFontSize, undefined);
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app)[1].autoFontSize, undefined);
+    await click('[data-action="redo"]');
+    await click("#board-outline button:nth-child(2)");
+    await click('[data-action="change-shape"]');
+    await click('[data-shape="text"]');
+    assert.equal(selectedClipboard(app)[0].type, "text");
+    assert.equal(selectedClipboard(app)[0].autoFontSize, undefined);
+    assert.equal(doc.querySelector("#auto-fit-text"), null);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("quick-connect handles preview and create styled blank nodes atomically, with accessible controls and persistence", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(
+        clipboardFormats([
+          item("rect", 0, 0, {
+            w: 200,
+            h: 160,
+            shape: "cylinder",
+            text: "Source",
+            bold: true,
+            color: "#dce5f7",
+          }),
+        ]),
+      ),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    await app.tick();
+    const source = selectedClipboard(app)[0];
+    assert.equal(doc.querySelector("#quick-ports").hidden, false);
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: " ",
+        code: "Space",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(
+      doc.querySelector("#quick-ports").hidden,
+      true,
+      "Pan modifier does not leave clickable handles over the canvas",
+    );
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keyup", { key: " ", code: "Space", bubbles: true }),
+    );
+    assert.equal(doc.querySelector("#quick-ports").hidden, false);
+    const port = doc.querySelector('[data-quick-direction="right"]');
+    assert.equal(port.style.left, "430px");
+    const pixel = () => [
+      ...canvas._native.getContext("2d").getImageData(550, 280, 1, 1).data,
+    ];
+    const before = pixel();
+    port.dispatchEvent(new w.MouseEvent("pointerenter"));
+    assert.notDeepEqual(pixel(), before, "The ghost shape is painted");
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      1,
+      "Preview never adds board objects",
+    );
+    port.dispatchEvent(new w.MouseEvent("pointerleave"));
+    assert.deepEqual(pixel(), before, "Leaving removes the preview");
+    port.focus();
+    assert.equal(doc.activeElement, port, "Redraw retains keyboard focus");
+    const checks = await axe.run(doc.querySelector("#quick-ports"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    await click('[data-quick-direction="right"]');
+    const editor = doc.querySelector("#canvas-text-editor");
+    assert.equal(doc.activeElement, editor);
+    assert.equal(editor.value, "");
+    assert.equal(
+      doc.querySelector("#quick-ports").hidden,
+      true,
+      "Handles do not cover text editing",
+    );
+    await click('[data-action="finish-text"]');
+    const created = selectedClipboard(app)[0];
+    assert.equal(created.shape, source.shape);
+    assert.equal(created.color, source.color);
+    assert.equal(created.bold, true);
+    assert.equal(created.x, source.x + source.w + 80);
+    const connected = allClipboard(app);
+    assert.equal(connected.length, 3);
+    assert.equal(connected[2].startId, source.id);
+    assert.equal(connected[2].endId, created.id);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), [source]);
+    await click('[data-action="redo"]');
+    assert.deepEqual(allClipboard(app), connected);
+    await click('[data-action="home"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("[data-open]");
+    assert.deepEqual(allClipboard(app), connected);
+    await click(`#board-outline [data-id="${source.id}"]`);
+    assert.equal(
+      doc
+        .querySelector('[data-quick-direction="right"]')
+        .getAttribute("aria-label"),
+      "Connexion rapide à droite",
+    );
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#quick-ports").hidden, true);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("quick-connect reuses nearby nodes and existing connections without duplicate history", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("rect", 0, 0, { w: 200, h: 160 }),
+          item("ellipse", 280, 0, { w: 200, h: 160 }),
+        ]),
+      ),
+    );
+    await click("#board-outline button:first-child");
+    const source = selectedClipboard(app)[0];
+    await click('[data-quick-direction="right"]');
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    const connected = allClipboard(app);
+    assert.equal(connected.length, 3);
+    assert.equal(connected[2].endId, connected[1].id);
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app).length, 2);
+    await click('[data-action="redo"]');
+    await click(`#board-outline [data-id="${source.id}"]`);
+    await click('[data-quick-direction="right"]');
+    assert.equal(allClipboard(app).length, 3);
+    await click('[data-action="undo"]');
+    assert.equal(
+      allClipboard(app).length,
+      2,
+      "Reusing a connection adds no history step",
+    );
+    await click(`#board-outline [data-id="${source.id}"]`);
+    const port = doc.querySelector('[data-quick-direction="left"]');
+    port.focus();
+    port.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    assert.equal(doc.activeElement, doc.querySelector("#canvas"));
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="board-search"]');
+    assert.equal(doc.querySelector("#quick-ports").hidden, true);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("dragging quick-connect handles attaches to a chosen target and cancels without changing history", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(
+        clipboardFormats([
+          item("rect", 0, 0, { w: 200, h: 160, shape: "diamond" }),
+          item("ellipse", 500, 200, { w: 200, h: 160 }),
+        ]),
+      ),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    const original = allClipboard(app),
+      id = original[0].id;
+    await click(`#board-outline [data-id="${id}"]`);
+    await click('[data-color="#dce5f7"]');
+    await click('[data-action="undo"]');
+    await click(`#board-outline [data-id="${id}"]`);
+    const port = doc.querySelector('[data-quick-direction="right"]');
+    const pointer = (type, x, y, extra = {}) =>
+      port.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: x,
+          clientY: y,
+          ...extra,
+        }),
+      );
+    pointer("pointerdown", 430, 280);
+    pointer("pointermove", 800, 480);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    pointer("pointercancel", 800, 480);
+    assert.deepEqual(allClipboard(app), original);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click(`#board-outline [data-id="${id}"]`);
+    pointer("pointerdown", 430, 280);
+    pointer("pointermove", 800, 480);
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    pointer("pointerup", 800, 480);
+    assert.deepEqual(allClipboard(app), original);
+    await click(`#board-outline [data-id="${id}"]`);
+    pointer("pointerdown", 430, 280);
+    pointer("pointermove", 800, 480);
+    pointer("pointerup", 800, 480);
+    port.dispatchEvent(new w.MouseEvent("click", { bubbles: true, detail: 1 }));
+    const after = allClipboard(app);
+    assert.equal(after.length, 3, "A completed drag adds only the line");
+    assert.equal(after[2].startId, id);
+    assert.equal(after[2].endId, original[1].id);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), original);
+    await click('[data-action="redo"]');
+    assert.deepEqual(allClipboard(app), after);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("library shapes of every size land centred in the view", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const centres = [];
+    for (const key of ["wf-phone", "diamond", "gateway-exclusive"]) {
+      doc.querySelector("#canvas").dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key: "s",
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await click(`[data-shape="${key}"]`);
+      await click('[data-action="finish-text"]');
+      const i = selectedClipboard(app)[0];
+      assert.equal(i.shape, key);
+      centres.push([i.x + i.w / 2, i.y + i.h / 2]);
+    }
+    for (const c of centres.slice(1)) assert.deepEqual(c, centres[0]);
+  } finally {
+    app.close();
+  }
+});
+
+test("shape gallery inserts editable shapes and converts styled content with undo, copy, search and persistence", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  const other = await setup();
+  const { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "s",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(
+      doc.querySelectorAll("[data-shape]").length,
+      SHAPE_FAMILIES.reduce((sum, f) => sum + f.shapes.length, 0),
+    );
+    // Planning adds the task card as an extra choice.
+    assert.equal(doc.querySelectorAll("[data-extra]").length, 1);
+    const checks = await axe.run(doc.querySelector("dialog[open]"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    await click('[data-shape="diamond"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    assert.equal(
+      doc.activeElement,
+      input,
+      "Async dialog close keeps editor focus",
+    );
+    assert.equal(input.style.width, "140px");
+    assert.equal(input.style.height, "90px");
+    input.value = "Approved?\nYes";
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    input.select();
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "b",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await click('[data-action="finish-text"]');
+    const initial = selectedClipboard(app)[0];
+    assert.equal(initial.shape, "diamond");
+    assert.equal(initial.text, "Approved?\nYes");
+    assert.deepEqual(JSON.parse(JSON.stringify(initial.textRuns)), [
+      { start: 0, end: initial.text.length, style: { bold: true } },
+    ]);
+    await click('[data-action="change-shape"]');
+    assert.equal(
+      doc.querySelector('[data-shape="diamond"]').getAttribute("aria-pressed"),
+      "true",
+    );
+    await click('[data-shape="cylinder"]');
+    assert.deepEqual(selectedClipboard(app)[0], {
+      ...initial,
+      shape: "cylinder",
+    });
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0], initial);
+    await click('[data-action="change-shape"]');
+    await click('[data-shape="diamond"]');
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "No-op preserves redo",
+    );
+    await click('[data-action="change-shape"]');
+    await click(".dialog-header button");
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "Cancel preserves redo",
+    );
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    await click('[data-action="resize"]');
+    const width = doc.querySelector("#resize-width");
+    width.value = "440";
+    width.dispatchEvent(new w.Event("input"));
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    const resized = selectedClipboard(app)[0];
+    assert.equal(resized.w, 440);
+    assert.equal(resized.shape, "cylinder");
+    await other.click('[data-action="new"]');
+    const clipboard = transferData();
+    dispatchTransfer(app, "copy", clipboard);
+    dispatchTransfer(other, "paste", clipboard);
+    await other.tick();
+    const pasted = selectedClipboard(other)[0];
+    assert.equal(pasted.shape, "cylinder");
+    assert.equal(pasted.text, initial.text);
+    assert.deepEqual(pasted.textRuns, initial.textRuns);
+    assert.notEqual(pasted.id, initial.id);
+    await click('[data-action="board-search"]');
+    const type = doc.querySelector("#board-search select");
+    type.value = "shape";
+    type.dispatchEvent(new w.Event("change"));
+    assert.match(
+      doc.querySelector("#board-search-results").textContent,
+      /Cylinder/,
+    );
+    await click('[data-action="home"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0], resized);
+    assert.match(doc.querySelector("#board-outline").textContent, /Cylindre/);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="shapes"]');
+    assert.equal(
+      doc.querySelector("dialog").getAttribute("aria-label"),
+      "Formes",
+    );
+    assert.match(
+      doc.querySelector('[data-shape="diamond"]').textContent,
+      /Losange/,
+    );
+    await click(".dialog-header button");
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector('[data-action="change-shape"]'), null);
+    await click('[data-action="shapes"]');
+    await click('[data-shape="star"]');
+    await click('[data-action="finish-text"]');
+    assert.equal(
+      selectedClipboard(app)[0].shape,
+      "star",
+      "Locked selection does not prevent insertion",
+    );
+    await click('[data-action="home"]');
+    await other.click('[data-action="home"]');
+  } finally {
+    app.close();
+    other.close();
+  }
+});
+
+test("drawing connectors between custom silhouettes attaches to their outlines and follows conversion", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(
+        clipboardFormats([
+          item("rect", 0, 0, { w: 200, h: 160, shape: "diamond" }),
+          item("rect", 400, 200, { w: 200, h: 160, shape: "cylinder" }),
+        ]),
+      ),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    await click('[data-action="tool-arrow"]');
+    const pointer = (type, x, y) =>
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: x,
+          clientY: y,
+        }),
+      );
+    pointer("pointerdown", 300, 280);
+    pointer("pointermove", 700, 480);
+    pointer("pointerup", 700, 480);
+    const items = allClipboard(app),
+      line = items.find((i) => i.type === "arrow");
+    assert.ok(line);
+    assert.equal(line.startId, items[0].id);
+    assert.equal(line.endId, items[1].id);
+    assert.ok(line.x < items[0].x + items[0].w);
+    assert.ok(Math.abs(line.x + line.w - items[1].x) < 1e-6);
+    await click('[data-action="tool-select"]');
+    await click(`#board-outline [data-id="${items[1].id}"]`);
+    await click('[data-action="change-shape"]');
+    await click('[data-shape="hexagon"]');
+    const after = allClipboard(app).find((i) => i.type === "arrow");
+    assert.equal(after.endId, line.endId);
+    assert.ok(after.x + after.w > line.x + line.w);
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("batch shape conversion retains connections and group metadata, and undo restores both", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const a = item("note", 0, 0, { text: "From", groupId: "group" });
+    const b = item("rect", 400, 160, { text: "To", groupId: "group" });
+    const line = item("arrow", 0, 0, { startId: a.id, endId: b.id });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([a, b, line])),
+    );
+    await app.tick();
+    const before = allClipboard(app);
+    await click("#board-outline button:first-child");
+    assert.equal(selectedClipboard(app).length, 3);
+    await click('[data-action="change-shape"]');
+    await click('[data-shape="diamond"]');
+    const changed = allClipboard(app);
+    assert.deepEqual(
+      changed.slice(0, 2).map((i) => i.shape),
+      ["diamond", "diamond"],
+    );
+    assert.deepEqual(
+      changed.slice(0, 2).map((i) => [i.id, i.text, i.groupId]),
+      before.slice(0, 2).map((i) => [i.id, i.text, i.groupId]),
+    );
+    assert.equal(changed[2].startId, before[0].id);
+    assert.equal(changed[2].endId, before[1].id);
+    assert.notEqual(
+      changed[2].x,
+      before[2].x,
+      "Connector attaches to the new outline",
+    );
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), before);
+    await click('[data-action="redo"]');
+    assert.deepEqual(allClipboard(app), changed);
+    await click("#board-outline button:first-child");
+    await click('[data-action="change-shape"]');
+    await click('[data-shape="text"]');
+    assert.ok(
+      selectedClipboard(app)
+        .filter((i) => i.type !== "arrow")
+        .every((i) => i.type === "text" && !i.shape),
+    );
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "s",
+        ctrlKey: false,
+        bubbles: true,
+      }),
+    );
+    await click(".dialog-header button");
+    await click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("bulk notes support keyboard entry, colors, atomic undo, persistence, French UI and safe previews", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  const { doc, w, click, tick } = app;
+  const open = () =>
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "N",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  try {
+    await click('[data-action="new"]');
+    open();
+    let field = doc.querySelector("#bulk-ideas");
+    assert.equal(doc.activeElement, field);
+    assert.ok(doc.querySelector('.bulk-form [type="submit"]').disabled);
+    field.value = "First idea\n\n <img src=x onerror=alert(1)>\nThird idea";
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    const columns = doc.querySelector("#bulk-columns");
+    columns.value = "2";
+    columns.dispatchEvent(new w.Event("change", { bubbles: true }));
+    const color = doc.querySelector("#bulk-color");
+    color.value = "#dce5f7";
+    color.dispatchEvent(new w.Event("change", { bubbles: true }));
+    assert.equal(doc.querySelector(".bulk-preview img"), null);
+    assert.match(doc.querySelector("#bulk-count").textContent, /3/);
+    assert.equal(
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({ "text/plain": "native field paste" }),
+        field,
+      ).defaultPrevented,
+      false,
+    );
+    const checks = await axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    await click('.bulk-form [type="submit"]');
+    const notes = selectedClipboard(app);
+    assert.deepEqual(
+      notes.map((i) => i.text),
+      ["First idea", " <img src=x onerror=alert(1)>", "Third idea"],
+    );
+    assert.ok(notes.every((i) => i.type === "note" && i.color === "#dce5f7"));
+    assert.equal(notes[0].y, notes[1].y);
+    assert.equal(notes[0].x, notes[2].x);
+    assert.ok(notes[2].y > notes[0].y);
+    assert.equal(doc.activeElement, doc.querySelector("#canvas"));
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    open();
+    field = doc.querySelector("#bulk-ideas");
+    field.value = "x".repeat(20001);
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.ok(doc.querySelector('.bulk-form [type="submit"]').disabled);
+    assert.match(doc.querySelector("#bulk-error").textContent, /20,000/);
+    await click("#bulk-cancel");
+    await click('[data-action="redo"]');
+    assert.deepEqual(
+      allClipboard(app).map((i) => i.text),
+      notes.map((i) => i.text),
+    );
+    await click('[data-action="home"]');
+    const language = doc.querySelector("#language");
+    language.value = "fr";
+    language.dispatchEvent(new w.Event("change"));
+    await tick();
+    await click("[data-open]");
+    assert.equal(allClipboard(app).length, 3);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="bulk-notes"]');
+    assert.equal(
+      doc.querySelector("dialog").getAttribute("aria-label"),
+      "Notes adhésives en série",
+    );
+    field = doc.querySelector("#bulk-ideas");
+    field.value = "Text\nLabel";
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.match(
+      doc.querySelector("#bulk-count").textContent,
+      /Notes adhésives: 2/,
+    );
+    assert.equal(
+      doc.querySelector(".bulk-preview").textContent,
+      "TextLabel",
+      "authored text is not translated",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("spreadsheet paste chooses editable notes, tables or text; table range edits remain atomic", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const spreadsheet = transferData({
+      "text/plain": 'Name\tDetails\nAda\t"Line one\nLine two"\n\tLast\n',
+    });
+    dispatchTransfer(app, "paste", spreadsheet);
+    assert.ok(doc.querySelector("#bulk-mode"));
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    await click('.bulk-form [type="submit"]');
+    let items = selectedClipboard(app);
+    assert.deepEqual(
+      items.map((i) => i.text),
+      ["Name", "Details", "Ada", "Line one\nLine two", "", "Last"],
+    );
+    assert.equal(items[0].x, items[2].x);
+    assert.equal(items[2].x, items[4].x);
+    await click('[data-action="undo"]');
+    dispatchTransfer(app, "paste", spreadsheet);
+    const mode = doc.querySelector("#bulk-mode");
+    mode.value = "table";
+    mode.dispatchEvent(new w.Event("change", { bubbles: true }));
+    assert.ok(doc.querySelector("#bulk-color-field").hidden);
+    await click('.bulk-form [type="submit"]');
+    const original = selectedClipboard(app)[0];
+    assert.equal(original.type, "table");
+    assert.deepEqual(original.cells, [
+      ["Name", "Details"],
+      ["Ada", "Line one\nLine two"],
+      ["", "Last"],
+    ]);
+    await click('[data-action="properties"]');
+    let cell = doc.querySelector('[data-row="1"][data-col="1"]');
+    assert.equal(
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({ "text/plain": "ordinary\nmultiline" }),
+        cell,
+      ).defaultPrevented,
+      true,
+    );
+    assert.equal(cell.value, "ordinary\nmultiline");
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "One\tTwo\nThree\tFour" }),
+      cell,
+    );
+    assert.equal(
+      doc.querySelector('[data-row="1"][data-col="2"]').value,
+      "Two",
+    );
+    assert.equal(
+      doc.querySelector('[data-row="2"][data-col="2"]').value,
+      "Four",
+    );
+    cell = doc.querySelector('[data-row="1"][data-col="1"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": Array(12).fill("overflow").join("\t") }),
+      cell,
+    );
+    assert.equal(
+      doc.querySelector('[data-row="1"][data-col="1"]').value,
+      "One",
+    );
+    assert.match(doc.querySelector("#toast").textContent, /12 columns/);
+    await click('dialog [type="submit"]');
+    assert.deepEqual(selectedClipboard(app)[0].cells, [
+      ["Name", "Details", ""],
+      ["Ada", "One", "Two"],
+      ["", "Three", "Four"],
+    ]);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0].cells, original.cells);
+    await click('[data-action="properties"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "cancel\tme" }),
+      doc.querySelector('[data-row="0"][data-col="0"]'),
+    );
+    await click("dialog .dialog-header button");
+    await click('[data-action="redo"]');
+    assert.equal(allClipboard(app)[0].cells[2][2], "Four");
+    // Prose keeps its established no-dialog behavior.
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "Ordinary\nprose" }),
+    );
+    assert.equal(selectedClipboard(app)[0].type, "text");
+    assert.equal(doc.querySelector(".bulk-form"), null);
+    dispatchTransfer(app, "paste", spreadsheet);
+    doc.querySelector("#bulk-mode").value = "text";
+    await click('.bulk-form [type="submit"]');
+    items = selectedClipboard(app);
+    assert.equal(items[0].type, "text");
+    assert.match(items[0].text, /Name\tDetails/);
+  } finally {
+    app.close();
+  }
+});
+
+test("spreadsheet detection prefers editable cells over preview images and rejects invalid ranges without losing redo", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const data = transferData(
+      {
+        "text/html":
+          "<table><tr><td>Only column</td></tr><tr><td>&lt;script&gt;safe&lt;/script&gt;</td></tr></table>",
+        "text/plain": "Only column\n<script>safe</script>",
+      },
+      [
+        new w.File([createCanvas(1, 1).toBuffer("image/png")], "preview.png", {
+          type: "image/png",
+        }),
+      ],
+    );
+    dispatchTransfer(app, "paste", data);
+    assert.ok(doc.querySelector("#bulk-mode"));
+    assert.equal(doc.querySelector(".bulk-preview script"), null);
+    await click('.bulk-form [type="submit"]');
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.type),
+      ["note", "note"],
+    );
+    await click('[data-action="undo"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": '"bad\tquote' }),
+    );
+    assert.match(doc.querySelector("#toast").textContent, /quotes/);
+    assert.equal(doc.querySelector(".bulk-form"), null);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": Array(21).fill("A\tB").join("\n") }),
+    );
+    assert.ok(doc.querySelector('#bulk-mode [value="table"]').disabled);
+    assert.ok(!doc.querySelector('.bulk-form [type="submit"]').disabled);
+    assert.match(doc.querySelector("#bulk-error").textContent, /20 rows/);
+    await click("#bulk-cancel");
+    await click('[data-action="redo"]');
+    assert.equal(allClipboard(app).length, 2);
+    // New content remains addable when the current selection is protected.
+    await click('[data-action="lock"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "new\tcontent" }),
+    );
+    await click('.bulk-form [type="submit"]');
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.text),
+      ["new", "content"],
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("bulk import reaches the board capacity with a bounded preview and rejects overflow atomically", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "N",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    const field = doc.querySelector("#bulk-ideas");
+    field.value = Array.from({ length: 5000 }, (_, n) => `Idea ${n + 1}`).join(
+      "\n",
+    );
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(doc.querySelectorAll(".bulk-preview > div").length, 6);
+    assert.match(doc.querySelector("#bulk-count").textContent, /5000/);
+    await click('.bulk-form [type="submit"]');
+    const items = selectedClipboard(app);
+    assert.equal(items.length, 5000);
+    assert.equal(items.at(-1).text, "Idea 5000");
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "one\ttoo many" }),
+    );
+    assert.ok(doc.querySelector('.bulk-form [type="submit"]').disabled);
+    assert.match(doc.querySelector("#bulk-error").textContent, /5,000/);
+    await click("#bulk-cancel");
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    await click('[data-action="redo"]');
+    assert.equal(allClipboard(app).length, 5000);
+    await click("#board-outline button:first-child");
+    for (const key of ["d", "ArrowRight"]) {
+      doc.querySelector("#canvas").dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key,
+          ctrlKey: key === "d",
+          altKey: key === "ArrowRight",
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      assert.equal(doc.querySelectorAll("#board-outline button").length, 5000);
+      assert.match(doc.querySelector("#toast").textContent, /5,000/);
+    }
+    const fullView = renderedView(app),
+      source = selectedClipboard(app)[0];
+    const sx = fullView.x + (source.x + 20) * fullView.z,
+      sy = fullView.y + (source.y + 20) * fullView.z;
+    canvasPointer(app, "pointerdown", 17, sx, sy, {
+      pointerType: "mouse",
+      altKey: true,
+    });
+    canvasPointer(app, "pointermove", 17, sx + 50, sy + 40, {
+      pointerType: "mouse",
+      altKey: true,
+    });
+    canvasPointer(app, "pointerup", 17, sx + 50, sy + 40, {
+      pointerType: "mouse",
+      altKey: true,
+    });
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5000);
+    assert.deepEqual(selectedClipboard(app)[0], source);
+    await click('[data-quick-direction="right"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5000);
+    assert.match(doc.querySelector("#toast").textContent, /5,000/);
+    await click('[data-action="shapes"]');
+    await click('[data-shape="diamond"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5000);
+    assert.match(doc.querySelector("#toast").textContent, /5,000/);
+    await click('[data-action="commands"]');
+    paletteQuery(app, "Sticky note");
+    assert.equal(
+      doc
+        .querySelector('[data-command="add:note"]')
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    await click('[data-command="add:note"]');
+    assert.match(doc.querySelector("#command-error").textContent, /5,000/);
+    doc.querySelector("dialog").close();
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5000);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="templates"]');
+    await click("[data-use]");
+    assert.match(doc.querySelector("#toast").textContent, /5,000/);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5000);
+    doc.querySelector("dialog").close();
+    // Version history renders after the entire save/checkpoint queue drains.
+    // A fixed 25 ms click delay is insufficient for this batch on CI, and the
+    // first "Saved" status can belong to an older queued snapshot.
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="history"]');
+    const deadline = Date.now() + 10000;
+    while (!doc.querySelector(".revision-row") && Date.now() < deadline)
+      await app.tick();
+    assert.ok(doc.querySelector(".revision-row"), "All queued saves finished");
+    assert.match(doc.querySelector(".revision-list").textContent, /5000/);
+    await click("dialog .dialog-header button");
+  } finally {
+    app.close();
+  }
+});
+
+test("pasting long cells into an existing table expands row height and undoes the text and geometry together", async () => {
+  const app = await setup();
+  const { doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("table", 0, 0, {
+            cells: [
+              ["Header", "Other"],
+              ["Short", "Stay"],
+            ],
+            w: 340,
+            h: 150,
+          }),
+        ]),
+      ),
+    );
+    const before = selectedClipboard(app)[0];
+    await click('[data-action="properties"]');
+    const text = Array(12).fill("Visible line").join("\n");
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": `"${text}"\tNeighbor` }),
+      doc.querySelector('[data-row="1"][data-col="0"]'),
+    );
+    await click('dialog [type="submit"]');
+    const after = selectedClipboard(app)[0];
+    assert.equal(after.cells[1][0], text);
+    assert.ok(after.h / after.cells.length >= 12 * 15 * 1.35 + 18);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app)[0], before);
+  } finally {
+    app.close();
+  }
+});
+
+test("equal-spacing drag guides paint both gaps and support Alt, cancellation, undo and persistence", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(
+        clipboardFormats([
+          item("rect", 0, 0, { w: 80, h: 80, text: "First", locked: true }),
+          item("rect", 140, 0, { w: 120, h: 80, text: "Second", locked: true }),
+          item("note", 20, 200, { w: 60, h: 80, text: "Moving" }),
+        ]),
+      ),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    await click("#board-outline button:last-child");
+    const original = selectedClipboard(app)[0];
+    const pointer = (type, x, y, extra = {}) =>
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: x,
+          clientY: y,
+          ...extra,
+        }),
+      );
+    const key = (type, key, extra = {}) =>
+      canvas.dispatchEvent(
+        new w.KeyboardEvent(type, { key, bubbles: true, ...extra }),
+      );
+    const magenta = (x, y) => {
+      const [r, g, b, a] = canvas._native
+        .getContext("2d")
+        .getImageData(x, y, 1, 1).data;
+      return a > 0 && r > g + 40 && b > g + 40;
+    };
+    pointer("pointerdown", 240, 420);
+    pointer("pointermove", 537, 220);
+    assert.equal(selectedClipboard(app)[0].x, original.x + 300);
+    // Screen positions remain independent of the app’s initial pan: the fixed
+    // objects start at x=200 and x=340; the selection snaps to x=520.
+    assert.equal(magenta(285, 240), true, "Reference gap is visible");
+    assert.equal(magenta(465, 240), true, "New equal gap is visible");
+    key("keydown", "Alt", { altKey: true });
+    assert.equal(selectedClipboard(app)[0].x, original.x + 297);
+    assert.equal(magenta(285, 240), false);
+    key("keyup", "Alt");
+    assert.equal(selectedClipboard(app)[0].x, original.x + 300);
+    key("keydown", "Escape");
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    assert.equal(magenta(285, 240), false);
+    pointer("pointerdown", 240, 420);
+    pointer("pointermove", 537, 220);
+    pointer("pointerup", 537, 220);
+    assert.equal(magenta(285, 240), false, "Guides are transient");
+    assert.equal(selectedClipboard(app)[0].x, original.x + 300);
+    await click('[data-action="undo"]');
+    await click("#board-outline button:last-child");
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    pointer("pointerdown", 240, 420);
+    pointer("pointermove", 537, 220);
+    pointer("pointercancel", 537, 220);
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="redo"]');
+    await click("#board-outline button:last-child");
+    assert.equal(selectedClipboard(app)[0].x, original.x + 300);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button:last-child");
+    assert.equal(selectedClipboard(app)[0].x, original.x + 300);
+  } finally {
+    app.close();
+  }
+});
+
+function canvasPointer(app, type, id, x, y, extra = {}) {
+  const event = new app.w.MouseEvent(type, {
+    clientX: x,
+    clientY: y,
+    button: 0,
+    bubbles: true,
+    cancelable: true,
+    ...extra,
+  });
+  Object.defineProperties(event, {
+    pointerId: { value: id },
+    pointerType: { value: extra.pointerType || "touch" },
+  });
+  app.doc.querySelector("#canvas").dispatchEvent(event);
+  return event;
+}
+
+test("a selected object moves when dragged from an empty part of its box", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    const pointer = (type, x, y, extra = {}) =>
+      doc.querySelector("#canvas").dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: x,
+          clientY: y,
+          ...extra,
+        }),
+      );
+    for (const shape of [
+      item("pen", 0, 0, {
+        w: 200,
+        h: 100,
+        points: [
+          [0, 0],
+          [200, 0],
+          [200, 100],
+        ],
+      }),
+      item("ellipse", 0, 0, { w: 200, h: 100 }),
+    ]) {
+      dispatchTransfer(app, "paste", transferData(clipboardFormats([shape])));
+      await tick();
+      const [before] = selectedClipboard(app);
+      const v = renderedView(app);
+      // The bottom-left corner of the box has nothing drawn.
+      const x = v.x + (before.x + 15) * v.z,
+        y = v.y + (before.y + 90) * v.z;
+      pointer("pointerdown", x, y);
+      pointer("pointermove", x + 60, y + 40);
+      pointer("pointerup", x + 60, y + 40);
+      const [after] = selectedClipboard(app);
+      assert.equal(after.id, before.id, `${shape.type} stays selected`);
+      assert.equal(Math.round(after.x - before.x), 60, shape.type);
+      assert.equal(Math.round(after.y - before.y), 40, shape.type);
+      // A finger drags it the same way rather than panning.
+      const tx = x + 60,
+        ty = y + 40;
+      canvasPointer(app, "pointerdown", 5, tx, ty);
+      canvasPointer(app, "pointermove", 5, tx + 30, ty + 20);
+      canvasPointer(app, "pointerup", 5, tx + 30, ty + 20);
+      const [touched] = selectedClipboard(app);
+      assert.equal(Math.round(touched.x - after.x), 30, `touch ${shape.type}`);
+      assert.equal(renderedView(app).x, v.x, "the board did not pan");
+      // Away from anything, a press still clears the selection.
+      pointer("pointerdown", 990, 790);
+      pointer("pointerup", 990, 790);
+      assert.equal(doc.querySelector("#selection-tools").hidden, true);
+      await click('[data-action="undo"]');
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("a drawing belongs to the frame its middle is in, not where it started", async () => {
+  const app = await setup();
+  const { doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    const frame = item("frame", 0, 0, { w: 400, h: 300, text: "Frame" });
+    dispatchTransfer(app, "paste", transferData(clipboardFormats([frame])));
+    await tick();
+    const [placed] = selectedClipboard(app);
+    const v = renderedView(app),
+      at = (x, y) => [v.x + (placed.x + x) * v.z, v.y + (placed.y + y) * v.z];
+    const stroke = (from, to) => {
+      canvasPointer(app, "pointerdown", 1, ...at(...from), {
+        pointerType: "mouse",
+      });
+      for (let n = 1; n <= 10; n++)
+        canvasPointer(
+          app,
+          "pointermove",
+          1,
+          ...at(
+            from[0] + ((to[0] - from[0]) * n) / 10,
+            from[1] + ((to[1] - from[1]) * n) / 10,
+          ),
+          { pointerType: "mouse" },
+        );
+      canvasPointer(app, "pointerup", 1, ...at(...to), {
+        pointerType: "mouse",
+      });
+    };
+    await click('[data-action="tool-pen"]');
+    // Started outside, drawn mostly inside.
+    stroke([-10, 150], [300, 150]);
+    // Started inside, drawn mostly outside.
+    stroke([380, 250], [900, 250]);
+    await tick();
+    const pens = allClipboard(app).filter((i) => i.type === "pen");
+    const frameId = allClipboard(app).find((i) => i.type === "frame").id;
+    assert.equal(pens.length, 2);
+    const [inside, outside] = pens.sort((a, b) => a.x - b.x);
+    assert.equal(inside.parentId, frameId);
+    assert.equal(outside.parentId, undefined);
+  } finally {
+    app.close();
+  }
+});
+
+test("drawing skips movement too small to see", async () => {
+  const app = await setup();
+  const { doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    await click('[data-action="tool-pen"]');
+    const move = (type, x, y) =>
+      canvasPointer(app, type, 1, x, y, { pointerType: "mouse" });
+    move("pointerdown", 500, 400);
+    // A hand held still still jitters by fractions of a pixel.
+    for (let n = 0; n < 50; n++) move("pointermove", 500 + (n % 3) / 10, 400);
+    for (let n = 1; n <= 100; n++) move("pointermove", 500 + n * 2, 400);
+    move("pointerup", 700, 400);
+    await tick();
+    const [stroke] = allClipboard(app);
+    assert.equal(stroke.type, "pen");
+    assert.equal(stroke.points.length, 101);
+    assert.equal(stroke.w, 200);
+  } finally {
+    app.close();
+  }
+});
+
+test("touch pan, pinch and selected-object handoffs preserve geometry, selection and redo", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const { copy } = await snappingBoard(app);
+    const original = copy();
+    await click('[data-action="duplicate"]');
+    await click('[data-action="undo"]');
+    await click(`[data-id="${original[0].id}"]`);
+    const selected = copy();
+    const start = renderedView(app);
+    canvasPointer(app, "pointerdown", 1, 800, 600);
+    canvasPointer(app, "pointermove", 1, 830, 620);
+    assert.deepEqual(renderedView(app), {
+      ...start,
+      x: start.x + 30,
+      y: start.y + 20,
+    });
+    canvasPointer(app, "pointerdown", 2, 930, 620);
+    canvasPointer(app, "pointermove", 2, 1030, 620);
+    assert.equal(renderedView(app).z, start.z * 2);
+    assert.deepEqual(copy(), selected);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    canvasPointer(app, "pointercancel", 2, 1030, 620);
+    assert.deepEqual(renderedView(app), start);
+    assert.deepEqual(copy(), selected);
+    canvasPointer(app, "pointerdown", 1, 220, 220);
+    canvasPointer(app, "pointermove", 1, 260, 240, { altKey: true });
+    assert.equal(copy()[0].x, original[0].x + 40);
+    canvasPointer(app, "pointerdown", 2, 500, 400);
+    assert.deepEqual(
+      copy(),
+      selected,
+      "Second finger rolls back an unfinished object move",
+    );
+    canvasPointer(app, "pointermove", 2, 600, 400);
+    canvasPointer(app, "pointerup", 2, 600, 400);
+    const remaining = renderedView(app);
+    canvasPointer(app, "pointermove", 1, 230, 230);
+    assert.ok(Math.abs(renderedView(app).x - (remaining.x - 30)) < 0.001);
+    canvasPointer(app, "pointerup", 1, 230, 230);
+    assert.deepEqual(copy(), selected);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    const before = renderedView(app);
+    canvasPointer(app, "pointerdown", 1, 800, 600);
+    canvasPointer(app, "pointermove", 1, 840, 650);
+    w.dispatchEvent(new w.Event("blur"));
+    assert.deepEqual(renderedView(app), before);
+    canvasPointer(app, "pointermove", 1, 900, 700);
+    assert.deepEqual(
+      renderedView(app),
+      before,
+      "Stale touch cannot resume after blur",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`[data-id="${original[0].id}"]`);
+    assert.deepEqual(copy(), selected);
+  } finally {
+    app.close();
+  }
+});
+
+test("touch creation, pen cancellation, long-press selection and native pointer ownership are atomic", async () => {
+  const app = await setup();
+  const { doc, w, click, tick } = app;
+  try {
+    const { copy } = await snappingBoard(app);
+    const count = () => doc.querySelectorAll("#board-outline button").length;
+    const initial = count();
+    await click('[data-action="duplicate"]');
+    await click('[data-action="undo"]');
+    await click('[data-action="tool-note"]');
+    canvasPointer(app, "pointerdown", 1, 700, 600);
+    assert.equal(count(), initial, "Touch creation waits until the tap ends");
+    canvasPointer(app, "pointerdown", 2, 900, 600);
+    canvasPointer(app, "pointermove", 2, 1000, 600);
+    canvasPointer(app, "pointerup", 2, 1000, 600);
+    canvasPointer(app, "pointerup", 1, 700, 600);
+    assert.equal(count(), initial);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="region"]');
+    canvasPointer(app, "pointerdown", 1, 700, 500);
+    canvasPointer(app, "pointermove", 1, 750, 550);
+    canvasPointer(app, "pointerdown", 2, 900, 600);
+    canvasPointer(app, "pointermove", 2, 950, 620);
+    canvasPointer(app, "pointerup", 2, 950, 620);
+    canvasPointer(app, "pointerup", 1, 750, 550);
+    assert.equal(
+      count(),
+      initial,
+      "Switching from export-region selection to a pinch leaves content intact",
+    );
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="tool-pen"]');
+    canvasPointer(app, "pointerdown", 1, 700, 500);
+    canvasPointer(app, "pointermove", 1, 750, 550);
+    assert.equal(count(), initial + 1);
+    canvasPointer(app, "pointerdown", 2, 900, 600);
+    assert.equal(count(), initial, "Pinch removes the provisional stroke");
+    canvasPointer(app, "pointerup", 2, 900, 600);
+    canvasPointer(app, "pointerup", 1, 750, 550);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    canvasPointer(app, "pointerdown", 7, 700, 500, { pointerType: "pen" });
+    canvasPointer(app, "pointerdown", 8, 800, 600);
+    canvasPointer(app, "pointermove", 8, 1200, 900);
+    canvasPointer(app, "pointercancel", 8, 1200, 900);
+    canvasPointer(app, "pointermove", 7, 750, 550, { pointerType: "pen" });
+    canvasPointer(app, "pointerup", 7, 750, 550, { pointerType: "pen" });
+    assert.equal(count(), initial + 1);
+    assert.equal(
+      doc.querySelector("#selection-tools").hidden,
+      true,
+      "Drawing selects nothing",
+    );
+    const stroke = allClipboard(app).find((i) => i.type === "pen");
+    assert.ok(stroke);
+    assert.ok(
+      stroke.w < 200 && stroke.h < 200,
+      "Palm movement did not become stroke geometry",
+    );
+    await click('[data-action="undo"]');
+    assert.equal(count(), initial);
+    await click('[data-action="redo"]');
+    assert.equal(count(), initial + 1);
+    await click('[data-action="undo"]');
+    await click('[data-action="tool-select"]');
+    await click('[data-action="reset-zoom"]');
+    // Derive selection coordinates from the camera after zooming back to 100%.
+    const view = renderedView(app);
+    const object = doc.querySelector("#board-outline button");
+    await click(`[data-id="${object.dataset.id}"]`);
+    const first = copy()[0];
+    const left = view.x + first.x * view.z - 20,
+      top = view.y + first.y * view.z - 20;
+    await click('[data-action="tool-select"]');
+    canvasPointer(app, "pointerdown", 1, left, top);
+    await new Promise((resolve) => setTimeout(resolve, 550));
+    canvasPointer(
+      app,
+      "pointermove",
+      1,
+      left + first.w * view.z + 40,
+      top + first.h * view.z + 40,
+    );
+    canvasPointer(
+      app,
+      "pointerup",
+      1,
+      left + first.w * view.z + 40,
+      top + first.h * view.z + 40,
+    );
+    assert.ok(
+      copy().some((i) => i.id === first.id),
+      "Long press and drag selects enclosed content",
+    );
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="tool-note"]');
+    canvasPointer(app, "pointerdown", 1, 700, 500);
+    canvasPointer(app, "pointerup", 1, 700, 500);
+    assert.equal(count(), initial + 1);
+    assert.ok(
+      doc.querySelector("#canvas-text-editor"),
+      "A single touch creates an editable note",
+    );
+    doc.querySelector("#canvas-text-editor").value = "Touch note";
+    await click('[data-action="finish-text"]');
+    assert.match(doc.querySelector("#board-outline").textContent, /Touch note/);
+  } finally {
+    app.close();
+  }
+});
+
+test("navigation preferences persist, normalize wheel input and keep right-drag separate from editing", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const { copy } = await snappingBoard(app);
+    const before = copy(),
+      start = renderedView(app);
+    canvasPointer(app, "pointerdown", 1, 220, 220, {
+      pointerType: "mouse",
+      button: 2,
+    });
+    canvasPointer(app, "pointermove", 1, 290, 250, {
+      pointerType: "mouse",
+      button: 2,
+    });
+    canvasPointer(app, "pointerup", 1, 290, 250, {
+      pointerType: "mouse",
+      button: 2,
+    });
+    assert.deepEqual(renderedView(app), {
+      ...start,
+      x: start.x + 70,
+      y: start.y + 30,
+    });
+    assert.deepEqual(copy(), before);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="navigation"]');
+    const mode = doc.querySelector("#navigation-mode");
+    mode.value = "trackpad";
+    mode.dispatchEvent(new w.Event("change"));
+    assert.equal(w.localStorage.getItem("whiteboard-navigation"), "trackpad");
+    const checks = await axe.run(doc.querySelector("dialog[open]"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    doc.querySelector("dialog[open]").close();
+    const wheel = (extra = {}) =>
+      doc.querySelector("#canvas").dispatchEvent(
+        new w.WheelEvent("wheel", {
+          deltaY: 3,
+          deltaMode: 1,
+          clientX: 300,
+          clientY: 200,
+          cancelable: true,
+          ...extra,
+        }),
+      );
+    const initial = renderedView(app);
+    wheel();
+    assert.equal(renderedView(app).y, initial.y - 48);
+    wheel({ shiftKey: true });
+    assert.equal(renderedView(app).x, initial.x - 48);
+    w.dispatchEvent(
+      new w.StorageEvent("storage", {
+        key: "whiteboard-navigation",
+        newValue: "mouse",
+      }),
+    );
+    wheel({ deltaY: -3 });
+    assert.ok(renderedView(app).z > initial.z);
+    assert.deepEqual(copy(), before);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="navigation"]');
+    assert.equal(doc.querySelector("#navigation-mode").value, "mouse");
+    doc.querySelector("dialog[open]").close();
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="navigation"]');
+    assert.match(
+      doc.querySelector("dialog[open]").textContent,
+      /Détection automatique/,
+    );
+    assert.match(
+      doc.querySelector("dialog[open]").textContent,
+      /Mode de navigation/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("partial formatting persists across undo, object transfer, properties edits, reopening, French controls and cancellation", async () => {
+  const app = await setup(),
+    other = await setup();
+  const { doc, w, click } = app;
+  const change = (id, value) => {
+    const input = doc.querySelector(id);
+    input.value = value;
+    input.dispatchEvent(new w.Event("change", { bubbles: true }));
+  };
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Make important ideas clear";
+    input.setSelectionRange(5, 14);
+    await click("#format-bold");
+    await click("#format-underline");
+    change("#text-color", "#923355");
+    change("#text-highlight", "#fff099");
+    assert.equal(input.selectionStart, 5);
+    assert.equal(input.selectionEnd, 14);
+    assert.equal(
+      input.querySelectorAll("span")[1].style.backgroundColor,
+      "rgb(255, 240, 153)",
+    );
+    assert.equal(input.getAttribute("role"), "textbox");
+    assert.equal(input.getAttribute("aria-multiline"), "true");
+    const range = {
+      start: 5,
+      end: 14,
+      style: {
+        bold: true,
+        underline: true,
+        textColor: "#923355",
+        highlight: "#fff099",
+      },
+    };
+    await click('[data-action="finish-text"]');
+    assert.deepEqual(selectedClipboard(app)[0].textRuns, [range]);
+    assert.equal(
+      doc.querySelector("#format-bold").getAttribute("aria-pressed"),
+      "mixed",
+    );
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app)[0].text, "");
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    await other.click('[data-action="new"]');
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    dispatchTransfer(other, "paste", data);
+    await other.tick();
+    assert.deepEqual(selectedClipboard(other)[0].textRuns, [range]);
+    await click('[data-action="edit"]');
+    const again = doc.querySelector("#canvas-text-editor");
+    again.setSelectionRange(5, 14);
+    await click("#text-highlight-clear");
+    await click('[data-action="cancel-text"]');
+    assert.deepEqual(selectedClipboard(app)[0].textRuns, [range]);
+    await click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "NEW Make important ideas clear";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.deepEqual(selectedClipboard(app)[0].textRuns, [
+      { ...range, start: 9, end: 18 },
+    ]);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0].textRuns, [
+      { ...range, start: 9, end: 18 },
+    ]);
+    change("#language", "fr");
+    await click("#board-outline button");
+    assert.equal(
+      doc.querySelector("#text-highlight-clear").textContent,
+      "Sans surlignage",
+    );
+    await click("#format-bold");
+    const uniform = selectedClipboard(app)[0];
+    assert.equal(uniform.bold, true);
+    assert.deepEqual(uniform.textRuns, [
+      {
+        start: 9,
+        end: 18,
+        style: { underline: true, textColor: "#923355", highlight: "#fff099" },
+      },
+    ]);
+    const results = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      results.violations.map((v) => v.id),
+      [],
+    );
+  } finally {
+    app.close();
+    other.close();
+  }
+});
+
+test("nested lists retain formatting through draft cancellation, undo, copying, conversion, persistence, locks and bilingual controls", async () => {
+  const app = await setup(),
+    other = await setup();
+  const { doc, w, click } = app;
+  const expected = [
+    { start: 0, list: "number", indent: 0 },
+    { start: 6, list: "number", indent: 1 },
+    { start: 11, list: "number", indent: 0 },
+  ];
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Alpha\nBeta\nGamma";
+    input.select();
+    await click("#text-list-options");
+    assert.equal(
+      doc.querySelector("#text-list-options").getAttribute("aria-expanded"),
+      "true",
+    );
+    await click("#list-number");
+    input.setSelectionRange(6, 10);
+    await click("#list-indent");
+    await click("#format-bold");
+    assert.equal(input.selectionStart, 6);
+    assert.equal(input.selectionEnd, 10);
+    assert.equal(
+      doc.querySelector("#list-number").getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.deepEqual(JSON.parse(JSON.stringify(input.textBlocks)), expected);
+    assert.equal(input.querySelectorAll('[role="listitem"]').length, 3);
+    const tools = doc.querySelector("#text-list-controls");
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.WheelEvent("wheel", {
+        deltaY: -100,
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await app.tick();
+    assert.equal(
+      doc.querySelector("#text-list-controls"),
+      tools,
+      "Navigation retains the open list controls",
+    );
+    assert.equal(tools.hidden, false);
+    const results = await axe.run(doc.querySelector(".canvas-wrap"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      results.violations.map((v) => v.id),
+      [],
+    );
+    await click('[data-action="finish-text"]');
+    assert.deepEqual(selectedClipboard(app)[0].textBlocks, expected);
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app)[0].text, "");
+    assert.equal(allClipboard(app)[0].textBlocks, undefined);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    await other.click('[data-action="new"]');
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    dispatchTransfer(other, "paste", data);
+    await other.tick();
+    assert.deepEqual(selectedClipboard(other)[0].textBlocks, expected);
+    await click('[data-action="edit"]');
+    const draft = doc.querySelector("#canvas-text-editor");
+    draft.select();
+    await click("#text-list-options");
+    await click("#list-bullet");
+    await click('[data-action="cancel-text"]');
+    assert.deepEqual(selectedClipboard(app)[0].textBlocks, expected);
+    await click('[data-action="change-shape"]');
+    await click('[data-shape="text"]');
+    assert.equal(selectedClipboard(app)[0].type, "text");
+    assert.deepEqual(selectedClipboard(app)[0].textBlocks, expected);
+    await click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "NEW Alpha\nBeta\nGamma";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    const shifted = expected.map((b, n) => ({
+      ...b,
+      start: b.start + (n ? 4 : 0),
+    }));
+    assert.deepEqual(selectedClipboard(app)[0].textBlocks, shifted);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0].textBlocks, shifted);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("#board-outline button");
+    await click("#text-list-options");
+    assert.equal(
+      doc.querySelector("#text-list-options").getAttribute("aria-label"),
+      "Listes",
+    );
+    assert.match(
+      doc.querySelector("#list-number").textContent,
+      /Liste numérotée/,
+    );
+    const stale = doc.querySelector("#list-bullet");
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#list-bullet"), null);
+    stale.click();
+    await app.tick();
+    assert.deepEqual(selectedClipboard(app)[0].textBlocks, shifted);
+  } finally {
+    app.close();
+    other.close();
+  }
+});
+
+test("composition Escape preserves the inline link URL draft", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Read the guide";
+    input.setSelectionRange(9, 14);
+    await click("#text-link-options");
+    const field = doc.querySelector("#text-link-url");
+    field.value = "https://例え.テスト/下書き";
+    for (const flags of [{ isComposing: true }, { keyCode: 229 }]) {
+      const event = new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+        ...flags,
+      });
+      field.dispatchEvent(event);
+      assert.equal(doc.querySelector("#text-link-controls").hidden, false);
+      assert.equal(doc.activeElement, field);
+      assert.equal(field.value, "https://例え.テスト/下書き");
+      assert.equal(event.defaultPrevented, false);
+      assert.equal(doc.querySelector("#canvas-text-editor"), input);
+      assert.equal(
+        input.textRuns.some((r) => r.style.link),
+        false,
+      );
+    }
+    field.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.querySelector("#text-link-controls").hidden, true);
+    assert.equal(doc.activeElement, input);
+    assert.equal(
+      input.textRuns.some((r) => r.style.link),
+      false,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("inline links retain selected labels through editing, undo, safe previews, pointer dragging, transfer and saved boards", async () => {
+  const app = await setup(),
+    other = await setup();
+  const { doc, w, click } = app,
+    url = "https://example.com/guide";
+  const submit = (value) => {
+    const field = doc.querySelector("#text-link-url");
+    field.value = value;
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    doc
+      .querySelector(".text-link-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+  };
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.value = "Read the guide now";
+    input.setSelectionRange(5, 14);
+    await click("#format-bold");
+    await click("#text-link-options");
+    assert.equal(doc.activeElement.id, "text-link-url");
+    assert.equal(doc.querySelector("#canvas-text-editor"), input);
+    submit("javascript:alert(1)");
+    assert.equal(
+      doc.querySelector("#text-link-url").getAttribute("aria-invalid"),
+      "true",
+    );
+    assert.equal(
+      input.textRuns.some((r) => r.style.link),
+      false,
+    );
+    submit(url);
+    assert.equal(doc.activeElement, input);
+    assert.equal(input.value, "Read the guide now");
+    assert.deepEqual(JSON.parse(JSON.stringify(input.textRuns)), [
+      { start: 5, end: 14, style: { bold: true, link: url } },
+    ]);
+    assert.equal(input.querySelector("a").href, url);
+    await click("#text-link-options");
+    const result = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      result.violations.map((v) => v.id),
+      [],
+    );
+    doc.querySelector("#text-link-url").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.querySelector("#text-link-controls").hidden, true);
+    assert.ok(doc.querySelector("#canvas-text-editor"));
+    await click('[data-action="finish-text"]');
+    assert.equal(selectedClipboard(app)[0].textRuns[0].style.link, url);
+    await click('[data-action="undo"]');
+    assert.equal(allClipboard(app)[0].text, "");
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    await click("#text-link-access");
+    const preview = doc.querySelector("#text-link-preview");
+    assert.ok(preview);
+    assert.equal(preview.querySelector("a").href, url);
+    assert.equal(preview.querySelector("a").target, "_blank");
+    assert.ok(preview.querySelector("a").rel.includes("noopener"));
+    const beforePreviewKeys = selectedClipboard(app);
+    for (const key of ["ArrowRight", "Delete", "n"]) {
+      preview.querySelector("a").dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    }
+    assert.deepEqual(
+      selectedClipboard(app),
+      beforePreviewKeys,
+      "Preview keyboard interaction does not change canvas objects",
+    );
+    const a11y = await axe.run(preview, {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      a11y.violations.map((v) => v.id),
+      [],
+    );
+    preview.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.activeElement, doc.querySelector("#canvas"));
+    const canvas = doc.querySelector("#canvas"),
+      original = selectedClipboard(app)[0],
+      v = renderedView(app);
+    const linkRect = textLinkRects(original, canvas.getContext("2d"))[0];
+    const x = (linkRect.x + linkRect.w / 2) * v.z + v.x,
+      y = (linkRect.y + linkRect.h / 2) * v.z + v.y;
+    const pointer = (type, px, py) =>
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          clientX: px,
+          clientY: py,
+          altKey: false,
+        }),
+      );
+    pointer("pointerdown", x, y);
+    pointer("pointerup", x, y);
+    assert.equal(
+      doc.querySelector("#text-link-preview a").href,
+      url,
+      "Canvas glyph click opens its destination",
+    );
+    doc.querySelector("#text-link-preview").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    // A fresh selection clears double-tap state before the drag.
+    await click("#board-outline button");
+    await new Promise((resolve) => setTimeout(resolve, 410));
+    pointer("pointerdown", x, y);
+    pointer("pointermove", x + 35, y + 25);
+    pointer("pointerup", x + 35, y + 25);
+    assert.equal(
+      doc.querySelector("#text-link-preview"),
+      null,
+      "Dragging a hyperlink does not open it",
+    );
+    assert.ok(selectedClipboard(app)[0].x > original.x);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    await click('[data-action="edit"]');
+    const edit = doc.querySelector("#canvas-text-editor");
+    edit.setSelectionRange(8);
+    edit.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "k",
+        ctrlKey: true,
+        altKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.querySelector("#text-link-url").value, url);
+    await click("#text-link-remove");
+    assert.equal(
+      edit.textRuns.some((r) => r.style.link),
+      false,
+    );
+    await click('[data-action="cancel-text"]');
+    assert.equal(selectedClipboard(app)[0].textRuns[0].style.link, url);
+    const data = transferData();
+    dispatchTransfer(app, "copy", data);
+    await other.click('[data-action="new"]');
+    dispatchTransfer(other, "paste", data);
+    await other.tick();
+    assert.equal(selectedClipboard(other)[0].textRuns[0].style.link, url);
+    await click('[data-action="change-shape"]');
+    await click('[data-shape="text"]');
+    assert.equal(selectedClipboard(app)[0].type, "text");
+    assert.equal(selectedClipboard(app)[0].textRuns[0].style.link, url);
+    await click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "NEW Read the guide now";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.deepEqual(selectedClipboard(app)[0].textRuns, [
+      { start: 9, end: 18, style: { bold: true, link: url } },
+    ]);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].textRuns[0].style.link, url);
+    await click('[data-action="lock"]');
+    await click("#text-link-access");
+    assert.ok(doc.querySelector("#text-link-preview a"));
+    assert.equal(
+      [...doc.querySelectorAll("#text-link-preview button")].some(
+        (b) => b.textContent === "Edit link",
+      ),
+      false,
+    );
+    doc.querySelector("#text-link-preview").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("#board-outline button");
+    await click("#text-link-access");
+    assert.equal(
+      doc.querySelector("#text-link-preview").getAttribute("aria-label"),
+      "Liens du texte",
+    );
+  } finally {
+    app.close();
+    other.close();
+  }
+});
+
+test("style actions retain destination content, support shortcuts, atomic undo, no-op redo, storage, and board reuse", async () => {
+  const app = await setup(),
+    other = await setup(),
+    { doc, w, click } = app;
+  const key = (target, k, extra = {}) =>
+    target.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: k,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      }),
+    );
+  const select = async (text, shift = false) => {
+    const b = [...doc.querySelectorAll("#board-outline button")].find((b) =>
+      b.textContent.includes(text),
+    );
+    assert.ok(b, text);
+    b.dispatchEvent(
+      new w.MouseEvent("click", { bubbles: true, shiftKey: shift }),
+    );
+    await app.tick();
+  };
+  try {
+    await click('[data-action="new"]');
+    const source = item("note", 0, 0, {
+      text: "Style source",
+      color: "#eadcf0",
+      fontSize: 35,
+      bold: true,
+      italic: true,
+      autoFontSize: false,
+      textColor: "#123456",
+    });
+    const target = item("note", 250, 0, {
+      text: "Destination\nKeep list",
+      textBlocks: [{ start: 0, list: "bullet", indent: 0 }],
+      textRuns: [
+        {
+          start: 0,
+          end: 11,
+          style: { link: "https://example.com/", bold: false },
+        },
+      ],
+    });
+    const flowing = item("text", 500, 0, {
+      text: "Third object keeps its content and grows with the larger font",
+      autoHeight: true,
+      w: 150,
+    });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([source, target, flowing])),
+    );
+    await app.tick();
+    await select("Style source");
+    const undoBefore = doc.querySelector('[data-action="undo"]').disabled;
+    key(doc.querySelector("#canvas"), "ç", {
+      code: "KeyC",
+      metaKey: true,
+      altKey: true,
+    });
+    assert.match(doc.querySelector("#toast").textContent, /Style copied/);
+    assert.equal(
+      doc.querySelector('[data-action="undo"]').disabled,
+      undoBefore,
+    );
+    const stored = w.localStorage.getItem("whiteboard-copied-style");
+    assert.ok(stored);
+    assert.equal(stored.includes("Style source"), false);
+    await select("Destination");
+    const before = selectedClipboard(app)[0];
+    key(doc.querySelector("#canvas"), "√", {
+      code: "KeyV",
+      metaKey: true,
+      altKey: true,
+    });
+    await app.tick();
+    const pasted = selectedClipboard(app)[0];
+    assert.equal(pasted.color, "#eadcf0");
+    assert.equal(pasted.fontSize, 35);
+    assert.equal(pasted.bold, true);
+    assert.equal(pasted.italic, true);
+    assert.equal(pasted.text, before.text);
+    assert.deepEqual(pasted.textBlocks, before.textBlocks);
+    assert.deepEqual(pasted.textRuns, [
+      { start: 0, end: 11, style: { link: "https://example.com/" } },
+    ]);
+    await click('[data-action="undo"]');
+    await select("Destination");
+    assert.deepEqual(selectedClipboard(app)[0], before);
+    await click('[data-action="redo"]');
+    await select("Destination");
+    assert.deepEqual(selectedClipboard(app)[0], pasted);
+    await click("#format-italic");
+    await click('[data-action="undo"]');
+    await select("Destination");
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click("#paste-style");
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "No-op paste retains redo",
+    );
+    key(doc.querySelector("#canvas"), "a", { ctrlKey: true });
+    assert.equal(doc.querySelector("#copy-style").disabled, true);
+    const multiBefore = selectedClipboard(app);
+    await click("#paste-style");
+    assert.equal(selectedClipboard(app).length, 3);
+    assert.equal(
+      selectedClipboard(app).find((i) => i.type === "text").fontSize,
+      35,
+    );
+    await click('[data-action="undo"]');
+    key(doc.querySelector("#canvas"), "a", { ctrlKey: true });
+    assert.deepEqual(
+      selectedClipboard(app),
+      multiBefore,
+      "Multiple targets change in one undo step",
+    );
+    await select("Destination");
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#paste-style").disabled, true);
+    await click("#copy-style");
+    key(doc.querySelector("#canvas"), "v", {
+      code: "KeyV",
+      ctrlKey: true,
+      altKey: true,
+    });
+    assert.match(doc.querySelector("#toast").textContent, /Unlock/);
+    await click('[data-action="lock"]');
+    await click('[data-action="edit"]');
+    const edit = doc.querySelector("#canvas-text-editor");
+    assert.equal(
+      key(edit, "v", { code: "KeyV", ctrlKey: true, altKey: true }),
+      true,
+      "Text inputs retain native shortcuts",
+    );
+    assert.equal(doc.querySelector("#canvas-text-editor"), edit);
+    await click('[data-action="cancel-text"]');
+    const a11y = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      a11y.violations.map((v) => v.id),
+      [],
+    );
+    await click('[data-action="home"]');
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    doc.querySelector("#canvas-text-editor").value = "New board destination";
+    await click('[data-action="finish-text"]');
+    await click("#paste-style");
+    assert.equal(selectedClipboard(app)[0].color, "#eadcf0");
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].fontSize, 35);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("#board-outline button");
+    assert.match(
+      doc.querySelector("#copy-style").getAttribute("aria-label"),
+      /Copier le style/,
+    );
+    await other.click('[data-action="new"]');
+    await other.click('[data-action="add-note"]');
+    await other.click('[data-action="finish-text"]');
+    await other.click("#text-link-options");
+    const pendingURL = other.doc.querySelector("#text-link-url");
+    pendingURL.value = "https://example.com/draft";
+    other.w.dispatchEvent(
+      new other.w.StorageEvent("storage", {
+        key: "whiteboard-copied-style",
+        newValue: stored,
+      }),
+    );
+    assert.equal(other.doc.querySelector("#paste-style").disabled, false);
+    assert.equal(
+      other.doc.querySelector("#text-link-url"),
+      pendingURL,
+      "Cross-tab style changes keep open formatting controls intact",
+    );
+    assert.equal(pendingURL.value, "https://example.com/draft");
+    await other.click("#text-link-cancel");
+    await other.click('[data-action="cancel-text"]');
+    await other.click("#paste-style");
+    assert.equal(selectedClipboard(other)[0].fontSize, 35);
+    other.w.dispatchEvent(
+      new other.w.StorageEvent("storage", {
+        key: "whiteboard-copied-style",
+        newValue: '{"version":1,"text":{"fontSize":999}}',
+      }),
+    );
+    assert.equal(other.doc.querySelector("#paste-style").disabled, true);
+  } finally {
+    app.close();
+    other.close();
+  }
+});
+
+test("font families apply to whole text objects while retaining ranges, selection, style transfer, undo and saved boards", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  const change = (id, value) => {
+    const el = doc.querySelector(id);
+    el.value = value;
+    el.dispatchEvent(new w.Event("change"));
+  };
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("text", 0, 0, {
+            text: "Important words stay linked\nSecond line",
+            w: 220,
+            autoHeight: true,
+            textRuns: [
+              {
+                start: 0,
+                end: 9,
+                style: { bold: true, link: "https://example.com/" },
+              },
+            ],
+            textBlocks: [{ start: 0, list: "bullet", indent: 0 }],
+          }),
+        ]),
+      ),
+    );
+    await app.tick();
+    const before = selectedClipboard(app)[0];
+    assert.equal(doc.querySelector("#font-family").value, "dm-sans");
+    await click('[data-action="edit"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    input.setSelectionRange(0, 9);
+    doc.querySelector("#font-family").focus();
+    change("#font-family", "eb-garamond");
+    assert.equal(doc.querySelector("#canvas-text-editor"), input);
+    assert.equal(input.selectionStart, 0);
+    assert.equal(input.selectionEnd, 9);
+    assert.match(input.style.fontFamily, /EB Garamond/);
+    assert.equal(input.value, before.text);
+    assert.deepEqual(
+      JSON.parse(JSON.stringify(input.textRuns)),
+      before.textRuns,
+    );
+    await click('[data-action="finish-text"]');
+    assert.equal(selectedClipboard(app)[0].fontFamily, "eb-garamond");
+    assert.deepEqual(selectedClipboard(app)[0].textBlocks, before.textBlocks);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(doc.querySelector("#font-family").value, "dm-sans");
+    await click('[data-action="commands"]');
+    paletteQuery(app, "DM Sans").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await app.tick();
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "Applying the existing default family preserves redo",
+    );
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    assert.equal(doc.querySelector("#font-family").value, "eb-garamond");
+    const a11y = await axe.run(doc.querySelector("#selection-tools"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      a11y.violations.map((v) => v.id),
+      [],
+    );
+    await click("#copy-style");
+    await click('[data-action="add-note"]');
+    doc.querySelector("#canvas-text-editor").value = "Second destination";
+    await click('[data-action="finish-text"]');
+    assert.equal(doc.querySelector("#font-family").value, "dm-sans");
+    await click("#paste-style");
+    assert.equal(selectedClipboard(app)[0].fontFamily, "eb-garamond");
+    change("#font-family", "caveat");
+    allClipboard(app);
+    assert.equal(
+      doc.querySelector("#font-family").value,
+      "",
+      "Mixed families are indicated",
+    );
+    change("#font-family", "roboto-mono");
+    assert.ok(
+      selectedClipboard(app).every((i) => i.fontFamily === "roboto-mono"),
+    );
+    await click('[data-action="undo"]');
+    const restored = allClipboard(app);
+    assert.deepEqual(
+      restored.map((i) => i.fontFamily),
+      ["eb-garamond", "caveat"],
+    );
+    await click("#board-outline button");
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#font-family"), null);
+    await click('[data-action="lock"]');
+    await click('[data-action="commands"]');
+    const query = paletteQuery(app, "Noto Sans");
+    query.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await app.tick();
+    assert.equal(selectedClipboard(app)[0].fontFamily, "noto-sans");
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.equal(doc.querySelector("#font-family").value, "noto-sans");
+    change("#language", "fr");
+    await click("#board-outline button");
+    assert.equal(
+      doc.querySelector("#font-family").getAttribute("aria-label"),
+      "Police de caractères",
+    );
+    await click('[data-action="edit"]');
+    assert.match(
+      doc.querySelector("#canvas-text-editor").style.fontFamily,
+      /Noto Sans/,
+    );
+    await click('[data-action="cancel-text"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("Alt-drag duplicates only after movement and cancellation preserves originals, selection and redo", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const { canvas, pointer, copy, key } = await snappingBoard(app);
+    const source = copy()[0],
+      count = () => doc.querySelectorAll("#board-outline button").length;
+    await click('[data-action="duplicate"]');
+    await click('[data-action="undo"]');
+    await click(`[data-id="${source.id}"]`);
+    const redo = () =>
+      assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    pointer("pointerdown", 220, 220, { altKey: true });
+    pointer("pointermove", 221, 221, { altKey: true });
+    pointer("pointerup", 221, 221, { altKey: true });
+    assert.equal(count(), 2);
+    assert.deepEqual(copy()[0], source);
+    redo();
+    for (const cancel of [
+      "Escape",
+      "pointercancel",
+      "lostpointercapture",
+      "blur",
+      "return",
+    ]) {
+      pointer("pointerdown", 220, 220, { altKey: true });
+      pointer("pointermove", 263, 247, { altKey: true });
+      assert.equal(count(), 3);
+      assert.notEqual(copy()[0].id, source.id);
+      assert.equal(copy()[0].x, source.x + 43);
+      assert.equal(canvas.style.cursor, "copy");
+      if (cancel === "Escape") key("keydown", "Escape");
+      else if (cancel === "blur") w.dispatchEvent(new w.Event("blur"));
+      else if (cancel === "return") {
+        pointer("pointermove", 220, 220, { altKey: true });
+        pointer("pointerup", 220, 220, { altKey: true });
+      } else pointer(cancel, 263, 247);
+      assert.equal(count(), 2, cancel);
+      assert.deepEqual(copy()[0], source, cancel);
+      assert.equal(canvas.style.cursor, "default");
+      redo();
+    }
+    pointer("pointerdown", 220, 220, { altKey: true });
+    pointer("pointermove", 300, 260, { altKey: true });
+    key("keyup", "Alt");
+    assert.equal(count(), 3, "Releasing Alt keeps the same copy");
+    pointer("pointerup", 300, 260);
+    const duplicate = copy()[0];
+    assert.equal(duplicate.x, source.x + 80);
+    assert.equal(duplicate.y, source.y + 40);
+    await click(`[data-id="${source.id}"]`);
+    assert.deepEqual(copy()[0], source);
+    await click('[data-action="undo"]');
+    assert.equal(count(), 2, "One undo removes the entire copy gesture");
+    await click('[data-action="redo"]');
+    await click(`[data-id="${duplicate.id}"]`);
+    assert.deepEqual(copy()[0], duplicate);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`[data-id="${duplicate.id}"]`);
+    assert.deepEqual(selectedClipboard(app)[0], duplicate);
+    await click(`[data-id="${source.id}"]`);
+    await click('[data-action="lock"]');
+    const before = count(),
+      v = renderedView(app);
+    const x = v.x + (source.x + 20) * v.z,
+      y = v.y + (source.y + 20) * v.z;
+    const reopened = doc.querySelector("#canvas");
+    for (const [type, dx] of [
+      ["pointerdown", 0],
+      ["pointermove", 80],
+      ["pointerup", 80],
+    ])
+      reopened.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: x + dx,
+          clientY: y,
+          altKey: true,
+        }),
+      );
+    assert.equal(count(), before, "Locked objects cannot begin a copy drag");
+  } finally {
+    app.close();
+  }
+});
+
+test("the properties dialog shows an object without text as empty", async () => {
+  const app = await setup();
+  const { doc, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    const bare = item("rect", 0, 0, { w: 200, h: 100 });
+    delete bare.text;
+    dispatchTransfer(app, "paste", transferData(clipboardFormats([bare])));
+    await tick();
+    assert.equal(selectedClipboard(app)[0].text, undefined);
+    await click('[data-action="properties"]');
+    assert.equal(doc.querySelector("#object-text").value, "");
+    doc.querySelector("#object-width").value = "240";
+    doc
+      .querySelector("#edit-form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await tick();
+    const [saved] = selectedClipboard(app);
+    assert.equal(saved.w, 240);
+    assert.ok(!saved.text, "no text is saved");
+  } finally {
+    app.close();
+  }
+});
+
+test("shortcuts held with Option work when a Mac types another character", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([item("rect", 0, 0, { w: 200, h: 100, text: "Hi" })]),
+      ),
+    );
+    const key = (target, options) =>
+      target.dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          metaKey: true,
+          altKey: true,
+          ...options,
+        }),
+      );
+    const canvas = doc.querySelector("#canvas");
+    key(canvas, { key: "±", code: "Equal", shiftKey: true });
+    assert.equal(Math.round(selectedClipboard(app)[0].w), 220);
+    key(canvas, { key: "—", code: "Minus", shiftKey: true });
+    assert.equal(Math.round(selectedClipboard(app)[0].w), 200);
+    await click('[data-action="edit"]');
+    const edit = doc.querySelector("#canvas-text-editor");
+    edit.setSelectionRange(0, 2);
+    key(edit, { key: "˚", code: "KeyK" });
+    assert.ok(doc.querySelector("#text-link-url"), "the link editor opens");
+  } finally {
+    app.close();
+  }
+});
+
+test("a held arrow key moves objects as one undo step", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats([item("rect", 0, 0, { text: "Held" })])),
+    );
+    await click('[data-action="tool-note"]');
+    await click('[data-action="tool-select"]');
+    const count = () => doc.querySelectorAll("#board-outline button").length;
+    const [rect] = allClipboard(app);
+    const key = (extra = {}) =>
+      doc.querySelector("#canvas").dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key: "ArrowRight",
+          bubbles: true,
+          cancelable: true,
+          ...extra,
+        }),
+      );
+    key();
+    for (let n = 0; n < 99; n++) key({ repeat: true });
+    assert.equal(selectedClipboard(app)[0].x, rect.x + 100);
+    // Pressed again, it is a step of its own.
+    key();
+    key({ repeat: true });
+    assert.equal(selectedClipboard(app)[0].x, rect.x + 102);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].x, rect.x + 100);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].x, rect.x);
+    // The paste before the moves can still be undone.
+    await click('[data-action="undo"]');
+    assert.equal(count(), 0);
+    await click('[data-action="redo"]');
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].x, rect.x + 100);
+    // A repeat after an undo starts a new step rather than joining one.
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    key({ repeat: true });
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].x, rect.x);
+  } finally {
+    app.close();
+  }
+});
+
+test("holding a shortcut adds one object and toggles a lock once", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    const key = (key, extra = {}) =>
+      canvas.dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key,
+          bubbles: true,
+          cancelable: true,
+          ...extra,
+        }),
+      );
+    const count = () => doc.querySelectorAll("#board-outline button").length;
+    for (const letter of ["r", "o", "f"]) {
+      const before = count();
+      key(letter);
+      for (let n = 0; n < 4; n++) key(letter, { repeat: true });
+      assert.equal(count(), before + 1, `holding ${letter} adds one object`);
+    }
+    await click("#board-outline button");
+    key("L", { ctrlKey: true, shiftKey: true });
+    for (let n = 0; n < 3; n++)
+      key("L", { ctrlKey: true, shiftKey: true, repeat: true });
+    assert.equal(selectedClipboard(app)[0].locked, true);
+    await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("directional duplication supports keyboard, command search, rich content, locks and native editing shortcuts", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("note", 0, 0, {
+            text: "A styled idea",
+            fontFamily: "eb-garamond",
+            textRuns: [
+              {
+                start: 2,
+                end: 8,
+                style: { bold: true, link: "https://example.com/" },
+              },
+            ],
+            textBlocks: [{ start: 0, list: "bullet", indent: 0 }],
+          }),
+        ]),
+      ),
+    );
+    const source = selectedClipboard(app)[0],
+      canvas = doc.querySelector("#canvas");
+    const key = (key, extra = {}, target = canvas) => {
+      const e = new w.KeyboardEvent("keydown", {
+        key,
+        altKey: true,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      });
+      target.dispatchEvent(e);
+      return e;
+    };
+    key("ArrowRight");
+    const right = selectedClipboard(app)[0];
+    assert.equal(right.x, source.x + source.w + 24);
+    assert.equal(right.y, source.y);
+    assert.deepEqual(right.textRuns, source.textRuns);
+    assert.deepEqual(right.textBlocks, source.textBlocks);
+    assert.equal(right.fontFamily, source.fontFamily);
+    key("ArrowRight", { repeat: true });
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      2,
+      "Holding a key cannot flood the board with copies",
+    );
+    key("ArrowDown");
+    const below = selectedClipboard(app)[0];
+    assert.equal(below.x, right.x);
+    assert.equal(below.y, right.y + right.h + 24);
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 2);
+    await click(`[data-id="${right.id}"]`);
+    await click('[data-action="edit"]');
+    const editor = doc.querySelector("#canvas-text-editor");
+    key("ArrowLeft", {}, editor);
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      2,
+      "Text navigation stays native",
+    );
+    await click('[data-action="cancel-text"]');
+    await click('[data-action="lock"]');
+    key("ArrowUp");
+    assert.equal(
+      selectedClipboard(app)[0].locked,
+      true,
+      "Keyboard copies retain source locks",
+    );
+    assert.equal(selectedClipboard(app)[0].y, right.y - right.h - 24);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${source.id}"]`);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click('[data-action="commands"]');
+    paletteQuery(app, "dupliquer gauche");
+    const option = [...doc.querySelectorAll('[role="option"]')].find((el) =>
+      el.textContent.includes("Dupliquer à gauche"),
+    );
+    assert.ok(option);
+    w.eval(axe.source);
+    const a11y = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(a11y.violations.length, 0);
+    option.click();
+    await app.tick();
+    assert.equal(selectedClipboard(app)[0].x, source.x - source.w - 24);
+  } finally {
+    app.close();
+  }
+});
+
+test("Alt-drag copies an entire framed diagram and touch cancellation restores the original container", async () => {
+  const app = await setup();
+  const { doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1400,
+      height: 900,
+    });
+    const frame = item("frame", 0, 0, { w: 400, h: 260, text: "Diagram" }),
+      a = item("rect", 20, 80, {
+        w: 100,
+        h: 80,
+        text: "First",
+        parentId: frame.id,
+        groupId: "g",
+      }),
+      b = item("note", 260, 80, {
+        w: 100,
+        h: 80,
+        text: "Second",
+        parentId: frame.id,
+        groupId: "g",
+      }),
+      line = item("arrow", 120, 120, {
+        w: 140,
+        h: 0,
+        startId: a.id,
+        endId: b.id,
+      });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats([frame, a, b, line])),
+      canvas,
+      { clientX: 200, clientY: 200 },
+    );
+    await click("#board-outline button");
+    const original = selectedClipboard(app),
+      count = () => doc.querySelectorAll("#board-outline button").length;
+    canvasPointer(app, "pointerdown", 1, 220, 215, { altKey: true });
+    canvasPointer(app, "pointermove", 1, 780, 515, { altKey: true });
+    assert.equal(count(), 8);
+    canvasPointer(app, "pointerdown", 2, 1050, 650);
+    assert.equal(count(), 4);
+    assert.deepEqual(selectedClipboard(app), original);
+    canvasPointer(app, "pointercancel", 2, 1050, 650);
+    canvasPointer(app, "pointerdown", 3, 220, 215, {
+      pointerType: "mouse",
+      altKey: true,
+    });
+    canvasPointer(app, "pointermove", 3, 780, 515, {
+      pointerType: "mouse",
+      altKey: true,
+    });
+    canvasPointer(app, "pointerup", 3, 780, 515, {
+      pointerType: "mouse",
+      altKey: true,
+    });
+    const copied = selectedClipboard(app),
+      cf = copied.find((i) => i.type === "frame"),
+      cl = copied.find((i) => i.type === "arrow");
+    assert.equal(count(), 8);
+    assert.equal(copied.length, 4);
+    assert.equal(cf.x, original[0].x + 560);
+    assert.equal(cf.y, original[0].y + 300);
+    assert.ok(copied.some((i) => i.id === cl.startId));
+    assert.ok(copied.some((i) => i.id === cl.endId));
+    assert.ok(
+      copied
+        .filter((i) => i.type !== "frame")
+        .every((i) => i.parentId === cf.id),
+    );
+    assert.ok(
+      doc.querySelector('[data-action="resize"][aria-label="Resize frame"]'),
+      "The copied frame stays the selection anchor",
+    );
+    await click(`[data-id="${original[0].id}"]`);
+    assert.deepEqual(selectedClipboard(app), original);
+    await click('[data-action="undo"]');
+    assert.equal(count(), 4);
+  } finally {
+    app.close();
+  }
+});
+
+test("informative freehand drawings can have alternative text in the outline, copies, saved boards and SVG exports", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("pen", 0, 0, {
+        points: [
+          [0, 0],
+          [100, 100],
+        ],
+        w: 100,
+        h: 100,
+      }),
+    ]);
+    await click("#board-outline button");
+    await click('[data-action="properties"]');
+    const field = doc.querySelector("#alt-text");
+    assert.ok(field, "A drawing can be given a meaningful text alternative");
+    field.value = "Sales rise sharply in the second quarter";
+    await click("#alt-form button.primary");
+    const described = selectedClipboard(app);
+    assert.equal(described[0].alt, field.value);
+    assert.match(
+      doc.querySelector("#board-outline button").textContent,
+      /Sales rise sharply/,
+    );
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].alt, undefined);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].alt, field.value);
+    await click('[data-action="commands"]');
+    paletteQuery(app, "Alternative text");
+    await click('[data-command="alt-text"]');
+    assert.equal(doc.querySelector("#alt-text").value, field.value);
+    assert.equal(
+      doc.querySelector("#alt-suggest"),
+      null,
+      "Image suggestions are offered only for images",
+    );
+    doc.querySelector("dialog").close();
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].alt, field.value);
+    await click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "svg";
+    doc.querySelector("#export-format").dispatchEvent(new w.Event("change"));
+    await click('dialog [type="submit"]');
+    const svg = await new Promise((resolve) => {
+      const reader = new w.FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsText(app.downloads.at(-1));
+    });
+    assert.match(
+      svg,
+      /role="img" aria-label="Sales rise sharply in the second quarter"/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("comment pin position fields are accessible, translated and saved without altering object history", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "Review target" }),
+    );
+    await click('[data-action="add-comment"]');
+    doc.querySelector("#comment-text").value = "Review";
+    await click('#comment-form [type="submit"]');
+    const id = doc.querySelector("[data-thread]").dataset.thread;
+    const undo = doc.querySelector('[data-action="undo"]').disabled;
+    await click("#comment-move");
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("#comments-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(", "),
+    );
+    doc.querySelector("#comment-x").value = "-12.5";
+    doc.querySelector("#comment-y").value = "23.75";
+    await click('#comment-position [type="submit"]');
+    assert.equal(doc.activeElement.id, "comment-move");
+    assert.equal(doc.querySelector('[data-action="undo"]').disabled, undo);
+    await click("#comments-close");
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="comments"]');
+    await click(`[data-thread="${id}"]`);
+    await click("#comment-move");
+    assert.equal(doc.querySelector("#comment-x").value, "-12.5");
+    assert.equal(doc.querySelector("#comment-y").value, "23.75");
+    await click("#comment-move-cancel");
+    await click("#comments-close");
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click('[data-action="comments"]');
+    await click(`[data-thread="${id}"]`);
+    await click("#comment-move");
+    assert.equal(
+      doc.querySelector("#comment-move").textContent,
+      "Déplacer le repère",
+    );
+    assert.match(
+      doc.querySelector("#comment-x").closest("label").textContent,
+      /Position horizontale/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("comments retain drafts, attach to objects, reply, edit, resolve, restore and reopen without altering board history", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "Review target" }),
+    );
+    const source = selectedClipboard(app)[0];
+    await click('[data-action="duplicate"]');
+    await click('[data-action="undo"]');
+    await click(`[data-id="${source.id}"]`);
+    await click('[data-action="add-comment"]');
+    const input = doc.querySelector("#comment-text");
+    input.value = "A literal <script> & café\nReview this";
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    await click("#comments-close");
+    assert.equal(doc.querySelectorAll("[data-thread]").length, 0);
+    await click('[data-action="add-comment"]');
+    assert.equal(
+      doc.querySelector("#comment-text").value,
+      input.value,
+      "Closing retains the unsent draft",
+    );
+    await click('#comment-form [type="submit"]');
+    assert.equal(doc.querySelectorAll(".comment-message").length, 1);
+    assert.equal(
+      doc.querySelector(".comment-message p").textContent,
+      input.value,
+    );
+    assert.equal(doc.querySelector(".comment-message script"), null);
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "Posting does not change board history",
+    );
+    const id = doc.querySelector("[data-thread]").dataset.thread;
+    doc.querySelector("#comment-text").value = "Reply one";
+    doc.querySelector("#comment-text").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.querySelectorAll(".comment-message").length, 2);
+    await click("[data-edit-comment]");
+    doc.querySelector("#comment-text").value = "Edited review";
+    await click('#comment-form [type="submit"]');
+    assert.equal(
+      doc.querySelector(".comment-message p").textContent,
+      "Edited review",
+    );
+    await click("[data-delete-comment]");
+    assert.equal(
+      doc.querySelector(".comment-message p").textContent,
+      "Comment deleted",
+    );
+    await click("[data-delete-comment]");
+    assert.equal(
+      doc.querySelector(".comment-message p").textContent,
+      "Edited review",
+    );
+    await click("#comment-resolve");
+    assert.equal(
+      doc.querySelector("#comment-resolve").textContent,
+      "Reopen discussion",
+    );
+    await click("#comments-close");
+    assert.equal(doc.querySelector(`[data-comment="${id}"]`), null);
+    await click('[data-action="comments"]');
+    doc.querySelector("#comment-filter").value = "resolved";
+    doc.querySelector("#comment-filter").dispatchEvent(new w.Event("change"));
+    await click(`[data-thread="${id}"]`);
+    await click("#comment-resolve");
+    assert.equal(
+      doc.querySelector("#comment-resolve").textContent,
+      "Resolve discussion",
+    );
+    w.eval(axe.source);
+    const a11y = await w.axe.run(doc.querySelector("#comments-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      a11y.violations.length,
+      0,
+      a11y.violations.map((v) => v.id).join(", "),
+    );
+    await click("#comments-close");
+    await click(`[data-id="${source.id}"]`);
+    const beforePin = doc.querySelector(`[data-comment="${id}"]`).style.left;
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.notEqual(
+      doc.querySelector(`[data-comment="${id}"]`).style.left,
+      beforePin,
+      "A comment follows its object",
+    );
+    await click('[data-action="undo"]');
+    await click(`[data-id="${source.id}"]`);
+    assert.equal(
+      doc.querySelector(`[data-comment="${id}"]`).style.left,
+      beforePin,
+    );
+    await click('[data-action="duplicate"]');
+    await click('[data-action="comments"]');
+    assert.equal(
+      doc.querySelectorAll("[data-thread]").length,
+      1,
+      "Object copies exclude discussions",
+    );
+    await click("#comments-close");
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="comments"]');
+    await click(`[data-thread="${id}"]`);
+    assert.equal(doc.querySelectorAll(".comment-message").length, 2);
+    assert.equal(
+      doc.querySelector(".comment-message p").textContent,
+      "Edited review",
+    );
+    doc.querySelector("#comment-text").value = "Draft after reopen";
+    doc.querySelector("#comment-text").dispatchEvent(new w.Event("input"));
+    await click("#comments-close");
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click('[data-action="comments"]');
+    await click(`[data-thread="${id}"]`);
+    assert.equal(
+      doc.querySelector("#comment-text").value,
+      "Draft after reopen",
+    );
+    assert.equal(
+      doc.querySelector("#comment-resolve").textContent,
+      "Résoudre la discussion",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("sharing adopts this device's comment identity and board JSON preserves discussions while selection JSON omits them", async () => {
+  const env = environment(),
+    puter = env.sdk(owner),
+    build = "faceb00cfaceb00c";
+  await puter.fs.write("whiteboard/catalog.json", "[]");
+  await puter.kv.set("whiteboard-collaboration-worker-v1", {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path: "whiteboard/whiteboard-worker.js",
+    build,
+    builtAt: 200,
+  });
+  const exec = puter.workers.exec;
+  puter.workers.exec = (url, options) =>
+    url.endsWith("/health")
+      ? Promise.resolve(Response.json({ build }))
+      : exec(url, options);
+  const app = await setup(puter),
+    { doc, w, click, tick } = app;
+  w.fetch = async () =>
+    new Response(`/* whiteboard-worker build=${build} at=200 */`);
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "Comment export target" }),
+    );
+    await click('[data-action="add-comment"]');
+    doc.querySelector("#comment-text").value = "Local before sharing";
+    await click('#comment-form [type="submit"]');
+    const id = doc.querySelector("[data-thread]").dataset.thread;
+    await click("#comments-close");
+    for (const scope of ["board", "selection"]) {
+      await click('[data-action="export"]');
+      doc.querySelector("#export-format").value = "json";
+      doc.querySelector("#export-scope").value = scope;
+      doc
+        .querySelector("dialog form")
+        .dispatchEvent(new w.Event("submit", { cancelable: true }));
+      await tick();
+      const text = await new Promise((resolve) => {
+        const r = new w.FileReader();
+        r.onload = () => resolve(r.result);
+        r.readAsText(app.downloads.pop());
+      });
+      const exported = JSON.parse(text);
+      if (scope === "board")
+        assert.equal(
+          exported.comments[0].messages[0].text,
+          "Local before sharing",
+        );
+      else assert.equal(exported.comments, undefined);
+    }
+    await click('[data-action="timer"]');
+    await click("#timer-start");
+    await click("#timer-minimize");
+    env.now += 3600000;
+    await click('[data-action="share"]');
+    const deadline = Date.now() + 5000;
+    // Setting up sharing shows its progress until the Share dialog is ready.
+    let sawProgress = !!doc.querySelector("#share-progress-text");
+    while (!doc.querySelector("#share-link") && Date.now() < deadline) {
+      await tick();
+      sawProgress ||= !!doc.querySelector("#share-progress-text");
+    }
+    assert.ok(
+      doc.querySelector("#share-link"),
+      doc.querySelector("#toast").textContent,
+    );
+    assert.ok(sawProgress, "Sharing showed its progress");
+    assert.equal(doc.querySelector("#share-progress-text"), null);
+    assert.equal(doc.querySelectorAll("dialog[open]").length, 1);
+    assert.equal(
+      doc.querySelector("#timer-state").textContent,
+      "Counting down",
+      "Sharing retimes a local deadline to the worker clock",
+    );
+    assert.match(
+      doc.querySelector("#timer-countdown").textContent,
+      /^(4:5[0-9]|5:00)$/,
+    );
+    // An invitation's link is withdrawn when other access is chosen, so an
+    // edit invitation is never copied as a view invitation.
+    const hasInvite = () =>
+      new URL(doc.querySelector("#share-link").value).hash.includes("invite");
+    assert.equal(hasInvite(), false);
+    // The optional check that follows an invitation may fail; the working
+    // invitation keeps its message.
+    const shareExec = puter.workers.exec;
+    let joins = 0;
+    puter.workers.exec = (url, options) =>
+      options?.body && JSON.parse(options.body).op === "join" && !joins++
+        ? Promise.resolve(
+            Response.json({ message: "Worker unavailable" }, { status: 500 }),
+          )
+        : shareExec(url, options);
+    await click("#create-invite");
+    const inviteDeadline = Date.now() + 3000;
+    while ((!hasInvite() || !joins) && Date.now() < inviteDeadline)
+      await tick();
+    await tick();
+    puter.workers.exec = shareExec;
+    assert.ok(hasInvite(), doc.querySelector("#share-message").textContent);
+    assert.equal(
+      doc.querySelector("#share-message").textContent,
+      "Anyone signed in with this invitation can join.",
+    );
+    const invited = env.calls.findLast((call) => call.op === "invite");
+    assert.equal(invited.role, "editor");
+    doc.querySelector("#share-role").value = "viewer";
+    doc.querySelector("#share-role").dispatchEvent(new w.Event("change"));
+    assert.equal(hasInvite(), false);
+    assert.equal(
+      doc.querySelector("#share-message").textContent,
+      "Create an invitation to share this access.",
+    );
+    doc.querySelector("dialog").close();
+    await click('[data-action="comments"]');
+    await click(`[data-thread="${id}"]`);
+    assert.ok(
+      doc.querySelector("[data-edit-comment]"),
+      "This device's historical comment stays editable after sharing",
+    );
+    await click("[data-edit-comment]");
+    doc.querySelector("#comment-text").value = "Edited after sharing";
+    await click('#comment-form [type="submit"]');
+    await click('[data-action="home"]');
+    const create = env.calls.find((call) => call.op === "create");
+    const stored = await storedSharedBoard(app, create.room);
+    assert.equal(stored.comments[0].messages[0].authorId, owner.uuid);
+    assert.ok(
+      stored.timer.endsAt > env.now && stored.timer.endsAt <= env.now + 301000,
+    );
+    const loaded = await env.service.load(create.room);
+    try {
+      assert.equal(loaded.doc.snapshot().timer.endsAt, stored.timer.endsAt);
+    } finally {
+      loaded.doc.destroy();
+    }
+    assert.equal(stored.comments[0].messages[0].text, "Edited after sharing");
+  } finally {
+    app.close();
+  }
+});
+
+test("object links pick canvas targets, navigate and return, copy addresses, reject invalid URLs, undo and persist", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    const a = item("note", 100, 100, { text: "Source" }),
+      b = item("note", 700, 450, { text: "Destination" });
+    dispatchTransfer(app, "paste", transferData(clipboardFormats([a, b])));
+    const originals = selectedClipboard(app),
+      source = originals.find((i) => i.text === "Source"),
+      target = originals.find((i) => i.text === "Destination");
+    await click(`[data-id="${source.id}"]`);
+    await click('[data-action="object-link"]');
+    const form = () => doc.querySelector("#object-link-form");
+    doc.querySelector("#object-link-url").value = "javascript:alert(1)";
+    form().dispatchEvent(new w.Event("submit", { cancelable: true }));
+    assert.match(
+      doc.querySelector("#object-link-error").textContent,
+      /valid http/,
+    );
+    const view = renderedView(app);
+    canvasPointer(
+      app,
+      "pointerdown",
+      1,
+      view.x + (target.x + 10) * view.z,
+      view.y + (target.y + 10) * view.z,
+      { pointerType: "mouse" },
+    );
+    canvasPointer(
+      app,
+      "pointerup",
+      1,
+      view.x + (target.x + 10) * view.z,
+      view.y + (target.y + 10) * view.z,
+      { pointerType: "mouse" },
+    );
+    assert.equal(
+      new URL(doc.querySelector("#object-link-url").value).hash.includes(
+        target.id,
+      ),
+      true,
+    );
+    assert.equal(
+      selectedClipboard(app)[0].id,
+      source.id,
+      "Picking preserves the source selection",
+    );
+    await click('#object-link-form [type="submit"]');
+    assert.equal(doc.querySelector("#object-links-panel"), null);
+    // Reading an isolated clipboard fragment intentionally points back to its source board.
+    assert.equal(
+      new URL(selectedClipboard(app)[0].objectLink.url).hash.includes(
+        target.id,
+      ),
+      true,
+    );
+    const previous = renderedView(app);
+    doc
+      .querySelector(`[data-object-link="${source.id}"]`)
+      .dispatchEvent(
+        new w.MouseEvent("click", { bubbles: true, cancelable: true }),
+      );
+    await tick();
+    assert.equal(selectedClipboard(app)[0].id, target.id);
+    assert.equal(
+      new URLSearchParams(w.location.hash.slice(1)).get("object"),
+      target.id,
+    );
+    w.history.back();
+    await tick();
+    await tick();
+    assert.equal(selectedClipboard(app)[0].id, source.id);
+    assert.deepEqual(renderedView(app), previous);
+    let copied;
+    w.navigator.clipboard = {
+      writeText: async () => {
+        throw Error("Clipboard unavailable");
+      },
+    };
+    await click('[data-action="object-link"]');
+    await click("#object-link-copy");
+    const manual = doc.querySelector("#copy-object-url");
+    assert.ok(manual.value.includes(source.id));
+    assert.equal(
+      manual.selectionEnd - manual.selectionStart,
+      manual.value.length,
+    );
+    manual.closest("dialog").close();
+    await tick();
+    w.navigator.clipboard = {
+      writeText: async (value) => {
+        copied = value;
+      },
+    };
+    await click("#object-link-copy");
+    assert.equal(
+      new URLSearchParams(new URL(copied).hash.slice(1)).get("object"),
+      source.id,
+    );
+    const reopened = await setup(undefined, {
+      url: copied,
+      indexedDB: w.indexedDB,
+    });
+    try {
+      assert.equal(
+        selectedClipboard(reopened)[0].id,
+        source.id,
+        "A direct URL restores its persisted object in a fresh editor",
+      );
+      assert.equal(
+        reopened.doc.querySelector("#board-title").value,
+        doc.querySelector("#board-title").value,
+      );
+    } finally {
+      reopened.close();
+    }
+    w.eval(axe.source);
+    const accessible = await w.axe.run(
+      doc.querySelector("#object-links-panel"),
+      { rules: { "color-contrast": { enabled: false } } },
+    );
+    assert.equal(
+      accessible.violations.length,
+      0,
+      accessible.violations.map((v) => v.id).join(","),
+    );
+    await click("#object-link-remove");
+    assert.equal(selectedClipboard(app)[0].objectLink, undefined);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${source.id}"]`);
+    assert.ok(selectedClipboard(app)[0].objectLink);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`[data-id="${source.id}"]`);
+    await click('[data-action="object-link"]');
+    assert.ok(doc.querySelector("#object-link-url").value.includes(target.id));
+    await click("#object-link-close");
+    await click(`[data-id="${target.id}"]`);
+    await click('[data-action="delete"]');
+    await click(`[data-id="${source.id}"]`);
+    await click('[data-action="object-link"]');
+    doc
+      .querySelector("#object-link-current a")
+      .dispatchEvent(
+        new w.MouseEvent("click", { bubbles: true, cancelable: true }),
+      );
+    await tick();
+    assert.match(doc.querySelector("#toast").textContent, /no longer/);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${source.id}"]`);
+    await click('[data-action="object-link"]');
+    doc.querySelector("#object-link-url").value = "example.com/resource";
+    await click('#object-link-form [type="submit"]');
+    assert.equal(
+      selectedClipboard(app)[0].objectLink.url,
+      "https://example.com/resource",
+    );
+    await click('[data-action="object-link"]');
+    assert.equal(doc.querySelector("#object-link-current a").target, "_blank");
+    await click("#object-link-close");
+    await click('[data-action="lock"]');
+    await click("#object-link-access");
+    assert.equal(form().hidden, true);
+    form().dispatchEvent(new w.Event("submit", { cancelable: true }));
+    assert.equal(
+      selectedClipboard(app)[0].objectLink.url,
+      "https://example.com/resource",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("canvas table cells support keyboard editing, range clipboard, structural changes, undo, persistence and protected copying", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  const key = (key, options = {}) =>
+    doc.activeElement.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...options,
+      }),
+    );
+  try {
+    await click('[data-action="new"]');
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("table", 200, 200, {
+            w: 340,
+            h: 225,
+            cells: [
+              ["Name", "Status"],
+              ["Alice", "Open"],
+              ["Bob", "Done"],
+            ],
+          }),
+        ]),
+      ),
+    );
+    const original = selectedClipboard(app)[0];
+    await click('[data-action="edit"]');
+    assert.equal(doc.activeElement.id, "table-cell-grid");
+    key("ArrowDown");
+    key("ArrowRight");
+    key("Enter");
+    assert.equal(doc.querySelector("#table-cell-input").value, "Open");
+    doc.querySelector("#table-cell-input").value = "In progress";
+    key("Tab");
+    assert.equal(doc.querySelector("#table-cell-input").value, "Bob");
+    doc.querySelector("#table-cell-input").value = "Discard me";
+    key("Escape");
+    await click("#table-cell-done");
+    let saved = selectedClipboard(app)[0];
+    assert.equal(saved.cells[1][1], "In progress");
+    assert.equal(saved.cells[2][0], "Bob");
+    await click('[data-action="undo"]');
+    await click(`[data-id="${original.id}"]`);
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    await click('[data-action="redo"]');
+    await click(`[data-id="${original.id}"]`);
+    await click("#table-cell-access");
+    key("ArrowDown");
+    key("ArrowRight", { shiftKey: true });
+    const clipboard = transferData();
+    dispatchTransfer(app, "copy", clipboard);
+    assert.equal(clipboard.getData("text/plain"), "Alice\tIn progress");
+    assert.match(clipboard.getData("text/html"), /<table>/);
+    assert.equal(clipboard.getData(CLIPBOARD_TYPE), "");
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "Carol\tReview\nDan\tReady" }),
+    );
+    assert.equal(doc.querySelector("#table-active-cell").textContent, "Review");
+    const row = doc.querySelector("#table-row-action");
+    row.value = "after";
+    row.dispatchEvent(new w.Event("change"));
+    assert.equal(
+      doc.querySelector('[role="grid"]').getAttribute("aria-rowcount"),
+      "4",
+    );
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("#table-editor"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations
+        .map(
+          (v) => `${v.id}: ${v.nodes.map((n) => n.failureSummary).join(", ")}`,
+        )
+        .join("\n"),
+    );
+    await click("#table-cell-done");
+    saved = selectedClipboard(app)[0];
+    assert.deepEqual(saved.cells, [
+      ["Name", "Status"],
+      ["Carol", "Review"],
+      ["", ""],
+      ["Dan", "Ready"],
+    ]);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`[data-id="${original.id}"]`);
+    assert.deepEqual(selectedClipboard(app)[0].cells, saved.cells);
+    await click('[data-action="lock"]');
+    await click("#table-cell-access");
+    assert.equal(doc.querySelector("#table-cell-edit").disabled, true);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "Must not change" }),
+    );
+    assert.match(
+      doc.querySelector("#table-cell-error").textContent,
+      /protected/,
+    );
+    const lockedCopy = transferData();
+    dispatchTransfer(app, "copy", lockedCopy);
+    assert.equal(lockedCopy.getData("text/plain"), "Name");
+    key("Escape");
+    assert.equal(doc.querySelector("#table-editor"), null);
+    assert.deepEqual(selectedClipboard(app)[0].cells, saved.cells);
+  } finally {
+    app.close();
+  }
+});
+
+test("opening table navigation reveals the focused cell below a tall narrow toolbar", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("table", 100, 100, {
+        w: 340,
+        h: 150,
+        cells: [
+          ["A", "B"],
+          ["C", "D"],
+        ],
+      }),
+    ]);
+    const table = selectedClipboard(app)[0];
+    const previous = w.HTMLElement.prototype.getBoundingClientRect;
+    w.HTMLElement.prototype.getBoundingClientRect = function () {
+      if (this.classList.contains("table-cell-tools"))
+        return {
+          left: 12,
+          top: 64,
+          right: 308,
+          bottom: 502,
+          width: 296,
+          height: 438,
+        };
+      return previous.call(this);
+    };
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      right: 320,
+      bottom: 760,
+      width: 320,
+      height: 760,
+    });
+    const undo = doc.querySelector('[data-action="undo"]').disabled;
+    await click('[data-action="edit"]');
+    const view = renderedView(app);
+    assert.equal(doc.activeElement.id, "table-cell-grid");
+    assert.ok(
+      view.y + table.y * view.z >= 518,
+      "The focused cell clears the toolbar, including the focus border",
+    );
+    assert.equal(doc.querySelector('[data-action="undo"]').disabled, undo);
+    await click("#table-cell-done");
+    assert.deepEqual(allClipboard(app)[0], table);
+  } finally {
+    app.close();
+  }
+});
+
+test("table Extend selection supports tap-only ranges, accessible controls and one-step clear undo", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [
+      item("table", 100, 100, {
+        w: 340,
+        h: 150,
+        cells: [
+          ["A", "B"],
+          ["C", "D"],
+        ],
+      }),
+    ]);
+    const table = selectedClipboard(app)[0];
+    await click('[data-action="edit"]');
+    await click("#table-cell-extend");
+    const v = renderedView(app),
+      x = v.x + (table.x + table.w * 0.75) * v.z,
+      y = v.y + (table.y + table.h * 0.75) * v.z;
+    canvasPointer(app, "pointerdown", 1, x, y, { pointerType: "touch" });
+    canvasPointer(app, "pointerup", 1, x, y, { pointerType: "touch" });
+    assert.match(
+      doc.querySelector("#table-cell-position").textContent,
+      /Rows 1–2 · Columns 1–2/,
+    );
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("#table-editor"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(audit.violations.length, 0);
+    await click("#table-cell-clear");
+    await click("#table-cell-done");
+    assert.deepEqual(selectedClipboard(app)[0].cells, [
+      ["", ""],
+      ["", ""],
+    ]);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0].cells, table.cells);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("#board-outline button");
+    await click('[data-action="edit"]');
+    assert.equal(
+      doc.querySelector("#table-cell-extend").textContent,
+      "Étendre la sélection",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("table canvas clicks select cells, drag a range, edit the clicked cell, and cancel without writes", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("table", 100, 100, {
+            w: 340,
+            h: 150,
+            cells: [
+              ["A", "B"],
+              ["C", "D"],
+            ],
+          }),
+        ]),
+      ),
+    );
+    const table = selectedClipboard(app)[0],
+      v = renderedView(app);
+    const point = (r, c) => ({
+      x: v.x + (table.x + ((c + 0.5) * table.w) / 2) * v.z,
+      y: v.y + (table.y + ((r + 0.5) * table.h) / 2) * v.z,
+    });
+    let p = point(1, 1);
+    canvasPointer(app, "pointerdown", 1, p.x, p.y, { pointerType: "mouse" });
+    canvasPointer(app, "pointerup", 1, p.x, p.y, { pointerType: "mouse" });
+    assert.equal(doc.querySelector("#table-active-cell").textContent, "D");
+    p = point(0, 0);
+    canvasPointer(app, "pointerdown", 2, p.x, p.y, { pointerType: "mouse" });
+    p = point(1, 1);
+    canvasPointer(app, "pointermove", 2, p.x, p.y, { pointerType: "mouse" });
+    canvasPointer(app, "pointerup", 2, p.x, p.y, { pointerType: "mouse" });
+    const copied = transferData();
+    dispatchTransfer(app, "copy", copied);
+    assert.equal(copied.getData("text/plain"), "A\tB\nC\tD");
+    canvasPointer(app, "pointerdown", 3, p.x, p.y, { pointerType: "mouse" });
+    canvasPointer(app, "pointerup", 3, p.x, p.y, { pointerType: "mouse" });
+    canvasPointer(app, "pointerdown", 4, p.x, p.y, { pointerType: "mouse" });
+    canvasPointer(app, "pointerup", 4, p.x, p.y, { pointerType: "mouse" });
+    assert.equal(doc.querySelector("#table-cell-input").value, "D");
+    doc.querySelector("#table-cell-input").value = "Cancelled";
+    doc.querySelector("#table-cell-input").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await click("#table-cell-done");
+    await tick();
+    assert.deepEqual(selectedClipboard(app)[0], table);
+  } finally {
+    app.close();
+  }
+});
+
+test("grouped table cells edit directly while retaining group members and no-op history", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("table", 100, 100, {
+            groupId: "team",
+            cells: [["A", "B"]],
+            w: 340,
+            h: 75,
+          }),
+          item("note", 500, 100, { groupId: "team", text: "Grouped neighbor" }),
+        ]),
+      ),
+    );
+    const originals = selectedClipboard(app),
+      table = originals.find((i) => i.type === "table");
+    await click(`[data-id="${table.id}"]`);
+    await click("#table-cell-access");
+    assert.ok(doc.querySelector("#table-editor"));
+    await click("#table-cell-edit");
+    doc.querySelector("#table-cell-input").value = "Changed";
+    await click("#table-cell-done");
+    assert.equal(
+      selectedClipboard(app).find((i) => i.type === "table").cells[0][0],
+      "Changed",
+    );
+    assert.equal(
+      selectedClipboard(app).find((i) => i.type === "note").text,
+      "Grouped neighbor",
+    );
+    await click('[data-action="undo"]');
+    await click(`[data-id="${table.id}"]`);
+    await click("#table-cell-access");
+    await click("#table-cell-edit");
+    await click("#table-cell-done");
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    assert.deepEqual(selectedClipboard(app), originals);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("#table-cell-access");
+    assert.equal(
+      doc.querySelector("#table-cell-edit").textContent,
+      "Modifier la cellule",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+function mindKey(app, key, options = {}) {
+  const target =
+    app.doc.querySelector("#canvas-text-editor") ||
+    app.doc.querySelector("#canvas");
+  const event = new app.w.KeyboardEvent("keydown", {
+    key,
+    bubbles: true,
+    cancelable: true,
+    ...options,
+  });
+  target.dispatchEvent(event);
+  return event;
+}
+
+async function mindDragFixture(app, target = {}) {
+  await app.click('[data-action="new"]');
+  app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1200,
+    height: 900,
+  });
+  const root = item("rect", 100, 100, {
+    w: 220,
+    h: 90,
+    text: "Root",
+    mindMap: { parent: null, direction: "right", auto: true, line: "curved" },
+  });
+  const child = (text, parent) =>
+    item("rect", 0, 0, {
+      w: 200,
+      h: 76,
+      text,
+      mindMap: { ...root.mindMap, parent },
+    });
+  const a = child("Branch A", root.id),
+    b = child("Branch B", root.id),
+    nested = child("Nested", a.id);
+  Object.assign(b, target);
+  const items = [root, a, b, nested];
+  const { applyMindLayout } = await import("../src/mind-map.js");
+  applyMindLayout(items, root.id);
+  dispatchTransfer(app, "paste", transferData(clipboardFormats(items)));
+  const nodes = selectedClipboard(app);
+  const point = (node) => {
+    const v = renderedView(app);
+    return [
+      v.x + (node.x + node.w / 2) * v.z,
+      v.y + (node.y + node.h / 2) * v.z,
+    ];
+  };
+  const pointer = (type, node, extra = {}) =>
+    canvasPointer(app, type, 44, ...point(node), {
+      pointerType: "mouse",
+      ...extra,
+    });
+  return {
+    nodes,
+    root: nodes.find((i) => i.text === "Root"),
+    a: nodes.find((i) => i.text === "Branch A"),
+    b: nodes.find((i) => i.text === b.text),
+    nested: nodes.find((i) => i.text === "Nested"),
+    pointer,
+  };
+}
+
+test("mind branch dragging selects a child inside the selected map, previews and reparents its descendants in one undo step", async () => {
+  const app = await setup(),
+    { doc, click, w } = app;
+  try {
+    const { nodes, root, a, b, nested, pointer } = await mindDragFixture(app);
+    await click(`[data-id="${root.id}"]`);
+    pointer("pointerdown", a);
+    assert.deepEqual(
+      new Set(selectedClipboard(app).map((i) => i.id)),
+      new Set([a.id, nested.id]),
+    );
+    pointer("pointermove", b);
+    assert.match(
+      doc.querySelector("#mind-drop-hint").textContent,
+      /Release to attach to: Branch B/,
+    );
+    pointer("pointerup", b);
+    assert.equal(doc.querySelector("#mind-drop-hint").hidden, true);
+    await click(`[data-id="${root.id}"]`);
+    const moved = selectedClipboard(app);
+    assert.equal(moved.find((i) => i.id === a.id).mindMap.parent, b.id);
+    assert.equal(moved.find((i) => i.id === nested.id).mindMap.parent, a.id);
+    assert.equal(moved.find((i) => i.id === root.id).mindMap.auto, true);
+    assert.ok(
+      moved.find((i) => i.id === nested.id).x >
+        moved.find((i) => i.id === a.id).x,
+    );
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), nodes);
+    for (const end of [
+      "pointercancel",
+      "lostpointercapture",
+      "Escape",
+      "blur",
+    ]) {
+      pointer("pointerdown", a);
+      pointer("pointermove", b);
+      if (end === "Escape") mindKey(app, "Escape");
+      else if (end === "blur") w.dispatchEvent(new w.Event("blur"));
+      else pointer(end, b);
+      await click(`[data-id="${root.id}"]`);
+      assert.deepEqual(selectedClipboard(app), nodes, end);
+      assert.equal(
+        doc.querySelector('[data-action="redo"]').disabled,
+        false,
+        "Cancelled drag preserves redo",
+      );
+    }
+    await click('[data-action="redo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), moved);
+  } finally {
+    app.close();
+  }
+});
+
+test("mind branch dragging updates Ctrl/Cmd bypass immediately and rejects a protected parent without writes", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    const { nodes, root, a, b, pointer } = await mindDragFixture(app);
+    await click(`[data-id="${a.id}"]`);
+    pointer("pointerdown", a);
+    pointer("pointermove", b);
+    mindKey(app, "Control", { ctrlKey: true });
+    assert.match(
+      doc.querySelector("#mind-drop-hint").textContent,
+      /without reassigning/,
+    );
+    pointer("pointerup", b, { ctrlKey: true });
+    await click(`[data-id="${root.id}"]`);
+    const manual = selectedClipboard(app);
+    assert.equal(manual.find((i) => i.id === a.id).mindMap.parent, root.id);
+    assert.equal(manual.find((i) => i.id === root.id).mindMap.auto, false);
+    assert.notEqual(manual.find((i) => i.id === a.id).y, a.y);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${a.id}"]`);
+    pointer("pointerdown", a);
+    pointer("pointermove", b, { metaKey: true });
+    assert.match(
+      doc.querySelector("#mind-drop-hint").textContent,
+      /without reassigning/,
+    );
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keyup", {
+        key: "Meta",
+        metaKey: false,
+        bubbles: true,
+      }),
+    );
+    assert.match(
+      doc.querySelector("#mind-drop-hint").textContent,
+      /Release to attach/,
+    );
+    pointer("pointerup", b);
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(
+      selectedClipboard(app).find((i) => i.id === a.id).mindMap.parent,
+      b.id,
+    );
+    await click('[data-action="undo"]');
+    await click(`[data-id="${b.id}"]`);
+    await click('[data-action="lock"]');
+    await click(`[data-id="${root.id}"]`);
+    const locked = selectedClipboard(app);
+    pointer("pointerdown", a);
+    pointer("pointermove", b);
+    assert.match(doc.querySelector("#mind-drop-hint").textContent, /Unlock/);
+    pointer("pointerup", b);
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), locked);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(
+      selectedClipboard(app),
+      nodes,
+      "Rejected drop leaves lock action as the latest undo entry",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("mind branch touch drops reassign and mixed selections retain whole-selection movement", async () => {
+  const app = await setup(),
+    { doc, click } = app;
+  try {
+    const { nodes, root, a, b, pointer } = await mindDragFixture(app);
+    await click(`[data-id="${root.id}"]`);
+    for (const type of ["pointerdown", "pointermove", "pointerup"])
+      pointer(type, type === "pointerdown" ? a : b, { pointerType: "touch" });
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(
+      selectedClipboard(app).find((i) => i.id === a.id).mindMap.parent,
+      b.id,
+    );
+    await click('[data-action="undo"]');
+    mindKey(app, "a", { ctrlKey: true });
+    pointer("pointerdown", a);
+    pointer("pointermove", b);
+    assert.equal(doc.querySelector("#mind-drop-hint").hidden, true);
+    pointer("pointerup", b);
+    await click(`[data-id="${root.id}"]`);
+    const moved = selectedClipboard(app),
+      newRoot = moved.find((i) => i.id === root.id);
+    assert.notEqual(newRoot.y, root.y);
+    assert.equal(newRoot.mindMap.auto, true);
+    assert.equal(moved.find((i) => i.id === a.id).mindMap.parent, root.id);
+    for (const node of moved) {
+      const before = nodes.find((i) => i.id === node.id);
+      assert.ok(Math.abs(node.y - before.y - (newRoot.y - root.y)) < 1e-6);
+    }
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), nodes);
+  } finally {
+    app.close();
+  }
+});
+
+test("mind branch drops reveal the moved node and new parent when automatic layout crosses the toolbar edge", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    const { root, pointer } = await mindDragFixture(app);
+    await click(`[data-id="${root.id}"]`);
+    await click('[data-action="mind-settings"]');
+    doc.querySelector("#mind-direction").value = "up";
+    doc
+      .querySelector("#mind-direction")
+      .closest("form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    const before = selectedClipboard(app),
+      source = before.find((i) => i.text === "Branch B"),
+      parent = before.find((i) => i.text === "Nested");
+    const originalView = renderedView(app);
+    assert.ok(
+      originalView.y + (parent.y - 80 - source.h) * originalView.z < 140,
+      "The new position would be behind the toolbar",
+    );
+    pointer("pointerdown", source);
+    pointer("pointermove", parent);
+    pointer("pointerup", parent);
+    await click(`[data-id="${root.id}"]`);
+    const after = selectedClipboard(app),
+      view = renderedView(app);
+    assert.notEqual(view.y, originalView.y);
+    assert.equal(view.x, originalView.x, "Keep the horizontal context");
+    assert.ok(
+      Math.abs(
+        view.y + after.find((i) => i.id === source.id).y * view.z - 180,
+      ) < 1e-6,
+      "Pan only enough to clear the toolbar and branch handle",
+    );
+    assert.equal(
+      after.find((i) => i.id === source.id).mindMap.parent,
+      parent.id,
+    );
+    for (const node of after.filter((i) =>
+      [source.id, parent.id].includes(i.id),
+    )) {
+      assert.ok(view.x + node.x * view.z >= 90);
+      assert.ok(view.y + node.y * view.z >= 140);
+      assert.ok(view.x + (node.x + node.w) * view.z <= 1170);
+      assert.ok(view.y + (node.y + node.h) * view.z <= 830);
+    }
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), before);
+  } finally {
+    app.close();
+  }
+});
+
+test("mind map plus handles create branches on every side with undo, continuation, localization and protection", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="mind-map"]');
+    mindKey(app, "Enter", { ctrlKey: true });
+    const root = selectedClipboard(app)[0];
+    for (const direction of ["up", "right", "down", "left"]) {
+      await click(`[data-id="${root.id}"]`);
+      assert.equal(
+        doc.querySelectorAll("#mind-ports button:not([hidden])").length,
+        4,
+      );
+      assert.equal(doc.querySelector("#quick-ports").hidden, true);
+      await click(`[data-mind-direction="${direction}"]`);
+      assert.equal(
+        doc.querySelector("#mind-ports").hidden,
+        true,
+        "Hide handles while typing",
+      );
+      doc.querySelector("#canvas-text-editor").value = direction;
+      mindKey(app, "Enter", { ctrlKey: true });
+      assert.equal(
+        doc.querySelectorAll("#mind-ports button:not([hidden])").length,
+        1,
+      );
+      assert.equal(
+        doc.querySelector(`[data-mind-direction="${direction}"]`).hidden,
+        false,
+      );
+    }
+    await click(`[data-id="${root.id}"]`);
+    const nodes = selectedClipboard(app);
+    assert.equal(nodes.length, 5);
+    for (const child of nodes.filter((i) => i.id !== root.id)) {
+      assert.equal(child.mindMap.parent, root.id);
+      assert.equal(child.mindMap.direction, child.text);
+      if (child.text === "up") assert.ok(child.y + child.h < root.y);
+      if (child.text === "right") assert.ok(child.x > root.x + root.w);
+      if (child.text === "down") assert.ok(child.y > root.y + root.h);
+      if (child.text === "left") assert.ok(child.x + child.w < root.x);
+    }
+    const left = nodes.find((i) => i.text === "left");
+    await click(`[data-id="${left.id}"]`);
+    await click('[data-mind-direction="left"]');
+    mindKey(app, "Enter", { ctrlKey: true });
+    await click(`[data-id="${root.id}"]`);
+    const expanded = selectedClipboard(app);
+    const grandchild = expanded.find((i) => i.mindMap.parent === left.id);
+    assert.ok(grandchild.x + grandchild.w < left.x);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), nodes);
+    await click('[data-action="redo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), expanded);
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("#mind-ports"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(audit.violations.length, 0);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(
+      doc
+        .querySelector('[data-mind-direction="left"]')
+        .getAttribute("aria-label"),
+      "Ajouter un enfant à gauche",
+    );
+    await click('[data-action="lock"]');
+    assert.equal(doc.querySelector("#mind-ports").hidden, true);
+    await click('[data-mind-direction="left"]');
+    assert.equal(selectedClipboard(app).length, 6);
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+  } finally {
+    app.close();
+  }
+});
+
+test("mind map authoring creates child and sibling nodes, navigates, rearranges, copies and persists an editable hierarchy", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="mind-map"]');
+    doc.querySelector("#canvas-text-editor").value = "Product launch";
+    assert.equal(mindKey(app, "Tab").defaultPrevented, true);
+    doc.querySelector("#canvas-text-editor").value = "Research";
+    mindKey(app, "Enter");
+    doc.querySelector("#canvas-text-editor").value = "Delivery";
+    mindKey(app, "Enter", { ctrlKey: true });
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    const delivery = selectedClipboard(app)[0];
+    await click(
+      `[data-id="${doc.querySelector("#board-outline button").dataset.id}"]`,
+    );
+    const nodes = selectedClipboard(app),
+      root = nodes.find((i) => !i.mindMap.parent),
+      research = nodes.find((i) => i.text === "Research");
+    assert.equal(nodes.length, 3);
+    assert.equal(root.text, "Product launch");
+    assert.ok(research.y + research.h < delivery.y);
+    mindKey(app, "ArrowRight");
+    assert.equal(selectedClipboard(app)[0].id, research.id);
+    mindKey(app, "ArrowDown");
+    assert.equal(selectedClipboard(app)[0].id, delivery.id);
+    await click('[data-action="mind-move"]');
+    doc.querySelector("#mind-parent-search").value = "Research";
+    doc
+      .querySelector("#mind-parent-search")
+      .dispatchEvent(new w.Event("input"));
+    await click(`[data-mind-parent="${research.id}"]`);
+    assert.equal(
+      selectedClipboard(app)[0].mindMap.parent,
+      null,
+      "Copying one branch detaches its external parent",
+    );
+    await click(`[data-id="${root.id}"]`);
+    let tree = selectedClipboard(app);
+    assert.equal(
+      tree.find((i) => i.id === delivery.id).mindMap.parent,
+      research.id,
+    );
+    await click('[data-action="mind-settings"]');
+    doc.querySelector("#mind-direction").value = "down";
+    doc.querySelector("#mind-lines").value = "straight";
+    doc
+      .querySelector("#mind-direction")
+      .closest("form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    tree = selectedClipboard(app);
+    assert.ok(
+      tree.every(
+        (i) => i.mindMap.direction === "down" && i.mindMap.line === "straight",
+      ),
+    );
+    assert.ok(
+      tree.find((i) => i.id === delivery.id).y >
+        tree.find((i) => i.id === research.id).y,
+    );
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.ok(
+      selectedClipboard(app).every((i) => i.mindMap.direction === "right"),
+    );
+    await click('[data-action="redo"]');
+    await click(`[data-id="${root.id}"]`);
+    const formats = transferData();
+    dispatchTransfer(app, "copy", formats);
+    dispatchTransfer(app, "paste", formats);
+    const copied = selectedClipboard(app),
+      copyRoot = copied.find((i) => !i.mindMap.parent);
+    assert.equal(copied.length, 3);
+    assert.notEqual(copyRoot.id, root.id);
+    assert.ok(
+      copied.every(
+        (i) =>
+          !i.mindMap.parent || copied.some((p) => p.id === i.mindMap.parent),
+      ),
+    );
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    await click('[data-action="mind-settings"]');
+    doc
+      .querySelector("#mind-direction")
+      .closest("form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "No-op layout retains redo",
+    );
+    await click('[data-action="mind-settings"]');
+    w.eval(axe.source);
+    const result = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(result.violations.length, 0);
+    doc.querySelector("dialog").close();
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(selectedClipboard(app).length, 3);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(
+      doc
+        .querySelector('[data-action="mind-child"]')
+        .getAttribute("aria-label"),
+      "Ajouter un nœud enfant",
+    );
+    await click('[data-action="lock"]');
+    const count = doc.querySelectorAll("#board-outline button").length;
+    mindKey(app, "Tab");
+    await tick();
+    assert.equal(doc.querySelectorAll("#board-outline button").length, count);
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+  } finally {
+    app.close();
+  }
+});
+
+test("mind map branch deletion and cancelled dragging preserve hierarchy, undo and copy boundaries", async () => {
+  const app = await setup(),
+    { doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const { board } = await import("../src/model.js");
+    const seeded = board("Test", "mindmap");
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(clipboardFormats(seeded.items)),
+    );
+    const nodes = selectedClipboard(app),
+      root = nodes.find((i) => !i.mindMap.parent),
+      child = nodes.find((i) => i.mindMap.parent);
+    await click(`[data-id="${root.id}"]`);
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    const v = renderedView(app),
+      x = v.x + (root.x + root.w / 2) * v.z,
+      y = v.y + (root.y + root.h / 2) * v.z;
+    canvasPointer(app, "pointerdown", 1, x, y, { pointerType: "mouse" });
+    canvasPointer(app, "pointermove", 1, x + 120, y + 60, {
+      pointerType: "mouse",
+    });
+    mindKey(app, "Escape");
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), nodes);
+    await click(`[data-id="${child.id}"]`);
+    await click('[data-action="delete"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(selectedClipboard(app).length, 3);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(selectedClipboard(app).length, 4);
+    await click('[data-action="delete"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${root.id}"]`);
+    assert.deepEqual(selectedClipboard(app), nodes);
+  } finally {
+    app.close();
+  }
+});
+
+test("mind collapse preserves nested state, geometry, copy, undo, deletion and JSON backups", async () => {
+  const app = await setup(null),
+    { doc, w, click, tick } = app;
+  try {
+    const { nodes, root, a, nested, pointer } = await mindDragFixture(app);
+    await click(`[data-id="${a.id}"]`);
+    await click(`[data-mind-collapse="${a.id}"]`);
+    assert.equal(doc.querySelector(`[data-id="${nested.id}"]`), null);
+    assert.equal(
+      doc.querySelector(`[data-mind-collapse="${a.id}"] span`).textContent,
+      "1",
+    );
+    assert.match(
+      doc.querySelector("#selection-tools").textContent,
+      /1 hidden in collapsed branches/,
+    );
+    assert.equal(
+      selectedClipboard(app).length,
+      2,
+      "Hidden descendants remain part of a branch copy",
+    );
+    pointer("pointerdown", nested);
+    pointer("pointerup", nested);
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      0,
+      "Hidden nodes cannot be clicked",
+    );
+    mindKey(app, "a", { ctrlKey: true });
+    assert.match(
+      doc.querySelector("#selection-tools").textContent,
+      /1 hidden in collapsed branches/,
+      "Mixed selections identify hidden content too",
+    );
+    await click(`[data-id="${root.id}"]`);
+    await click('[data-action="mind-collapse"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    let full = selectedClipboard(app);
+    assert.equal(full.length, 4);
+    assert.deepEqual(
+      full.map((i) => [i.id, i.x, i.y, i.w, i.h]),
+      nodes.map((i) => [i.id, i.x, i.y, i.w, i.h]),
+    );
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    assert.equal(doc.querySelector(`[data-id="${nested.id}"]`), null);
+    await click('[data-action="redo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    await click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "json";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    const exported = JSON.parse(
+      await new Promise((resolve) => {
+        const r = new w.FileReader();
+        r.onload = () => resolve(r.result);
+        r.readAsText(app.downloads.pop());
+      }),
+    );
+    assert.equal(exported.items.length, 4);
+    assert.equal(
+      exported.items.find((i) => i.id === root.id).mindCollapsed,
+      true,
+    );
+    await click(`[data-id="${root.id}"]`);
+    await click('[data-action="delete"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 1);
+    await click(`[data-id="${root.id}"]`);
+    mindKey(app, "ArrowRight");
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      3,
+      "Forward arrow expands the selected collapsed node",
+    );
+    await click(`[data-id="${a.id}"]`);
+    mindKey(app, "Tab");
+    assert.ok(doc.querySelector("#canvas-text-editor"));
+    mindKey(app, "Enter", { ctrlKey: true });
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      5,
+      "Adding a child expands its parent in the same edit",
+    );
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+  } finally {
+    app.close();
+  }
+});
+
+test("mind collapse hides anchored comments and search, object navigation and comment threads reveal hidden content", async () => {
+  const app = await setup(null),
+    { doc, w, click } = app;
+  try {
+    const { root, a, nested } = await mindDragFixture(app);
+    await click(`[data-id="${nested.id}"]`);
+    await click('[data-action="add-comment"]');
+    doc.querySelector("#comment-text").value = "Nested review";
+    await click('#comment-form [type="submit"]');
+    const thread = doc.querySelector("[data-thread]").dataset.thread;
+    await click("#comments-close");
+    await click(`[data-id="${a.id}"]`);
+    await click('[data-action="mind-collapse"]');
+    assert.equal(doc.querySelectorAll("#comment-pins button").length, 0);
+    assert.equal(
+      doc.querySelector(`[data-mind-collapse="${a.id}"] span`).textContent,
+      "2",
+    );
+    await click('[data-action="comments"]');
+    await click(`[data-thread="${thread}"]`);
+    assert.ok(doc.querySelector(`[data-id="${nested.id}"]`));
+    assert.equal(doc.querySelectorAll("#comment-pins button").length, 1);
+    await click("#comments-close");
+    await click(`[data-id="${root.id}"]`);
+    await click('[data-action="mind-collapse"]');
+    await click('[data-action="board-search"]');
+    const query = doc.querySelector("#board-search-input");
+    query.value = "Nested";
+    query.dispatchEvent(new w.Event("input", { bubbles: true }));
+    await click('[data-result="0"]');
+    assert.ok(doc.querySelector(`[data-id="${nested.id}"]`));
+    mindKey(app, "Escape");
+    await click(`[data-id="${root.id}"]`);
+    await click('[data-action="mind-collapse"]');
+    await click('[data-action="objects"]');
+    await click(`[data-object="${nested.id}"]`);
+    assert.ok(doc.querySelector(`[data-id="${nested.id}"]`));
+    assert.equal(
+      doc
+        .querySelector(`[data-id="${nested.id}"]`)
+        .getAttribute("aria-pressed"),
+      "true",
+    );
+    await click(`[data-id="${root.id}"]`);
+    await click('[data-action="mind-collapse"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click(`[data-id="${root.id}"]`);
+    assert.equal(
+      doc
+        .querySelector('[data-action="mind-collapse"]')
+        .getAttribute("aria-label"),
+      "Déplier la branche",
+    );
+    w.eval(axe.source);
+    const result = await w.axe.run(doc.querySelector("#mind-collapse-ports"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(result.violations.length, 0);
+  } finally {
+    app.close();
+  }
+});
+
+test("table sizing in the built editor preserves history, cell edits, structure, persistence, and locks", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("table", 100, 100, {
+            w: 340,
+            h: 150,
+            cells: [
+              ["A", "B"],
+              ["C", "D"],
+            ],
+          }),
+        ]),
+      ),
+    );
+    const original = selectedClipboard(app)[0];
+    await click("#table-cell-access");
+    const v = renderedView(app),
+      x = v.x + (original.x + 170) * v.z,
+      y = v.y + (original.y + 40) * v.z;
+    const pointer = (type, id, px) =>
+      canvasPointer(app, type, id, px, y, { pointerType: "mouse" });
+    pointer("pointerdown", 1, x);
+    pointer("pointermove", 1, x + 80 * v.z);
+    assert.equal(doc.querySelector("#table-column-size").value, "250");
+    w.dispatchEvent(new w.Event("blur"));
+    assert.equal(doc.querySelector("#table-column-size").value, "170");
+    pointer("pointerdown", 2, x);
+    pointer("pointermove", 2, x + 80 * v.z);
+    pointer("pointerup", 2, x + 80 * v.z);
+    assert.equal(doc.querySelector("#table-column-size").value, "250");
+    await click("#table-cell-done");
+    let saved = selectedClipboard(app)[0];
+    assert.deepEqual(saved.columnWidths, [250, 170]);
+    assert.deepEqual(saved.cells, original.cells);
+    await click('[data-action="undo"]');
+    await click(`[data-id="${original.id}"]`);
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    await click('[data-action="redo"]');
+    await click(`[data-id="${original.id}"]`);
+    await click("#table-cell-access");
+    const field = doc.querySelector("#table-row-size");
+    field.value = "120";
+    field.dispatchEvent(new w.Event("change"));
+    const insert = doc.querySelector("#table-row-action");
+    insert.value = "after";
+    insert.dispatchEvent(new w.Event("change"));
+    await click("#table-cell-edit");
+    doc.querySelector("#table-cell-input").value = "Edited after resize";
+    await click("#table-cell-done");
+    saved = selectedClipboard(app)[0];
+    assert.deepEqual(saved.columnWidths, [250, 170]);
+    assert.equal(saved.rowHeights.length, 3);
+    assert.equal(saved.rowHeights[0], 120);
+    assert.equal(saved.rowHeights[2], 75);
+    assert.equal(saved.cells.flat().includes("Edited after resize"), true);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`[data-id="${original.id}"]`);
+    assert.deepEqual(selectedClipboard(app)[0], saved);
+    await click('[data-action="lock"]');
+    await click("#table-cell-access");
+    assert.equal(doc.querySelector("#table-row-size").disabled, true);
+    assert.equal(
+      doc.querySelector('[data-table-resize="column"]').hidden,
+      true,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("sticky tags support bulk assignment, rename, search, undo, copying, persistence and protected access", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          item("note", 100, 100, { text: "First idea" }),
+          item("note", 400, 100, { text: "Second idea" }),
+        ]),
+      ),
+    );
+    const originals = selectedClipboard(app);
+    await click("#tag-access");
+    doc.querySelector("#tag-name").value = "Urgent";
+    doc
+      .querySelector("#tag-form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    const tagId = doc.querySelector('[data-tag-action="toggle"]').dataset.tag;
+    assert.equal(
+      doc
+        .querySelector('[data-tag-action="toggle"]')
+        .getAttribute("aria-checked"),
+      "true",
+    );
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("#tags-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    await click("#tag-close");
+    assert.ok(selectedClipboard(app).every((i) => i.tagIds[0] === tagId));
+    await click('[data-action="undo"]');
+    for (const i of originals) {
+      await click(`[data-id="${i.id}"]`);
+      assert.equal(selectedClipboard(app)[0].tagIds, undefined);
+    }
+    await click('[data-action="redo"]');
+    await click(`[data-id="${originals[0].id}"]`);
+    await click("#tag-access");
+    await click('[data-tag-action="edit"]');
+    doc.querySelector("#tag-name").value = "Priority";
+    doc.querySelector("#tag-color").value = "#365dc4";
+    doc
+      .querySelector("#tag-form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    assert.match(doc.querySelector("#tag-list").textContent, /Priority/);
+    await click('[data-tag-action="find"]');
+    assert.equal(doc.querySelector("#board-search-tag").value, tagId);
+    assert.match(
+      doc.querySelector("#board-search-count").textContent,
+      /2 results/,
+    );
+    await click("#search-close");
+    await click(`[data-id="${originals[0].id}"]`);
+    const clipboard = transferData();
+    dispatchTransfer(app, "copy", clipboard);
+    assert.deepEqual(JSON.parse(clipboard.getData(CLIPBOARD_TYPE)).tags, [
+      { id: tagId, name: "Priority", color: "#365dc4" },
+    ]);
+    await click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "json";
+    doc.querySelector("#export-scope").value = "selection";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    const exported = JSON.parse(
+      await new Promise((resolve) => {
+        const reader = new w.FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsText(app.downloads.pop());
+      }),
+    );
+    assert.deepEqual(exported.tags, [
+      { id: tagId, name: "Priority", color: "#365dc4" },
+    ]);
+    assert.deepEqual(exported.items[0].tagIds, [tagId]);
+    await click('[data-action="organize"]');
+    await click('[data-organize="snippet"]');
+    doc.querySelector("#snippet-name").value = "Tagged note";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="templates"]');
+    await click("[data-custom]");
+    assert.deepEqual(selectedClipboard(app)[0].tagIds, [tagId]);
+    await click('[data-action="undo"]');
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`[data-id="${originals[0].id}"]`);
+    await click("#tag-access");
+    assert.match(doc.querySelector("#tag-list").textContent, /Priority/);
+    await click("#tag-close");
+    await click('[data-action="lock"]');
+    await click("#tag-access");
+    assert.equal(
+      doc.querySelector('[data-tag-action="toggle"]').disabled,
+      true,
+    );
+    assert.equal(doc.querySelector("#tag-save").disabled, true);
+    await click("#tag-close");
+    await click('[data-action="home"]');
+    await click('[data-action="new"]');
+    dispatchTransfer(app, "paste", clipboard);
+    assert.deepEqual(selectedClipboard(app)[0].tagIds, [tagId]);
+    await click("#tag-access");
+    assert.match(doc.querySelector("#tag-list").textContent, /Priority/);
+    await click('[data-tag-action="delete"]');
+    assert.equal(doc.querySelectorAll("[data-tag]").length, 0);
+    await click("#tag-close");
+    assert.equal(selectedClipboard(app)[0].tagIds, undefined);
+    await click('[data-action="undo"]');
+    const copied = doc.querySelector("#board-outline button").dataset.id;
+    await click(`[data-id="${copied}"]`);
+    assert.deepEqual(selectedClipboard(app)[0].tagIds, [tagId]);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("#tag-access");
+    assert.equal(
+      doc.querySelector("#tag-save").textContent,
+      "Créer une étiquette",
+    );
+    assert.equal(
+      doc.querySelector('#tag-color option[value="#185c49"]').textContent,
+      "Vert foncé",
+    );
+    assert.equal(
+      doc.querySelector("#tags-panel").getAttribute("aria-label"),
+      "Étiquettes",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("sticky clustering supports tag copies, movable frames, cancellation, undo, saved boards and bilingual controls", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const catalog = [
+      { id: "research", name: "Research", color: "#365dc4" },
+      { id: "next", name: "Next steps", color: "#27834b" },
+    ];
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats(
+          [
+            item("note", 100, 100, { text: "A", tagIds: ["research", "next"] }),
+            item("note", 330, 100, { text: "B", tagIds: ["research"] }),
+            item("note", 560, 100, { text: "C" }),
+          ],
+          catalog,
+        ),
+      ),
+    );
+    const original = selectedClipboard(app);
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    doc.querySelector("#selection-tools").getBoundingClientRect = () => ({
+      left: 300,
+      top: 20,
+      bottom: 200,
+      width: 600,
+      height: 180,
+    });
+    const all = () =>
+      doc.querySelector("#canvas").dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key: "a",
+          ctrlKey: true,
+          bubbles: true,
+        }),
+      );
+    await click('[data-action="cluster"]');
+    doc.querySelector("#cluster-mode").value = "tag";
+    doc.querySelector("#cluster-mode").dispatchEvent(new w.Event("change"));
+    assert.match(
+      doc.querySelector("#cluster-summary").textContent,
+      /3 notes · 3 clusters · 1 extra copy/,
+    );
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    await click("#cluster-cancel");
+    assert.deepEqual(selectedClipboard(app), original);
+    await click('[data-action="cluster"]');
+    doc.querySelector("#cluster-mode").value = "tag";
+    doc.querySelector("#cluster-mode").dispatchEvent(new w.Event("change"));
+    doc
+      .querySelector("#cluster-form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    await app.tick();
+    let result = selectedClipboard(app);
+    assert.equal(result.length, 7);
+    assert.equal(result.filter((i) => i.type === "frame").length, 3);
+    assert.equal(result.filter((i) => i.text === "A").length, 2);
+    const frames = result.filter((i) => i.type === "frame");
+    const clusterView = renderedView(app);
+    assert.ok(
+      Math.min(...frames.map((f) => f.y * clusterView.z + clusterView.y)) >=
+        216,
+    );
+    assert.deepEqual(frames.map((i) => i.text).sort(), [
+      "Next steps",
+      "No tag",
+      "Research",
+    ]);
+    for (const n of original) assert.ok(result.some((i) => i.id === n.id));
+    await click('[data-action="undo"]');
+    all();
+    assert.deepEqual(selectedClipboard(app), original);
+    await click('[data-action="redo"]');
+    all();
+    result = selectedClipboard(app);
+    assert.equal(result.length, 7);
+    await click(`[data-id="${frames[0].id}"]`);
+    const before = selectedClipboard(app);
+    doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+    const after = selectedClipboard(app);
+    assert.ok(
+      after.every((i) => i.x === before.find((old) => old.id === i.id).x + 1),
+    );
+    await click('[data-action="undo"]');
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    all();
+    assert.deepEqual(selectedClipboard(app), result);
+    await click(`[data-id="${original[0].id}"]`);
+    await click('[data-action="lock"]');
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="cluster"]');
+    assert.equal(doc.querySelector("#cluster-form"), null);
+    assert.match(doc.querySelector("#toast").textContent, /Unlock/);
+    await click('[data-action="undo"]');
+    all();
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click('[data-action="cluster"]');
+    assert.equal(
+      doc.querySelector("dialog").getAttribute("aria-label"),
+      "Regrouper les notes adhésives",
+    );
+    assert.equal(
+      doc.querySelector("#cluster-apply").textContent,
+      "Créer les regroupements",
+    );
+    await click("#cluster-cancel");
+  } finally {
+    app.close();
+  }
+});
+
+test("built timer retains countdown across navigation, preserves drawing undo, and works in presentation and French", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    await click('[data-action="finish-text"]');
+    const original = selectedClipboard(app);
+    await click('[data-action="timer"]');
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("#workshop-timer"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    await click("#timer-start");
+    await click('[data-timer-command="pause"]');
+    const paused = doc.querySelector("#timer-countdown").textContent;
+    await click('[data-action="undo"]');
+    assert.equal(doc.querySelector("#board-outline").children.length, 0);
+    assert.equal(doc.querySelector("#timer-countdown").textContent, paused);
+    await click('[data-timer-extra="60000"]');
+    await click('[data-action="redo"]');
+    await click(`[data-id="${original[0].id}"]`);
+    assert.deepEqual(selectedClipboard(app), original);
+    await click('[data-timer-command="resume"]');
+    await click("#timer-minimize");
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    assert.equal(
+      doc.querySelector("#timer-state").textContent,
+      "Counting down",
+    );
+    assert.equal(doc.querySelector("#workshop-timer").hidden, true);
+    await click('[data-action="present"]');
+    await click("#start-presentation");
+    assert.ok(doc.querySelector(".presentation-dialog #workshop-timer"));
+    await click(".presentation-timer-access");
+    await click('[data-timer-command="pause"]');
+    await click("#slide-exit");
+    assert.ok(doc.querySelector(".canvas-wrap #workshop-timer"));
+    assert.equal(doc.querySelector("#timer-state").textContent, "Paused");
+    await click('[data-timer-command="stop"]');
+    doc.querySelector("#timer-minutes").value = "0";
+    doc.querySelector("#timer-seconds").value = "1";
+    await click("#timer-start");
+    await new Promise((r) => setTimeout(r, 1300));
+    assert.equal(doc.querySelector("#timer-state").textContent, "Time’s up.");
+    assert.equal(doc.querySelector("#toast").textContent, "Time’s up.");
+    await click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "json";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    const exported = await new Promise((resolve) => {
+      const reader = new w.FileReader();
+      reader.onload = () => resolve(JSON.parse(reader.result));
+      reader.readAsText(app.downloads.at(-1));
+    });
+    assert.equal(exported.timer, undefined);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click('[data-action="timer"]');
+    assert.equal(
+      doc.querySelector("#workshop-timer").getAttribute("aria-label"),
+      "Minuteur d’atelier",
+    );
+    assert.equal(doc.querySelector("#timer-start").textContent, "Démarrer");
+  } finally {
+    app.close();
+  }
+});
+
+test("built collaborators follow cameras, bring editors and viewers, protect drafts, present frames and release manual navigation", async () => {
+  const env = environment(),
+    hub = createPeerHub();
+  env.service.now = () => Date.now();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Follow verification",
+    items: [
+      item("frame", 0, 0, { w: 800, h: 500, text: "First" }),
+      item("frame", 1200, 0, { w: 800, h: 500, text: "Second" }),
+      item("note", 200, 160, { text: "Keep this thought" }),
+    ],
+    comments: [
+      {
+        id: "follow-discussion",
+        x: 1500,
+        y: 200,
+        resolved: false,
+        messages: [
+          {
+            id: "follow-message",
+            authorId: owner.uuid,
+            authorName: "Alice",
+            text: "Look over here",
+            createdAt: Date.now(),
+          },
+        ],
+      },
+    ],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+    ["editor", "viewer"].map((role) =>
+      env.service.call(owner, { op: "invite", room: initial.id, role }),
+    ),
+  );
+  const make = (user) => {
+    const sdk = env.sdk(user);
+    sdk.peer = hub.peer;
+    return setup(sdk);
+  };
+  const a = await make(owner),
+    b = await make(collaborator),
+    c = await make(viewer),
+    apps = [a, b, c];
+  const until = async (fn, message) => {
+    const deadline = Date.now() + 8000;
+    while (!fn() && Date.now() < deadline) await a.tick();
+    assert.ok(fn(), message);
+  };
+  const row = (app, name) =>
+    [...app.doc.querySelectorAll(".live-participant-row")].find(
+      (r) => r.children[0].textContent === name,
+    );
+  const camera = (app) =>
+    captureCamera(
+      renderedView(app),
+      app.doc.querySelector("#canvas").getBoundingClientRect(),
+    );
+  const pan = (app, dx) =>
+    app.doc.querySelector("#canvas").dispatchEvent(
+      new app.w.WheelEvent("wheel", {
+        deltaX: dx,
+        deltaY: 0,
+        clientX: 400,
+        clientY: 300,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  try {
+    for (const [index, app] of apps.entries()) {
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${index ? invites[index - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined the shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: index === 1 ? 600 : 800,
+        height: index === 1 ? 500 : 600,
+      });
+      await app.click('[data-action="zoom-in"]');
+    }
+    await b.click(`[data-id="${initial.items[2].id}"]`);
+    const original = selectedClipboard(b);
+    for (const app of apps) await app.click('[data-action="participants"]');
+    await until(
+      () =>
+        apps.every(
+          (app) =>
+            row(app, app === a ? "Bob" : "Alice")?.querySelector(
+              "[data-follow]",
+            )?.disabled === false,
+        ),
+      "Authenticated peers advertise live cameras",
+    );
+    a.w.eval(axe.source);
+    const audit = await a.w.axe.run(a.doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    assert.equal(c.doc.querySelector("#bring-everyone").disabled, true);
+    row(b, "Alice").querySelector("[data-follow]").click();
+    await b.tick();
+    assert.match(
+      b.doc.querySelector(".follow-banner").textContent,
+      /Following Alice/,
+    );
+    assert.deepEqual(selectedClipboard(b), original);
+    await until(
+      () => row(a, "Bob").querySelector("[data-follow]").disabled,
+      "A follow loop is unavailable",
+    );
+    a.doc.querySelector("dialog").close();
+    pan(a, 240);
+    await until(
+      () => Math.abs(camera(b).x - camera(a).x) < 0.001,
+      "Following tracks leader pan",
+    );
+    await b.click('[data-action="zoom-in"]');
+    const independent = camera(b);
+    pan(a, 180);
+    await new Promise((r) => setTimeout(r, 250));
+    assert.deepEqual(
+      camera(b),
+      independent,
+      "Manual zoom relinquishes follow control",
+    );
+    await b.click(`[data-id="${initial.items[2].id}"]`);
+    b.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new b.w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+    b.doc.querySelector("#canvas-text-editor").value = "Draft stays";
+    b.doc
+      .querySelector("#canvas-text-editor")
+      .dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    await a.click('[data-action="participants"]');
+    await a.click("#bring-everyone");
+    await until(
+      () =>
+        [b, c].every(
+          (app) =>
+            app.doc.querySelector("[data-follow-accept]").hidden === false,
+        ),
+      "Busy participants receive an invitation without losing their context",
+    );
+    assert.equal(
+      b.doc.querySelector("#canvas-text-editor").value,
+      "Draft stays",
+    );
+    assert.deepEqual(camera(b), independent);
+    c.doc.querySelector("dialog").close();
+    for (const app of [b, c]) await app.click("[data-follow-accept]");
+    await until(
+      () =>
+        [b, c].every((app) => Math.abs(camera(app).x - camera(a).x) < 0.001),
+      "Editor and viewer accept the same view",
+    );
+    assert.match(
+      b.doc.querySelector("#board-outline").textContent,
+      /Draft stays/,
+    );
+    // Accepting a bring request while the comments list is already open.
+    await b.click('[data-action="comments"]');
+    await a.click("#bring-everyone");
+    await until(
+      () => !b.doc.querySelector(".follow-banner").hidden,
+      "Following again with the comments list open",
+    );
+    await b.click('[data-thread="follow-discussion"]');
+    assert.equal(
+      b.doc.querySelector(".follow-banner").hidden,
+      true,
+      "Opening a discussion from the list stops following",
+    );
+    const discussionView = camera(b);
+    pan(a, 120);
+    await new Promise((r) => setTimeout(r, 250));
+    assert.deepEqual(
+      camera(b),
+      discussionView,
+      "The leader's next move leaves the opened discussion in view",
+    );
+    await b.click('[data-action="comments"]');
+    a.doc.querySelector("dialog").close();
+    await a.click('[data-action="present"]');
+    await a.click("#start-presentation");
+    await a.click("#slide-next");
+    await until(
+      () => Math.abs(camera(c).x - 1600) < 0.001,
+      "Followers see the active presentation frame",
+    );
+    await a.click("#slide-exit");
+    await until(
+      () => Math.abs(camera(c).x - camera(a).x) < 0.001,
+      "Closing presentation restores the live board view",
+    );
+    await a.click('[data-action="home"]');
+    await until(
+      () =>
+        b.doc.querySelector(".follow-banner").hidden &&
+        c.doc.querySelector(".follow-banner").hidden,
+      "Leaving stops every follower",
+    );
+    c.doc.querySelector("#language").value = "fr";
+    c.doc.querySelector("#language").dispatchEvent(new c.w.Event("change"));
+    await c.click('[data-action="participants"]');
+    assert.equal(
+      c.doc.querySelector("#bring-everyone").textContent,
+      "Amener tout le monde vers moi",
+    );
+    c.doc.querySelector("dialog").close();
+    for (const app of [b, c]) await app.click('[data-action="home"]');
+    await until(
+      () => apps.every((app) => app.doc.querySelector(".library")),
+      "Shared navigation finishes before the test windows close",
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("selections made or cleared with the keyboard reach the other participants", async () => {
+  const env = environment(),
+    hub = createPeerHub();
+  env.service.now = () => Date.now();
+  const note = item("note", 200, 160, { text: "Pick me" });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Keyboard selection",
+    items: [note],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const make = (user) => {
+    const sdk = env.sdk(user);
+    sdk.peer = hub.peer;
+    return setup(sdk);
+  };
+  const a = await make(owner),
+    b = await make(collaborator),
+    apps = [a, b];
+  const until = async (fn, message) => {
+    const deadline = Date.now() + 8000;
+    while (!fn() && Date.now() < deadline) await a.tick();
+    assert.ok(fn(), message);
+  };
+  const outlined = () =>
+    a.doc.querySelectorAll(".participant-selection").length;
+  try {
+    for (const [index, app] of apps.entries()) {
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${index ? invite.token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined the shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 800,
+        height: 600,
+      });
+    }
+    await a.click('[data-action="participants"]');
+    await until(
+      () =>
+        [...a.doc.querySelectorAll(".live-participant-row")].some(
+          (row) => row.querySelector("[data-follow]")?.disabled === false,
+        ),
+      "Peers are connected",
+    );
+    a.doc.querySelector("dialog").close();
+    await b.click(`#board-outline [data-id="${note.id}"]`);
+    await until(() => outlined() === 1, "The selection reaches the others");
+    b.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new b.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    await until(() => outlined() === 0, "Clearing it does too");
+    for (const app of apps) await app.click('[data-action="home"]');
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("a facilitator's drawing in a hidden frame is not shown live to participants", async () => {
+  const env = environment(),
+    hub = createPeerHub();
+  env.service.now = () => Date.now();
+  // Every packet peers exchange, to see what the facilitator shares.
+  const packets = [];
+  const connect = hub.peer.connect;
+  hub.peer.connect = async (code) => {
+    const conn = await connect(code);
+    for (const end of [conn, conn.other]) {
+      const send = end.send.bind(end),
+        channel = end.peerconnection.createDataChannel;
+      end.send = (data) => (packets.push(data), send(data));
+      end.peerconnection.createDataChannel = (...args) => {
+        const made = channel(...args),
+          through = made.send;
+        made.send = (data) => (packets.push(data), through(data));
+        return made;
+      };
+    }
+    return conn;
+  };
+  const hidden = item("frame", 0, 0, { w: 400, h: 300, text: "Next" });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Hidden drawing",
+    items: [hidden, item("note", 600, 0, { text: "Visible" })],
+    workshop: { settings: { lock: "open", hide: [hidden.id] } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const make = (user) => {
+    const sdk = env.sdk(user);
+    sdk.peer = hub.peer;
+    return setup(sdk);
+  };
+  const a = await make(owner),
+    b = await make(collaborator),
+    apps = [a, b];
+  const until = async (fn, message) => {
+    const deadline = Date.now() + 8000;
+    while (!fn() && Date.now() < deadline) await a.tick();
+    assert.ok(fn(), message);
+  };
+  const penPreviews = () =>
+    packets
+      .map((data) => JSON.parse(data))
+      .filter((p) => p.body?.kind === "presence")
+      .flatMap((p) => p.body.data.preview || [])
+      .filter((x) => x.type === "pen");
+  try {
+    for (const [index, app] of apps.entries()) {
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${index ? invite.token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined the shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1200,
+        height: 800,
+      });
+    }
+    await a.click('[data-action="participants"]');
+    await until(
+      () =>
+        [...a.doc.querySelectorAll(".live-participant-row")].some(
+          (row) => row.querySelector("[data-follow]")?.disabled === false,
+        ),
+      "Peers are connected",
+    );
+    a.doc.querySelector("dialog").close();
+    const draw = async (from, to) => {
+      await a.click('[data-action="tool-pen"]');
+      const v = renderedView(a),
+        at = (p) => [v.x + p.x * v.z, v.y + p.y * v.z];
+      canvasPointer(a, "pointerdown", 1, ...at(from), { pointerType: "mouse" });
+      for (let n = 1; n <= 5; n++)
+        canvasPointer(
+          a,
+          "pointermove",
+          1,
+          ...at({
+            x: from.x + ((to.x - from.x) * n) / 5,
+            y: from.y + ((to.y - from.y) * n) / 5,
+          }),
+          { pointerType: "mouse" },
+        );
+      for (let n = 0; n < 10; n++) await a.tick();
+      canvasPointer(a, "pointerup", 1, ...at(to), { pointerType: "mouse" });
+      for (let n = 0; n < 5; n++) await a.tick();
+    };
+    await draw({ x: 100, y: 100 }, { x: 250, y: 200 });
+    assert.equal(penPreviews().length, 0, "Nothing is previewed from inside");
+    // Outside hidden frames, drawing is still shared as it happens.
+    await draw({ x: 700, y: 400 }, { x: 850, y: 500 });
+    assert.ok(penPreviews().length > 0, "A visible drawing is previewed");
+    // Once drawn, others keep showing it until the saved drawing reaches
+    // them, rather than removing it meanwhile.
+    const ended = packets
+      .map((data) => JSON.parse(data))
+      .filter((p) => p.body?.kind === "presence")
+      .map((p) => p.body.data)
+      .filter((d) => !d.preview?.length)
+      .at(-1);
+    assert.equal(ended?.settling, true);
+    for (const app of apps) {
+      await app.click('[data-action="home"]');
+      // Leaving sends the drawings first.
+      await until(
+        () => !app.doc.querySelector("#canvas"),
+        "Back in the library",
+      );
+    }
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("an image the first render could not download shows once it arrives while joining", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const data = "data:image/png;base64,AA==";
+  const asset = await hash(data);
+  const picture = item("image", 100, 100, {
+    w: 40,
+    h: 40,
+    src: "asset:" + asset,
+  });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Pictures",
+    items: [picture],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  await env.service.call(owner, {
+    op: "asset.put",
+    room: initial.id,
+    asset,
+    data,
+  });
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const sdk = env.sdk(collaborator),
+    exec = sdk.workers.exec;
+  // The first download fails, as on a flaky network.
+  let failures = 1;
+  sdk.workers.exec = async (url, options) =>
+    JSON.parse(options.body).op === "asset.get" && failures-- > 0
+      ? new Response(JSON.stringify({ message: "Unavailable" }), {
+          status: 503,
+        })
+      : exec(url, options);
+  const app = await setup(sdk);
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    const deadline = Date.now() + 8000;
+    while (
+      (app.doc.querySelector("#join-link") ||
+        !app.doc.querySelector("#canvas")) &&
+      Date.now() < deadline
+    )
+      await app.tick();
+    for (let n = 0; n < 10; n++) await app.tick();
+    await app.click(`#board-outline [data-id="${picture.id}"]`);
+    assert.equal(selectedClipboard(app)[0].src, data);
+    await app.click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("reconnecting a shared board through Share board keeps live cursors and follow controls", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Reconnect",
+    items: [item("note", 200, 160, { text: "Still here" })],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(collaborator));
+  const until = async (fn, message) => {
+    const deadline = Date.now() + 8000;
+    while (!fn() && Date.now() < deadline) await app.tick();
+    assert.ok(fn(), message);
+  };
+  const live = () =>
+    !!app.doc.querySelector(".canvas-wrap > .collaboration-overlay") &&
+    !!app.doc.querySelector(".canvas-wrap > .follow-banner");
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await until(
+      () => !app.doc.querySelector("#join-link") && live(),
+      "Joined the shared board",
+    );
+    await app.click('[data-action="home"]');
+    const call = env.service.call.bind(env.service);
+    env.service.call = async (user, input) => {
+      if (input.op === "join")
+        throw Object.assign(Error("Try again later."), { status: 503 });
+      return call(user, input);
+    };
+    await app.click("[data-open]");
+    await until(
+      () =>
+        /Could not connect/.test(
+          app.doc.querySelector("#save-state")?.textContent,
+        ),
+      "The first connection fails",
+    );
+    env.service.call = call;
+    await app.click('[data-action="share"]');
+    await until(
+      () => app.doc.querySelector("#share-link"),
+      "Share board reconnects",
+    );
+    assert.ok(live(), "Live cursors and follow controls are back");
+    app.doc.querySelector("dialog").close();
+    await app.click('[data-action="home"]');
+  } finally {
+    app.close();
+  }
+});
+
+test("going back while a shared board is still connecting leaves the library and its address alone", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Abandoned",
+    items: [item("note", 200, 160, { text: "Never opened" })],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(collaborator));
+  const until = async (fn, message) => {
+    const deadline = Date.now() + 8000;
+    while (!fn() && Date.now() < deadline) await app.tick();
+    assert.ok(fn(), message);
+  };
+  const call = env.service.call.bind(env.service);
+  let reached, release;
+  const joining = new Promise((resolve) => (reached = resolve));
+  env.service.call = async (user, input) => {
+    if (input.op === "join") {
+      reached();
+      await new Promise((resolve) => (release = resolve));
+    }
+    return call(user, input);
+  };
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    await joining;
+    await app.click('[data-action="home"]');
+    await until(() => app.doc.querySelector(".library"), "Back in the library");
+    const address = app.w.location.href;
+    release();
+    for (let n = 0; n < 20; n++) await app.tick();
+    assert.equal(app.doc.querySelector("#join-error")?.textContent || "", "");
+    assert.ok(app.doc.querySelector(".library"));
+    assert.equal(app.w.location.href, address);
+    assert.equal(
+      app.doc.querySelectorAll(".board-card").length,
+      0,
+      "No empty placeholder for the board that was never opened",
+    );
+  } finally {
+    env.service.call = call;
+    app.close();
+  }
+});
+
+for (const mode of ["left", "failed"])
+  test(`a shared board ${mode} after its first synchronization is not kept on this device`, async () => {
+    const env = environment();
+    env.service.now = () => Date.now();
+    const initial = {
+      version: 1,
+      id: crypto.randomUUID(),
+      title: "Abandoned",
+      items: [item("note", 200, 160, { text: "Never opened" })],
+    };
+    const seed = new SharedDocument();
+    seed.commit(initial);
+    await env.service.call(owner, {
+      op: "create",
+      room: initial.id,
+      update: encode(seed.update()),
+    });
+    seed.destroy();
+    const invite = await env.service.call(owner, {
+      op: "invite",
+      room: initial.id,
+      role: "editor",
+    });
+    const app = await setup(env.sdk(collaborator));
+    const until = async (fn, message) => {
+      const deadline = Date.now() + 8000;
+      while (!fn() && Date.now() < deadline) await app.tick();
+      assert.ok(fn(), message);
+    };
+    const read = (store) =>
+      new Promise((resolve, reject) => {
+        const open = app.w.indexedDB.open("whiteboard-v1");
+        open.onerror = () => reject(open.error);
+        open.onsuccess = () => {
+          const request = open.result
+            .transaction(store)
+            .objectStore(store)
+            .getAll();
+          request.onsuccess = () => {
+            open.result.close();
+            resolve(request.result);
+          };
+          request.onerror = () => reject(request.error);
+        };
+      });
+    const call = env.service.call.bind(env.service);
+    let reached, release;
+    const joining = new Promise((resolve) => (reached = resolve));
+    env.service.call = async (user, input) => {
+      if (input.op === "presence") {
+        // The first check-in fails, or waits while this person leaves.
+        if (mode === "failed")
+          throw Object.assign(Error("Worker overloaded"), { status: 503 });
+        reached();
+        await new Promise((resolve) => (release = resolve));
+      }
+      return call(user, input);
+    };
+    try {
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite.token}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      if (mode === "left") {
+        await joining;
+        await app.click('[data-action="home"]');
+        await until(
+          () => app.doc.querySelector(".library"),
+          "Back in the library",
+        );
+        const address = app.w.location.href;
+        release();
+        for (let n = 0; n < 20; n++) await app.tick();
+        assert.equal(
+          app.doc.querySelector("#join-error")?.textContent || "",
+          "",
+        );
+        assert.equal(app.w.location.href, address);
+      } else
+        await until(
+          () => app.doc.querySelector(".library"),
+          "Back in the library",
+        );
+      for (let n = 0; n < 20; n++) await app.tick();
+      assert.ok(app.doc.querySelector(".library"));
+      assert.equal(app.doc.querySelectorAll(".board-card").length, 0);
+      // Nothing is left to come back after a reload.
+      assert.deepEqual(
+        (await read("boards")).map((b) => b.title),
+        [],
+      );
+      assert.deepEqual(await read("collaboration"), []);
+    } finally {
+      env.service.call = call;
+      app.close();
+    }
+  });
+
+async function openGrid(app, mode, snap) {
+  await app.click('[data-action="more-tools"]');
+  await app.click('[data-feature="grid"]');
+  if (mode) await app.click(`[name="board-grid-mode"][value="${mode}"]`);
+  if (
+    snap !== undefined &&
+    app.doc.querySelector("#snap-grid").checked !== snap
+  )
+    await app.click("#snap-grid");
+}
+
+test("grid settings preserve history while creation, movement and resize snap with modifier bypass and exact nudges", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const { pointer, copy, key } = await snappingBoard(app);
+    const original = copy()[0];
+    await openGrid(app, "lines", true);
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    assert.deepEqual(JSON.parse(w.localStorage.getItem("whiteboard-grid")), {
+      mode: "lines",
+      snap: true,
+    });
+    doc.querySelector("dialog").close();
+    assert.deepEqual(copy()[0], original);
+    await click('[data-action="toggle-snapping"]');
+    pointer("pointerdown", 220, 220);
+    pointer("pointermove", 257, 263);
+    const snapped = copy()[0];
+    assert.equal(snapped.x, Math.round((original.x + 37) / 24) * 24);
+    assert.equal(snapped.y, Math.round((original.y + 43) / 24) * 24);
+    key("keydown", "Control", { ctrlKey: true });
+    assert.equal(copy()[0].x, original.x + 37);
+    assert.equal(copy()[0].y, original.y + 43);
+    key("keyup", "Control");
+    assert.deepEqual(copy()[0], snapped);
+    key("keydown", "Alt", { altKey: true });
+    assert.equal(copy()[0].x, original.x + 37);
+    key("keyup", "Alt");
+    pointer("pointerup", 257, 263);
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(copy()[0], original);
+    pointer("pointerdown", 300, 280);
+    pointer("pointermove", 345, 330);
+    assert.equal((copy()[0].x + copy()[0].w) % 24, 0);
+    assert.equal((copy()[0].y + copy()[0].h) % 24, 0);
+    key("keydown", "Escape");
+    assert.deepEqual(copy()[0], original);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await openGrid(app, "none");
+    assert.equal(doc.querySelector("#snap-grid").disabled, true);
+    assert.equal(doc.querySelector("#snap-grid").checked, false);
+    await click('[name="board-grid-mode"][value="dots"]');
+    assert.equal(doc.querySelector("#snap-grid").checked, false);
+    await click("#snap-grid");
+    doc.querySelector("dialog").close();
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    assert.deepEqual(copy()[0], snapped);
+    key("keydown", "ArrowRight");
+    assert.equal(copy()[0].x, snapped.x + 1, "Keyboard nudges remain exact");
+    await click('[data-action="resize"]');
+    doc.querySelector("#resize-width").value = "137";
+    doc
+      .querySelector("#resize-width")
+      .dispatchEvent(new w.Event("input", { bubbles: true }));
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.equal(copy()[0].w, 137, "Numeric dimensions do not snap");
+    await click('[data-action="tool-rect"]');
+    pointer("pointerdown", 719, 633);
+    pointer("pointerup", 719, 633);
+    assert.equal(copy()[0].x % 24, 0);
+    assert.equal(copy()[0].y % 24, 0);
+    const created = copy()[0];
+    await click('[data-action="tool-rect"]');
+    pointer("pointerdown", 811, 639, { ctrlKey: true });
+    pointer("pointerup", 811, 639, { ctrlKey: true });
+    assert.notEqual(copy()[0].x % 24, 0, "Creation can bypass the grid");
+    await click('[data-action="tool-arrow"]');
+    pointer("pointerdown", 41, 649);
+    pointer("pointermove", 113, 710);
+    pointer("pointerup", 113, 710);
+    const line = copy()[0];
+    assert.equal(line.type, "arrow");
+    assert.equal(Math.abs(line.x % 24), 0);
+    assert.equal(Math.abs(line.y % 24), 0);
+    assert.equal(Math.abs((line.x + line.w) % 24), 0);
+    assert.equal(Math.abs((line.y + line.h) % 24), 0);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await openGrid(app);
+    assert.equal(
+      doc.querySelector('[name="board-grid-mode"][value="dots"]').checked,
+      true,
+    );
+    assert.equal(doc.querySelector("#snap-grid").checked, true);
+    doc.querySelector("dialog").close();
+    await click(`[data-id="${created.id}"]`);
+    assert.deepEqual(copy()[0], created);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await openGrid(app);
+    assert.equal(
+      doc.querySelector("dialog h2").textContent,
+      "Grille et alignement",
+    );
+    assert.match(
+      doc.querySelector(".grid-snap-option").textContent,
+      /Aligner sur la grille/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("grid insertion preserves a group's relative layout and cross-tab preferences cancel a stale drag", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const { canvas, pointer, copy } = await snappingBoard(app);
+    await openGrid(app, "lines", true);
+    doc.querySelector("dialog").close();
+    const group = [
+      item("rect", -7, 3, { w: 100, h: 70, groupId: "pair" }),
+      item("rect", 133, 23, { w: 90, h: 80, groupId: "pair" }),
+    ];
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(clipboardFormats(group)),
+      canvas,
+      { clientX: 741, clientY: 517 },
+    );
+    const inserted = copy();
+    assert.equal(inserted[0].x % 24, 0);
+    assert.equal(inserted[0].y % 24, 0);
+    assert.equal(inserted[1].x - inserted[0].x, 140);
+    assert.equal(inserted[1].y - inserted[0].y, 20);
+    await click('[data-action="toggle-snapping"]');
+    const v = renderedView(app),
+      sx = inserted[0].x * v.z + v.x + 20,
+      sy = inserted[0].y * v.z + v.y + 20;
+    pointer("pointerdown", sx, sy);
+    pointer("pointermove", sx + 37, sy + 31);
+    assert.notDeepEqual(copy(), inserted);
+    w.dispatchEvent(
+      new w.StorageEvent("storage", {
+        key: "whiteboard-grid",
+        newValue: JSON.stringify({ mode: "none", snap: false }),
+      }),
+    );
+    assert.deepEqual(
+      copy(),
+      inserted,
+      "Changing another tab’s grid cannot leave a half-finished transform",
+    );
+    pointer("pointerup", sx + 37, sy + 31);
+    assert.deepEqual(copy(), inserted);
+    await openGrid(app);
+    assert.equal(doc.querySelector('[value="none"]').checked, true);
+    doc.querySelector("dialog").close();
+    await click('[data-action="undo"]');
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      2,
+      "A single undo removes the inserted group",
+    );
+    await click('[data-action="tool-arrow"]');
+    pointer("pointerdown", 40, 400);
+    pointer("pointermove", 113, 480);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 3);
+    w.dispatchEvent(
+      new w.StorageEvent("storage", {
+        key: "whiteboard-grid",
+        newValue: JSON.stringify({ mode: "lines", snap: true }),
+      }),
+    );
+    pointer("pointerup", 113, 480);
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      2,
+      "A changed grid also cancels an uncommitted connector",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("shared grid preferences stay private while snapped geometry propagates and viewers remain read-only", async () => {
+  const env = environment(),
+    room = crypto.randomUUID(),
+    seed = new SharedDocument();
+  const original = item("rect", 31, 37, {
+    w: 100,
+    h: 80,
+    text: "Shared position",
+  });
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Grid collaboration",
+    items: [original],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+    ["editor", "viewer"].map((role) =>
+      env.service.call(owner, { op: "invite", room, role }),
+    ),
+  );
+  const apps = [];
+  const until = async (fn, message) => {
+    const deadline = Date.now() + 8000;
+    while (!fn() && Date.now() < deadline)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.ok(fn(), message);
+  };
+  try {
+    for (const [index, user] of [owner, collaborator, viewer].entries()) {
+      const app = await setup(env.sdk(user));
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${index ? invites[index - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1000,
+        height: 800,
+      });
+      await app.click('[data-action="fit"]');
+      await app.click("#board-outline button");
+    }
+    const [a, b, c] = apps;
+    await openGrid(b, "lines", true);
+    b.doc.querySelector("dialog").close();
+    await openGrid(c, "none");
+    c.doc.querySelector("dialog").close();
+    assert.equal(a.w.localStorage.getItem("whiteboard-grid"), null);
+    assert.deepEqual(JSON.parse(b.w.localStorage.getItem("whiteboard-grid")), {
+      mode: "lines",
+      snap: true,
+    });
+    assert.deepEqual(JSON.parse(c.w.localStorage.getItem("whiteboard-grid")), {
+      mode: "none",
+      snap: false,
+    });
+    assert.deepEqual(
+      selectedClipboard(a)[0],
+      original,
+      "Preferences never edit the shared document",
+    );
+    const dragBy = (app, dx, dy) => {
+      const v = renderedView(app),
+        i = selectedClipboard(app)[0],
+        canvas = app.doc.querySelector("#canvas"),
+        x = v.x + (i.x + 20) * v.z,
+        y = v.y + (i.y + 20) * v.z;
+      for (const [type, px, py] of [
+        ["pointerdown", x, y],
+        ["pointermove", x + dx * v.z, y + dy * v.z],
+        ["pointerup", x + dx * v.z, y + dy * v.z],
+      ])
+        canvas.dispatchEvent(
+          new app.w.MouseEvent(type, {
+            clientX: px,
+            clientY: py,
+            button: 0,
+            bubbles: true,
+          }),
+        );
+    };
+    dragBy(b, 37, 43);
+    await until(
+      () =>
+        apps.every((app) => {
+          const i = selectedClipboard(app)[0];
+          return i.x === 72 && i.y === 72;
+        }),
+      "Snapped coordinates reach owner, editor and viewer",
+    );
+    dragBy(c, 100, 100);
+    assert.equal(
+      selectedClipboard(c)[0].x,
+      72,
+      "A viewer can change the grid but cannot move content",
+    );
+    await b.click('[data-action="undo"]');
+    await until(
+      () => apps.every((app) => selectedClipboard(app)[0]?.x === original.x),
+      "Undo restores shared geometry",
+    );
+    for (const app of apps) await app.click('[data-action="home"]');
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+async function openDimensions(app, enabled) {
+  await app.click('[data-action="more-tools"]');
+  await app.click('[data-feature="dimensions"]');
+  if (
+    enabled !== undefined &&
+    app.doc.querySelector("#show-dimensions").checked !== enabled
+  )
+    await app.click("#show-dimensions");
+}
+
+async function dimensionsBoard(app) {
+  await app.click('[data-action="new"]');
+  const canvas = app.doc.querySelector("#canvas");
+  canvas.getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1000,
+    height: 800,
+  });
+  dispatchTransfer(
+    app,
+    "drop",
+    transferData(
+      clipboardFormats([
+        item("rect", 0, 0, { w: 100, h: 80, text: "Moving" }),
+        item("rect", 400, 220, {
+          w: 240,
+          h: 160,
+          text: "Reference",
+          locked: true,
+        }),
+      ]),
+    ),
+    canvas,
+    { clientX: 200, clientY: 200 },
+  );
+  await app.click("#board-outline button");
+  const pointer = (type, clientX, clientY, extra = {}) =>
+    canvas.dispatchEvent(
+      new app.w.MouseEvent(type, {
+        bubbles: true,
+        button: 0,
+        clientX,
+        clientY,
+        ...extra,
+      }),
+    );
+  const key = (type, key, extra = {}) =>
+    canvas.dispatchEvent(
+      new app.w.KeyboardEvent(type, {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...extra,
+      }),
+    );
+  return { canvas, pointer, key };
+}
+
+test("object dimensions show live sizes and paired resize guides with Alt, undo, persistence and accessible settings", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const { canvas, pointer, key } = await dimensionsBoard(app);
+    const original = selectedClipboard(app)[0];
+    assert.equal(doc.querySelector("#object-dimensions").hidden, true);
+    await openDimensions(app, true);
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    assert.equal(w.localStorage.getItem("whiteboard-dimensions"), "true");
+    doc.querySelector("dialog").close();
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    assert.equal(
+      doc.querySelector("#object-dimensions").textContent,
+      "100 × 80 px",
+    );
+    assert.equal(doc.querySelector("#object-dimensions").hidden, false);
+    const magenta = (x, y) => {
+      const [r, g, b, a] = canvas._native
+        .getContext("2d")
+        .getImageData(x, y, 1, 1).data;
+      return a > 0 && r > g + 40 && b > g + 40;
+    };
+    pointer("pointerdown", 300, 280);
+    pointer("pointermove", 437, 358);
+    assert.equal(selectedClipboard(app)[0].w, 240);
+    assert.equal(selectedClipboard(app)[0].h, 160);
+    assert.equal(
+      doc.querySelector("#object-dimensions").textContent,
+      "240 × 160 px",
+    );
+    assert.equal(magenta(210, 186), true, "Width marker on the resized object");
+    assert.equal(
+      magenta(610, 406),
+      true,
+      "Matching width marker on the reference",
+    );
+    key("keydown", "Alt", { altKey: true });
+    assert.equal(selectedClipboard(app)[0].w, 237);
+    assert.equal(selectedClipboard(app)[0].h, 158);
+    assert.equal(magenta(210, 186), false);
+    key("keyup", "Alt");
+    assert.equal(selectedClipboard(app)[0].w, 240);
+    pointer("pointerup", 437, 358);
+    assert.equal(
+      magenta(210, 186),
+      false,
+      "Guides disappear after the gesture",
+    );
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    pointer("pointerdown", 300, 280);
+    pointer("pointermove", 437, 358);
+    pointer("pointercancel", 437, 358);
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await click('[data-action="redo"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].w, 240);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    doc.querySelector("#canvas").getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1000,
+      height: 800,
+    });
+    await click('[data-action="fit"]');
+    await click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].w, 240);
+    assert.equal(doc.querySelector("#object-dimensions").hidden, false);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await openDimensions(app);
+    assert.match(
+      doc.querySelector("dialog").textContent,
+      /Dimensions des objets/,
+    );
+    assert.equal(doc.querySelector("#show-dimensions").checked, true);
+  } finally {
+    app.close();
+  }
+});
+
+test("dimension preferences cancel stale resize across tabs, retain redo and keep exact numeric and locked inspection workflows", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const { pointer, key } = await dimensionsBoard(app);
+    const original = selectedClipboard(app)[0];
+    await openDimensions(app, true);
+    doc.querySelector("dialog").close();
+    key("keydown", "ArrowRight");
+    await click('[data-action="undo"]');
+    await click("#board-outline button");
+    pointer("pointerdown", 300, 280);
+    pointer("pointermove", 437, 358);
+    w.dispatchEvent(
+      new w.StorageEvent("storage", {
+        key: "whiteboard-dimensions",
+        newValue: "false",
+      }),
+    );
+    pointer("pointerup", 437, 358);
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    assert.equal(doc.querySelector("#object-dimensions").hidden, true);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await openDimensions(app, true);
+    doc.querySelector("dialog").close();
+    await click('[data-action="toggle-snapping"]');
+    pointer("pointerdown", 300, 280);
+    pointer("pointermove", 437, 358);
+    pointer("pointerup", 437, 358);
+    assert.equal(
+      selectedClipboard(app)[0].w,
+      237,
+      "The object magnet controls matching-size snaps",
+    );
+    await click('[data-action="toggle-snapping"]');
+    await click('[data-action="resize"]');
+    doc.querySelector("#resize-width").value = "238.5";
+    doc.querySelector("#resize-width").dispatchEvent(new w.Event("input"));
+    doc.querySelector("#resize-height").value = "157.25";
+    doc.querySelector("#resize-height").dispatchEvent(new w.Event("input"));
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    assert.equal(selectedClipboard(app)[0].w, 238.5);
+    assert.equal(selectedClipboard(app)[0].h, 157.25);
+    await click("#board-outline button:nth-child(2)");
+    assert.equal(
+      doc.querySelector("#object-dimensions").textContent,
+      "240 × 160 px",
+      "Locked objects remain measurable",
+    );
+    assert.equal(doc.querySelector('[data-action="resize"]'), null);
+    await openDimensions(app);
+    w.dispatchEvent(
+      new w.StorageEvent("storage", { key: null, newValue: null }),
+    );
+    assert.equal(doc.querySelector("#show-dimensions").checked, false);
+  } finally {
+    app.close();
+  }
+});
+
+test("shared dimension preferences stay private and resize matching refreshes remote references while viewers remain read-only", async () => {
+  const env = environment(),
+    room = crypto.randomUUID(),
+    seed = new SharedDocument();
+  const moving = item("rect", 0, 0, { w: 100, h: 80, text: "Moving" }),
+    reference = item("rect", 400, 220, { w: 240, h: 160, text: "Reference" });
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Dimension collaboration",
+    items: [moving, reference],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+    ["editor", "viewer"].map((role) =>
+      env.service.call(owner, { op: "invite", room, role }),
+    ),
+  );
+  const apps = [];
+  const until = async (fn, message) => {
+    const deadline = Date.now() + 8000;
+    while (!fn() && Date.now() < deadline)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.ok(fn(), message);
+  };
+  try {
+    for (const [n, user] of [owner, collaborator, viewer].entries()) {
+      const app = await setup(env.sdk(user));
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invites[n - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1000,
+        height: 800,
+      });
+      await app.click('[data-action="fit"]');
+      await app.click(`#board-outline [data-id="${moving.id}"]`);
+    }
+    const [a, b, c] = apps;
+    for (const app of [b, c]) {
+      await openDimensions(app, true);
+      app.doc.querySelector("dialog").close();
+    }
+    assert.equal(a.w.localStorage.getItem("whiteboard-dimensions"), null);
+    assert.equal(a.doc.querySelector("#object-dimensions").hidden, true);
+    assert.equal(
+      c.doc.querySelector("#object-dimensions").textContent,
+      "100 × 80 px",
+    );
+    const pointer = (app, type, x, y) => {
+      const v = renderedView(app);
+      app.doc.querySelector("#canvas").dispatchEvent(
+        new app.w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: v.x + x * v.z,
+          clientY: v.y + y * v.z,
+        }),
+      );
+    };
+    pointer(b, "pointerdown", 100, 80);
+    pointer(b, "pointermove", 237, 158);
+    assert.equal(selectedClipboard(b)[0].w, 240);
+    await a.click(`#board-outline [data-id="${reference.id}"]`);
+    await a.click('[data-action="resize"]');
+    for (const [id, value] of [
+      ["width", "260"],
+      ["height", "180"],
+    ]) {
+      const input = a.doc.querySelector(`#resize-${id}`);
+      input.value = value;
+      input.dispatchEvent(new a.w.Event("input"));
+    }
+    a.doc
+      .querySelector("dialog form")
+      .dispatchEvent(new a.w.Event("submit", { cancelable: true }));
+    await until(() => {
+      pointer(b, "pointermove", 257, 178);
+      return (
+        selectedClipboard(b)[0].w === 260 && selectedClipboard(b)[0].h === 180
+      );
+    }, "An active gesture uses a remotely changed reference size");
+    pointer(b, "pointerup", 257, 178);
+    for (const app of [a, c])
+      await app.click(`#board-outline [data-id="${moving.id}"]`);
+    await until(
+      () => apps.every((app) => selectedClipboard(app)[0].w === 260),
+      "Matched geometry reaches all clients",
+    );
+    pointer(c, "pointerdown", 260, 180);
+    pointer(c, "pointermove", 300, 220);
+    pointer(c, "pointerup", 300, 220);
+    assert.equal(
+      selectedClipboard(c)[0].w,
+      260,
+      "Dimension inspection does not grant viewer editing",
+    );
+    await b.click('[data-action="undo"]');
+    await until(
+      () => apps.every((app) => selectedClipboard(app)[0].w === 100),
+      "Shared undo restores the original size",
+    );
+    await a.click(`#board-outline [data-id="${reference.id}"]`);
+    assert.equal(
+      selectedClipboard(a)[0].w,
+      260,
+      "Undo preserves the other editor’s reference resize",
+    );
+    for (const app of apps) await app.click('[data-action="home"]');
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("selection type filtering narrows pointer movement, preserves undo/redo and persists only geometry", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true }),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    canvas.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: 1200,
+      height: 900,
+    });
+    dispatchTransfer(
+      app,
+      "drop",
+      transferData(
+        clipboardFormats([
+          item("note", 0, 0, { w: 150, h: 100, text: "First note" }),
+          item("rect", 230, 0, { w: 150, h: 100, text: "Keep shape" }),
+          item("note", 0, 180, { w: 150, h: 100, text: "Second note" }),
+        ]),
+      ),
+      canvas,
+      { clientX: 200, clientY: 250 },
+    );
+    const original = selectedClipboard(app),
+      camera = renderedView(app);
+    await click("#filter-selection");
+    assert.equal(
+      doc.querySelector('[data-selection-type="note"]').textContent,
+      "Sticky notes2",
+    );
+    assert.equal(
+      doc.querySelector('[data-selection-type="shape"]').textContent,
+      "Shapes1",
+    );
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    await click("#selection-filter-cancel");
+    assert.deepEqual(selectedClipboard(app), original);
+    await click("#filter-selection");
+    await click('[data-selection-type="note"]');
+    assert.equal(doc.activeElement, canvas);
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.text),
+      ["First note", "Second note"],
+    );
+    assert.deepEqual(renderedView(app), camera);
+    const n = original[0],
+      p = {
+        x: camera.x + (n.x + 60) * camera.z,
+        y: camera.y + (n.y + 50) * camera.z,
+      };
+    for (const [type, dx, dy] of [
+      ["pointerdown", 0, 0],
+      ["pointermove", 65, 45],
+      ["pointerup", 65, 45],
+    ])
+      canvas.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: p.x + dx,
+          clientY: p.y + dy,
+          altKey: false,
+          ctrlKey: true,
+        }),
+      );
+    const moved = allClipboard(app);
+    for (const before of original) {
+      const after = moved.find((i) => i.id === before.id);
+      if (before.type === "rect") assert.deepEqual(after, before);
+      else {
+        assert.ok(after.x > before.x);
+        assert.ok(after.y > before.y);
+      }
+    }
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), original);
+    await click("#filter-selection");
+    await click('[data-selection-type="shape"]');
+    assert.equal(
+      doc.querySelector('[data-action="redo"]').disabled,
+      false,
+      "Filtering preserves redo",
+    );
+    await click('[data-action="redo"]');
+    assert.deepEqual(allClipboard(app), moved);
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    assert.deepEqual(allClipboard(app), moved);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click("#filter-selection");
+    assert.equal(
+      doc.querySelector("dialog h2").textContent,
+      "Filtrer la sélection",
+    );
+    assert.equal(
+      doc.querySelector('[data-selection-type="note"]').textContent,
+      "Notes adhésives2",
+    );
+    await click("#selection-filter-cancel");
+  } finally {
+    app.close();
+  }
+});
+
+test("filtering respects groups, frame anchors, protected members and command access", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const frame = item("frame", 0, 0, { w: 500, h: 400, text: "Container" });
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData(
+        clipboardFormats([
+          frame,
+          item("note", 40, 80, { text: "Inside", parentId: frame.id }),
+          item("note", 600, 0, { text: "Grouped note", groupId: "g" }),
+          item("rect", 820, 0, {
+            text: "Grouped shape",
+            groupId: "g",
+            locked: true,
+          }),
+          item("text", 600, 300, { text: "Independent" }),
+        ]),
+      ),
+    );
+    // Explicit selection retains protected members; filtering remains available.
+    await click("#filter-selection");
+    assert.equal(
+      doc.querySelector('[data-selection-type="group"]').textContent,
+      "Groups1",
+    );
+    assert.equal(
+      doc.querySelector('[data-selection-type="note"]').textContent,
+      "Sticky notes1",
+    );
+    await click('[data-selection-type="group"]');
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.text),
+      ["Grouped note", "Grouped shape"],
+    );
+    assert.match(
+      doc.querySelector("#selection-tools").textContent,
+      /Protected selection/,
+    );
+    const before = selectedClipboard(app);
+    doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+    assert.deepEqual(selectedClipboard(app), before);
+    const frameId = [...doc.querySelectorAll("#board-outline button")].find(
+      (b) => b.textContent.includes("Container"),
+    ).dataset.id;
+    await click(`#board-outline [data-id="${frameId}"]`);
+    await click('[data-action="commands"]');
+    paletteQuery(app, "filter selection");
+    await click('[data-command="filter-selection"]');
+    await click('[data-selection-type="frame"]');
+    assert.equal(selectedClipboard(app).length, 2);
+    assert.equal(
+      doc.querySelector('[data-action="resize"]').getAttribute("aria-label"),
+      "Resize frame",
+    );
+    await click("#filter-selection");
+    await click('[data-selection-type="note"]');
+    assert.equal(selectedClipboard(app)[0].text, "Inside");
+    assert.equal(selectedClipboard(app).length, 1);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="filter-selection"]');
+    assert.equal(doc.querySelectorAll("[data-selection-type]").length, 1);
+    await click("#selection-filter-cancel");
+  } finally {
+    app.close();
+  }
+});
+
+test("selection filters revalidate remote deletions and remain local for editors and viewers", async () => {
+  const env = environment(),
+    room = "selection-filters",
+    seed = new SharedDocument();
+  const first = item("note", 0, 0, { text: "First" }),
+    second = item("note", 240, 0, { text: "Second" }),
+    shape = item("rect", 500, 0, { text: "Shape" });
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Shared selection",
+    items: [first, second, shape],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+    ["editor", "viewer"].map((role) =>
+      env.service.call(owner, { op: "invite", room, role }),
+    ),
+  );
+  const apps = [],
+    until = async (fn, message) => {
+      const deadline = Date.now() + 8000;
+      while (!fn() && Date.now() < deadline)
+        await new Promise((r) => setTimeout(r, 25));
+      assert.ok(fn(), message);
+    };
+  try {
+    for (const [n, user] of [owner, collaborator, viewer].entries()) {
+      const app = await setup(env.sdk(user));
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invites[n - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      allClipboard(app);
+    }
+    const [a, b, c] = apps;
+    await b.click("#filter-selection");
+    await a.click(`#board-outline [data-id="${second.id}"]`);
+    await a.click('[data-action="delete"]');
+    await until(
+      () => !b.doc.querySelector(`#board-outline [data-id="${second.id}"]`),
+      "Remote deletion arrives while filtering",
+    );
+    await b.click('[data-selection-type="note"]');
+    assert.match(
+      b.doc.querySelector("#selection-filter-status").textContent,
+      /selection changed/,
+    );
+    assert.equal(
+      b.doc.querySelector('[data-selection-type="note"]').textContent,
+      "Sticky notes1",
+    );
+    await b.click('[data-selection-type="note"]');
+    assert.deepEqual(
+      selectedClipboard(b).map((i) => i.id),
+      [first.id],
+    );
+    assert.equal(
+      selectedClipboard(c).length,
+      2,
+      "Another client's selection is independent",
+    );
+    const nudge = (app) =>
+      app.doc.querySelector("#canvas").dispatchEvent(
+        new app.w.KeyboardEvent("keydown", {
+          key: "ArrowRight",
+          bubbles: true,
+        }),
+      );
+    nudge(b);
+    await until(
+      () =>
+        selectedClipboard(c).find((i) => i.id === first.id)?.x === first.x + 1,
+      "Only the subsequent move is shared",
+    );
+    assert.equal(
+      selectedClipboard(c).find((i) => i.id === shape.id).x,
+      shape.x,
+    );
+    await c.click("#filter-selection");
+    await c.click('[data-selection-type="shape"]');
+    nudge(c);
+    assert.equal(
+      selectedClipboard(c)[0].x,
+      shape.x,
+      "Viewer filtering grants no editing rights",
+    );
+    await b.click('[data-action="undo"]');
+    await a.click(`#board-outline [data-id="${first.id}"]`);
+    await until(
+      () => selectedClipboard(a)[0]?.x === first.x,
+      "Shared undo restores the filtered movement",
+    );
+    assert.equal(
+      a.doc.querySelectorAll("#board-outline button").length,
+      2,
+      "Undo preserves another editor's deletion",
+    );
+    await b.click(`#board-outline [data-id="${first.id}"]`);
+    await b.click('[data-action="more-tools"]');
+    await b.click('[data-feature="filter-selection"]');
+    await a.click('[data-action="delete"]');
+    await until(
+      () => !b.doc.querySelector(`#board-outline [data-id="${first.id}"]`),
+      "Last matching object is deleted",
+    );
+    await b.click('[data-selection-type="note"]');
+    assert.match(
+      b.doc.querySelector("#selection-filter-status").textContent,
+      /no longer/,
+    );
+    assert.equal(b.doc.querySelectorAll("[data-selection-type]").length, 0);
+    assert.equal(b.doc.activeElement.id, "selection-filter-cancel");
+    await b.click("#selection-filter-cancel");
+    for (const app of apps) await app.click('[data-action="home"]');
+    await until(
+      () => apps.every((app) => app.doc.querySelector(".library")),
+      "Clients finish leaving before disposal",
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+async function marqueeBoard(app) {
+  await app.click('[data-action="new"]');
+  const canvas = app.doc.querySelector("#canvas");
+  canvas.getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: 1200,
+    height: 900,
+  });
+  dispatchTransfer(
+    app,
+    "drop",
+    transferData(
+      clipboardFormats([
+        item("rect", 0, 0, { w: 600, h: 450, text: "Background" }),
+        item("note", 140, 160, { w: 100, h: 100, text: "Inside" }),
+        item("table", 340, 160, {
+          w: 180,
+          h: 100,
+          cells: [
+            ["A", "B"],
+            ["C", "D"],
+          ],
+        }),
+      ]),
+    ),
+    canvas,
+    { clientX: 200, clientY: 200 },
+  );
+  const items = selectedClipboard(app),
+    view = renderedView(app);
+  const pointer = (type, x, y, extra = {}) =>
+    canvasPointer(app, type, 1, view.x + x * view.z, view.y + y * view.z, {
+      pointerType: "mouse",
+      ...extra,
+    });
+  const selected = () =>
+    [...app.doc.querySelectorAll('#board-outline [aria-pressed="true"]')].map(
+      (b) => b.dataset.id,
+    );
+  return { canvas, items, pointer, selected };
+}
+async function openSelectionSettings(app, enabled) {
+  await app.click('[data-action="more-tools"]');
+  await app.click('[data-feature="selection-settings"]');
+  if (
+    enabled !== undefined &&
+    app.doc.querySelector("#precise-selection").checked !== enabled
+  )
+    await app.click("#precise-selection");
+}
+
+test("marquee crossing and precise coverage retain history, Shift additions, cancellation and device preferences", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    const { canvas, items, pointer, selected } = await marqueeBoard(app),
+      [background, note, table] = items;
+    await click('[data-action="duplicate"]');
+    await click('[data-action="undo"]');
+    const drag = (x, y, extra = {}) => {
+      pointer("pointerdown", background.x - 10, background.y - 10, extra);
+      pointer("pointermove", x, y, extra);
+      pointer("pointerup", x, y, extra);
+    };
+    drag(note.x + 10, note.y + 10);
+    assert.deepEqual(
+      selected(),
+      [background.id, note.id],
+      "Crossing includes a touched object and background",
+    );
+    await openSelectionSettings(app, true);
+    assert.equal(
+      w.localStorage.getItem("whiteboard-precise-selection"),
+      "true",
+    );
+    w.eval(axe.source);
+    const audit = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(
+      audit.violations.length,
+      0,
+      audit.violations.map((v) => v.id).join(","),
+    );
+    doc.querySelector("dialog").close();
+    drag(note.x + 10, note.y + 10);
+    assert.deepEqual(selected(), []);
+    drag(note.x + 90, note.y + 100);
+    assert.deepEqual(
+      selected(),
+      [note.id],
+      "90% is enough without selecting the background",
+    );
+    await click(`#board-outline [data-id="${table.id}"]`);
+    pointer("pointerdown", background.x - 10, background.y - 10, {
+      shiftKey: true,
+    });
+    pointer("pointermove", note.x + 90, note.y + 100, { shiftKey: true });
+    assert.deepEqual(new Set(selected()), new Set([note.id, table.id]));
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    assert.deepEqual(
+      selected(),
+      [table.id],
+      "Escape restores the original selection",
+    );
+    pointer("pointerup", note.x + 90, note.y + 100);
+    drag(note.x + 90, note.y + 100, { shiftKey: true });
+    assert.deepEqual(new Set(selected()), new Set([note.id, table.id]));
+    pointer("pointerdown", background.x - 10, background.y - 10);
+    pointer("pointermove", note.x + 90, note.y + 100);
+    assert.deepEqual(selected(), [note.id]);
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Shift",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.deepEqual(
+      new Set(selected()),
+      new Set([note.id, table.id]),
+      "Shift can add the original selection during a drag",
+    );
+    canvas.dispatchEvent(
+      new w.KeyboardEvent("keyup", { key: "Shift", bubbles: true }),
+    );
+    assert.deepEqual(selected(), [note.id]);
+    pointer("lostpointercapture", note.x + 90, note.y + 100);
+    assert.deepEqual(new Set(selected()), new Set([note.id, table.id]));
+    pointer("pointerdown", background.x - 10, background.y - 10);
+    pointer("pointermove", background.x + 30, background.y + 30);
+    w.dispatchEvent(
+      new w.StorageEvent("storage", {
+        key: "whiteboard-precise-selection",
+        newValue: "false",
+      }),
+    );
+    assert.deepEqual(
+      new Set(selected()),
+      new Set([note.id, table.id]),
+      "Changing the preference in another tab cancels a stale gesture",
+    );
+    drag(note.x + 10, note.y + 10);
+    assert.deepEqual(selected(), [background.id, note.id]);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    assert.deepEqual(
+      allClipboard(app),
+      items,
+      "Selecting changes no content or geometry",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await openSelectionSettings(app);
+    assert.equal(
+      doc.querySelector("#precise-selection").checked,
+      false,
+      "The active cross-tab preference survives navigation",
+    );
+    doc.querySelector("dialog").close();
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await click('[data-action="commands"]');
+    paletteQuery(app, "precise");
+    await click('[data-command="selection-settings"]');
+    assert.equal(
+      doc.querySelector("dialog h2").textContent,
+      "Réglages de sélection",
+    );
+    assert.match(doc.querySelector("dialog").textContent, /Sélection précise/);
+    doc.querySelector("dialog").close();
+  } finally {
+    app.close();
+  }
+});
+
+test("mouse and touch holds select through a background without moving it and cancellation restores the earlier selection", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    const { canvas, items, pointer, selected } = await marqueeBoard(app),
+      [background, note, table] = items;
+    await click(`#board-outline [data-id="${table.id}"]`);
+    for (const pointerType of ["mouse", "touch"]) {
+      pointer("pointerdown", background.x + 20, background.y + 20, {
+        pointerType,
+      });
+      await new Promise((r) => setTimeout(r, 550));
+      pointer("pointermove", note.x + 95, note.y + 100, { pointerType });
+      assert.deepEqual(
+        selected(),
+        [note.id],
+        `${pointerType} hold uses precise coverage over the background`,
+      );
+      pointer("pointercancel", note.x + 95, note.y + 100, { pointerType });
+      assert.deepEqual(selected(), [table.id]);
+    }
+    pointer("pointerdown", background.x + 20, background.y + 20);
+    await new Promise((r) => setTimeout(r, 550));
+    // The last pointerup position is honored even without a final pointermove.
+    pointer("pointerup", note.x + 95, note.y + 100);
+    assert.deepEqual(selected(), [note.id]);
+    assert.deepEqual(allClipboard(app), items);
+    assert.equal(
+      w.localStorage.getItem("whiteboard-precise-selection"),
+      null,
+      "Temporary precise selection does not change the preference",
+    );
+    await click('[data-action="undo"]');
+    assert.equal(
+      doc.querySelectorAll("#board-outline button").length,
+      0,
+      "The only undo step was importing the fixture",
+    );
+    assert.equal(doc.activeElement, canvas);
+  } finally {
+    app.close();
+  }
+});
+
+test("active marquees refresh after shared geometry and lock changes while viewer preferences and selections stay private", async () => {
+  const env = environment(),
+    room = "marquee-collaboration",
+    seed = new SharedDocument();
+  const note = item("note", 100, 100, { w: 100, h: 100, text: "Moving note" }),
+    other = item("rect", 400, 100, { w: 100, h: 100, text: "Other" });
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Marquee collaboration",
+    items: [note, other],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+    ["editor", "viewer"].map((role) =>
+      env.service.call(owner, { op: "invite", room, role }),
+    ),
+  );
+  const apps = [],
+    until = async (fn, message) => {
+      const deadline = Date.now() + 8000;
+      while (!fn() && Date.now() < deadline)
+        await new Promise((r) => setTimeout(r, 25));
+      assert.ok(fn(), message);
+    };
+  try {
+    for (const [n, user] of [owner, collaborator, viewer].entries()) {
+      const app = await setup(env.sdk(user));
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invites[n - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1000,
+        height: 800,
+      });
+      await app.click('[data-action="fit"]');
+    }
+    const [a, b, c] = apps;
+    await openSelectionSettings(c, true);
+    c.doc.querySelector("dialog").close();
+    assert.equal(
+      b.w.localStorage.getItem("whiteboard-precise-selection"),
+      null,
+    );
+    const selected = (app, id) =>
+      app.doc
+        .querySelector(`#board-outline [data-id="${id}"]`)
+        ?.getAttribute("aria-pressed") === "true";
+    const pointer = (app, type, x, y) => {
+      const v = renderedView(app);
+      canvasPointer(app, type, 1, v.x + x * v.z, v.y + y * v.z, {
+        pointerType: "mouse",
+      });
+    };
+    pointer(b, "pointerdown", 90, 90);
+    pointer(b, "pointermove", 105, 210);
+    assert.equal(selected(b, note.id), true, "Editor uses crossing selection");
+    pointer(c, "pointerdown", 90, 90);
+    pointer(c, "pointermove", 105, 210);
+    pointer(c, "pointerup", 105, 210);
+    assert.equal(
+      selected(c, note.id),
+      false,
+      "Viewer independently uses precise selection",
+    );
+    await a.click(`#board-outline [data-id="${note.id}"]`);
+    await a.click('[data-action="lock"]');
+    await until(
+      () => !selected(b, note.id),
+      "Remote lock updates a stationary marquee",
+    );
+    await a.click('[data-action="lock"]');
+    await until(
+      () => selected(b, note.id),
+      "Remote unlock updates the same marquee",
+    );
+    a.doc.querySelector("#canvas").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    await until(
+      () => !selected(b, note.id),
+      "Remote geometry moves the note out of the drag box",
+    );
+    pointer(b, "pointerup", 105, 210);
+    assert.equal(
+      b.doc.querySelector('[data-action="undo"]').disabled,
+      true,
+      "Selection adds no shared undo entries",
+    );
+    pointer(c, "pointerdown", 100, 90);
+    pointer(c, "pointermove", 210, 210);
+    pointer(c, "pointerup", 210, 210);
+    assert.equal(selected(c, note.id), true);
+    await until(
+      () => selectedClipboard(c)[0]?.x === 110,
+      "The viewer receives the editor's move",
+    );
+    c.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new c.w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+    assert.equal(
+      selectedClipboard(c)[0].x,
+      110,
+      "Viewer selection never enables movement",
+    );
+    assert.equal(selected(a, note.id), true);
+    for (const app of apps) await app.click('[data-action="home"]');
+    await until(
+      () => apps.every((app) => app.doc.querySelector(".library")),
+      "Clients finished leaving",
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+async function rotationFixture(
+  app,
+  objects = [item("rect", 0, 0, { w: 200, h: 100, text: "Rotate me" })],
+  catalog = [],
+) {
+  await app.click('[data-action="new"]');
+  const canvas = app.doc.querySelector("#canvas");
+  canvas.getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    right: 1200,
+    bottom: 900,
+    width: 1200,
+    height: 900,
+  });
+  dispatchTransfer(
+    app,
+    "drop",
+    transferData(clipboardFormats(objects, catalog)),
+    canvas,
+    { clientX: 500, clientY: 350 },
+  );
+  const selected = selectedClipboard(app);
+  const pointer = (type, p, extra = {}) => {
+    const v = renderedView(app);
+    canvasPointer(app, type, 1, v.x + p.x * v.z, v.y + p.y * v.z, {
+      pointerType: "mouse",
+      ...extra,
+    });
+  };
+  const key = (key, extra = {}) =>
+    canvas.dispatchEvent(
+      new app.w.KeyboardEvent("keydown", { key, bubbles: true, ...extra }),
+    );
+  return { canvas, selected, pointer, key };
+}
+async function setRotation(app, value) {
+  await app.click('[data-action="rotate"]');
+  app.doc.querySelector("#rotation-angle").value = String(value);
+  app.doc
+    .querySelector("dialog form")
+    .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+  await app.tick();
+}
+test("clicking one of several selected objects selects just it, while dragging moves them all", async () => {
+  const app = await setup();
+  try {
+    const frame = item("frame", 0, 0, { w: 400, h: 300, text: "Frame" }),
+      child = item("note", 40, 80, { w: 100, h: 100, parentId: frame.id }),
+      a = item("rect", 600, 80, { w: 100, h: 100, groupId: "pair" }),
+      b = item("rect", 800, 80, { w: 100, h: 100, groupId: "pair" });
+    const { pointer } = await rotationFixture(app, [frame, child, a, b]);
+    const at = (i, dx = 0) => ({ x: i.x + 50 + dx, y: i.y + 50 });
+    const ids = () =>
+      new Set(
+        selectedClipboard(app)
+          .map((i) => i.id)
+          .sort(),
+      );
+    const [f, c, g1, g2] = allClipboard(app);
+    // Everything dropped is selected; dragging the note moves it all.
+    pointer("pointerdown", at(c));
+    pointer("pointermove", at(c, 40));
+    pointer("pointerup", at(c, 40));
+    assert.equal(ids().size, 4);
+    assert.equal(
+      Math.round(selectedClipboard(app).find((i) => i.id === f.id).x - f.x),
+      40,
+    );
+    // A click without moving selects just the note in the frame.
+    pointer("pointerdown", at(c, 40));
+    pointer("pointerup", at(c, 40));
+    assert.deepEqual([...ids()], [c.id]);
+    // Clicking a frame selects what it holds; a click on one of the two
+    // grouped rectangles among many selects their group.
+    app.doc.querySelector("#canvas").dispatchEvent(
+      new app.w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    pointer("pointerdown", at(g1, 40));
+    pointer("pointerup", at(g1, 40));
+    assert.deepEqual([...ids()], [g1.id, g2.id].sort());
+    await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("the resize corner shows a resize cursor that turns with the object", async () => {
+  const app = await setup();
+  try {
+    const { pointer, selected } = await rotationFixture(app);
+    const canvas = app.doc.querySelector("#canvas");
+    const [rect] = selected;
+    const corner = { x: rect.x + rect.w, y: rect.y + rect.h };
+    pointer("pointermove", corner);
+    assert.equal(canvas.style.cursor, "nwse-resize");
+    pointer("pointermove", { x: rect.x + 50, y: rect.y + 50 });
+    assert.equal(canvas.style.cursor, "");
+    // While resizing, the cursor stays.
+    pointer("pointerdown", corner);
+    pointer("pointermove", { x: corner.x + 30, y: corner.y + 20 });
+    assert.equal(canvas.style.cursor, "nwse-resize");
+    pointer("pointerup", { x: corner.x + 30, y: corner.y + 20 });
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    await setRotation(app, 90);
+    const [turned] = selectedClipboard(app);
+    const c = { x: turned.x + turned.w / 2, y: turned.y + turned.h / 2 };
+    // The local bottom-right corner, turned a quarter clockwise.
+    pointer("pointermove", { x: c.x - turned.h / 2, y: c.y + turned.w / 2 });
+    assert.equal(canvas.style.cursor, "nesw-resize");
+  } finally {
+    app.close();
+  }
+});
+
+test("rotating objects in and out of a frame updates which frame holds them", async () => {
+  const app = await setup();
+  try {
+    const frame = item("frame", 0, 0, { w: 400, h: 300, text: "Frame" }),
+      inside = item("rect", 20, 100, { w: 100, h: 100, parentId: frame.id }),
+      outside = item("rect", 700, 100, { w: 100, h: 100 });
+    const { pointer } = await rotationFixture(app, [frame, inside, outside]);
+    const [f, a, b] = allClipboard(app);
+    const press = (i, extra) => {
+      const p = { x: i.x + 50, y: i.y + 50 };
+      pointer("pointerdown", p, extra);
+      pointer("pointerup", p, extra);
+    };
+    press({ x: b.x + 400, y: b.y + 400 });
+    press(a);
+    press(b, { shiftKey: true });
+    assert.equal(selectedClipboard(app).length, 2);
+    // Both turn half a turn about their middle, trading places.
+    await setRotation(app, 180);
+    const after = new Map(allClipboard(app).map((i) => [i.id, i]));
+    assert.ok(after.get(a.id).x > f.x + f.w, "the first is now outside");
+    assert.equal(after.get(a.id).parentId, undefined);
+    assert.equal(after.get(b.id).parentId, f.id, "the second is now inside");
+  } finally {
+    app.close();
+  }
+});
+
+test("object rotation supports exact angles, pointer snapping, cancellation, one-step undo, persistence and keyboard access", async () => {
+  const { rotationHandle, rotationBox } = await import("../src/rotation.js");
+  const { rotatePoint, centerOf } = await import("../src/geometry.js");
+  const app = await setup();
+  try {
+    const { doc, w } = app,
+      { selected, pointer, key } = await rotationFixture(app),
+      id = selected[0].id;
+    await app.click('[data-action="rotate"]');
+    assert.equal(doc.activeElement.id, "rotation-angle");
+    const results = await axe.run(doc.querySelector("dialog[open]"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      results.violations.map((v) => v.id),
+      [],
+    );
+    await app.click('[data-turn="90"]');
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    assert.equal(selectedClipboard(app)[0].rotation, 90);
+    await setRotation(app, 90);
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    assert.equal(
+      selectedClipboard(app)[0].rotation,
+      undefined,
+      "No-op angle adds no undo step",
+    );
+    await app.click('[data-action="redo"]');
+    await app.click("#board-outline button");
+    const before = selectedClipboard(app)[0],
+      v = renderedView(app),
+      start = rotationHandle(rotationBox([before], new Set([id])), v.z),
+      next = rotatePoint(start, centerOf(before), 23);
+    pointer("pointerdown", start);
+    pointer("pointermove", next);
+    assert.ok(Math.abs(selectedClipboard(app)[0].rotation - 113) < 1e-7);
+    key("Shift");
+    assert.ok(Math.abs(selectedClipboard(app)[0].rotation - 120) < 1e-7);
+    doc.dispatchEvent(
+      new w.KeyboardEvent("keyup", { key: "Shift", bubbles: true }),
+    );
+    assert.ok(Math.abs(selectedClipboard(app)[0].rotation - 113) < 1e-7);
+    key("Escape");
+    assert.equal(selectedClipboard(app)[0].rotation, 90);
+    pointer("pointerdown", start);
+    pointer("pointermove", next);
+    pointer("pointerup", next, { shiftKey: true });
+    assert.ok(Math.abs(selectedClipboard(app)[0].rotation - 120) < 1e-7);
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].rotation, 90);
+    await app.click('[data-action="redo"]');
+    await app.click("#board-outline button");
+    assert.ok(Math.abs(selectedClipboard(app)[0].rotation - 120) < 1e-7);
+    const rotated = selectedClipboard(app)[0],
+      touchStart = rotationHandle(
+        rotationBox([rotated], new Set([id])),
+        renderedView(app).z,
+      ),
+      touchEnd = rotatePoint(touchStart, centerOf(rotated), -30);
+    pointer("pointerdown", touchStart, { pointerType: "touch" });
+    pointer("pointermove", touchEnd, { pointerType: "touch" });
+    pointer("pointerup", touchEnd, { pointerType: "touch" });
+    assert.ok(
+      Math.abs(selectedClipboard(app)[0].rotation - 90) < 1e-7,
+      "Touch rotation follows the same geometry",
+    );
+    await setRotation(app, 37.123456);
+    const exact = selectedClipboard(app)[0].rotation;
+    await app.click('[data-action="rotate"]');
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    assert.equal(
+      selectedClipboard(app)[0].rotation,
+      exact,
+      "Applying a rounded display does not change the angle",
+    );
+    const saved = selectedClipboard(app)[0];
+    await app.click('[data-action="home"]');
+    await app.click("[data-open]");
+    await app.click(`#board-outline [data-id="${id}"]`);
+    assert.equal(selectedClipboard(app)[0].rotation, saved.rotation);
+    await app.click('[data-action="lock"]');
+    assert.equal(doc.querySelector('[data-action="rotate"]'), null);
+    await app.click('[data-action="commands"]');
+    paletteQuery(app, "rotate selection");
+    const result = doc.querySelector('[data-command="rotate"]');
+    assert.equal(result?.getAttribute("aria-disabled"), "true");
+    doc.querySelector("dialog").close();
+    await app.click('[data-action="lock"]');
+    await app.click('[data-action="home"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await app.click("[data-open]");
+    await app.click(`#board-outline [data-id="${id}"]`);
+    await app.click('[data-action="rotate"]');
+    assert.equal(
+      doc.querySelector("dialog").getAttribute("aria-label"),
+      "Faire pivoter la sélection",
+    );
+    assert.match(doc.querySelector("dialog").textContent, /Angle \(degrés\)/);
+  } finally {
+    app.close();
+  }
+});
+
+test("rotated text editing and resizing preserve the text origin through growth, conversion and undo", async () => {
+  const { worldPoint } = await import("../src/geometry.js");
+  const app = await setup();
+  try {
+    const { doc, w } = app,
+      { pointer, selected } = await rotationFixture(app, [
+        item("text", 0, 0, {
+          w: 200,
+          h: 40,
+          text: "Editable text",
+          rotation: 45,
+          autoHeight: true,
+        }),
+      ]);
+    const before = selectedClipboard(app)[0],
+      origin = worldPoint(before, before);
+    await app.click('[data-action="edit"]');
+    const input = doc.querySelector("#canvas-text-editor"),
+      view = renderedView(app);
+    assert.match(input.style.transform, /rotate\(45deg\)/);
+    assert.ok(
+      Math.abs(parseFloat(input.style.left) - view.x - origin.x * view.z) <
+        1e-6,
+    );
+    input.value = "Editable text\nSecond line\nThird line";
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    input.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    const grown = selectedClipboard(app)[0],
+      grownOrigin = worldPoint(grown, grown);
+    assert.ok(Math.abs(grownOrigin.x - origin.x) < 1e-6);
+    assert.ok(Math.abs(grownOrigin.y - origin.y) < 1e-6);
+    const handle = worldPoint(grown, {
+      x: grown.x + grown.w,
+      y: grown.y + grown.h,
+    });
+    const next = worldPoint(grown, {
+      x: grown.x + grown.w + 100,
+      y: grown.y + grown.h,
+    });
+    pointer("pointerdown", handle);
+    pointer("pointermove", next, { altKey: true });
+    pointer("pointerup", next, { altKey: true });
+    const resized = selectedClipboard(app)[0];
+    assert.ok(Math.abs(resized.w - 300) < 1e-6);
+    assert.equal(resized.rotation, 45);
+    const resizedOrigin = worldPoint(resized, resized);
+    assert.ok(Math.abs(resizedOrigin.x - origin.x) < 1e-6);
+    assert.ok(Math.abs(resizedOrigin.y - origin.y) < 1e-6);
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    assert.ok(Math.abs(selectedClipboard(app)[0].w - 200) < 1e-6);
+    await app.click('[data-action="change-shape"]');
+    const noteButton = doc.querySelector('[data-shape="note"]');
+    assert.ok(noteButton);
+    noteButton.click();
+    await app.tick();
+    assert.equal(selectedClipboard(app)[0].type, "note");
+    assert.equal(selectedClipboard(app)[0].rotation, undefined);
+    assert.equal(doc.querySelector('[data-action="rotate"]'), null);
+    await app.click('[data-action="undo"]');
+    await app.click("#board-outline button");
+    assert.equal(selectedClipboard(app)[0].rotation, 45);
+  } finally {
+    app.close();
+  }
+});
+
+test("shared rotation previews, remote locks, concurrent text, undo and viewer restrictions remain consistent", async () => {
+  const { rotationHandle, rotationBox } = await import("../src/rotation.js"),
+    { rotatePoint, centerOf } = await import("../src/geometry.js");
+  const env = environment(),
+    hub = createPeerHub(),
+    room = "rotation-collaboration",
+    seed = new SharedDocument(),
+    shape = item("rect", 100, 100, { w: 200, h: 100, text: "Shared shape" });
+  env.service.now = () => Date.now();
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Rotation collaboration",
+    items: [shape],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+      ["editor", "viewer"].map((role) =>
+        env.service.call(owner, { op: "invite", room, role }),
+      ),
+    ),
+    apps = [];
+  const until = async (fn, message) => {
+    const end = Date.now() + 8000;
+    while (!(await fn()) && Date.now() < end)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.ok(await fn(), message);
+  };
+  try {
+    for (const [n, user] of [owner, collaborator, viewer].entries()) {
+      const sdk = env.sdk(user);
+      sdk.peer = hub.peer;
+      const app = await setup(sdk);
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invites[n - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1000,
+        height: 800,
+      });
+      await app.click('[data-action="fit"]');
+      await app.click(`#board-outline [data-id="${shape.id}"]`);
+    }
+    const [a, b, c] = apps;
+    await a.click('[data-action="participants"]');
+    await until(
+      () =>
+        [...a.doc.querySelectorAll(".live-participant-row")].some(
+          (row) =>
+            row.textContent.includes("Bob") &&
+            row.querySelector("[data-follow]")?.disabled === false,
+        ),
+      "Peers authenticated before the gesture",
+    );
+    a.doc.querySelector("dialog").close();
+    const pointer = (app, type, p) => {
+      const v = renderedView(app);
+      canvasPointer(app, type, 1, v.x + p.x * v.z, v.y + p.y * v.z, {
+        pointerType: "mouse",
+      });
+    };
+    const s = rotationHandle(
+        rotationBox([shape], new Set([shape.id])),
+        renderedView(b).z,
+      ),
+      p = rotatePoint(s, centerOf(shape), 45);
+    pointer(b, "pointerdown", s);
+    pointer(b, "pointermove", p);
+    assert.ok(
+      Math.abs(selectedClipboard(b)[0].rotation - 45) < 1e-6,
+      "Local rotation started",
+    );
+    await until(
+      () =>
+        [...a.doc.querySelectorAll(".participant-selection")].some(
+          (el) => Math.abs(parseFloat(el.style.transform.slice(7)) - 45) < 1e-6,
+        ),
+      "Peer sees rotation preview",
+    );
+    await a.click('[data-action="lock"]');
+    await until(() => selectedClipboard(b)[0]?.locked, "Remote lock received");
+    assert.equal(
+      selectedClipboard(b)[0].rotation,
+      undefined,
+      "Lock cancels pending rotation",
+    );
+    pointer(b, "pointerup", p);
+    assert.equal(selectedClipboard(b)[0].rotation, undefined);
+    await a.click('[data-action="lock"]');
+    await until(() => !selectedClipboard(b)[0]?.locked, "Unlock received");
+    await setRotation(b, 45);
+    await until(
+      () => selectedClipboard(c)[0]?.rotation === 45,
+      "Viewer receives rotation",
+    );
+    await a.click('[data-action="edit"]');
+    const editor = a.doc.querySelector("#canvas-text-editor");
+    editor.value = "Remote text kept";
+    editor.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    editor.dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await until(
+      () => selectedClipboard(b)[0]?.text === "Remote text kept",
+      "Concurrent text received",
+    );
+    await b.click('[data-action="undo"]');
+    await until(
+      () => selectedClipboard(c)[0]?.rotation === undefined,
+      "Rotation undone on all clients",
+    );
+    assert.equal(selectedClipboard(b)[0].text, "Remote text kept");
+    await b.click('[data-action="rotate"]');
+    b.doc.querySelector("#rotation-angle").value = "30";
+    await setRotation(a, 60);
+    await until(
+      async () => (await storedSharedBoard(b, room))?.items[0]?.rotation === 60,
+      "Remote angle persisted behind the open dialog",
+    );
+    b.doc
+      .querySelector("dialog form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    assert.equal(b.doc.querySelector("dialog"), null);
+    assert.match(
+      b.doc.querySelector("#toast").textContent,
+      /selection changed/i,
+    );
+    assert.equal(
+      selectedClipboard(b)[0].rotation,
+      60,
+      "Stale numeric rotation does not overwrite remote geometry",
+    );
+
+    await c.click('[data-action="commands"]');
+    paletteQuery(c, "rotate selection");
+    assert.equal(
+      c.doc
+        .querySelector('[data-command="rotate"]')
+        ?.getAttribute("aria-disabled"),
+      "true",
+    );
+    c.doc.querySelector("dialog").close();
+    for (const app of apps) await app.click('[data-action="home"]');
+    await until(
+      () => apps.every((app) => app.doc.querySelector(".library")),
+      "Clients finished leaving",
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("rotated image crop handles follow local axes, preserve the visible center, and export the correct pixels", async () => {
+  const { worldPoint, centerOf } = await import("../src/geometry.js");
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    await rotationFixture(app, [{ ...cropFixture(), rotation: 90 }]);
+    const original = selectedClipboard(app)[0];
+    await app.click('[data-action="crop-image"]');
+    const box = doc.querySelector(".crop-box"),
+      right = doc.querySelector('[data-crop-handle="e"]');
+    assert.equal(box.style.transform, "rotate(90deg)");
+    const width = parseFloat(box.style.width);
+    const event = (type, x, y) =>
+      right.dispatchEvent(
+        new w.MouseEvent(type, {
+          clientX: x,
+          clientY: y,
+          bubbles: true,
+          cancelable: true,
+          altKey: true,
+        }),
+      );
+    event("pointerdown", 500, 500);
+    event("pointermove", 500, 500 - width / 2);
+    event("pointerup", 500, 500 - width / 2);
+    assert.ok(Math.abs(+doc.querySelector('[name="w"]').value - 200) < 1e-6);
+    cropField(app, "h", 120);
+    cropField(app, "x", 200);
+    await app.click('.crop-panel [type="submit"]');
+    const cropped = selectedClipboard(app)[0],
+      expectedCenter = worldPoint(original, {
+        x: original.x + 300,
+        y: original.y + 60,
+      });
+    assert.equal(cropped.rotation, 90);
+    assert.equal(cropped.w, 200);
+    assert.equal(cropped.h, 120);
+    assert.ok(Math.abs(centerOf(cropped).x - expectedCenter.x) < 1e-6);
+    assert.ok(Math.abs(centerOf(cropped).y - expectedCenter.y) < 1e-6);
+    let copied;
+    imageClipboard(app, async ([entry]) => {
+      copied = await entry.data["image/png"];
+    });
+    await app.click('[data-action="copy-image"]');
+    for (let n = 0; n < 30 && !copied; n++) await app.tick();
+    assert.ok(copied);
+    const raster = await pngCanvas(app, copied);
+    assert.ok(raster.height > raster.width, "Rotation changes export aspect");
+    assert.deepEqual(
+      [
+        ...raster
+          .getContext("2d")
+          .getImageData(raster.width / 2, raster.height / 2, 1, 1).data,
+      ],
+      [0, 255, 0, 255],
+    );
+    await app.click('[data-action="crop-image"]');
+    await app.click("#crop-reset");
+    await app.click('.crop-panel [type="submit"]');
+    const restored = selectedClipboard(app)[0];
+    assert.equal(restored.rotation, 90);
+    assert.equal(restored.crop, undefined);
+    for (const key of ["x", "y", "w", "h"])
+      assert.ok(Math.abs(restored[key] - original[key]) < 1e-6);
+  } finally {
+    app.close();
+  }
+});
+
+test("individual group members support double-click selection, isolated transforms, text editing, copy and deletion", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const { selected, pointer, key } = await rotationFixture(app, [
+      item("rect", 100, 100, {
+        w: 140,
+        h: 90,
+        text: "Member A",
+        groupId: "team",
+      }),
+      item("rect", 380, 160, {
+        w: 140,
+        h: 90,
+        text: "Member B",
+        groupId: "team",
+      }),
+      item("note", 660, 100, { text: "Member C", groupId: "team" }),
+    ]);
+    const [a, b, c] = selected,
+      p = { x: a.x + 30, y: a.y + 30 };
+    const chosen = () =>
+      [...doc.querySelectorAll('#board-outline [aria-pressed="true"]')].map(
+        (el) => el.dataset.id,
+      );
+    for (let n = 0; n < 2; n++) {
+      pointer("pointerdown", p);
+      pointer("pointerup", p);
+    }
+    assert.deepEqual(chosen(), [a.id]);
+    assert.equal(
+      doc.querySelector("#canvas-text-editor"),
+      null,
+      "First double-click selects the member",
+    );
+    assert.ok(doc.querySelector('[data-action="exit-group"]'));
+    const port = doc.querySelector('[data-quick-direction="right"]');
+    const portEvent = (type, x, y) =>
+      port.dispatchEvent(
+        new w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: x,
+          clientY: y,
+        }),
+      );
+    portEvent("pointerdown", 450, 300);
+    portEvent("pointermove", 530, 360);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 4);
+    portEvent("pointercancel", 530, 360);
+    assert.deepEqual(chosen(), [a.id]);
+    assert.ok(
+      doc.querySelector('[data-action="exit-group"]'),
+      "Cancelling quick-connect restores group context",
+    );
+    pointer("pointerdown", p);
+    pointer("pointermove", { x: p.x + 35, y: p.y + 20 }, { altKey: true });
+    pointer("pointerup", { x: p.x + 35, y: p.y + 20 }, { altKey: true });
+    key("ArrowRight");
+    assert.equal(selectedClipboard(app)[0].x, a.x + 36);
+    await setRotation(app, 30);
+    await app.click('[data-action="resize"]');
+    doc.querySelector("#resize-width").value = "180";
+    doc.querySelector("#resize-height").value = "110";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    const transformed = selectedClipboard(app)[0];
+    assert.equal(transformed.w, 180);
+    assert.equal(transformed.rotation, 30);
+    assert.equal(
+      transformed.groupId,
+      undefined,
+      "Copied member is independent",
+    );
+    let copiedImage;
+    imageClipboard(app, async ([entry]) => {
+      copiedImage = await entry.data["image/png"];
+    });
+    await app.click('[data-action="copy-image"]');
+    for (let n = 0; n < 30 && !copiedImage; n++) await app.tick();
+    assert.ok(copiedImage);
+    const raster = await pngCanvas(app, copiedImage);
+    assert.ok(
+      raster.width < raster.height * 2,
+      "Copied image contains the rotated member, not the wider group",
+    );
+    key("Escape");
+    assert.deepEqual(
+      chosen(),
+      selected.map((i) => i.id),
+    );
+    const whole = selectedClipboard(app);
+    assert.deepEqual(
+      whole.find((i) => i.id === b.id),
+      b,
+    );
+    assert.deepEqual(
+      whole.find((i) => i.id === c.id),
+      c,
+    );
+    assert.equal(whole.find((i) => i.id === a.id).groupId, b.groupId);
+    await app.click(`#board-outline [data-id="${a.id}"]`);
+    key("Enter");
+    assert.deepEqual(chosen(), [a.id]);
+    key("Enter");
+    const editor = doc.querySelector("#canvas-text-editor");
+    assert.ok(editor);
+    editor.value = "Edited only A";
+    editor.dispatchEvent(new w.Event("input", { bubbles: true }));
+    editor.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(selectedClipboard(app)[0].text, "Edited only A");
+    const cut = transferData();
+    dispatchTransfer(app, "cut", cut);
+    assert.equal(JSON.parse(cut.getData(CLIPBOARD_TYPE)).items.length, 1);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 2);
+    await app.click(`[data-id="${b.id}"]`);
+    assert.deepEqual(selectedClipboard(app), [b, c]);
+    await app.click('[data-action="undo"]');
+    await app.click(`[data-id="${a.id}"]`);
+    assert.equal(selectedClipboard(app).length, 3);
+    key("Enter");
+    await app.click('[data-action="delete"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 2);
+    await app.click('[data-action="undo"]');
+    await app.click(`[data-id="${a.id}"]`);
+    key("Enter");
+    key("d", { ctrlKey: true });
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 4);
+    assert.equal(selectedClipboard(app).length, 1);
+    assert.equal(doc.querySelector('[data-action="exit-group"]'), null);
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+    assert.ok(doc.querySelector(".library"));
+  } finally {
+    app.close();
+  }
+});
+
+test("group focus preserves keyboard access, member filtering, cancellation, outside selection and protected groups", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const { selected, pointer, key } = await rotationFixture(app, [
+      item("rect", 100, 100, { w: 100, h: 80, text: "Shape", groupId: "team" }),
+      item("note", 350, 100, { text: "Note", groupId: "team" }),
+      item("text", 600, 100, { text: "Text", groupId: "team" }),
+      item("rect", 900, 100, { text: "Outside", w: 100, h: 80 }),
+    ]);
+    const [a, b, c, outside] = selected;
+    const clickPoint = (i, extra = {}) => {
+      const p = { x: i.x + 20, y: i.y + 20 };
+      pointer("pointerdown", p, extra);
+      pointer("pointerup", p, extra);
+    };
+    await app.click(`[data-id="${a.id}"]`);
+    key("ArrowDown", { ctrlKey: true, shiftKey: true });
+    assert.equal(selectedClipboard(app).length, 1);
+    clickPoint(b, { shiftKey: true });
+    assert.equal(selectedClipboard(app).length, 2);
+    await app.click('[data-action="filter-selection"]');
+    assert.deepEqual(
+      [...doc.querySelectorAll("[data-selection-type]")].map(
+        (el) => el.dataset.selectionType,
+      ),
+      ["note", "shape"],
+    );
+    await app.click('[data-selection-type="note"]');
+    assert.equal(selectedClipboard(app)[0].id, b.id);
+    assert.ok(doc.querySelector('[data-action="exit-group"]'));
+    const p = { x: b.x + 20, y: b.y + 20 };
+    pointer("pointerdown", p, { altKey: true });
+    pointer("pointermove", { x: p.x + 80, y: p.y + 40 }, { altKey: true });
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5);
+    key("Escape");
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 4);
+    assert.equal(selectedClipboard(app)[0].id, b.id);
+    assert.ok(doc.querySelector('[data-action="exit-group"]'));
+    clickPoint(outside, { shiftKey: true });
+    assert.equal(
+      selectedClipboard(app).length,
+      4,
+      "Adding an outside object exits group focus and restores atomic selection",
+    );
+    assert.equal(doc.querySelector('[data-action="exit-group"]'), null);
+    await app.click(`[data-id="${c.id}"]`);
+    await app.click('[data-action="enter-group"]');
+    await app.click('[data-action="lock"]');
+    const before = selectedClipboard(app)[0];
+    key("ArrowRight");
+    assert.deepEqual(selectedClipboard(app)[0], before);
+    assert.equal(doc.querySelector('[data-action="delete"]'), null);
+    key("ArrowUp", { ctrlKey: true, shiftKey: true });
+    assert.equal(selectedClipboard(app).length, 3);
+    assert.ok(selectedClipboard(app).every((i) => i.locked));
+    await app.click('[data-action="lock"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    assert.equal(
+      doc
+        .querySelector('[data-action="enter-group"]')
+        .getAttribute("aria-label"),
+      "Sélectionner un objet du groupe",
+    );
+    await app.click('[data-action="enter-group"]');
+    assert.equal(
+      doc
+        .querySelector('[data-action="exit-group"]')
+        .getAttribute("aria-label"),
+      "Sélectionner tout le groupe",
+    );
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+    assert.ok(doc.querySelector(".library"));
+  } finally {
+    app.close();
+  }
+});
+
+test("shared group member movement preserves concurrent sibling edits and cancels on remote locks or regrouping", async () => {
+  const env = environment(),
+    hub = createPeerHub(),
+    room = "group-members-collaboration",
+    seed = new SharedDocument();
+  const first = item("rect", 100, 100, {
+      w: 160,
+      h: 100,
+      text: "First",
+      groupId: "team",
+    }),
+    second = item("rect", 420, 100, {
+      w: 160,
+      h: 100,
+      text: "Second",
+      groupId: "team",
+    });
+  env.service.now = () => Date.now();
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Group members",
+    items: [first, second],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+      ["editor", "viewer"].map((role) =>
+        env.service.call(owner, { op: "invite", room, role }),
+      ),
+    ),
+    apps = [];
+  const until = async (fn, message) => {
+    const end = Date.now() + 8000;
+    while (!(await fn()) && Date.now() < end)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.ok(await fn(), message);
+  };
+  const inside = async (app, id) => {
+    await app.click(`#board-outline [data-id="${id}"]`);
+    app.doc.querySelector("#canvas").dispatchEvent(
+      new app.w.KeyboardEvent("keydown", {
+        key: "ArrowDown",
+        ctrlKey: true,
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.equal(selectedClipboard(app).length, 1);
+  };
+  const pointer = (app, type, p) => {
+    const v = renderedView(app);
+    canvasPointer(app, type, 1, v.x + p.x * v.z, v.y + p.y * v.z, {
+      pointerType: "mouse",
+      ctrlKey: true,
+    });
+  };
+  try {
+    for (const [n, user] of [owner, collaborator, viewer].entries()) {
+      const sdk = env.sdk(user);
+      sdk.peer = hub.peer;
+      const app = await setup(sdk);
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invites[n - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1000,
+        height: 800,
+      });
+      await app.click('[data-action="fit"]');
+    }
+    const [a, b, c] = apps;
+    await inside(c, first.id);
+    const viewerBefore = selectedClipboard(c)[0];
+    pointer(c, "pointerdown", { x: 130, y: 130 });
+    pointer(c, "pointermove", { x: 200, y: 170 });
+    pointer(c, "pointerup", { x: 200, y: 170 });
+    assert.deepEqual(selectedClipboard(c)[0], viewerBefore);
+    await c.click('[data-action="commands"]');
+    paletteQuery(c, "select whole group");
+    assert.notEqual(
+      c.doc
+        .querySelector('[data-command="exit-group"]')
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    c.doc.querySelector("dialog").close();
+    await inside(a, second.id);
+    await inside(b, first.id);
+    pointer(b, "pointerdown", { x: 130, y: 130 });
+    pointer(b, "pointermove", { x: 170, y: 150 });
+    await a.click('[data-action="edit"]');
+    const editor = a.doc.querySelector("#canvas-text-editor");
+    editor.value = "Sibling edited remotely";
+    editor.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    editor.dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await until(
+      async () =>
+        (await storedSharedBoard(b, room))?.items.find(
+          (i) => i.id === second.id,
+        )?.text === "Sibling edited remotely",
+      "Concurrent sibling text received",
+    );
+    pointer(b, "pointerup", { x: 170, y: 150 });
+    await until(
+      () => selectedClipboard(c)[0]?.x === 140,
+      "Viewer receives only the member move",
+    );
+    const stored = await storedSharedBoard(b, room);
+    assert.equal(stored.items.find((i) => i.id === second.id).x, second.x);
+    assert.equal(stored.items.find((i) => i.id === first.id).groupId, "team");
+    await b.click('[data-action="undo"]');
+    await until(
+      () => selectedClipboard(c)[0]?.x === 100,
+      "Undo restores just the movement",
+    );
+    assert.equal(selectedClipboard(a)[0].text, "Sibling edited remotely");
+    await inside(b, first.id);
+    pointer(b, "pointerdown", { x: 130, y: 130 });
+    pointer(b, "pointermove", { x: 180, y: 150 });
+    await a.click('[data-action="lock"]');
+    await until(() => selectedClipboard(b)[0]?.locked, "Group lock received");
+    assert.equal(
+      selectedClipboard(b)[0].x,
+      first.x,
+      "Remote lock cancels the pending member move",
+    );
+    pointer(b, "pointerup", { x: 180, y: 150 });
+    await a.click('[data-action="lock"]');
+    await until(
+      () => !selectedClipboard(b)[0]?.locked,
+      "Group unlock received",
+    );
+    await inside(b, first.id);
+    pointer(b, "pointerdown", { x: 130, y: 130 });
+    pointer(b, "pointermove", { x: 190, y: 160 });
+    await a.click(`#board-outline [data-id="${second.id}"]`);
+    a.doc.querySelector("#canvas").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "g",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await until(
+      async () =>
+        (await storedSharedBoard(b, room))?.items[0]?.groupId !== "team",
+      "Remote regroup received",
+    );
+    assert.equal(
+      selectedClipboard(b)[0].x,
+      first.x,
+      "Regrouping cancels the pending member move",
+    );
+    assert.ok(
+      b.doc.querySelector('[data-action="exit-group"]'),
+      "Member focus follows its new group",
+    );
+    pointer(b, "pointerup", { x: 190, y: 160 });
+    a.doc.querySelector("#canvas").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "g",
+        ctrlKey: true,
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    await until(
+      () => !b.doc.querySelector('[data-action="exit-group"]'),
+      "Remote ungroup exits member focus",
+    );
+    assert.equal(selectedClipboard(b)[0].x, first.x);
+    pointer(b, "pointerup", { x: 190, y: 160 });
+    assert.equal(selectedClipboard(b)[0].x, first.x);
+    await b.click('[data-action="resize"]');
+    b.doc.querySelector("#resize-width").value = "240";
+    await a.click(`#board-outline [data-id="${first.id}"]`);
+    a.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new a.w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+    await until(
+      async () =>
+        (await storedSharedBoard(b, room))?.items.find((i) => i.id === first.id)
+          ?.x ===
+        first.x + 1,
+      "Remote geometry received behind resize dialog",
+    );
+    b.doc
+      .querySelector("dialog form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    assert.equal(b.doc.querySelector("dialog"), null);
+    assert.match(
+      b.doc.querySelector("#toast").textContent,
+      /selection changed/i,
+    );
+    assert.equal(selectedClipboard(b)[0].x, first.x + 1);
+    assert.equal(
+      selectedClipboard(b)[0].w,
+      first.w,
+      "Stale resize cannot overwrite remote geometry",
+    );
+    for (const app of apps) await app.click('[data-action="home"]');
+    await until(
+      () => apps.every((app) => app.doc.querySelector(".library")),
+      "Clients left cleanly",
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("touch double-tap selects a group member and cancelled marquee restores that focus", async () => {
+  const app = await setup();
+  try {
+    const { doc } = app;
+    const { selected, pointer, key } = await rotationFixture(app, [
+      item("rect", 100, 100, {
+        w: 140,
+        h: 100,
+        text: "Touch A",
+        groupId: "team",
+      }),
+      item("note", 400, 100, { text: "Touch B", groupId: "team" }),
+    ]);
+    const [a, b] = selected,
+      p = { x: a.x + 30, y: a.y + 30 };
+    for (let n = 0; n < 2; n++) {
+      pointer("pointerdown", p, { pointerType: "touch" });
+      pointer("pointerup", p, { pointerType: "touch" });
+    }
+    assert.equal(selectedClipboard(app).length, 1);
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    pointer("pointerdown", p, { pointerType: "touch" });
+    pointer(
+      "pointermove",
+      { x: p.x + 30, y: p.y + 20 },
+      { pointerType: "touch", altKey: true },
+    );
+    pointer(
+      "pointerup",
+      { x: p.x + 30, y: p.y + 20 },
+      { pointerType: "touch", altKey: true },
+    );
+    assert.equal(selectedClipboard(app)[0].x, a.x + 30);
+    pointer("pointerdown", { x: a.x - 50, y: a.y - 50 });
+    pointer("pointermove", { x: b.x + b.w + 50, y: b.y + b.h + 50 });
+    key("Escape");
+    assert.equal(selectedClipboard(app).length, 1);
+    assert.ok(doc.querySelector('[data-action="exit-group"]'));
+    key("Escape");
+    assert.equal(selectedClipboard(app).length, 2);
+    assert.deepEqual(selectedClipboard(app)[1], b);
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+    assert.ok(doc.querySelector(".library"));
+  } finally {
+    app.close();
+  }
+});
+
+test("keyboard group entry retains later-added frame contents while moving only that container", async () => {
+  const app = await setup();
+  try {
+    const frame = item("frame", 100, 100, {
+      w: 300,
+      h: 300,
+      groupId: "team",
+      text: "Grouped frame",
+    });
+    const { selected, key } = await rotationFixture(app, [
+      frame,
+      item("note", 150, 170, {
+        w: 120,
+        h: 100,
+        parentId: frame.id,
+        text: "Later child",
+      }),
+      item("rect", 600, 100, { w: 160, h: 100, groupId: "team", text: "Peer" }),
+    ]);
+    const [f, child, peer] = selected;
+    await app.click(`#board-outline [data-id="${f.id}"]`);
+    assert.ok(app.doc.querySelector('[data-action="enter-group"]'));
+    key("Enter");
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.id),
+      [f.id, child.id],
+    );
+    key("ArrowRight");
+    key("Escape");
+    const after = selectedClipboard(app);
+    assert.equal(after.find((i) => i.id === f.id).x, f.x + 1);
+    assert.equal(after.find((i) => i.id === child.id).x, child.x + 1);
+    assert.deepEqual(
+      after.find((i) => i.id === peer.id),
+      peer,
+    );
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !app.doc.querySelector(".library"); n++)
+      await app.tick();
+    assert.ok(app.doc.querySelector(".library"));
+  } finally {
+    app.close();
+  }
+});
+
+test("clear content resets mixed sticky/shape selections in one undo step and retains styling, geometry, links and tag catalog", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const tag = { id: "research", name: "Research", color: "#365dc4" };
+    const { selected, key } = await rotationFixture(
+      app,
+      [
+        item("note", 100, 100, {
+          text: "Ideas 🚀",
+          tagIds: [tag.id],
+          bold: true,
+          fontFamily: "caveat",
+          fontSize: 24,
+          color: "#dce5f7",
+          objectLink: { url: "https://example.com/" },
+          textRuns: [{ start: 0, end: 5, style: { italic: true } }],
+          textBlocks: [{ start: 0, list: "bullet", indent: 0 }],
+        }),
+        item("rect", 400, 100, {
+          w: 200,
+          h: 120,
+          text: "A diagram",
+          rotation: 30,
+          shape: "diamond",
+          textAlign: "center",
+        }),
+        item("ellipse", 700, 100, {
+          w: 160,
+          h: 100,
+          text: "A circle",
+          underline: true,
+        }),
+        item("text", 100, 400, { text: "Keep heading" }),
+        item("table", 400, 400, { cells: [["Keep cell"]] }),
+      ],
+      [tag],
+    );
+    const empty = (i) => {
+      const next = { ...i, text: "" };
+      for (const k of ["textRuns", "textBlocks", "tagIds"]) delete next[k];
+      return next;
+    };
+    const expected = selected.map((i, n) => (n < 3 ? empty(i) : i));
+    key("Backspace", { ctrlKey: true });
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5);
+    assert.deepEqual(selectedClipboard(app), expected);
+    await app.click('[data-action="undo"]');
+    key("a", { ctrlKey: true });
+    assert.deepEqual(selectedClipboard(app), selected);
+    await app.click('[data-action="redo"]');
+    key("a", { ctrlKey: true });
+    assert.deepEqual(selectedClipboard(app), expected);
+    await app.click("#tag-access");
+    assert.match(doc.querySelector("#tag-list").textContent, /Research/);
+    await app.click("#tag-close");
+    // No-op clearing must leave a redo entry for an unrelated undone edit.
+    await app.click(`[data-id="${selected[0].id}"]`);
+    await app.click('[data-color="#eadcf0"]');
+    await app.click('[data-action="undo"]');
+    await app.click(`[data-id="${selected[0].id}"]`);
+    await app.click('[data-action="clear-content"]');
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    assert.match(doc.querySelector("#toast").textContent, /already empty/);
+    // The same shortcut on an unsupported object must not fall through to Delete.
+    await app.click(`[data-id="${selected[3].id}"]`);
+    key("Backspace", { metaKey: true });
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5);
+    assert.equal(selectedClipboard(app)[0].text, "Keep heading");
+    assert.match(
+      doc.querySelector("#toast").textContent,
+      /sticky notes or shapes/,
+    );
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+    const entry =
+      [...doc.querySelectorAll("[data-open]")].find((el) =>
+        el.textContent.includes("Untitled"),
+      ) || doc.querySelector("[data-open]");
+    assert.ok(entry);
+    entry.click();
+    await app.tick();
+    // The original canvas has been replaced; select through the current element.
+    doc.querySelector("#canvas").dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    assert.deepEqual(selectedClipboard(app), expected);
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("clear content respects group-member selection, protected groups, native text shortcuts and localized command access", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const { selected, key } = await rotationFixture(app, [
+      item("note", 100, 100, { text: "First", groupId: "g" }),
+      item("rect", 400, 100, { text: "Second", groupId: "g" }),
+    ]);
+    await app.click(`[data-id="${selected[0].id}"]`);
+    await app.click('[data-action="enter-group"]');
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="clear-content"]');
+    assert.equal(selectedClipboard(app)[0].text, "");
+    key("Escape");
+    assert.equal(selectedClipboard(app)[1].text, "Second");
+    await app.click('[data-action="undo"]');
+    await app.click(`[data-id="${selected[0].id}"]`);
+    await app.click('[data-action="lock"]');
+    const protectedItems = selectedClipboard(app);
+    key("Backspace", { ctrlKey: true });
+    assert.deepEqual(selectedClipboard(app), protectedItems);
+    await app.click('[data-action="lock"]');
+    await app.click('[data-action="enter-group"]');
+    await app.click('[data-action="edit"]');
+    const input = doc.querySelector("#canvas-text-editor");
+    const event = new w.KeyboardEvent("keydown", {
+      key: "Backspace",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    input.dispatchEvent(event);
+    assert.equal(
+      event.defaultPrevented,
+      false,
+      "Native word deletion stays in the text editor",
+    );
+    assert.equal(input.value, "First");
+    await app.click('[data-action="finish-text"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.click('[data-action="commands"]');
+    paletteQuery(app, "effacer contenu");
+    assert.notEqual(
+      doc
+        .querySelector('[data-command="clear-content"]')
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    await app.click('[data-command="clear-content"]');
+    assert.equal(selectedClipboard(app)[0].text, "");
+    assert.match(doc.querySelector("#toast").textContent, /Contenu effacé/);
+    doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    assert.equal(selectedClipboard(app)[1].text, "Second");
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("shared clear content updates an open text editor, preserves another author's typing and style on undo, and rejects viewers and locks", async () => {
+  const env = environment(),
+    hub = createPeerHub(),
+    room = "clear-content-collaboration",
+    seed = new SharedDocument(),
+    note = item("note", 100, 100, {
+      text: "Original",
+      tagIds: ["research"],
+      textRuns: [{ start: 0, end: 8, style: { italic: true } }],
+      textBlocks: [{ start: 0, list: "bullet", indent: 0 }],
+    });
+  env.service.now = () => Date.now();
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Clear content",
+    tags: [{ id: "research", name: "Research", color: "#365dc4" }],
+    items: [note],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invites = await Promise.all(
+      ["editor", "viewer"].map((role) =>
+        env.service.call(owner, { op: "invite", room, role }),
+      ),
+    ),
+    apps = [];
+  const until = async (fn, message) => {
+    const end = Date.now() + 8000;
+    while (!(await fn()) && Date.now() < end)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.ok(await fn(), message);
+  };
+  const shortcut = (app) =>
+    app.doc.querySelector("#canvas").dispatchEvent(
+      new app.w.KeyboardEvent("keydown", {
+        key: "Backspace",
+        metaKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  try {
+    for (const [n, user] of [owner, collaborator, viewer].entries()) {
+      const sdk = env.sdk(user);
+      sdk.peer = hub.peer;
+      const app = await setup(sdk);
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invites[n - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      await app.click(`#board-outline [data-id="${note.id}"]`);
+    }
+    const [a, b, c] = apps;
+    shortcut(c);
+    assert.equal(selectedClipboard(c)[0].text, "Original");
+    await c.click('[data-action="commands"]');
+    paletteQuery(c, "clear content");
+    assert.equal(
+      c.doc
+        .querySelector('[data-command="clear-content"]')
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    c.doc.querySelector("dialog").close();
+    await b.click('[data-action="edit"]');
+    const input = b.doc.querySelector("#canvas-text-editor");
+    input.setSelectionRange(8, 8);
+    await a.click('[data-action="clear-content"]');
+    await until(
+      () => input.value === "" && selectedClipboard(c)[0]?.text === "",
+      "Remote clear updates the active editor and viewer",
+    );
+    assert.equal(input.selectionStart, 0);
+    assert.deepEqual(JSON.parse(JSON.stringify(input.textRuns || [])), []);
+    assert.deepEqual(JSON.parse(JSON.stringify(input.textBlocks || [])), []);
+    assert.equal(selectedClipboard(c)[0].tagIds, undefined);
+    input.value = "New";
+    input.dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    await b.click('[data-action="finish-text"]');
+    await b.click('[data-color="#dce5f7"]');
+    await until(
+      () =>
+        selectedClipboard(a)[0]?.text === "New" &&
+        selectedClipboard(a)[0]?.color === "#dce5f7",
+      "New text and style propagate",
+    );
+    await a.click('[data-action="undo"]');
+    await until(
+      () =>
+        apps.every((app) => selectedClipboard(app)[0]?.text === "OriginalNew"),
+      "Undo restores the cleared text alongside the other author's addition",
+    );
+    for (const app of apps) {
+      const restored = selectedClipboard(app)[0];
+      assert.equal(restored.color, "#dce5f7");
+      assert.deepEqual(restored.tagIds, ["research"]);
+      assert.deepEqual(restored.textRuns, note.textRuns);
+      assert.deepEqual(restored.textBlocks, note.textBlocks);
+      assert.equal(restored.w, note.w);
+      assert.equal(restored.h, note.h);
+    }
+    await a.click('[data-action="lock"]');
+    await until(() => selectedClipboard(b)[0]?.locked, "Remote lock received");
+    shortcut(b);
+    assert.equal(selectedClipboard(b)[0].text, "OriginalNew");
+    assert.match(b.doc.querySelector("#toast").textContent, /Unlock/);
+    assert.equal((await storedSharedBoard(c, room)).tags.length, 1);
+    for (const app of apps) await app.click('[data-action="home"]');
+    await until(
+      () => apps.every((app) => app.doc.querySelector(".library")),
+      "All clients left cleanly",
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+function replacementFixture() {
+  const canvas = createCanvas(100, 300),
+    ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#00aa44";
+  ctx.fillRect(0, 0, 100, 300);
+  return item("image", 500, 100, {
+    w: 100,
+    h: 300,
+    text: "Green portrait",
+    src: canvas.toDataURL(),
+  });
+}
+async function chooseBoardReplacement(app, id) {
+  await app.click('[data-action="replace-image"]');
+  await app.click("#replacement-board");
+  await app.click(`[data-replacement-source="${id}"]`);
+  for (
+    let n = 0;
+    n < 40 && app.doc.querySelector("#replacement-apply")?.disabled;
+    n++
+  )
+    await app.tick();
+  assert.equal(
+    app.doc.querySelector("#replacement-apply")?.disabled,
+    false,
+    app.doc.querySelector("#replacement-status")?.textContent,
+  );
+}
+test("image replacement previews exact pixels, retains grouped layout and links, and supports undo, persistence and French commands", async () => {
+  const app = await setup(undefined, { asyncDialogClose: true });
+  try {
+    const target = {
+      ...cropFixture(),
+      x: 100,
+      y: 100,
+      w: 200,
+      h: 100,
+      text: "Custom name",
+      rotation: 30,
+      groupId: "g",
+      crop: {
+        x: 0.5,
+        y: 0,
+        w: 0.5,
+        h: 1,
+        mask: "ellipse",
+        sourceAspect: 400 / 240,
+      },
+      objectLink: { url: "https://example.com/" },
+    };
+    const { selected } = await rotationFixture(app, [
+      target,
+      replacementFixture(),
+      item("note", 800, 100, { text: "Sibling", groupId: "g" }),
+    ]);
+    const [original, source, sibling] = selected;
+    const memberOriginal = { ...original };
+    delete memberOriginal.groupId;
+    await app.click(`#board-outline [data-id="${original.id}"]`);
+    await app.click('[data-action="enter-group"]');
+    await chooseBoardReplacement(app, source.id);
+    const dialog = app.doc.querySelector("dialog"),
+      preview = dialog.querySelector("canvas").getContext("2d");
+    assert.deepEqual(
+      [...preview.getImageData(200, 120, 1, 1).data],
+      [0, 170, 68, 255],
+    );
+    const checks = await axe.run(dialog, {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      checks.violations.map((v) => v.id),
+      [],
+    );
+    await app.click("#replacement-apply");
+    const changed = selectedClipboard(app)[0];
+    assert.equal(changed.src, source.src);
+    assert.equal(changed.crop.mask, "ellipse");
+    assert.ok(Math.abs(changed.crop.h - 1 / 6) < 1e-9);
+    for (const key of [
+      "id",
+      "x",
+      "y",
+      "w",
+      "h",
+      "rotation",
+      "text",
+      "objectLink",
+    ])
+      assert.deepEqual(changed[key], original[key]);
+    app.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new app.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+    assert.deepEqual(selectedClipboard(app)[1], sibling);
+    assert.equal(selectedClipboard(app)[0].groupId, original.groupId);
+    await app.click('[data-action="undo"]');
+    await app.click(`#board-outline [data-id="${original.id}"]`);
+    await app.click('[data-action="enter-group"]');
+    assert.deepEqual(selectedClipboard(app)[0], memberOriginal);
+    await app.click('[data-action="redo"]');
+    await app.click(`#board-outline [data-id="${original.id}"]`);
+    await app.click('[data-action="enter-group"]');
+    assert.deepEqual(selectedClipboard(app)[0], changed);
+    // Reusing the already-fitted source is a no-op and keeps the redo stack.
+    await app.click('[data-color="#eadcf0"]');
+    await app.click('[data-action="undo"]');
+    await app.click(`#board-outline [data-id="${original.id}"]`);
+    await app.click('[data-action="enter-group"]');
+    await app.click('[data-action="replace-image"]');
+    await app.click("#replacement-board");
+    await app.click(`[data-replacement-source="${source.id}"]`);
+    assert.equal(app.doc.querySelector("#replacement-apply").disabled, true);
+    assert.match(
+      app.doc.querySelector("#replacement-status").textContent,
+      /already in place/,
+    );
+    await app.click("#replacement-cancel");
+    assert.equal(app.doc.querySelector('[data-action="redo"]').disabled, false);
+    app.doc.querySelector("#language").value = "fr";
+    app.doc.querySelector("#language").dispatchEvent(new app.w.Event("change"));
+    await app.click('[data-action="commands"]');
+    paletteQuery(app, "remplacer image");
+    await app.click('[data-command="replace-image"]');
+    assert.equal(
+      app.doc.querySelector("dialog").getAttribute("aria-label"),
+      "Remplacer l’image",
+    );
+    await app.click("#replacement-cancel");
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !app.doc.querySelector(".library"); n++)
+      await app.tick();
+    await app.click("[data-open]");
+    await app.click(`#board-outline [data-id="${original.id}"]`);
+    await app.click('[data-action="enter-group"]');
+    assert.deepEqual(selectedClipboard(app)[0], changed);
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !app.doc.querySelector(".library"); n++)
+      await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("image replacement accepts validated device and URL images, rejects corrupt data, and discards late loads after cancellation or navigation", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const { selected } = await rotationFixture(app, [cropFixture()]);
+    const original = selected[0],
+      source = replacementFixture();
+    let fileInput;
+    const nativeClick = w.HTMLInputElement.prototype.click;
+    w.HTMLInputElement.prototype.click = function () {
+      if (this.type === "file") fileInput = this;
+      else nativeClick.call(this);
+    };
+    const upload = async (file) => {
+      await app.click("#replacement-upload");
+      Object.defineProperty(fileInput, "files", {
+        value: [file],
+        configurable: true,
+      });
+      fileInput.dispatchEvent(new w.Event("change"));
+      for (
+        let n = 0;
+        n < 30 &&
+        doc.querySelector("#replacement-status").textContent ===
+          "Loading image…";
+        n++
+      )
+        await app.tick();
+    };
+    await app.click('[data-action="replace-image"]');
+    await upload(
+      new w.File(["not an image"], "broken.png", { type: "image/png" }),
+    );
+    assert.equal(doc.querySelector("#replacement-apply").disabled, true);
+    assert.match(
+      doc.querySelector("#replacement-status").textContent,
+      /decode an image/,
+    );
+    const bytes = Buffer.from(source.src.split(",")[1], "base64");
+    await upload(new w.File([bytes], "green.png", { type: "image/png" }));
+    assert.equal(
+      doc.querySelector("#replacement-apply").disabled,
+      false,
+      doc.querySelector("#replacement-status").textContent,
+    );
+    await app.click("#replacement-apply");
+    assert.equal(selectedClipboard(app)[0].src, source.src);
+    await app.click('[data-action="undo"]');
+    await app.click(`#board-outline [data-id="${original.id}"]`);
+    let release, aborted;
+    w.fetch = (_url, options) => {
+      aborted = options.signal;
+      return new Promise((resolve) => {
+        release = () =>
+          resolve(
+            new Response(bytes, { headers: { "content-type": "image/png" } }),
+          );
+      });
+    };
+    await app.click('[data-action="replace-image"]');
+    doc.querySelector("#replacement-url").value =
+      "https://example.com/green.png";
+    doc
+      .querySelector("#replacement-url-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.click("#replacement-cancel");
+    release();
+    await app.tick();
+    await app.tick();
+    assert.equal(aborted.aborted, true);
+    assert.deepEqual(selectedClipboard(app)[0], original);
+    assert.equal(doc.querySelector('[data-action="redo"]').disabled, false);
+    await app.click('[data-action="replace-image"]');
+    doc.querySelector("#replacement-url").value =
+      "https://example.com/green.png";
+    doc
+      .querySelector("#replacement-url-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    release();
+    for (
+      let n = 0;
+      n < 30 && doc.querySelector("#replacement-apply").disabled;
+      n++
+    )
+      await app.tick();
+    assert.equal(
+      doc.querySelector("#replacement-apply").disabled,
+      false,
+      doc.querySelector("#replacement-status").textContent,
+    );
+    await app.click("#replacement-apply");
+    assert.equal(selectedClipboard(app)[0].src, source.src);
+    await app.click('[data-action="replace-image"]');
+    doc.querySelector("#replacement-url").value =
+      "https://example.com/green.png";
+    doc
+      .querySelector("#replacement-url-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+    release();
+    await app.tick();
+    assert.equal(doc.querySelector("dialog"), null);
+    await app.click('[data-action="new"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 30 && !doc.querySelector(".library"); n++)
+      await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("shared image replacement propagates assets, preserves remote labels on undo, closes stale previews and cancels transforms against an old source", async () => {
+  const { hash } = await import("../src/collaboration/protocol.js");
+  const env = environment(),
+    hub = createPeerHub(),
+    room = "image-replacement-collaboration",
+    seed = new SharedDocument();
+  env.service.now = () => Date.now();
+  const target = {
+      ...cropFixture(),
+      x: 100,
+      y: 100,
+      w: 200,
+      h: 100,
+      text: "Target",
+    },
+    source = replacementFixture();
+  const assets = await Promise.all(
+    [target, source].map(async (i) => ({
+      asset: await hash(i.src),
+      data: i.src,
+    })),
+  );
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Replacement collaboration",
+    items: [target, source].map((i, n) => ({
+      ...i,
+      src: `asset:${assets[n].asset}`,
+    })),
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  for (const asset of assets)
+    await env.service.call(owner, { op: "asset.put", room, ...asset });
+  const invites = await Promise.all(
+      ["editor", "viewer"].map((role) =>
+        env.service.call(owner, { op: "invite", room, role }),
+      ),
+    ),
+    apps = [];
+  const until = async (fn, message) => {
+    const end = Date.now() + 8000;
+    while (!(await fn()) && Date.now() < end)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.ok(await fn(), message);
+  };
+  try {
+    for (const [n, user] of [owner, collaborator, viewer].entries()) {
+      const sdk = env.sdk(user);
+      sdk.peer = hub.peer;
+      const app = await setup(sdk);
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invites[n - 1].token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared image board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1000,
+        height: 800,
+      });
+      await app.click('[data-action="fit"]');
+      await app.click(`#board-outline [data-id="${target.id}"]`);
+    }
+    const [a, b, c] = apps;
+    await c.click('[data-action="commands"]');
+    paletteQuery(c, "replace image");
+    assert.equal(
+      c.doc
+        .querySelector('[data-command="replace-image"]')
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    c.doc.querySelector("dialog").close();
+    await chooseBoardReplacement(a, source.id);
+    b.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new b.w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+      );
+    await until(
+      () => !a.doc.querySelector(".image-replacement-dialog"),
+      "Remote movement closes the stale replacement preview",
+    );
+    assert.match(a.doc.querySelector("#toast").textContent, /image changed/);
+    await chooseBoardReplacement(a, source.id);
+    await b.click('[data-action="properties"]');
+    b.doc.querySelector("#object-text").value = "Remote label";
+    b.doc
+      .querySelector("#edit-form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    await until(
+      async () =>
+        (await storedSharedBoard(a, room))?.items[0]?.text === "Remote label",
+      "Remote label arrives behind the preview",
+    );
+    assert.ok(a.doc.querySelector(".image-replacement-dialog"));
+    await a.click("#replacement-apply");
+    await until(
+      () => apps.every((app) => selectedClipboard(app)[0]?.src === source.src),
+      "Replacement reaches editors and viewer",
+    );
+    for (const app of apps) {
+      assert.equal(selectedClipboard(app)[0].text, "Remote label");
+      assert.equal(selectedClipboard(app)[0].x, 101);
+      assert.ok(Math.abs(selectedClipboard(app)[0].crop.h - 1 / 6) < 1e-9);
+    }
+    await a.click('[data-action="undo"]');
+    await until(
+      () => selectedClipboard(c)[0]?.src === target.src,
+      "Shared undo restores the prior source",
+    );
+    assert.equal(selectedClipboard(c)[0].text, "Remote label");
+    await chooseBoardReplacement(a, source.id);
+    const pointer = (type, x, y) => {
+      const v = renderedView(b);
+      canvasPointer(b, type, 1, v.x + x * v.z, v.y + y * v.z, {
+        pointerType: "mouse",
+        ctrlKey: true,
+      });
+    };
+    pointer("pointerdown", 160, 140);
+    pointer("pointermove", 200, 160);
+    await a.click("#replacement-apply");
+    await until(
+      () => selectedClipboard(b)[0]?.src === source.src,
+      "Replacement received during drag",
+    );
+    pointer("pointerup", 200, 160);
+    assert.equal(
+      selectedClipboard(b)[0].x,
+      101,
+      "Old-source drag is cancelled",
+    );
+    assert.equal(selectedClipboard(b)[0].y, 100);
+    await b.click('[data-action="replace-image"]');
+    await a.click('[data-action="lock"]');
+    await until(
+      () => !b.doc.querySelector(".image-replacement-dialog"),
+      "Remote lock closes replacement",
+    );
+    const stored = await storedSharedBoard(c, room);
+    assert.equal(stored.items[0].src, source.src);
+    for (const app of apps) await app.click('[data-action="home"]');
+    await until(
+      () => apps.every((app) => app.doc.querySelector(".library")),
+      "Clients left cleanly",
+    );
+  } finally {
+    for (const app of apps) app.close();
+  }
+});
+
+test("imported boards cannot inject library markup or arrive in Trash", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    let fileInput;
+    const nativeClick = w.HTMLInputElement.prototype.click;
+    w.HTMLInputElement.prototype.click = function () {
+      if (this.type === "file") fileInput = this;
+      else nativeClick.call(this);
+    };
+    await app.click('[data-action="import"]');
+    const payload = {
+      version: 1,
+      title: "Evil",
+      favorite: 'x" data-pwned="1" x="',
+      deletedAt: 1,
+      items: [],
+    };
+    const file = new w.File([JSON.stringify(payload)], "evil.json", {
+      type: "application/json",
+    });
+    // jsdom's File has no text(); browsers provide it.
+    file.text = async () => w.JSON.stringify(payload);
+    Object.defineProperty(fileInput, "files", { value: [file] });
+    fileInput.dispatchEvent(new w.Event("change"));
+    for (let n = 0; n < 40 && !doc.querySelector("#canvas"); n++)
+      await app.tick();
+    await app.click('[data-action="home"]');
+    assert.equal(doc.querySelector("[data-pwned]"), null);
+    const card = [...doc.querySelectorAll(".board-card")].find((c) =>
+      c.textContent.includes("Evil (imported)"),
+    );
+    assert.ok(card, "The imported board is listed outside Trash");
+    assert.equal(
+      card.querySelector("[data-favorite]").getAttribute("aria-pressed"),
+      "false",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("JSON export keeps connectors attached at just one end", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const box = item("rect", 0, 0, { w: 200, h: 100 });
+    const line = item("arrow", 200, 50, { w: 200, h: 0, startId: box.id });
+    const { selected } = await rotationFixture(app, [box, line]);
+    const pasted = selected.find((i) => i.type === "arrow");
+    assert.ok(pasted.startId, "Pasting keeps the one-ended attachment");
+    await app.click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "json";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    const exported = JSON.parse(
+      await new Promise((resolve) => {
+        const r = new w.FileReader();
+        r.onload = () => resolve(r.result);
+        r.readAsText(app.downloads.pop());
+      }),
+    );
+    const arrow = exported.items.find((i) => i.type === "arrow");
+    assert.equal(arrow.startId, pasted.startId);
+    assert.equal(arrow.endId, undefined);
+  } finally {
+    app.close();
+  }
+});
+
+test("undo and redo with empty history leave recovery versions untouched", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    await app.click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    const key = (k, extra = {}) =>
+      canvas.dispatchEvent(
+        new w.KeyboardEvent("keydown", { key: k, bubbles: true, ...extra }),
+      );
+    const revisions = async () => {
+      const db = await new Promise((resolve) => {
+        const request = w.indexedDB.open("whiteboard-v1", 3);
+        request.onsuccess = () => resolve(request.result);
+      });
+      return new Promise((resolve) => {
+        const request = db
+          .transaction("revisions")
+          .objectStore("revisions")
+          .getAll();
+        request.onsuccess = () => {
+          db.close();
+          resolve(request.result.length);
+        };
+      });
+    };
+    for (let n = 0; n < 2; n++) {
+      key("r");
+      await app.tick();
+      key("Escape");
+      await app.tick();
+    }
+    for (let n = 0; n < 2; n++) key("z", { ctrlKey: true });
+    await app.tick();
+    const before = await revisions();
+    for (let n = 0; n < 10; n++) key("z", { ctrlKey: true, repeat: true });
+    await app.tick();
+    assert.equal(await revisions(), before);
+    for (let n = 0; n < 2; n++) key("z", { ctrlKey: true, shiftKey: true });
+    await app.tick();
+    const redone = await revisions();
+    for (let n = 0; n < 10; n++)
+      key("z", { ctrlKey: true, shiftKey: true, repeat: true });
+    await app.tick();
+    assert.equal(await revisions(), redone);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 2);
+  } finally {
+    app.close();
+  }
+});
+
+test("local undo cannot change a shared board that is not connected", async () => {
+  const env = environment(),
+    puter = env.sdk(owner);
+  const build = "faceb00cfaceb00c";
+  await puter.kv.set("whiteboard-collaboration-worker-v1", {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path: "whiteboard/whiteboard-worker.js",
+    build,
+    builtAt: 200,
+  });
+  const exec = puter.workers.exec;
+  puter.workers.exec = async (url, options) =>
+    url.endsWith("/health") ? Response.json({ build }) : exec(url, options);
+  const write = puter.fs.write.bind(puter.fs);
+  puter.fs.write = async (path, ...rest) => {
+    if (/^whiteboard\/[0-9a-f-]{36}\.json$/.test(path))
+      throw Error("Disk quota exceeded");
+    return write(path, ...rest);
+  };
+  const app = await setup(puter);
+  app.w.fetch = async () =>
+    new Response(`/* whiteboard-worker build=${build} at=200 */`);
+  try {
+    const { doc, w } = app;
+    await app.click('[data-action="new"]');
+    const canvas = doc.querySelector("#canvas");
+    const key = (k, extra = {}) =>
+      canvas.dispatchEvent(
+        new w.KeyboardEvent("keydown", { key: k, bubbles: true, ...extra }),
+      );
+    key("r");
+    await app.tick();
+    key("Escape");
+    await app.tick();
+    await app.click('[data-action="share"]');
+    for (
+      let n = 0;
+      n < 120 &&
+      doc.querySelector("#toast").textContent !== "Disk quota exceeded";
+      n++
+    )
+      await app.tick();
+    assert.equal(doc.querySelector("#board-title").disabled, true);
+    key("z", { ctrlKey: true });
+    await app.tick();
+    assert.equal(doc.querySelectorAll("#board-outline [data-id]").length, 1);
+    assert.equal(
+      doc.querySelector("#toast").textContent,
+      "This board is read-only.",
+    );
+    // Refused edits do not report success.
+    await app.click("#board-outline [data-id]");
+    doc.querySelector("#toast").textContent = "";
+    key("L", { ctrlKey: true, shiftKey: true });
+    await app.tick();
+    assert.equal(
+      doc.querySelector("#toast").textContent,
+      "This board is read-only.",
+    );
+    assert.equal(allClipboard(app)[0].locked, undefined);
+  } finally {
+    app.close();
+  }
+});
+
+test("tool shortcuts and quick-add respect the 5,000-object limit", async () => {
+  const indexedDB = new IDBFactory();
+  let app = await setup(undefined, { indexedDB });
+  const b = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Full",
+    updated: Date.now(),
+    items: Array.from({ length: 5000 }, (_, n) =>
+      item("rect", (n % 100) * 30, Math.floor(n / 100) * 30, { w: 20, h: 20 }),
+    ),
+  };
+  const database = await new Promise((resolve) => {
+    const request = app.w.indexedDB.open("whiteboard-v1", 3);
+    request.onsuccess = () => resolve(request.result);
+  });
+  await new Promise((resolve) => {
+    const transaction = database.transaction("boards", "readwrite");
+    transaction.objectStore("boards").put(b);
+    transaction.oncomplete = resolve;
+  });
+  database.close();
+  app.close();
+  app = await setup(undefined, { indexedDB });
+  try {
+    const { doc, w } = app;
+    for (let n = 0; n < 40 && !doc.querySelector(`[data-open="${b.id}"]`); n++)
+      await app.tick();
+    await app.click(`[data-open="${b.id}"]`);
+    for (let n = 0; n < 200 && !doc.querySelector("#canvas"); n++)
+      await app.tick();
+    const canvas = doc.querySelector("#canvas");
+    for (const key of ["n", "r"])
+      canvas.dispatchEvent(
+        new w.KeyboardEvent("keydown", { key, bubbles: true }),
+      );
+    await app.tick();
+    assert.equal(doc.querySelector("#canvas-text-editor"), null);
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 5000);
+    assert.equal(
+      doc.querySelector("#toast").textContent,
+      "A board can contain at most 5,000 objects.",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("the object outline keeps focus when names contain quotes", async () => {
+  const app = await setup();
+  try {
+    const { doc } = app;
+    await rotationFixture(app, [
+      item("note", 0, 0, { text: `Don't "forget"` }),
+      item("note", 300, 0, { text: "Plain" }),
+    ]);
+    const button = doc.querySelector("#board-outline button");
+    button.focus();
+    await app.click('[data-action="zoom-in"]');
+    assert.equal(doc.querySelector("#board-outline button"), button);
+    button.focus();
+    await app.click('[data-action="zoom-out"]');
+    assert.equal(doc.activeElement, button);
+  } finally {
+    app.close();
+  }
+});
+
+test("imported and duplicated board titles stay within the title limit", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    let fileInput;
+    const nativeClick = w.HTMLInputElement.prototype.click;
+    w.HTMLInputElement.prototype.click = function () {
+      if (this.type === "file") fileInput = this;
+      else nativeClick.call(this);
+    };
+    await app.click('[data-action="import"]');
+    const payload = { version: 1, title: "T".repeat(200), items: [] };
+    const file = new w.File([JSON.stringify(payload)], "long.json");
+    file.text = async () => w.JSON.stringify(payload);
+    Object.defineProperty(fileInput, "files", { value: [file] });
+    fileInput.dispatchEvent(new w.Event("change"));
+    for (let n = 0; n < 40 && !doc.querySelector("#canvas"); n++)
+      await app.tick();
+    const imported = doc.querySelector("#board-title").value;
+    assert.equal(imported.length, 200);
+    assert.ok(imported.endsWith(" (imported)"));
+    await app.click('[data-action="home"]');
+    await app.click("[data-more]");
+    // A double click makes one copy.
+    doc.querySelector("#copy-board").click();
+    await app.click("#copy-board");
+    const titles = [...doc.querySelectorAll(".board-card h3")].map(
+      (h) => h.textContent,
+    );
+    const copy = titles.find((title) => title.endsWith(" (copy)"));
+    assert.ok(copy, titles.join("\n"));
+    assert.equal(copy.length, 200);
+    assert.equal(
+      titles.filter((title) => title.endsWith(" (copy)")).length,
+      1,
+      titles.join("\n"),
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("object properties stay valid for objects outside the old 60–2,000 range", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const big = item("frame", 0, 0, { w: 2500.4, h: 2100, text: "Big" }),
+      small = item("rect", 3000, 0, { w: 30, h: 20, text: "Small" });
+    await rotationFixture(app, [big, small]);
+    for (const [name, text] of [
+      ["Big", "Bigger"],
+      ["Small", "Smaller"],
+    ]) {
+      const button = [...doc.querySelectorAll("#board-outline button")].find(
+        (b) => b.textContent.endsWith(name),
+      );
+      button.click();
+      await app.tick();
+      await app.click('[data-action="properties"]');
+      const form = doc.querySelector("#edit-form");
+      form.querySelector("#object-text").value = text;
+      assert.equal(form.checkValidity(), true, name);
+      form.dispatchEvent(new w.Event("submit", { cancelable: true }));
+      await app.tick();
+    }
+    const names = [...doc.querySelectorAll("#board-outline button")].map(
+      (b) => b.textContent,
+    );
+    assert.ok(names.some((n) => n.endsWith("Bigger")));
+    assert.ok(names.some((n) => n.endsWith("Smaller")));
+    const copied = allClipboard(app);
+    assert.equal(copied.find((i) => i.text === "Bigger").w, 2500.4);
+  } finally {
+    app.close();
+  }
+});
+
+async function sharedEditors(room, items, count = 2, assets = []) {
+  const env = environment(),
+    hub = createPeerHub(),
+    seed = new SharedDocument();
+  env.service.now = () => Date.now();
+  seed.commit({ version: 1, id: room, title: "Shared", items });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  for (const data of assets)
+    await env.service.call(owner, {
+      op: "asset.put",
+      room,
+      asset: await hash(data),
+      data,
+    });
+  const invite = await env.service.call(owner, {
+      op: "invite",
+      room,
+      role: "editor",
+    }),
+    apps = [];
+  const until = async (fn, message) => {
+    const end = Date.now() + 8000;
+    while (!(await fn()) && Date.now() < end)
+      await new Promise((r) => setTimeout(r, 25));
+    assert.ok(await fn(), message);
+  };
+  try {
+    for (let n = 0; n < count; n++) {
+      const sdk = env.sdk(n ? collaborator : owner);
+      sdk.peer = hub.peer;
+      const app = await setup(sdk);
+      apps.push(app);
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${n ? invite.token : ""}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+      await until(
+        () =>
+          !app.doc.querySelector("#join-link") &&
+          app.doc.querySelector("#canvas"),
+        "Joined shared board",
+      );
+      app.doc.querySelector("#canvas").getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 1000,
+        height: 800,
+      });
+      await app.click('[data-action="fit"]');
+    }
+  } catch (error) {
+    for (const app of apps) app.close();
+    throw error;
+  }
+  return {
+    env,
+    apps,
+    until,
+    close: () => apps.forEach((app) => app.close()),
+  };
+}
+
+test("a remote deletion during a shared move cancels the whole local move", async () => {
+  const room = "remote-delete-move";
+  const kept = item("rect", 100, 100, { w: 160, h: 100, text: "Kept" }),
+    removed = item("rect", 420, 100, { w: 160, h: 100, text: "Removed" });
+  const shared = await sharedEditors(room, [kept, removed]);
+  const pointer = (app, type, p) => {
+    const v = renderedView(app);
+    canvasPointer(app, type, 1, v.x + p.x * v.z, v.y + p.y * v.z, {
+      pointerType: "mouse",
+    });
+  };
+  try {
+    const [a, b] = shared.apps;
+    assert.equal(allClipboard(b).length, 2);
+    pointer(b, "pointerdown", { x: 130, y: 130 });
+    pointer(b, "pointermove", { x: 230, y: 180 });
+    await a.click(`#board-outline [data-id="${removed.id}"]`);
+    await a.click('[data-action="lock"]');
+    await shared.until(
+      async () =>
+        (await storedSharedBoard(b, room))?.items.find(
+          (i) => i.id === removed.id,
+        )?.locked,
+      "Unrelated remote change received mid-move",
+    );
+    assert.equal(
+      (await storedSharedBoard(b, room)).items.find((i) => i.id === kept.id).x,
+      kept.x,
+      "Local snapshots exclude the unfinished move",
+    );
+    await a.click('[data-action="lock"]');
+    await a.click('[data-action="delete"]');
+    await shared.until(
+      () => !b.doc.querySelector(`#board-outline [data-id="${removed.id}"]`),
+      "Deletion received",
+    );
+    pointer(b, "pointerup", { x: 230, y: 180 });
+    await b.tick();
+    assert.equal(allClipboard(b)[0].x, kept.x, "The local move was cancelled");
+    await new Promise((r) => setTimeout(r, 600));
+    assert.equal(
+      (await storedSharedBoard(b, room)).items.find((i) => i.id === kept.id).x,
+      kept.x,
+    );
+  } finally {
+    shared.close();
+  }
+});
+
+test("clearing text color or highlight that is already unset adds no undo step", async () => {
+  const app = await setup();
+  try {
+    const { doc } = app;
+    await rotationFixture(app, [item("note", 0, 0, { text: "Plain" })]);
+    await app.click("#text-color-auto");
+    await app.click("#text-highlight-clear");
+    await app.click('[data-action="undo"]');
+    assert.equal(doc.querySelectorAll("#board-outline button").length, 0);
+  } finally {
+    app.close();
+  }
+});
+
+test("the frames dialog ignores frames removed by collaborators", async () => {
+  const frames = ["First", "Second", "Third"].map((text, n) =>
+    item("frame", n * 400, 0, { w: 300, h: 200, text }),
+  );
+  const shared = await sharedEditors("stale-frames", frames);
+  try {
+    const [a, b] = shared.apps;
+    const remove = async (frame) => {
+      await a.click(`#board-outline [data-id="${frame.id}"]`);
+      await a.click('[data-action="delete"]');
+      await shared.until(
+        () => !b.doc.querySelector(`#board-outline [data-id="${frame.id}"]`),
+        "Deletion received",
+      );
+    };
+    await b.click('[data-action="frames"]');
+    const dialog = b.doc.querySelector("dialog[open]");
+    assert.equal(dialog.querySelectorAll(".frame-row").length, 3);
+    await remove(frames[2]);
+    dialog.querySelector(`[data-frame="${frames[2].id}"]`).click();
+    await b.tick();
+    assert.equal(dialog.open, true, "A removed frame is not navigated to");
+    assert.equal(dialog.querySelectorAll(".frame-row").length, 2);
+    await remove(frames[1]);
+    dialog
+      .querySelector(`[data-order="${frames[0].id}"][data-delta="1"]`)
+      .click();
+    await b.tick();
+    assert.equal(dialog.querySelectorAll(".frame-row").length, 1);
+  } finally {
+    shared.close();
+  }
+});
+
+test("link and file dialogs refuse to save cards locked meanwhile", async () => {
+  const link = item("link", 0, 0, {
+      w: 280,
+      h: 115,
+      text: "Docs",
+      url: "https://example.com/",
+    }),
+    file = item("file", 400, 0, {
+      w: 280,
+      h: 110,
+      text: "Notes",
+      fileName: "notes.txt",
+    }),
+    bytes = "data:application/octet-stream;base64,SGVsbG8=";
+  file.data = `asset:${await hash(bytes)}`;
+  const shared = await sharedEditors("locked-cards", [link, file], 2, [bytes]);
+  try {
+    const [a, b] = shared.apps;
+    for (const [card, field] of [
+      [link, "#link-label"],
+      [file, "#file-label"],
+    ]) {
+      await b.click(`#board-outline [data-id="${card.id}"]`);
+      await b.click('[data-action="edit"]');
+      const dialog = b.doc.querySelector("dialog[open]");
+      dialog.querySelector(field).value = "Changed";
+      await a.click(`#board-outline [data-id="${card.id}"]`);
+      await a.click('[data-action="lock"]');
+      const stored = async () =>
+        (await storedSharedBoard(b, "locked-cards")).items.find(
+          (i) => i.id === card.id,
+        );
+      await shared.until(
+        async () => (await stored()).locked === true,
+        "Lock received",
+      );
+      dialog
+        .querySelector("form")
+        .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+      await b.tick();
+      await new Promise((r) => setTimeout(r, 300));
+      assert.equal((await stored()).text, card.text);
+      dialog.close();
+    }
+  } finally {
+    shared.close();
+  }
+});
+
+test("toasts appear inside an open modal dialog and return to the page", async () => {
+  const app = await setup();
+  try {
+    const { doc } = app;
+    await app.click('[data-action="new"]');
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="history"]');
+    const dialog = doc.querySelector("dialog[open]");
+    await app.click("#checkpoint-create");
+    for (
+      let n = 0;
+      n < 20 && !/Checkpoint/.test(doc.querySelector("#toast").textContent);
+      n++
+    )
+      await app.tick();
+    assert.equal(doc.querySelector("#toast").textContent, "Checkpoint saved.");
+    assert.equal(doc.querySelector("#toast").parentNode, dialog);
+    dialog.querySelector(".dialog-header button").click();
+    await app.tick();
+    assert.equal(doc.querySelector("#toast").parentNode, doc.body);
+  } finally {
+    app.close();
+  }
+});
+
+test("PNG export of a large board is capped at 4,096 pixels", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    await rotationFixture(app, [
+      item("rect", 0, 0, { w: 3000, h: 1800 }),
+      item("rect", 3000, 1200, { w: 2000, h: 600 }),
+    ]);
+    await app.click('[data-action="export"]');
+    doc.querySelector("#export-format").value = "png";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    for (let n = 0; n < 80 && !app.downloads.length; n++) await app.tick();
+    const canvas = await pngCanvas(app, app.downloads.pop());
+    assert.equal(Math.max(canvas.width, canvas.height), 4096);
+  } finally {
+    app.close();
+  }
+});
+
+test("favoriting a board keeps the library sort, counts, and focus", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    const until = async (selector) => {
+      for (let n = 0; n < 120 && !doc.querySelector(selector); n++)
+        await app.tick();
+      return doc.querySelector(selector);
+    };
+    for (const name of ["Zebra", "Apple"]) {
+      (await until('[data-action="new"]')).click();
+      const title = await until("#board-title");
+      title.value = name;
+      title.dispatchEvent(new w.Event("input", { bubbles: true }));
+      title.dispatchEvent(new w.Event("change", { bubbles: true }));
+      await app.click('[data-action="home"]');
+      await until("#sort");
+    }
+    const sort = doc.querySelector("#sort");
+    sort.value = "name";
+    sort.dispatchEvent(new w.Event("change"));
+    const titles = () =>
+      [...doc.querySelectorAll(".board-card h3")].map((h) => h.textContent);
+    assert.deepEqual(titles(), ["Apple", "Zebra"]);
+    const star = doc.querySelectorAll("[data-favorite]")[1];
+    const id = star.dataset.favorite;
+    star.click();
+    await app.tick();
+    assert.equal(doc.querySelector("#sort").value, "name");
+    assert.deepEqual(titles(), ["Apple", "Zebra"]);
+    assert.equal(doc.activeElement.dataset.favorite, id);
+    assert.equal(doc.activeElement.getAttribute("aria-pressed"), "true");
+    assert.equal(
+      doc.querySelector('[data-filter="favorites"] > span:last-child')
+        .textContent,
+      "1",
+    );
+    await app.click('[data-filter="favorites"]');
+    assert.equal(doc.querySelector("#sort").value, "name");
+    doc.querySelector("[data-favorite]").click();
+    await app.tick();
+    assert.equal(doc.querySelectorAll(".board-card").length, 0);
+    assert.equal(doc.activeElement.dataset.filter, "favorites");
+    assert.equal(doc.querySelector("#boards-heading .count").textContent, "0");
+  } finally {
+    app.close();
+  }
+});
+
+test("losing edit access during a move restores the moved objects", async () => {
+  const room = "demoted-move";
+  const box = item("rect", 100, 100, { w: 160, h: 100, text: "Box" });
+  const shared = await sharedEditors(room, [box]);
+  const pointer = (app, type, p) => {
+    const v = renderedView(app);
+    canvasPointer(app, type, 1, v.x + p.x * v.z, v.y + p.y * v.z, {
+      pointerType: "mouse",
+    });
+  };
+  try {
+    const [, b] = shared.apps;
+    await b.click(`#board-outline [data-id="${box.id}"]`);
+    pointer(b, "pointerdown", { x: 130, y: 130 });
+    pointer(b, "pointermove", { x: 230, y: 180 });
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "viewer",
+    });
+    // Reconnecting resynchronizes immediately instead of waiting for polling.
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => b.doc.querySelector(".editor.shared-viewer"),
+      "Viewer access received",
+    );
+    pointer(b, "pointermove", { x: 260, y: 200 });
+    pointer(b, "pointerup", { x: 260, y: 200 });
+    await b.tick();
+    assert.equal(allClipboard(b)[0].x, box.x);
+    // Let the reconnection's requests finish before closing.
+    await new Promise((r) => setTimeout(r, 500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("an exact export region can be chosen without dragging, cancelled, and exported with its original dimensions", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    await rotationFixture(app, [item("rect", 0, 0, { w: 200, h: 100 })]);
+    const undoBefore = doc.querySelector('[data-action="undo"]').disabled;
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="exact-region"]');
+    const dialog = doc.querySelector("dialog[open]");
+    assert.equal(doc.activeElement.id, "region-x");
+    const set = (id, value) => {
+      dialog.querySelector(`#region-${id}`).value = String(value);
+    };
+    set("x", -12.5);
+    set("y", -23.75);
+    set("width", 320.5);
+    set("height", 200.25);
+    set("width", 0);
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    assert.equal(dialog.open, true);
+    set("width", 320.5);
+    w.eval(axe.source);
+    const audit = await w.axe.run(dialog, {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(audit.violations.length, 0);
+    await click('#region-form [type="submit"]');
+    assert.equal(doc.querySelector("dialog[open]"), null);
+    assert.equal(
+      doc.querySelector('[data-action="undo"]').disabled,
+      undoBefore,
+    );
+    await click('[data-action="commands"]');
+    paletteQuery(app, "Set export region");
+    await click('[data-command="exact-region"]');
+    assert.equal(doc.querySelector("#region-x").value, "-12.5");
+    doc.querySelector("#region-x").value = "500";
+    doc.querySelector("dialog").close();
+    await click('[data-action="export"]');
+    doc.querySelector("#export-scope").value = "selection";
+    doc.querySelector("#export-scope").dispatchEvent(new w.Event("change"));
+    doc.querySelector("#export-format").value = "svg";
+    doc.querySelector("#export-format").dispatchEvent(new w.Event("change"));
+    await click('dialog [type="submit"]');
+    const svg = await new Promise((resolve) => {
+      const reader = new w.FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsText(app.downloads.at(-1));
+    });
+    assert.match(svg, /viewBox="-12.5 -23.75 320.5 200.25"/);
+  } finally {
+    app.close();
+  }
+});
+
+test("a region tool tap keeps the previous region without a false confirmation", async () => {
+  const app = await setup();
+  try {
+    const { doc } = app;
+    await rotationFixture(app, [item("rect", 0, 0, { w: 200, h: 100 })]);
+    const region = async () => {
+      await app.click('[data-action="more-tools"]');
+      await app.click('[data-feature="region"]');
+    };
+    const regionExport = async () => {
+      await app.click('[data-action="export"]');
+      const dialog = doc.querySelector("dialog[open]");
+      const available = [...dialog.querySelectorAll("option")].some(
+        (o) => o.value === "selection" && !o.disabled,
+      );
+      dialog.close();
+      return available;
+    };
+    await region();
+    canvasPointer(app, "pointerdown", 1, 100, 100, { pointerType: "mouse" });
+    canvasPointer(app, "pointermove", 1, 400, 300, { pointerType: "mouse" });
+    canvasPointer(app, "pointerup", 1, 400, 300, { pointerType: "mouse" });
+    assert.match(doc.querySelector("#toast").textContent, /Region selected/);
+    assert.equal(await regionExport(), true);
+    await region();
+    doc.querySelector("#toast").textContent = "";
+    canvasPointer(app, "pointerdown", 1, 600, 500, { pointerType: "mouse" });
+    canvasPointer(app, "pointerup", 1, 600, 500, { pointerType: "mouse" });
+    await app.tick();
+    assert.equal(doc.querySelector("#toast").textContent, "");
+    assert.equal(
+      doc.querySelectorAll('#board-outline [aria-pressed="true"]').length,
+      0,
+    );
+    assert.equal(await regionExport(), true, "The earlier region remains");
+  } finally {
+    app.close();
+  }
+});
+
+test("joining a shared board from the editor starts without the previous export region", async () => {
+  const env = environment(),
+    room = "join-from-editor",
+    seed = new SharedDocument();
+  env.service.now = () => Date.now();
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Joined",
+    items: [item("rect", 0, 0, { w: 100, h: 100 })],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const app = await setup(env.sdk(owner));
+  try {
+    const { doc, w } = app;
+    await rotationFixture(app, [item("rect", 0, 0, { w: 200, h: 100 })]);
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="region"]');
+    canvasPointer(app, "pointerdown", 1, 100, 100, { pointerType: "mouse" });
+    canvasPointer(app, "pointermove", 1, 400, 300, { pointerType: "mouse" });
+    canvasPointer(app, "pointerup", 1, 400, 300, { pointerType: "mouse" });
+    await app.click('[data-action="commands"]');
+    paletteQuery(app, "Join shared board");
+    await app.click('[data-command="join-shared"]');
+    doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}`;
+    doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    for (let n = 0; n < 200 && doc.querySelector("#join-link"); n++)
+      await app.tick();
+    assert.equal(doc.querySelector("#board-title").value, "Joined");
+    await app.click('[data-action="export"]');
+    assert.equal(
+      doc.querySelector('#export-scope option[value="selection"]').disabled,
+      true,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("redrawing keeps rendered icons and unchanged labels in place", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    await app.click('[data-action="new"]');
+    const icon = doc.querySelector('[data-action="undo"] svg');
+    assert.ok(icon, "Icons are rendered");
+    let writes = 0;
+    const observer = new w.MutationObserver((records) => {
+      writes += records.length;
+    });
+    observer.observe(doc.querySelector(".editor-actions"), {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    });
+    await app.click('[data-action="zoom-in"]');
+    await app.click('[data-action="zoom-out"]');
+    await app.tick();
+    observer.disconnect();
+    assert.equal(doc.querySelector('[data-action="undo"] svg'), icon);
+    assert.equal(writes, 0);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    assert.equal(
+      doc.querySelector('[data-action="export"]').getAttribute("aria-label"),
+      "Exporter le tableau",
+    );
+    assert.ok(doc.querySelector('[data-action="export"] svg'));
+  } finally {
+    app.close();
+  }
+});
+
+test("French shortcut help, palette categories and result counts are translated", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    await app.click('[data-action="new"]');
+    await app.click('[data-action="commands"]');
+    paletteQuery(app, "Undo");
+    await app.tick();
+    assert.equal(doc.querySelector("#command-count").textContent, "1 result");
+    doc.querySelector("dialog[open]").close();
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="help"]');
+    const keys = [...doc.querySelectorAll("dialog[open] .shortcuts kbd")].map(
+      (k) => k.textContent,
+    );
+    for (const english of ["Arrow keys", "Escape", " or ", "Shift", "drag"])
+      assert.ok(
+        !keys.some((k) => k.includes(english)),
+        `${english} is translated: ${keys.join(" | ")}`,
+      );
+    doc.querySelector("dialog[open]").close();
+    await app.click('[data-action="commands"]');
+    paletteQuery(app, "Partager");
+    await app.tick();
+    const categories = [
+      ...doc.querySelectorAll("#command-results .command-label small"),
+    ].map((s) => s.textContent);
+    assert.ok(!categories.includes("Share") && !categories.includes("View"));
+    assert.equal(
+      doc.querySelector("#commands-prev").textContent,
+      "Résultats précédents",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("deleting reusable content asks for confirmation and keeps focus", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  try {
+    await rotationFixture(app, [item("note", 0, 0, { text: "Reuse me" })]);
+    for (const name of ["First snippet", "Second snippet"]) {
+      await click('[data-action="organize"]');
+      await click('[data-organize="snippet"]');
+      doc.querySelector("#snippet-name").value = name;
+      doc
+        .querySelector("dialog form")
+        .dispatchEvent(new w.Event("submit", { cancelable: true }));
+      await tick();
+    }
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="templates"]');
+    const rows = () =>
+      doc.querySelectorAll(".custom-template-list .revision-row");
+    // Deleting waits for storage, which can take a moment under load.
+    const until = async (check) => {
+      const deadline = Date.now() + 5000;
+      while (!check() && Date.now() < deadline) await tick();
+    };
+    await until(() => rows().length === 2);
+    assert.equal(rows().length, 2);
+    const remove = rows()[0].querySelector("[data-remove-template]");
+    remove.click();
+    await tick();
+    assert.equal(rows().length, 2, "The first click only asks to confirm");
+    assert.equal(remove.textContent, "Confirm delete");
+    remove.click();
+    await until(() => rows().length === 1);
+    assert.equal(rows().length, 1);
+    assert.equal(doc.activeElement, rows()[0].querySelector("[data-custom]"));
+    const last = rows()[0].querySelector("[data-remove-template]");
+    last.click();
+    last.click();
+    await until(() => rows().length === 0);
+    assert.equal(rows().length, 0);
+    assert.match(
+      doc.querySelector(".custom-template-list").textContent,
+      /No reusable content yet/,
+    );
+    assert.equal(doc.activeElement.id, "template-search");
+  } finally {
+    app.close();
+  }
+});
+
+test("importing a file that is not a board says so in plain words", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    let fileInput;
+    const nativeClick = w.HTMLInputElement.prototype.click;
+    w.HTMLInputElement.prototype.click = function () {
+      if (this.type === "file") fileInput = this;
+      else nativeClick.call(this);
+    };
+    await app.click('[data-action="import"]');
+    const invalid = JSON.stringify({
+      version: 1,
+      title: "Broken",
+      items: [{ id: "a", type: "note", x: 0, y: 0, w: -5, h: 10 }],
+    });
+    for (const text of ["hello there", invalid]) {
+      const file = new w.File([text], "notes.json");
+      file.text = async () => text;
+      Object.defineProperty(fileInput, "files", {
+        value: [file],
+        configurable: true,
+      });
+      doc.querySelector("#toast").textContent = "";
+      fileInput.dispatchEvent(new w.Event("change"));
+      await app.tick();
+      await app.tick();
+      assert.equal(
+        doc.querySelector("#toast").textContent,
+        "This is not a supported Whiteboard file.",
+      );
+      assert.equal(doc.querySelector("#canvas"), null);
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("importing a board rejects images declaring more than 40 million pixels", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    let fileInput;
+    const nativeClick = w.HTMLInputElement.prototype.click;
+    w.HTMLInputElement.prototype.click = function () {
+      if (this.type === "file") fileInput = this;
+      else nativeClick.call(this);
+    };
+    const header = Buffer.alloc(33);
+    Buffer.from("89504e470d0a1a0a0000000d49484452", "hex").copy(header);
+    header.writeUInt32BE(60000, 16);
+    header.writeUInt32BE(60000, 20);
+    const payload = {
+      version: 1,
+      title: "Bomb",
+      items: [
+        item("image", 0, 0, {
+          w: 100,
+          h: 100,
+          src: "data:image/png;base64," + header.toString("base64"),
+        }),
+      ],
+    };
+    await app.click('[data-action="import"]');
+    const file = new w.File([JSON.stringify(payload)], "bomb.json");
+    file.text = async () => w.JSON.stringify(payload);
+    Object.defineProperty(fileInput, "files", { value: [file] });
+    fileInput.dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await app.tick();
+    assert.equal(
+      doc.querySelector("#toast").textContent,
+      "Choose an image with fewer than 40 million pixels.",
+    );
+    assert.equal(doc.querySelector("#canvas"), null);
+    assert.ok(
+      ![...doc.querySelectorAll(".board-card h3")].some((h) =>
+        h.textContent.startsWith("Bomb"),
+      ),
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("export dialog offers slides, SVG, spreadsheets, and accessible PDF page options", async () => {
+  const app = await setup();
+  const { w, doc, click, tick, downloads } = app;
+  const submit = async (format, configure) => {
+    await click('[data-action="export"]');
+    const select = doc.querySelector("#export-format");
+    select.value = format;
+    select.dispatchEvent(new w.Event("change", { bubbles: true }));
+    configure?.();
+    const count = downloads.length;
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(
+        new w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    for (let n = 0; n < 200 && downloads.length === count; n++) await tick();
+    assert.equal(downloads.length, count + 1, `${format} downloaded`);
+    return downloads.at(-1);
+  };
+  const read = (blob, method = "readAsText") =>
+    new Promise((resolve) => {
+      const reader = new w.FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader[method](blob);
+    });
+  try {
+    await click('[data-template="kanban"]');
+    await click('[data-action="export"]');
+    const dialog = doc.querySelector("dialog");
+    const formats = [...dialog.querySelectorAll("#export-format option")].map(
+      (o) => o.value,
+    );
+    assert.deepEqual(formats, [
+      "pdf",
+      "pptx",
+      "png",
+      "jpeg",
+      "svg",
+      "xlsx",
+      "csv",
+      "json",
+    ]);
+    assert.equal(dialog.querySelector("#pdf-options").hidden, false);
+    assert.match(
+      dialog.querySelector("#pdf-estimate").textContent,
+      /Estimated length: \d+ page/,
+    );
+    assert.match(
+      dialog.querySelector("#pdf-mode-help").textContent,
+      /matches the board exactly/,
+    );
+    const scope = dialog.querySelector("#export-scope");
+    scope.value = "frames";
+    scope.dispatchEvent(new w.Event("change", { bubbles: true }));
+    assert.equal(dialog.querySelector("#export-frames").hidden, false);
+    const pageSize = dialog.querySelector("#pdf-page-size");
+    pageSize.value = "fit";
+    pageSize.dispatchEvent(new w.Event("change", { bubbles: true }));
+    assert.equal(dialog.querySelector("#pdf-orientation").disabled, true);
+    const audit = await axe.run(dialog, {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      audit.violations.map((v) => v.id),
+      [],
+    );
+    dialog.close();
+    await tick();
+
+    const svg = await submit("svg");
+    assert.equal(svg.type, "image/svg+xml");
+    assert.match(
+      await read(svg),
+      /^<\?xml[^>]*>\n<svg xmlns="http:\/\/www.w3.org\/2000\/svg"/,
+    );
+    const csv = await submit("csv", () => {
+      assert.equal(doc.querySelector("#sheet-choice").hidden, false);
+      assert.equal(doc.querySelector("#pdf-options").hidden, true);
+    });
+    assert.equal(csv.type, "text/csv;charset=utf-8");
+    assert.match(await read(csv), /Type,Text,Frame/);
+    const xlsx = await submit("xlsx");
+    assert.equal(
+      xlsx.type,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    const pptx = await submit("pptx", () => {
+      const scope = doc.querySelector("#export-scope");
+      scope.value = "frames";
+      scope.dispatchEvent(new w.Event("change", { bubbles: true }));
+    });
+    assert.equal(
+      pptx.type,
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    );
+    const pdf = await submit("pdf", () => {
+      doc.querySelector("#pdf-mode").value = "vector";
+      doc.querySelector("#pdf-page-size").value = "letter";
+      doc.querySelector("#pdf-scale").value = "fit";
+    });
+    assert.equal(pdf.type, "application/pdf");
+    const bytes = new Uint8Array(await read(pdf, "readAsArrayBuffer"));
+    assert.equal(new TextDecoder().decode(bytes.slice(0, 5)), "%PDF-");
+
+    doc.querySelector("#language").value = "fr";
+    doc
+      .querySelector("#language")
+      .dispatchEvent(new w.Event("change", { bubbles: true }));
+    await tick();
+    await click('[data-action="export"]');
+    const french = doc.querySelector("dialog");
+    assert.match(french.textContent, /Options PDF/);
+    assert.match(
+      french.querySelector("#pdf-estimate").textContent,
+      /Longueur estimée/,
+    );
+    assert.equal(
+      french.querySelector("#export-format optgroup").getAttribute("label"),
+      "Documents et diapositives",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("content library filters templates and inserts grouped components and icon images", async () => {
+  const app = await setup();
+  const { w, doc, click, tick } = app;
+  const count = () => doc.querySelectorAll("#board-outline [data-id]").length;
+  const type = (selector, value) => {
+    const input = doc.querySelector(selector);
+    input.value = value;
+    input.dispatchEvent(new w.Event("input", { bubbles: true }));
+    return input;
+  };
+  const key = (target, value) =>
+    target.dispatchEvent(
+      new w.KeyboardEvent("keydown", { key: value, bubbles: true }),
+    );
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="templates"]');
+    const tabs = [...doc.querySelectorAll('[role="tab"]')];
+    assert.deepEqual(
+      tabs.map((tab) => tab.getAttribute("aria-selected")),
+      ["true", "false", "false"],
+    );
+    assert.equal(
+      doc.querySelector("#library-panel").getAttribute("aria-labelledby"),
+      "library-tab-templates",
+    );
+    const accessible = async () =>
+      assert.deepEqual(
+        (
+          await axe.run(doc.querySelector("dialog[open]"), {
+            rules: { "color-contrast": { enabled: false } },
+          })
+        ).violations.map((v) => v.id),
+        [],
+      );
+    await accessible();
+    await click('[data-category="agile"]');
+    const agile = doc.querySelectorAll("[data-use]").length;
+    assert.ok(agile >= 8 && agile < TEMPLATE_CATALOG.length);
+    assert.match(doc.querySelector(".library-count").textContent, /results/);
+    await click('[data-category="playbooks"]');
+    assert.ok(doc.querySelectorAll("[data-use]").length >= 3);
+    await click('[data-category=""]');
+    const search = type("#template-search", "sailboat");
+    assert.deepEqual(
+      [...doc.querySelectorAll("[data-use]")].map((b) => b.dataset.use),
+      ["retro-sailboat"],
+    );
+    key(search, "ArrowDown");
+    assert.equal(doc.activeElement.dataset.use, "retro-sailboat");
+    // Previews paint in the background after the list renders.
+    await tick();
+    assert.equal(
+      doc.querySelector("[data-preview-id]").dataset.painted,
+      "true",
+    );
+    key(tabs[0], "ArrowRight");
+    assert.equal(doc.activeElement.id, "library-tab-components");
+    type("#component-search", "en-tête canada");
+    assert.ok(doc.querySelector('[data-component="gc-header"]'));
+    await click('[data-component="gc-header"]');
+    const inserted = count();
+    assert.ok(inserted > 3);
+    const copies = selectedClipboard(app);
+    assert.equal(copies.length, inserted);
+    assert.equal(new Set(copies.map((i) => i.groupId)).size, 1);
+    assert.ok(copies[0].groupId);
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="icons"]');
+    assert.equal(
+      doc.querySelector("#library-tab-icons").getAttribute("aria-selected"),
+      "true",
+    );
+    await accessible();
+    type("#icon-search", "pouce");
+    await click('[data-icon="sticker-thumbs-up"]');
+    const [image] = selectedClipboard(app);
+    assert.equal(image.type, "image");
+    assert.equal(image.text, "Thumbs up");
+    assert.match(image.src, /^data:image\/png;base64,/);
+    assert.equal(count(), inserted + 1);
+    await click('[data-action="undo"]');
+    assert.equal(count(), inserted);
+    await click('[data-action="shapes"]');
+    type("#shape-search", "passerelle");
+    assert.deepEqual(
+      [...doc.querySelectorAll("[data-shape]")].map((b) => b.dataset.shape),
+      ["gateway-exclusive", "gateway-parallel", "gateway-inclusive"],
+    );
+    await click('[data-shape="gateway-parallel"]');
+    await click('[data-action="finish-text"]');
+    const [gateway] = selectedClipboard(app);
+    assert.equal(gateway.shape, "gateway-parallel");
+    assert.equal(gateway.w, 70);
+    await click('[data-action="home"]');
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="templates"]');
+    assert.equal(doc.querySelectorAll('[role="tab"]').length, 0);
+    assert.match(doc.querySelector('[data-category=""]').textContent, /Tout/);
+    type("#template-search", "rétrospective");
+    assert.ok(doc.querySelector('[data-use="retro-4ls"]'));
+    assert.match(
+      doc.querySelector('[data-use="retro-4ls"]').textContent,
+      /Utiliser ce modèle/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("searching templates keeps one dialog close handler and ends every preview observer", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  const observers = [];
+  w.IntersectionObserver = class {
+    constructor() {
+      this.connected = true;
+      observers.push(this);
+    }
+    observe() {}
+    unobserve() {}
+    disconnect() {
+      this.connected = false;
+    }
+  };
+  let closeHandlers = 0;
+  const add = w.HTMLDialogElement.prototype.addEventListener;
+  w.HTMLDialogElement.prototype.addEventListener = function (type, ...rest) {
+    if (type === "close") closeHandlers++;
+    return add.call(this, type, ...rest);
+  };
+  try {
+    await click('[data-action="templates"]');
+    const before = closeHandlers;
+    const search = doc.querySelector("#template-search");
+    for (const text of ["r", "re", "ret", "retr", "retro"]) {
+      search.value = text;
+      search.dispatchEvent(new w.Event("input", { bubbles: true }));
+    }
+    await app.tick();
+    assert.equal(closeHandlers, before, "No handler is added per keystroke");
+    assert.ok(observers.length > 5);
+    assert.equal(observers.filter((o) => o.connected).length, 1);
+    doc.querySelector("dialog[open]").close();
+    assert.equal(observers.filter((o) => o.connected).length, 0);
+  } finally {
+    w.HTMLDialogElement.prototype.addEventListener = add;
+    app.close();
+  }
+});
+
+test("a template inserted into a board keeps its frames after the board's own", async () => {
+  const app = await setup();
+  const { doc, click } = app;
+  const insert = async () => {
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="templates"]');
+    await click('[data-use="retro"]');
+  };
+  const frames = async () => {
+    await click('[data-action="frames"]');
+    const titles = [...doc.querySelectorAll(".frame-row strong")].map(
+      (s) => s.textContent,
+    );
+    doc.querySelector("dialog[open] .dialog-header button").click();
+    return titles;
+  };
+  try {
+    await click('[data-action="new"]');
+    await insert();
+    const once = await frames();
+    assert.ok(once.length >= 3);
+    await insert();
+    assert.deepEqual(await frames(), [...once, ...once]);
+  } finally {
+    app.close();
+  }
+});
+
+test("library content is inserted in the middle of the view", async () => {
+  const app = await setup();
+  const { doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="icons"]');
+    await click('[data-icon="sticker-thumbs-up"]');
+    const [icon] = selectedClipboard(app);
+    const view = renderedView(app),
+      rect = doc.querySelector("#canvas").getBoundingClientRect();
+    const middle = {
+      x: (rect.width / 2 - view.x) / view.z,
+      y: (rect.height / 2 - view.y) / view.z,
+    };
+    assert.ok(Math.abs(icon.x + icon.w / 2 - middle.x) < 1, "Centered across");
+    assert.ok(Math.abs(icon.y + icon.h / 2 - middle.y) < 1, "Centered down");
+  } finally {
+    app.close();
+  }
+});
+
+test("the shape library finds task cards in either language and word order", async () => {
+  const app = await setup();
+  const { doc, w, click, tick } = app;
+  try {
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="new"]');
+    await click('[data-action="shapes"]');
+    const found = (value) => {
+      const input = doc.querySelector("#shape-search");
+      input.value = value;
+      input.dispatchEvent(new w.Event("input", { bubbles: true }));
+      return !!doc.querySelector('[data-extra="task-card"]');
+    };
+    for (const query of ["tache", "task", "tâche carte", "card task", ""])
+      assert.ok(found(query), query);
+    assert.equal(found("losange"), false);
+  } finally {
+    app.close();
+  }
+});
+
+test("version history keeps keyboard focus on its buttons and names each row's buttons by their version", async () => {
+  const app = await setup();
+  try {
+    const { doc } = app;
+    await rotationFixture(app, [item("note", 0, 0, { text: "Draft" })]);
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="history"]');
+    const create = doc.querySelector("#checkpoint-create");
+    create.focus();
+    create.click();
+    for (let n = 0; n < 20 && !doc.querySelector(".revision-row"); n++)
+      await app.tick();
+    await app.tick();
+    assert.equal(doc.activeElement, create, "Focus stays on Create checkpoint");
+    const options = doc.querySelector("[data-revision-options]");
+    const described = doc.getElementById(
+      options.getAttribute("aria-describedby"),
+    );
+    assert.match(described.textContent, /Checkpoint/);
+    options.focus();
+    options.click();
+    for (let n = 0; n < 5; n++) await app.tick();
+    assert.equal(doc.activeElement, options, "Focus stays on More options");
+    doc.querySelector("dialog[open]").close();
+  } finally {
+    app.close();
+  }
+});
+
+test("older shared versions can be shown after the most recent ones", async () => {
+  const room = "older-versions";
+  const shared = await sharedEditors(
+    room,
+    [item("note", 0, 0, { text: "Now" })],
+    1,
+  );
+  const [a] = shared.apps;
+  const exec = a.w.puter.workers.exec;
+  const version = (at) => ({ at, edits: 1, authors: ["Alice"] });
+  a.w.puter.workers.exec = (url, options) => {
+    const body = JSON.parse(options.body);
+    if (body.op !== "history.list") return exec(url, options);
+    const page =
+      body.before === undefined
+        ? { versions: [version(3000), version(2000)], more: true }
+        : { versions: [version(1000)], more: false };
+    return Promise.resolve(new Response(JSON.stringify(page)));
+  };
+  try {
+    const { doc } = a;
+    await a.click('[data-action="more-tools"]');
+    await a.click('[data-feature="history"]');
+    await shared.until(
+      () => doc.querySelector("#shared-older"),
+      "The most recent versions are listed",
+    );
+    assert.equal(doc.querySelectorAll("[data-shared]").length, 2);
+    doc.querySelector("#shared-older").click();
+    await shared.until(
+      () => doc.querySelectorAll("[data-shared]").length === 3,
+      "Older versions follow",
+    );
+    assert.equal(doc.querySelector("#shared-older"), null);
+    assert.equal(doc.activeElement, doc.querySelector('[data-shared="1000"]'));
+    doc.querySelector("dialog[open]").close();
+    // Let the dialog's other lists finish before the window closes.
+    for (let n = 0; n < 10; n++) await a.tick();
+  } finally {
+    a.w.puter.workers.exec = exec;
+    shared.close();
+  }
+});
+
+test("restoring a version saved on this device records no shared version's time", async () => {
+  const room = "device-version-audit";
+  const shared = await sharedEditors(
+    room,
+    [item("note", 0, 0, { text: "Before" })],
+    1,
+  );
+  const [a] = shared.apps;
+  const sent = [];
+  const exec = a.w.puter.workers.exec;
+  a.w.puter.workers.exec = (url, options) => {
+    const body = JSON.parse(options.body);
+    if (body.op === "history.restored") sent.push(body);
+    return exec(url, options);
+  };
+  try {
+    const { doc } = a;
+    await a.click('[data-action="more-tools"]');
+    await a.click('[data-feature="history"]');
+    await a.click("#checkpoint-create");
+    await shared.until(
+      () => doc.querySelector("#local-revisions [data-revision]"),
+      "A version is saved on this device",
+    );
+    doc.querySelector("#local-revisions [data-revision]").click();
+    await shared.until(() => sent.length, "The restoration is recorded");
+    assert.equal(sent[0].at, null);
+    assert.equal(sent[0].scope, "board");
+    for (let n = 0; n < 10; n++) await a.tick();
+  } finally {
+    a.w.puter.workers.exec = exec;
+    shared.close();
+  }
+});
+
+test("connection endpoints name no object hidden from the participant", async () => {
+  const room = "hidden-endpoints";
+  const shown = item("note", 0, 0, { text: "Shown idea" }),
+    secret = item("note", 400, 0, { text: "Secret answer" }),
+    arrow = item("arrow", 200, 100, { w: 250, h: 0 });
+  arrow.endId = secret.id;
+  const shared = await sharedEditors(room, [shown, secret, arrow]);
+  const [a, b] = shared.apps;
+  try {
+    await a.click(`#board-outline [data-id="${secret.id}"]`);
+    await a.click('[data-action="hide-objects"]');
+    await shared.until(
+      () =>
+        !b.doc.querySelector("#board-outline").textContent.includes("Secret"),
+      "The note is hidden from the participant",
+    );
+    await b.click(`#board-outline [data-id="${arrow.id}"]`);
+    await b.click('[data-action="connection-endpoints"]');
+    const dialog = b.doc.querySelector("dialog[open]");
+    assert.doesNotMatch(dialog.textContent, /Secret/);
+    const options = (end) =>
+      [...dialog.querySelectorAll(`#connection-${end} input`)].map(
+        (o) => o.value,
+      );
+    assert.ok(options("start").includes(shown.id));
+    assert.ok(!options("start").includes(secret.id));
+    // The end already attached to it stays, unnamed.
+    assert.equal(
+      dialog.querySelector("#connection-end input:checked").value,
+      secret.id,
+    );
+    dialog
+      .querySelector(`#connection-start input[value="${shown.id}"]`)
+      .click();
+    dialog
+      .querySelector("form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+    const saved = async () =>
+      (await storedSharedBoard(a, room))?.items.find((i) => i.id === arrow.id);
+    await shared.until(
+      async () => (await saved())?.startId === shown.id,
+      "The new start is saved",
+    );
+    assert.equal((await saved()).endId, secret.id);
+    for (let n = 0; n < 10; n++) await b.tick();
+  } finally {
+    shared.close();
+  }
+});
+
+test("restoring a frame the facilitator has hidden since says so", async () => {
+  const room = "hidden-frame-restore";
+  const frame = item("frame", 0, 0, { w: 400, h: 300, text: "Ideas" }),
+    note = item("note", 20, 40, { text: "First idea", parentId: frame.id });
+  const shared = await sharedEditors(room, [frame, note]);
+  const [a, b] = shared.apps;
+  try {
+    const history = async () => {
+      await b.click('[data-action="more-tools"]');
+      await b.click('[data-feature="history"]');
+    };
+    await history();
+    await b.click("#checkpoint-create");
+    await shared.until(
+      () => b.doc.querySelector("#local-revisions [data-revision-options]"),
+      "A version is saved on this device",
+    );
+    b.doc.querySelector("#local-revisions [data-revision-options]").click();
+    await shared.until(
+      () => b.doc.querySelector('[data-part="frame"]'),
+      "The frame can be restored",
+    );
+    // The facilitator hides the frame meanwhile.
+    await a.click(`#board-outline [data-id="${frame.id}"]`);
+    await a.click('[data-action="hide-objects"]');
+    await shared.until(
+      () =>
+        !b.doc.querySelector("#board-outline").textContent.includes("Ideas"),
+      "The frame is hidden from the participant",
+    );
+    b.doc.querySelector('[data-part="frame"]').click();
+    await shared.until(
+      () =>
+        /no longer shown to you/.test(
+          b.doc.querySelector("#toast").textContent,
+        ),
+      "The participant is told",
+    );
+    for (let n = 0; n < 10; n++) await b.tick();
+  } finally {
+    shared.close();
+  }
+});
+
+test("a lock that arrives while a restoration saves its backup stops the restoration", async () => {
+  const { IDBObjectStore } = await import("fake-indexeddb");
+  const app = await setup();
+  const put = IDBObjectStore.prototype.put;
+  try {
+    const { doc, w } = app;
+    await rotationFixture(app, [item("note", 0, 0, { text: "Old wording" })]);
+    const history = async () => {
+      await app.click('[data-action="more-tools"]');
+      await app.click('[data-feature="history"]');
+      for (let n = 0; n < 20 && !doc.querySelector(".revision-row"); n++)
+        await app.tick();
+    };
+    await history();
+    await app.click("#checkpoint-create");
+    for (let n = 0; n < 20 && !doc.querySelector(".revision-row"); n++)
+      await app.tick();
+    doc.querySelector("dialog[open]").close();
+    await app.tick();
+    await app.click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "Approved wording";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    await history();
+    // The object is locked just as the backup copy is written.
+    IDBObjectStore.prototype.put = function (value, ...rest) {
+      if (value?.label === "Before restoration") {
+        IDBObjectStore.prototype.put = put;
+        doc.querySelector("#selection-lock").click();
+      }
+      return put.call(this, value, ...rest);
+    };
+    doc.querySelector("[data-revision]").click();
+    for (let n = 0; n < 20; n++) await app.tick();
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /Locked · Sticky note: Approved wording/,
+    );
+  } finally {
+    IDBObjectStore.prototype.put = put;
+    app.close();
+  }
+});
+
+test("restoring part of an earlier version respects locked objects", async () => {
+  const app = await setup();
+  try {
+    const { doc, w } = app;
+    await rotationFixture(app, [item("note", 0, 0, { text: "Old wording" })]);
+    const history = async () => {
+      await app.click('[data-action="more-tools"]');
+      await app.click('[data-feature="history"]');
+    };
+    await history();
+    await app.click("#checkpoint-create");
+    for (let n = 0; n < 20 && !doc.querySelector(".revision-row"); n++)
+      await app.tick();
+    doc.querySelector("dialog[open]").close();
+    await app.tick();
+    await app.click('[data-action="properties"]');
+    doc.querySelector("#object-text").value = "Approved wording";
+    doc
+      .querySelector("dialog form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await app.tick();
+    await app.click("#selection-lock");
+    await history();
+    for (let n = 0; n < 20 && !doc.querySelector(".revision-row"); n++)
+      await app.tick();
+    doc.querySelector(".revision-row [data-revision-options]").click();
+    await app.tick();
+    doc.querySelector('[data-part="objects"]').click();
+    await app.tick();
+    await app.tick();
+    assert.equal(
+      doc.querySelector("#toast").textContent,
+      "Unlock protected objects before changing this selection.",
+    );
+    assert.match(
+      doc.querySelector("#board-outline").textContent,
+      /Locked · Sticky note: Approved wording/,
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("duplicating a shared board from the library keeps what its facilitator may see", async () => {
+  const env = environment();
+  const shown = item("note", 30, 30, { text: "Warm-up" });
+  const secret = item("note", 300, 30, { text: "Answer key" });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Workshop",
+    items: [shown, secret],
+    workshop: { settings: { hide: [secret.id] } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const { token } = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const duplicate = async (user, invite) => {
+    const app = await setup(env.sdk(user));
+    try {
+      await app.click('[data-action="join-shared"]');
+      app.doc.querySelector("#join-link").value =
+        `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${invite}`;
+      app.doc
+        .querySelector("#join-link")
+        .closest("form")
+        .dispatchEvent(
+          new app.w.Event("submit", { bubbles: true, cancelable: true }),
+        );
+      for (let n = 0; n < 200 && app.doc.querySelector("#join-link"); n++)
+        await app.tick();
+      for (
+        let n = 0;
+        n < 200 && !app.doc.querySelector("#board-outline")?.textContent;
+        n++
+      )
+        await app.tick();
+      await app.click('[data-action="home"]');
+      for (let n = 0; n < 50 && !app.doc.querySelector("[data-more]"); n++)
+        await app.tick();
+      await app.click("[data-more]");
+      await app.click("#copy-board");
+      const database = await new Promise((resolve, reject) => {
+        const request = app.w.indexedDB.open("whiteboard-v1", 3);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      try {
+        const boards = await new Promise((resolve, reject) => {
+          const transaction = database.transaction("boards", "readonly");
+          const request = transaction.objectStore("boards").getAll();
+          transaction.oncomplete = () => resolve(request.result);
+          transaction.onerror = () => reject(transaction.error);
+        });
+        const copy = boards.find((b) => b.title === "Workshop (copy)");
+        assert.ok(copy, boards.map((b) => b.title).join());
+        return copy.items.map((i) => i.text);
+      } finally {
+        database.close();
+      }
+    } finally {
+      app.close();
+    }
+  };
+  assert.deepEqual(await duplicate(owner, ""), ["Warm-up", "Answer key"]);
+  assert.deepEqual(await duplicate(collaborator, token), ["Warm-up"]);
+});
+
+test("saving reusable content leaves out what is hidden from the person", async () => {
+  const env = environment();
+  const frame = item("frame", 0, 0, { w: 700, h: 400, text: "Ideas" });
+  const shown = item("note", 30, 60, { text: "Warm-up", parentId: frame.id });
+  const secret = item("note", 300, 60, {
+    text: "Answer key",
+    parentId: frame.id,
+  });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Workshop",
+    items: [frame, shown, secret],
+    workshop: { settings: { hide: [secret.id] } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const { token } = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(collaborator));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(
+        new app.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    for (let n = 0; n < 200 && app.doc.querySelector("#join-link"); n++)
+      await app.tick();
+    for (
+      let n = 0;
+      n < 200 && !app.doc.querySelector("#board-outline")?.textContent;
+      n++
+    )
+      await app.tick();
+    await app.click(`#board-outline [data-id="${frame.id}"]`);
+    await app.click('[data-action="commands"]');
+    paletteQuery(app, "reusable content");
+    await app.tick();
+    await app.click('[data-command="save-snippet"]');
+    app.doc.querySelector("#snippet-name").value = "Ideas";
+    app.doc
+      .querySelector("dialog form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    const database = await new Promise((resolve, reject) => {
+      const request = app.w.indexedDB.open("whiteboard-v1", 3);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    try {
+      const read = () =>
+        new Promise((resolve, reject) => {
+          const transaction = database.transaction("templates", "readonly");
+          const request = transaction.objectStore("templates").getAll();
+          transaction.oncomplete = () => resolve(request.result);
+          transaction.onerror = () => reject(transaction.error);
+        });
+      let saved = [];
+      for (let n = 0; n < 200 && !saved.length; n++) {
+        await app.tick();
+        saved = await read();
+      }
+      assert.equal(saved.length, 1);
+      assert.deepEqual(
+        saved[0].items.map((i) => i.text),
+        ["Ideas", "Warm-up"],
+      );
+    } finally {
+      database.close();
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("deleting or cutting a frame never removes content hidden from the person", async () => {
+  const env = environment();
+  const frame = item("frame", 0, 0, { w: 700, h: 400, text: "Ideas" });
+  const shown = item("note", 30, 60, { text: "Warm-up", parentId: frame.id });
+  const secret = item("note", 300, 60, {
+    text: "Answer key",
+    parentId: frame.id,
+  });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Workshop",
+    items: [frame, shown, secret],
+    workshop: { settings: { hide: [secret.id] } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const { token } = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(collaborator));
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(
+        new app.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    for (let n = 0; n < 200 && app.doc.querySelector("#join-link"); n++)
+      await app.tick();
+    for (
+      let n = 0;
+      n < 200 &&
+      !app.doc.querySelector(`#board-outline [data-id="${frame.id}"]`);
+      n++
+    )
+      await app.tick();
+    const count = () =>
+      app.doc.querySelectorAll("#board-outline [data-id]").length;
+    const before = count();
+    // Select all leaves hidden content out of the selection.
+    const canvas = app.doc.querySelector("#canvas");
+    canvas.focus();
+    canvas.dispatchEvent(
+      new app.w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+    await app.tick();
+    assert.deepEqual(
+      selectedClipboard(app).map((i) => i.text),
+      ["Ideas", "Warm-up"],
+    );
+    canvas.dispatchEvent(
+      new app.w.KeyboardEvent("keydown", { key: "Delete", bubbles: true }),
+    );
+    await app.tick();
+    assert.equal(count(), before, "Delete keeps the frame and its contents");
+    const data = transferData();
+    dispatchTransfer(app, "cut", data);
+    await app.tick();
+    assert.equal(count(), before, "Cut keeps the frame and its contents");
+    assert.equal(data.getData("text/plain"), "");
+  } finally {
+    app.close();
+  }
+});
+
+async function commitAs(boards, user, room, change) {
+  const { doc } = await boards.load(room);
+  const before = doc.vector();
+  const next = doc.snapshot();
+  change(next);
+  doc.commit(next);
+  const update = doc.update(before);
+  doc.destroy();
+  return boards.call(user, {
+    op: "commit",
+    room,
+    id: await hash(update),
+    update: encode(update),
+  });
+}
+
+async function joinLink(app, id, token) {
+  await app.click('[data-action="join-shared"]');
+  app.doc.querySelector("#join-link").value =
+    `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${id}&invite=${token}`;
+  app.doc
+    .querySelector("#join-link")
+    .closest("form")
+    .dispatchEvent(
+      new app.w.Event("submit", { bubbles: true, cancelable: true }),
+    );
+  for (let n = 0; n < 200 && app.doc.querySelector("#join-link"); n++)
+    await app.tick();
+}
+
+test("restoring a version never changes content hidden from a participant", async () => {
+  const env = environment();
+  const boards = env.service;
+  const real = boards.now;
+  let clock = Date.now() - 60 * 60_000;
+  boards.now = () => clock;
+  const frame = item("frame", 0, 0, { w: 700, h: 400, text: "Ideas" });
+  const shown = item("note", 30, 60, { text: "Warm-up", parentId: frame.id });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Workshop",
+    items: [frame, shown],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await boards.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  clock += 20 * 60_000;
+  await commitAs(boards, owner, initial.id, (s) => {
+    s.items[1].text = "Warm-up 2";
+  });
+  clock += 20 * 60_000;
+  const secretFrame = item("frame", 900, 0, {
+    w: 400,
+    h: 300,
+    text: "Answer key frame",
+  });
+  const secret = item("note", 930, 60, {
+    text: "Answer key",
+    parentId: secretFrame.id,
+  });
+  await commitAs(boards, owner, initial.id, (s) => {
+    s.items.push(secretFrame, secret);
+    s.workshop = { settings: { hide: [secretFrame.id] } };
+  });
+  clock += 20 * 60_000;
+  // one more owner edit so that the version with the hidden frame is not the current one
+  await commitAs(boards, owner, initial.id, (s) => {
+    s.items.find((i) => i.id === secret.id).text = "Answer key v2";
+  });
+  boards.now = real;
+  const { token } = await boards.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(collaborator));
+  const { doc } = app;
+  try {
+    await joinLink(app, initial.id, token);
+    for (
+      let n = 0;
+      n < 200 && !doc.querySelector(`#board-outline [data-id="${frame.id}"]`);
+      n++
+    )
+      await app.tick();
+    await app.click('[data-action="more-tools"]');
+    await app.click('[data-feature="history"]');
+    for (
+      let n = 0;
+      n < 100 && !doc.querySelector("#shared-revisions .revision-row");
+      n++
+    )
+      await app.tick();
+    const rows = [...doc.querySelectorAll("#shared-revisions .revision-row")];
+    // Options on the version that has the hidden frame (index 1)
+    rows[1].querySelector("[data-shared-options]").click();
+    for (let n = 0; n < 100 && !doc.querySelector(".revision-options"); n++)
+      await app.tick();
+    // The frame choices name only frames this person can see.
+    assert.deepEqual(
+      [...doc.querySelectorAll("#restore-frame label")].map(
+        (o) => o.textContent,
+      ),
+      ["Ideas"],
+    );
+    assert.doesNotMatch(
+      doc.querySelector(".revision-options").textContent,
+      /Answer key/,
+    );
+    // Restoring the oldest version, from before the hidden frame, restores
+    // what this person sees and leaves what is hidden from them as it is.
+    const oldest = rows.at(-1).querySelector("[data-shared]");
+    oldest.click();
+    for (let n = 0; n < 40; n++) await app.tick();
+    assert.match(doc.querySelector("#toast").textContent, /Version restored/);
+    for (let n = 0; n < 40; n++) await app.tick();
+    const { doc: sdoc } = await boards.load(initial.id);
+    const snap = sdoc.snapshot();
+    sdoc.destroy();
+    assert.deepEqual(
+      snap.items.map((i) => i.text),
+      ["Ideas", "Warm-up 2", "Answer key frame", "Answer key v2"],
+    );
+    assert.ok(
+      snap.items.some((i) => i.text === "Answer key v2"),
+      "The hidden note is unchanged",
+    );
+    assert.ok(snap.items.some((i) => i.id === secretFrame.id));
+  } finally {
+    app.close();
+  }
+});
+
+test("library content inserted inside a frame joins the frame", async () => {
+  const app = await setup();
+  const { click } = app;
+  try {
+    const frame = item("frame", -5000, -5000, {
+      id: "big-frame",
+      w: 10000,
+      h: 10000,
+      text: "Canvas",
+    });
+    const { selected } = await rotationFixture(app, [frame]);
+    const frameId = selected[0].id;
+    await click('[data-action="more-tools"]');
+    await click('[data-feature="icons"]');
+    const search = app.doc.querySelector("#icon-search");
+    search.value = "thumbs";
+    search.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+    await click('[data-icon="sticker-thumbs-up"]');
+    const [sticker] = selectedClipboard(app);
+    assert.equal(sticker.type, "image");
+    // Moving the frame moves what it holds.
+    await click(`#board-outline [data-id="${frameId}"]`);
+    for (let n = 0; n < 5; n++)
+      app.doc.querySelector("#canvas").dispatchEvent(
+        new app.w.KeyboardEvent("keydown", {
+          key: "ArrowRight",
+          shiftKey: true,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    await app.tick();
+    await click(`#board-outline [data-id="${sticker.id}"]`);
+    const [moved] = selectedClipboard(app);
+    assert.equal(moved.x, sticker.x + 50);
+  } finally {
+    app.close();
+  }
+});
+
+test("the export dialog counts no pages without a frame", async () => {
+  const app = await setup();
+  const { click, doc, w } = app;
+  try {
+    await rotationFixture(app, [
+      item("frame", 0, 0, { w: 400, h: 300, text: "Plan" }),
+      item("frame", 500, 0, { w: 400, h: 300, text: "" }),
+    ]);
+    await click('[data-action="export"]');
+    const scope = doc.querySelector("#export-scope");
+    scope.value = "frames";
+    scope.dispatchEvent(new w.Event("change", { bubbles: true }));
+    // Untitled frames are named, so every checkbox has a label.
+    assert.deepEqual(
+      [...doc.querySelectorAll("#export-frames label")].map(
+        (l) => l.textContent,
+      ),
+      ["Plan", "Untitled frame"],
+    );
+    for (const box of doc.querySelectorAll("#export-frames input")) {
+      box.checked = false;
+      box.dispatchEvent(new w.Event("change", { bubbles: true }));
+    }
+    assert.equal(
+      doc.querySelector("#pdf-estimate").textContent,
+      "Choose at least one frame.",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("arrow keys in the shape dialogs move by rows within and across sections", async () => {
+  const app = await setup();
+  const { w, doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="add-note"]');
+    await click("#board-outline button");
+    // Each section is its own three-column grid, stacked in the dialog.
+    const place = (el) => {
+      let top = 0;
+      for (const lib of doc.querySelectorAll("dialog[open] .shape-library")) {
+        const kids = [...lib.querySelectorAll(".shape-choice")],
+          n = kids.indexOf(el);
+        if (n >= 0)
+          return {
+            top: top + 40 + Math.floor(n / 3) * 100,
+            left: (n % 3) * 150,
+            width: 140,
+            height: 90,
+          };
+        top += 40 + Math.ceil(kids.length / 3) * 100;
+      }
+      return { top: 0, left: 0, width: 0, height: 0 };
+    };
+    const rect = w.HTMLElement.prototype.getBoundingClientRect;
+    w.HTMLElement.prototype.getBoundingClientRect = function () {
+      return this.classList.contains("shape-choice")
+        ? place(this)
+        : rect.call(this);
+    };
+    await click('[data-action="change-shape"]');
+    const libs = [
+      ...[...doc.querySelectorAll("dialog[open]")]
+        .at(-1)
+        .querySelectorAll(".shape-library"),
+    ].map((lib) => [...lib.querySelectorAll(".shape-choice")]);
+    assert.equal(libs[0].length, 2, "The first section has one short row");
+    const press = (el, key) => {
+      el.focus();
+      el.dispatchEvent(new w.KeyboardEvent("keydown", { key, bubbles: true }));
+      return doc.activeElement;
+    };
+    assert.equal(press(libs[1][0], "ArrowDown"), libs[1][3]);
+    assert.equal(press(libs[1][4], "ArrowUp"), libs[1][1]);
+    assert.equal(press(libs[0][1], "ArrowDown"), libs[1][1]);
+    assert.equal(press(libs[1][1], "ArrowUp"), libs[0][1]);
+    const last = libs[1].length - 1;
+    assert.equal(press(libs[1][last - (last % 3)], "ArrowDown"), libs[2][0]);
+    assert.equal(press(libs[1][0], "ArrowRight"), libs[1][1]);
+  } finally {
+    app.close();
+  }
+});
+
+test("a shared board that cannot be joined leaves no empty board behind", async () => {
+  const env = environment();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Revoked",
+    items: [item("note", 30, 30, { text: "Private" })],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const { token } = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  await env.service.call(owner, { op: "revoke-invite", room: initial.id });
+  const app = await setup(env.sdk(collaborator));
+  try {
+    const cards = () => app.doc.querySelectorAll(".board-card").length;
+    const before = cards();
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}&invite=${token}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(
+        new app.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    const deadline = Date.now() + 5000;
+    while (
+      !app.doc.querySelector("#join-error")?.textContent &&
+      Date.now() < deadline
+    )
+      await app.tick();
+    assert.match(
+      app.doc.querySelector("#join-error").textContent,
+      /expired or was revoked/,
+    );
+    assert.equal(app.doc.querySelector("#canvas"), null);
+    assert.equal(cards(), before);
+  } finally {
+    app.close();
+  }
+});
+
+test("the comments panel follows a change between viewer and commenter access", async () => {
+  const room = "viewer-to-commenter";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const role = async (value) => {
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: value,
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+  };
+  const [, b] = shared.apps;
+  try {
+    await role("viewer");
+    await shared.until(
+      () => b.doc.querySelector(".editor.shared-viewer"),
+      "Viewer access received",
+    );
+    await b.click('[data-action="comments"]');
+    assert.equal(b.doc.querySelector("#comment-new").disabled, true);
+    // Only a presence check-in reports the change; no synchronization
+    // redraws the board meanwhile.
+    const exec = b.w.puter.workers.exec;
+    let held = [];
+    b.w.puter.workers.exec = (url, options) =>
+      JSON.parse(options.body).op === "sync"
+        ? new Promise((resolve) => held.push(() => resolve(exec(url, options))))
+        : exec(url, options);
+    await role("commenter");
+    await shared.until(
+      () => !b.doc.querySelector("#comment-new").disabled,
+      "Commenters can start a discussion without redrawing the board",
+    );
+    b.w.puter.workers.exec = exec;
+    for (const release of held) release();
+    held = [];
+    await role("viewer");
+    await shared.until(
+      () => b.doc.querySelector("#comment-new").disabled,
+      "Viewers can no longer start a discussion",
+    );
+    // Let the check-in and synchronization finish before closing.
+    await new Promise((r) => setTimeout(r, 500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("the Participants dialog lists board access without reading it all out, and announces a failure", async () => {
+  const room = "participants-announce";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const [a] = shared.apps;
+  try {
+    await a.click('[data-action="participants"]');
+    await shared.until(
+      () => a.doc.querySelectorAll(".participant-row").length === 2,
+      "Board access is listed",
+    );
+    const list = a.doc.querySelector("#participant-list");
+    assert.equal(list.closest("[aria-live]"), null);
+    a.doc.querySelector("dialog").close();
+    const exec = a.w.puter.workers.exec;
+    a.w.puter.workers.exec = (url, options) =>
+      JSON.parse(options.body).op === "members"
+        ? Promise.resolve(
+            new Response(JSON.stringify({ message: "Board not found." }), {
+              status: 404,
+            }),
+          )
+        : exec(url, options);
+    await a.click('[data-action="participants"]');
+    await shared.until(
+      () => a.doc.querySelector('#participant-list [role="alert"]'),
+      "A failure is announced",
+    );
+    assert.match(
+      a.doc.querySelector('#participant-list [role="alert"]').textContent,
+      /Board not found/,
+    );
+    a.w.puter.workers.exec = exec;
+    a.doc.querySelector("dialog").close();
+    for (let n = 0; n < 10; n++) await a.tick();
+  } finally {
+    shared.close();
+  }
+});
+
+test("losing edit access closes the text being typed and the creation tool", async () => {
+  const room = "editor-to-viewer";
+  const note = item("note", 0, 0, { text: "A" });
+  const shared = await sharedEditors(room, [note]);
+  const role = async (value) => {
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: value,
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+  };
+  const [, b] = shared.apps;
+  const pressed = (name) =>
+    b.doc
+      .querySelector(`[data-action="tool-${name}"]`)
+      .getAttribute("aria-pressed");
+  try {
+    await b.click('[data-action="tool-rect"]');
+    assert.equal(pressed("rect"), "true");
+    await role("viewer");
+    await shared.until(
+      () => b.doc.querySelector(".editor.shared-viewer"),
+      "Viewer access received",
+    );
+    assert.equal(pressed("rect"), "false");
+    assert.equal(pressed("select"), "true");
+    await role("editor");
+    await shared.until(
+      () => !b.doc.querySelector(".editor.shared-viewer"),
+      "Edit access returns",
+    );
+    await b.click(`[data-id="${note.id}"]`);
+    b.doc
+      .querySelector("#canvas")
+      .dispatchEvent(
+        new b.w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+    assert.ok(b.doc.querySelector("#canvas-text-editor"));
+    await role("viewer");
+    await shared.until(
+      () => b.doc.querySelector(".editor.shared-viewer"),
+      "Viewer access received again",
+    );
+    assert.equal(b.doc.querySelector("#canvas-text-editor"), null);
+    await new Promise((r) => setTimeout(r, 500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("sharing while a shared board is still connecting says so", async () => {
+  const env = environment();
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Connecting",
+    items: [item("note", 30, 30, { text: "Hello" })],
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const puter = env.sdk(owner);
+  const exec = puter.workers.exec;
+  let release;
+  const held = new Promise((resolve) => (release = resolve));
+  puter.workers.exec = async (url, options) => {
+    if (options?.body && JSON.parse(options.body).op === "join") await held;
+    return exec(url, options);
+  };
+  const app = await setup(puter);
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      `https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${initial.id}`;
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(
+        new app.w.Event("submit", { bubbles: true, cancelable: true }),
+      );
+    const deadline = Date.now() + 3000;
+    while (!app.doc.querySelector("#canvas") && Date.now() < deadline)
+      await app.tick();
+    await app.click('[data-action="share"]');
+    assert.equal(
+      app.doc.querySelector("#toast").textContent,
+      "Still connecting to the shared board. Try again in a moment.",
+    );
+    release();
+    while (app.doc.querySelector("#join-link") && Date.now() < deadline + 3000)
+      await app.tick();
+  } finally {
+    release();
+    app.close();
+  }
+});
+
+test("participants who cannot invite see the board link without invitation controls", async () => {
+  const room = "editor-share-dialog";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const [a, b] = shared.apps;
+  try {
+    await b.click('[data-action="share"]');
+    await shared.until(
+      () => b.doc.querySelector("#share-link"),
+      "The Share dialog opens",
+    );
+    for (const id of ["#share-role", "#create-invite"])
+      assert.equal(b.doc.querySelector(id).disabled, true, id);
+    assert.equal(b.doc.querySelector("#revoke-invites").hidden, true);
+    assert.equal(
+      b.doc.querySelector("#share-message").textContent,
+      "Only the owner or a facilitator can invite new participants.",
+    );
+    assert.equal(b.doc.querySelector("#copy-share").disabled, false);
+    // Made a facilitator while the dialog is open, they can invite at once.
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "facilitator",
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => !b.doc.querySelector("#create-invite").disabled,
+      "The promotion enables invitations",
+    );
+    assert.equal(b.doc.querySelector("#share-role").disabled, false);
+    assert.equal(b.doc.querySelector("#revoke-invites").hidden, false);
+    assert.equal(b.doc.querySelector("#share-message").textContent, "");
+    b.doc.querySelector("dialog[open]").close();
+    await a.click('[data-action="share"]');
+    await shared.until(
+      () => a.doc.querySelector("#share-link"),
+      "The owner's Share dialog opens",
+    );
+    for (const id of ["#share-role", "#create-invite"])
+      assert.equal(a.doc.querySelector(id).disabled, false, id);
+    a.doc.querySelector("dialog[open]").close();
+    // A removal while it is open withdraws them again.
+    await b.click('[data-action="share"]');
+    await shared.until(
+      () => b.doc.querySelector("#share-link"),
+      "The Share dialog opens again",
+    );
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "removed",
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => b.doc.querySelector("#create-invite").disabled,
+      "Removal withdraws invitations",
+    );
+    assert.equal(b.doc.querySelector("#revoke-invites").hidden, true);
+    assert.equal(b.doc.querySelector("#board-settings-open").hidden, true);
+  } finally {
+    shared.close();
+  }
+});
+
+test("the Participants dialog follows this person's own role changes", async () => {
+  const room = "participants-own-role";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const [, b] = shared.apps;
+  const setRole = async (role) => {
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role,
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+  };
+  try {
+    const { token } = await shared.env.service.call(owner, {
+      op: "invite",
+      room,
+      role: "viewer",
+    });
+    await shared.env.service.call(viewer, { op: "join", room, token });
+    await setRole("facilitator");
+    await shared.until(
+      () => b.doc.querySelector(".editor:not(.shared-viewer)"),
+      "Promoted",
+    );
+    await new Promise((r) => setTimeout(r, 300));
+    await b.click('[data-action="participants"]');
+    await shared.until(
+      () => b.doc.querySelectorAll("#participant-list select").length === 3,
+      "Participants lists the members",
+    );
+    const cam = () =>
+      [...b.doc.querySelectorAll("#participant-list select")].find((select) =>
+        select.getAttribute("aria-label").includes(viewer.username),
+      );
+    assert.equal(cam().disabled, false);
+    assert.ok([...cam().options].some((o) => o.value === "editor"));
+    await setRole("editor");
+    await shared.until(() => cam().disabled, "Demotion disables role changes");
+    assert.deepEqual(
+      [...cam().options].map((option) => option.value),
+      ["viewer", "removed"],
+      "roles they can no longer give are not offered",
+    );
+    await setRole("facilitator");
+    await shared.until(() => !cam().disabled, "Promotion enables them again");
+    assert.ok([...cam().options].some((o) => o.value === "editor"));
+  } finally {
+    shared.close();
+  }
+});
+
+test("the participant count counts each person once, however many tabs they have open", async () => {
+  const room = "two-tabs";
+  const shared = await sharedEditors(
+    room,
+    [item("note", 0, 0, { text: "A" })],
+    3,
+  );
+  const [a] = shared.apps;
+  const button = () => a.doc.querySelector(".participants");
+  try {
+    // The collaborator has two tabs open.
+    a.w.dispatchEvent(new a.w.Event("online"));
+    await shared.until(
+      () => shared.env.calls.filter((c) => c.op === "presence").length >= 4,
+      "Everyone checked in",
+    );
+    a.w.dispatchEvent(new a.w.Event("online"));
+    await shared.until(
+      () => button()?.textContent.startsWith("2 "),
+      "Two people are counted",
+    );
+    assert.deepEqual(
+      button().title.split(", ").sort(),
+      [owner.username, collaborator.username].sort(),
+    );
+    // Let the check-ins finish before closing.
+    await new Promise((r) => setTimeout(r, 500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("a shared board with a file that cannot be downloaded still opens and saves", async () => {
+  const room = "missing-asset";
+  const missing = "a".repeat(64);
+  const note = item("note", 300, 0, { text: "Still here" });
+  const image = item("image", 0, 0, {
+    w: 100,
+    h: 100,
+    src: `asset:${missing}`,
+  });
+  const shared = await sharedEditors(room, [image, note]);
+  const [a, b] = shared.apps;
+  try {
+    for (const app of [a, b]) {
+      assert.ok(app.doc.querySelector("#canvas"), "The board opens");
+      assert.ok(
+        [...app.doc.querySelectorAll("#board-outline button")].some((el) =>
+          el.textContent.includes("Still here"),
+        ),
+      );
+    }
+    // Other edits save, and the file keeps its reference.
+    await b.click(`#board-outline [data-id="${note.id}"]`);
+    b.doc.querySelector("#canvas").dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        bubbles: true,
+      }),
+    );
+    await shared.until(async () => {
+      const { doc } = await shared.env.service.load(room);
+      try {
+        return doc.snapshot().items.find((i) => i.id === note.id).x > 300;
+      } finally {
+        doc.destroy();
+      }
+    }, "The move is saved");
+    const { doc } = await shared.env.service.load(room);
+    try {
+      assert.equal(
+        doc.snapshot().items.find((i) => i.id === image.id).src,
+        `asset:${missing}`,
+      );
+    } finally {
+      doc.destroy();
+    }
+    // Let the move's upload and publication finish before closing.
+    await new Promise((r) => setTimeout(r, 500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("a share whose files fail to upload leaves no shared copy behind", async () => {
+  const env = environment(),
+    puter = env.sdk(owner),
+    build = "faceb00cfaceb00c";
+  await puter.kv.set("whiteboard-collaboration-worker-v1", {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path: "whiteboard/whiteboard-worker.js",
+    build,
+    builtAt: 200,
+  });
+  const exec = puter.workers.exec;
+  puter.workers.exec = (url, options) =>
+    url.endsWith("/health")
+      ? Promise.resolve(Response.json({ build }))
+      : options?.body && JSON.parse(options.body).op === "asset.put"
+        ? Promise.resolve(
+            Response.json({ message: "Storage unavailable" }, { status: 500 }),
+          )
+        : exec(url, options);
+  const app = await setup(puter);
+  app.w.fetch = async () =>
+    new Response(`/* whiteboard-worker build=${build} at=200 */`);
+  try {
+    await rotationFixture(app, [cropFixture()]);
+    await app.click('[data-action="share"]');
+    const deadline = Date.now() + 5000;
+    while (
+      !/Storage unavailable/.test(
+        app.doc.querySelector("#toast").textContent,
+      ) &&
+      Date.now() < deadline
+    )
+      await app.tick();
+    assert.match(
+      app.doc.querySelector("#toast").textContent,
+      /Storage unavailable/,
+    );
+    const created = env.calls.find((call) => call.op === "create");
+    assert.ok(created, "The share created its copy before uploading");
+    assert.ok(env.data.get(`wb:${created.room}:meta`).deleted);
+    assert.equal(
+      app.doc.querySelector(".board-tag").textContent,
+      "Personal board",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("the properties dialog saves only its own changes over a collaborator's edits and locks", async () => {
+  const room = "properties-dialog-collaboration";
+  const note = item("note", 0, 0, { text: "Original" });
+  const shared = await sharedEditors(room, [note]);
+  const [a, b] = shared.apps;
+  const saved = async () => {
+    const { doc } = await shared.env.service.load(room);
+    try {
+      return doc.snapshot().items[0];
+    } finally {
+      doc.destroy();
+    }
+  };
+  const submit = () =>
+    b.doc
+      .querySelector("#edit-form")
+      .dispatchEvent(new b.w.Event("submit", { cancelable: true }));
+  try {
+    await b.click(`#board-outline [data-id="${note.id}"]`);
+    await b.click('[data-action="properties"]');
+    await a.click(`#board-outline [data-id="${note.id}"]`);
+    a.doc.querySelector("#canvas").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await a.tick();
+    const editor = a.doc.querySelector("#canvas-text-editor");
+    editor.value = "Original, revised by Alice";
+    editor.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    await a.click('[data-action="finish-text"]');
+    await shared.until(
+      () => b.doc.querySelector("#board-outline").textContent.includes("Alice"),
+      "Bob receives Alice's text",
+    );
+    // Bob changes only the width: Alice's words stay.
+    b.doc.querySelector("#object-width").value = "300";
+    submit();
+    await shared.until(async () => (await saved()).w === 300, "width saved");
+    assert.equal((await saved()).text, "Original, revised by Alice");
+    // Rewriting text someone else changed meanwhile is refused.
+    await b.click(`#board-outline [data-id="${note.id}"]`);
+    await b.click('[data-action="properties"]');
+    a.doc.querySelector("#canvas").dispatchEvent(
+      new a.w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await a.tick();
+    const again = a.doc.querySelector("#canvas-text-editor");
+    again.value = "Alice again";
+    again.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+    await a.click('[data-action="finish-text"]');
+    await shared.until(
+      () => b.doc.querySelector("#board-outline").textContent.includes("again"),
+      "Bob receives Alice's second text",
+    );
+    b.doc.querySelector("#object-text").value = "Bob's stale rewrite";
+    submit();
+    assert.match(b.doc.querySelector("#toast").textContent, /changed/);
+    assert.ok(b.doc.querySelector("#edit-form"), "the dialog stays open");
+    b.doc.querySelector("dialog[open]").close();
+    // Nothing is saved into an object locked while the dialog was open.
+    await b.click(`#board-outline [data-id="${note.id}"]`);
+    await b.click('[data-action="properties"]');
+    await a.click(`#board-outline [data-id="${note.id}"]`);
+    await a.click('[data-action="lock"]');
+    await shared.until(async () => (await saved()).locked, "locked");
+    await shared.until(
+      () =>
+        b.doc.querySelector("#board-outline").textContent.includes("Locked"),
+      "Bob sees the lock",
+    );
+    b.doc.querySelector("#object-text").value = "Changed after the lock";
+    submit();
+    await new Promise((r) => setTimeout(r, 600));
+    assert.equal((await saved()).text, "Alice again");
+    assert.match(b.doc.querySelector("#toast").textContent, /Unlock/);
+  } finally {
+    shared.close();
+  }
+});
+
+test("switching language keeps a shared board's save status", async () => {
+  const room = "language-status";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const [, b] = shared.apps;
+  try {
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "removed",
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () =>
+        /Access changed/.test(b.doc.querySelector("#save-state").textContent),
+      "Access is lost",
+    );
+    b.doc.querySelector("#language").value = "fr";
+    b.doc.querySelector("#language").dispatchEvent(new b.w.Event("change"));
+    await b.tick();
+    assert.equal(
+      b.doc.querySelector("#save-state").textContent,
+      "Accès modifié · modifications locales conservées",
+    );
+    b.doc.querySelector("#language").value = "en";
+    b.doc.querySelector("#language").dispatchEvent(new b.w.Event("change"));
+    await b.tick();
+    assert.equal(
+      b.doc.querySelector("#save-state").textContent,
+      "Access changed · local changes retained",
+    );
+  } finally {
+    shared.close();
+  }
+});
+
+test("viewers see no drop target and cannot drop content onto a shared board", async () => {
+  const room = "viewer-drop-target";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const [a, b] = shared.apps;
+  const drag = (app, type) => {
+    const data = transferData({ "text/plain": "Hello" });
+    const event = dispatchTransfer(app, type, data);
+    return { event, data };
+  };
+  try {
+    drag(a, "dragenter");
+    const editor = drag(a, "dragover");
+    assert.equal(editor.data.dropEffect, "copy");
+    assert.ok(
+      a.doc.querySelector(".canvas-wrap").classList.contains("drop-target"),
+    );
+    drag(a, "dragleave");
+    await shared.env.service.call(owner, {
+      op: "role",
+      room,
+      uuid: collaborator.uuid,
+      role: "viewer",
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => b.doc.querySelector(".editor").classList.contains("shared-viewer"),
+      "Bob becomes a viewer",
+    );
+    drag(b, "dragenter");
+    const viewer = drag(b, "dragover");
+    assert.equal(
+      b.doc.querySelector(".canvas-wrap").classList.contains("drop-target"),
+      false,
+    );
+    // Still handled, so the browser does not open a dropped file instead.
+    assert.equal(viewer.event.defaultPrevented, true);
+    assert.equal(viewer.data.dropEffect, "none");
+    // Let the role change's check-ins finish before closing.
+    await new Promise((r) => setTimeout(r, 500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("moving many drawings at once shows the move live to others", async () => {
+  const strokes = Array.from({ length: 8 }, (_, n) =>
+    item("pen", 100, 100 + n * 20, {
+      w: 300,
+      h: 10,
+      points: Array.from({ length: 256 }, (_, k) => [
+        k * 1.1719 + 0.123456789012345,
+        5 + Math.sin(k / 7) * 4.987654321,
+      ]),
+    }),
+  );
+  const shared = await sharedEditors("many-drawings-move", strokes);
+  const [a, b] = shared.apps;
+  const pointer = (app, type, p) => {
+    const v = renderedView(app);
+    canvasPointer(app, type, 1, v.x + p.x * v.z, v.y + p.y * v.z, {
+      pointerType: "mouse",
+    });
+  };
+  try {
+    await shared.until(() => {
+      pointer(b, "pointermove", { x: 50, y: 50 });
+      return !!a.doc.querySelector(".participant-cursor");
+    }, "Bob's cursor reaches Alice");
+    b.doc.querySelector("#canvas").dispatchEvent(
+      new b.w.KeyboardEvent("keydown", {
+        key: "a",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await b.tick();
+    await shared.until(
+      () => a.doc.querySelectorAll(".participant-selection").length === 8,
+      "Alice sees Bob's selection",
+    );
+    const left = () =>
+      parseFloat(a.doc.querySelector(".participant-selection").style.left);
+    const before = left();
+    const start = { x: 100 + strokes[0].points[0][0], y: 105 };
+    pointer(b, "pointerdown", start);
+    for (let dx = 20; dx <= 200; dx += 20)
+      pointer(b, "pointermove", { x: start.x + dx, y: start.y });
+    await shared.until(
+      () => left() > before + 100,
+      "Alice sees the drawings move while Bob drags",
+    );
+    pointer(b, "pointerup", { x: start.x + 200, y: start.y });
+    await shared.until(async () => {
+      const { doc } = await shared.env.service.load("many-drawings-move");
+      try {
+        return doc.snapshot().items.every((i) => i.x === 300);
+      } finally {
+        doc.destroy();
+      }
+    }, "The move is saved");
+    await new Promise((r) => setTimeout(r, 1500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("reopening a shared board while it connects leaves one live session", async () => {
+  const room = "reopen-while-connecting";
+  const shared = await sharedEditors(
+    room,
+    [item("note", 0, 0, { text: "a" })],
+    1,
+  );
+  const [app] = shared.apps;
+  const presences = () =>
+    [...shared.env.data.keys()].filter((k) =>
+      k.startsWith(`wb:${room}:presence:`),
+    );
+  try {
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 10; n++) await app.tick();
+    assert.equal(presences().length, 0);
+    const puter = app.w.puter,
+      getUser = puter.auth.getUser;
+    puter.auth.getUser = async () => {
+      await new Promise((r) => setTimeout(r, 300));
+      return getUser();
+    };
+    app.doc.querySelector("[data-open]").click();
+    await app.tick();
+    await app.click('[data-action="home"]');
+    app.doc.querySelector("[data-open]").click();
+    for (let n = 0; n < 80; n++) await app.tick();
+    puter.auth.getUser = getUser;
+    assert.equal(presences().length, 1, "one session checks in");
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 40; n++) await app.tick();
+    assert.equal(presences().length, 0, "and none remains after leaving");
+  } finally {
+    shared.close();
+  }
+});
+
+test("leaving a shared board right after an edit sends it, and warns on closing when it could not", async () => {
+  const room = "leave-right-after-edit";
+  const shared = await sharedEditors(
+    room,
+    [item("note", 0, 0, { text: "a" })],
+    1,
+  );
+  const [app] = shared.apps;
+  const saved = async () => {
+    const { doc } = await shared.env.service.load(room);
+    try {
+      return doc.snapshot().title;
+    } finally {
+      doc.destroy();
+    }
+  };
+  const closing = () => {
+    const e = new app.w.Event("beforeunload", { cancelable: true });
+    app.w.dispatchEvent(e);
+    return e.defaultPrevented;
+  };
+  const rename = (value) => {
+    const title = app.doc.querySelector("#board-title");
+    title.value = value;
+    title.dispatchEvent(new app.w.Event("change"));
+  };
+  try {
+    rename("Renamed just before leaving");
+    await app.click('[data-action="home"]');
+    await shared.until(
+      async () => (await saved()) === "Renamed just before leaving",
+      "Sent on leaving",
+    );
+    await shared.until(() => !closing(), "Nothing left to warn about");
+    // Offline, the edit waits on this device and closing the tab warns.
+    await shared.until(
+      () => app.doc.querySelector("[data-open]"),
+      "The library shows the board",
+    );
+    app.doc.querySelector("[data-open]").click();
+    await shared.until(
+      () => app.doc.querySelector("#board-title"),
+      "The board opens again",
+    );
+    await shared.until(
+      () =>
+        !app.doc.querySelector("#board-title").disabled &&
+        [...shared.env.data.keys()].some((k) =>
+          k.startsWith(`wb:${room}:presence:`),
+        ),
+      "Connected",
+    );
+    shared.env.offline = true;
+    rename("Renamed offline");
+    await app.click('[data-action="home"]');
+    await shared.until(
+      () => !app.doc.querySelector("#canvas"),
+      "Back in the library",
+    );
+    assert.equal(closing(), true);
+    shared.env.offline = false;
+    // Opening it again sends it.
+    await shared.until(
+      () => app.doc.querySelector("[data-open]"),
+      "The library shows the board again",
+    );
+    app.doc.querySelector("[data-open]").click();
+    await shared.until(
+      async () => (await saved()) === "Renamed offline",
+      "Sent after reopening",
+    );
+    await shared.until(() => !closing(), "No warning once sent");
+    await new Promise((r) => setTimeout(r, 500));
+  } finally {
+    shared.close();
+  }
+});
+
+test("planning actions wait for a facilitator's lock instead of reporting a refused change", async () => {
+  const env = environment();
+  env.service.now = () => Date.now();
+  const task = item("note", 0, 0, {
+    text: "Ship",
+    h: 190,
+    task: {
+      assignee: null,
+      start: "2026-09-20",
+      due: "2026-09-30",
+      status: "todo",
+    },
+  });
+  const initial = {
+    version: 1,
+    id: crypto.randomUUID(),
+    title: "Frozen",
+    items: [task],
+    workshop: { settings: { lock: "frozen" } },
+  };
+  const seed = new SharedDocument();
+  seed.commit(initial);
+  await env.service.call(owner, {
+    op: "create",
+    room: initial.id,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const { token } = await env.service.call(owner, {
+    op: "invite",
+    room: initial.id,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(collaborator));
+  try {
+    await joinLink(app, initial.id, token);
+    for (let n = 0; n < 8; n++) await app.tick();
+    await app.click("#task-access");
+    const sync = app.doc.querySelector("#tasks-sync");
+    assert.equal(sync.disabled, true);
+    sync.checked = true;
+    sync.dispatchEvent(new app.w.Event("change", { bubbles: true }));
+    await app.tick();
+    assert.equal(
+      app.doc.querySelector("#toast").textContent,
+      "The facilitator froze this board.",
+    );
+    await app.click("#tasks-tab-timeline");
+    const place = app.doc.querySelector("#timeline-place");
+    assert.equal(place.disabled, true);
+    place.click();
+    await app.tick();
+    assert.equal(
+      app.doc.querySelector("#toast").textContent,
+      "The facilitator froze this board.",
+    );
+    assert.ok(app.doc.querySelector("dialog[open]"), "the dialog stays open");
+    for (let n = 0; n < 8; n++) await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("a save that changes nothing shared leaves the status as it was", async () => {
+  const room = "save-without-change";
+  const shared = await sharedEditors(
+    room,
+    [item("note", 0, 0, { text: "a" })],
+    1,
+  );
+  const [app] = shared.apps;
+  const state = () => app.doc.querySelector("#save-state").textContent;
+  const rename = (value) => {
+    const title = app.doc.querySelector("#board-title");
+    title.value = value;
+    title.dispatchEvent(new app.w.Event("change"));
+  };
+  try {
+    await shared.until(() => /^Saved ·/.test(state()), "Saved");
+    // Joining has finished.
+    await new Promise((r) => setTimeout(r, 1000));
+    const saved = state();
+    // The same name with a stray space.
+    rename("Shared ");
+    for (let n = 0; n < 80 && state() !== saved; n++) await app.tick();
+    assert.equal(state(), saved, "back to saved, well before the next check");
+    // Offline, it stays offline rather than saved.
+    shared.env.offline = true;
+    app.w.dispatchEvent(new app.w.Event("online"));
+    await shared.until(() => /^Offline/.test(state()), "Offline");
+    rename("Shared  ");
+    await shared.until(() => /^Offline/.test(state()), "Still offline");
+    shared.env.offline = false;
+    await new Promise((r) => setTimeout(r, 300));
+  } finally {
+    shared.close();
+  }
+});
+
+test("live cursors leave the participants button untouched when nobody joins or leaves", async () => {
+  const shared = await sharedEditors("participants-button-quiet", [
+    item("note", 0, 0, { text: "a" }),
+  ]);
+  const [a, b] = shared.apps;
+  const pointer = (x, y) => {
+    const v = renderedView(b);
+    canvasPointer(b, "pointermove", 1, v.x + x * v.z, v.y + y * v.z, {
+      pointerType: "mouse",
+    });
+  };
+  try {
+    await shared.until(() => {
+      pointer(50, 50);
+      return !!a.doc.querySelector(".participant-cursor");
+    }, "Bob's cursor reaches Alice");
+    await shared.until(
+      () => a.doc.querySelector(".participants").textContent.startsWith("2 "),
+      "Two people",
+    );
+    const button = a.doc.querySelector(".participants");
+    let changes = 0;
+    new a.w.MutationObserver((list) => (changes += list.length)).observe(
+      button,
+      { attributes: true, childList: true, characterData: true, subtree: true },
+    );
+    for (let n = 0; n < 10; n++) {
+      pointer(60 + n * 10, 60);
+      await a.tick();
+    }
+    assert.equal(changes, 0);
+  } finally {
+    shared.close();
+  }
+});
+
+test("a board reopened while it is being shared stays read-only until the shared copy takes over", async () => {
+  const env = environment(),
+    puter = env.sdk(owner),
+    build = "faceb00cfaceb00c";
+  await puter.fs.write("whiteboard/catalog.json", "[]");
+  await puter.kv.set("whiteboard-collaboration-worker-v1", {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path: "whiteboard/whiteboard-worker.js",
+    build,
+    builtAt: 200,
+  });
+  const exec = puter.workers.exec;
+  let release, entered;
+  const held = new Promise((r) => (release = r));
+  const creating = new Promise((r) => (entered = r));
+  puter.workers.exec = async (url, options) => {
+    if (url.endsWith("/health")) return Response.json({ build });
+    if (options?.body && JSON.parse(options.body).op === "create") {
+      entered();
+      await held;
+    }
+    return exec(url, options);
+  };
+  const app = await setup(puter),
+    { doc, w, click, tick } = app;
+  w.fetch = async () =>
+    new Response(`/* whiteboard-worker build=${build} at=200 */`);
+  const texts = () =>
+    [...doc.querySelectorAll("#board-outline [data-id]")].map(
+      (e) => e.textContent,
+    );
+  try {
+    await click('[data-action="new"]');
+    dispatchTransfer(app, "paste", transferData({ "text/plain": "Before" }));
+    await tick();
+    const id = new URLSearchParams(new URL(w.location.href).hash.slice(1)).get(
+      "local",
+    );
+    await click('[data-action="share"]');
+    await creating;
+    // "You can close this and keep working."
+    doc.querySelector("dialog[open]")?.close();
+    await click('[data-action="home"]');
+    await click(`[data-open="${id}"]`);
+    for (let n = 0; n < 40 && !doc.querySelector("#canvas"); n++) await tick();
+    assert.equal(doc.querySelector("#board-title").disabled, true);
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Setting up sharing…",
+    );
+    dispatchTransfer(app, "paste", transferData({ "text/plain": "Lost" }));
+    await tick();
+    assert.equal(
+      texts().some((t) => t.includes("Lost")),
+      false,
+    );
+    release();
+    const deadline = Date.now() + 5000;
+    while (doc.querySelector("#board-title").disabled && Date.now() < deadline)
+      await tick();
+    assert.equal(doc.querySelector(".board-tag").textContent, "Shared board");
+    assert.equal(doc.querySelector("#board-title").disabled, false);
+    dispatchTransfer(app, "paste", transferData({ "text/plain": "After" }));
+    await tick();
+    assert.ok(texts().some((t) => t.includes("After")));
+    for (let n = 0; n < 20; n++) await tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("an invitation link opened in a running tab joins with its invitation, even for a board on this device", async () => {
+  const env = environment(),
+    room = "invite-in-running-tab";
+  const seed = new SharedDocument();
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Shared",
+    items: [item("note", 0, 0, { text: "Hi" })],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room,
+    role: "editor",
+  });
+  const app = await setup(env.sdk(owner));
+  try {
+    // The owner's account opened this board here earlier.
+    await joinLink(app, room, "");
+    for (let n = 0; n < 200 && app.doc.querySelector("#join-link"); n++)
+      await app.tick();
+    await app.click('[data-action="home"]');
+    for (let n = 0; n < 20; n++) await app.tick();
+    // Now another account, who received an invitation, opens its link.
+    app.w.puter = env.sdk(collaborator);
+    app.w.location.hash = `server=https%3A%2F%2Fwhiteboard-test.puter.work&board=${room}&invite=${invite.token}`;
+    for (let n = 0; n < 40 && !app.doc.querySelector("#join-link"); n++)
+      await app.tick();
+    const link = app.doc.querySelector("#join-link");
+    assert.ok(link, "the join dialog opens");
+    assert.match(link.value, new RegExp(`invite=${invite.token}`));
+    link
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    for (let n = 0; n < 200 && app.doc.querySelector("#join-link"); n++)
+      await app.tick();
+    assert.ok(
+      await env.service.kv.get(`wb:${room}:member:${collaborator.uuid}`),
+      "joined with the invitation",
+    );
+    assert.doesNotMatch(app.w.location.href, /invite=/);
+    for (let n = 0; n < 20; n++) await app.tick();
+  } finally {
+    app.close();
+  }
+});
+
+test("joining a board another tab already joined uses that tab's entry and keeps its unsent edits", async () => {
+  const env = environment(),
+    room = "two-tab-room";
+  const seed = new SharedDocument();
+  seed.commit({
+    version: 1,
+    id: room,
+    title: "Team board",
+    items: [item("note", 0, 0, { text: "Hi" })],
+  });
+  await env.service.call(owner, {
+    op: "create",
+    room,
+    update: encode(seed.update()),
+  });
+  seed.destroy();
+  const invite = await env.service.call(owner, {
+    op: "invite",
+    room,
+    role: "editor",
+  });
+  const indexedDB = new IDBFactory();
+  const tabA = await setup(env.sdk(collaborator), { indexedDB });
+  const tabB = await setup(env.sdk(collaborator), { indexedDB });
+  const updates = () =>
+    new Promise((resolve, reject) => {
+      const open = tabA.w.indexedDB.open("whiteboard-v1");
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const read = open.result
+          .transaction("collaboration")
+          .objectStore("collaboration")
+          .getAll();
+        read.onsuccess = () => {
+          open.result.close();
+          resolve(read.result.filter((r) => r.kind === "update").length);
+        };
+      };
+    });
+  try {
+    await joinLink(tabA, room, invite.token);
+    for (let n = 0; n < 200 && tabA.doc.querySelector("#join-link"); n++)
+      await tabA.tick();
+    for (let n = 0; n < 20; n++) await tabA.tick();
+    // Tab A edits while offline, so the edit waits on this device.
+    env.offline = true;
+    const title = tabA.doc.querySelector("#board-title");
+    title.value = "Renamed in tab A";
+    title.dispatchEvent(new tabA.w.Event("change"));
+    for (let n = 0; n < 20; n++) await tabA.tick();
+    assert.equal(await updates(), 1);
+    // Tab B, opened before tab A joined, fails to join the same board.
+    await joinLink(tabB, room, invite.token);
+    for (let n = 0; n < 200 && tabB.doc.querySelector("#join-link"); n++)
+      await tabB.tick();
+    for (let n = 0; n < 20; n++) await tabB.tick();
+    assert.equal(await updates(), 1, "tab A's edit is still kept");
+    env.offline = false;
+    await tabB.click('[data-action="home"]');
+    for (let n = 0; n < 20; n++) await tabB.tick();
+    const cards = [...tabB.doc.querySelectorAll("[data-open]")].filter(
+      (b) =>
+        b.getAttribute("aria-label").includes("Renamed in tab A") ||
+        b.getAttribute("aria-label").includes("Team board"),
+    );
+    assert.equal(cards.length, 1, "one library entry");
+  } finally {
+    env.offline = false;
+    tabA.close();
+    tabB.close();
+  }
+});
+
+test("an open text editor closes when a collaborator locks its object or a facilitator freezes the board", async () => {
+  const outline = (app) =>
+    [...app.doc.querySelectorAll("#board-outline button")].map(
+      (x) => x.textContent,
+    );
+  const type = async (app, input, text) => {
+    input.value += text;
+    input.setSelectionRange(input.value.length, input.value.length);
+    input.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+    await app.tick();
+  };
+  for (const how of ["lock", "freeze"]) {
+    const note = item("note", 100, 100, { text: "Original" });
+    const shared = await sharedEditors(`text-${how}`, [note]);
+    try {
+      const [a, b] = shared.apps;
+      await b.click(`#board-outline [data-id="${note.id}"]`);
+      await b.click('[data-action="edit"]');
+      const input = b.doc.querySelector("#canvas-text-editor");
+      await type(b, input, " one");
+      await shared.until(
+        () => outline(a).some((t) => t.includes("Original one")),
+        "typing reaches Alice",
+      );
+      if (how === "lock") {
+        await a.click(`#board-outline [data-id="${note.id}"]`);
+        await a.click('[data-action="lock"]');
+      } else {
+        await a.click('.canvas-navigation [data-action="facilitation"]');
+        await a.click("#fac-tab-session");
+        const frozen = a.doc.querySelector('[name="fac-lock"][value="frozen"]');
+        frozen.checked = true;
+        frozen.dispatchEvent(new a.w.Event("change", { bubbles: true }));
+      }
+      await shared.until(
+        () => !b.doc.querySelector("#canvas-text-editor"),
+        `${how}: Bob's editor closes`,
+      );
+      assert.match(
+        b.doc.querySelector("#toast").textContent,
+        how === "lock" ? /locked this object/ : /froze/,
+      );
+      assert.ok(outline(a).some((t) => t.includes("Original one")));
+      for (let n = 0; n < 20; n++) await b.tick();
+    } finally {
+      shared.close();
+    }
+  }
+});
+
+test("the link, file, and alternative text dialogs save only their own changes over a collaborator's", async () => {
+  const bytes = "data:application/octet-stream;base64,SGVsbG8=";
+  const picture = createCanvas(4, 4).toDataURL();
+  const link = item("link", 0, 0, {
+    w: 280,
+    h: 115,
+    text: "Docs",
+    url: "https://example.com/",
+  });
+  const file = item("file", 400, 0, {
+    w: 280,
+    h: 110,
+    text: "Notes",
+    fileName: "notes.txt",
+    data: `asset:${await hash(bytes)}`,
+  });
+  const image = item("image", 0, 300, {
+    w: 100,
+    h: 100,
+    src: `asset:${await hash(picture)}`,
+    alt: "Old description",
+  });
+  const room = "dialogs-own-changes";
+  const shared = await sharedEditors(room, [link, file, image], 2, [
+    bytes,
+    picture,
+  ]);
+  const saved = async (id) => {
+    const { doc } = await shared.env.service.load(room);
+    try {
+      return doc.snapshot().items.find((i) => i.id === id);
+    } finally {
+      doc.destroy();
+    }
+  };
+  const open = async (app, id) => {
+    await app.click(`#board-outline [data-id="${id}"]`);
+    await app.click('[data-action="edit"]');
+    return app.doc.querySelector("dialog[open]");
+  };
+  const openAlt = async (app, id) => {
+    await app.click(`#board-outline [data-id="${id}"]`);
+    await app.click('[data-action="commands"]');
+    const input = app.doc.querySelector("#command-search");
+    input.value = "alternative text";
+    input.dispatchEvent(new app.w.Event("input", { bubbles: true }));
+    await app.tick();
+    app.doc.querySelector('[data-command="alt-text"]').click();
+    for (let n = 0; n < 4; n++) await app.tick();
+    return [...app.doc.querySelectorAll("dialog[open]")].find((d) =>
+      d.querySelector("#alt-form"),
+    );
+  };
+  try {
+    const [a, b] = shared.apps;
+    // Alice changes only the URL while Bob renames the card.
+    const la = await open(a, link.id);
+    const lb = await open(b, link.id);
+    lb.querySelector("#link-label").value = "Docs, renamed";
+    lb.querySelector("form").requestSubmit();
+    await shared.until(
+      () =>
+        a.doc.querySelector("#board-outline").textContent.includes("renamed"),
+      "Bob's rename reaches Alice",
+    );
+    la.querySelector("#link-url").value = "https://example.org/";
+    la.querySelector("form").requestSubmit();
+    await shared.until(
+      async () => (await saved(link.id)).url === "https://example.org/",
+      "Alice's URL is saved",
+    );
+    assert.equal((await saved(link.id)).text, "Docs, renamed");
+    // Saved unchanged, the file dialog leaves Bob's new label.
+    const fa = await open(a, file.id);
+    const fb = await open(b, file.id);
+    fb.querySelector("#file-label").value = "Notes, renamed";
+    fb.querySelector("form").requestSubmit();
+    await shared.until(
+      async () => (await saved(file.id)).text === "Notes, renamed",
+      "Bob's label is saved",
+    );
+    await shared.until(
+      () =>
+        a.doc
+          .querySelector("#board-outline")
+          .textContent.includes("Notes, renamed"),
+      "and reaches Alice",
+    );
+    fa.querySelector("form").requestSubmit();
+    // The same for alternative text; changing it over Bob's is refused.
+    const aa = await openAlt(a, image.id);
+    const ab = await openAlt(b, image.id);
+    ab.querySelector("#alt-text").value = "Bob's description";
+    ab.querySelector("#alt-form").requestSubmit();
+    await shared.until(
+      async () => (await saved(image.id)).alt === "Bob's description",
+      "Bob's alternative text is saved",
+    );
+    for (let n = 0; n < 40; n++) await a.tick();
+    aa.querySelector("#alt-text").value = "Alice's description";
+    aa.querySelector("#alt-form").requestSubmit();
+    assert.match(a.doc.querySelector("#toast").textContent, /changed/);
+    for (let n = 0; n < 40; n++) await a.tick();
+    assert.equal((await saved(file.id)).text, "Notes, renamed");
+    assert.equal((await saved(image.id)).alt, "Bob's description");
+  } finally {
+    shared.close();
+  }
+});
+
+test("adding content to a board the facilitator froze reports that nothing was added", async () => {
+  const room = "frozen-additions";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const [, b] = shared.apps;
+  const toasts = [];
+  new b.w.MutationObserver(() =>
+    toasts.push(b.doc.querySelector("#toast").textContent),
+  ).observe(b.doc.querySelector("#toast"), {
+    childList: true,
+    characterData: true,
+    subtree: true,
+  });
+  const outline = () =>
+    [...b.doc.querySelectorAll("#board-outline button")].map(
+      (x) => x.textContent,
+    );
+  try {
+    await commitAs(shared.env.service, owner, room, (s) => {
+      s.workshop = { settings: { lock: "frozen" } };
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => /froze/i.test(b.doc.querySelector("#workshop-banner")?.textContent),
+      "The freeze reaches Bob",
+    );
+    // A pasted image is not added, and nothing says it was.
+    const png = createCanvas(8, 4).toBuffer("image/png");
+    b.doc.querySelector("#canvas").focus();
+    dispatchTransfer(
+      b,
+      "paste",
+      transferData({}, [new b.w.File([png], "one.png", { type: "image/png" })]),
+    );
+    for (let n = 0; n < 20; n++) await b.tick();
+    assert.deepEqual(outline(), ["Sticky note: A"]);
+    assert.ok(!toasts.includes("Files added."));
+    // Sticky notes in bulk keep their dialog, and what was typed.
+    await b.click('[data-action="more-tools"]');
+    await b.click('[data-feature="bulk-notes"]');
+    const field = b.doc.querySelector("#bulk-ideas");
+    field.value = "Idea one\nIdea two";
+    field.dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    await b.click('.bulk-form [type="submit"]');
+    assert.equal(
+      b.doc.querySelector("#bulk-ideas")?.value,
+      "Idea one\nIdea two",
+    );
+    assert.deepEqual(outline(), ["Sticky note: A"]);
+  } finally {
+    shared.close();
+  }
+});
+
+test("the resize corner does nothing on a board the facilitator froze", async () => {
+  const room = "frozen-resize";
+  const rect = item("rect", 0, 0, { w: 200, h: 100, text: "A" });
+  const shared = await sharedEditors(room, [rect]);
+  const [, b] = shared.apps;
+  try {
+    await commitAs(shared.env.service, owner, room, (s) => {
+      s.workshop = { settings: { lock: "frozen" } };
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => /froze/i.test(b.doc.querySelector("#workshop-banner")?.textContent),
+      "The freeze reaches Bob",
+    );
+    await b.click(`#board-outline [data-id="${rect.id}"]`);
+    const v = renderedView(b);
+    const corner = [v.x + 200 * v.z, v.y + 100 * v.z];
+    const pointer = (type, x, y) =>
+      b.doc.querySelector("#canvas").dispatchEvent(
+        new b.w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: x,
+          clientY: y,
+        }),
+      );
+    pointer("pointerdown", ...corner);
+    pointer("pointermove", corner[0] + 150, corner[1] + 80);
+    assert.equal(
+      b.doc.querySelector('[data-action="undo"]').disabled,
+      true,
+      "no change is made, not even for a moment",
+    );
+    const [during] = selectedClipboard(b);
+    assert.equal(during.w, 200);
+    pointer("pointerup", corner[0] + 150, corner[1] + 80);
+    assert.equal(selectedClipboard(b)[0].w, 200);
+    for (let n = 0; n < 10; n++) await b.tick();
+  } finally {
+    shared.close();
+  }
+});
+
+test("locking on a board the facilitator froze gives the reason, not a success", async () => {
+  const room = "frozen-locking";
+  const note = item("note", 0, 0, { text: "A" });
+  const shared = await sharedEditors(room, [note]);
+  const [, b] = shared.apps;
+  try {
+    await commitAs(shared.env.service, owner, room, (s) => {
+      s.workshop = { settings: { lock: "frozen" } };
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => /froze/i.test(b.doc.querySelector("#workshop-banner")?.textContent),
+      "The freeze reaches Bob",
+    );
+    await b.click(`#board-outline [data-id="${note.id}"]`);
+    await b.click('[data-action="lock"]');
+    assert.equal(
+      b.doc.querySelector("#toast").textContent,
+      "The facilitator froze this board.",
+    );
+    assert.doesNotMatch(
+      b.doc.querySelector("#board-outline").textContent,
+      /Locked/,
+    );
+  } finally {
+    shared.close();
+  }
+});
+
+test("moving into a frame a collaborator deleted, or with a note they locked, says why and keeps the dialog", async () => {
+  for (const change of ["delete-frame", "lock-note"]) {
+    const frame = item("frame", 600, 0, { w: 300, h: 200, text: "Target" });
+    const note = item("note", 0, 0, { text: "Mover" });
+    const shared = await sharedEditors(`assign-${change}`, [frame, note]);
+    try {
+      const [a, b] = shared.apps;
+      const errors = [];
+      b.w.addEventListener("error", (e) => errors.push(e.message));
+      await b.click(`#board-outline [data-id="${note.id}"]`);
+      await b.click('[data-action="more-tools"]');
+      await b.click('[data-feature="organize"]');
+      const d = b.doc.querySelector("dialog[open]");
+      d.querySelector(`#parent-frame input[value="${frame.id}"]`).click();
+      if (change === "delete-frame") {
+        await a.click(`#board-outline [data-id="${frame.id}"]`);
+        await a.click('[data-action="delete"]');
+        await shared.until(
+          () => !b.doc.querySelector(`#board-outline [data-id="${frame.id}"]`),
+          "The deletion reaches Bob",
+        );
+      } else {
+        await a.click(`#board-outline [data-id="${note.id}"]`);
+        await a.click('[data-action="lock"]');
+        await shared.until(
+          () =>
+            /Locked/.test(
+              b.doc.querySelector(`#board-outline [data-id="${note.id}"]`)
+                ?.textContent,
+            ),
+          "The lock reaches Bob",
+        );
+      }
+      b.doc.querySelector("#assign-frame").click();
+      await b.tick();
+      assert.deepEqual(errors, [], change);
+      assert.equal(d.open, true);
+      assert.match(
+        b.doc.querySelector("#toast").textContent,
+        change === "delete-frame" ? /valid frame/ : /Unlock/,
+      );
+    } finally {
+      shared.close();
+    }
+  }
+});
+
+test("creating a mind map on a board the facilitator froze gives the reason", async () => {
+  const room = "frozen-mind-map";
+  const shared = await sharedEditors(room, [item("note", 0, 0, { text: "A" })]);
+  const [, b] = shared.apps;
+  try {
+    await commitAs(shared.env.service, owner, room, (s) => {
+      s.workshop = { settings: { lock: "frozen" } };
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => /froze/i.test(b.doc.querySelector("#workshop-banner")?.textContent),
+      "The freeze reaches Bob",
+    );
+    await b.click('[data-action="more-tools"]');
+    await b.click('[data-feature="mind-map"]');
+    for (let n = 0; n < 6; n++) await b.tick();
+    assert.equal(
+      b.doc.querySelector("#toast").textContent,
+      "The facilitator froze this board.",
+    );
+    assert.equal(b.doc.querySelector("#canvas-text-editor"), null);
+  } finally {
+    shared.close();
+  }
+});
+
+test("quick connect from one's own note on a locked board gives the lock's reason", async () => {
+  const room = "quick-connect-locked";
+  const shared = await sharedEditors(room, []);
+  const [, b] = shared.apps;
+  try {
+    await commitAs(shared.env.service, owner, room, (s) => {
+      s.workshop = { settings: { lock: "contribute" } };
+    });
+    b.w.dispatchEvent(new b.w.Event("online"));
+    await shared.until(
+      () => /lock/i.test(b.doc.querySelector("#workshop-banner")?.textContent),
+      "The lock reaches Bob",
+    );
+    await b.click('[data-action="add-note"]');
+    const input = b.doc.querySelector("#canvas-text-editor");
+    input.value = "Mine";
+    input.dispatchEvent(new b.w.Event("input", { bubbles: true }));
+    await b.click('[data-action="finish-text"]');
+    for (let n = 0; n < 20; n++) await b.tick();
+    const id = b.doc.querySelector("#board-outline button").dataset.id;
+    await b.click(`#board-outline [data-id="${id}"]`);
+    for (let n = 0; n < 4; n++) await b.tick();
+    b.doc.querySelector('#quick-ports [data-quick-direction="right"]').click();
+    for (let n = 0; n < 10; n++) await b.tick();
+    assert.equal(
+      b.doc.querySelector("#toast").textContent,
+      "While the board is locked, you can only add sticky notes.",
+    );
+    assert.equal(b.doc.querySelector("#canvas-text-editor"), null);
+  } finally {
+    shared.close();
+  }
+});
+
+test("closing Puter's sign-in window while joining says to sign in", async () => {
+  const env = environment(),
+    puter = env.sdk(owner);
+  puter.auth.isSignedIn = () => false;
+  puter.auth.signIn = async () => {
+    // As Puter reports a closed sign-in window: not an Error.
+    throw {
+      error: "auth_window_closed",
+      msg: "Authentication window was closed by the user without completing the process.",
+    };
+  };
+  const app = await setup(puter);
+  try {
+    await app.click('[data-action="join-shared"]');
+    app.doc.querySelector("#join-link").value =
+      "https://whiteboard.test/#server=https%3A%2F%2Fwhiteboard-test.puter.work&board=room1&invite=tok";
+    app.doc
+      .querySelector("#join-link")
+      .closest("form")
+      .dispatchEvent(new app.w.Event("submit", { cancelable: true }));
+    for (let n = 0; n < 20; n++) await app.tick();
+    assert.equal(
+      app.doc.querySelector("#join-error").textContent,
+      "Sign in with Puter to continue.",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("pressing Share on another board while one is being shared says to wait", async () => {
+  const env = environment(),
+    puter = env.sdk(owner),
+    build = "faceb00cfaceb00c";
+  await puter.fs.write("whiteboard/catalog.json", "[]");
+  await puter.kv.set("whiteboard-collaboration-worker-v1", {
+    name: "whiteboard-test",
+    server: "https://whiteboard-test.puter.work",
+    path: "whiteboard/whiteboard-worker.js",
+    build,
+    builtAt: 200,
+  });
+  const exec = puter.workers.exec;
+  let release, entered;
+  const held = new Promise((r) => (release = r));
+  const creating = new Promise((r) => (entered = r));
+  puter.workers.exec = async (url, options) => {
+    if (url.endsWith("/health")) return Response.json({ build });
+    if (options?.body && JSON.parse(options.body).op === "create") {
+      entered();
+      await held;
+    }
+    return exec(url, options);
+  };
+  const app = await setup(puter),
+    { doc, w, click, tick } = app;
+  w.fetch = async () =>
+    new Response(`/* whiteboard-worker build=${build} at=200 */`);
+  try {
+    await click('[data-action="new"]');
+    await click('[data-action="share"]');
+    await creating;
+    doc.querySelector("dialog[open]")?.close();
+    await click('[data-action="home"]');
+    await click('[data-action="new"]');
+    await click('[data-action="share"]');
+    assert.equal(
+      doc.querySelector("#toast").textContent,
+      "Another board is still being shared. Try again in a moment.",
+    );
+    release();
+    for (let n = 0; n < 20; n++) await tick();
+  } finally {
+    release();
+    app.close();
+  }
+});
+
+test("localized template instructions retain their language after changing the interface and reopening", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    for (const [source, tag, ui] of [
+      ["fr", "fr-CA", "en"],
+      ["en", "en", "fr"],
+    ]) {
+      doc.querySelector("#language").value = source;
+      doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+      await app.tick();
+      await click('[data-template="kanban"]');
+      const deadline = Date.now() + 5000;
+      while (!doc.querySelector("#canvas") && Date.now() < deadline)
+        await app.tick();
+      assert.ok(doc.querySelector("#canvas"));
+      const instruction = allClipboard(app).find(
+        (i) => i.type === "text" && i.text.length > 100,
+      );
+      assert.ok(instruction);
+      assert.equal(instruction.lang, tag);
+      doc.querySelector("#language").value = ui;
+      doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+      await app.tick();
+      const check = () => {
+        assert.equal(doc.documentElement.lang, ui);
+        const content = doc.querySelector(
+          `#board-outline [data-id="${instruction.id}"] [data-user-content]`,
+        );
+        assert.equal(content.lang, tag);
+        assert.equal(content.textContent, instruction.text);
+      };
+      check();
+      await click(`#board-outline [data-id="${instruction.id}"]`);
+      await click('[data-action="properties"]');
+      assert.equal(
+        doc.querySelector(`#object-text [lang="${tag}"]`).textContent,
+        instruction.text,
+      );
+      doc.querySelector("dialog").close();
+      await click('[data-action="home"]');
+      await click("[data-open]");
+      check();
+      assert.equal(
+        allClipboard(app).find((i) => i.id === instruction.id).lang,
+        tag,
+      );
+      await click('[data-action="home"]');
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("plain editor saves retain remote language metadata when their formatting snapshot is stale", async () => {
+  const bytes = "data:application/octet-stream;base64,SGVsbG8=";
+  const content = {
+    text: "Hello. Bonjour à tous.",
+    lang: "en-CA",
+    textRuns: [{ start: 7, end: 22, style: { lang: "fr", bold: true } }],
+  };
+  const objects = [
+    item("note", 0, 0, { ...content }),
+    item("link", 400, 0, { ...content, url: "https://example.com/" }),
+    item("file", 800, 0, {
+      ...content,
+      fileName: "notes.txt",
+      data: `asset:${await hash(bytes)}`,
+    }),
+    item("embed", 1200, 0, {
+      ...content,
+      url: "https://docs.google.com/document/d/1AbCdEfGhIjKlMnOpQrStUvWxYz0123456789abcdE/edit",
+      provider: "google-docs",
+    }),
+  ];
+  const room = "plain-editor-remote-language";
+  const shared = await sharedEditors(room, objects, 1, [bytes]);
+  const [app] = shared.apps;
+  const { doc, w } = app;
+  const saved = async (id) => {
+    const { doc: state } = await shared.env.service.load(room);
+    try {
+      return state.snapshot().items.find((i) => i.id === id);
+    } finally {
+      state.destroy();
+    }
+  };
+  try {
+    for (const object of objects) {
+      const properties = ["note", "embed"].includes(object.type);
+      await app.click(`#board-outline [data-id="${object.id}"]`);
+      await app.click(`[data-action="${properties ? "properties" : "edit"}"]`);
+      const dialog = doc.querySelector("dialog[open]");
+      const field = dialog.querySelector(
+        `#${object.type === "note" ? "object-text" : object.type === "embed" ? "embed-title" : `${object.type}-label`}`,
+      );
+      field.setSelectionRange(0, 0);
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({ "text/plain": "NEW " }),
+        field,
+      );
+      field.setSelectionRange(field.value.length, field.value.length);
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({ "text/plain": " END" }),
+        field,
+      );
+      const wholeLanguage = object.type === "link";
+      await commitAs(shared.env.service, owner, room, (b) => {
+        const target = b.items.find((i) => i.id === object.id);
+        if (wholeLanguage) target.lang = "en-GB";
+        else target.textRuns[0].style.lang = "fr-CA";
+      });
+      w.dispatchEvent(new w.Event("online"));
+      await shared.until(
+        () =>
+          doc.querySelector(
+            `#board-outline [data-id="${object.id}"] [lang="${wholeLanguage ? "en-GB" : "fr-CA"}"]`,
+          ),
+        "Remote language metadata reaches the open editor's board",
+      );
+      dialog.querySelector("form").requestSubmit();
+      await app.tick();
+      assert.equal(dialog.open, true, object.type);
+      assert.match(doc.querySelector("#toast").textContent, /changed/);
+      const current = await saved(object.id);
+      assert.equal(current.text, object.text);
+      assert.equal(current.lang, wholeLanguage ? "en-GB" : "en-CA");
+      assert.equal(
+        current.textRuns[0].style.lang,
+        wholeLanguage ? "fr" : "fr-CA",
+      );
+      dialog.close();
+      await app.click(`[data-action="${properties ? "properties" : "edit"}"]`);
+      const reopened = doc.querySelector("dialog[open]");
+      assert.ok(
+        reopened.querySelector(`[lang="${wholeLanguage ? "en-GB" : "fr-CA"}"]`),
+      );
+      reopened.querySelector("form").requestSubmit();
+      await app.tick();
+      assert.equal(reopened.open, false);
+      assert.deepEqual(await saved(object.id), current);
+    }
+  } finally {
+    shared.close();
+  }
+});
+
+test("embed title editing retains language ranges through separate edits, trimming, limits and undo", async () => {
+  const app = await setup();
+  const { doc, w, click } = app;
+  try {
+    const content = {
+      url: "https://docs.google.com/document/d/1AbCdEfGhIjKlMnOpQrStUvWxYz0123456789abcdE/edit",
+      provider: "google-docs",
+    };
+    await rotationFixture(app, [
+      item("embed", 0, 0, {
+        ...content,
+        text: 'Hello. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 7, end: 22, style: { lang: "fr", bold: true } }],
+      }),
+      item("embed", 500, 0, {
+        ...content,
+        text: "Bonjour à tous.",
+        lang: "fr-CA",
+      }),
+    ]);
+    const objects = selectedClipboard(app),
+      original = objects.find((i) => i.lang === "en-CA"),
+      whole = objects.find((i) => i.lang === "fr-CA");
+    await click(`#board-outline [data-id="${whole.id}"]`);
+    await click('[data-action="properties"]');
+    assert.equal(
+      doc.querySelector('#embed-title [lang="fr-CA"]').textContent,
+      whole.text,
+    );
+    doc.querySelector("dialog").close();
+    await click(`#board-outline [data-id="${original.id}"]`);
+    await click('[data-action="properties"]');
+    const field = doc.querySelector("#embed-title");
+    assert.equal(field.getAttribute("aria-multiline"), "false");
+    assert.equal(
+      doc.getElementById(field.getAttribute("aria-labelledby")).textContent,
+      "Title",
+    );
+    assert.equal(
+      doc.getElementById(field.getAttribute("aria-describedby")).textContent,
+      "Optional",
+    );
+    const paste = (text) =>
+      dispatchTransfer(
+        app,
+        "paste",
+        transferData({
+          "text/plain": text,
+          "text/html": `<b lang="de">${text}</b>`,
+        }),
+        field,
+      );
+    field.setSelectionRange(0, 0);
+    paste("  NEW ");
+    field.setSelectionRange(field.value.length, field.value.length);
+    paste("x".repeat(600));
+    assert.equal(field.value.length, 500);
+    assert.equal(
+      field.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(field.querySelector('[lang="de"],img,b,strong,a'), null);
+    w.eval(axe.source);
+    const scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click("#embed-submit");
+    const saved = selectedClipboard(app)[0];
+    assert.equal(saved.text.length, 498);
+    assert.ok(saved.text.startsWith("NEW " + original.text));
+    assert.deepEqual(saved.textRuns, [
+      { start: 11, end: 26, style: { lang: "fr", bold: true } },
+    ]);
+    assert.equal(saved.lang, "en-CA");
+    await click('[data-action="undo"]');
+    assert.deepEqual(
+      allClipboard(app).find((i) => i.id === original.id),
+      original,
+    );
+    await click('[data-action="redo"]');
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`#board-outline [data-id="${original.id}"]`);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-action="properties"]');
+    const reopened = doc.querySelector("#embed-title");
+    assert.equal(
+      reopened.querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(
+      doc.getElementById(reopened.getAttribute("aria-labelledby")).textContent,
+      "Titre",
+    );
+    assert.equal(
+      doc.querySelector("#embed-submit").textContent,
+      "Enregistrer les modifications",
+    );
+    doc.querySelector("dialog").close();
+  } finally {
+    app.close();
+  }
+});
+
+test("facilitation uses tagged frame titles in the built application and keeps named agenda actions", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [
+      item("frame", 0, 0, { text: "Bonjour à tous.", lang: "fr-CA", order: 0 }),
+      item("frame", 600, 0, {
+        text: 'Hello. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 7, end: 22, style: { lang: "fr" } }],
+        order: 1,
+      }),
+    ]);
+    await click('[data-action="facilitation"]');
+    const labels = doc.querySelectorAll("#fac-stage-frames label");
+    assert.equal(labels[0].querySelector("[lang]").lang, "fr-CA");
+    assert.equal(
+      labels[1].querySelector('[lang="fr"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(labels[1].querySelector("img"), null);
+    await click("#fac-tab-agenda");
+    const actions = [...doc.querySelectorAll('[data-fac="agenda-go"]')];
+    assert.equal(actions.length, 2);
+    const name = (action) =>
+      action
+        .getAttribute("aria-labelledby")
+        .split(/\s+/)
+        .map((id) => doc.getElementById(id).textContent)
+        .join(" ");
+    assert.equal(name(actions[0]), "Go to step: Bonjour à tous.");
+    assert.equal(
+      name(actions[1]),
+      'Go to step: Hello. Bonjour à tous. <img src="bad">',
+    );
+    const scan = await axe.run(doc.querySelector("#facilitation-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    await click('[data-fac="agenda-start"]');
+    assert.equal(
+      doc.querySelector('[data-fac-open="agenda"] [lang]').lang,
+      "fr-CA",
+    );
+    await click('[data-fac="agenda-next"]');
+    for (const selector of [
+      ".fac-remaining",
+      '[data-fac-open="agenda"]',
+      "#facilitation-live",
+    ]) {
+      assert.equal(
+        doc.querySelector(`${selector} [lang="fr"]`).textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(doc.querySelector(`${selector} img`), null);
+    }
+    await click('[data-fac="agenda-go"][data-step="0"]');
+    assert.equal(
+      doc.querySelector('[data-fac-open="agenda"] [lang]').lang,
+      "fr-CA",
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-agenda");
+    assert.match(
+      doc.querySelector(".fac-remaining").textContent,
+      /^Étape 1 sur 2\s*:/,
+    );
+    assert.equal(doc.querySelector(".fac-remaining [lang]").lang, "fr-CA");
+    await click("#facilitation-close");
+    const deadline = Date.now() + 3000;
+    while (
+      doc.querySelector("#save-state").textContent !==
+        "Enregistré sur cet appareil" &&
+      Date.now() < deadline
+    )
+      await tick();
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Enregistré sur cet appareil",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("CSV table choices preserve authored header languages and export the selected table", async () => {
+  const app = await setup();
+  const { doc, w, click, tick, downloads } = app;
+  const tables = [
+    item("table", 0, 0, {
+      cells: [
+        ["Bonjour à tous.", '<img src="bad">'],
+        ["Première ligne", "Un"],
+      ],
+      lang: "fr-CA",
+      w: 500,
+      h: 160,
+    }),
+    item("table", 600, 0, {
+      cells: [
+        ["Guten Morgen zusammen.", "Zweite Spalte"],
+        ["Zweite Zeile", "Zwei"],
+      ],
+      lang: "de-DE",
+      w: 500,
+      h: 160,
+    }),
+  ];
+  const showCSV = async () => {
+    await click('[data-action="export"]');
+    const format = doc.querySelector("#export-format");
+    format.value = "csv";
+    format.dispatchEvent(new w.Event("change", { bubbles: true }));
+    assert.equal(doc.querySelector("#sheet-choice").hidden, false);
+  };
+  try {
+    const { selected } = await rotationFixture(app, tables);
+    await showCSV();
+    const check = (prefix) => {
+      const group = doc.querySelector("#export-sheet");
+      const french = [...group.querySelectorAll("option, label")].find((el) =>
+        el.textContent.includes("Bonjour à tous."),
+      );
+      assert.ok(french);
+      const content = [...french.querySelectorAll("[lang]")].find((el) =>
+        el.textContent.includes("Bonjour à tous."),
+      );
+      assert.ok(
+        content,
+        "the French header has its own language, separate from the interface prefix",
+      );
+      assert.equal(content.getAttribute("lang"), "fr-CA");
+      assert.ok(french.textContent.startsWith(`${prefix} 1: `));
+      assert.equal(french.hasAttribute("lang"), false);
+      assert.equal(group.querySelector("img"), null);
+      assert.ok(french.textContent.includes('<img src="bad">'));
+      const german = [...group.querySelectorAll("label")].find((el) =>
+        el.textContent.includes("Guten Morgen zusammen."),
+      );
+      assert.equal(
+        german.querySelector("[lang]").getAttribute("lang"),
+        "de-DE",
+      );
+    };
+    check("Table");
+    const group = doc.querySelector("#export-sheet");
+    assert.equal(group.querySelector("input:checked").value, "objects");
+    group.querySelector(`input[value="table:${selected[1].id}"]`).click();
+    const scan = await axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    await click("dialog button.primary");
+    const deadline = Date.now() + 3000;
+    while (!downloads.length && Date.now() < deadline) await tick();
+    assert.equal(downloads.length, 1);
+    const csv = await new Promise((resolve) => {
+      const reader = new w.FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsText(downloads[0]);
+    });
+    assert.match(csv, /Guten Morgen zusammen.,Zweite Spalte/);
+    assert.doesNotMatch(csv, /Bonjour/);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await showCSV();
+    check("Tableau de données");
+    assert.equal(
+      doc.querySelector("#sheet-choice legend").textContent,
+      "Contenu de la feuille de calcul",
+    );
+    doc.querySelector("dialog").close();
+  } finally {
+    app.close();
+  }
+});
+
+test("facilitation preserves authored object languages in voting, results, summary and canvas actions", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  const name = (node) =>
+    node
+      .getAttribute("aria-labelledby")
+      .split(/\s+/)
+      .map((id) => doc.getElementById(id).textContent)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const texts = ["Bonjour à tous.", 'Hello. Bonjour encore. <img src="bad">'];
+  try {
+    await rotationFixture(app, [
+      item("note", 0, 0, { text: texts[0], lang: "fr-CA" }),
+      item("note", 250, 0, {
+        text: texts[1],
+        lang: "en",
+        textRuns: [{ start: 7, end: 22, style: { lang: "fr" } }],
+      }),
+    ]);
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    doc
+      .querySelector("#fac-vote-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    const labels = [...doc.querySelectorAll(".fac-vote-list li")];
+    assert.equal(labels.length, 2);
+    assert.equal(
+      labels[0].querySelector('[lang="fr-CA"]').textContent,
+      texts[0],
+    );
+    assert.equal(
+      labels[1].querySelector('[lang="fr"]').textContent,
+      "Bonjour encore.",
+    );
+    assert.equal(labels[1].querySelector("img"), null);
+    const first = labels[0].querySelector('[data-fac="vote-add"]');
+    assert.equal(name(first), `Vote for ${texts[0]}`);
+    first.focus();
+    await click('.fac-vote-list [data-fac="vote-add"]');
+    assert.equal(doc.activeElement.dataset.fac, "vote-remove");
+    const id = doc.activeElement.dataset.id;
+    const group = [...doc.querySelectorAll(".fac-item")].find(
+      (n) => n.dataset.facItem === id,
+    );
+    assert.equal(name(group), texts[0]);
+    assert.equal(
+      name(group.querySelector('[data-fac-vote="add"]')),
+      `Vote for ${texts[0]} · 2 votes left`,
+    );
+    assert.equal(
+      name(group.querySelector('[data-fac-vote="remove"]')),
+      `Remove your vote from ${texts[0]} · Your votes here: 1`,
+    );
+    assert.equal(
+      doc.querySelector('.fac-result-label [lang="fr-CA"]').textContent,
+      texts[0],
+    );
+    await click("#fac-tab-summary");
+    assert.equal(
+      doc.querySelector('.fac-rank [lang="fr-CA"]').textContent,
+      texts[0],
+    );
+    const scan = await axe.run(doc.querySelector(".canvas-wrap"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    assert.equal(
+      name(doc.querySelector('.fac-vote-list [data-fac="vote-add"]')),
+      `Voter pour ${texts[0]}`,
+    );
+    assert.equal(
+      doc.querySelector('.fac-vote-list [lang="fr-CA"]').textContent,
+      texts[0],
+    );
+    await click("#facilitation-close");
+    assert.equal(allClipboard(app).find((i) => i.id === id).lang, "fr-CA");
+  } finally {
+    app.close();
+  }
+});
+
+test("quick-connect descriptions retain authored destination languages, dismiss without moving focus and still connect", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [
+      item("rect", 0, 0, { w: 100, h: 100, text: "Start" }),
+      item("ellipse", 200, 0, {
+        w: 100,
+        h: 100,
+        text: 'Hello. Bonjour à tous. <img src="bad">',
+        lang: "en-CA",
+        textRuns: [{ start: 7, end: 22, style: { lang: "fr-CA" } }],
+      }),
+    ]);
+    const original = allClipboard(app),
+      source = original.find((i) => i.type === "rect"),
+      target = original.find((i) => i.type === "ellipse");
+    await click(`#board-outline [data-id="${source.id}"]`);
+    const port = doc.querySelector('[data-quick-direction="right"]');
+    port.focus();
+    const tip = port.querySelector('[role="tooltip"]');
+    assert.equal(tip.hidden, false);
+    assert.equal(
+      tip.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(tip.querySelector("[data-user-content]").lang, "en-CA");
+    assert.equal(tip.querySelector("img"), null);
+    assert.equal(port.title, "");
+    assert.ok(port.getAttribute("aria-describedby").includes(tip.id));
+    assert.ok(
+      port.getAttribute("aria-describedby").includes("quick-connect-hint"),
+    );
+    const scan = await axe.run(doc.querySelector("#quick-ports"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    port.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.equal(doc.activeElement, port);
+    assert.equal(tip.hidden, true);
+    tip.dispatchEvent(new w.MouseEvent("click", { bubbles: true }));
+    assert.deepEqual(allClipboard(app), original);
+    await click(`#board-outline [data-id="${source.id}"]`);
+    port.focus();
+    port.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await click('[data-quick-direction="right"]');
+    const connected = allClipboard(app),
+      line = connected.find((i) => i.type === "arrow");
+    assert.equal(connected.length, 3);
+    assert.equal(line.startId, source.id);
+    assert.equal(line.endId, target.id);
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app), original);
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click(`#board-outline [data-id="${source.id}"]`);
+    const frenchPort = doc.querySelector('[data-quick-direction="right"]');
+    frenchPort.focus();
+    assert.match(
+      frenchPort.querySelector('[role="tooltip"]').textContent,
+      /^Connecter à /,
+    );
+    assert.equal(
+      frenchPort.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(
+      frenchPort.getAttribute("aria-label"),
+      "Connexion rapide à droite",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("saved vote history preserves whole-label and passage languages after deletion, interface changes and reopening", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [
+      item("note", 0, 0, { text: "Bonjour à tous.", lang: "fr-CA" }),
+      item("note", 250, 0, {
+        text: 'Hello. Bonjour encore. <img src="bad">',
+        lang: "en",
+        textRuns: [{ start: 7, end: 22, style: { lang: "fr-CA" } }],
+      }),
+    ]);
+    const original = allClipboard(app),
+      first = original.find((i) => i.text === "Bonjour à tous.");
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    doc
+      .querySelector("#fac-vote-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    await click('.fac-vote-list [data-fac="vote-add"]');
+    await click('[data-fac="vote-end"]');
+    await click("#fac-tab-history");
+    const check = () => {
+      const labels = [...doc.querySelectorAll(".fac-result-label")];
+      assert.equal(
+        labels
+          .find((n) => n.textContent === "Bonjour à tous.")
+          .querySelector("[data-user-content]").lang,
+        "fr-CA",
+      );
+      const mixed = labels.find((n) => n.textContent.startsWith("Hello."));
+      assert.equal(mixed.querySelector("[data-user-content]").lang, "en");
+      assert.equal(
+        mixed.querySelector('[lang="fr-CA"]').textContent,
+        "Bonjour encore.",
+      );
+      assert.equal(mixed.querySelector("img"), null);
+    };
+    check();
+    await click("#facilitation-close");
+    await click(`#board-outline [data-id="${first.id}"]`);
+    await click('[data-action="delete"]');
+    assert.equal(
+      doc.querySelector(`#board-outline [data-id="${first.id}"]`),
+      null,
+    );
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-history");
+    check();
+    const scan = await axe.run(doc.querySelector("#facilitation-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-history");
+    check();
+    await click("#facilitation-close");
+    const deadline = Date.now() + 3000;
+    while (
+      doc.querySelector("#save-state").textContent !==
+        "Enregistré sur cet appareil" &&
+      Date.now() < deadline
+    )
+      await tick();
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Enregistré sur cet appareil",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-history");
+    check();
+  } finally {
+    app.close();
+  }
+});
+
+test("mind-map drop status preserves destination languages and clipped passages in English and French", async () => {
+  const targets = [
+    { text: "Bonjour à tous.", lang: "fr-CA" },
+    {
+      text:
+        'Hello. Bonjour à tous. <img src="bad"> ' +
+        "z".repeat(60) +
+        "Bonjour encore.",
+      lang: "en-CA",
+      textRuns: [
+        { start: 7, end: 22, style: { lang: "fr-CA" } },
+        { start: 96, end: 111, style: { lang: "fr" } },
+      ],
+    },
+    { text: "", lang: "fr-CA" },
+  ];
+  for (const interfaceLanguage of ["en", "fr"])
+    for (const target of targets) {
+      const app = await setup(undefined, {
+        preferences: { "whiteboard-language": interfaceLanguage },
+      });
+      const { doc, w, click } = app;
+      try {
+        const { nodes, root, a, b, pointer } = await mindDragFixture(
+          app,
+          target,
+        );
+        await click(`[data-id="${root.id}"]`);
+        pointer("pointerdown", a);
+        pointer("pointermove", b);
+        const hint = doc.querySelector("#mind-drop-hint");
+        assert.equal(hint.hidden, false);
+        assert.equal(hint.getAttribute("role"), "status");
+        assert.equal(
+          hint.hasAttribute("lang"),
+          false,
+          "Interface instructions inherit the page language",
+        );
+        const label = hint.querySelector("[data-user-content]");
+        if (target.text) {
+          assert.ok(
+            label,
+            "Authored destination content is independently tagged",
+          );
+          assert.equal(label.textContent, target.text.slice(0, 100));
+          assert.equal(label.lang, target.lang);
+          if (target.textRuns) {
+            assert.equal(
+              label.querySelector('[lang="fr-CA"]').textContent,
+              "Bonjour à tous.",
+            );
+            assert.equal(
+              label.querySelector('[lang="fr"]').textContent,
+              target.text.slice(96, 100),
+            );
+            assert.equal(hint.querySelector("img"), null);
+          }
+          assert.ok(
+            hint.textContent.startsWith(
+              interfaceLanguage === "en"
+                ? "Release to attach to: "
+                : "Relâchez pour rattacher à: ",
+            ),
+          );
+        } else {
+          assert.equal(
+            label,
+            null,
+            "Untitled node is a translated interface fallback",
+          );
+          assert.match(
+            hint.textContent,
+            interfaceLanguage === "en" ? /Untitled node/ : /Nœud sans titre/,
+          );
+        }
+        mindKey(app, "Control", { ctrlKey: true });
+        assert.equal(hint.querySelector("[data-user-content]"), null);
+        assert.match(
+          hint.textContent,
+          interfaceLanguage === "en"
+            ? /without reassigning/
+            : /sans rattachement/,
+        );
+        doc
+          .querySelector("#canvas")
+          .dispatchEvent(
+            new w.KeyboardEvent("keyup", { key: "Control", bubbles: true }),
+          );
+        assert.equal(
+          hint.querySelector("[data-user-content]")?.textContent || "",
+          target.text.slice(0, 100),
+        );
+        pointer("pointerup", b);
+        assert.equal(hint.hidden, true);
+        await click(`[data-id="${root.id}"]`);
+        assert.equal(
+          selectedClipboard(app).find((i) => i.id === a.id).mindMap.parent,
+          b.id,
+        );
+        await click('[data-action="undo"]');
+        await click(`[data-id="${root.id}"]`);
+        assert.deepEqual(
+          selectedClipboard(app),
+          nodes,
+          "Tag-aware status does not change drag or undo behavior",
+        );
+      } finally {
+        app.close();
+      }
+    }
+});
+
+test("generated French vote titles retain their language after interface changes, history actions and reopening", async () => {
+  const app = await setup(undefined, {
+    preferences: { "whiteboard-language": "fr" },
+  });
+  const { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [
+      item("note", 0, 0, { text: "Bonjour à tous.", lang: "fr-CA" }),
+    ]);
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    assert.equal(doc.querySelector("#fac-vote-title").value, "Vote par points");
+    doc
+      .querySelector("#fac-vote-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    assert.equal(
+      doc.querySelector('#fac-tabpanel h3 [lang="fr"]').textContent,
+      "Vote par points",
+    );
+    assert.equal(
+      doc.querySelector('#facilitation-live [lang="fr"]').textContent,
+      "Vote par points",
+    );
+    doc.querySelector("#language").value = "en";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    assert.equal(
+      doc.querySelector('#fac-tabpanel h3 [lang="fr"]').textContent,
+      "Vote par points",
+    );
+    assert.match(
+      doc.querySelector("#fac-tabpanel").textContent,
+      /Voting is open/,
+    );
+    await click('[data-fac="vote-end"]');
+    await click("#fac-tab-history");
+    const check = () => {
+      const title = doc.querySelector(".fac-history summary strong");
+      assert.equal(
+        title.querySelector('[lang="fr"]').textContent,
+        "Vote par points",
+      );
+      for (const action of ["history-csv", "history-json"]) {
+        const button = doc.querySelector(`[data-fac="${action}"]`);
+        const ids = button.getAttribute("aria-labelledby").split(/\s+/);
+        assert.equal(doc.getElementById(ids[1]), title);
+        const name = ids
+          .map((id) => doc.getElementById(id).textContent)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim();
+        assert.equal(
+          name,
+          `${action === "history-csv" ? "Export CSV" : "Export JSON"}: Vote par points`,
+        );
+      }
+    };
+    check();
+    await click('[data-fac="history-reveal"]');
+    check();
+    const scan = await axe.run(doc.querySelector("#facilitation-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    await click("#facilitation-close");
+    const deadline = Date.now() + 3000;
+    while (
+      doc.querySelector("#save-state").textContent !== "Saved on this device" &&
+      Date.now() < deadline
+    )
+      await tick();
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Saved on this device",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-history");
+    check();
+  } finally {
+    app.close();
+  }
+});
+
+test("custom vote-title fields author whole and passage languages with plain paste, keyboard submission and persisted history", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [item("note", 0, 0, { text: "An idea" })]);
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    const field = doc.querySelector("#fac-vote-title");
+    assert.equal(field.getAttribute("role"), "textbox");
+    field.value = "x".repeat(220);
+    assert.equal(field.value.length, 200);
+    field.select();
+    const paste = new w.Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: transferData({
+        "text/plain": '  Hello. Bonjour à tous. <img src="bad">  ',
+        "text/html": '<b lang="de">unwanted rich text</b>',
+      }),
+    });
+    field.dispatchEvent(paste);
+    assert.equal(field.value, '  Hello. Bonjour à tous. <img src="bad">  ');
+    assert.equal(field.querySelector("b,img,[lang=de]"), null);
+    const apply = async (value, start, end, scope) => {
+      field.setSelectionRange(start, end, "forward", true);
+      await click("#fac-vote-title-language-options");
+      doc.querySelector("#fac-vote-title-language-scope").value = scope;
+      doc.querySelector("#fac-vote-title-language-tag").value = value;
+      await click("#fac-vote-title-language-save");
+    };
+    await apply("en-CA", 0, 0, "field");
+    await apply("fr-CA", 9, 24, "text");
+    assert.equal(
+      field.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    field.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        isComposing: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    assert.ok(doc.querySelector("#fac-vote-form"));
+    field.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await tick();
+    const checkTitle = (selector) => {
+      const node = doc.querySelector(selector);
+      assert.equal(
+        node.querySelector('[lang="en-CA"]').textContent,
+        'Hello. Bonjour à tous. <img src="bad">',
+      );
+      assert.equal(
+        node.querySelector('[lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(node.querySelector("img"), null);
+    };
+    checkTitle("#fac-tabpanel h3");
+    assert.equal(
+      doc.querySelector('#facilitation-live [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-vote");
+    checkTitle("#fac-tabpanel h3");
+    await click('[data-fac="vote-end"]');
+    await click("#fac-tab-history");
+    checkTitle(".fac-history summary strong");
+    const scan = await axe.run(doc.querySelector("#facilitation-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    await click("#facilitation-close");
+    const deadline = Date.now() + 3000;
+    while (
+      doc.querySelector("#save-state").textContent !==
+        "Enregistré sur cet appareil" &&
+      Date.now() < deadline
+    )
+      await tick();
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Enregistré sur cet appareil",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-history");
+    checkTitle(".fac-history summary strong");
+  } finally {
+    app.close();
+  }
+});
+
+test("poll question fields expose language controls, validate empty input and preserve authored passages after saving and reopening", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [item("note", 0, 0, { text: "An idea" })]);
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-poll");
+    const field = doc.querySelector("#fac-poll-question");
+    assert.equal(field.getAttribute("aria-required"), "true");
+    doc.querySelector("#fac-poll-options").value =
+      "Continue this plan.\nTry a different plan.";
+    field.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await tick();
+    assert.equal(field.getAttribute("aria-invalid"), "true");
+    assert.equal(doc.activeElement, field);
+    assert.match(
+      doc.querySelector("#fac-error").textContent,
+      /Enter a question/,
+    );
+    field.value = "  Hello. Bonjour à tous. Follow this plan.  ";
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(field.hasAttribute("aria-invalid"), false);
+    field.setSelectionRange(9, 24, "forward", true);
+    await click("#fac-poll-question-language-options");
+    doc.querySelector("#fac-poll-question-language-tag").value = "fr-CA";
+    await click("#fac-poll-question-language-save");
+    field.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await tick();
+    const check = (selector) => {
+      const node = doc.querySelector(selector);
+      assert.equal(
+        node.querySelector('[lang="en"]').textContent,
+        "Hello. Bonjour à tous. Follow this plan.",
+      );
+      assert.equal(
+        node.querySelector('[lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+    };
+    check("#fac-tabpanel h3");
+    assert.equal(
+      doc.querySelector('#facilitation-live [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-poll");
+    check("#fac-tabpanel h3");
+    await click('[data-fac="poll-close"]');
+    await click("#fac-tab-history");
+    check(".fac-history summary strong");
+    const scan = await axe.run(doc.querySelector("#facilitation-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    await click("#facilitation-close");
+    const deadline = Date.now() + 3000;
+    while (
+      doc.querySelector("#save-state").textContent !==
+        "Enregistré sur cet appareil" &&
+      Date.now() < deadline
+    )
+      await tick();
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Enregistré sur cet appareil",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-history");
+    check(".fac-history summary strong");
+  } finally {
+    app.close();
+  }
+});
+
+test("poll answer fields retain independent whole and passage languages through voting, interface changes and saved results", async () => {
+  const app = await setup(undefined, {
+      preferences: { "whiteboard-language": "fr" },
+    }),
+    { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [item("note", 0, 0, { text: "An idea" })]);
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-poll");
+    doc.querySelector("#fac-poll-question").value =
+      "Quel plan souhaitez-vous suivre ?";
+    const field = doc.querySelector("#fac-poll-options");
+    assert.equal(field.getAttribute("aria-required"), "true");
+    doc
+      .querySelector("#fac-poll-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    assert.equal(field.getAttribute("aria-invalid"), "true");
+    assert.equal(doc.activeElement, field);
+    field.value =
+      '  Commençons par améliorer la documentation.  \n\n  Hello. Bonjour à tous. <img src="bad">  ';
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(field.hasAttribute("aria-invalid"), false);
+    const start = field.value.indexOf("Hello.");
+    field.setSelectionRange(start, field.value.length, "forward", true);
+    await click("#fac-poll-options-language-options");
+    doc.querySelector("#fac-poll-options-language-tag").value = "en-CA";
+    await click("#fac-poll-options-language-save");
+    const phrase = field.value.indexOf("Bonjour à tous.");
+    field.setSelectionRange(phrase, phrase + 15, "forward", true);
+    await click("#fac-poll-options-language-options");
+    doc.querySelector("#fac-poll-options-language-tag").value = "fr-CA";
+    await click("#fac-poll-options-language-save");
+    doc
+      .querySelector("#fac-poll-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    const check = (selector) => {
+      const labels = [...doc.querySelectorAll(selector)];
+      assert.equal(
+        labels[0].querySelector('[lang="fr"]').textContent,
+        "Commençons par améliorer la documentation.",
+      );
+      assert.equal(
+        labels[1].querySelector('[lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(labels[1].querySelector("img"), null);
+    };
+    check("#fac-answer-form label");
+    doc.querySelector("#fac-answer-form input").checked = true;
+    doc
+      .querySelector("#fac-answer-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    check(".fac-result-label");
+    doc.querySelector("#language").value = "en";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-poll");
+    check("#fac-answer-form label");
+    check(".fac-result-label");
+    await click('[data-fac="poll-close"]');
+    await click("#fac-tab-history");
+    check(".fac-result-label");
+    const scan = await axe.run(doc.querySelector("#facilitation-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    await click("#facilitation-close");
+    const deadline = Date.now() + 3000;
+    while (
+      doc.querySelector("#save-state").textContent !== "Saved on this device" &&
+      Date.now() < deadline
+    )
+      await tick();
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Saved on this device",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-history");
+    check(".fac-result-label");
+  } finally {
+    app.close();
+  }
+});
+
+test("agenda instruction fields retain whole and passage languages in the editor, running banner and reopened board", async () => {
+  const app = await setup(),
+    { doc, w, click, tick } = app;
+  try {
+    await rotationFixture(app, [
+      item("frame", 0, 0, { text: "Plan", order: 0, w: 600, h: 400 }),
+    ]);
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-agenda");
+    let field = doc.querySelector(".fac-step-text"),
+      id = field.id;
+    assert.equal(field.getAttribute("role"), "textbox");
+    assert.equal(field.getAttribute("aria-multiline"), "true");
+    field.value = '  Hello. Bonjour à tous. <img src="bad">  ';
+    const apply = async (value, start, end, scope) => {
+      field.setSelectionRange(start, end, "forward", true);
+      await click(`#${id}-language-options`);
+      doc.querySelector(`#${id}-language-scope`).value = scope;
+      doc.querySelector(`#${id}-language-tag`).value = value;
+      await click(`#${id}-language-save`);
+    };
+    await apply("en-CA", 0, 0, "field");
+    await apply("fr-CA", 9, 24, "text");
+    assert.equal(
+      field.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    doc
+      .querySelector("#fac-agenda-form")
+      .dispatchEvent(new w.Event("submit", { cancelable: true }));
+    await tick();
+    const check = () => {
+      const instruction = doc.querySelector(".fac-agenda li p");
+      assert.equal(
+        instruction.querySelector('[lang="en-CA"]').textContent,
+        'Hello. Bonjour à tous. <img src="bad">',
+      );
+      assert.equal(
+        instruction.querySelector('[lang="fr-CA"]').textContent,
+        "Bonjour à tous.",
+      );
+      assert.equal(instruction.querySelector("img"), null);
+    };
+    check();
+    await click('[data-fac="agenda-start"]');
+    assert.equal(
+      doc.querySelector('#workshop-banner small [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await tick();
+    assert.equal(
+      doc.querySelector('#workshop-banner small [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-agenda");
+    check();
+    field = doc.querySelector(".fac-step-text");
+    assert.equal(
+      field.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    const scan = await axe.run(doc.querySelector("#facilitation-panel"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      scan.violations.map((v) => v.id),
+      [],
+    );
+    await click("#facilitation-close");
+    const deadline = Date.now() + 3000;
+    while (
+      doc.querySelector("#save-state").textContent !==
+        "Enregistré sur cet appareil" &&
+      Date.now() < deadline
+    )
+      await tick();
+    assert.equal(
+      doc.querySelector("#save-state").textContent,
+      "Enregistré sur cet appareil",
+    );
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click('[data-action="facilitation"]');
+    await click("#fac-tab-agenda");
+    check();
+    assert.equal(
+      doc.querySelector('.fac-step-text [lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+  } finally {
+    app.close();
+  }
+});
+
+test("authored feedback languages survive the built Help form, worker and English admin report", async () => {
+  const env = environment();
+  const { adminCall } = await import("../worker/admin.js");
+  const org = env.service.org;
+  await adminCall(org, env.service, owner, { op: "org.setup", name: "CDS" });
+  const sdk = env.sdk(owner);
+  await sdk.kv.set("whiteboard-organization-v1", {
+    server: "https://whiteboard-test.puter.work",
+  });
+  const exec = sdk.workers.exec;
+  sdk.workers.exec = async (url, options) => {
+    const input = JSON.parse(options.body);
+    if (
+      /^(org|email|notifications|prefs|library|spaces|teams|feedback)\./.test(
+        input.op,
+      )
+    )
+      return adminCall(org, env.service, owner, input).then(
+        (result) => Response.json(result),
+        (error) =>
+          Response.json({ message: error.message }, { status: error.status }),
+      );
+    return exec(url, options);
+  };
+  const read = sdk.fs.read;
+  sdk.fs.read = async (path, ...rest) => {
+    if (String(path).endsWith("catalog.json"))
+      throw { code: "subject_does_not_exist" };
+    return read(path, ...rest);
+  };
+  sdk.fs.readdir = async () => [];
+  const app = await setup(sdk, {
+    preferences: { "whiteboard-language": "fr" },
+  });
+  const { doc, w, click } = app;
+  try {
+    for (
+      let n = 0;
+      n < 200 && !doc.querySelector('[data-org-action="admin"]');
+      n++
+    )
+      await app.tick();
+    await click('[data-action="help-center"]');
+    const field = doc.querySelector("#help-comment");
+    assert.ok(field);
+    assert.equal(field.lang, "fr");
+    const text =
+      '  Begin. Veuillez faciliter <img id="feedback-injection"> la navigation. End.  ';
+    field.value = text;
+    field.dispatchEvent(new w.Event("input", { bubbles: true }));
+    field.setSelectionRange(0, 0);
+    await click("#help-comment-language-options");
+    doc.querySelector("#help-comment-language-tag").value = "en-ca";
+    await click("#help-comment-language-save");
+    const start = text.indexOf("Veuillez"),
+      end = text.indexOf(" End.");
+    field.setSelectionRange(start, end);
+    await click("#help-comment-language-options");
+    doc.querySelector("#help-comment-language-tag").value = "fr-ca";
+    await click("#help-comment-language-save");
+    assert.equal(doc.querySelector("#feedback-injection"), null);
+    doc.querySelector('[name="help-ease"][value="4"]').checked = true;
+    w.eval(axe.source);
+    let scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click("#help-feedback .primary");
+    for (let n = 0; n < 200 && doc.querySelector("#help-feedback"); n++)
+      await app.tick();
+    assert.match(doc.activeElement.textContent, /Merci/);
+    const report = await adminCall(org, env.service, owner, {
+      op: "org.reports",
+      days: 30,
+    });
+    const feedback = report.feedback.recent[0];
+    assert.equal(feedback.comment, text.trim());
+    assert.equal(feedback.lang, "en-CA");
+    assert.deepEqual(feedback.textRuns, [
+      { start: start - 2, end: end - 2, style: { lang: "fr-CA" } },
+    ]);
+    assert.equal(feedback.uuid, undefined);
+    doc.querySelector("dialog").close();
+    await app.tick();
+    doc.querySelector("#language").value = "en";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-org-action="admin"]');
+    for (let n = 0; n < 200 && !doc.querySelector(".feedback-comments"); n++)
+      await app.tick();
+    const authored = doc.querySelector(
+      '.feedback-comments [data-user-content][lang="en-CA"]',
+    );
+    assert.ok(authored);
+    assert.equal(authored.textContent, text.trim());
+    assert.equal(
+      authored.querySelector('[lang="fr-CA"]').textContent,
+      text.slice(start, end),
+    );
+    assert.equal(doc.querySelector("#feedback-injection"), null);
+    scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+  } finally {
+    app.close();
+  }
+});
+
+test("organization library descriptions retain declarations through built command authoring and the real worker", async () => {
+  const env = environment();
+  const { adminCall } = await import("../worker/admin.js");
+  const org = env.service.org;
+  await adminCall(org, env.service, owner, { op: "org.setup", name: "CDS" });
+  const sdk = env.sdk(owner);
+  await sdk.kv.set("whiteboard-organization-v1", {
+    server: "https://whiteboard-test.puter.work",
+  });
+  const exec = sdk.workers.exec;
+  sdk.workers.exec = async (url, options) => {
+    const input = JSON.parse(options.body);
+    if (
+      /^(org|email|notifications|prefs|library|spaces|teams)\./.test(input.op)
+    )
+      return adminCall(org, env.service, owner, input).then(
+        (result) => Response.json(result),
+        (error) =>
+          Response.json({ message: error.message }, { status: error.status }),
+      );
+    return exec(url, options);
+  };
+  const read = sdk.fs.read;
+  sdk.fs.read = async (path, ...rest) => {
+    if (String(path).endsWith("catalog.json"))
+      throw { code: "subject_does_not_exist" };
+    return read(path, ...rest);
+  };
+  sdk.fs.readdir = async () => [];
+  const app = await setup(sdk, {
+    preferences: { "whiteboard-language": "fr" },
+  });
+  const { doc, w, click } = app;
+  try {
+    for (
+      let n = 0;
+      n < 200 && !doc.querySelector('[data-org-action="admin"]');
+      n++
+    )
+      await app.tick();
+    await rotationFixture(app, [
+      item("note", 0, 0, { text: "Local template content" }),
+    ]);
+    await click('[data-action="commands"]');
+    paletteQuery(app, "share template");
+    await click('[data-command="org-library-share"]');
+    const field = doc.querySelector("#org-library-description");
+    assert.ok(field);
+    assert.equal(field.lang, "fr");
+    const text =
+      'Begin. Veuillez choisir les prochaines étapes. <img id="library-injection"> End.';
+    field.value = text;
+    field.setSelectionRange(0, 0);
+    await click("#org-library-description-language-options");
+    doc.querySelector("#org-library-description-language-tag").value = "en-CA";
+    await click("#org-library-description-language-save");
+    const start = text.indexOf("Veuillez"),
+      end = text.indexOf(" <img");
+    field.setSelectionRange(start, end);
+    await click("#org-library-description-language-options");
+    doc.querySelector("#org-library-description-language-tag").value = "fr-CA";
+    await click("#org-library-description-language-save");
+    field.setSelectionRange(0, 0);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "NEW " }),
+      field,
+    );
+    field.setSelectionRange(field.value.length, field.value.length);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": " END" }),
+      field,
+    );
+    assert.equal(
+      field.querySelector('[lang="fr-CA"]').textContent,
+      text.slice(start, end),
+    );
+    assert.equal(doc.querySelector("#library-injection"), null);
+    w.eval(axe.source);
+    const authoring = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(authoring.violations.length, 0);
+    await click("#org-library-share .primary");
+    for (let n = 0; n < 200 && doc.querySelector("#org-library-share"); n++)
+      await app.tick();
+    assert.equal(doc.querySelector("#org-library-share"), null);
+    const saved = (await org.list("org:lib:")).map((row) => row.value)[0];
+    assert.equal(saved.description, "NEW " + text + " END");
+    assert.equal(saved.descriptionLang, "en-CA");
+    assert.deepEqual(saved.descriptionRuns, [
+      { start: start + 4, end: end + 4, style: { lang: "fr-CA" } },
+    ]);
+    await click('[data-action="home"]');
+    doc.querySelector("#language").value = "en";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-org-action="library"]');
+    for (let n = 0; n < 200 && !doc.querySelector("[data-item]"); n++)
+      await app.tick();
+    const content = doc.querySelector(
+      '[data-item] small[data-user-content] [lang="en-CA"]',
+    );
+    assert.ok(content);
+    assert.equal(content.textContent, saved.description);
+    assert.equal(
+      content.querySelector('[lang="fr-CA"]').textContent,
+      text.slice(start, end),
+    );
+    assert.equal(doc.querySelector("#library-injection"), null);
+    const reading = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(reading.violations.length, 0);
+  } finally {
+    app.close();
+  }
+});
+
+test("built notification dialogs retain captured comment and passage languages after marking read and changing interface", async () => {
+  const env = environment(),
+    service = env.service,
+    org = service.org;
+  const { adminCall } = await import("../worker/admin.js");
+  await adminCall(org, service, owner, { op: "org.setup", name: "CDS" });
+  const b = board("Local notification audit"),
+    initial = new SharedDocument();
+  initial.commit(b);
+  await service.call(owner, {
+    op: "create",
+    room: b.id,
+    update: encode(initial.update()),
+  });
+  initial.destroy();
+  const invite = await service.call(owner, {
+    op: "invite",
+    room: b.id,
+    role: "commenter",
+  });
+  await service.call(collaborator, {
+    op: "join",
+    room: b.id,
+    token: invite.token,
+  });
+  const text =
+    '@Alice veuillez choisir les prochaines étapes. <img id="notification-injection"> Read first.';
+  const start = text.indexOf("Read"),
+    { doc: shared } = await service.load(b.id),
+    before = shared.vector(),
+    after = shared.snapshot();
+  after.comments = [
+    {
+      id: "t1",
+      x: 0,
+      y: 0,
+      resolved: false,
+      messages: [
+        {
+          id: "m1",
+          authorId: collaborator.uuid,
+          authorName: collaborator.username,
+          text,
+          lang: "fr-CA",
+          textRuns: [{ start, end: text.length, style: { lang: "en-CA" } }],
+          createdAt: 1,
+        },
+      ],
+    },
+  ];
+  shared.commit(after);
+  const update = shared.update(before);
+  shared.destroy();
+  await service.call(collaborator, {
+    op: "commit",
+    room: b.id,
+    id: await hash(update),
+    update: encode(update),
+  });
+  const notice = (
+    await adminCall(org, service, owner, { op: "notifications.list" })
+  ).items.find((n) => n.type === "mention");
+  assert.ok(notice);
+  const sdk = env.sdk(owner);
+  await sdk.kv.set("whiteboard-organization-v1", {
+    server: "https://whiteboard-test.puter.work",
+  });
+  const exec = sdk.workers.exec;
+  sdk.workers.exec = async (url, options) => {
+    const input = JSON.parse(options.body);
+    if (
+      /^(org|email|notifications|prefs|library|spaces|teams)\./.test(input.op)
+    )
+      return adminCall(org, service, owner, input).then(
+        (result) => Response.json(result),
+        (error) =>
+          Response.json({ message: error.message }, { status: error.status }),
+      );
+    return exec(url, options);
+  };
+  const read = sdk.fs.read;
+  sdk.fs.read = async (path, ...rest) => {
+    if (String(path).endsWith("catalog.json"))
+      throw { code: "subject_does_not_exist" };
+    return read(path, ...rest);
+  };
+  sdk.fs.readdir = async () => [];
+  const app = await setup(sdk),
+    { doc, w, click } = app;
+  const row = () =>
+    [...doc.querySelectorAll(".notification")].find(
+      (el) => el.dataset.note === notice.id,
+    );
+  try {
+    for (
+      let n = 0;
+      n < 200 && !doc.querySelector('[data-org-action="notifications"]');
+      n++
+    )
+      await app.tick();
+    await click('[data-org-action="notifications"]');
+    for (let n = 0; n < 200 && !row(); n++) await app.tick();
+    let content = row().querySelector("[data-user-content]");
+    assert.equal(content.textContent, "Bob: " + text);
+    assert.equal(content.querySelector('[lang="fr-CA"]').textContent, text);
+    assert.equal(
+      content.querySelector('[lang="en-CA"]').textContent,
+      "Read first.",
+    );
+    assert.equal(content.hasAttribute("lang"), false);
+    assert.equal(doc.querySelector("#notification-injection"), null);
+    w.eval(axe.source);
+    const scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click("#notify-read");
+    for (let n = 0; n < 200 && doc.querySelector("#notify-read").disabled; n++)
+      await app.tick();
+    assert.equal(row().closest("li").classList.contains("unread"), false);
+    doc.querySelector("dialog").close();
+    await app.tick();
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-org-action="notifications"]');
+    for (let n = 0; n < 200 && !row(); n++) await app.tick();
+    content = row().querySelector("[data-user-content]");
+    assert.equal(content.textContent, "Bob : " + text);
+    assert.equal(content.querySelector('[lang="fr-CA"]').textContent, text);
+    assert.equal(
+      content.querySelector('[lang="en-CA"]').textContent,
+      "Read first.",
+    );
+    assert.equal(doc.querySelector("#notification-injection"), null);
+    const saved = (
+      await adminCall(org, service, owner, { op: "notifications.list" })
+    ).items.find((n) => n.id === notice.id);
+    assert.equal(saved.read, true);
+    assert.equal(saved.excerptLang, "fr-CA");
+    assert.deepEqual(saved.excerptRuns, notice.excerptRuns);
+  } finally {
+    app.close();
+  }
+});
+
+test("built assignment notices retain normalized task declarations and translated suffixes across read state and interface changes", async () => {
+  const env = environment(),
+    service = env.service,
+    org = service.org;
+  const { adminCall } = await import("../worker/admin.js");
+  await adminCall(org, service, owner, { op: "org.setup", name: "CDS" });
+  const text =
+      '  Veuillez choisir les prochaines étapes.\n  Read first. \t <img id="assignment-injection">  ',
+    normalized = text.replace(/\s+/g, " ").trim(),
+    englishStart = text.indexOf("Read first."),
+    b = board("Local assignment audit"),
+    initial = new SharedDocument();
+  b.items = [
+    item("note", 0, 0, {
+      text,
+      lang: "fr-CA",
+      textRuns: [
+        {
+          start: englishStart,
+          end: englishStart + "Read first.".length,
+          style: { lang: "en-CA" },
+        },
+      ],
+    }),
+    item("note", 200, 0, { text: "Another instruction." }),
+  ];
+  initial.commit(b);
+  await service.call(owner, {
+    op: "create",
+    room: b.id,
+    update: encode(initial.update()),
+  });
+  initial.destroy();
+  const invite = await service.call(owner, {
+    op: "invite",
+    room: b.id,
+    role: "editor",
+  });
+  await service.call(collaborator, {
+    op: "join",
+    room: b.id,
+    token: invite.token,
+  });
+  const { doc: shared } = await service.load(b.id),
+    before = shared.vector(),
+    after = shared.snapshot();
+  for (const i of after.items)
+    i.task = {
+      assignee: { id: owner.uuid, name: owner.username },
+      due: "2026-10-01",
+    };
+  shared.commit(after);
+  const update = shared.update(before);
+  shared.destroy();
+  await service.call(collaborator, {
+    op: "commit",
+    room: b.id,
+    id: await hash(update),
+    update: encode(update),
+  });
+  const notice = (
+    await adminCall(org, service, owner, { op: "notifications.list" })
+  ).items.find((n) => n.type === "assignment");
+  assert.ok(notice);
+  assert.equal(notice.title, normalized);
+  assert.equal(notice.titleLang, "fr-CA");
+  assert.equal(notice.more, 1);
+  assert.deepEqual(notice.titleRuns, [
+    {
+      start: normalized.indexOf("Read first."),
+      end: normalized.indexOf("Read first.") + "Read first.".length,
+      style: { lang: "en-CA" },
+    },
+  ]);
+  const sdk = env.sdk(owner);
+  await sdk.kv.set("whiteboard-organization-v1", {
+    server: "https://whiteboard-test.puter.work",
+  });
+  const exec = sdk.workers.exec;
+  sdk.workers.exec = async (url, options) => {
+    const input = JSON.parse(options.body);
+    if (
+      /^(org|email|notifications|prefs|library|spaces|teams)\./.test(input.op)
+    )
+      return adminCall(org, service, owner, input).then(
+        (result) => Response.json(result),
+        (error) =>
+          Response.json({ message: error.message }, { status: error.status }),
+      );
+    return exec(url, options);
+  };
+  const read = sdk.fs.read;
+  sdk.fs.read = async (path, ...rest) => {
+    if (String(path).endsWith("catalog.json"))
+      throw { code: "subject_does_not_exist" };
+    return read(path, ...rest);
+  };
+  sdk.fs.readdir = async () => [];
+  const app = await setup(sdk),
+    { doc, w, click } = app;
+  const row = () =>
+    [...doc.querySelectorAll(".notification")].find(
+      (el) => el.dataset.note === notice.id,
+    );
+  try {
+    for (
+      let n = 0;
+      n < 200 && !doc.querySelector('[data-org-action="notifications"]');
+      n++
+    )
+      await app.tick();
+    await click('[data-org-action="notifications"]');
+    for (let n = 0; n < 200 && !row(); n++) await app.tick();
+    let content = row().querySelector("[data-user-content]");
+    assert.match(content.textContent, /^Bob: /);
+    assert.match(content.lastChild.textContent, /due.+and 1 more/);
+    assert.equal(
+      content.querySelector('[lang="fr-CA"]').textContent,
+      normalized,
+    );
+    assert.equal(
+      content.querySelector('[lang="en-CA"]').textContent,
+      "Read first.",
+    );
+    assert.equal(content.hasAttribute("lang"), false);
+    assert.equal(doc.querySelector("#assignment-injection"), null);
+    w.eval(axe.source);
+    const scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click("#notify-read");
+    for (let n = 0; n < 200 && doc.querySelector("#notify-read").disabled; n++)
+      await app.tick();
+    assert.equal(row().closest("li").classList.contains("unread"), false);
+    doc.querySelector("dialog").close();
+    await app.tick();
+    doc.querySelector("#language").value = "fr";
+    doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+    await app.tick();
+    await click('[data-org-action="notifications"]');
+    for (let n = 0; n < 200 && !row(); n++) await app.tick();
+    content = row().querySelector("[data-user-content]");
+    assert.match(content.textContent, /^Bob : /);
+    assert.match(content.lastChild.textContent, /échéance.+et 1 autre/);
+    assert.equal(
+      content.querySelector('[lang="fr-CA"]').textContent,
+      normalized,
+    );
+    assert.equal(
+      content.querySelector('[lang="en-CA"]').textContent,
+      "Read first.",
+    );
+    assert.equal(doc.querySelector("#assignment-injection"), null);
+    const saved = (
+      await adminCall(org, service, owner, { op: "notifications.list" })
+    ).items.find((n) => n.id === notice.id);
+    assert.equal(saved.read, true);
+    assert.equal(saved.titleLang, "fr-CA");
+    assert.deepEqual(saved.titleRuns, notice.titleRuns);
+  } finally {
+    app.close();
+  }
+});
+
+test("mixed-language table Properties declare cells and passages and retain them after independent edits and reopen", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  try {
+    const english = "Please choose the next steps.",
+      french = "Veuillez choisir les prochaines étapes.",
+      mixed = "Begin. Bonjour à tous. End.";
+    await rotationFixture(app, [
+      item("table", 0, 0, {
+        w: 600,
+        h: 240,
+        lang: "en-CA",
+        cells: [
+          [english, ""],
+          [mixed, 'Literal <img id="cell-injection">'],
+        ],
+      }),
+    ]);
+    const original = selectedClipboard(app)[0];
+    await click('[data-action="properties"]');
+    let field = doc.querySelector('[data-row="0"][data-col="1"]');
+    field.value = french;
+    field.setSelectionRange(0, 0);
+    await click("#table-dialog-cell-0-1-language-options");
+    doc.querySelector("#table-dialog-cell-0-1-language-tag").value = "fr-ca";
+    await click("#table-dialog-cell-0-1-language-save");
+    field = doc.querySelector('[data-row="1"][data-col="0"]');
+    const start = mixed.indexOf("Bonjour"),
+      end = mixed.indexOf(" End.");
+    field.setSelectionRange(start, end);
+    await click("#table-dialog-cell-1-0-language-options");
+    doc.querySelector("#table-dialog-cell-1-0-language-tag").value = "fr-CA";
+    await click('[data-table="row"]');
+    assert.equal(
+      doc.querySelector("#table-dialog-cell-1-0-language-controls").hidden,
+      false,
+    );
+    assert.equal(
+      doc.querySelector("#table-dialog-cell-1-0-language-tag").value,
+      "fr-CA",
+    );
+    await click("#table-dialog-cell-1-0-language-save");
+    field = doc.querySelector('[data-row="1"][data-col="0"]');
+    field.setSelectionRange(0, 0);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": "NEW " }),
+      field,
+    );
+    field.setSelectionRange(field.value.length, field.value.length);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": " END" }),
+      field,
+    );
+    assert.equal(
+      field.querySelector('[lang="fr-CA"]').textContent,
+      "Bonjour à tous.",
+    );
+    assert.equal(doc.querySelector("#cell-injection"), null);
+    assert.equal(
+      doc
+        .querySelector("#table-dialog-cell-0-1-language-options")
+        .hasAttribute("lang"),
+      false,
+    );
+    assert.equal(
+      doc.querySelector("#table-dialog-cell-0-1-label").hasAttribute("lang"),
+      false,
+    );
+    w.eval(axe.source);
+    const scan = await w.axe.run(doc.querySelector("dialog"), {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.equal(scan.violations.length, 0);
+    await click('dialog [type="submit"]');
+    const saved = selectedClipboard(app)[0];
+    assert.equal(saved.cells[0][1], french);
+    assert.deepEqual(saved.cellLanguages, {
+      "0,1": { lang: "fr-CA" },
+      "1,0": {
+        textRuns: [
+          { start: start + 4, end: end + 4, style: { lang: "fr-CA" } },
+        ],
+      },
+    });
+    assert.equal(
+      doc.querySelector(`#board-outline [data-id="${saved.id}"] [lang="fr-CA"]`)
+        .textContent,
+      french,
+    );
+    await click('[data-action="board-search"]');
+    doc.querySelector("#board-search-input").value = "Veuillez";
+    doc
+      .querySelector("#board-search-input")
+      .dispatchEvent(new w.Event("input", { bubbles: true }));
+    assert.equal(
+      doc.querySelector('#board-search-results [lang="fr-CA"]').textContent,
+      french,
+    );
+    await click("#search-close");
+    await click('[data-action="undo"]');
+    assert.deepEqual(allClipboard(app)[0], original);
+    await click('[data-action="redo"]');
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click(`#board-outline [data-id="${saved.id}"]`);
+    await click('[data-action="properties"]');
+    assert.equal(
+      doc.querySelector('[data-row="0"][data-col="1"]').lang,
+      "fr-CA",
+    );
+    assert.equal(
+      doc.querySelector('[data-row="0"][data-col="0"]').lang,
+      "en-CA",
+    );
+    assert.equal(
+      doc.querySelector('[data-row="1"][data-col="0"] [lang="fr-CA"]')
+        .textContent,
+      "Bonjour à tous.",
+    );
+    doc.querySelector("dialog").close();
+  } finally {
+    app.close();
+  }
+});
+test("table cell language controls work from the toolbar and survive structure, clipboard and default changes", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  const key = (key, options = {}) =>
+    doc.activeElement.dispatchEvent(
+      new w.KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...options,
+      }),
+    );
+  try {
+    await rotationFixture(app, [
+      item("table", 0, 0, {
+        w: 500,
+        h: 200,
+        lang: "en-CA",
+        cells: [["Bonjour à tous.", "Please continue."]],
+        cellLanguages: {
+          "0,0": {
+            lang: "fr-CA",
+            textRuns: [{ start: 0, end: 7, style: { lang: "fr" } }],
+          },
+        },
+      }),
+    ]);
+    const original = selectedClipboard(app)[0];
+    await click("#table-cell-access");
+    assert.equal(
+      doc.querySelector('#table-active-cell [lang="fr"]').textContent,
+      "Bonjour",
+    );
+    await click("#table-cell-language");
+    assert.equal(
+      doc.querySelector("#table-cell-input-language-controls").hidden,
+      false,
+    );
+    doc.querySelector("#table-cell-input-language-scope").value = "field";
+    doc.querySelector("#table-cell-input-language-tag").value = "fr-CA";
+    await click("#table-cell-input-language-save");
+    let field = doc.querySelector("#table-cell-input");
+    field.setSelectionRange(field.value.length, field.value.length);
+    dispatchTransfer(
+      app,
+      "paste",
+      transferData({ "text/plain": " Merci." }),
+      field,
+    );
+    field.focus();
+    key("Enter", { ctrlKey: true });
+    const row = doc.querySelector("#table-row-action");
+    row.value = "before";
+    row.dispatchEvent(new w.Event("change"));
+    key("ArrowDown");
+    assert.equal(doc.querySelector("#table-active-cell").lang, "fr-CA");
+    const copied = transferData();
+    dispatchTransfer(app, "copy", copied);
+    assert.match(copied.getData("text/html"), /lang="fr-CA"/);
+    assert.match(copied.getData("text/html"), /lang="fr"/);
+    key("ArrowRight");
+    dispatchTransfer(app, "paste", copied);
+    assert.equal(doc.querySelector("#table-active-cell").lang, "fr-CA");
+    assert.equal(
+      doc.querySelector('#table-active-cell [lang="fr"]').textContent,
+      "Bonjour",
+    );
+    await click("#table-cell-done");
+    let saved = selectedClipboard(app)[0];
+    assert.equal(saved.cellLanguages["1,1"].lang, "fr-CA");
+    assert.equal(saved.cellLanguages["0,0"], undefined);
+    await click("#content-language-options");
+    doc.querySelector("#content-language-tag").value = "es";
+    await click("#content-language-save");
+    await click("#table-cell-access");
+    assert.equal(doc.querySelector("#table-active-cell").lang, "es");
+    key("ArrowDown");
+    assert.equal(doc.querySelector("#table-active-cell").lang, "fr-CA");
+    await click("#table-cell-clear");
+    await click("#table-cell-done");
+    saved = selectedClipboard(app)[0];
+    assert.deepEqual(saved.cellLanguages["1,0"], { lang: "fr-CA" });
+    assert.equal(saved.cells[1][0], "");
+    await click('[data-action="undo"]');
+    await click(`#board-outline [data-id="${original.id}"]`);
+    assert.equal(
+      selectedClipboard(app)[0].cells[1][0],
+      "Bonjour à tous. Merci.",
+    );
+    await click('[data-action="properties"]');
+    await click('[data-table="remove-row"]');
+    doc.querySelector("dialog").close();
+    assert.equal(selectedClipboard(app)[0].cells.length, 2);
+  } finally {
+    app.close();
+  }
+});
+test("built task views preserve saved title and dependency languages through preview dismissal, navigation and reopening", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  const text =
+      '  Veuillez choisir les prochaines étapes.\n Read first. <img id="task-title-injection"> ',
+    normalized = text.replace(/\s+/g, " ").trim(),
+    task = item("note", 200, 0, {
+      text,
+      lang: "fr-CA",
+      textRuns: [
+        {
+          start: text.indexOf("Read"),
+          end: text.indexOf(" <img"),
+          style: { lang: "en-CA" },
+        },
+      ],
+      task: { status: "todo", start: "2026-10-01", due: "2026-10-02" },
+    }),
+    prerequisite = item("note", 0, 0, {
+      text: "Por favor prepare el informe.",
+      lang: "es",
+      task: { status: "todo", start: "2026-10-01", due: "2026-10-02" },
+    });
+  try {
+    await rotationFixture(app, [
+      task,
+      prerequisite,
+      item("arrow", 0, 0, {
+        startId: prerequisite.id,
+        endId: task.id,
+        dependency: "blocks",
+      }),
+    ]);
+    const saved = allClipboard(app).find((i) => i.text === text);
+    w.eval(axe.source);
+    for (const lang of ["en", "fr"]) {
+      if (lang === "fr") {
+        doc.querySelector("#language").value = lang;
+        doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+        await app.tick();
+      }
+      await click("#task-access");
+      const dialog = doc.querySelector("dialog.tasks-modal"),
+        row = dialog.querySelector(`#tasks-list [data-task="${saved.id}"]`);
+      assert.equal(row.textContent, normalized);
+      assert.equal(row.querySelector('[lang="fr-CA"]').textContent, normalized);
+      assert.equal(
+        row.querySelector('[lang="en-CA"]').textContent,
+        "Read first.",
+      );
+      assert.equal(
+        row.closest("tr").children[7].querySelector('[lang="es"]').textContent,
+        prerequisite.text,
+      );
+      const label = row
+        .getAttribute("aria-labelledby")
+        .split(" ")
+        .map((id) => doc.getElementById(id).textContent)
+        .join(" ");
+      assert.equal(
+        label,
+        (lang === "en" ? "Show on board: " : "Afficher sur le tableau: ") +
+          normalized,
+      );
+      await click("#tasks-tab-timeline");
+      const bar = dialog.querySelector(
+          `.timeline-bar[data-task="${saved.id}"]`,
+        ),
+        name = doc.getElementById(bar.getAttribute("aria-labelledby")),
+        preview = dialog.querySelector("#tasks-title-preview");
+      assert.equal(
+        name.querySelector('[lang="en-CA"]').textContent,
+        "Read first.",
+      );
+      assert.equal(
+        name.querySelector('[lang="es"]').textContent,
+        prerequisite.text,
+      );
+      bar.focus();
+      assert.equal(preview.hidden, false);
+      assert.equal(
+        preview.querySelector('[lang="fr-CA"]').textContent,
+        normalized,
+      );
+      assert.equal(
+        preview.getAttribute("aria-label"),
+        lang === "en" ? "Task preview" : "Aperçu de la tâche",
+      );
+      assert.equal(bar.hasAttribute("title"), false);
+      preview.focus();
+      const scan = await w.axe.run(dialog, {
+        rules: { "color-contrast": { enabled: false } },
+      });
+      assert.equal(scan.violations.length, 0);
+      preview.dispatchEvent(
+        new w.KeyboardEvent("keydown", {
+          key: "Escape",
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      assert.equal(preview.hidden, true);
+      assert.equal(doc.activeElement, bar);
+      assert.equal(dialog.isConnected, true);
+      await click("#timeline-table");
+      const table = dialog.querySelector(
+        `#timeline-data [data-task="${saved.id}"]`,
+      );
+      assert.equal(
+        table.querySelector('[lang="fr-CA"]').textContent,
+        normalized,
+      );
+      assert.equal(
+        table.closest("tr").children[6].querySelector('[lang="es"]')
+          .textContent,
+        prerequisite.text,
+      );
+      assert.equal(doc.querySelector("#task-title-injection"), null);
+      table.click();
+      await app.tick();
+      assert.equal(doc.querySelector("dialog.tasks-modal"), null);
+      assert.equal(selectedClipboard(app)[0].id, saved.id);
+    }
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#task-access");
+    assert.equal(
+      doc.querySelector(`#tasks-list [data-task="${saved.id}"] [lang="en-CA"]`)
+        .textContent,
+      "Read first.",
+    );
+    doc.querySelector("dialog.tasks-modal").close();
+  } finally {
+    app.close();
+  }
+});
+test("built task frame labels preserve source languages through rich filtering, grouping, lanes and reopening", async () => {
+  const app = await setup(),
+    { doc, w, click } = app;
+  const text =
+      '  Veuillez  discuter les prochaines étapes.\n Read first. <img id="planning-frame-injection"> ',
+    frame = item("frame", 0, 0, {
+      text,
+      lang: "fr-CA",
+      w: 800,
+      h: 600,
+      textRuns: [
+        {
+          start: text.indexOf("Read"),
+          end: text.indexOf(" <img"),
+          style: { lang: "en-CA" },
+        },
+      ],
+    }),
+    task = item("note", 30, 70, {
+      text: "Please complete this step.",
+      parentId: frame.id,
+      task: { status: "todo", start: "2026-10-01", due: "2026-10-02" },
+    }),
+    outside = item("note", 1000, 0, {
+      text: "Outside task.",
+      task: { status: "todo", start: "2026-10-01", due: "2026-10-02" },
+    });
+  try {
+    await rotationFixture(app, [frame, task, outside]);
+    const saved = allClipboard(app).find((i) => i.type === "frame");
+    w.eval(axe.source);
+    for (const lang of ["en", "fr"]) {
+      if (lang === "fr") {
+        doc.querySelector("#language").value = lang;
+        doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+        await app.tick();
+      }
+      await click("#task-access");
+      const dialog = doc.querySelector("dialog.tasks-modal"),
+        choice = () =>
+          [...dialog.querySelectorAll(".task-frame-choice")].find(
+            (el) => el.value === saved.id,
+          );
+      await click("#tasks-frame-toggle");
+      assert.equal(dialog.querySelector("#tasks-frame").open, true);
+      assert.equal(
+        choice().closest("label").querySelector('[lang="fr-CA"]').textContent,
+        text,
+      );
+      assert.equal(
+        choice().closest("label").querySelector('[lang="en-CA"]').textContent,
+        "Read first.",
+      );
+      choice().click();
+      await app.tick();
+      assert.equal(dialog.querySelectorAll("#tasks-list .task-go").length, 1);
+      assert.equal(choice().checked, true);
+      assert.equal(dialog.querySelector("#tasks-frame").open, true);
+      assert.equal(doc.activeElement, choice());
+      assert.equal(
+        dialog.querySelector('#tasks-frame-selected [lang="fr-CA"]')
+          .textContent,
+        text,
+      );
+      assert.equal(
+        dialog.querySelector('#tasks-list tbody td [lang="fr-CA"]').textContent,
+        text,
+      );
+      const group = dialog.querySelector("#tasks-group");
+      group.value = "frame";
+      group.dispatchEvent(new w.Event("change", { bubbles: true }));
+      assert.equal(
+        dialog.querySelector('.task-group h3 [lang="fr-CA"]').textContent,
+        text,
+      );
+      assert.equal(
+        dialog.querySelector('.task-table caption [lang="en-CA"]').textContent,
+        "Read first.",
+      );
+      const scan = await w.axe.run(dialog, {
+        rules: { "color-contrast": { enabled: false } },
+      });
+      assert.equal(scan.violations.length, 0);
+      await click("#tasks-tab-timeline");
+      const lanes = dialog.querySelector("#timeline-lanes");
+      lanes.value = "frame";
+      lanes.dispatchEvent(new w.Event("change", { bubbles: true }));
+      assert.equal(
+        dialog.querySelector('.timeline-lane-label [lang="fr-CA"]').textContent,
+        text,
+      );
+      assert.equal(
+        dialog.querySelector('.timeline-lane-label [lang="en-CA"]').textContent,
+        "Read first.",
+      );
+      await click("#timeline-table");
+      assert.equal(
+        dialog.querySelector('#timeline-data td [lang="fr-CA"]').textContent,
+        text,
+      );
+      assert.equal(doc.querySelector("#planning-frame-injection"), null);
+      dialog.close();
+      await app.tick();
+    }
+    await click('[data-action="home"]');
+    await click("[data-open]");
+    await click("#task-access");
+    assert.equal(
+      doc.querySelector('#tasks-list tbody td [lang="en-CA"]').textContent,
+      "Read first.",
+    );
+    doc.querySelector("dialog.tasks-modal").close();
+  } finally {
+    app.close();
+  }
+});
+test("pasting language-tagged table content into the built bulk chooser preserves notes, tables and plain-text languages", async () => {
+  const app = await setup(),
+    { doc, click } = app;
+  try {
+    await click('[data-action="new"]');
+    const incoming = transferData({
+      "text/html":
+        '<table lang="en-CA"><tr><td>Begin. <span lang="fr-CA">Bonjour.</span> End.</td><td lang="de">Guten Tag.</td></tr></table>',
+      "text/plain": "Begin. Bonjour. End.\tGuten Tag.",
+    });
+    for (const mode of ["notes", "table", "text"]) {
+      dispatchTransfer(app, "paste", incoming);
+      assert.equal(
+        doc.querySelector('.bulk-preview [lang="fr-CA"]').textContent,
+        "Bonjour.",
+      );
+      doc.querySelector("#bulk-mode").value = mode;
+      await click('.bulk-form [type="submit"]');
+      const saved = selectedClipboard(app);
+      if (mode === "notes") {
+        assert.equal(saved[0].lang, "en-CA");
+        assert.equal(saved[0].textRuns[0].style.lang, "fr-CA");
+        assert.equal(saved[1].lang, "de");
+      } else if (mode === "table") {
+        assert.equal(saved[0].cellLanguages["0,1"].lang, "de");
+        assert.equal(
+          saved[0].cellLanguages["0,0"].textRuns[0].style.lang,
+          "fr-CA",
+        );
+      } else {
+        assert.equal(
+          saved[0].textRuns.find((run) => run.style.lang === "fr-CA").start,
+          7,
+        );
+        assert.equal(saved[0].textRuns.at(-1).style.lang, "de");
+      }
+      await click('[data-action="undo"]');
+    }
+  } finally {
+    app.close();
+  }
+});
+
+test("WCAG generated timeline UI text retains its known authoring language after interface switch", async () => {
+  const app = await setup(), { doc, w, click } = app;
+  try {
+    const today = new Date().toLocaleDateString("en-CA");
+    await rotationFixture(app, [item("note", 0, 0, { text: "Please complete this step.", task: { status: "todo", due: today } })]);
+    await click("#task-access"); await click("#tasks-tab-timeline"); await click("#timeline-place");
+    const stored = allClipboard(app).find(i => i.type === "text" && i.text === "Today");
+    assert.ok(stored, "placement generated its actual Today marker");
+    doc.querySelector("#language").value = "fr"; doc.querySelector("#language").dispatchEvent(new w.Event("change")); await app.tick();
+    await click('[data-action="home"]'); await click("[data-open]");
+    const label = doc.querySelector(`#board-outline [data-id="${stored.id}"]`);
+    assert.ok(label); assert.ok(label.textContent.includes("Today"));
+    console.log(JSON.stringify({ stored, pageLanguage: doc.documentElement.lang, label: label.outerHTML }));
+    assert.ok(label.querySelector('[lang="en"]'), "the generated English Today marker inherits French after switching the interface");
+  } finally { app.close(); }
+});

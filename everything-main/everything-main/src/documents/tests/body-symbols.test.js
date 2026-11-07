@@ -1,0 +1,71 @@
+import {beforeAll,afterAll,it,expect} from 'vitest';
+import {JSDOM} from 'jsdom';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {unzipSync,zipSync,strFromU8,strToU8} from 'fflate';
+import {DocxPackage} from '../src/engine/docx.js';
+import {TextDocument} from '../src/engine/model.js';
+import {bodySymbolStyle,bodySymbolText} from '../src/engine/body-symbols.js';
+import {cellIntrinsicWidths} from '../src/engine/intrinsic-widths.js';
+import {documentBlocks} from '../src/engine/tables.js';
+import {pageGeometry} from '../src/engine/page-settings.js';
+const root='tests/fixtures/body-symbols/',W='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>{dom.window.close();delete globalThis.DOMParser;delete globalThis.XMLSerializer;});
+const open=()=>DocxPackage.open(readFileSync(root+'control.docx'));
+const model=p=>new TextDocument(p.paragraphs,p.pageSettings,p.numbering,p.styles,p.tables,p.assets);
+const save=async(p,d)=>new Uint8Array(await p.export(d.paragraphs,d.pageSettings,d.numbering,d.styles,d.tables,d.assets).arrayBuffer());
+const symbols=d=>d.paragraphs.flatMap(p=>p.runs).filter(r=>r.bodySymbol);
+const parse=s=>new DOMParser().parseFromString(s,'application/xml');
+it('retains symbol identity separately from surrounding run fonts and no-op package bytes',async()=>{
+ const p=await open(),d=model(p),cases=JSON.parse(readFileSync(root+'cases.json','utf8'));
+ expect(symbols(d)).toHaveLength(cases.length);
+ symbols(d).forEach((run,i)=>{
+  expect(run.text).toBe('\ufffc');expect(run.fontAscii).toBe('Arial');
+  expect(run.bodySymbol).toEqual({font:cases[i].font,code:cases[i].code});
+  expect(bodySymbolStyle(run,run).fontAscii).toBe(cases[i].font);
+  expect(bodySymbolText(run,run.text)).toBe(String.fromCharCode(parseInt(cases[i].code,16)));
+ });
+ expect(unzipSync(await save(p,d))).toEqual(p.parts);
+ d.select(5,6);expect(d.clipboardText()).toBe('\uf031');
+});
+it('matches native insert, replacement, deletion, bold, font and clear-format behavior',async()=>{
+ const reference=JSON.parse(readFileSync(root+'reference.json','utf8').replace(/^\uFEFF/,''));
+ for(const[name,key]of [['control.docx','sourceSha256'],['native.pdf','pdfSha256'],['native-edited.xml','xmlSha256']])expect(createHash('sha256').update(readFileSync(root+name)).digest('hex')).toBe(reference[key]);
+ const p=await open(),d=model(p);
+ const select=(number,after=false)=>{const start=d.text.indexOf(`C${String(number).padStart(2,'0')} L`)+5;d.select(start+Number(after),start+(after?1:1));};
+ select(6,true);d.replace('Z');select(7);d.replace('Z');select(8);d.replace('');
+ select(9);d.toggleBold();select(10);d.setRunFormat({fontAscii:'Courier New',fontHAnsi:'Courier New',fontCs:'Courier New'});
+ select(11);d.clearDirectTextFormatting();const before=d.text.indexOf('C12 L')+5;d.select(before);d.replace('Z');
+ const output=await save(p,d),again=model(await DocxPackage.open(output));
+ const native=parse(readFileSync(root+'native-edited.xml','utf8'));
+ const part=[...native.getElementsByTagNameNS('http://schemas.microsoft.com/office/2006/xmlPackage','part')].find(p=>p.getAttributeNS('http://schemas.microsoft.com/office/2006/xmlPackage','name')==='/word/document.xml');
+ const expected=[...part.getElementsByTagNameNS(W,'p')].map(p=>[...p.getElementsByTagNameNS(W,'r')].map(r=>[...r.children].map(n=>n.localName==='sym'?'\ufffc':n.localName==='t'?n.textContent:'').join('')).join('')).join('\n');
+ expect(again.text).toBe(expected);expect(symbols(again)).toHaveLength(12);
+ expect(again.paragraphs[8].runs.find(r=>r.bodySymbol).bold).toBe(true);
+ const changed=again.paragraphs[9].runs.find(r=>r.bodySymbol);expect(changed.fontAscii).toBe('Courier New');expect(changed.bodySymbol.font).toBe('Wingdings');
+ const cleared=again.paragraphs[10].runs.find(r=>r.bodySymbol);expect(cleared.properties).toBe('');expect(cleared.bodySymbol.font).toBe('Wingdings');
+ expect(again.paragraphs[5].runs.find(r=>r.text.includes('Z')).fontAscii).toBe('Arial');
+ for(const[name,bytes]of Object.entries(p.parts))if(name!=='word/document.xml')expect(unzipSync(output)[name]).toEqual(bytes);
+ for(let i=0;i<7;i++)d.undo();expect(unzipSync(await save(p,d))).toEqual(p.parts);
+});
+it('keeps symbol atoms out of plain-text search and does not merge adjacent symbols',async()=>{
+ const p=await open(),d=model(p);
+ expect(()=>d.replaceMatches('\ufffc','S',{},true)).toThrow();expect(symbols(d)).toHaveLength(14);
+ expect(d.replaceMatches('C01','First',{},true)).toBe(1);expect(symbols(model(await DocxPackage.open(await save(p,d))))).toHaveLength(14);d.undo();expect(unzipSync(await save(p,d))).toEqual(p.parts);
+ const parts={...p.parts};parts['word/document.xml']=strToU8(strFromU8(parts['word/document.xml']).replace('<w:sym w:font="Wingdings" w:char="F031"/>','<w:sym w:font="Wingdings" w:char="F031"/><w:sym w:font="Wingdings" w:char="F031"/>'));
+ const adjacent=await DocxPackage.open(zipSync(parts)),a=model(adjacent);expect(symbols(a)).toHaveLength(15);a.select(0);a.replace('X');expect(symbols(model(await DocxPackage.open(await save(adjacent,a))))).toHaveLength(15);
+});
+it.each(['<w:sym w:char="F031"/>','<w:sym w:font="Arial" w:char="D800"/>','<w:sym w:font="Arial" w:char="001F"/>','<w:sym w:font="Arial" w:char="12345"/>','<w:sym w:font="Arial" w:char="0041"><w:t>x</w:t></w:sym>'])('rejects malformed symbol content: %s',async markup=>{
+ const parts=unzipSync(readFileSync(root+'control.docx'));parts['word/document.xml']=strToU8(strFromU8(parts['word/document.xml']).replace('<w:sym w:font="Wingdings" w:char="F031"/>',markup));await expect(DocxPackage.open(zipSync(parts))).rejects.toThrow();
+});
+it('measures a symbol font rather than the surrounding font for AutoFit cell demand',async()=>{
+ const parts=unzipSync(readFileSync(root+'control.docx'));
+ parts['word/document.xml']=strToU8(strFromU8(parts['word/document.xml']).replace('<w:p>','<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/></w:tblPr><w:tblGrid><w:gridCol w:w="2400"/></w:tblGrid><w:tr><w:tc><w:tcPr><w:tcW w:w="2400" w:type="dxa"/></w:tcPr><w:p>').replace('</w:p>','</w:p></w:tc></w:tr></w:tbl>'));
+ const p=await DocxPackage.open(zipSync(parts)),cell=documentBlocks(p.paragraphs,p.tables)[0].rows[0].cells[0],calls=[];
+ const measure=(text,style)=>{calls.push({text,font:style.fontFamily});return {width:text.length*10,ascent:12,descent:4};};
+ cellIntrinsicWidths(cell,measure,pageGeometry(p.pageSettings),p.numbering,[]);
+ expect(calls.some(c=>c.text.includes('\uf031')&&c.font==='Wingdings')).toBe(true);
+ expect(calls.some(c=>c.text.includes('\ufffc'))).toBe(false);
+});

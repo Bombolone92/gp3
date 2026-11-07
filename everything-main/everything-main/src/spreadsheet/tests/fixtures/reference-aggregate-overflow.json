@@ -1,0 +1,6346 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Independent Evaluate and worksheet formula2 probes agree; stored formulas checked and scratch ranges cleared with COUNTA zero. Intermediate sum overflow, division after summation, cancellation order, direct/computed-array/reference inputs, conditional and database selection, errors, text, booleans and aggregate wrappers are covered.",
+  "captures": [
+    {
+      "name": "aggregate-overflow-order",
+      "cases": 198,
+      "scope": "SUM/AVERAGE families; TRIMMEAN has separately tracked trimming-order behavior.",
+      "scriptSha256": "839f3ecdc2de10687b0f8cc15c0665b949fc6c1f97f1035f5e353f7b68b23d81",
+      "captureSha256": "d723673938a262ccf73495454da514c5968168256dc5e1f5829431e6a0d42a19"
+    },
+    {
+      "name": "aggregate-overflow-database",
+      "cases": 72,
+      "scope": "All controls.",
+      "scriptSha256": "0046a3e538a8c03325744de0676f3c501545536c2287473d3f649a24ffa86010",
+      "captureSha256": "36dc6b604f40d5b5c57cbe8412fe6dfde592a5cedd1d620e3123125fc8c041ff"
+    },
+    {
+      "name": "aggregate-overflow-errors",
+      "cases": 144,
+      "scope": "SUM/AVERAGE families; TRIMMEAN remains separately tracked.",
+      "scriptSha256": "d467319aa504b5baba938ae69c0d50202bcdef4520d919bf814cd4c1e943c034",
+      "captureSha256": "0a6f4f999008d9b159b60ad3e2864b7d1481748b2e6a66f284d1b4b1356d5e25"
+    },
+    {
+      "name": "aggregate-overflow-arguments",
+      "cases": 128,
+      "scope": "All controls.",
+      "scriptSha256": "eab1c347fb1824cefb6904902ec74f9fb1f54ef3480ecd309cce5b215d2c911d",
+      "captureSha256": "ae9d39a3d09193554ec1927348eef1bfffe05917ad35c5d9a35209454dd664c1"
+    }
+  ],
+  "cases": [
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1,
+      "cells": {
+        "A1": "-1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2,
+      "cells": {
+        "A1": "1",
+        "A2": "0",
+        "A3": "1",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308,
+      "cells": {
+        "A1": "8e+307",
+        "A2": "0",
+        "A3": "8e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "0",
+        "A3": "9e+307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "-1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "-1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "-1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "1",
+        "A4": "-1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "-1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-1",
+        "A3": "1",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "0",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "0",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "0",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "1",
+        "A3": "0",
+        "A4": "1",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "-8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "-8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "-8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "A4": "-8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "-8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "0",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "0",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "0",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "8e+307",
+        "A3": "0",
+        "A4": "8e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "-9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "-9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "-9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "A4": "-9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "-9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "0",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "0",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "yes"
+      }
+    },
+    {
+      "expression": "DSUM(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DSUM(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "0",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "DAVERAGE(A1:B4,1,A5:A6)",
+      "formula": "LET(v,DAVERAGE(A1:B4,1,A5:A6),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "Value",
+        "B1": "Use",
+        "A2": "9e+307",
+        "A3": "0",
+        "A4": "9e+307",
+        "B2": "yes",
+        "B3": "yes",
+        "B4": "yes",
+        "A5": "Use",
+        "A6": "no"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "=NA()",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=TRUE()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "yes"
+      }
+    },
+    {
+      "expression": "SUM(A1:A3)",
+      "formula": "LET(v,SUM(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGE(A1:A3)",
+      "formula": "LET(v,AVERAGE(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "LET(v,AVERAGEA(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMPRODUCT(A1:A3)",
+      "formula": "LET(v,SUMPRODUCT(A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,AVERAGEIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AVERAGEIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,AVERAGEIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(1,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(1,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,0,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,0,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "AGGREGATE(1,6,A1:A3)",
+      "formula": "LET(v,AGGREGATE(1,6,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIF(B1:B3,\"yes\",A1:A3)",
+      "formula": "LET(v,SUMIF(B1:B3,\"yes\",A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUMIFS(A1:A3,B1:B3,\"yes\")",
+      "formula": "LET(v,SUMIFS(A1:A3,B1:B3,\"yes\"),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0,
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUBTOTAL(9,A1:A3)",
+      "formula": "LET(v,SUBTOTAL(9,A1:A3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "-9e307",
+        "A3": "=NA()",
+        "B1": "yes",
+        "B2": "yes",
+        "B3": "no"
+      }
+    },
+    {
+      "expression": "SUM(1*{1,1,1})",
+      "formula": "LET(v,SUM(1*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3
+    },
+    {
+      "expression": "SUM(1,1,1)",
+      "formula": "LET(v,SUM(1,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3
+    },
+    {
+      "expression": "AVERAGE(1*{1,1,1})",
+      "formula": "LET(v,AVERAGE(1*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "AVERAGE(1,1,1)",
+      "formula": "LET(v,AVERAGE(1,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "AVERAGEA(1*{1,1,1})",
+      "formula": "LET(v,AVERAGEA(1*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "AVERAGEA(1,1,1)",
+      "formula": "LET(v,AVERAGEA(1,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SUMPRODUCT(1*{1,1,1})",
+      "formula": "LET(v,SUMPRODUCT(1*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3
+    },
+    {
+      "expression": "SUM(1*{1,1,-1})",
+      "formula": "LET(v,SUM(1*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SUM(1,1,-1)",
+      "formula": "LET(v,SUM(1,1,-1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "AVERAGE(1*{1,1,-1})",
+      "formula": "LET(v,AVERAGE(1*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGE(1,1,-1)",
+      "formula": "LET(v,AVERAGE(1,1,-1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(1*{1,1,-1})",
+      "formula": "LET(v,AVERAGEA(1*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(1,1,-1)",
+      "formula": "LET(v,AVERAGEA(1,1,-1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "SUMPRODUCT(1*{1,1,-1})",
+      "formula": "LET(v,SUMPRODUCT(1*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SUM(1*{1,-1,1})",
+      "formula": "LET(v,SUM(1*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SUM(1,-1,1)",
+      "formula": "LET(v,SUM(1,-1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "AVERAGE(1*{1,-1,1})",
+      "formula": "LET(v,AVERAGE(1*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGE(1,-1,1)",
+      "formula": "LET(v,AVERAGE(1,-1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(1*{1,-1,1})",
+      "formula": "LET(v,AVERAGEA(1*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(1,-1,1)",
+      "formula": "LET(v,AVERAGEA(1,-1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "SUMPRODUCT(1*{1,-1,1})",
+      "formula": "LET(v,SUMPRODUCT(1*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SUM(1*{-1,-1,1})",
+      "formula": "LET(v,SUM(1*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "SUM(-1,-1,1)",
+      "formula": "LET(v,SUM(-1,-1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "AVERAGE(1*{-1,-1,1})",
+      "formula": "LET(v,AVERAGE(1*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333
+    },
+    {
+      "expression": "AVERAGE(-1,-1,1)",
+      "formula": "LET(v,AVERAGE(-1,-1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(1*{-1,-1,1})",
+      "formula": "LET(v,AVERAGEA(1*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(-1,-1,1)",
+      "formula": "LET(v,AVERAGEA(-1,-1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333
+    },
+    {
+      "expression": "SUMPRODUCT(1*{-1,-1,1})",
+      "formula": "LET(v,SUMPRODUCT(1*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "SUM(1*{-1,1,1})",
+      "formula": "LET(v,SUM(1*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SUM(-1,1,1)",
+      "formula": "LET(v,SUM(-1,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "AVERAGE(1*{-1,1,1})",
+      "formula": "LET(v,AVERAGE(1*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGE(-1,1,1)",
+      "formula": "LET(v,AVERAGE(-1,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(1*{-1,1,1})",
+      "formula": "LET(v,AVERAGEA(1*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "AVERAGEA(-1,1,1)",
+      "formula": "LET(v,AVERAGEA(-1,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "SUMPRODUCT(1*{-1,1,1})",
+      "formula": "LET(v,SUMPRODUCT(1*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SUM(1*{1,0,1})",
+      "formula": "LET(v,SUM(1*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "SUM(1,0,1)",
+      "formula": "LET(v,SUM(1,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "AVERAGE(1*{1,0,1})",
+      "formula": "LET(v,AVERAGE(1*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667
+    },
+    {
+      "expression": "AVERAGE(1,0,1)",
+      "formula": "LET(v,AVERAGE(1,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667
+    },
+    {
+      "expression": "AVERAGEA(1*{1,0,1})",
+      "formula": "LET(v,AVERAGEA(1*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667
+    },
+    {
+      "expression": "AVERAGEA(1,0,1)",
+      "formula": "LET(v,AVERAGEA(1,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667
+    },
+    {
+      "expression": "SUMPRODUCT(1*{1,0,1})",
+      "formula": "LET(v,SUMPRODUCT(1*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "SUM(8e+307*{1,1,1})",
+      "formula": "LET(v,SUM(8e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(8e+307,8e+307,8e+307)",
+      "formula": "LET(v,SUM(8e+307,8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(8e+307*{1,1,1})",
+      "formula": "LET(v,AVERAGE(8e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(8e+307,8e+307,8e+307)",
+      "formula": "LET(v,AVERAGE(8e+307,8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(8e+307*{1,1,1})",
+      "formula": "LET(v,AVERAGEA(8e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(8e+307,8e+307,8e+307)",
+      "formula": "LET(v,AVERAGEA(8e+307,8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT(8e+307*{1,1,1})",
+      "formula": "LET(v,SUMPRODUCT(8e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(8e+307*{1,1,-1})",
+      "formula": "LET(v,SUM(8e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "SUM(8e+307,8e+307,-8e+307)",
+      "formula": "LET(v,SUM(8e+307,8e+307,-8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "AVERAGE(8e+307*{1,1,-1})",
+      "formula": "LET(v,AVERAGE(8e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGE(8e+307,8e+307,-8e+307)",
+      "formula": "LET(v,AVERAGE(8e+307,8e+307,-8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307*{1,1,-1})",
+      "formula": "LET(v,AVERAGEA(8e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307,8e+307,-8e+307)",
+      "formula": "LET(v,AVERAGEA(8e+307,8e+307,-8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "SUMPRODUCT(8e+307*{1,1,-1})",
+      "formula": "LET(v,SUMPRODUCT(8e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "SUM(8e+307*{1,-1,1})",
+      "formula": "LET(v,SUM(8e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "SUM(8e+307,-8e+307,8e+307)",
+      "formula": "LET(v,SUM(8e+307,-8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "AVERAGE(8e+307*{1,-1,1})",
+      "formula": "LET(v,AVERAGE(8e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGE(8e+307,-8e+307,8e+307)",
+      "formula": "LET(v,AVERAGE(8e+307,-8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307*{1,-1,1})",
+      "formula": "LET(v,AVERAGEA(8e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307,-8e+307,8e+307)",
+      "formula": "LET(v,AVERAGEA(8e+307,-8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "SUMPRODUCT(8e+307*{1,-1,1})",
+      "formula": "LET(v,SUMPRODUCT(8e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "SUM(8e+307*{-1,-1,1})",
+      "formula": "LET(v,SUM(8e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307
+    },
+    {
+      "expression": "SUM(-8e+307,-8e+307,8e+307)",
+      "formula": "LET(v,SUM(-8e+307,-8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307
+    },
+    {
+      "expression": "AVERAGE(8e+307*{-1,-1,1})",
+      "formula": "LET(v,AVERAGE(8e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGE(-8e+307,-8e+307,8e+307)",
+      "formula": "LET(v,AVERAGE(-8e+307,-8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307*{-1,-1,1})",
+      "formula": "LET(v,AVERAGEA(8e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(-8e+307,-8e+307,8e+307)",
+      "formula": "LET(v,AVERAGEA(-8e+307,-8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.6666666666667e+307
+    },
+    {
+      "expression": "SUMPRODUCT(8e+307*{-1,-1,1})",
+      "formula": "LET(v,SUMPRODUCT(8e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -8e+307
+    },
+    {
+      "expression": "SUM(8e+307*{-1,1,1})",
+      "formula": "LET(v,SUM(8e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "SUM(-8e+307,8e+307,8e+307)",
+      "formula": "LET(v,SUM(-8e+307,8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "AVERAGE(8e+307*{-1,1,1})",
+      "formula": "LET(v,AVERAGE(8e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGE(-8e+307,8e+307,8e+307)",
+      "formula": "LET(v,AVERAGE(-8e+307,8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307*{-1,1,1})",
+      "formula": "LET(v,AVERAGEA(8e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "AVERAGEA(-8e+307,8e+307,8e+307)",
+      "formula": "LET(v,AVERAGEA(-8e+307,8e+307,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e+307
+    },
+    {
+      "expression": "SUMPRODUCT(8e+307*{-1,1,1})",
+      "formula": "LET(v,SUMPRODUCT(8e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8e+307
+    },
+    {
+      "expression": "SUM(8e+307*{1,0,1})",
+      "formula": "LET(v,SUM(8e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308
+    },
+    {
+      "expression": "SUM(8e+307,0,8e+307)",
+      "formula": "LET(v,SUM(8e+307,0,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308
+    },
+    {
+      "expression": "AVERAGE(8e+307*{1,0,1})",
+      "formula": "LET(v,AVERAGE(8e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307
+    },
+    {
+      "expression": "AVERAGE(8e+307,0,8e+307)",
+      "formula": "LET(v,AVERAGE(8e+307,0,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307*{1,0,1})",
+      "formula": "LET(v,AVERAGEA(8e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307
+    },
+    {
+      "expression": "AVERAGEA(8e+307,0,8e+307)",
+      "formula": "LET(v,AVERAGEA(8e+307,0,8e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.3333333333333e+307
+    },
+    {
+      "expression": "SUMPRODUCT(8e+307*{1,0,1})",
+      "formula": "LET(v,SUMPRODUCT(8e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6e+308
+    },
+    {
+      "expression": "SUM(9e+307*{1,1,1})",
+      "formula": "LET(v,SUM(9e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(9e+307,9e+307,9e+307)",
+      "formula": "LET(v,SUM(9e+307,9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(9e+307*{1,1,1})",
+      "formula": "LET(v,AVERAGE(9e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(9e+307,9e+307,9e+307)",
+      "formula": "LET(v,AVERAGE(9e+307,9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(9e+307*{1,1,1})",
+      "formula": "LET(v,AVERAGEA(9e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(9e+307,9e+307,9e+307)",
+      "formula": "LET(v,AVERAGEA(9e+307,9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT(9e+307*{1,1,1})",
+      "formula": "LET(v,SUMPRODUCT(9e+307*{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(9e+307*{1,1,-1})",
+      "formula": "LET(v,SUM(9e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(9e+307,9e+307,-9e+307)",
+      "formula": "LET(v,SUM(9e+307,9e+307,-9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(9e+307*{1,1,-1})",
+      "formula": "LET(v,AVERAGE(9e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(9e+307,9e+307,-9e+307)",
+      "formula": "LET(v,AVERAGE(9e+307,9e+307,-9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(9e+307*{1,1,-1})",
+      "formula": "LET(v,AVERAGEA(9e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(9e+307,9e+307,-9e+307)",
+      "formula": "LET(v,AVERAGEA(9e+307,9e+307,-9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT(9e+307*{1,1,-1})",
+      "formula": "LET(v,SUMPRODUCT(9e+307*{1,1,-1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(9e+307*{1,-1,1})",
+      "formula": "LET(v,SUM(9e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307
+    },
+    {
+      "expression": "SUM(9e+307,-9e+307,9e+307)",
+      "formula": "LET(v,SUM(9e+307,-9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307
+    },
+    {
+      "expression": "AVERAGE(9e+307*{1,-1,1})",
+      "formula": "LET(v,AVERAGE(9e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "AVERAGE(9e+307,-9e+307,9e+307)",
+      "formula": "LET(v,AVERAGE(9e+307,-9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "AVERAGEA(9e+307*{1,-1,1})",
+      "formula": "LET(v,AVERAGEA(9e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "AVERAGEA(9e+307,-9e+307,9e+307)",
+      "formula": "LET(v,AVERAGEA(9e+307,-9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "SUMPRODUCT(9e+307*{1,-1,1})",
+      "formula": "LET(v,SUMPRODUCT(9e+307*{1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307
+    },
+    {
+      "expression": "SUM(9e+307*{-1,-1,1})",
+      "formula": "LET(v,SUM(9e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(-9e+307,-9e+307,9e+307)",
+      "formula": "LET(v,SUM(-9e+307,-9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(9e+307*{-1,-1,1})",
+      "formula": "LET(v,AVERAGE(9e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(-9e+307,-9e+307,9e+307)",
+      "formula": "LET(v,AVERAGE(-9e+307,-9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(9e+307*{-1,-1,1})",
+      "formula": "LET(v,AVERAGEA(9e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(-9e+307,-9e+307,9e+307)",
+      "formula": "LET(v,AVERAGEA(-9e+307,-9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT(9e+307*{-1,-1,1})",
+      "formula": "LET(v,SUMPRODUCT(9e+307*{-1,-1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(9e+307*{-1,1,1})",
+      "formula": "LET(v,SUM(9e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307
+    },
+    {
+      "expression": "SUM(-9e+307,9e+307,9e+307)",
+      "formula": "LET(v,SUM(-9e+307,9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307
+    },
+    {
+      "expression": "AVERAGE(9e+307*{-1,1,1})",
+      "formula": "LET(v,AVERAGE(9e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "AVERAGE(-9e+307,9e+307,9e+307)",
+      "formula": "LET(v,AVERAGE(-9e+307,9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "AVERAGEA(9e+307*{-1,1,1})",
+      "formula": "LET(v,AVERAGEA(9e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "AVERAGEA(-9e+307,9e+307,9e+307)",
+      "formula": "LET(v,AVERAGEA(-9e+307,9e+307,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e+307
+    },
+    {
+      "expression": "SUMPRODUCT(9e+307*{-1,1,1})",
+      "formula": "LET(v,SUMPRODUCT(9e+307*{-1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9e+307
+    },
+    {
+      "expression": "SUM(9e+307*{1,0,1})",
+      "formula": "LET(v,SUM(9e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUM(9e+307,0,9e+307)",
+      "formula": "LET(v,SUM(9e+307,0,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(9e+307*{1,0,1})",
+      "formula": "LET(v,AVERAGE(9e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGE(9e+307,0,9e+307)",
+      "formula": "LET(v,AVERAGE(9e+307,0,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(9e+307*{1,0,1})",
+      "formula": "LET(v,AVERAGEA(9e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AVERAGEA(9e+307,0,9e+307)",
+      "formula": "LET(v,AVERAGEA(9e+307,0,9e+307),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT(9e+307*{1,0,1})",
+      "formula": "LET(v,SUMPRODUCT(9e+307*{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT({1e307,1e307,-1e307,-1e307},{10,10,10,10})",
+      "formula": "LET(v,SUMPRODUCT({1e307,1e307,-1e307,-1e307},{10,10,10,10}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT({1e307,1e307,-1e307,-1e307,1e-307},{10,10,10,10,0.1})",
+      "formula": "LET(v,SUMPRODUCT({1e307,1e307,-1e307,-1e307,1e-307},{10,10,10,10,0.1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    }
+  ]
+}

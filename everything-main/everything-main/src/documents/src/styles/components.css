@@ -1,0 +1,638 @@
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
+
+@media (hover: hover) { .btn:not([disabled]):hover { background: var(--surface-3); } }
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+@media (hover: hover) { .btn-primary:not([disabled]):hover { background: var(--accent-strong); } }
+
+.btn-danger {
+  background: transparent;
+  color: var(--critical);
+  border-color: var(--hairline-strong);
+}
+
+@media (hover: hover) { .btn-danger:hover { background: var(--critical-wash); } }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-2);
+}
+
+@media (hover: hover) { .btn-ghost:not([disabled]):hover { background: var(--surface-2); color: var(--ink); } }
+
+.btn-outline {
+  background: transparent;
+  border-color: var(--hairline-strong);
+}
+
+@media (hover: hover) { .btn-outline:not([disabled]):hover { background: var(--surface-2); } }
+
+.btn-block { width: 100%; }
+.btn-lg { padding: 13px 20px; font-size: 15px; border-radius: var(--r-md); }
+.btn-sm { padding: 6px 10px; font-size: 13px; }
+
+/* A disabled control still takes the pointer, so the title that says why it is disabled can show. */
+.btn[disabled], .icon-btn[disabled], .tb-btn[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+  flex: none;
+  position: relative;
+}
+
+@media (hover: hover) { .icon-btn:not([disabled]):hover { background: var(--surface-2); color: var(--ink); } }
+/* A pressed toggle shows a ring as well as its tint, so its state does not rest on hue alone. */
+.icon-btn[aria-pressed="true"], .icon-btn.active { background: var(--accent-wash); color: var(--accent-strong); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* 44px-tall touch targets without changing the drawn size. Sideways the
+   target stays the drawn width: buttons sit shoulder to shoulder, and a
+   wider one would take taps meant for its neighbor. */
+@media (pointer: coarse) {
+  .icon-btn::after,
+  .tb-btn::after,
+  .save-status.retryable::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+  .save-status.retryable { position: relative; }
+  /* Comment tools sit between lines of text, and status items in a 30px bar: an overlay
+     would take taps meant for what is above and below them, so they grow instead. */
+  .link-btn { padding: 8px 0; }
+  .status-item { height: 30px; }
+  /* The menubar's names are 28px tall; their targets reach 44px without moving the bar. */
+  .menu-btn { position: relative; }
+  .menu-btn::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+  /* Rows and choices grow to a finger's height; they are stacked, so an overlay would take a neighbor's taps. */
+  .menu-item { min-height: 44px; }
+  .segmented button { min-height: 40px; }
+  .btn-sm { min-height: 40px; }
+  .outline-item { min-height: 40px; }
+  .toast-action { padding: 10px 8px; margin: -8px 0 -8px 4px; }
+  /* Eight touch-sized swatches; on a narrow phone they shrink together rather than run past the menu. */
+  .menu-custom-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .swatch { width: auto; height: auto; aspect-ratio: 1; min-width: 0; }
+}
+
+/* ---------- Layout helpers ---------- */
+
+.row { display: flex; align-items: center; gap: 10px; }
+.row-end { justify-content: flex-end; }
+/* A dialog's buttons, at the end of the row as .row.row-end puts them. */
+.modal-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+.grow { flex: 1; min-width: 0; }
+.muted { color: var(--ink-3); }
+.small { font-size: 12.5px; }
+
+/* ---------- Forms ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.field-hint {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.field-error {
+  margin: -6px 0 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--critical);
+}
+
+.input, .select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--control-border);
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* A dropdown drawn without its native arrow needs one: the toolbar's chevron, in the theme's ink. */
+/* A color field drawn as a text field would squeeze its swatch to a hairline: a short, padded well instead. */
+.input[type="color"] {
+  height: 40px;
+  padding: 4px;
+  cursor: pointer;
+}
+.input[type="color"]:disabled { opacity: 0.45; cursor: default; }
+
+select.input, select.select {
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+/* A list of choices shown open (size or multiple) drops nothing down: no chevron, and no room kept for one. */
+select.input:where([size]:not([size="1"]), [multiple]), select.select:where([size]:not([size="1"]), [multiple]) {
+  background-image: none;
+  padding-right: 12px;
+  cursor: default;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-bottom: 16px; }
+.grid-2 .field { margin-bottom: 0; }
+.grid-2[hidden] { display: none; }
+.unit-field { position: relative; display: flex; align-items: center; }
+.unit-field .input { padding-right: 36px; width: 100%; }
+.unit-tag { position: absolute; right: 12px; font-size: 12.5px; color: var(--ink-3); pointer-events: none; }
+.field-inline .field-label { font-weight: 500; }
+
+.input:focus, .select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+
+.input[aria-invalid="true"] { border-color: var(--critical); }
+/* A field that does not apply just now (the Paragraph dialog's "By" with no special indent) looks it, as a disabled button does. */
+.input:disabled, .select:disabled { opacity: 0.45; cursor: default; }
+
+/* Segmented control */
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+}
+
+.segmented button {
+  padding: 8px 6px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  /* Long labels ("Top and bottom") wrap inside their cell rather than running over the next one. */
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
+  min-width: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.segmented button[aria-checked="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  /* The chosen segment is told apart by more than a shade: a hairline around it. */
+  box-shadow: 0 0 0 1px var(--control-border);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+
+.user-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Nobody signed in: a plain figure in place of an initial. */
+.user-avatar-anon {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+
+/* ---------- Modal / bottom sheet ---------- */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade-in 0.2s ease;
+}
+
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-height: calc(100dvh - 40px - var(--safe-t));
+  overflow-y: auto;
+  /* Reaching the end of a scrolling dialog must not scroll the list behind the scrim. */
+  overscroll-behavior: contain;
+  background: var(--surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  --modal-pad-b: calc(20px + var(--safe-b));
+  padding: 8px 20px var(--modal-pad-b);
+  animation: sheet-up 0.28s var(--ease-spring);
+  outline: none;
+}
+/* A dialog taller than the window scrolls, and its buttons stay in view at its foot, as Word's do. The foot takes the
+   panel's bottom padding into itself, so a dialog that fits looks as it did; one that scrolls (modal.js marks it)
+   sets the foot off from the content running under it. */
+.modal-panel:has(> :not(.modal-head) > :is(.modal-actions, .fmt-footer, .row-end):last-child) { padding-bottom: 0; }
+.modal-panel > :not(.modal-head) > :is(.modal-actions, .fmt-footer, .row-end):last-child {
+  position: sticky; bottom: 0; z-index: 2; background: var(--surface); padding-bottom: var(--modal-pad-b);
+}
+.modal-panel.is-overflowing > :not(.modal-head) > :is(.modal-actions, .fmt-footer, .row-end):last-child { padding-top: 12px; border-top: 1px solid var(--hairline); }
+
+.modal-root.closing .modal-panel { animation: sheet-down 0.2s ease forwards; }
+.modal-root.closing .modal-scrim { animation: fade-out 0.2s ease forwards; }
+/* A closing dialog no longer blocks the page; clicks land where they are aimed. */
+.modal-root.closing { pointer-events: none; }
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+
+@keyframes sheet-down {
+  to { transform: translateY(100%); }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--hairline-strong);
+  margin: 6px auto 10px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.modal-text {
+  color: var(--ink-2);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+@media (width > 640px) {
+  .modal-root { align-items: center; padding: 20px; }
+  .modal-panel {
+    width: 440px;
+    max-width: calc(100vw - 40px);
+    border-radius: var(--r-lg);
+    --modal-pad-b: 24px;
+    padding: 20px 24px var(--modal-pad-b);
+    border: 1px solid var(--hairline);
+    animation: dialog-in 0.2s var(--ease-spring);
+  }
+  .modal-panel.wide { width: 620px; }
+  .modal-root.closing .modal-panel { animation: dialog-out 0.15s ease forwards; }
+  .sheet-handle { display: none; }
+}
+
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes dialog-out {
+  to { opacity: 0; transform: translateY(6px) scale(0.98); }
+}
+
+/* ---------- Menus ---------- */
+
+.menu {
+  position: fixed;
+  /* Above the toasts: a menu is under the pointer, and a toast arriving while it is open must not cover its last items or take their clicks. */
+  z-index: 95;
+  min-width: 200px;
+  max-width: calc(100vw - 16px);
+  /* A capped menu scrolls on its own; the wheel reaching its end must not scroll the page, which closes the menu. */
+  overscroll-behavior: contain;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  animation: menu-in 0.12s ease;
+  outline: none;
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+@media (hover: hover) { .menu-item:hover { background: var(--surface-2); } }
+/* Keyboard focus roves through the items, so it needs more than the hover tint to be seen. */
+.menu-item:focus-visible { background: var(--surface-2); outline: 2px solid var(--accent); outline-offset: -2px; }
+/* Until a key is pressed, a menu the pointer opened follows the pointer with its hover tint alone. */
+.menu[data-pointer] .menu-item:focus-visible, .menu[data-pointer] .swatch:focus-visible { outline: none; box-shadow: none; }
+.menu-item.danger { color: var(--critical); }
+@media (hover: hover) { .menu-item.danger:hover { background: var(--critical-wash); } }
+.menu-item[disabled] { opacity: 0.45; pointer-events: none; }
+/* A group keeps its items in the menu's own flow; a note is prose, not a dimmed item. */
+.menu-group { display: contents; }
+.menu-note { padding: 4px 12px 6px; font-size: 12px; line-height: 1.35; color: var(--ink-3); white-space: normal; max-width: 280px; }
+/* File names without spaces can run longer than a dialog is wide. */
+.modal-text, .field-error, .field-hint, .menu-note { overflow-wrap: anywhere; }
+.menu-item.checked { color: var(--accent-strong); }
+
+.menu-icon { width: 18px; display: inline-grid; place-items: center; color: var(--ink-2); flex: none; }
+.menu-swatch { flex: none; width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--control-border); forced-color-adjust: none; }
+.menu-swatch.is-none { background: linear-gradient(135deg, transparent 44%, var(--critical) 44% 56%, transparent 56%), var(--surface); }
+.menu-item.danger .menu-icon { color: inherit; }
+.menu-item.checked .menu-icon { color: inherit; }
+/* Labels wrap only when the menu is as wide as the screen allows (phones). */
+.menu-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+.menu-hint { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 1px; white-space: normal; }
+.menu-shortcut { font-size: 12px; color: var(--ink-3); flex: none; }
+/* The mark of a submenu, at the edge the submenu opens from. */
+.menu-arrow { display: inline-grid; place-items: center; color: var(--ink-3); flex: none; margin-right: -2px; }
+.menu-item[aria-expanded="true"] { background: var(--surface-2); }
+.menu-item[aria-expanded="true"] .menu-arrow { color: var(--ink-2); }
+/* A submenu is already beside a menu that animated in; sliding it as well
+   reads as the pair moving apart. */
+.menu-sub { animation: none; }
+.menu-sep { height: 1px; background: var(--hairline); margin: 6px 4px; }
+.menu-header { padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; }
+.menu-theme { padding: 4px 4px 6px; }
+
+/* Color swatch grid inside a menu */
+.menu-custom-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 28px);
+  gap: 6px;
+  padding: 6px 8px 8px;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  /* A swatch's edge must stand out from white, pale and black colors alike, on either page color. */
+  border: 1px solid var(--control-border);
+  position: relative;
+}
+
+@media (hover: hover) { .swatch:hover { transform: scale(1.08); } }
+/* Focus is an inner double ring; the outer accent ring marks the current color. */
+.swatch:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--surface), inset 0 0 0 4px var(--ink); }
+.swatch[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9px;
+  border: 2px solid var(--accent);
+}
+
+.swatch.swatch-none {
+  background: var(--surface) !important;
+}
+
+.swatch.swatch-none::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 2px;
+  background: var(--critical);
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.menu-custom-color { display: flex; align-items: center; gap: 6px; padding: 6px 8px; }
+.menu-custom-color .menu-label { font-size: 12px; }
+.menu-custom-color .color-input { width: 28px; height: 28px; padding: 0; border: 0; background: transparent; cursor: pointer; flex: none; }
+.menu-custom-color .color-hex { width: 78px; min-width: 0; padding: 5px; font-size: 12px; }
+
+/* Formatting palettes stay attached to the tool and apply swatches immediately. */
+.color-palette { width: 296px; min-width: 0; }
+.palette-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 10px 10px; font-size: 13px; font-weight: 600; }
+.palette-value { color: var(--ink-3); font-size: 12px; font-weight: 400; }
+.color-palette .menu-custom-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.color-palette .swatch { width: 100%; height: auto; aspect-ratio: 1; }
+.color-palette .palette-reset .swatch { width: 20px; height: 20px; flex: none; border-radius: 5px; }
+.palette-auto { display: grid; place-items: center; font-size: 13px; font-weight: 600; background: var(--surface-2); }
+.color-palette .swatch[aria-checked="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.palette-check { position: absolute; inset: 0; display: grid; place-items: center; }
+.palette-check svg { color: #fff; background: #202124; border-radius: 50%; padding: 2px; box-sizing: content-box; }
+.color-palette .color-hex { flex: 1; width: 86px; }
+.color-palette .color-hex[aria-invalid="true"] { border-color: var(--critical); }
+@media (pointer: coarse) {
+  .color-palette .swatch { min-height: 28px; }
+  .color-palette .menu-custom-color { flex-wrap: wrap; }
+}
+
+/* ---------- Toasts ---------- */
+
+.toast-root {
+  position: fixed;
+  left: 50%;
+  bottom: calc(20px + var(--safe-b));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 90;
+  pointer-events: none;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+
+/* In the editor a toast sits above the status bar, not on top of its controls. */
+body:has(.editor:not(.focus-mode) > .statusbar) .toast-root { bottom: calc(20px + var(--statusbar-h) + var(--safe-b)); }
+
+/* The offline banner sits at the same bottom edge; toasts step up over it. */
+body:has(> .offline-banner) .toast-root { bottom: calc(64px + var(--safe-b)); }
+body:has(.editor:not(.focus-mode) > .statusbar):has(> .offline-banner) .toast-root { bottom: calc(64px + var(--statusbar-h) + var(--safe-b)); }
+/* A phone's bottom sheet holds its action row where toasts appear: while a dialog is open they show at the top instead. */
+@media (width <= 640px) {
+  body:has(.modal-root:not(.closing)) .toast-root { bottom: auto; top: calc(12px + var(--safe-t)); }
+}
+
+.toast {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--page);
+  font-size: 13.5px;
+  font-weight: 500;
+  animation: toast-in 0.25s var(--ease-spring);
+  max-width: 100%;
+}
+
+.toast svg { flex: none; }
+/* A long file name in the message wraps inside the toast rather than running past the screen's edge. */
+.toast > span { min-width: 0; overflow-wrap: anywhere; }
+.toast.leaving { animation: toast-out 0.2s ease forwards; }
+
+.toast-action {
+  color: var(--toast-action);
+  font-weight: 700;
+  padding: 2px 4px;
+  margin-left: 4px;
+}
+/* The toast inverts the theme; the generic accent ring falls under 3:1 on it in the dark theme. */
+.toast-action:focus-visible { outline-color: var(--toast-action); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(6px); }
+}
+
+/* ---------- Shortcuts modal ---------- */
+
+.shortcuts {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (width > 640px) {
+  .shortcuts { grid-template-columns: 1fr 1fr; }
+  .modal-panel.wide.shortcuts-panel { width: 860px; }
+}
+
+.shortcut-group h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); margin-bottom: 8px; }
+.shortcut-group dl { margin: 0; display: grid; grid-template-columns: fit-content(62%) 1fr; gap: 6px 14px; align-items: center; }
+/* A chord with an alternative wraps between its keys rather than pushing its meaning out of the dialog. */
+.shortcut-group dt { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 12px; color: var(--ink-2); }
+.shortcut-group dt .kbd { white-space: nowrap; }
+.shortcut-group dd { margin: 0; font-size: 13.5px; }
+
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink);
+}
+
+/* A palette button inside a dialog: swatch plus the current value. */
+.color-pick { display: inline-flex; align-items: center; gap: 8px; }
+.color-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--hairline-strong); flex: none; }
+.color-swatch.is-none { background: linear-gradient(135deg, transparent 45%, var(--critical) 45%, var(--critical) 55%, transparent 55%) !important; }
+
+/* Version history rows. */
+.version-list { display: flex; flex-direction: column; border: 1px solid var(--hairline); border-radius: var(--r-md, 10px); overflow: hidden; }
+.version-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--hairline); flex-wrap: wrap; }
+.version-row:first-child { border-top: 0; }
+.version-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.version-when { font-weight: 500; display: inline-flex; align-items: center; }
+.version-meta { font-size: 12px; color: var(--ink-3); }
+
+/* A checkbox with its label, inside dialogs. */
+.check { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; margin-bottom: 14px; cursor: pointer; }
+.check input { margin-top: 2px; accent-color: var(--accent); }
+
+/* The writing assistant's editable answer. */
+.assist-output { width: 100%; min-height: 160px; resize: vertical; font: inherit; line-height: 1.45; margin-bottom: 10px; }

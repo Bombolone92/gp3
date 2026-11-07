@@ -1,0 +1,189 @@
+import { z } from 'zod/v4'
+
+import { MAX_AGENT_STEPS_DEFAULT } from '../constants/agents'
+
+import type { Message } from './messages/codebuff-message'
+import type { ProjectFileContext } from '../util/file'
+
+export const toolCallSchema = z.object({
+  toolName: z.string(),
+  toolCallId: z.string(),
+  input: z.record(z.string(), z.any()),
+})
+export type ToolCall = z.infer<typeof toolCallSchema>
+
+export const subgoalSchema = z.object({
+  objective: z.string().optional(),
+  status: z
+    .enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETE', 'ABORTED'])
+    .optional(),
+  plan: z.string().optional(),
+  logs: z.string().array(),
+})
+export type Subgoal = z.infer<typeof subgoalSchema>
+
+export type AgentState = {
+  /**
+   * @deprecated agentId is replaced by runId
+   */
+  agentId: string
+  agentType: AgentTemplateType | null
+  agentContext: Record<string, Subgoal>
+  ancestorRunIds: string[]
+  runId?: string
+  subagents: AgentState[]
+  childRunIds: string[]
+  messageHistory: Message[]
+  stepsRemaining: number
+  creditsUsed: number
+  directCreditsUsed: number
+  output?: Record<string, any>
+  parentId?: string
+  systemPrompt: string
+  toolDefinitions: Record<
+    string,
+    { description: string | undefined; inputSchema: {} }
+  >
+  /**
+   * Latest model call's reported input + output tokens, adjusted with cheap
+   * length estimates for subsequent tool results and history edits. Before a
+   * receipt (or after compaction/model change), entirely a length estimate.
+   * This is context occupancy, never accumulated/billed usage across calls.
+   */
+  contextTokenCount: number
+  /** Serializable anchor; old saved sessions safely fall back to estimation. */
+  contextTokenBaseline?: {
+    model: string
+    tokens: number
+    estimatedTokens: number
+    /** Provider input tokens per estimated token in that request. Content
+     *  added since is scaled by it; absent on older anchors (scale 1). */
+    scale?: number
+  }
+  /**
+   * The newest structured summary of this history, made in the background
+   * while the prompt cache was warm (agent-runtime conversation-summary.ts).
+   * It is not in `messageHistory` until the runtime uses it.
+   */
+  compactionSummary?: ConversationSummary
+  /** Carried across manual compaction and resume until the next model request. */
+  pendingCompactionTelemetry?: {
+    id: string
+    summaryId?: string
+    trigger: string
+  }
+}
+
+export type ConversationSummary = {
+  /** Joins the source request, generated summary, and its later applications. */
+  id?: string
+  text: string
+  /** How many history messages the summary covers, from the start. */
+  coveredMessages: number
+  /** Fingerprint of the last covered message: finds the cut after edits. */
+  anchor: string
+  /**
+   * The provider's context count the next summary's growth is measured
+   * from: when it was requested, or, once swapped in, the first response
+   * after the swap. Unset until that response: never estimated from text.
+   */
+  contextTokens?: number
+  createdAt: number
+}
+
+export const AgentOutputSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('structuredOutput'),
+    value: z.record(z.string(), z.any()).or(z.null()),
+  }),
+  z.object({
+    type: z.literal('lastMessage'),
+    value: z.array(z.any()), // Array of assistant and tool messages from the last turn, including tool results
+  }),
+  z.object({
+    type: z.literal('allMessages'),
+    value: z.array(z.any()),
+  }),
+  z.object({
+    type: z.literal('error'),
+    message: z.string(),
+    statusCode: z.number().optional(),
+    error: z.string().optional(),
+    countryCode: z.string().optional(),
+    countryBlockReason: z.string().optional(),
+    ipPrivacySignals: z.array(z.string()).optional(),
+  }),
+])
+export type AgentOutput = z.infer<typeof AgentOutputSchema>
+
+export const AgentTemplateTypeList = [
+  // Base agents
+  'base',
+  'base_free',
+  'base_max',
+  'base_experimental',
+  'claude4_gemini_thinking',
+  'superagent',
+  'base_agent_builder',
+
+  // Ask mode
+  'ask',
+
+  // Planning / Thinking
+  'planner',
+  'dry_run',
+  'thinker',
+
+  // Other agents
+  'file_picker',
+  'file_explorer',
+  'researcher',
+  'reviewer',
+  'agent_builder',
+  'example_programmatic',
+] as const
+type UnderscoreToDash<S extends string> = S extends `${infer L}_${infer R}`
+  ? `${L}-${UnderscoreToDash<R>}` // recurse on the remainder
+  : S
+export const AgentTemplateTypes = Object.fromEntries(
+  AgentTemplateTypeList.map((name) => [name, name.replaceAll('_', '-')]),
+) as { [K in (typeof AgentTemplateTypeList)[number]]: UnderscoreToDash<K> }
+const agentTemplateTypeSchema = z.enum(AgentTemplateTypeList)
+// Allow dynamic agent types by extending the base enum with string
+export type AgentTemplateType =
+  | z.infer<typeof agentTemplateTypeSchema>
+  | (string & {})
+
+export type SessionState = {
+  fileContext: ProjectFileContext
+  mainAgentState: AgentState
+}
+
+export function getInitialAgentState(): AgentState {
+  return {
+    agentId: 'main-agent',
+    agentType: null,
+    agentContext: {},
+    ancestorRunIds: [],
+    runId: undefined,
+    subagents: [],
+    childRunIds: [],
+    messageHistory: [],
+    stepsRemaining: MAX_AGENT_STEPS_DEFAULT,
+    creditsUsed: 0,
+    directCreditsUsed: 0,
+    output: undefined,
+    parentId: undefined,
+    systemPrompt: '',
+    toolDefinitions: {},
+    contextTokenCount: 0,
+  }
+}
+export function getInitialSessionState(
+  fileContext: ProjectFileContext,
+): SessionState {
+  return {
+    mainAgentState: getInitialAgentState(),
+    fileContext,
+  }
+}

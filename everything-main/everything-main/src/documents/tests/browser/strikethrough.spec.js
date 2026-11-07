@@ -1,0 +1,48 @@
+import { openReadOnlyPreview } from './helpers/preview.js';
+import { showAllTools } from './helpers/editor-tools.js';
+import { test, expect } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { unzipSync, zipSync, strToU8, strFromU8 } from 'fflate';
+import { reopenDocx } from './helpers/reopen-docx.js';
+import {paintAllPages} from './helpers/paint-pages.js';
+async function choose(input, text) { await input.evaluate((el, text) => { const at = el.value.indexOf(text); if (at < 0) throw new Error('Missing text'); el.setSelectionRange(at, at + text.length); el.dispatchEvent(new Event('select', { bubbles: true })); }, text); }
+async function download(page, info, name) { const event = page.waitForEvent('download'); await page.getByRole('button', { name: 'Download .docx', exact: true }).click(); const path = info.outputPath(name); await (await event).saveAs(path); return path; }
+async function press(button) { await button.focus(); await button.press('Enter'); }
+
+test('paints single/double strokes, edits direct and inherited declarations with accessible controls and reopens DOCX', async ({ page }, info) => {
+  await page.addInitScript(() => { window.strikePaint = []; const fill = CanvasRenderingContext2D.prototype.fillRect; CanvasRenderingContext2D.prototype.fillRect = function(x,y,w,h) { if (this.canvas.classList.contains('canvas-page') && h > 0 && h < 4) window.strikePaint.push([+this.canvas.dataset.page, x,y,w,h,this.fillStyle]); return fill.call(this,x,y,w,h); }; });
+  const errors = []; page.on('pageerror', e => errors.push(e.message)); await page.goto('/playground.html'); await showAllTools(page); await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/strikethrough.docx'); const input = page.getByRole('textbox', { name: 'Document text' }); await expect(input).toHaveValue(/^Strikethrough Á😀/); const text = await input.inputValue();
+  const single = page.getByRole('button', { name: 'Strikethrough', exact: true }), double = page.getByRole('button', { name: 'Double strikethrough', exact: true });
+  for (const button of [single, double]) { await expect(button.locator('svg')).toHaveAttribute('aria-hidden', 'true'); await expect(button).toBeEnabled(); }
+  await paintAllPages(page);
+  const paint = await page.evaluate(async () => {
+    const { DocxPackage } = await import('/src/engine/docx.js'), { layoutDocument } = await import('/src/engine/layout.js'), { loadCanvasFonts, measureCanvasText } = await import('/src/engine/canvas-text.js'), { pageGeometry } = await import('/src/engine/page-settings.js'); const pkg = await DocxPackage.open(new Uint8Array(await (await fetch('/fixtures/strikethrough.docx')).arrayBuffer())), c = document.createElement('canvas').getContext('2d');
+    await loadCanvasFonts(pkg); const layout = layoutDocument(pkg.paragraphs, (text, style) => measureCanvasText(c, text, style), pageGeometry(pkg.pageSettings), pkg.numbering, pkg.tables);
+    const expected = [...layout.lines, ...layout.repeatedLines].flatMap(l => l.strikes.map(s => [l.page, s.x, l.baseline+s.offset, s.width, s.thickness])); const actual = window.strikePaint;
+    return { count: expected.length, missing: expected.filter(e => !actual.some(a => e.every((v,i) => Math.abs(v-a[i]) < 1e-5))).slice(0,3), repeated: layout.repeatedLines.filter(l => l.strikes.length).length };
+  }); expect(paint.count).toBeGreaterThan(100); expect(paint.repeated).toBeGreaterThan(0); expect(paint.missing).toEqual([]);
+  for (const [word, s, d] of [['Direct single', true, false], ['Direct double', false, true], ['Character reversed', false, false], ['Character kept', true, false], ['Double child stays on', false, true]]) { await choose(input, word); await expect(single).toHaveAttribute('aria-pressed', String(s)); await expect(double).toHaveAttribute('aria-pressed', String(d)); }
+  await choose(input, 'Direct single'); const range = await input.evaluate(el => [el.selectionStart, el.selectionEnd]); await press(double); expect(await input.evaluate(el => [el.selectionStart, el.selectionEnd])).toEqual(range); await expect(input).toBeFocused(); await expect(single).toHaveAttribute('aria-pressed', 'false'); await expect(double).toHaveAttribute('aria-pressed', 'true'); await page.getByRole('button', { name: 'Undo', exact: true }).click(); await expect(single).toHaveAttribute('aria-pressed', 'true'); await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await choose(input, 'Direct double'); await press(double); await expect(double).toHaveAttribute('aria-pressed', 'false');
+  await choose(input, 'Paragraph single'); await page.getByRole('button', { name: 'Edit paragraph style', exact: true }).click(); await page.getByRole('combobox', { name: 'Style strikethrough', exact: true }).selectOption('singleOff'); await page.getByRole('dialog').getByRole('button', { name: 'Apply', exact: true }).click(); await expect(page.getByRole('dialog')).toHaveCount(0); await expect(single).toHaveAttribute('aria-pressed', 'false');
+  await choose(input, 'Character reversed'); await expect(single).toHaveAttribute('aria-pressed', 'true'); await page.getByRole('button', { name: 'Edit character style', exact: true }).click(); await page.getByRole('combobox', { name: 'Style strikethrough', exact: true }).selectOption(''); await page.getByRole('dialog').screenshot({ path: info.outputPath('strike-style.png'), animations: 'disabled' }); await page.getByRole('dialog').getByRole('button', { name: 'Apply', exact: true }).click(); await expect(page.getByRole('dialog')).toHaveCount(0);
+  const saved = await download(page, info, 'strikethrough.docx'); await reopenDocx(page, input, saved, text); await choose(input, 'Direct single'); await expect(double).toHaveAttribute('aria-pressed', 'true'); await choose(input, 'Direct double'); await expect(double).toHaveAttribute('aria-pressed', 'false');
+  await single.focus(); const png = await page.locator('canvas.canvas-page').first().evaluate(c => c.toDataURL().split(',')[1]); writeFileSync(info.outputPath('strikethrough.png'), Buffer.from(png, 'base64')); expect(errors).toEqual([]);
+});
+
+test('authors mutually exclusive modes, mixed selections, future typing and Unicode input, then downloads and reopens', async ({ page }, info) => {
+  await page.goto('/playground.html'); await showAllTools(page); await page.getByRole('button', { name: 'New', exact: true }).click(); const input = page.getByRole('textbox', { name: 'Document text' }), single = page.getByRole('button', { name: 'Strikethrough', exact: true }), double = page.getByRole('button', { name: 'Double strikethrough', exact: true }); await expect(input).toHaveValue(''); await input.fill('Single Á😀\nDouble strike\nOff again\n');
+  await choose(input, 'Single Á😀'); await press(single); await choose(input, 'Double strike'); await press(double); await choose(input, 'Off again'); await press(single); await press(double); await press(double); await expect(single).toHaveAttribute('aria-pressed', 'false'); await expect(double).toHaveAttribute('aria-pressed', 'false');
+  await choose(input, 'Single Á😀\nDouble strike'); await expect(single).toHaveAttribute('aria-pressed', 'mixed'); await expect(double).toHaveAttribute('aria-pressed', 'mixed');
+  await input.focus(); await input.press('ControlOrMeta+End'); await press(double); await page.keyboard.insertText('Future double'); const text = await input.inputValue(), saved = await download(page, info, 'new-strikethrough.docx'); await reopenDocx(page, input, saved, text); await choose(input, 'Future double'); await expect(double).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('maps native strike formatting input to the same undoable document mutation', async ({ page }) => {
+  await page.goto('/playground.html'); await showAllTools(page); await page.getByRole('button', { name: 'New', exact: true }).click(); const input = page.getByRole('textbox', { name: 'Document text' }); await expect(input).toHaveValue(''); await input.fill('AVATAR'); await choose(input, 'AVATAR');
+  await input.evaluate(el => el.dispatchEvent(new InputEvent('beforeinput', { inputType: 'formatStrikeThrough', bubbles: true, cancelable: true }))); await expect(page.getByRole('button', { name: 'Strikethrough', exact: true })).toHaveAttribute('aria-pressed', 'true'); await page.getByRole('button', { name: 'Undo', exact: true }).click(); await expect(page.getByRole('button', { name: 'Strikethrough', exact: true })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('previews invalid or conflicting strike declarations as read-only with the original available', async ({ page }) => {
+  await page.goto('/playground.html'); await showAllTools(page); const input = page.getByRole('textbox', { name: 'Document text' }); await expect(input).toHaveValue(/^A small beginning/); const text = await input.inputValue();
+  for (const [xml, message] of [['<w:strike w:val="bad"/>', /invalid strike/], ['<w:strike/><w:dstrike/>', /strike and dstrike both on/]]) { const parts = unzipSync(readFileSync('public/fixtures/strikethrough.docx')); parts['word/document.xml'] = strToU8(strFromU8(parts['word/document.xml']).replace('<w:strike/>', xml)); await openReadOnlyPreview(page, { name: 'bad-strike.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: Buffer.from(zipSync(parts)) });   }
+});

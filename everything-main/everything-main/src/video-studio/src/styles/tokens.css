@@ -1,0 +1,114 @@
+/* Design tokens. Dark is the editing default look; light mirrors it. */
+:root {
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  --gap: 4px;
+  --topbar-h: 44px;
+  --toolbar-h: 40px;
+  --track-h: 52px;
+  --track-h-main: 64px;
+  --track-h-audio: 44px;
+  --track-h-text: 28px;
+  --track-header-w: 92px;
+
+  --t-fast: 120ms;
+  --t: 180ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Clip colors on the timeline (shared by both themes). */
+  --clip-video: #3c4f86;
+  --clip-video-border: #5a6fb0;
+  --clip-image: #3c4f86;
+  --clip-audio: #2f6a4a;
+  --clip-audio-wave: #9be0b8;
+  --clip-text: #7d3a6e;
+  --clip-sticker: #8f3f4a;
+  --clip-avatar: #2f6b78;
+  --clip-effect: #7a5d1c;
+  --clip-filter: #55602a;
+  --clip-adjust: #575a66;
+  --clip-label: #ffffff;
+  --marker: #f5b83d;
+  --playhead: #ffffff;
+  --snap: #f5d142;
+  --danger: #f04d4d;
+  --success: #3fbf7f;
+  --warning: #f2a93b;
+}
+
+:root,
+:root[data-theme-resolved='dark'] {
+  color-scheme: dark;
+  --bg-app: #121212;
+  --bg-panel: #222224;
+  --bg-panel-2: #2a2a2d;
+  --bg-elev: #303034;
+  --bg-input: #18181a;
+  --bg-hover: rgba(255, 255, 255, 0.07);
+  --bg-active: rgba(255, 255, 255, 0.12);
+  --bg-player: #1b1b1d;
+  --bg-timeline: #222224;
+  --bg-track: #26262a;
+  --bg-track-main: #2a2a2e;
+  --border: #323236;
+  --border-strong: #44444a;
+  --text: #ececee;
+  --text-2: #a9a9b1;
+  --text-3: #8d8d96;
+  --text-on-media: #ffffff;
+  --accent: #4f8ff7;
+  --accent-hover: #6ea3fa;
+  --accent-soft: rgba(79, 143, 247, 0.18);
+  --accent-text: #8fb6fb;
+  --on-accent: #04122b;
+  --focus: #8fb6fb;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --playhead: #ffffff;
+  --ruler: #8a8a94;
+  --selection: #ffffff;
+  --overlay-handle: #ffffff;
+}
+
+:root[data-theme-resolved='light'] {
+  color-scheme: light;
+  --bg-app: #e9e9ec;
+  --bg-panel: #ffffff;
+  --bg-panel-2: #f7f7f8;
+  --bg-elev: #ffffff;
+  --bg-input: #f3f3f5;
+  --bg-hover: rgba(0, 0, 0, 0.05);
+  --bg-active: rgba(0, 0, 0, 0.09);
+  --bg-player: #d9d9de;
+  --bg-timeline: #ffffff;
+  --bg-track: #f3f3f5;
+  --bg-track-main: #ececf0;
+  --border: #dedee3;
+  --border-strong: #c8c8cf;
+  --text: #17171a;
+  --text-2: #55555e;
+  --text-3: #63636b;
+  --accent: #1f63d6;
+  --accent-hover: #1a54b8;
+  --accent-soft: rgba(31, 99, 214, 0.12);
+  --accent-text: #1a58c2;
+  --on-accent: #ffffff;
+  --focus: #1f63d6;
+  --scrim: rgba(20, 20, 25, 0.4);
+  --playhead: #17171a;
+  --ruler: #6a6a74;
+  --selection: #17171a;
+  --overlay-handle: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t: 0ms;
+  }
+}

@@ -1,0 +1,65 @@
+/* Draw tab: the pens' ink colour in their icons, the drawing layer over the sheet, and the pen menu. */
+svg.ico .ink { fill: var(--pen-color, currentColor); stroke: none; }
+svg.ico .inkf { fill: var(--pen-color, currentColor); stroke: currentColor; }
+
+/* A chosen pen shows a small arrow: pressing it again opens its thickness and colours. */
+.ribbon-command.ink-pen-button { position: relative; min-width: 36px; }
+.ribbon-command.ink-pen-button[aria-pressed="true"]::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  margin-left: -3px;
+  border: 3px solid transparent;
+  border-top: 4px solid var(--ink-2);
+  border-bottom-width: 0;
+}
+
+/* Over the cells and the objects while a tool is chosen; it scrolls and zooms with the sheet as they do. */
+.ink-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  touch-action: none;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ink-surface[data-tool="eraser"] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='6' fill='white' stroke='%23424242' stroke-width='1.5'/%3E%3C/svg%3E") 10 10, cell;
+}
+.ink-surface[data-tool="lasso"] { cursor: crosshair; }
+.ink-live {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.ink-lasso-line { fill: rgba(47, 116, 192, 0.06); stroke: var(--accent, #2f74c0); stroke-width: 1; stroke-dasharray: 4 3; }
+.ink-lasso-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  border: 1px dashed var(--accent, #2f74c0);
+  background: rgba(47, 116, 192, 0.05);
+  cursor: move;
+}
+
+.ink-widths { display: flex; gap: 2px; padding: 2px 8px 6px; }
+.ink-width {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+}
+.ink-width[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft, rgba(47, 116, 192, 0.12)); }
+@media (hover: hover) { .ink-width:hover { background: var(--surface-3); } }
+.ink-width:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

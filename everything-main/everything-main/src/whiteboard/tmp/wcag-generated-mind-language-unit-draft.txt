@@ -1,0 +1,62 @@
+
+test("new mind-map labels capture their generating language independently of parent declarations", () => {
+  const dom = new JSDOM("<body></body>", { url: "https://whiteboard.test" });
+  const previousLanguage = language;
+  const globals = { document: globalThis.document, localStorage: globalThis.localStorage };
+  globalThis.document = dom.window.document;
+  globalThis.localStorage = dom.window.localStorage;
+  const b = board("Generated mind map labels");
+  let selected;
+  const ui = createMindMapUI({
+    board: () => b,
+    source: () => b.items.find(i => i.id === selected),
+    center: () => ({ x: 0, y: 0 }),
+    finish() {}, canEdit: () => true,
+    mutate: fn => fn(), select: ids => { selected = [...ids][0]; },
+    reveal() {}, edit() {}, focus() {},
+    toast(message) { throw Error(message); },
+  });
+  try {
+    setLanguage("en");
+    ui.create();
+    const root = b.items.find(i => i.id === selected);
+    assert.equal(root.text, "Central idea");
+    assert.equal(root.lang, "en");
+    root.lang = "de-DE";
+    root.textRuns = [{ start: 0, end: root.text.length, style: { lang: "es" } }];
+    const declared = structuredClone({ text: root.text, lang: root.lang, textRuns: root.textRuns });
+    ui.add(false, "left");
+    const child = b.items.find(i => i.id === selected);
+    assert.equal(child.text, "New idea");
+    assert.equal(child.lang, "en");
+    assert.equal(child.textRuns, undefined);
+    assert.equal(child.mindMap.parent, root.id);
+    assert.equal(child.mindMap.direction, "left");
+    setLanguage("fr");
+    ui.add(true);
+    const sibling = b.items.find(i => i.id === selected);
+    assert.equal(sibling.text, "Nouvelle idée");
+    assert.equal(sibling.lang, "fr");
+    assert.equal(sibling.textRuns, undefined);
+    assert.equal(sibling.mindMap.parent, root.id);
+    assert.equal(child.lang, "en");
+    assert.deepEqual({ text: root.text, lang: root.lang, textRuns: root.textRuns }, declared);
+    ui.create();
+    const frenchRoot = b.items.find(i => i.id === selected);
+    assert.equal(frenchRoot.text, "Idée centrale");
+    assert.equal(frenchRoot.lang, "fr");
+    delete frenchRoot.lang;
+    frenchRoot.text = "Existing untagged content";
+    ui.add();
+    assert.equal(b.items.find(i => i.id === selected).lang, "fr");
+    assert.equal(frenchRoot.lang, undefined);
+    assert.equal(frenchRoot.text, "Existing untagged content");
+  } finally {
+    setLanguage(previousLanguage);
+    dom.window.close();
+    for (const [key,value] of Object.entries(globals)) {
+      if (value === undefined) delete globalThis[key];
+      else globalThis[key] = value;
+    }
+  }
+});

@@ -1,0 +1,552 @@
+import {
+  PDFArray,
+  PDFBool,
+  PDFDict,
+  PDFDocument,
+  PDFHexString,
+  PDFName,
+  PDFNumber,
+  PDFRawStream,
+  PDFRef,
+  PDFStream,
+  PDFString,
+  decodePDFRawStream,
+} from 'pdf-lib';
+import { inheritPdfVersion, savePdf } from './version.js';
+import { MAX_PAGES, flattenFonts, validatePdf } from './document.js';
+import { flattenFields, requireFlattenedPages } from './flatten.js';
+import { copyPagesWithLayers } from './optional-content.js';
+import { mapPageDestinations } from './page-actions.js';
+import { tokenize } from './content-filter.js';
+
+/**
+ * Parse a print-style page list such as "1-3, 5" into zero-based indices for a PDF with
+ * `count` pages. Descending ranges keep their order, as they do in print dialogs.
+ */
+export function parsePageRange(text, count) {
+  const tokens = String(text ?? '')
+    .split(/[,;]+/)
+    .map((token) => token.trim())
+    .filter(Boolean);
+  if (!tokens.length) throw new Error('Enter the pages to include, like 1-3, 5.');
+  const indices = [];
+  for (const token of tokens) {
+    const match = /^(\d+)(?:\s*[-–—]\s*(\d+))?$/.exec(token);
+    if (!match) throw new Error('Enter the pages to include, like 1-3, 5.');
+    const from = Number(match[1]),
+      to = match[2] === undefined ? from : Number(match[2]);
+    if (from < 1 || to < 1 || from > count || to > count)
+      throw new Error(`Pages must be between 1 and ${count}.`);
+    const step = to >= from ? 1 : -1;
+    for (let page = from; page !== to + step; page += step) indices.push(page - 1);
+  }
+  return indices;
+}
+
+/** Describe zero-based indices the way people write them: "1-3, 5". */
+export function formatPageRange(indices) {
+  const parts = [];
+  for (let i = 0; i < indices.length; i++) {
+    let end = i;
+    while (end + 1 < indices.length && indices[end + 1] === indices[end] + 1) end++;
+    parts.push(end > i ? `${indices[i] + 1}-${indices[end] + 1}` : String(indices[i] + 1));
+    i = end;
+  }
+  return parts.join(', ');
+}
+
+function requireExtractionCount(indices) {
+  if (!indices?.length) throw new Error('Choose at least one page to extract.');
+  if (indices.length > MAX_PAGES) throw new Error('The extracted PDF would exceed 1,000 pages.');
+}
+
+/**
+ * Build a new PDF from the given pages of `bytes`, in the given order. Copying only the pages
+ * leaves behind everything the source kept for other pages, so the result is as small as its
+ * pages. Form fields become fixed page content, as they do when a PDF is merged in.
+ */
+export async function extractPages(bytes, indices) {
+  requireExtractionCount(indices);
+  return copyPagesFrom(await openSource(bytes), indices);
+}
+
+/**
+ * Load a PDF for extraction and flatten its form once, so several extractions from the same
+ * file (a split) share the parsing and flattening instead of repeating them per part.
+ */
+export async function openSource(bytes) {
+  const source = await validatePdf(bytes);
+  const fonts = await flattenFonts(source);
+  try {
+    flattenFields(source, { fonts });
+  } catch {
+    // The selected pages are checked before copying so remaining widgets cannot be orphaned.
+  }
+  return source;
+}
+
+const isString = (value) => value instanceof PDFString || value instanceof PDFHexString;
+/**
+ * Destination names are byte strings (ISO 32000-1, 12.3.2.3), not text strings. Compare their
+ * decoded bytes so literal escapes and hex syntax match, while distinct text encodings and
+ * leading slashes stay distinct. Binary strings also keep the name tree's byte ordering.
+ */
+const destKeyBytes = (value) =>
+  value instanceof PDFName || isString(value)
+    ? Array.from(value.asBytes(), (byte) => String.fromCharCode(byte)).join('')
+    : null;
+/** Look a named destination up in a name tree node, returning its value or undefined. */
+function searchNameTree(context, node, key) {
+  const pending = [node];
+  const seen = new Set();
+  while (pending.length) {
+    const current = context.lookup(pending.pop());
+    if (!(current instanceof PDFDict) || seen.has(current)) continue;
+    seen.add(current);
+    const limits = current === node ? null : current.lookup(PDFName.of('Limits'));
+    if (limits instanceof PDFArray && limits.size() === 2) {
+      const lo = destKeyBytes(context.lookup(limits.get(0))),
+        hi = destKeyBytes(context.lookup(limits.get(1)));
+      if (lo != null && hi != null && (key < lo || key > hi)) continue;
+    }
+    const names = current.lookup(PDFName.of('Names'));
+    if (names instanceof PDFArray)
+      for (let i = 0; i + 1 < names.size(); i += 2)
+        if (destKeyBytes(context.lookup(names.get(i))) === key)
+          return context.lookup(names.get(i + 1));
+    const kids = current.lookup(PDFName.of('Kids'));
+    // Reverse the stack entries to retain tree order, without recursion on untrusted depth.
+    if (kids instanceof PDFArray)
+      for (let i = kids.size() - 1; i >= 0; i--) pending.push(kids.get(i));
+  }
+  return undefined;
+}
+/**
+ * Resolve a named destination in `source`, from the old catalog /Dests dictionary or the
+ * /Names /Dests name tree, searched by the name's bytes so a file that keys one the way the
+ * other expects still resolves.
+ */
+function resolveNamedDest(source, name) {
+  const key = destKeyBytes(name);
+  if (key == null) return undefined;
+  const { context, catalog } = source;
+  const dests = context.lookup(catalog.get(PDFName.of('Dests')));
+  if (dests instanceof PDFDict)
+    for (const [entryKey, value] of dests.entries())
+      if (destKeyBytes(entryKey) === key) return context.lookup(value);
+  const names = context.lookup(catalog.get(PDFName.of('Names')));
+  const tree = names instanceof PDFDict ? context.lookup(names.get(PDFName.of('Dests'))) : null;
+  return tree instanceof PDFDict ? searchNameTree(context, tree, key) : undefined;
+}
+/** The explicit page-destination array behind a dest value ([pageRef ...] or { D: [...] }). */
+export function explicitDest(source, dest) {
+  let value = dest instanceof PDFRef ? source.context.lookup(dest) : dest;
+  if (value instanceof PDFName || isString(value)) value = resolveNamedDest(source, value);
+  if (value instanceof PDFDict) value = source.context.lookup(value.get(PDFName.of('D')));
+  return value instanceof PDFArray ? value : null;
+}
+/**
+ * Turn page links and action destinations into explicit page references before copying
+ * (copyPages does not carry the name tree). Mutates the source parsed for extraction.
+ */
+export function inlineNamedDests(source, pageIndices) {
+  const sourcePages = source.getPages();
+  const numeric = new Map();
+  mapPageDestinations(
+    source,
+    pageIndices.map((index) => sourcePages[index]),
+    (container, destKey) => {
+      const dest = container.get(destKey);
+      if (dest === undefined) return;
+      const explicit = explicitDest(source, dest);
+      const first = explicit?.get(0);
+      const target = first instanceof PDFNumber ? sourcePages[first.asNumber()] : null;
+      // A nonexistent source page must not become an unrelated page in the destination PDF.
+      if (first instanceof PDFNumber && !target) return false;
+      if (target) {
+        // Clone so a shared remote GoToR/GoToE array keeps its page number.
+        if (!numeric.has(explicit)) {
+          const copy = explicit.clone(source.context);
+          copy.set(0, target.ref);
+          numeric.set(explicit, copy);
+        }
+        container.set(destKey, numeric.get(explicit));
+      } else if (explicit && !(source.context.lookup(dest) instanceof PDFArray)) {
+        container.set(destKey, explicit);
+      }
+    },
+  );
+}
+/** Drop every indirect object nothing reachable from the trailer refers to (orphan sweep). */
+function sweepOrphans(context) {
+  const live = new Set();
+  const pending = [
+    context.trailerInfo.Root,
+    context.trailerInfo.Info,
+    context.trailerInfo.ID,
+    context.pushGraphicsStateContentStreamRef,
+    context.popGraphicsStateContentStreamRef,
+  ].filter(Boolean);
+  while (pending.length) {
+    const value = pending.pop();
+    if (value instanceof PDFRef) {
+      if (live.has(value)) continue;
+      live.add(value);
+      const target = context.lookup(value);
+      if (target) pending.push(target);
+    } else if (value instanceof PDFStream) pending.push(value.dict);
+    else if (value instanceof PDFDict) for (const [, v] of value.entries()) pending.push(v);
+    else if (value instanceof PDFArray) for (const v of value.asArray()) pending.push(v);
+  }
+  for (const [ref] of context.enumerateIndirectObjects()) if (!live.has(ref)) context.delete(ref);
+}
+/** The resource kinds a content stream names its resources by. */
+const NAMED_RESOURCES = [
+  'XObject',
+  'Font',
+  'ExtGState',
+  'ColorSpace',
+  'Pattern',
+  'Shading',
+  'Properties',
+].map((key) => PDFName.of(key));
+/** Every name a stream's content writes (#-escapes undone), or null when it cannot be read. */
+function contentNames(stream) {
+  let bytes;
+  try {
+    bytes =
+      stream instanceof PDFRawStream
+        ? decodePDFRawStream(stream).decode()
+        : (stream.getUnencodedContents?.() ?? stream.getContents());
+  } catch {
+    return null;
+  }
+  const names = new Set();
+  let text = '';
+  for (let i = 0; i < bytes.length; i += 0x8000)
+    text += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  for (const [, name] of text.matchAll(/\/([^\x00\t\n\f\r ()<>[\]{}/%]*)/g))
+    names.add(
+      name.replace(/#([0-9a-fA-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16))),
+    );
+  return names;
+}
+/**
+ * Give each copied page only the resources its content names. Writers that share one resource
+ * dictionary among all pages name every page's pictures and fonts in it, so a page copied out
+ * of such a file carried all of them: one extracted page was as large as the whole document,
+ * and a split repeated the whole document in every part. Names are looked for anywhere in the
+ * content, so nothing used is ever dropped; a page whose content cannot be read, or whose forms
+ * and comments may draw with the page's resources, keeps them all.
+ */
+export function pruneCopiedResources(doc, pages) {
+  const { context } = doc;
+  const RESOURCES = PDFName.of('Resources');
+  for (const page of pages) {
+    const resources = page.node.lookup(RESOURCES);
+    if (!(resources instanceof PDFDict)) continue;
+    const contents = page.node.lookup(PDFName.of('Contents'));
+    const streams =
+      contents instanceof PDFArray
+        ? contents.asArray().map((ref) => context.lookup(ref))
+        : [contents];
+    const used = new Set();
+    const read = (stream) => {
+      const names = stream instanceof PDFStream ? contentNames(stream) : null;
+      names?.forEach((name) => used.add(name));
+      return !!names;
+    };
+    if (!streams.every((stream) => stream === undefined || read(stream))) continue;
+    // Appearances written without resources of their own may fall back on the page's.
+    const annots = page.node.lookup(PDFName.of('Annots'));
+    const borrows = (annots instanceof PDFArray ? annots.asArray() : []).some((ref) => {
+      const ap = context.lookup(ref)?.lookup?.(PDFName.of('AP'));
+      if (!(ap instanceof PDFDict)) return false;
+      const pending = ap.values().map((value) => context.lookup(value));
+      while (pending.length) {
+        const value = pending.pop();
+        if (value instanceof PDFStream) {
+          if (!value.dict.has(RESOURCES)) return true;
+        } else if (value instanceof PDFDict)
+          pending.push(...value.values().map((v) => context.lookup(v)));
+      }
+      return false;
+    });
+    if (borrows) continue;
+    // So may forms the page draws; what they name counts too, through forms they draw in turn.
+    const xobjects = resources.lookup(PDFName.of('XObject'));
+    let unreadable = false;
+    const scanned = new Set();
+    for (let grew = true; grew && !unreadable;) {
+      grew = false;
+      if (!(xobjects instanceof PDFDict)) break;
+      for (const [key, value] of xobjects.entries()) {
+        const form = context.lookup(value);
+        if (!used.has(key.decodeText()) || scanned.has(form) || !(form instanceof PDFStream))
+          continue;
+        scanned.add(form);
+        if (
+          form.dict.has(RESOURCES) ||
+          form.dict.lookup(PDFName.of('Subtype')) !== PDFName.of('Form')
+        )
+          continue;
+        const before = used.size;
+        if (!read(form)) unreadable = true;
+        if (used.size !== before) grew = true;
+      }
+    }
+    if (unreadable) continue;
+    const own = resources.clone(context);
+    let removed = false;
+    for (const kind of NAMED_RESOURCES) {
+      const entries = resources.lookup(kind);
+      if (!(entries instanceof PDFDict)) continue;
+      const kept = context.obj({});
+      for (const [key, value] of entries.entries())
+        if (used.has(key.decodeText())) kept.set(key, value);
+        else removed = true;
+      own.set(kind, kept);
+    }
+    if (removed) page.node.set(RESOURCES, own);
+  }
+}
+const latin1 = (bytes) => {
+  let text = '';
+  for (let i = 0; i < bytes.length; i += 0x8000)
+    text += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return text;
+};
+/**
+ * Take the marked-content IDs off a copied page's content. They name the original page's
+ * place in the tag tree, which the copy has no part in, so screen readers skipped the copy's
+ * content as tagged by nobody and autotagging could not tag it either. The marked content
+ * stays, with its other properties; only the IDs go, leaving the copy cleanly untagged.
+ */
+function untagCopiedContent(doc, page) {
+  const CONTENTS = PDFName.of('Contents');
+  const contents = page.node.lookup(CONTENTS);
+  const refs =
+    contents instanceof PDFArray ? contents.asArray() : contents ? [page.node.get(CONTENTS)] : [];
+  let changed = false;
+  const replaced = refs.map((ref) => {
+    const stream = doc.context.lookup(ref);
+    if (!(stream instanceof PDFStream)) return ref;
+    let source;
+    try {
+      source = latin1(
+        stream instanceof PDFRawStream
+          ? decodePDFRawStream(stream).decode()
+          : (stream.getUnencodedContents?.() ?? stream.getContents()),
+      );
+    } catch {
+      return ref;
+    }
+    if (!source.includes('MCID')) return ref;
+    let commands;
+    try {
+      commands = tokenize(source);
+    } catch {
+      return ref;
+    }
+    let out = '',
+      at = 0;
+    for (const command of commands) {
+      const [tag, properties] = command.args || [];
+      if (command.op !== 'BDC' || tag?.type !== 'name' || properties?.type !== 'dict') continue;
+      const keys = properties.value.filter((_, i) => i % 2 === 0).map((key) => key.value);
+      if (!keys.includes('MCID')) continue;
+      const text = source.slice(command.start, command.end);
+      // A property list of the ID alone leaves a plain tag; any other properties stay.
+      const plain =
+        keys.length === 1 &&
+        /^(\s*\/[^\x00\t\n\f\r ()<>[\]{}/%]*)\s*<<[\s\S]*>>\s*BDC\s*$/.exec(text);
+      const replacement = plain
+        ? `${plain[1]} BMC`
+        : text.replace(/\/MCID[\x00\t\n\f\r ]+[-+]?\d+/, '');
+      out += source.slice(at, command.start) + replacement;
+      at = command.end;
+    }
+    if (!at) return ref;
+    changed = true;
+    return doc.context.register(
+      doc.context.flateStream(Uint8Array.from(out + source.slice(at), (c) => c.charCodeAt(0))),
+    );
+  });
+  if (!changed) return;
+  if (contents instanceof PDFArray) page.node.set(CONTENTS, doc.context.obj(replaced));
+  else page.node.set(CONTENTS, replaced[0]);
+}
+/** A key marking each source page with its index, copied into every copy the copier makes. */
+export const COPY_INDEX = PDFName.of('PuterCopyPageIndex');
+/**
+ * Make `copier` copy a small stand-in wherever a copied object names a page of `source` (a
+ * link's target, an annotation's page). Following the reference would copy that page with all
+ * its content, and every page it links to in turn (a contents page reaches the whole document),
+ * only for relinkCopiedPages to sweep the copies away again. A stand-in carries the page's
+ * COPY_INDEX just as such a copy would, and is made only for pages actually named.
+ */
+export function copyPageStandIns(copier, source, target, pages = source.getPages()) {
+  const indices = new Map(pages.map((page, index) => [page.ref, index]));
+  const copyReference = copier.copyPDFIndirectObject;
+  copier.copyPDFIndirectObject = (ref) => {
+    const index = indices.get(ref);
+    if (index !== undefined && !copier.traversedObjects.has(ref))
+      copier.traversedObjects.set(
+        ref,
+        target.context.register(target.context.obj({ [COPY_INDEX.decodeText()]: index })),
+      );
+    return copyReference(ref);
+  };
+}
+/**
+ * The copier shares annotation objects when the same source page is selected more than once.
+ * Each page must own its annotation dictionaries (ISO 32000-1, 12.5.2), including the popup
+ * and reply relationships between them. Keep subsidiary resources shared, as the standard
+ * permits, so independent comments do not require copying large images or appearances.
+ */
+function separatePageAnnotations(doc, pages) {
+  const { context } = doc;
+  const seenArrays = new Set();
+  const seenAnnotations = new Set();
+  for (const page of pages) {
+    const annots = page.node.lookup(PDFName.of('Annots'));
+    if (!(annots instanceof PDFArray)) continue;
+    const entries = annots.asArray().map((ref) => context.lookup(ref));
+    const shared = entries.some((entry) => seenAnnotations.has(entry));
+    if (seenArrays.has(annots) || shared) {
+      const own = annots.clone(context);
+      page.node.set(PDFName.of('Annots'), own);
+      if (shared) {
+        const copies = new Map();
+        for (const entry of entries)
+          if (entry instanceof PDFDict && !copies.has(entry))
+            copies.set(entry, context.register(entry.clone(context)));
+        for (let i = 0; i < entries.length; i++)
+          if (copies.has(entries[i])) own.set(i, copies.get(entries[i]));
+        for (const ref of copies.values()) {
+          const copy = context.lookup(ref);
+          for (const key of ['Popup', 'Parent', 'IRT']) {
+            const name = PDFName.of(key);
+            const related = copies.get(context.lookup(copy.get(name)));
+            if (related) copy.set(name, related);
+          }
+        }
+      }
+    }
+    seenArrays.add(annots);
+    for (const entry of entries) if (entry instanceof PDFDict) seenAnnotations.add(entry);
+  }
+}
+/**
+ * After pages are copied into `doc`, remap their destinations to the pages in the page tree,
+ * drop jumps whose target page was not copied, set each annotation's page, and remove the
+ * orphan page copies pdf-lib's copier dragged in. The copier makes a fresh copy of a linked
+ * page for each place that references it, so a link points at an orphan copy that is not in the
+ * page tree; `indexToRef` maps a source page index (read from the COPY_INDEX marker the copies
+ * carry) to the page that actually joined the tree.
+ */
+export function relinkCopiedPages(doc, pages, indexToRef) {
+  separatePageAnnotations(doc, pages);
+  const targetIndex = (ref) => {
+    const node = doc.context.lookup(ref);
+    const marker = node instanceof PDFDict ? node.get(COPY_INDEX) : null;
+    return marker instanceof PDFNumber ? marker.asNumber() : null;
+  };
+  const remap = (dest) => {
+    // Resolvable source names were already inlined. A remaining name must not bind to
+    // an unrelated destination in the receiving document's catalog.
+    if (dest instanceof PDFName || dest instanceof PDFString || dest instanceof PDFHexString)
+      return false;
+    if (!(dest instanceof PDFArray) || dest.size() === 0) return true;
+    const first = dest.get(0);
+    if (!(first instanceof PDFRef)) return true;
+    const index = targetIndex(first);
+    const to = index == null ? undefined : indexToRef.get(index);
+    if (to) {
+      dest.set(0, to);
+      return true;
+    }
+    return false;
+  };
+  for (const page of pages) {
+    // The copy's structure tree stays behind, and these keys would name unrelated elements
+    // of this document's tree (alternate text read out for the wrong content). The copied
+    // page reads as untagged instead.
+    page.node.delete(PDFName.of('StructParents'));
+    // Article threads (ISO 32000-1, 12.4.3) stay behind too. The copy's beads would run on
+    // to pages that were not copied, keeping the copier's stand-ins for them in the file.
+    page.node.delete(PDFName.of('B'));
+    untagCopiedContent(doc, page);
+    const annots = doc.context.lookup(page.node.get(PDFName.of('Annots')));
+    if (!(annots instanceof PDFArray)) continue;
+    for (const ref of annots.asArray()) {
+      const annot = doc.context.lookup(ref);
+      if (!(annot instanceof PDFDict)) continue;
+      if (annot.has(PDFName.of('P'))) annot.set(PDFName.of('P'), page.ref);
+      annot.delete(PDFName.of('StructParent'));
+    }
+  }
+  mapPageDestinations(doc, pages, (container, key) => remap(container.lookup(key)));
+  // The marker was only needed to match copies to pages; the copied pages keep none of it.
+  for (const page of pages) page.node.delete(COPY_INDEX);
+  sweepOrphans(doc.context);
+}
+
+/**
+ * A new PDF holding the given pages of an opened source, in the given order.
+ * A split can pass a details snapshot so its XMP packet is read only once for all parts.
+ */
+export async function copyPagesFrom(source, indices, details) {
+  requireExtractionCount(indices);
+  const count = source.getPageCount();
+  if (indices.some((index) => !Number.isInteger(index) || index < 0 || index >= count))
+    throw new Error(`Pages must be between 1 and ${count}.`);
+  requireFlattenedPages(source, indices);
+  const out = await PDFDocument.create();
+  if (details === undefined && source.catalog.has(PDFName.of('Metadata')))
+    details = (await import('./details.js')).documentDetails(source);
+  // Carry the source's authoritative descriptive fields. The new document has its own
+  // creation facts; keywords remain one exact string, and malformed Info values are skipped.
+  for (const key of ['Title', 'Author', 'Subject', 'Keywords']) {
+    let value;
+    try {
+      value = details ? details[key.toLowerCase()] : source[`get${key}`]();
+    } catch {
+      continue;
+    }
+    if (value) out.getInfoDict().set(PDFName.of(key), PDFHexString.fromText(String(value)));
+  }
+  // The language of the text, and how readers should present it, still hold for its pages:
+  // screen readers pick their voice by /Lang, and a right-to-left book keeps its page order.
+  const lang = source.catalog.lookup(PDFName.of('Lang'));
+  if (isString(lang)) out.catalog.set(PDFName.of('Lang'), lang.clone());
+  const preferences = source.catalog.lookup(PDFName.of('ViewerPreferences'));
+  if (preferences instanceof PDFDict) {
+    const kept = out.context.obj({});
+    // Settings naming page numbers (PrintPageRange) would mean other pages here.
+    for (const key of ['DisplayDocTitle', 'Direction']) {
+      const value = preferences.lookup(PDFName.of(key));
+      if (value instanceof PDFBool || value instanceof PDFName) kept.set(PDFName.of(key), value);
+    }
+    if (kept.keys().length) out.catalog.set(PDFName.of('ViewerPreferences'), kept);
+  }
+  // Make named destinations explicit before copying, then fix up the copied links and drop the
+  // orphan page copies the copier pulls in for their targets. Each source page is marked with
+  // its index so a copied link's target can be matched to the page that joined the tree.
+  inlineNamedDests(source, indices);
+  const sourcePages = source.getPages();
+  sourcePages.forEach((page, index) => page.node.set(COPY_INDEX, PDFNumber.of(index)));
+  try {
+    const pages = await copyPagesWithLayers(out, source, indices, (copier) =>
+      copyPageStandIns(copier, source, out),
+    );
+    pages.forEach((page) => out.addPage(page));
+    pruneCopiedResources(out, pages);
+    const indexToRef = new Map(indices.map((index, position) => [index, pages[position].ref]));
+    relinkCopiedPages(out, pages, indexToRef);
+  } finally {
+    sourcePages.forEach((page) => page.node.delete(COPY_INDEX));
+  }
+  inheritPdfVersion(out, source);
+  return savePdf(out);
+}

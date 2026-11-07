@@ -1,0 +1,689 @@
+{
+  "description": "Authored controls opened and saved in the native reference application, 2026-09-19. Same semantic tree as diagram-layout-fixture.js. Native regenerated model IDs normalized by parOf graph positions. Root has lin algorithm, empty shape/presOf/constraint list, and 400x100mm frame. Geometry and mappings prove replacement of active properties; varLst uses its first direct occurrence.",
+  "cases": [
+    {
+      "name": "constraint lists <dgm:constr type=\"w\" val=\"20\" /> <dgm:constr type=\"h\" val=\"30\" /> direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"20\" /></dgm:constrLst><dgm:constrLst><dgm:constr type=\"h\" val=\"30\" /></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7200000,
+            "y": 1260000,
+            "w": 0,
+            "h": 1080000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7200000,
+            "y": 1260000,
+            "w": 0,
+            "h": 1080000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7200000,
+            "y": 1260000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "constraint lists <dgm:constr type=\"w\" val=\"20\" /> <dgm:constr type=\"h\" val=\"30\" /> choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"20\" /></dgm:constrLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:constrLst><dgm:constr type=\"h\" val=\"30\" /></dgm:constrLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7200000,
+            "y": 1260000,
+            "w": 0,
+            "h": 1080000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7200000,
+            "y": 1260000,
+            "w": 0,
+            "h": 1080000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7200000,
+            "y": 1260000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "constraint lists <dgm:constr type=\"w\" val=\"20\" /> <dgm:constr type=\"w\" val=\"40\" /> direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"20\" /></dgm:constrLst><dgm:constrLst><dgm:constr type=\"w\" val=\"40\" /></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 5040000,
+            "y": 1800000,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6480000,
+            "y": 1800000,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7920000,
+            "y": 1800000,
+            "w": 1440000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "constraint lists <dgm:constr type=\"w\" val=\"20\" /> <dgm:constr type=\"w\" val=\"40\" /> choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"20\" /></dgm:constrLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:constrLst><dgm:constr type=\"w\" val=\"40\" /></dgm:constrLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 5040000,
+            "y": 1800000,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6480000,
+            "y": 1800000,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7920000,
+            "y": 1800000,
+            "w": 1440000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "constraint lists <dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" />  direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst><dgm:constrLst></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": []
+    },
+    {
+      "name": "constraint lists <dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" />  choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:constrLst></dgm:constrLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expected": []
+    },
+    {
+      "name": "constraint lists  <dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /> direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst></dgm:constrLst><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "constraint lists  <dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /> choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst></dgm:constrLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple algorithms fromL fromT",
+      "body": "<dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\"/></dgm:alg><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromT\"/></dgm:alg><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1260000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1980000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple algorithms fromT fromR",
+      "body": "<dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromT\"/></dgm:alg><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromR\"/></dgm:alg><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple mappings self ch",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst><dgm:presOf axis=\"self\" ptType=\"node\"/><dgm:presOf axis=\"ch\" ptType=\"node\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["11", "12"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["21", "22"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["31"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple mappings ch self",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst><dgm:presOf axis=\"ch\" ptType=\"node\"/><dgm:presOf axis=\"self\" ptType=\"node\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple shapes rect ellipse",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst><dgm:shape type=\"rect\"/><dgm:shape type=\"ellipse\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "ellipse",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "ellipse",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "ellipse",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple shapes ellipse rect",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst><dgm:shape type=\"ellipse\"/><dgm:shape type=\"rect\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple variables norm rev",
+      "body": "<dgm:varLst><dgm:dir val=\"norm\"/></dgm:varLst><dgm:varLst><dgm:dir val=\"rev\"/></dgm:varLst><dgm:choose><dgm:if func=\"var\" arg=\"dir\" op=\"equ\" val=\"norm\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\"/></dgm:alg></dgm:if><dgm:else><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromT\"/></dgm:alg></dgm:else></dgm:choose><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 6930000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7290000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple variables rev norm",
+      "body": "<dgm:varLst><dgm:dir val=\"rev\"/></dgm:varLst><dgm:varLst><dgm:dir val=\"norm\"/></dgm:varLst><dgm:choose><dgm:if func=\"var\" arg=\"dir\" op=\"equ\" val=\"norm\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\"/></dgm:alg></dgm:if><dgm:else><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromT\"/></dgm:alg></dgm:else></dgm:choose><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"5\" /><dgm:constr type=\"h\" val=\"10\" /></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "contributors": ["1"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1260000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "contributors": ["2"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1620000,
+            "w": 180000,
+            "h": 360000
+          }
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "contributors": ["3"],
+          "preset": "rect",
+          "bounds": {
+            "x": 7110000,
+            "y": 1980000,
+            "w": 180000,
+            "h": 360000
+          }
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "name": "rule lists 5 direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [5],
+      "nativeFontSizes": [[800], [800], [800]]
+    },
+    {
+      "name": "rule lists 5 choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [5],
+      "nativeFontSizes": [[800], [800], [800]]
+    },
+    {
+      "name": "rule lists 40 direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"40\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [40],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists 40 choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"40\"/></dgm:ruleLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [40],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists  direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists  choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:ruleLst></dgm:ruleLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists 5, direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst><dgm:ruleLst></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists 5, choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:ruleLst></dgm:ruleLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists ,5 direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst></dgm:ruleLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [5],
+      "nativeFontSizes": [[800], [800], [800]]
+    },
+    {
+      "name": "rule lists ,5 choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst></dgm:ruleLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [5],
+      "nativeFontSizes": [[800], [800], [800]]
+    },
+    {
+      "name": "rule lists 5,40 direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"40\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [40],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists 5,40 choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"40\"/></dgm:ruleLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [40],
+      "nativeFontSizes": [[4000], [4000], [4000]]
+    },
+    {
+      "name": "rule lists 40,5 direct",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"40\"/></dgm:ruleLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [5],
+      "nativeFontSizes": [[800], [800], [800]]
+    },
+    {
+      "name": "rule lists 40,5 choose",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"40\"/></dgm:ruleLst><dgm:choose><dgm:if func=\"cnt\" axis=\"self\" op=\"equ\" val=\"1\"><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:if></dgm:choose></dgm:layoutNode></dgm:forEach>",
+      "expectedRuleValues": [5],
+      "nativeFontSizes": [[800], [800], [800]]
+    }
+  ]
+}

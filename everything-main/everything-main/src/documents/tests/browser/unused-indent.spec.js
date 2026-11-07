@@ -1,0 +1,30 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+test('opens narrow hanging-indent cells for editing, exports and restores their original package', async ({ page }, testInfo) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/playground.html');
+  const source = 'public/fixtures/unused-continuation-indent.docx';
+  await page.getByLabel('Open DOCX file').setInputFiles(source);
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/Following paragraph/);
+  await expect(input).not.toHaveAttribute('readonly');
+  await expect(page.locator('canvas.canvas-page')).toHaveCount(1);
+  const original = await input.inputValue();
+  await input.focus(); await input.press('ControlOrMeta+End'); await page.keyboard.insertText(' edited');
+  await expect(input).toHaveValue(original + ' edited');
+  const download = async name => {
+    const pending = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+    const path = testInfo.outputPath(name); await (await pending).saveAs(path); return path;
+  };
+  const edited = await download('unused-indent-edited.docx');
+  const originalParts = unzipSync(readFileSync(source)), editedParts = unzipSync(readFileSync(edited));
+  for (const [name, bytes] of Object.entries(originalParts)) if (name !== 'word/document.xml') expect(editedParts[name]).toEqual(bytes);
+  await input.focus(); await input.press('ControlOrMeta+z'); await expect(input).toHaveValue(original);
+  expect(unzipSync(readFileSync(await download('unused-indent-undo.docx')))).toEqual(originalParts);
+  page.once('dialog', d => d.accept()); await page.getByLabel('Open DOCX file').setInputFiles(edited);
+  await expect(input).toHaveValue(original + ' edited');
+  await expect(input).not.toHaveAttribute('readonly');
+  expect(errors).toEqual([]);
+});

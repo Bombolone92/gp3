@@ -1,0 +1,34 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { layoutPageStories } from '../src/engine/page-story-layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+import { pageFieldValue } from '../src/engine/docx-page-fields.js';
+const refs = JSON.parse(readFileSync('tests/fixtures/page-field-caps/reference.json', 'utf8'));
+let dom;
+beforeAll(() => { dom = new JSDOM(''); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const measure = text => ({ width: [...text].length * 5, ascent: 16, descent: 4 });
+const visible = l => l.fragments.map(f => f.textParts?.map(p => p.text).join('') ?? f.text).join('');
+for (const ref of refs) it(`matches the native reference generated and locked fields without changing source formatting: ${ref.format}`, async () => {
+  const bytes = readFileSync(`public/fixtures/${ref.fixture}.docx`), p = await DocxPackage.open(bytes, { bestEffort: true });
+  const initial = structuredClone(p.pageStories);
+  const body = layoutDocument(p.paragraphs, measure, pageGeometry(p.pageSettings), p.numbering, p.tables, p.pageStories);
+  const layout = layoutPageStories(body, p.pageStories, [p.pageSettings], measure, p.numbering);
+  expect(layout.unsupported).toEqual([]);
+  ref.pages.forEach((lines, page) => expect(layout.lines.filter(l => l.page === page).map(l => visible(l).trim())).toEqual(lines));
+  expect(p.pageStories).toEqual(initial); expect(p.parts).toEqual(unzipSync(bytes));
+  expect(p.readOnly).not.toBe(true);
+  expect(unzipSync(new Uint8Array(await p.export().arrayBuffer()))).toEqual(p.parts);
+});
+it('refreshes automatic locked story counts but preserves locked section counts and ordinary-context caches', () => {
+  const context = { pageStory: true, pageNumber: 12, pageCount: 20, sectionPageCount: 5, pageNumbering: { format: 'lowerRoman' } };
+  expect(pageFieldValue({ type: 'PAGE', locked: true }, context)).toBe('xii');
+  expect(pageFieldValue({ type: 'NUMPAGES', locked: true }, context)).toBe('20');
+  expect(pageFieldValue({ type: 'SECTIONPAGES', locked: true }, context)).toBeNull();
+  expect(pageFieldValue({ type: 'SECTIONPAGES' }, context)).toBe('5');
+  expect(pageFieldValue({ type: 'PAGE', locked: true }, { ...context, pageStory: false })).toBeNull();
+});

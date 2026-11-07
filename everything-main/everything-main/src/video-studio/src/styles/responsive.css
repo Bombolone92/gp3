@@ -1,0 +1,696 @@
+/*
+ * Tablet, phone and touch layouts. The editor root carries data-layout
+ * (phone | tablet | desktop), set by src/ui/mobile.js from media queries.
+ * Desktop styles live in editor.css and timeline.css; this file only adds.
+ */
+
+/* Shell: safe areas and dynamic viewport height -------------------------- */
+.editor {
+  position: relative;
+  height: 100%;
+  height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  -webkit-touch-callout: none;
+}
+
+.editor:not([data-layout='phone']) .workspace {
+  padding-bottom: max(var(--gap), env(safe-area-inset-bottom));
+}
+
+/* Sheets ---------------------------------------------------------------------- */
+.sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 900;
+  pointer-events: none;
+}
+
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity var(--t) var(--ease);
+}
+
+.sheet.open .sheet-scrim {
+  opacity: 0.55;
+}
+
+.sheet-panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  color: var(--text);
+  pointer-events: auto;
+  outline: none;
+  transition: transform var(--t) var(--ease);
+}
+
+.sheet-panel.dragging {
+  transition: none;
+}
+
+.sheet.side-bottom .sheet-panel {
+  left: env(safe-area-inset-left);
+  right: env(safe-area-inset-right);
+  bottom: 0;
+  max-height: calc(100% - 96px - env(safe-area-inset-top));
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1px solid var(--border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  transform: translateY(100%);
+}
+
+.sheet.side-end .sheet-panel {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 92vw);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) 0;
+  border-left: 1px solid var(--border);
+  transform: translateX(100%);
+}
+
+.sheet.open .sheet-panel {
+  transform: none;
+}
+
+.sheet.side-end.open .sheet-scrim {
+  opacity: 0.3;
+}
+
+.sheet-handle {
+  flex: none;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: grab;
+}
+
+.sheet-grip {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-strong);
+}
+
+.side-end .sheet-handle {
+  display: none;
+}
+
+.sheet-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 6px 4px 16px;
+  touch-action: none;
+}
+
+.side-end .sheet-head {
+  padding-top: 8px;
+}
+
+.sheet-title {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sheet-body > .panel {
+  flex: 1;
+  border-radius: 0;
+  background: transparent;
+}
+
+.assets-sheet .sheet-panel,
+.details-sheet.side-bottom .sheet-panel {
+  height: 62dvh;
+}
+
+.sheet .assets-panel .asset-tabs-wrap,
+.sheet .assets-panel .asset-tabs-bar {
+  display: none;
+}
+
+/* The sheet has its own title; the details head stays only for a clip's tabs
+   (Video, Audio, Speed, Color...), at a size for fingers. */
+.sheet .inspector > .panel-head:has(> .insp-head-tabs:empty) {
+  display: none;
+}
+
+.sheet .inspector > .panel-head {
+  height: 44px;
+  padding: 0 12px;
+}
+
+/* Quick clip panels (speed, volume, animation) */
+.m-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 8px 16px 18px;
+}
+
+.m-speed-presets button {
+  height: 36px;
+}
+
+.m-mute {
+  align-self: flex-start;
+}
+
+.m-anim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.m-chip {
+  min-height: 40px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.m-chip:hover {
+  color: var(--text);
+}
+
+.m-chip[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* Category chips instead of a sidebar when the assets panel is narrow. */
+.editor:is([data-layout='phone'], [data-layout='tablet']) .asset-tab {
+  flex-direction: column;
+}
+
+.editor:is([data-layout='phone'], [data-layout='tablet']) .asset-cats {
+  width: auto;
+  flex-direction: row;
+  gap: 4px;
+  padding: 6px 10px 2px;
+  border-right: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.editor:is([data-layout='phone'], [data-layout='tablet']) .asset-cats::-webkit-scrollbar {
+  display: none;
+}
+
+.editor:is([data-layout='phone'], [data-layout='tablet']) .asset-cat {
+  flex: none;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--bg-elev);
+}
+
+.editor:is([data-layout='phone'], [data-layout='tablet']) .asset-cat[aria-current='true'] {
+  background: var(--bg-active);
+}
+
+/* Tablet ------------------------------------------------------------------------ */
+.editor[data-layout='tablet'] .upper {
+  grid-template-columns: min(var(--left-w, 300px), 40vw) 4px minmax(280px, 1fr);
+}
+
+/* The details panel lives in a side sheet, so its resizer goes too. */
+.editor[data-layout='tablet'] .upper > .player-panel + .resizer {
+  display: none;
+}
+
+.editor[data-layout='tablet'] .asset-tabs .tab,
+.editor[data-layout='tablet'] .asset-tabs-more {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 4px;
+  justify-content: center;
+}
+
+.editor[data-layout='tablet'] .asset-tabs .tab-label,
+.editor[data-layout='tablet'] .asset-tabs-more .tab-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Rarely used timeline tools move into the More menu. */
+.editor[data-layout='tablet'] .tl-toolbar .hide-sm,
+.editor[data-layout='tablet'] .tl-toolbar .toggle,
+.editor[data-layout='tablet'] .tl-toolbar .zoom-wrap,
+.editor[data-layout='tablet'] .tl-tools.right .tb-sep {
+  display: none;
+}
+
+.editor[data-layout='tablet'] .save-status,
+.editor[data-layout='tablet'] .upload-status {
+  max-width: 22vw;
+}
+
+/* Phone -------------------------------------------------------------------------- */
+.editor[data-layout='phone'] {
+  --track-header-w: 48px;
+}
+
+.editor[data-layout='phone'] .topbar {
+  height: 52px;
+  padding: 0 6px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 4px;
+}
+
+.editor[data-layout='phone'] .app-menu-btn {
+  padding: 0 6px;
+  height: 40px;
+}
+
+.editor[data-layout='phone'] .app-menu-label,
+.editor[data-layout='phone'] .app-menu-btn > .icon,
+.editor[data-layout='phone'] .topbar-right > .icon-btn:not(.m-details-btn):not(.ai-btn),
+.editor[data-layout='phone'] .topbar-right > .avatar-btn {
+  display: none;
+}
+
+/* The save status stays in the accessibility tree as a live region. */
+.editor[data-layout='phone'] .save-status,
+.editor[data-layout='phone'] .upload-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.editor[data-layout='phone'] .project-name {
+  max-width: 100%;
+  height: 40px;
+}
+
+.editor[data-layout='phone'] .export-btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 18px;
+}
+
+.editor[data-layout='phone'] .workspace {
+  padding: 0;
+  grid-template-rows: minmax(200px, min(calc(var(--upper, 0.5) * 100%), 52%)) 8px minmax(150px, 1fr);
+}
+
+.editor[data-layout='phone'] .upper {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.editor[data-layout='phone'] .upper > .resizer {
+  display: none;
+}
+
+.editor[data-layout='phone'] .player-panel,
+.editor[data-layout='phone'] .timeline-panel {
+  border-radius: 0;
+}
+
+.editor[data-layout='phone'] .player-panel > .panel-head {
+  display: none;
+}
+
+.editor[data-layout='phone'] .player-bar {
+  height: 48px;
+  padding: 0 6px 0 12px;
+  border-top: 0;
+}
+
+.editor[data-layout='phone'] .player-bar .ratio-btn,
+.editor[data-layout='phone'] .player-bar .zoom-btn {
+  display: none;
+}
+
+.editor[data-layout='phone'] .timecode {
+  font-size: 11px;
+  letter-spacing: -0.02em;
+}
+
+.editor[data-layout='phone'] .play-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.editor[data-layout='phone'] .player-bar-right .icon-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.editor[data-layout='phone'] .tl-toolbar {
+  display: none;
+}
+
+.editor[data-layout='phone'] .tl-scroll {
+  scrollbar-width: none;
+}
+
+.editor[data-layout='phone'] .tl-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.editor[data-layout='phone'] .tl-header {
+  justify-content: center;
+  padding: 0;
+}
+
+.editor[data-layout='phone'] .tl-header-icon,
+.editor[data-layout='phone'] .tl-cover,
+.editor[data-layout='phone'] .tl-header-btns > :not(:last-child) {
+  display: none;
+}
+
+.editor[data-layout='phone'] .tl-empty {
+  white-space: normal;
+  text-align: center;
+  width: 80%;
+}
+
+/* Bottom dock: category toolbar or clip toolbar. */
+.m-dock {
+  flex: none;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.m-toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.m-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.m-tool {
+  flex: none;
+  min-width: 64px;
+  height: 58px;
+  padding: 0 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.m-tool:hover,
+.m-tool:active {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+
+.m-tool:focus-visible {
+  outline-offset: -2px;
+}
+
+.m-back {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg-panel);
+  color: var(--text);
+}
+
+.m-back:hover {
+  background: var(--bg-panel);
+}
+
+/* Toasts sit above the phone dock. */
+body:has(.editor[data-layout='phone']) .toasts {
+  bottom: calc(84px + env(safe-area-inset-bottom));
+}
+
+/* Touch (coarse pointers) ---------------------------------------------------- */
+@media (pointer: coarse) {
+  /* Room for the track icon and four 36px track buttons (lock, hide, mute, options). */
+  .editor {
+    --track-header-w: 180px;
+  }
+
+  .icon-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .btn,
+  .btn.small,
+  .input,
+  .select {
+    min-height: 40px;
+  }
+
+  .num-input {
+    height: 36px;
+  }
+
+  input[type='range'] {
+    height: 40px;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+    margin-top: -9.5px;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  .segmented button {
+    height: 40px;
+  }
+
+  .menu-item {
+    height: 44px;
+  }
+
+  .tab {
+    min-height: 44px;
+  }
+
+  .asset-cat {
+    min-height: 40px;
+  }
+
+  .section-toggle {
+    min-height: 40px;
+  }
+
+  /* No hover on touch: show the add badge and transition chips all the time. */
+  .tile-add {
+    opacity: 1;
+    transform: none;
+  }
+
+  .tl-transition {
+    opacity: 0.9;
+  }
+
+  .tl-transition::before {
+    content: '';
+    position: absolute;
+    inset: -11px -8px;
+  }
+
+  .tl-header-btns .icon-btn.small {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Like the desktop, track headers show the track's name only in rows tall enough for
+     it above the 40px buttons (and the base track's Cover button); shorter rows show the
+     track icon beside the buttons. */
+  .editor:not([data-layout='phone']) .tl-header {
+    container: tl-header / size;
+  }
+
+  .editor:not([data-layout='phone']) .tl-header-btns .icon-btn.small {
+    width: 36px;
+    min-width: 36px;
+  }
+
+  @container tl-header (max-height: 57.98px) {
+    .tl-header-name {
+      display: none;
+    }
+  }
+
+  @container tl-header (max-height: 79.98px) {
+    .tl-header.main .tl-header-name {
+      display: none;
+    }
+  }
+
+  /* With the name showing, the buttons take the next line. */
+  @container tl-header (min-height: 58px) {
+    .tl-header:not(.main) .tl-header-btns {
+      flex-basis: 100%;
+    }
+  }
+
+  @container tl-header (min-height: 80px) {
+    .tl-header.main .tl-header-btns {
+      flex-basis: 100%;
+    }
+  }
+
+  /* Bigger trim handles on the selected clip; others pass taps to the clip. */
+  .clip-trim {
+    pointer-events: none;
+  }
+
+  .tl-clip.selected .clip-trim {
+    width: 20px;
+    pointer-events: auto;
+    touch-action: none;
+    background: var(--selection);
+  }
+
+  .tl-clip.selected .clip-trim::after {
+    width: 4px;
+    height: 22px;
+    margin-top: -11px;
+    left: 8px;
+    right: auto;
+    background: var(--bg-panel);
+  }
+
+  .tl-clip.dragging {
+    outline: 2px solid var(--accent);
+  }
+
+  .tl-playhead-cap {
+    width: 21px;
+    height: 22px;
+    margin-left: -10px;
+  }
+
+  .resizer::before {
+    content: '';
+    position: absolute;
+  }
+
+  .resizer.v::before {
+    inset: 0 -8px;
+  }
+
+  .resizer.h::before {
+    inset: -8px 0;
+  }
+
+  /* Player transform handles. */
+  .tf-handle {
+    width: 20px;
+    height: 20px;
+  }
+
+  .tf-handle::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+  }
+
+  .tf-handle.nw { left: -11px; top: -11px; }
+  .tf-handle.ne { right: -11px; top: -11px; }
+  .tf-handle.sw { left: -11px; bottom: -11px; }
+  .tf-handle.se { right: -11px; bottom: -11px; }
+
+  .tf-rotate {
+    width: 36px;
+    height: 36px;
+    margin-left: -18px;
+    bottom: -48px;
+  }
+
+  .tf-rotate .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tooltip {
+    display: none;
+  }
+}
+
+/* Phones override the coarse header width (one control per track). */
+.editor[data-layout='phone'] {
+  --track-header-w: 48px;
+}
+
+/* Home screen on narrow screens -------------------------------------------------- */
+.home {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+}
+
+.home-main {
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+}
+
+@media (max-width: 719.98px) {
+  .home-top {
+    height: 56px;
+  }
+
+  .ratio-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ratio-chip {
+    justify-content: center;
+    padding: 0 8px;
+    min-width: 0;
+  }
+
+  .projects-tools .search-wrap {
+    min-width: 0;
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px 10px;
+  }
+}

@@ -1,0 +1,55 @@
+/* ---- Repeat and Objects on Path controls (Properties panel and dialogs) ---- */
+.rep-controls,
+.rep-body {
+  display: grid;
+  gap: 8px;
+}
+
+.rep-body[hidden] {
+  display: none;
+}
+
+.rep-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+}
+
+.rep-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.rep-label {
+  color: var(--text-2);
+}
+
+.rep-section {
+  display: grid;
+  gap: 10px;
+}
+
+.rep-actions {
+  margin-top: 2px;
+}
+
+.rep-dialog {
+  min-width: min(340px, 100%);
+}
+
+.rep-dialog .rep-grid .num-label {
+  min-width: 18px;
+}
+
+.oop-dialog .select {
+  min-width: 0;
+}
+
+@media (max-width: 380px) {
+  .rep-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Viewports (dev)</title>
+<style>
+  body { margin: 0; padding: 12px; display: flex; gap: 16px; align-items: flex-start; background: #888; font: 12px system-ui; }
+  figure { margin: 0; }
+  iframe { border: 0; background: #fff; display: block; }
+  figcaption { color: #fff; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+  <!-- Dev only: the app at phone and tablet widths. ?path=banking -->
+  <script>
+    const path = new URLSearchParams(location.search).get('path') || 'home';
+    for (const [w, h] of [[390, 740], [820, 740]]) {
+      document.write(`<figure><figcaption>${w}px</figcaption><iframe width="${w}" height="${h}" src="/mock.html#/${path}"></iframe></figure>`);
+    }
+  </script>
+</body>
+</html>

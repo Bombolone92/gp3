@@ -1,0 +1,6001 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "locale": "en-CA",
+  "date": "2026-09-22",
+  "note": "Regional date control is recorded separately because the application defaults to en-US numeric/date coercion. All other controls share the tested grammar.",
+  "pairs": [
+    {
+      "label": "boolean text",
+      "values": [
+        true,
+        "TRUE"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "false text",
+      "values": [
+        false,
+        "FALSE"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "blank zero",
+      "values": [
+        null,
+        0
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "empty blank",
+      "values": [
+        "",
+        null
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "formula empty",
+      "values": [
+        {
+          "f": "\"\""
+        },
+        null
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "NBSP",
+      "values": [
+        " x ",
+        " x "
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "en quad",
+      "values": [
+        " x ",
+        " x "
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "en space",
+      "values": [
+        " x ",
+        " x "
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "narrow NBSP",
+      "values": [
+        " x ",
+        " x "
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "tab",
+      "values": [
+        "x ",
+        "x\t"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "newline",
+      "values": [
+        "x ",
+        "x\n"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "trailing",
+      "values": [
+        "x",
+        "x "
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "sharp s",
+      "values": [
+        "ss",
+        "ß"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ligature",
+      "values": [
+        "ff",
+        "ﬀ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "fullwidth",
+      "values": [
+        "A",
+        "Ａ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "superscript",
+      "values": [
+        "1",
+        "¹"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "combining",
+      "values": [
+        "é",
+        "é"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "dash",
+      "values": [
+        "a-b",
+        "a‐b"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "punctuation",
+      "values": [
+        "a-b",
+        "ab"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "zero width",
+      "values": [
+        "ab",
+        "a​b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "operator",
+      "values": [
+        ">2",
+        4
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "numeric text",
+      "values": [
+        1,
+        "01"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "decimal text",
+      "values": [
+        1,
+        "1.0"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "percent text",
+      "values": [
+        1,
+        "1%"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "zero false",
+      "values": [
+        0,
+        "FALSE"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "boolean number",
+      "values": [
+        true,
+        1
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "error text",
+      "values": [
+        {
+          "f": "NA()"
+        },
+        "#N/A"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "long",
+      "values": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "accent",
+      "values": [
+        "e",
+        "é"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "case",
+      "values": [
+        "x",
+        "X"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "sigma",
+      "values": [
+        "σ",
+        "ς"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "kelvin",
+      "values": [
+        "k",
+        "K"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "same NA",
+      "values": [
+        {
+          "f": "NA()"
+        },
+        {
+          "f": "NA()"
+        }
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "different errors",
+      "values": [
+        {
+          "f": "NA()"
+        },
+        {
+          "f": "1/0"
+        }
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "same BOOL",
+      "values": [
+        true,
+        true
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "empty alone",
+      "values": [
+        "",
+        null
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "two empty",
+      "values": [
+        "",
+        ""
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "two blanks",
+      "values": [
+        null,
+        null
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "blank zero text",
+      "values": [
+        null,
+        "0"
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "float arithmetic",
+      "values": [
+        {
+          "f": "0.1+0.2"
+        },
+        0.3
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "near numeric",
+      "values": [
+        1,
+        1.000000000000001
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "near numeric text",
+      "values": [
+        1,
+        "1.000000000000001"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "round numeric text",
+      "values": [
+        1,
+        "1.0000000000000001"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "tiny numeric",
+      "values": [
+        1e-30,
+        1.000000000000001e-30
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "time text",
+      "values": [
+        0.5,
+        "12:00"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "parens",
+      "values": [
+        -1,
+        "(1)"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "currency after",
+      "values": [
+        1,
+        "1$"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "overflow",
+      "values": [
+        "1e309",
+        "1E309"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "invisible empty",
+      "values": [
+        "",
+        "​"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "space tab",
+      "values": [
+        " ",
+        "\t"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "iota subscript",
+      "values": [
+        "ᾀ",
+        "ἀι"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "iota capital",
+      "values": [
+        "ᾈ",
+        "ἀι"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "j caron",
+      "values": [
+        "ǰ",
+        "ǰ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ffi",
+      "values": [
+        "ﬃ",
+        "ffi"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "long st",
+      "values": [
+        "ﬅ",
+        "st"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "Cherokee",
+      "values": [
+        "Ꭰ",
+        "ꭰ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "math case",
+      "values": [
+        "𝐀",
+        "𝐚"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "dotted composed",
+      "values": [
+        "İ",
+        "i̇"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "accent not dropped",
+      "values": [
+        "ΐ",
+        "ι"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "dotted sigma",
+      "values": [
+        "σ",
+        "ς"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "zero numeral",
+      "values": [
+        0,
+        "-0"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "numeric NBSP",
+      "values": [
+        "1",
+        " 1 "
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "fullwidth vs superscript",
+      "values": [
+        "１",
+        "¹"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "numeric grouping",
+      "values": [
+        1000,
+        "1,000"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "hyphen vs ignorable",
+      "values": [
+        "a-b",
+        "a­b"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "default variation",
+      "values": [
+        "a",
+        "a️"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "long spaced",
+      "values": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "wildcards literal",
+      "values": [
+        "abc",
+        "a*"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "question literal",
+      "values": [
+        "a",
+        "?"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "number blank formula",
+      "values": [
+        0,
+        {
+          "f": "\"\""
+        }
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "error empty",
+      "values": [
+        {
+          "f": "NA()"
+        },
+        ""
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat ß",
+      "values": [
+        "xß",
+        "xß"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ß",
+      "values": [
+        "xß",
+        "xSS"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ẞ",
+      "values": [
+        "xẞ",
+        "xẞ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ẞ",
+      "values": [
+        "xẞ",
+        "xẞ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ﬀ",
+      "values": [
+        "xﬀ",
+        "xff"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ﬀ",
+      "values": [
+        "xﬀ",
+        "xFF"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ﬁ",
+      "values": [
+        "xﬁ",
+        "xfi"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ﬁ",
+      "values": [
+        "xﬁ",
+        "xFI"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ﬂ",
+      "values": [
+        "xﬂ",
+        "xfl"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ﬂ",
+      "values": [
+        "xﬂ",
+        "xFL"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ﬃ",
+      "values": [
+        "xﬃ",
+        "xffi"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ﬃ",
+      "values": [
+        "xﬃ",
+        "xFFI"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ﬄ",
+      "values": [
+        "xﬄ",
+        "xffl"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ﬄ",
+      "values": [
+        "xﬄ",
+        "xFFL"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ﬅ",
+      "values": [
+        "xﬅ",
+        "xst"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ﬅ",
+      "values": [
+        "xﬅ",
+        "xST"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ﬆ",
+      "values": [
+        "xﬆ",
+        "xst"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ﬆ",
+      "values": [
+        "xﬆ",
+        "xST"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ſ",
+      "values": [
+        "xſ",
+        "xs"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ſ",
+      "values": [
+        "xſ",
+        "xS"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ǆ",
+      "values": [
+        "xǄ",
+        "xDŽ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ǆ",
+      "values": [
+        "xǄ",
+        "xǄ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǅ",
+      "values": [
+        "xǅ",
+        "xDž"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǅ",
+      "values": [
+        "xǅ",
+        "xǄ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǆ",
+      "values": [
+        "xǆ",
+        "xdž"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǆ",
+      "values": [
+        "xǆ",
+        "xǄ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ǉ",
+      "values": [
+        "xǇ",
+        "xLJ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ǉ",
+      "values": [
+        "xǇ",
+        "xǇ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǈ",
+      "values": [
+        "xǈ",
+        "xLj"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǈ",
+      "values": [
+        "xǈ",
+        "xǇ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǉ",
+      "values": [
+        "xǉ",
+        "xlj"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǉ",
+      "values": [
+        "xǉ",
+        "xǇ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ǌ",
+      "values": [
+        "xǊ",
+        "xNJ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ǌ",
+      "values": [
+        "xǊ",
+        "xǊ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǋ",
+      "values": [
+        "xǋ",
+        "xNj"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǋ",
+      "values": [
+        "xǋ",
+        "xǊ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǌ",
+      "values": [
+        "xǌ",
+        "xnj"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǌ",
+      "values": [
+        "xǌ",
+        "xǊ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ǳ",
+      "values": [
+        "xǱ",
+        "xDZ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ǳ",
+      "values": [
+        "xǱ",
+        "xǱ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǲ",
+      "values": [
+        "xǲ",
+        "xDz"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǲ",
+      "values": [
+        "xǲ",
+        "xǱ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ǳ",
+      "values": [
+        "xǳ",
+        "xdz"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ǳ",
+      "values": [
+        "xǳ",
+        "xǱ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ĳ",
+      "values": [
+        "xĲ",
+        "xIJ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ĳ",
+      "values": [
+        "xĲ",
+        "xĲ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ĳ",
+      "values": [
+        "xĳ",
+        "xij"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ĳ",
+      "values": [
+        "xĳ",
+        "xĲ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Œ",
+      "values": [
+        "xŒ",
+        "xŒ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Œ",
+      "values": [
+        "xŒ",
+        "xŒ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat œ",
+      "values": [
+        "xœ",
+        "xœ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case œ",
+      "values": [
+        "xœ",
+        "xŒ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Æ",
+      "values": [
+        "xÆ",
+        "xÆ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Æ",
+      "values": [
+        "xÆ",
+        "xÆ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat æ",
+      "values": [
+        "xæ",
+        "xæ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case æ",
+      "values": [
+        "xæ",
+        "xÆ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ł",
+      "values": [
+        "xŁ",
+        "xŁ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ł",
+      "values": [
+        "xŁ",
+        "xŁ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ł",
+      "values": [
+        "xł",
+        "xł"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ł",
+      "values": [
+        "xł",
+        "xŁ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ø",
+      "values": [
+        "xØ",
+        "xØ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ø",
+      "values": [
+        "xØ",
+        "xØ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ø",
+      "values": [
+        "xø",
+        "xø"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ø",
+      "values": [
+        "xø",
+        "xØ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ð",
+      "values": [
+        "xÐ",
+        "xÐ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ð",
+      "values": [
+        "xÐ",
+        "xÐ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ð",
+      "values": [
+        "xð",
+        "xð"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ð",
+      "values": [
+        "xð",
+        "xÐ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Đ",
+      "values": [
+        "xĐ",
+        "xĐ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Đ",
+      "values": [
+        "xĐ",
+        "xĐ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat đ",
+      "values": [
+        "xđ",
+        "xđ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case đ",
+      "values": [
+        "xđ",
+        "xĐ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ħ",
+      "values": [
+        "xĦ",
+        "xĦ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ħ",
+      "values": [
+        "xĦ",
+        "xĦ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ħ",
+      "values": [
+        "xħ",
+        "xħ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ħ",
+      "values": [
+        "xħ",
+        "xĦ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ı",
+      "values": [
+        "xı",
+        "xı"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ı",
+      "values": [
+        "xı",
+        "xI"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat İ",
+      "values": [
+        "xİ",
+        "xİ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case İ",
+      "values": [
+        "xİ",
+        "xİ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ſ",
+      "values": [
+        "xſ",
+        "xs"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ſ",
+      "values": [
+        "xſ",
+        "xS"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat K",
+      "values": [
+        "xK",
+        "xK"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case K",
+      "values": [
+        "xK",
+        "xK"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Å",
+      "values": [
+        "xÅ",
+        "xÅ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Å",
+      "values": [
+        "xÅ",
+        "xÅ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ℉",
+      "values": [
+        "x℉",
+        "x°F"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ℉",
+      "values": [
+        "x℉",
+        "x℉"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ℃",
+      "values": [
+        "x℃",
+        "x°C"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ℃",
+      "values": [
+        "x℃",
+        "x℃"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ℡",
+      "values": [
+        "x℡",
+        "xTEL"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ℡",
+      "values": [
+        "x℡",
+        "x℡"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat №",
+      "values": [
+        "x№",
+        "xNo"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case №",
+      "values": [
+        "x№",
+        "x№"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ™",
+      "values": [
+        "x™",
+        "xTM"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ™",
+      "values": [
+        "x™",
+        "x™"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ℠",
+      "values": [
+        "x℠",
+        "xSM"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ℠",
+      "values": [
+        "x℠",
+        "x℠"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ℻",
+      "values": [
+        "x℻",
+        "xFAX"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ℻",
+      "values": [
+        "x℻",
+        "x℻"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ㍑",
+      "values": [
+        "x㍑",
+        "xリットル"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ㍑",
+      "values": [
+        "x㍑",
+        "x㍑"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ㎒",
+      "values": [
+        "x㎒",
+        "xMHz"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ㎒",
+      "values": [
+        "x㎒",
+        "x㎒"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ⓐ",
+      "values": [
+        "xⒶ",
+        "xA"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ⓐ",
+      "values": [
+        "xⒶ",
+        "xⒶ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ⓐ",
+      "values": [
+        "xⓐ",
+        "xa"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ⓐ",
+      "values": [
+        "xⓐ",
+        "xⒶ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat Ａ",
+      "values": [
+        "xＡ",
+        "xA"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case Ａ",
+      "values": [
+        "xＡ",
+        "xＡ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ａ",
+      "values": [
+        "xａ",
+        "xa"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ａ",
+      "values": [
+        "xａ",
+        "xＡ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat 𝐀",
+      "values": [
+        "x𝐀",
+        "xA"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case 𝐀",
+      "values": [
+        "x𝐀",
+        "x𝐀"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat 𝐚",
+      "values": [
+        "x𝐚",
+        "xa"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case 𝐚",
+      "values": [
+        "x𝐚",
+        "x𝐚"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "compat ᾀ",
+      "values": [
+        "xᾀ",
+        "xᾀ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ᾀ",
+      "values": [
+        "xᾀ",
+        "xἈΙ"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat ᾈ",
+      "values": [
+        "xᾈ",
+        "xᾈ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ᾈ",
+      "values": [
+        "xᾈ",
+        "xἈΙ"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat ᾴ",
+      "values": [
+        "xᾴ",
+        "xᾴ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ᾴ",
+      "values": [
+        "xᾴ",
+        "xΆΙ"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat ᾳ",
+      "values": [
+        "xᾳ",
+        "xᾳ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ᾳ",
+      "values": [
+        "xᾳ",
+        "xΑΙ"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat ᾼ",
+      "values": [
+        "xᾼ",
+        "xᾼ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ᾼ",
+      "values": [
+        "xᾼ",
+        "xΑΙ"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat ῳ",
+      "values": [
+        "xῳ",
+        "xῳ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ῳ",
+      "values": [
+        "xῳ",
+        "xΩΙ"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "compat ῼ",
+      "values": [
+        "xῼ",
+        "xῼ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "case ῼ",
+      "values": [
+        "xῼ",
+        "xΩΙ"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "ignorable ad",
+      "values": [
+        "xy",
+        "x­y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 34f",
+      "values": [
+        "xy",
+        "x͏y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 61c",
+      "values": [
+        "xy",
+        "x؜y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 180e",
+      "values": [
+        "xy",
+        "x᠎y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 200b",
+      "values": [
+        "xy",
+        "x​y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 200c",
+      "values": [
+        "xy",
+        "x‌y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 200d",
+      "values": [
+        "xy",
+        "x‍y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 200e",
+      "values": [
+        "xy",
+        "x‎y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 200f",
+      "values": [
+        "xy",
+        "x‏y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 202a",
+      "values": [
+        "xy",
+        "x‪y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 202b",
+      "values": [
+        "xy",
+        "x‫y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 202c",
+      "values": [
+        "xy",
+        "x‬y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 202d",
+      "values": [
+        "xy",
+        "x‭y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 202e",
+      "values": [
+        "xy",
+        "x‮y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2060",
+      "values": [
+        "xy",
+        "x⁠y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2061",
+      "values": [
+        "xy",
+        "x⁡y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2062",
+      "values": [
+        "xy",
+        "x⁢y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2063",
+      "values": [
+        "xy",
+        "x⁣y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2064",
+      "values": [
+        "xy",
+        "x⁤y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2066",
+      "values": [
+        "xy",
+        "x⁦y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2067",
+      "values": [
+        "xy",
+        "x⁧y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2068",
+      "values": [
+        "xy",
+        "x⁨y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable 2069",
+      "values": [
+        "xy",
+        "x⁩y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable fe00",
+      "values": [
+        "xy",
+        "x︀y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable fe0e",
+      "values": [
+        "xy",
+        "x︎y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable fe0f",
+      "values": [
+        "xy",
+        "x️y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable feff",
+      "values": [
+        "xy",
+        "x﻿y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "ignorable e0100",
+      "values": [
+        "xy",
+        "x󠄀y"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "expansion ss",
+      "values": [
+        "xss",
+        "xß"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "expansion SS",
+      "values": [
+        "xSS",
+        "xẞ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "expansion st",
+      "values": [
+        "xst",
+        "xﬅ"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "expansion æ",
+      "values": [
+        "xæ",
+        "xae"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "expansion œ",
+      "values": [
+        "xœ",
+        "xoe"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "expansion ı",
+      "values": [
+        "xı",
+        "xi"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "expansion İ",
+      "values": [
+        "xİ",
+        "xi"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "expansion ᾀ",
+      "values": [
+        "xᾀ",
+        "xἀι"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "expansion ά",
+      "values": [
+        "xά",
+        "xά"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "expansion ℉",
+      "values": [
+        "x℉",
+        "x°F"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "expansion ①",
+      "values": [
+        "x①",
+        "x1"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "leading ad",
+      "values": [
+        "ab",
+        "­ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle ad",
+      "values": [
+        "ab",
+        "a­b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing ad",
+      "values": [
+        "ab",
+        "ab­"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only ad",
+      "values": [
+        "",
+        "­"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading 34f",
+      "values": [
+        "ab",
+        "͏ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle 34f",
+      "values": [
+        "ab",
+        "a͏b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing 34f",
+      "values": [
+        "ab",
+        "ab͏"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only 34f",
+      "values": [
+        "",
+        "͏"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading 200b",
+      "values": [
+        "ab",
+        "​ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle 200b",
+      "values": [
+        "ab",
+        "a​b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing 200b",
+      "values": [
+        "ab",
+        "ab​"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only 200b",
+      "values": [
+        "",
+        "​"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading 200c",
+      "values": [
+        "ab",
+        "‌ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle 200c",
+      "values": [
+        "ab",
+        "a‌b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing 200c",
+      "values": [
+        "ab",
+        "ab‌"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only 200c",
+      "values": [
+        "",
+        "‌"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading 200d",
+      "values": [
+        "ab",
+        "‍ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle 200d",
+      "values": [
+        "ab",
+        "a‍b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing 200d",
+      "values": [
+        "ab",
+        "ab‍"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only 200d",
+      "values": [
+        "",
+        "‍"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading 2060",
+      "values": [
+        "ab",
+        "⁠ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle 2060",
+      "values": [
+        "ab",
+        "a⁠b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing 2060",
+      "values": [
+        "ab",
+        "ab⁠"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only 2060",
+      "values": [
+        "",
+        "⁠"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading fe0f",
+      "values": [
+        "ab",
+        "️ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle fe0f",
+      "values": [
+        "ab",
+        "a️b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing fe0f",
+      "values": [
+        "ab",
+        "ab️"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only fe0f",
+      "values": [
+        "",
+        "️"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading feff",
+      "values": [
+        "ab",
+        "﻿ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle feff",
+      "values": [
+        "ab",
+        "a﻿b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing feff",
+      "values": [
+        "ab",
+        "ab﻿"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only feff",
+      "values": [
+        "",
+        "﻿"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "leading e0100",
+      "values": [
+        "ab",
+        "󠄀ab"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "middle e0100",
+      "values": [
+        "ab",
+        "a󠄀b"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing e0100",
+      "values": [
+        "ab",
+        "ab󠄀"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "only e0100",
+      "values": [
+        "",
+        "󠄀"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-numbertext",
+      "values": [
+        "*",
+        "1"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-number",
+      "values": [
+        "*",
+        1
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "question-numbertext",
+      "values": [
+        "?",
+        "1"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "currency-pattern",
+      "values": [
+        "$?",
+        "$1"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "percent-pattern",
+      "values": [
+        "*%",
+        "1%"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-formula-empty",
+      "values": [
+        "*",
+        {
+          "f": "\"\""
+        }
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-blank",
+      "values": [
+        "*",
+        null
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "question-space",
+      "values": [
+        "?",
+        " "
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-booleantext",
+      "values": [
+        "*",
+        "TRUE"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-boolean",
+      "values": [
+        "*",
+        true
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-error",
+      "values": [
+        "*",
+        {
+          "f": "NA()"
+        }
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-errortext",
+      "values": [
+        "*",
+        "#N/A"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "fullwidth-numeral",
+      "values": [
+        "?",
+        "１"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "literal-numeric-space",
+      "values": [
+        "1",
+        " 1"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "numeric-query-vs-pattern",
+      "values": [
+        "1",
+        "?"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "date-pattern",
+      "values": [
+        "*-*",
+        "2024-01-15"
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "star-emptyliteral",
+      "values": [
+        "*",
+        ""
+      ],
+      "expected": [
+        [
+          true,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "empty-star",
+      "values": [
+        {
+          "f": "\"\""
+        },
+        "*"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "escaped-question-alone",
+      "values": [
+        "~?",
+        "x"
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "escaped-question-target",
+      "values": [
+        "~?",
+        "?"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "escaped-question-identical",
+      "values": [
+        "~?",
+        "~?"
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "escaped-star-alone",
+      "values": [
+        "~*",
+        "x"
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "escaped-star-target",
+      "values": [
+        "~*",
+        "*"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "escaped-star-identical",
+      "values": [
+        "~*",
+        "~*"
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "tilde-alone",
+      "values": [
+        "~",
+        "x"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "escaped-tail-alone",
+      "values": [
+        "a~?",
+        "x"
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "escaped-tail-target",
+      "values": [
+        "a~?",
+        "a?"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "escaped-tilde-question",
+      "values": [
+        "~~?",
+        "~x"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "label": "escaped-tilde-identical",
+      "values": [
+        "~~?",
+        "~~?"
+      ],
+      "expected": [
+        [
+          false,
+          false
+        ],
+        [
+          false,
+          false
+        ]
+      ]
+    },
+    {
+      "label": "trailing-tilde",
+      "values": [
+        "a?~",
+        "ab"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    }
+  ],
+  "regionalControls": [
+    {
+      "label": "date text",
+      "values": [
+        44928,
+        "1/2/2023"
+      ],
+      "expected": [
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    }
+  ],
+  "unions": [
+    {
+      "label": "separate areas",
+      "values": {
+        "A1": "a",
+        "A2": "b",
+        "C1": "a",
+        "C2": "c"
+      },
+      "areas": [
+        "A1:A2",
+        "C1:C2"
+      ],
+      "cells": [
+        {
+          "at": "A1",
+          "value": "a",
+          "type": "duplicateValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "A2",
+          "value": "b",
+          "type": "duplicateValues",
+          "formula": "b",
+          "nativeValue": "b",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "C1",
+          "value": "a",
+          "type": "duplicateValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "C2",
+          "value": "c",
+          "type": "duplicateValues",
+          "formula": "c",
+          "nativeValue": "c",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F1",
+          "value": "a",
+          "type": "uniqueValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F2",
+          "value": "b",
+          "type": "uniqueValues",
+          "formula": "b",
+          "nativeValue": "b",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "H1",
+          "value": "a",
+          "type": "uniqueValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "H2",
+          "value": "c",
+          "type": "uniqueValues",
+          "formula": "c",
+          "nativeValue": "c",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A1:A2 C1:C2",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F1:F2 H1:H2",
+          "type": "uniqueValues"
+        }
+      ]
+    },
+    {
+      "label": "overlapping areas",
+      "values": {
+        "A1": "x",
+        "A2": "y",
+        "A3": "z"
+      },
+      "areas": [
+        "A1:A2",
+        "A2:A3"
+      ],
+      "cells": [
+        {
+          "at": "A6",
+          "value": "x",
+          "type": "duplicateValues",
+          "formula": "x",
+          "nativeValue": "x",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "A7",
+          "value": "y",
+          "type": "duplicateValues",
+          "formula": "y",
+          "nativeValue": "y",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "A8",
+          "value": "z",
+          "type": "duplicateValues",
+          "formula": "z",
+          "nativeValue": "z",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F6",
+          "value": "x",
+          "type": "uniqueValues",
+          "formula": "x",
+          "nativeValue": "x",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "F7",
+          "value": "y",
+          "type": "uniqueValues",
+          "formula": "y",
+          "nativeValue": "y",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F8",
+          "value": "z",
+          "type": "uniqueValues",
+          "formula": "z",
+          "nativeValue": "z",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A6:A7 A7:A8",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F6:F7 F7:F8",
+          "type": "uniqueValues"
+        }
+      ]
+    },
+    {
+      "label": "repeated area",
+      "values": {
+        "A1": "x",
+        "A2": "y",
+        "A3": "z"
+      },
+      "areas": [
+        "A1:A3",
+        "A1:A3"
+      ],
+      "cells": [
+        {
+          "at": "A11",
+          "value": "x",
+          "type": "duplicateValues",
+          "formula": "x",
+          "nativeValue": "x",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "A12",
+          "value": "y",
+          "type": "duplicateValues",
+          "formula": "y",
+          "nativeValue": "y",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "A13",
+          "value": "z",
+          "type": "duplicateValues",
+          "formula": "z",
+          "nativeValue": "z",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "F11",
+          "value": "x",
+          "type": "uniqueValues",
+          "formula": "x",
+          "nativeValue": "x",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F12",
+          "value": "y",
+          "type": "uniqueValues",
+          "formula": "y",
+          "nativeValue": "y",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F13",
+          "value": "z",
+          "type": "uniqueValues",
+          "formula": "z",
+          "nativeValue": "z",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A11:A13 A11:A13",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F11:F13 F11:F13",
+          "type": "uniqueValues"
+        }
+      ]
+    },
+    {
+      "label": "empty formula and remote blank",
+      "values": {
+        "A1": {
+          "f": "\"\""
+        },
+        "C1": null
+      },
+      "areas": [
+        "A1",
+        "C1"
+      ],
+      "cells": [
+        {
+          "at": "A16",
+          "value": {
+            "f": "\"\""
+          },
+          "type": "duplicateValues",
+          "formula": "=\"\"",
+          "nativeValue": "",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "C16",
+          "value": null,
+          "type": "duplicateValues",
+          "formula": "",
+          "nativeValue": "",
+          "nativeType": 1,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F16",
+          "value": {
+            "f": "\"\""
+          },
+          "type": "uniqueValues",
+          "formula": "=\"\"",
+          "nativeValue": "",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "H16",
+          "value": null,
+          "type": "uniqueValues",
+          "formula": "",
+          "nativeValue": "",
+          "nativeType": 1,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A16 C16",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F16 H16",
+          "type": "uniqueValues"
+        }
+      ]
+    },
+    {
+      "label": "empty formula alone",
+      "values": {
+        "A1": {
+          "f": "\"\""
+        },
+        "C1": null
+      },
+      "areas": [
+        "A1"
+      ],
+      "cells": [
+        {
+          "at": "A21",
+          "value": {
+            "f": "\"\""
+          },
+          "type": "duplicateValues",
+          "formula": "=\"\"",
+          "nativeValue": "",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "C21",
+          "value": null,
+          "type": "duplicateValues",
+          "formula": "",
+          "nativeValue": "",
+          "nativeType": 1,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F21",
+          "value": {
+            "f": "\"\""
+          },
+          "type": "uniqueValues",
+          "formula": "=\"\"",
+          "nativeValue": "",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "H21",
+          "value": null,
+          "type": "uniqueValues",
+          "formula": "",
+          "nativeValue": "",
+          "nativeType": 1,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A21",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F21",
+          "type": "uniqueValues"
+        }
+      ]
+    },
+    {
+      "label": "numeric text across areas",
+      "values": {
+        "A1": 1,
+        "C1": "01"
+      },
+      "areas": [
+        "A1",
+        "C1"
+      ],
+      "cells": [
+        {
+          "at": "A26",
+          "value": 1,
+          "type": "duplicateValues",
+          "formula": "1",
+          "nativeValue": 1,
+          "nativeType": 1,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "C26",
+          "value": "01",
+          "type": "duplicateValues",
+          "formula": "01",
+          "nativeValue": "01",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "F26",
+          "value": 1,
+          "type": "uniqueValues",
+          "formula": "1",
+          "nativeValue": 1,
+          "nativeType": 1,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "H26",
+          "value": "01",
+          "type": "uniqueValues",
+          "formula": "01",
+          "nativeValue": "01",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A26 C26",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F26 H26",
+          "type": "uniqueValues"
+        }
+      ]
+    },
+    {
+      "label": "wildcard across areas",
+      "values": {
+        "A1": "abc",
+        "C1": "a*"
+      },
+      "areas": [
+        "A1",
+        "C1"
+      ],
+      "cells": [
+        {
+          "at": "A31",
+          "value": "abc",
+          "type": "duplicateValues",
+          "formula": "abc",
+          "nativeValue": "abc",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "C31",
+          "value": "a*",
+          "type": "duplicateValues",
+          "formula": "a*",
+          "nativeValue": "a*",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "F31",
+          "value": "abc",
+          "type": "uniqueValues",
+          "formula": "abc",
+          "nativeValue": "abc",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "H31",
+          "value": "a*",
+          "type": "uniqueValues",
+          "formula": "a*",
+          "nativeValue": "a*",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A31 C31",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F31 H31",
+          "type": "uniqueValues"
+        }
+      ]
+    },
+    {
+      "label": "outside cells excluded",
+      "values": {
+        "A1": "a",
+        "B1": "a",
+        "C1": "b"
+      },
+      "areas": [
+        "A1",
+        "C1"
+      ],
+      "cells": [
+        {
+          "at": "A36",
+          "value": "a",
+          "type": "duplicateValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "B36",
+          "value": "a",
+          "type": "duplicateValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "C36",
+          "value": "b",
+          "type": "duplicateValues",
+          "formula": "b",
+          "nativeValue": "b",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "F36",
+          "value": "a",
+          "type": "uniqueValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        },
+        {
+          "at": "G36",
+          "value": "a",
+          "type": "uniqueValues",
+          "formula": "a",
+          "nativeValue": "a",
+          "nativeType": 2,
+          "color": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "at": "H36",
+          "value": "b",
+          "type": "uniqueValues",
+          "formula": "b",
+          "nativeValue": "b",
+          "nativeType": 2,
+          "color": [
+            182,
+            230,
+            173
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "sqref": "A36 C36",
+          "type": "duplicateValues"
+        },
+        {
+          "sqref": "F36 H36",
+          "type": "uniqueValues"
+        }
+      ]
+    }
+  ]
+}

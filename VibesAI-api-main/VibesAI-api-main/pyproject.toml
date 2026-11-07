@@ -1,0 +1,23 @@
+[project]
+name = "VibesAI-api"
+version = "1.5.1"
+description = "Unofficial Python API client for vibes.ai"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Ashiq Hussain Mir", email = "imsrenpsycho@gmail.com" }]
+requires-python = ">=3.8"
+dependencies = ["requests>=2.28.0"]
+
+[project.scripts]
+vibes-api = "vibes_api.cli:main"
+
+[project.optional-dependencies]
+server = ["fastapi>=0.104.0", "uvicorn[standard]>=0.24.0", "pydantic>=2.0.0", "Pillow>=10.0.0"]
+dev = ["pytest>=7.0"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["vibes_api*", "server*"]

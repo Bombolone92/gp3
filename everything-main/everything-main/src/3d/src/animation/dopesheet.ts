@@ -1,0 +1,695 @@
+// Dope Sheet editor (modes: Dope Sheet, Action Editor, Shape Key Editor).
+import { h, type Child } from '../ui/h';
+import { icon } from '../ui/icons';
+import { app } from '../app/app';
+import { registerEditor, type Area } from '../ui/screen';
+import { openMenu, type MenuItem } from '../ui/menu';
+import { numberField, textField, checkbox } from '../ui/widgets';
+import { actionRange } from './actionops';
+import type { ActionData, Keyframe, ObjectData, ShapeKey, TimelineMarker } from '../data/types';
+import { findSlot, slotIdType, slotName, slotUsers } from '../anim/slots';
+import { objectSlotBinding, renameSlotEverywhere, slotSelector } from './slotops';
+import { AnimEditor, RULER_H, menuButton, hdrToggle, markerMenu, type Selectable, type SidebarTab } from './animeditor';
+import type { Channel, CurveRef, SpaceKind } from './channels';
+import { insertMaskKeys } from './maskmode';
+import { C, drawKey, shapeFor } from './theme';
+import { aggregate } from './aggregate';
+import { setKeySelected, selectAll, selectColumns, keyBounds } from './keyedit';
+import { startKeyTransform, type KeyTransformHost, type KeyTransformMode } from './transformkeys';
+import { proportionalOf, proportionalHeader } from './proportional';
+import { playbackFooter } from './footer';
+import { lassoGesture } from './selecttools';
+import { actionSelector } from './actionui';
+import { previewRangeMenu, selectMenu, channelMenu, keyMenu } from './menus';
+import { cacheMenuItems, timelineOverlays } from './overlays';
+
+export type DopeSheetMode = 'DOPESHEET' | 'ACTION' | 'SHAPEKEY' | 'MASK';
+
+const MODES: {
+  value: DopeSheetMode;
+  label: string;
+  icon: string;
+  description: string;
+}[] = [
+  {
+    value: 'DOPESHEET',
+    label: 'Dope Sheet',
+    icon: 'action',
+    description: 'Edit all keyframes in scene',
+  },
+  {
+    value: 'ACTION',
+    label: 'Action Editor',
+    icon: 'action',
+    description: 'Edit keyframes in active object’s Object-level action',
+  },
+  {
+    value: 'SHAPEKEY',
+    label: 'Shape Key Editor',
+    icon: 'shapekey_data',
+    description: 'Edit keyframes in active object’s Shape Keys action',
+  },
+  {
+    value: 'MASK',
+    label: 'Mask',
+    icon: 'mod_mask',
+    description: 'Edit the timing of mask shape keys',
+  },
+];
+
+/** Mode list of the header dropdown (modules may append modes, e.g. Grease Pencil). */
+export const DOPESHEET_MODES = MODES as { value: string; label: string; icon: string; description: string }[];
+
+export class DopeSheet extends AnimEditor {
+  keymaps = ['Markers', 'Animation Channels', 'Dopesheet', 'Animation'];
+  prefix = 'action' as const;
+  mode: DopeSheetMode = 'DOPESHEET';
+  showHandlesInterp = true;
+  showSummary = true;
+  protected filterExtras(): Child {
+    return this.mode === 'DOPESHEET' ? checkbox('af-summary', 'Summary', this.showSummary, (v) => ((this.showSummary = v), this.refresh(), app.changed('ui'))) : null;
+  }
+
+  get filter() {
+    return { ...super.filter, noSummary: !this.showSummary };
+  }
+
+  /** View ▸ Show Extremes: mark keys where the value turns */
+  showExtremes = false;
+  /** Action Editor: the marker row shows the action's pose markers */
+  showPoseMarkers = false;
+
+  constructor(area: Area, state?: unknown) {
+    super(area, state);
+    const s = (state ?? {}) as Record<string, unknown>;
+    if (s.mode === 'ACTION' || s.mode === 'SHAPEKEY' || s.mode === 'DOPESHEET' || s.mode === 'MASK') this.mode = s.mode;
+    if (typeof s.showHandlesInterp === 'boolean') this.showHandlesInterp = s.showHandlesInterp;
+    if (typeof s.showPoseMarkers === 'boolean') this.showPoseMarkers = s.showPoseMarkers;
+    if (typeof s.showExtremes === 'boolean') this.showExtremes = s.showExtremes;
+    // the Dope Sheet shows its playback controls unless turned off
+    if (typeof s.showFooter !== 'boolean') this.showFooter = true;
+  }
+
+  protected serializeExtra() {
+    return { mode: this.mode, showHandlesInterp: this.showHandlesInterp, showPoseMarkers: this.showPoseMarkers, showExtremes: this.showExtremes };
+  }
+
+  space(): SpaceKind {
+    return this.mode;
+  }
+
+  setMode(m: DopeSheetMode) {
+    this.mode = m;
+    this.scrollY = 0;
+    app.changed('ui');
+    this.refresh();
+  }
+
+  header(): Child {
+    const cur = MODES.find((m) => m.value === this.mode)!;
+    const ob = app.activeObject;
+    return h(
+      'div',
+      { class: 'hdr-row' },
+      h(
+        'button',
+        {
+          key: 'mode',
+          class: 'hdr-mode',
+          'data-tip': 'Mode\nEditing context being displayed',
+          onpointerdown: (e: PointerEvent) => {
+            e.preventDefault();
+            openMenu(
+              MODES.map((m) => ({
+                label: m.label,
+                icon: m.icon,
+                active: m.value === this.mode,
+                description: m.description,
+                action: () => this.setMode(m.value),
+              })),
+              e.currentTarget as HTMLElement,
+            );
+          },
+        },
+        icon(cur.icon),
+        cur.label,
+        icon('down_arrow_hlt', 'tiny'),
+      ),
+      menuButton('View', () => this.viewMenu()),
+      menuButton('Select', () => selectMenu('action')),
+      menuButton('Marker', () => [
+        ...markerMenu(),
+        { separator: true },
+        { label: 'Sync Markers', checked: this.syncMarkers, description: 'Move the selected markers along with transformed keyframes', action: () => ((this.syncMarkers = !this.syncMarkers), app.changed('ui')) },
+      ]),
+      this.mode === 'MASK' ? null : menuButton('Channel', () => channelMenu('action')),
+      menuButton('Key', () => keyMenu('action')),
+      this.mode === 'ACTION' ? menuButton('Action', actionMenu) : null,
+      this.mode === 'ACTION' && ob ? actionSelector(ob) : null,
+      this.mode === 'ACTION' && ob ? this.slotHeader(ob) : null,
+      h('div', { class: 'hdr-spacer' }),
+      this.mode === 'DOPESHEET'
+        ? hdrToggle(
+            'only-sel',
+            'restrict_select_off',
+            this.onlySelected,
+            'Only Show Selected\nOnly include channels relating to selected objects and data',
+            () => ((this.onlySelected = !this.onlySelected), this.refresh(), app.changed('ui')),
+          )
+        : null,
+      this.mode === 'DOPESHEET'
+        ? hdrToggle(
+            'show-hidden',
+            'hide_off',
+            this.showHidden,
+            'Show Hidden\nInclude channels from objects/bone that are not visible',
+            () => ((this.showHidden = !this.showHidden), this.refresh(), app.changed('ui')),
+          )
+        : null,
+      this.errorsToggle(),
+      this.filtersHeader(),
+      this.snapHeader('keyframes'),
+      proportionalHeader('use_proportional_action'),
+    );
+  }
+
+  /** Slot selector next to the action selector (actions with slots). */
+  private slotHeader(ob: ObjectData): Child {
+    const b = objectSlotBinding(ob);
+    return b ? slotSelector('ds-slot', b, 'header') : null;
+  }
+
+  private poseMarkerAction(): ActionData | null {
+    if (this.mode !== 'ACTION' || !this.showPoseMarkers) return null;
+    const id = app.activeObject?.animation_data?.action;
+    return id ? (app.doc.actions[id] ?? null) : null;
+  }
+
+  markerList() {
+    const act = this.poseMarkerAction();
+    return act ? (act.pose_markers ??= []) : super.markerList();
+  }
+
+  setMarkerList(list: TimelineMarker[]) {
+    const act = this.poseMarkerAction();
+    if (act) act.pose_markers = list;
+    else super.setMarkerList(list);
+  }
+
+  protected sidebarTabs(): SidebarTab[] {
+    const ob = app.activeObject;
+    const act = ob?.animation_data?.action ? app.doc.actions[ob.animation_data.action] : undefined;
+    return act ? [{ id: 'action', label: 'Action', draw: () => [actionPanel(act), slotPanel(act)] }] : [];
+  }
+
+  viewMenu(): MenuItem[] {
+    const tog = (label: string, on: boolean, flip: () => void, extra: Partial<MenuItem> = {}): MenuItem => ({ label, checked: on, ...extra, action: () => (flip(), this.refresh(), app.changed('ui')) });
+    return [
+      { label: 'Sidebar', checked: this.showSidebar, shortcut: 'N', action: () => this.toggleSidebar() },
+      this.channelsMenuItem(),
+      this.footerMenuItem(),
+      { separator: true },
+      { label: 'Frame Selected', op: 'action.view_selected', shortcut: 'Numpad .' },
+      { label: 'Frame All', op: 'action.view_all', shortcut: 'Home' },
+      { label: 'Frame Scene Range', op: 'anim.scene_range_frame' },
+      { label: 'Go to Current Frame', op: 'action.view_frame', shortcut: 'Numpad 0' },
+      { separator: true },
+      tog('Multi-Word Match Search', this.multiWordSearch, () => (this.multiWordSearch = !this.multiWordSearch)),
+      { separator: true },
+      this.realtimeMenuItem(),
+      tog('Show Sliders', this.showSliders, () => {
+        this.showSliders = !this.showSliders;
+        if (this.showSliders) this.chWidth = Math.max(this.chWidth, 300);
+      }),
+      tog('Show Handles and Interpolation', this.showHandlesInterp, () => (this.showHandlesInterp = !this.showHandlesInterp)),
+      tog('Show Extremes', this.showExtremes, () => (this.showExtremes = !this.showExtremes)),
+      tog('Auto-Merge Keyframes', this.autoMerge, () => (this.autoMerge = !this.autoMerge)),
+      { separator: true },
+      tog('Show Markers', this.showMarkers, () => (this.showMarkers = !this.showMarkers)),
+      ...(this.mode === 'ACTION' ? [tog('Show Pose Markers', this.showPoseMarkers, () => (this.showPoseMarkers = !this.showPoseMarkers))] : []),
+      { label: 'Show Seconds', checked: this.showSeconds, op: 'anim.show_seconds_toggle', shortcut: 'Ctrl T' },
+      this.syncRangeMenuItem(),
+      { separator: true },
+      ...previewRangeMenu('action.previewrange_set'),
+      { separator: true },
+      { label: 'Toggle Graph Editor', op: 'anim.switch_editor', props: { type: 'GRAPH' }, shortcut: 'Ctrl Tab' },
+      { separator: true },
+      ...cacheMenuItems(this),
+      this.areaMenuItem(),
+    ];
+  }
+
+  protected footer(): Child | null {
+    return playbackFooter(null, true);
+  }
+
+  /** Mask mode: I keys the layers' current point positions. */
+  insertKeys(curves: CurveRef[], _type: Keyframe['type']): boolean {
+    if (this.mode !== 'MASK') return false;
+    if (!insertMaskKeys(curves, app.doc.scene.frame_current)) app.report('WARNING', 'No mask layers with points to key');
+    return true;
+  }
+
+  // ---------------------------------------------------------------- channels
+
+  protected rowExtra(ch: Channel): Child {
+    if (ch.kind !== 'SHAPEKEY' || !ch.shapeKey) return this.valueSlider(ch);
+    const sk: ShapeKey = ch.shapeKey;
+    return h(
+      'span',
+      { class: 'anim-ch-slider' },
+      numberField({
+        id: `sk-${ch.key}`,
+        value: sk.value,
+        min: sk.slider_min,
+        max: sk.slider_max,
+        slider: true,
+        precision: 3,
+        set: (v, final) => {
+          sk.value = v;
+          app.changed('doc');
+          if (final) app.pushUndo('Shape Key Value');
+        },
+      }),
+    );
+  }
+
+  protected rowToggles(ch: Channel): Child {
+    return [this.modifierToggle(ch), this.muteLockToggles(ch)];
+  }
+
+  /** group rows carry the pin (object rows do not, here) */
+  protected rowPrefix(ch: Channel): Child {
+    return ch.kind === 'GROUP' ? this.pinToggle(ch) : null;
+  }
+
+  channelContextMenu(): MenuItem[] {
+    return channelMenu('action');
+  }
+
+  protected mainContextMenu(): MenuItem[] {
+    return [
+      { heading: 'Dope Sheet' },
+      { label: 'Copy', op: 'action.copy', shortcut: 'Ctrl C' },
+      { label: 'Paste', op: 'action.paste', shortcut: 'Ctrl V' },
+      {
+        label: 'Paste Flipped',
+        op: 'action.paste',
+        props: { flipped: true },
+        shortcut: 'Shift Ctrl V',
+      },
+      { separator: true },
+      {
+        label: 'Keyframe Type',
+        submenu: () => keyMenu('action').find((i) => i.label === 'Keyframe Type')!.submenu!(),
+      },
+      {
+        label: 'Handle Type',
+        submenu: () => keyMenu('action').find((i) => i.label === 'Handle Type')!.submenu!(),
+      },
+      {
+        label: 'Interpolation Mode',
+        submenu: () => keyMenu('action').find((i) => i.label === 'Interpolation Mode')!.submenu!(),
+      },
+      {
+        label: 'Easing Mode',
+        submenu: () => keyMenu('action').find((i) => i.label === 'Easing Mode')!.submenu!(),
+      },
+      { separator: true },
+      {
+        label: 'Insert Keyframes',
+        op: 'action.keyframe_insert',
+        shortcut: 'I',
+      },
+      { label: 'Duplicate', op: 'action.duplicate_move', shortcut: 'Shift D' },
+      { label: 'Delete Keyframes', op: 'action.delete', shortcut: 'X' },
+      { separator: true },
+      {
+        label: 'Mirror',
+        submenu: () => keyMenu('action').find((i) => i.label === 'Mirror')!.submenu!(),
+      },
+      {
+        label: 'Snap',
+        submenu: () => keyMenu('action').find((i) => i.label === 'Snap')!.submenu!(),
+      },
+    ];
+  }
+
+  // ---------------------------------------------------------------- drawing
+
+  protected drawContent(g: CanvasRenderingContext2D, W: number, H: number) {
+    // registered overlays (e.g. simulation cache bars along the bottom)
+    for (const o of timelineOverlays) o(g, this, W);
+    const v = this.view;
+    const rows = this.list.rows;
+    const rh = this.rowH;
+    const size = Math.round(rh * 0.62);
+    for (let i = 0; i < rows.length; i++) {
+      const y = this.rowTop(i);
+      if (y > H || y + rh < RULER_H) continue;
+      const ch = rows[i];
+      g.fillStyle = rowColor(ch);
+      g.fillRect(0, y, W, rh - 1);
+      if (!ch.curves.length) continue;
+      const agg = aggregate(ch.curves.map((r) => r.fc));
+      const yc = y + rh / 2;
+      const muted = ch.curves.every((r) => r.fc.mute);
+      // holds
+      for (const s of agg.holds) {
+        const x0 = v.fx(s.a),
+          x1 = v.fx(s.b);
+        if (x1 < 0 || x0 > W) continue;
+        g.fillStyle = s.selected ? C.longKeySelected : C.longKey;
+        g.fillRect(x0, yc - rh * 0.17, x1 - x0, rh * 0.34);
+      }
+      if (this.showHandlesInterp)
+        for (const s of agg.interps) {
+          const x0 = v.fx(s.a),
+            x1 = v.fx(s.b);
+          if (x1 < 0 || x0 > W) continue;
+          g.fillStyle = s.interp === 'LINEAR' ? C.interpLinear : s.interp === 'CONSTANT' ? C.interpConstant : C.interpOther;
+          g.globalAlpha = 0.6;
+          g.fillRect(x0, yc - 1.5, x1 - x0, 3);
+          g.globalAlpha = 1;
+        }
+      for (const k of agg.keys) {
+        const x = v.fx(k.frame);
+        if (x < -10 || x > W + 10) continue;
+        const shape = this.showHandlesInterp ? shapeFor(k.handle, k.interp) : 'DIAMOND';
+        drawKey(g, Math.round(x) + 0.5, Math.round(yc) + 0.5, size, k.type, k.selected, shape, muted ? 0.5 : 1);
+        if (this.showExtremes && k.extreme) drawExtreme(g, Math.round(x) + 0.5, Math.round(yc) + 0.5, size, k.extreme);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- picking
+
+  keyAt(x: number, y: number): { ch: Channel; frame: number } | null {
+    const i = this.rowAt(y);
+    const ch = this.list.rows[i];
+    if (!ch || !ch.curves.length) return null;
+    let best: number | null = null,
+      bd = 8;
+    for (const r of ch.curves)
+      for (const k of r.fc.keyframe_points) {
+        const d = Math.abs(this.view.fx(k.co[0]) - x);
+        if (d < bd) {
+          bd = d;
+          best = k.co[0];
+        }
+      }
+    return best === null ? null : { ch, frame: best };
+  }
+
+  keysAt(ch: Channel, frame: number) {
+    const out = [];
+    for (const r of ch.curves) for (const k of r.fc.keyframe_points) if (Math.abs(k.co[0] - frame) < 1e-3) out.push(k);
+    return out;
+  }
+
+  keyHost(): KeyTransformHost {
+    return {
+      transformCurves: () => this.editCurves(),
+      graph: false,
+      ppf: () => this.view.ppf,
+      ppv: () => 1,
+      toDisp: (_fc, v) => v,
+      fromDisp: (_fc, d) => d,
+      screen: (x) => this.toClient(this.view.fx(x), RULER_H),
+      autoSnap: this.autoSnap,
+      snapTo: this.snapTo(),
+      handlesVisible: () => true,
+      proportional: proportionalOf('use_proportional_action'),
+      autoMerge: this.autoMerge,
+      syncMarkers: this.syncMarkers ? this.markerList().filter((m) => m.select) : undefined,
+      realtime: this.realtimeUpdates,
+      redraw: () => this.draw(),
+    };
+  }
+
+  startTransform(mode: KeyTransformMode, start: { x: number; y: number }, releaseConfirm = false, onCancel?: () => void) {
+    return startKeyTransform(this.keyHost(), mode, {
+      start,
+      releaseConfirm,
+      redoIdname: 'action.transform',
+      onCancel,
+    });
+  }
+
+  protected mainDown(e: PointerEvent, x: number, y: number) {
+    const hit = this.keyAt(x, y);
+    const curves = this.list.curves;
+    if (e.altKey && (e.ctrlKey || e.metaKey) && hit) {
+      // Ctrl+Alt: every key of the channel
+      if (!e.shiftKey) selectAll(curves, 'DESELECT');
+      for (const r of hit.ch.curves) r.fc.keyframe_points.forEach((k) => setKeySelected(k, true));
+      app.pushUndo('Select Channel Keys');
+      app.changed('doc');
+      return;
+    }
+    if (e.altKey && hit) {
+      selectColumns(curves, [hit.frame], e.shiftKey);
+      app.pushUndo('Select Column');
+      app.changed('doc');
+      return;
+    }
+    if (hit) {
+      const keys = this.keysAt(hit.ch, hit.frame);
+      const allSel = keys.every((k) => k.select_control_point);
+      if (e.shiftKey) {
+        keys.forEach((k) => setKeySelected(k, !allSel));
+        app.pushUndo('Select Keyframes');
+        app.changed('doc');
+        return;
+      }
+      if (!allSel) {
+        selectAll(curves, 'DESELECT');
+        keys.forEach((k) => setKeySelected(k, true));
+        this.selectKeyChannel(hit.ch);
+        app.changed('doc');
+      }
+      this.clickOrDrag(
+        e,
+        () => {
+          selectAll(curves, 'DESELECT');
+          keys.forEach((k) => setKeySelected(k, true));
+          this.selectKeyChannel(hit.ch);
+          app.pushUndo('Select Keyframes');
+          app.changed('doc');
+        },
+        (start) => {
+          if (!allSel) app.pushUndo('Select Keyframes');
+          this.startTransform('TIME_TRANSLATE', { x: start.clientX, y: start.clientY }, true);
+        },
+      );
+      return;
+    }
+    this.clickOrDrag(
+      e,
+      () => {
+        if (!e.shiftKey) {
+          selectAll(curves, 'DESELECT');
+          app.pushUndo('Deselect Keyframes');
+          app.changed('doc');
+        }
+      },
+      (start) => this.boxGesture(start, (r, mode) => this.boxSelect(r, mode)),
+    );
+  }
+
+  protected onCanvasDown(e: PointerEvent) {
+    // Ctrl+right-drag: lasso select (Shift subtracts)
+    if (e.button === 2 && (e.ctrlKey || e.metaKey) && this.regionAt(e) === 'main' && !app.modal) {
+      e.preventDefault();
+      this.clickOrDrag(
+        e,
+        () => {},
+        (start) => lassoGesture(this, start, e.shiftKey ? 'SUB' : 'ADD', true, 'action'),
+      );
+      return;
+    }
+    super.onCanvasDown(e);
+  }
+
+  private selectKeyChannel(ch: Channel) {
+    if (ch.kind !== 'FCURVE' && ch.kind !== 'SHAPEKEY') return;
+    this.deselectChannels();
+    if (ch.fc) ch.fc.select = true;
+  }
+
+  boxSelect(r: { x0: number; y0: number; x1: number; y1: number }, mode: 'SET' | 'ADD' | 'SUB') {
+    const curves = this.list.curves;
+    if (mode === 'SET') selectAll(curves, 'DESELECT');
+    const f0 = this.view.xf(r.x0),
+      f1 = this.view.xf(r.x1);
+    const i0 = this.rowAt(Math.max(RULER_H, r.y0)),
+      i1 = this.rowAt(r.y1);
+    for (let i = Math.max(0, i0); i <= i1 && i < this.list.rows.length; i++) {
+      for (const ref of this.list.rows[i].curves) for (const k of ref.fc.keyframe_points) if (k.co[0] >= f0 && k.co[0] <= f1) setKeySelected(k, mode !== 'SUB');
+    }
+    app.pushUndo('Box Select');
+    app.changed('doc');
+  }
+
+  selectables(): Selectable[] {
+    const out: Selectable[] = [];
+    const rows = this.list.rows;
+    for (let i = 0; i < rows.length; i++) {
+      const y = this.rowTop(i) + this.rowH / 2;
+      const ch = rows[i];
+      const byFrame = new Map<number, { k: Keyframe[] }>();
+      for (const r of ch.curves) {
+        if (r.fc.lock) continue;
+        for (const k of r.fc.keyframe_points) {
+          const f = Math.round(k.co[0] * 1000) / 1000;
+          let e = byFrame.get(f);
+          if (!e) byFrame.set(f, (e = { k: [] }));
+          e.k.push(k);
+        }
+      }
+      for (const [f, e] of byFrame)
+        out.push({
+          x: this.view.fx(f),
+          y,
+          selected: e.k.every((k) => k.select_control_point),
+          set: (v) => e.k.forEach((k) => setKeySelected(k, v)),
+        });
+    }
+    return out;
+  }
+
+  viewAll() {
+    const b = keyBounds(this.list.curves, false);
+    const s = app.doc.scene;
+    if (b) this.viewFrameRange(b.x0, b.x1);
+    else this.viewFrameRange(s.frame_start, s.frame_end);
+  }
+
+  viewSelected() {
+    const b = keyBounds(this.list.curves, true);
+    if (!b) return this.viewAll();
+    this.viewFrameRange(b.x0, b.x1);
+    // scroll the first row with a selected key into view
+    const i = this.list.rows.findIndex((ch) => ch.curves.some((r) => r.fc.keyframe_points.some((k) => k.select_control_point)));
+    if (i >= 0) {
+      const top = i * this.rowH;
+      const avail = this.contentBottom() - RULER_H;
+      if (top < this.scrollY || top > this.scrollY + avail - this.rowH) this.scrollY = Math.max(0, top - avail / 3);
+      this.refresh();
+    }
+  }
+}
+
+/** Sidebar panel for the active action: name, fake user and manual frame range. */
+function actionPanel(act: ActionData): Child {
+  const row = (label: string, c: Child) => h('div', { class: 'split-row' }, h('div', { class: 'sr-label' }, label), h('div', { class: 'sr-value' }, c), h('span'));
+  const commit = (label: string, final = true) => (app.changed('doc'), final && app.pushUndo(label));
+  const manual = !!act.frame_range;
+  const [a, b] = actionRange(act);
+  return h(
+    'div',
+    { class: 'anim-sb-panel' },
+    h('div', { class: 'anim-sb-title' }, 'Action'),
+    row('Name', textField('ds-act-name', act.name, (v) => v && ((act.name = v), commit('Rename Action')))),
+    h('div', { class: 'split-row check' }, h('div', { class: 'sr-label' }), h('div', { class: 'sr-value' }, checkbox('ds-act-fake', 'Fake User', !!act.use_fake_user, (v) => ((act.use_fake_user = v), commit('Fake User')))), h('span')),
+    h('div', { class: 'split-row check' }, h('div', { class: 'sr-label' }), h('div', { class: 'sr-value' }, checkbox('ds-act-range', 'Manual Frame Range', manual, (v) => ((act.frame_range = v ? [a, b] : undefined), commit('Manual Frame Range')))), h('span')),
+    manual
+      ? [
+          row('Start', numberField({ id: 'ds-act-fs', value: act.frame_range![0], precision: 2, set: (v, f) => ((act.frame_range = [v, Math.max(v + 1, act.frame_range![1])]), commit('Action Frame Range', f)) })),
+          row('End', numberField({ id: 'ds-act-fe', value: act.frame_range![1], precision: 2, set: (v, f) => ((act.frame_range = [Math.min(act.frame_range![0], v - 1), v]), commit('Action Frame Range', f)) })),
+        ]
+      : null,
+  );
+}
+
+/** Chevrons over (maximum) and/or under (minimum) a key that is a turning point. */
+function drawExtreme(g: CanvasRenderingContext2D, x: number, y: number, size: number, kind: 'MAX' | 'MIN' | 'BOTH') {
+  const r = size / 2 + 2,
+    w = 3;
+  g.save();
+  g.strokeStyle = 'rgba(0, 0, 0,0.8)';
+  g.fillStyle = '#e8e9ea';
+  g.lineWidth = 1;
+  const tri = (dir: 1 | -1) => {
+    g.beginPath();
+    g.moveTo(x - w, y - dir * r);
+    g.lineTo(x, y - dir * (r + w));
+    g.lineTo(x + w, y - dir * r);
+    g.closePath();
+    g.fill();
+    g.stroke();
+  };
+  if (kind !== 'MIN') tri(1);
+  if (kind !== 'MAX') tri(-1);
+  g.restore();
+}
+
+/** The action's active slot: name and the type of data-block it is for. */
+function slotPanel(act: ActionData): Child {
+  const slot = findSlot(act, act.active_slot) ?? act.slots?.[0];
+  if (!slot) return null;
+  const row = (label: string, c: Child) => h('div', { class: 'split-row' }, h('div', { class: 'sr-label' }, label), h('div', { class: 'sr-value' }, c), h('span'));
+  const t = slotIdType(slot);
+  const users = slotUsers(app.doc, act, slot.handle);
+  return h(
+    'div',
+    { class: 'anim-sb-panel' },
+    h('div', { class: 'anim-sb-title' }, 'Slot'),
+    row(
+      'Name',
+      textField('ds-slot-name', slotName(slot), (v) => {
+        if (!v.trim()) return;
+        renameSlotEverywhere(app.doc, act, slot, v.trim());
+        app.pushUndo('Rename Slot');
+        app.changed('doc');
+      }),
+    ),
+    row('Type', h('span', { class: 'sr-text' }, t === 'UNSPECIFIED' ? 'Not yet assigned' : t.charAt(0) + t.slice(1).toLowerCase())),
+    row('Users', h('span', { class: 'sr-text' }, users.length ? users.map((o) => o.name).join(', ') : 'None')),
+  );
+}
+
+/** Header ▸ Action menu of the Action Editor. */
+function actionMenu(): MenuItem[] {
+  return [
+    { label: 'Merge Animation', op: 'anim.merge_animation' },
+    { label: 'Separate Slots', op: 'anim.separate_slots' },
+    { label: 'Replace Action', op: 'anim.replace_action' },
+    { label: 'Replace with New Action', op: 'anim.replace_action_new' },
+    { separator: true },
+    { label: 'Move Slots to new Action', op: 'anim.slot_channels_move_to_new_action' },
+    { separator: true },
+    { label: 'New Action', op: 'action.new' },
+    { label: 'Unlink Action', op: 'action.unlink' },
+    { separator: true },
+    { label: 'Push Down Action', op: 'action.push_down' },
+    { label: 'Stash Action', op: 'action.stash' },
+    { label: 'Stash and Create New', op: 'action.stash_and_create' },
+  ];
+}
+
+function rowColor(ch: Channel) {
+  switch (ch.kind) {
+    case 'SUMMARY':
+      return C.summary;
+    case 'OBJECT':
+    case 'MASK':
+      return C.objectRow;
+    case 'ACTION':
+      return C.actionRow;
+    case 'SLOT':
+      return C.objectRow;
+    case 'GROUP':
+      return ch.ob && ch.action ? C.groupRow : C.groupRow;
+    default:
+      return ch.fc?.select ? C.channelRowSel : C.channelRow;
+  }
+}
+
+registerEditor({
+  id: 'DOPESHEET',
+  label: 'Dope Sheet',
+  icon: 'action',
+  group: 'Animation',
+  create: (a, s) => new DopeSheet(a, s),
+});

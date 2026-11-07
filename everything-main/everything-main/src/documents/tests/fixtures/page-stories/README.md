@@ -1,0 +1,5 @@
+Independent OPC/XML generator: tools/page_story_fixtures.py. The native references were captured after correcting paragraph-property order and validating all footer parts. Sources contain deliberately stale PAGE result 99; the reference application renders actual page numbers.
+
+Three-page cases: default footer on every page; titlePg with absent first footer (blank first page); first/even/default variants with evenAndOddHeaders. native-text.json records PDF text, and manifest.json records source and capture hashes. Relevant local standard: ECMA-376 Part1 sections17.10.1,17.10.2,17.10.5,17.10.6.
+
+Browser tests now verify all nine preview pages and byte-identical original downloads. With the reference Arial font installed, the footer baseline is within 0.2pt of the reference application (753.84pt from page top), and Default's left edge is within 0.1pt (496.06pt). These probes establish this rendering behavior; header/footer editing and the remaining layout gaps listed in docs/conformance.md are still unfinished.

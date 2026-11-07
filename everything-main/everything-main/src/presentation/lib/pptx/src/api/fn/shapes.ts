@@ -1,0 +1,17 @@
+// Shape API barrel.
+export * from "./shape-slide-read.ts";
+export * from "./shape-read-base.ts";
+export * from "./shape-read-paint.ts";
+export * from "./shape-gradient-read.ts";
+export * from "./shape-fill-stroke.ts";
+export * from "./shape-effects.ts";
+export * from "./shape-text.ts";
+export * from "./shape-runs.ts";
+export * from "./shape-color.ts";
+export * from "./shape-paragraph.ts";
+export * from "./shape-removal-zorder.ts";
+export * from "./shape-authoring.ts";
+export {
+  getShapeGeometryEffective,
+  type ShapeGeometry,
+} from "./shape-geometry.ts";

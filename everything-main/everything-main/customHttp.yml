@@ -1,0 +1,1183 @@
+# AWS Amplify Hosting custom HTTP headers for the apps in src/. Amplify reads
+# headers for monorepo apps only from this file at the repository root, so
+# each app's headers live in the entry whose appRoot is that app's folder.
+# Every app deployed from this repository needs an entry here, even one with
+# no headers of its own: Amplify fails the deploy of any app it cannot find.
+applications:
+  - appRoot: src/documents
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/whiteboard
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames, and the
+      # pdf.js decoders sit in a folder named after the pdf.js version.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/pdf
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/presentation
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/spreadsheet
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/teamchat
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker and unversioned Puter worker bundle.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '/worker/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/help-desk
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # The Puter worker bundle has a fixed name; owners' browsers fetch it
+      # to deploy or update their help desk server, so it must revalidate.
+      - pattern: '/worker/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '/manifest.json'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/records
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/sudoku
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/email
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the push service worker.
+      - pattern: '/puter-sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/meetings
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/chess
+    customHeaders:
+      # Security headers mirror src/chess/customHttp.yml.
+      - pattern: '**'
+        headers:
+          - key: 'Content-Security-Policy'
+            value: "default-src 'self'; script-src 'self' https://js.puter.com https://plausible.io 'sha256-Ae92DMlvhX2of26U5jhemEEtmQDwlfAX4yVGQ8Mrsfc=' 'sha256-s3GjtVo80AO5y21xNb09L193qY2mDVWzcLbCiBHrn4s='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.puter.com https://puter.com https://js.puter.com https://plausible.io wss:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors *; upgrade-insecure-requests"
+          - key: 'X-Content-Type-Options'
+            value: 'nosniff'
+          - key: 'Referrer-Policy'
+            value: 'strict-origin-when-cross-origin'
+          - key: 'Permissions-Policy'
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+          - key: 'Strict-Transport-Security'
+            value: 'max-age=31536000; includeSubDomains'
+
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/backgammon
+    customHeaders:
+      # Security headers mirror src/backgammon/customHttp.yml.
+      - pattern: '**'
+        headers:
+          - key: 'Content-Security-Policy'
+            value: "default-src 'self'; script-src 'self' https://js.puter.com https://plausible.io 'sha256-v7136Z35nIU0KjaihRH6no7bcvyaZAOfuwZKn+G2HqU=' 'sha256-s3GjtVo80AO5y21xNb09L193qY2mDVWzcLbCiBHrn4s='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.puter.com https://puter.com https://js.puter.com https://plausible.io wss:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors *; upgrade-insecure-requests"
+          - key: 'X-Content-Type-Options'
+            value: 'nosniff'
+          - key: 'Referrer-Policy'
+            value: 'strict-origin-when-cross-origin'
+          - key: 'Permissions-Policy'
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+          - key: 'Strict-Transport-Security'
+            value: 'max-age=31536000; includeSubDomains'
+
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/solitaire
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning players receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/checkers
+    customHeaders:
+      # Security headers mirror src/checkers/customHttp.yml.
+      - pattern: '**'
+        headers:
+          - key: 'Content-Security-Policy'
+            value: "default-src 'self'; script-src 'self' https://js.puter.com https://plausible.io 'sha256-8Q7822F2YXiJ2Rwt6mdL7EjOvJsLqJE6RqpKo+gbpmA=' 'sha256-s3GjtVo80AO5y21xNb09L193qY2mDVWzcLbCiBHrn4s='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.puter.com https://puter.com https://js.puter.com https://plausible.io wss:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors *; upgrade-insecure-requests"
+          - key: 'X-Content-Type-Options'
+            value: 'nosniff'
+          - key: 'Referrer-Policy'
+            value: 'strict-origin-when-cross-origin'
+          - key: 'Permissions-Policy'
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+          - key: 'Strict-Transport-Security'
+            value: 'max-age=31536000; includeSubDomains'
+
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/3d
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/accounting
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/assets
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/audio-studio
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/calendar
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/cap-table
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/contacts
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/contracts
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/crm
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/expense
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/childcare
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/field-service
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/fleet
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # The team worker source is copied into fleet owners' accounts; always
+      # serve the current build so owners get updates.
+      - pattern: '/worker/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/hiring
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/inventory
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/invoicing
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/legal
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # The firm server source is copied into each owner's account on
+      # update, so it must never be served stale.
+      - pattern: '/worker/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/notes
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/photo-studio
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/pos
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/projects
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/property-management
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # The team server code is fetched and deployed by the app; always
+      # revalidate so owners pick up new builds.
+      - pattern: '/worker/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/shifts
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/signatures
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/survey
+    customHeaders:
+      # Revalidate the app entry points, including visits without index.html:
+      # the builder at / and the respondent page at /r/.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '/r/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/tasks
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/time-tracking
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Revalidate the service worker so returning users receive updates.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/vector-studio
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/video-studio
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/wiki
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames.
+      # Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/circuits
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '/manifest.json'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames, including
+      # the WebAssembly kernel and its worker. Keep unversioned public files
+      # (icons, manifest) outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+      - pattern: '/assets/*.wasm'
+        headers:
+          - key: 'Content-Type'
+            value: 'application/wasm'
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/api-client
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames (the
+      # editor, formatter worker and app chunks). Keep unversioned public
+      # files (icons, manifest) outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/cad
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      # The offline service worker must update as soon as a new build ships.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames (the app,
+      # styles and DXF worker). Keep unversioned public files (icons,
+      # manifest, service worker) outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/parametric
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '/manifest.json'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames (app
+      # chunks, the geometry worker and the OpenCascade WebAssembly kernel).
+      # Keep unversioned public files (icons, manifest, licenses) outside it.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+      - pattern: '/assets/*.wasm'
+        headers:
+          - key: 'Content-Type'
+            value: 'application/wasm'
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/music-studio
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '/manifest.json'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames (app
+      # chunks, the audio worklet, the render worker and the WebAssembly
+      # audio engine). Keep unversioned public files outside this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+      - pattern: '/assets/*.wasm'
+        headers:
+          - key: 'Content-Type'
+            value: 'application/wasm'
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'
+  - appRoot: src/building-design
+    customHeaders:
+      # Revalidate the app entry point, including visits without index.html.
+      - pattern: '/'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '**/*.html'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      # The offline service worker and manifest must update as soon as a new build ships.
+      - pattern: '/sw.js'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+      - pattern: '/manifest.json'
+        headers:
+          - key: 'Cache-Control'
+            value: 'no-cache, max-age=0, s-maxage=0, must-revalidate'
+
+      # Vite includes content hashes in generated asset filenames. Keep
+      # unversioned public files (icons, manifest, service worker) outside
+      # this directory.
+      - pattern: '/assets/*'
+        headers:
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000, immutable'

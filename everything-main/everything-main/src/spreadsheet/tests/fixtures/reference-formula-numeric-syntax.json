@@ -1,0 +1,10529 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "regionalSettings": "en_CA; dollar prefix, decimal point, comma groups. Numeric currency syntax applies to the app’s en-US dollar setting; these cases contain no dates.",
+  "method": "Read-only native Evaluate for VALUE(text), text+0, --text, SUM(text literal), ABS(text). Error results encode ERR plus ERROR.TYPE. Native worksheet controls also verify stored text and the same expressions after XLSX export. Two mixed-fraction percent cases differ from the app by one binary64 ULP; comparisons retain a one-ULP tolerance rather than introducing a fixture-specific rounding correction.",
+  "scriptSha256": "1d9d20abf7e1700197d0d177c22a06d0df157aeed14752d58be70d66ed84a295",
+  "captureSha256": "c05f2125230acf5a3e4eb41812130dab313285551dcb22858f3b902cb13384c9",
+  "cases": [
+    {
+      "text": "1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1€",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "1 1/2€",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "1e2€",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "1%",
+      "values": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "1 1/2%",
+      "values": [
+        0.015,
+        0.015,
+        0.015,
+        0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "1e2%",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "+1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "+1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "+1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1€",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "+1 1/2€",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "+1e2€",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "+1%",
+      "values": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "+1 1/2%",
+      "values": [
+        0.015,
+        0.015,
+        0.015,
+        0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "+1e2%",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "+1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "-1 1/2",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "-1e2",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "-1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1€",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "-1 1/2€",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "-1e2€",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "-1%",
+      "values": [
+        -0.01,
+        -0.01,
+        -0.01,
+        -0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "-1 1/2%",
+      "values": [
+        -0.015,
+        -0.015,
+        -0.015,
+        -0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "-1e2%",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "-1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "$1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "$1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "$1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "€1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "€1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "€1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1",
+      "values": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "%1 1/2",
+      "values": [
+        0.015,
+        0.015,
+        0.015,
+        0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "%1e2",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "%1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "+$1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "+$1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "+$1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+$1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "-$1 1/2",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "-$1e2",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "-$1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-$1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "$+1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "$+1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "$+1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$+1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "$-1 1/2",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "$-1e2",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "$-1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$-1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "+€1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "+€1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "+€1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+€1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "-€1 1/2",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "-€1e2",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "-€1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-€1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "€+1 1/2",
+      "values": [
+        1.5,
+        1.5,
+        1.5,
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "€+1e2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "€+1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€+1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "€-1 1/2",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "€-1e2",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "€-1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€-1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1",
+      "values": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "+%1 1/2",
+      "values": [
+        0.015,
+        0.015,
+        0.015,
+        0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "+%1e2",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "+%1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+%1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1",
+      "values": [
+        -0.01,
+        -0.01,
+        -0.01,
+        -0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "-%1 1/2",
+      "values": [
+        -0.015,
+        -0.015,
+        -0.015,
+        -0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "-%1e2",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "-%1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-%1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1",
+      "values": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "%+1 1/2",
+      "values": [
+        0.015,
+        0.015,
+        0.015,
+        0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "%+1e2",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "%+1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%+1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1",
+      "values": [
+        -0.01,
+        -0.01,
+        -0.01,
+        -0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "%-1 1/2",
+      "values": [
+        -0.015,
+        -0.015,
+        -0.015,
+        -0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "%-1e2",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "%-1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%-1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(1 1/2)",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "(1e2)",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "(1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1)€",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(1 1/2)€",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "(1e2)€",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "(1)%",
+      "values": [
+        -0.01,
+        -0.01,
+        -0.01,
+        -0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "(1 1/2)%",
+      "values": [
+        -0.015,
+        -0.015,
+        -0.015,
+        -0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "(1e2)%",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1€)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(1 1/2€)",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "(1e2€)",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "(1%)",
+      "values": [
+        -0.01,
+        -0.01,
+        -0.01,
+        -0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "(1 1/2%)",
+      "values": [
+        -0.015,
+        -0.015,
+        -0.015,
+        -0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "(1e2%)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "$(1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "$(1 1/2)",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "$(1e2)",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "$(1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "€(1 1/2)",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "€(1e2)",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "€(1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€(1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1)",
+      "values": [
+        -0.01,
+        -0.01,
+        -0.01,
+        -0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "%(1 1/2)",
+      "values": [
+        -0.015,
+        -0.015,
+        -0.015,
+        -0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "%(1e2)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "%(1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "%(1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "($1 1/2)",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "($1e2)",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "($1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(€1 1/2)",
+      "values": [
+        -1.5,
+        -1.5,
+        -1.5,
+        -1.5,
+        1.5
+      ]
+    },
+    {
+      "text": "(€1e2)",
+      "values": [
+        -100,
+        -100,
+        -100,
+        -100,
+        100
+      ]
+    },
+    {
+      "text": "(€1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(€1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1)",
+      "values": [
+        -0.01,
+        -0.01,
+        -0.01,
+        -0.01,
+        0.01
+      ]
+    },
+    {
+      "text": "(%1 1/2)",
+      "values": [
+        -0.015,
+        -0.015,
+        -0.015,
+        -0.015,
+        0.015
+      ]
+    },
+    {
+      "text": "(%1e2)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(%1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(%1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(+1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2)$",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2)€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2)%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2$)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2€)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1 1/2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-1e2%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "USD1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "CAD1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "£1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "¥1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1-",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1+",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "( 1 )",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "($ 1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "($+1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "($-1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$ (1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "$ (-1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$ +1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "$ -1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "+ $1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "- $1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "+($1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "-($1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1-€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1€-",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1+€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1€+",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1%€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1€%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1,00",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1,2,3",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\t",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 ",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\n",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$\t1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€\t1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1  €",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1−2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "−1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$−1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1−",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+ 1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "- 1",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "+   1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "% 50",
+      "values": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "text": "-% 50",
+      "values": [
+        -0.5,
+        -0.5,
+        -0.5,
+        -0.5,
+        0.5
+      ]
+    },
+    {
+      "text": "(0)",
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "text": "(+0)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(-0)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1:00",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 000€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\t000€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1\t",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1e+ 2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$ 1e+2",
+      "values": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "text": "$ 1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "€ 1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "1 €",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "( 1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(1 )",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "$  1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "€  1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "1  €",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "(  1)",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "(1  )",
+      "values": [
+        -1,
+        -1,
+        -1,
+        -1,
+        1
+      ]
+    },
+    {
+      "text": "+  1",
+      "values": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "text": "1  1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1  000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\t€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(\t1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1\t)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+\t1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\t1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\t000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$\n1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€\n1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\n€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(\n1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1\n)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+\n1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\n1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\n000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$\r1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€\r1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\r€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(\r1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1\r)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+\r1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\r1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\r000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$\u000b1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€\u000b1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\u000b€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(\u000b1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1\u000b)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+\u000b1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\u000b1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\u000b000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$\f1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€\f1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\f€",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(\f1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1\f)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+\f1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\f1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1\f000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 €",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "( 1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 )",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 €",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "( 1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 )",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 €",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "( 1)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1 )",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "+ 1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 000",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "AUD1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "US$1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "C$1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "CA$1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1£",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "￥1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "₹1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "₽1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "kr1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$1.234567890123459",
+      "values": [
+        1.23456789012345,
+        1.23456789012345,
+        1.23456789012345,
+        1.23456789012345,
+        1.23456789012345
+      ]
+    },
+    {
+      "text": "$1e308",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$(1e308)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "(1e309%)",
+      "values": [
+        -1e+307,
+        -1e+307,
+        -1e+307,
+        -1e+307,
+        1e+307
+      ]
+    },
+    {
+      "text": "%(1e309)",
+      "values": [
+        -1e+307,
+        -1e+307,
+        -1e+307,
+        -1e+307,
+        1e+307
+      ]
+    },
+    {
+      "text": "(0e309%)",
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "text": "(-0e309%)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€1.234567890123459",
+      "values": [
+        1.23456789012345,
+        1.23456789012345,
+        1.23456789012345,
+        1.23456789012345,
+        1.23456789012345
+      ]
+    },
+    {
+      "text": "1,234.50€",
+      "values": [
+        1234.5,
+        1234.5,
+        1234.5,
+        1234.5,
+        1234.5
+      ]
+    },
+    {
+      "text": "(1 1/10)%",
+      "values": [
+        -0.011,
+        -0.011,
+        -0.011,
+        -0.011,
+        0.011
+      ]
+    },
+    {
+      "text": "%1 1/10",
+      "values": [
+        0.011,
+        0.011,
+        0.011,
+        0.011,
+        0.011
+      ]
+    },
+    {
+      "text": "-1 1/10",
+      "values": [
+        -1.1,
+        -1.1,
+        -1.1,
+        -1.1,
+        1.1
+      ]
+    },
+    {
+      "text": "(1 2/0)",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "1 3/2",
+      "values": [
+        2.5,
+        2.5,
+        2.5,
+        2.5,
+        2.5
+      ]
+    },
+    {
+      "text": "$1 10/4",
+      "values": [
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5
+      ]
+    },
+    {
+      "text": "$1.5 1/2",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$.5",
+      "values": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "text": ".5€",
+      "values": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "text": "$0.00000000000000001",
+      "values": [
+        1e-17,
+        1e-17,
+        1e-17,
+        1e-17,
+        1e-17
+      ]
+    },
+    {
+      "text": "$.1e309%",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "((1))",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "--1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "€€1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    },
+    {
+      "text": "$€1",
+      "values": [
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3",
+        "ERR3"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+import { el } from '../ui/dom.js';
+import { openModal } from '../ui/modal.js';
+import { paragraphText } from '../engine/model.js';
+import { pageNumberSequence, formatPageNumber } from '../engine/page-numbering.js';
+import { noteReferences } from '../engine/footnotes.js';
+import { bodyFieldRanges } from '../engine/body-fields.js';
+
+// The targets Word's Go To offers, in its order. Comments are chosen by reviewer and fields by name, with Previous and
+// Next; the others by number, or + and − a number from where the caret is.
+const KINDS = [['page', 'Page'], ['section', 'Section'], ['line', 'Line'], ['bookmark', 'Bookmark'], ['comment', 'Comment'], ['footnote', 'Footnote'], ['endnote', 'Endnote'],
+  ['field', 'Field'], ['table', 'Table'], ['graphic', 'Graphic'], ['equation', 'Equation'], ['heading', 'Heading']];
+const FILTERS = { comment: ['Enter reviewer’s name', 'Any reviewer'], field: ['Enter field name', 'Any field'] };
+
+/** Document positions of each target kind, in reading order: [{ position, label }]. */
+export function goToTargets(engine, kind) {
+  // Pages and lines as printed: Web Layout and Draft show strips of the window's height, not pages.
+  const layout = kind === 'page' || kind === 'line' ? engine.printLayout?.().layout ?? engine.layout : engine.layout;
+  const body = engine.session.body, lines = layout.lines.filter(line => !line.virtual && !line.pageStory);
+  if (kind === 'page') {
+    // A page without body text (a full-page picture) goes to where the text before it ends.
+    const first = new Map();
+    for (const line of lines) if (!first.has(line.page)) first.set(line.page, line.start);
+    // Each page with the number printed on it, as its section numbers pages (§17.6.12 pgNumType): sections can
+    // restart numbering, count from 0 or show letters and Roman numerals.
+    const sections = layout.pageSections || [], definition = engine.pageStories;
+    let numbers = [];
+    try { numbers = pageNumberSequence(sections, definition, layout.numberingApproximations); } catch { numbers = []; }
+    let last = 0;
+    return Array.from({ length: layout.pageCount }, (_, i) => {
+      if (first.has(i)) last = first.get(i);
+      const number = numbers[i] ?? null, section = sections[i] ?? null;
+      let text = number === null ? null : String(number);
+      try { if (number !== null) text = formatPageNumber(number, definition?.sections?.[section]?.pageNumbering?.format || 'decimal').trim() || null; } catch { /* the plain number */ }
+      return { position: last, label: `Page ${i + 1}`, number, text, section };
+    });
+  }
+  if (kind === 'line') return lines.map((line, i) => ({ position: line.start, label: `Line ${i + 1}` }));
+  // Hidden bookmarks (_Toc…, _Ref…, _GoBack) are not offered, as in the Bookmarks dialog.
+  if (kind === 'bookmark') return engine.bookmarks.filter(b => !b.name?.startsWith('_')).map(b => ({ position: b.start, label: b.name, id: b.id }));
+  if (kind === 'heading') return engine.outline.map(entry => ({ position: entry.start, label: entry.text }));
+  // A comment thread where its text starts; `filter` names its reviewer.
+  if (kind === 'comment') return (body.comments?.length ? body.commentList : []).filter(c => c.id === c.rootId && c.start !== null)
+    .map(c => ({ position: c.start, label: c.author || 'Unknown author', filter: c.author || '' })).sort((a, b) => a.position - b.position);
+  if (kind === 'footnote' || kind === 'endnote') return noteReferences(body.paragraphs, kind, true).map((ref, i) => ({ position: ref.position, label: `${kind === 'footnote' ? 'Footnote' : 'Endnote'} ${i + 1}` }));
+  // Fields as the document holds them, the outermost of nested ones; `filter` is the field's name (REF, PAGE…).
+  if (kind === 'field') return bodyFieldRanges(body.paragraphs).filter(r => !r.parentId).map(r => ({ position: r.start, label: r.field.type || 'Field', filter: r.field.type || '' }));
+  const out = [];
+  let at = 0, inTable = false, section = true;
+  for (const p of body.paragraphs) {
+    if (kind === 'section') { if (section) out.push({ position: at, label: `Section ${out.length + 1}` }); section = !!p.sectionEnd; }
+    if (kind === 'table') { if (p.cellId && !inTable) out.push({ position: at, label: `Table ${out.length + 1}` }); inTable = !!p.cellId; }
+    if (kind === 'graphic' || kind === 'equation') {
+      let offset = at;
+      for (const run of p.runs) { if (kind === 'graphic' ? run.image : run.math) out.push({ position: offset, label: `${kind === 'graphic' ? 'Graphic' : 'Equation'} ${out.length + 1}` }); offset += run.text.length; }
+    }
+    at += paragraphText(p).length + 1;
+  }
+  return out;
+}
+
+/**
+ * The page a typed page number names: the first page numbered so ("8", or as it is shown: "iv", "L", "aa"), or
+ * with p and s the page numbered so in that section ("p2s3", sections counted from 1). A plain number no page
+ * carries goes to that page counting from the first. undefined when the entry is not a page number at all.
+ */
+export function printedPage(pages, value) {
+  const inSection = /^p\s*(\d+)\s*s\s*(\d+)$/i.exec(value);
+  if (inSection) return pages.find(p => p.number === Number(inSection[1]) && p.section === Number(inSection[2]) - 1) || null;
+  if (/^\d+$/.test(value)) return pages.find(p => p.number === Number(value)) || pages[Number(value) - 1] || null;
+  if (!/^[a-z]+$/i.test(value)) return undefined;
+  return pages.find(p => p.text === value) || pages.find(p => p.text?.toLowerCase() === value.toLowerCase()) || null;
+}
+
+/**
+ * Go To: choose a kind of target, then a number (or +n / −n from the current one), or step
+ * with Previous and Next. Bookmarks are chosen by name.
+ */
+export function openGoTo(engine, { onClose } = {}) {
+  const kind = el('select.input', { 'aria-label': 'Go to what', size: 6 }, ...KINDS.map(([value, label]) => el('option', { value }, label)));
+  kind.value = 'page';
+  const label = el('span.field-label');
+  const number = el('input.input', { type: 'text', autocomplete: 'off' });
+  const names = el('select.input');
+  const numberField = el('label.field', {}, label, number);
+  const nameField = el('label.field', { style: { display: 'none' } }, el('span.field-label', {}, 'Enter bookmark name'), names);
+  // A reviewer for comments, a field name for fields.
+  const filter = el('select.input');
+  const filterLabel = el('span.field-label');
+  const filterField = el('label.field', { style: { display: 'none' } }, filterLabel, filter);
+  const hint = el('p.field-hint');
+  const message = el('p.field-error', { role: 'alert', hidden: true });
+  const previous = el('button.btn.btn-outline', { type: 'button', onclick: () => step(-1) }, 'Previous');
+  const next = el('button.btn.btn-primary', { type: 'submit' }, 'Next');
+  // In a header or footer, where it is is the page it is on: its own offsets are not the body's.
+  const current = () => engine.session.path === null ? engine.model.range[0] : goToTargets(engine, 'page')[engine.storyPage ?? 0]?.position ?? 0;
+  let filterKind = null;
+  function refresh() {
+    const name = KINDS.find(([value]) => value === kind.value)[1];
+    const bookmark = kind.value === 'bookmark', filtered = FILTERS[kind.value];
+    // Field classes set their own display, so the unused field is hidden by style rather than [hidden].
+    numberField.style.display = bookmark || filtered ? 'none' : ''; nameField.style.display = bookmark ? '' : 'none';
+    filterField.style.display = filtered ? '' : 'none';
+    previous.style.display = bookmark ? 'none' : '';
+    label.textContent = `Enter ${name.toLowerCase()} number`;
+    if (bookmark) names.replaceChildren(...goToTargets(engine, 'bookmark').map(b => el('option', { value: b.id }, b.label)));
+    if (filtered && filterKind !== kind.value) {
+      filterKind = kind.value; filterLabel.textContent = filtered[0];
+      const choices = [...new Set(goToTargets(engine, kind.value).map(t => t.filter))].sort((a, b) => a.localeCompare(b));
+      filter.replaceChildren(el('option', { value: '' }, filtered[1]), ...choices.map(value => el('option', { value: `=${value}` }, value || 'Unknown author')));
+    }
+    hint.textContent = bookmark || filtered ? '' : `Enter + and − to move relative to the current location. Example: +4 will move forward four items.`;
+    next.textContent = bookmark || !filtered && number.value.trim() ? 'Go To' : 'Next';
+    message.hidden = true;
+  }
+  /** The targets of the chosen kind, of the chosen reviewer or field name. */
+  const targetsOf = value => goToTargets(engine, value).filter(t => !FILTERS[value] || !filter.value || `=${t.filter}` === filter.value);
+  function land(position) {
+    engine.finishComposition();
+    if (engine.session.path !== null) engine.editStory(null);
+    engine.model.select(position);
+    engine.caretAffinity = 'forward'; engine.caretPage = null; engine.preferredX = null;
+    engine.syncInput(); engine.paint(); engine.revealCaret(); engine.onSelection();
+  }
+  const fail = text => { message.textContent = text; message.hidden = false; };
+  function step(direction) {
+    const targets = targetsOf(kind.value), here = current();
+    const index = targets.findLastIndex(t => t.position <= here);
+    const target = direction > 0 ? targets.find(t => t.position > here) : targets[index] && targets[index].position < here ? targets[index] : targets[index - 1];
+    if (!target) { fail(`There is no ${direction > 0 ? 'next' : 'previous'} ${kind.selectedOptions[0].textContent.toLowerCase()}.`); return; }
+    land(target.position); message.hidden = true;
+  }
+  function go() {
+    if (kind.value === 'bookmark') {
+      if (!names.value) { fail('This document has no bookmarks.'); return; }
+      engine.goToBookmark(names.value); modal.close(); return;
+    }
+    const value = FILTERS[kind.value] ? '' : number.value.trim();
+    if (!value) { step(1); return; }
+    if (kind.value === 'page' && !/^[+−-]/.test(value)) {
+      const pages = goToTargets(engine, 'page'), target = printedPage(pages, value);
+      if (target === undefined) { fail('Enter a page number, + or − followed by a number, or p and s numbers such as p2s3 for page 2 of section 3.'); return; }
+      if (!target) { fail(/^\d+$/.test(value) ? `This document has ${pages.length} page${pages.length === 1 ? '' : 's'}.` : `This document has no page ${value}.`); return; }
+      land(target.position); modal.close(); return;
+    }
+    const match = /^([+-]?)(\d+)$/.exec(value.replace('−', '-'));
+    if (!match) { fail('Enter a number, or + or − followed by a number.'); return; }
+    const targets = targetsOf(kind.value), n = Number(match[2]);
+    let index;
+    if (match[1]) {
+      // Before the first target, +1 is the first one.
+      const here = targets.findLastIndex(t => t.position <= current());
+      index = here + (match[1] === '+' ? n : -n);
+    } else index = n - 1;
+    const target = targets[index];
+    if (!target) { fail(targets.length ? `This document has ${targets.length} ${kind.selectedOptions[0].textContent.toLowerCase()}${targets.length === 1 ? '' : 's'}.` : `This document has no ${kind.selectedOptions[0].textContent.toLowerCase()}s.`); return; }
+    land(target.position); modal.close();
+  }
+  kind.addEventListener('change', refresh); number.addEventListener('input', refresh);
+  const form = el('form.ed-dialog-body.ed-goto', { onsubmit: e => { e.preventDefault(); go(); } },
+    el('div.ed-goto-grid', {},
+      el('label.field', {}, el('span.field-label', {}, 'Go to what'), kind),
+      el('div', {}, numberField, nameField, filterField, hint)),
+    message,
+    el('div.row.row-end', {}, previous, next, el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, 'Close')));
+  const modal = openModal({ title: 'Go To', content: form, onClose });
+  refresh();
+  number.focus();
+  return modal;
+}

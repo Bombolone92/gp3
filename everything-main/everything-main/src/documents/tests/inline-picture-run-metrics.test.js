@@ -1,0 +1,42 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser=dom.window.DOMParser; globalThis.XMLSerializer=dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const root='tests/fixtures/inline-picture-run-metrics/';
+const measure=(t,s)=>({width:t.length*4,ascent:s.fontSize,descent:s.fontSize/3});
+const layout=(doc)=>layoutDocument(doc.paragraphs,measure,pageGeometry(doc.pageSettings));
+it.each(['source','modern','spacing'])('pins independently generated source and native reference PDF: %s',name=>{
+ const ref=JSON.parse(readFileSync(root+name+'-reference.json'));
+ for(const [file,hash] of [[name+'.docx',ref.sourceSha256],[(name==='source'?'native':name+'-native')+'.pdf',ref.pdfSha256]])expect(createHash('sha256').update(readFileSync(root+file)).digest('hex')).toBe(hash);
+});
+it('uses picture run font height only in modern mode, while retaining object extents and following-line offsets',async()=>{
+ const old=await DocxPackage.open(readFileSync(root+'source.docx')),modern=await DocxPackage.open(readFileSync(root+'modern.docx'));
+ const before=layout(old),after=layout(modern);
+ expect(before.pageCount).toBe(12);expect(after.pageCount).toBe(12);
+ const tails=l=>l.lines.filter(l=>l.fragments.some(f=>f.text==='Tail'));
+ const a=tails(before),b=tails(after);
+ expect(b[3].baseline-a[3].baseline).toBeCloseTo(4,8);
+ expect(b[9].baseline-a[9].baseline).toBeCloseTo(64/3,8);
+ expect(b[2].baseline).toBe(a[2].baseline);
+ expect(b[3].fragments.find(f=>f.image).image).toEqual(a[3].fragments.find(f=>f.image).image);
+});
+it('updates line height when formatting an image run and preserves the package through export and exact undo',async()=>{
+ const pkg=await DocxPackage.open(readFileSync(root+'modern.docx'));
+ const doc=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets);
+ const save=async()=>new Uint8Array(await pkg.export(doc.paragraphs,doc.pageSettings,doc.numbering,doc.styles,doc.tables,doc.assets).arrayBuffer());
+ const at=doc.text.indexOf('\ufffc'),original=layout(doc).lines.find(l=>l.fragments.some(f=>f.image));
+ doc.select(at,at+1);doc.setRunFormat({fontSize:24});
+ expect(layout(doc).lines.find(l=>l.fragments.some(f=>f.image)).height).toBeGreaterThan(original.height);
+ const bytes=await save(),parts=unzipSync(bytes),reopened=await DocxPackage.open(bytes);
+ expect(reopened.paragraphs.flatMap(p=>p.runs).find(r=>r.image).fontSize).toBe(24);
+ for(const n in pkg.parts)if(n!=='word/document.xml')expect(parts[n]).toEqual(pkg.parts[n]);
+ doc.undo();const undo=unzipSync(await save());for(const n in pkg.parts)expect(undo[n]).toEqual(pkg.parts[n]);
+},30000);

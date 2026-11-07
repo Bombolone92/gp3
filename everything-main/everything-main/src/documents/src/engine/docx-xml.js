@@ -1,0 +1,76 @@
+import { InvalidXmlError, UnsupportedDocumentError } from './errors.js';
+
+// XML whitespace at the edges of w:t is stripped unless that element itself
+// requests preservation. Separate nonconforming-input controls establish that
+// xml:space declarations on w:r/w:p are also ignored (not allowed by OOXML).
+export function wordText(node) {
+  const text = node.textContent;
+  return node.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'space') === 'preserve'
+    ? text : text.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, '');
+}
+
+// A line feed or carriage return inside w:t or w:delText is XML whitespace, not a break: breaks are
+// w:br and w:cr (§17.3.3.1, §17.3.3.4). Word shows each one as a space.
+export const runText = node => wordText(node).replace(/\r\n|[\r\n]/g, ' ');
+
+const CONTENT_TYPES = 'http://schemas.openxmlformats.org/package/2006/content-types';
+/**
+ * Declare a part's content type in a parsed [Content_Types].xml. The stream holds at most one Override
+ * per part name, and part names compare without regard to ASCII case (ECMA-376 Part 2, §9.1.1 and
+ * §10.1.2), so an entry left behind for a part the package no longer has is reused, not repeated.
+ */
+export function setContentTypeOverride(types, partName, contentType) {
+  const root = types.documentElement, key = partName.toLowerCase();
+  const [node, ...extra] = [...root.children].filter(n => n.localName === 'Override' && n.getAttribute('PartName')?.toLowerCase() === key);
+  for (const duplicate of extra) duplicate.remove();
+  const override = node || root.appendChild(types.createElementNS(root.namespaceURI || CONTENT_TYPES, 'Override'));
+  override.setAttribute('PartName', partName); override.setAttribute('ContentType', contentType);
+  return override;
+}
+/**
+ * Declare a part's content type in the package's [Content_Types].xml (setContentTypeOverride), rewriting the
+ * stream only when it lacks that declaration: one Override for the part name, in any case, with this type.
+ */
+export function declareContentType(parts, partName, contentType) {
+  const types = parseXml(parts['[Content_Types].xml']), key = partName.toLowerCase();
+  const matches = [...types.documentElement.children].filter(n => n.localName === 'Override' && n.getAttribute('PartName')?.toLowerCase() === key);
+  if (matches.length === 1 && matches[0].getAttribute('ContentType') === contentType) return false;
+  setContentTypeOverride(types, partName, contentType);
+  parts['[Content_Types].xml'] = new TextEncoder().encode(new XMLSerializer().serializeToString(types));
+  return true;
+}
+
+// Elements nested deeper than this are not read structurally. Real documents stay far below it
+// (tables nested 60 deep are about 200 levels), but the readers walk the tree recursively, and a
+// generated or hostile file nested thousands of levels deep exhausted the stack ("Maximum call stack
+// size exceeded"). Such a document opens as a read-only text preview (DocxPackage.preview).
+export const MAX_XML_DEPTH = 800;
+/** Whether any element under `root` (counted as level 1) is nested more than `limit` levels deep. */
+export function xmlDepthExceeds(root, limit = MAX_XML_DEPTH) {
+  if (!root || limit === Infinity) return false;
+  for (let node = root, depth = 1; ;) {
+    if (depth > limit) return true;
+    if (node.firstElementChild) { node = node.firstElementChild; depth++; continue; }
+    while (node !== root && !node.nextElementSibling) { node = node.parentElement; depth--; }
+    if (node === root) return false;
+    node = node.nextElementSibling;
+  }
+}
+
+export function parseXml(bytes, { depthLimit = MAX_XML_DEPTH } = {}) {
+  let text;
+  if (bytes instanceof Uint8Array) {
+    const encoding = bytes[0] === 255 && bytes[1] === 254 ? 'utf-16le' : bytes[0] === 254 && bytes[1] === 255 ? 'utf-16be' : 'utf-8';
+    // Package XML is UTF-8 or UTF-16 (ECMA-376 Part 2, §8.1.4); a part in another encoding is not read.
+    try { text = new TextDecoder(encoding, { fatal: true }).decode(bytes); }
+    catch { throw new InvalidXmlError('The DOCX contains XML that is not encoded as UTF-8 or UTF-16.', 'XML not encoded as UTF-8 or UTF-16'); }
+  } else text = bytes;
+  if (/<!DOCTYPE|<!ENTITY/i.test(text)) throw new InvalidXmlError('Documents with XML entity declarations are not supported.', 'XML entity declarations');
+  // The text is decoded now. Browser serializers repeat the declared encoding,
+  // and every writer saves UTF-8, so a UTF-16 label would mislabel the output.
+  text = text.replace(/^(﻿?<\?xml\s[^?]*?\bencoding\s*=\s*)(["'])[^"']*\2/, '$1"UTF-8"');
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) throw new InvalidXmlError();
+  if (xmlDepthExceeds(doc.documentElement, depthLimit)) throw new UnsupportedDocumentError(`content nested more than ${depthLimit} levels deep`);
+  return doc;
+}

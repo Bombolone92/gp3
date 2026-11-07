@@ -1,0 +1,2420 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Independent Evaluate and worksheet formula2 numeric-text/error probes agree; stored formulas checked and scratch ranges cleared with COUNTA zero. Amplified expressions expose underflow. Density and beta endpoint-precision cases are selected by function scope; large-degree cumulative-tail algorithms remain a separate investigation.",
+  "captures": [
+    {
+      "name": "probability-density-controls",
+      "selectedCases": 84,
+      "scriptSha256": "19dd4d0e08cb2d3aec4d3ac1bbdd6aa55253eda6b9d825c93e0e55f02478f734",
+      "captureSha256": "dc813744d323a9d65bd9e7eff1cebc8078e284b2d01c87e35852779e22938769"
+    },
+    {
+      "name": "probability-density-bounds",
+      "selectedCases": 82,
+      "scriptSha256": "b9b8281a31a0980976af7d719649668e710ad7b8e25a36efa237544f1ce52fd0",
+      "captureSha256": "fcebdb94314ddedf248d5bf5822a8367a7b01755aafc489275aa51223194b79a"
+    },
+    {
+      "name": "beta-density-endpoints",
+      "selectedCases": 60,
+      "scriptSha256": "d62ba1b9d8e3a5e8e65702d42661f3b1eb809230b4c2516fe0fa66cb42020ff2",
+      "captureSha256": "07ebaa50912608ca31bd21704cb6eb219845841bb6e1a3afa685892c2e7fd614"
+    },
+    {
+      "name": "beta-density-endpoint-roles",
+      "selectedCases": 52,
+      "scriptSha256": "6d91b0afe2dedc40056f01f50843597387832e1d8cf5db87e4aacbdbdc7b2f32",
+      "captureSha256": "676b801627becb3e8f587a686928df97e87ff0b5dd08facef3d1f1d04e51b51d"
+    },
+    {
+      "name": "t-distribution-large-degrees-v2",
+      "selectedCases": 12,
+      "scriptSha256": "2b1287d95d3a700179f08fb4b22d3b203685343930a0fc09d8216ff74fe534a6",
+      "captureSha256": "483561807c1f48d0dc04670f1c52311cceb3d2e965ca75ea3c56c4f830434420"
+    },
+    {
+      "name": "t-large-beta-stages",
+      "selectedCases": 24,
+      "scriptSha256": "f6c799a477f83a68bef8dd76f2a55cf7091fc556f94324655268ff13ae4457bc",
+      "captureSha256": "a46577074fd7f283c1f2477b0cb1e0017af7722124e6b40775bacc8e3ab69eea"
+    },
+    {
+      "name": "beta-endpoint-precision",
+      "selectedCases": 160,
+      "scriptSha256": "5f5d9eaa9df024ed3bc6a4b77726033e388f3bd2a0d38c4d760968ea1e379759",
+      "captureSha256": "781f8044f8fe59f55bb4ae283cd5ddc087ec05c8bc1976b7afffe94a32933f61"
+    }
+  ],
+  "cases": [
+    {
+      "expression": "1e100*BETA.DIST(0,1,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,1,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,1,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,1,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,1,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,1,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,1,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,1,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,1,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.5e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,1,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,1,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e+98
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,1,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,2,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,2,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.99999999999999e-54
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,2,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5e+99
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,2,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,2,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.98e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,2,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,3,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,3,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,3,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,3,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-208
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,3,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,3,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.875e+99
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,3,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,3,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.5e+99
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,3,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,3,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.9403e+100
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,3,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,3,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,1000,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,1000,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,1000,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,1000,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,1000,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,1000,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,1000,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,1000,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.8665272370065e-198
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,1000,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,1000,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.36073206168261e+98
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,1000,1,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,1000,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,1,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,1,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,1,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,1,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+103
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,1,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,1,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.53533138683311e-22
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,1,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,1,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.8665272370065e-198
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,1,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,1,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,1,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,1,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,1000,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,1000,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,1000,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,1000,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,1000,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,1000,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.47775874445922e-24
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,1000,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,1000,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.5678022291709e+101
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,1000,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,1000,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,1000,1000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,1000,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*BETA.DIST(0,500000,500000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0,500000,500000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154,500000,500000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154,500000,500000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.25,500000,500000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.25,500000,500000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.5,500000,500000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.5,500000,500000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.9788436133175e+102
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.99,500000,500000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.99,500000,500000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1,500000,500000,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1,500000,500000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*T.DIST(0,3,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,3,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.6755259694786e+99
+    },
+    {
+      "expression": "1e100*T.DIST(0,10,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,10,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.8910838396603e+99
+    },
+    {
+      "expression": "1e100*T.DIST(0,100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9794618693589e+99
+    },
+    {
+      "expression": "1e100*T.DIST(0,1000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9884255731386e+99
+    },
+    {
+      "expression": "1e100*T.DIST(0,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9894218066588e+99
+    },
+    {
+      "expression": "1e100*T.DIST(0,10000000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,10000000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9894228039146e+99
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,3,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,3,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.06718803540737e+98
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,10,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,10,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.50947506545504e+98
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.93021043201913e+98
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,1000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.85294283614937e+98
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.84410330858455e+98
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,10000000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,10000000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.84409443423267e+98
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,3,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,3,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.66565831846562e+94
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,10,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,10,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.73853470780464e+87
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.30623952809652e+40
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,1000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.49234352041815e-92
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.830119141066e-206
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,10000000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,10000000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.7283190540652e-206
+    },
+    {
+      "expression": "1e100*T.DIST(38,3,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,3,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.57988306122036e+94
+    },
+    {
+      "expression": "1e100*T.DIST(38,10,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,10,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.96553848954495e+87
+    },
+    {
+      "expression": "1e100*T.DIST(38,100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.74227673529377e+39
+    },
+    {
+      "expression": "1e100*T.DIST(38,1000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.27064952595576e-95
+    },
+    {
+      "expression": "1e100*T.DIST(38,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*T.DIST(38,10000000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,10000000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154*1e-10,3,1,FALSE,0,1e-10)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154*1e-10,3,1,FALSE,0,1e-10),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-198
+    },
+    {
+      "expression": "1e100*BETA.DIST(5e-155*1e-10,3,1,FALSE,0,1e-10)",
+      "formula": "LET(v,1e100*BETA.DIST(5e-155*1e-10,3,1,FALSE,0,1e-10),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154*1,3,1,FALSE,0,1)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154*1,3,1,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-208
+    },
+    {
+      "expression": "1e100*BETA.DIST(5e-155*1,3,1,FALSE,0,1)",
+      "formula": "LET(v,1e100*BETA.DIST(5e-155*1,3,1,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-154*1e10,3,1,FALSE,0,1e10)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-154*1e10,3,1,FALSE,0,1e10),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(5e-155*1e10,3,1,FALSE,0,1e10)",
+      "formula": "LET(v,1e100*BETA.DIST(5e-155*1e10,3,1,FALSE,0,1e10),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*T.DIST(0,1e12,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,1e12,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9894228040133e+99
+    },
+    {
+      "expression": "1e100*T.DIST(1,1e12,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1,1e12,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.4197072451902e+99
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,1e12,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,1e12,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.7282345854811e-206
+    },
+    {
+      "expression": "1e100*T.DIST(38,1e12,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,1e12,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*T.DIST(0,1e100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,1e100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9894228040143e+99
+    },
+    {
+      "expression": "1e100*T.DIST(1,1e100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1,1e100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.4197072451914e+99
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,1e100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,1e100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.7282337322841e-206
+    },
+    {
+      "expression": "1e100*T.DIST(38,1e100,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,1e100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*T.DIST(0,(1e307*10),FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,(1e307*10),FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9894228040143e+99
+    },
+    {
+      "expression": "1e100*T.DIST(1,(1e307*10),FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1,(1e307*10),FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.4197072451914e+99
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,(1e307*10),FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,(1e307*10),FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.7282337322841e-206
+    },
+    {
+      "expression": "1e100*T.DIST(38,(1e307*10),FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,(1e307*10),FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,0.5,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-3,0.5,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,0.5,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,0.5,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.25,0.5,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.735105193895723
+    },
+    {
+      "expression": "BETA.DIST(-0.5,0.5,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-0.5,0.5,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.0735105193895723
+    },
+    {
+      "expression": "BETA.DIST(0.5,0.5,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.5,0.5,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.636619772367581
+    },
+    {
+      "expression": "BETA.DIST(2,0.5,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(2,0.5,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.0636619772367581
+    },
+    {
+      "expression": "BETA.DIST(0.75,0.5,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.75,0.5,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.735105193895723
+    },
+    {
+      "expression": "BETA.DIST(4.5,0.5,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(4.5,0.5,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.0735105193895723
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,0.5,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(7,0.5,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,0.5,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,1,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-3,1,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,1,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,1,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.25,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "BETA.DIST(-0.5,1,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-0.5,1,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.1
+    },
+    {
+      "expression": "BETA.DIST(0.5,1,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.5,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "BETA.DIST(2,1,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(2,1,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.1
+    },
+    {
+      "expression": "BETA.DIST(0.75,1,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.75,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "BETA.DIST(4.5,1,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(4.5,1,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.1
+    },
+    {
+      "expression": "BETA.DIST(1,1,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(7,1,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,1,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,1,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-3,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,1,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.25,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.5
+    },
+    {
+      "expression": "BETA.DIST(-0.5,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-0.5,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.15
+    },
+    {
+      "expression": "BETA.DIST(0.5,1,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.5,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "BETA.DIST(2,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(2,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.1
+    },
+    {
+      "expression": "BETA.DIST(0.75,1,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.75,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "BETA.DIST(4.5,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(4.5,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.05
+    },
+    {
+      "expression": "BETA.DIST(1,1,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,2,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.25,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "BETA.DIST(-0.5,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-0.5,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.05
+    },
+    {
+      "expression": "BETA.DIST(0.5,2,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.5,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "BETA.DIST(2,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(2,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.1
+    },
+    {
+      "expression": "BETA.DIST(0.75,2,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.75,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.5
+    },
+    {
+      "expression": "BETA.DIST(4.5,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(4.5,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.15
+    },
+    {
+      "expression": "BETA.DIST(1,2,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(7,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,3,4,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,3,4,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,3,4,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,3,4,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,3,4,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.25,3,4,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.58203125
+    },
+    {
+      "expression": "BETA.DIST(-0.5,3,4,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-0.5,3,4,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.158203125
+    },
+    {
+      "expression": "BETA.DIST(0.5,3,4,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.5,3,4,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.875
+    },
+    {
+      "expression": "BETA.DIST(2,3,4,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(2,3,4,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.1875
+    },
+    {
+      "expression": "BETA.DIST(0.75,3,4,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.75,3,4,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.52734375
+    },
+    {
+      "expression": "BETA.DIST(4.5,3,4,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(4.5,3,4,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.052734375
+    },
+    {
+      "expression": "BETA.DIST(1,3,4,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,3,4,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,3,4,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,3,4,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,100,1000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,100,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,100,1000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,100,1000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,100,1000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.25,100,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.94384883531199e-39
+    },
+    {
+      "expression": "BETA.DIST(-0.5,100,1000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-0.5,100,1000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.94384883531199e-40
+    },
+    {
+      "expression": "BETA.DIST(0.5,100,1000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.5,100,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.8094910472443e-185
+    },
+    {
+      "expression": "BETA.DIST(2,100,1000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(2,100,1000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.8094910472443e-186
+    },
+    {
+      "expression": "BETA.DIST(0.75,100,1000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.75,100,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(4.5,100,1000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(4.5,100,1000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,100,1000,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,100,1000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,100,1000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,100,1000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,1000000,1000000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,1000000,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,1000000,1000000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,1000000,1000000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,1000000,1000000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.25,1000000,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-0.5,1000000,1000000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-0.5,1000000,1000000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.5,1000000,1000000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.5,1000000,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1128.37902604813
+    },
+    {
+      "expression": "BETA.DIST(2,1000000,1000000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(2,1000000,1000000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 112.837902604813
+    },
+    {
+      "expression": "BETA.DIST(0.75,1000000,1000000,FALSE)",
+      "formula": "LET(v,BETA.DIST(0.75,1000000,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(4.5,1000000,1000000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(4.5,1000000,1000000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,1000000,1000000,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,1000000,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,1000000,1000000,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,1000000,1000000,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,0.5,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(0,0.5,0.5,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,0.5,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(1,0.5,0.5,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,1,1,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(0,1,1,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,1,1,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(1,1,1,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,2,2,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(0,2,2,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,2,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(1,2,2,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,0.5,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(0,0.5,0.5,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,0.5,0.5,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(2,0.5,0.5,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,1,1,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(0,1,1,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,1,1,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(2,1,1,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(0,2,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(2,2,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(2,2,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,0.5,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(1,0.5,0.5,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,0.5,0.5,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(2,0.5,0.5,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,1,1,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(1,1,1,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,1,1,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(2,1,1,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,2,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(1,2,2,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(2,2,2,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(2,2,2,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,0.5,0.5,FALSE,-3,1)",
+      "formula": "LET(v,BETA.DIST(-3,0.5,0.5,FALSE,-3,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,0.5,FALSE,-3,1)",
+      "formula": "LET(v,BETA.DIST(1,0.5,0.5,FALSE,-3,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-3,1,1,FALSE,-3,1)",
+      "formula": "LET(v,BETA.DIST(-3,1,1,FALSE,-3,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,1,1,FALSE,-3,1)",
+      "formula": "LET(v,BETA.DIST(1,1,1,FALSE,-3,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-3,2,2,FALSE,-3,1)",
+      "formula": "LET(v,BETA.DIST(-3,2,2,FALSE,-3,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,2,FALSE,-3,1)",
+      "formula": "LET(v,BETA.DIST(1,2,2,FALSE,-3,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,0.5,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,0.5,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,0.5,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,0.5,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,1,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,1,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,1,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,1,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,2,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,2,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,2,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,2,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-1,0.5,0.5,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(-1,0.5,0.5,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,0.5,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(0,0.5,0.5,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-1,1,1,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(-1,1,1,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,1,1,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(0,1,1,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-1,2,2,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(-1,2,2,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,2,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(0,2,2,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,0.5,0.5,FALSE,0.25,0.75)",
+      "formula": "LET(v,BETA.DIST(0.25,0.5,0.5,FALSE,0.25,0.75),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.75,0.5,0.5,FALSE,0.25,0.75)",
+      "formula": "LET(v,BETA.DIST(0.75,0.5,0.5,FALSE,0.25,0.75),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,1,1,FALSE,0.25,0.75)",
+      "formula": "LET(v,BETA.DIST(0.25,1,1,FALSE,0.25,0.75),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.75,1,1,FALSE,0.25,0.75)",
+      "formula": "LET(v,BETA.DIST(0.75,1,1,FALSE,0.25,0.75),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.25,2,2,FALSE,0.25,0.75)",
+      "formula": "LET(v,BETA.DIST(0.25,2,2,FALSE,0.25,0.75),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0.75,2,2,FALSE,0.25,0.75)",
+      "formula": "LET(v,BETA.DIST(0.75,2,2,FALSE,0.25,0.75),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,0.5,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,0.5,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,0.5,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,1,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,1,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,1,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,1,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,2,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,2,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(0,2,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,0.5,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,0.5,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,0.5,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,1,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,1,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,1,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,1,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,1,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,1,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,0.5,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,2,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,2,1,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,2,1,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,2,2,FALSE)",
+      "formula": "LET(v,BETA.DIST(1,2,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,2,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(0,0.5,2,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,2,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(1,0.5,2,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,0.5,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(0,2,0.5,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,0.5,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(1,2,0.5,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,1,2,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(0,1,2,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,1,2,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(1,1,2,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,1,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(0,2,1,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,1,FALSE,0,1)",
+      "formula": "LET(v,BETA.DIST(1,2,1,FALSE,0,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(0,0.5,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,0.5,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(2,0.5,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(1,0.5,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.265165042944955
+    },
+    {
+      "expression": "BETA.DIST(0,2,0.5,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(0,2,0.5,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(2,2,0.5,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(2,2,0.5,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,0.5,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(1,2,0.5,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(0,1,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(0,1,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,1,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(2,1,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,1,2,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(1,1,2,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "BETA.DIST(0,2,1,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(0,2,1,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(2,2,1,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(2,2,1,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,1,FALSE,0,2)",
+      "formula": "LET(v,BETA.DIST(1,2,1,FALSE,0,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,2,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(1,0.5,2,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(2,0.5,2,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(2,0.5,2,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,0.5,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(1,2,0.5,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,2,0.5,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(2,2,0.5,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,1,2,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(1,1,2,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(2,1,2,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(2,1,2,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(1,2,1,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(1,2,1,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(2,2,1,FALSE,1,2)",
+      "formula": "LET(v,BETA.DIST(2,2,1,FALSE,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-1,0.5,2,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(-1,0.5,2,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,2,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(0,0.5,2,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-1,2,0.5,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(-1,2,0.5,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,0.5,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(0,2,0.5,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-1,1,2,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(-1,1,2,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,1,2,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(0,1,2,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-1,2,1,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(-1,2,1,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,1,FALSE,-1,0)",
+      "formula": "LET(v,BETA.DIST(0,2,1,FALSE,-1,0),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(-3,0.5,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,0.5,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,0.5,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,0.5,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,0.5,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(0,0.5,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,0.5,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(1,0.5,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.0711512473537885
+    },
+    {
+      "expression": "BETA.DIST(-3,2,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,2,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,2,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,2,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(0,2,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.0268926437100238
+    },
+    {
+      "expression": "BETA.DIST(1,2,0.5,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(1,2,0.5,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(-3,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(0,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "BETA.DIST(1,1,2,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(1,1,2,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.12
+    },
+    {
+      "expression": "BETA.DIST(-3,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(-3,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(7,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(7,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "BETA.DIST(0,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(0,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.06
+    },
+    {
+      "expression": "BETA.DIST(1,2,1,FALSE,-3,7)",
+      "formula": "LET(v,BETA.DIST(1,2,1,FALSE,-3,7),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "1e100*T.DIST(0,10000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,10000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9893230696911e+99
+    },
+    {
+      "expression": "1e100*T.DIST(0,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(0,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9894218066588e+99
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,10000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,10000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.84498169083546e+98
+    },
+    {
+      "expression": "1e100*T.DIST(1.96,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(1.96,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.84410330858455e+98
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,10000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,10000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.2093661412386e-187
+    },
+    {
+      "expression": "1e100*T.DIST(37.5,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.5,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.830119141066e-206
+    },
+    {
+      "expression": "1e100*T.DIST(37.6,10000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.6,10000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6822755549585e-188
+    },
+    {
+      "expression": "1e100*T.DIST(37.6,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.6,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6576885534234e-208
+    },
+    {
+      "expression": "1e100*T.DIST(37.7,10000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.7,10000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9.9139567005533e-190
+    },
+    {
+      "expression": "1e100*T.DIST(37.7,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(37.7,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*T.DIST(38,10000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,10000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.8124321309618e-194
+    },
+    {
+      "expression": "1e100*T.DIST(38,1000000,FALSE)",
+      "formula": "LET(v,1e100*T.DIST(38,1000000,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(10000/(10000+37.4*37.4),5000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(10000/(10000+37.4*37.4),5000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6875251708842e-183
+    },
+    {
+      "expression": "1e100*LET(z,10000/(10000+37.4*37.4),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000)",
+      "formula": "LET(v,1e100*LET(z,10000/(10000+37.4*37.4),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.4398704213845e-187
+    },
+    {
+      "expression": "1e100*BETA.DIST(1000000/(1000000+37.4*37.4),500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1000000/(1000000+37.4*37.4),500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.1937711129716e-200
+    },
+    {
+      "expression": "1e100*LET(z,1000000/(1000000+37.4*37.4),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000)",
+      "formula": "LET(v,1e100*LET(z,1000000/(1000000+37.4*37.4),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(10000/(10000+37.5*37.5),5000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(10000/(10000+37.5*37.5),5000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.5012182400167e-184
+    },
+    {
+      "expression": "1e100*LET(z,10000/(10000+37.5*37.5),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000)",
+      "formula": "LET(v,1e100*LET(z,10000/(10000+37.5*37.5),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.4070246059283e-189
+    },
+    {
+      "expression": "1e100*BETA.DIST(1000000/(1000000+37.5*37.5),500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1000000/(1000000+37.5*37.5),500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.5682251942677e-202
+    },
+    {
+      "expression": "1e100*LET(z,1000000/(1000000+37.5*37.5),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000)",
+      "formula": "LET(v,1e100*LET(z,1000000/(1000000+37.5*37.5),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(10000/(10000+37.55*37.55),5000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(10000/(10000+37.55*37.55),5000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.8252520368036e-185
+    },
+    {
+      "expression": "1e100*LET(z,10000/(10000+37.55*37.55),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000)",
+      "formula": "LET(v,1e100*LET(z,10000/(10000+37.55*37.55),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.0451975954172e-189
+    },
+    {
+      "expression": "1e100*BETA.DIST(1000000/(1000000+37.55*37.55),500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1000000/(1000000+37.55*37.55),500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.1606962550076e-202
+    },
+    {
+      "expression": "1e100*LET(z,1000000/(1000000+37.55*37.55),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000)",
+      "formula": "LET(v,1e100*LET(z,1000000/(1000000+37.55*37.55),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(10000/(10000+37.6*37.6),5000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(10000/(10000+37.6*37.6),5000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9.2933655298782e-186
+    },
+    {
+      "expression": "1e100*LET(z,10000/(10000+37.6*37.6),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000)",
+      "formula": "LET(v,1e100*LET(z,10000/(10000+37.6*37.6),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.0170712173293e-190
+    },
+    {
+      "expression": "1e100*BETA.DIST(1000000/(1000000+37.6*37.6),500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1000000/(1000000+37.6*37.6),500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.7756719701347e-203
+    },
+    {
+      "expression": "1e100*LET(z,1000000/(1000000+37.6*37.6),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000)",
+      "formula": "LET(v,1e100*LET(z,1000000/(1000000+37.6*37.6),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(10000/(10000+37.7*37.7),5000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(10000/(10000+37.7*37.7),5000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.430330663114e-187
+    },
+    {
+      "expression": "1e100*LET(z,10000/(10000+37.7*37.7),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000)",
+      "formula": "LET(v,1e100*LET(z,10000/(10000+37.7*37.7),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.4751233522141e-192
+    },
+    {
+      "expression": "1e100*BETA.DIST(1000000/(1000000+37.7*37.7),500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1000000/(1000000+37.7*37.7),500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.1248669882044e-205
+    },
+    {
+      "expression": "1e100*LET(z,1000000/(1000000+37.7*37.7),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000)",
+      "formula": "LET(v,1e100*LET(z,1000000/(1000000+37.7*37.7),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(10000/(10000+38*38),5000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(10000/(10000+38*38),5000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6585811276897e-191
+    },
+    {
+      "expression": "1e100*LET(z,10000/(10000+38*38),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000)",
+      "formula": "LET(v,1e100*LET(z,10000/(10000+38*38),BETA.DIST(z,5000,0.5,FALSE)*z*(1-z)/5000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.6574484195305e-196
+    },
+    {
+      "expression": "1e100*BETA.DIST(1000000/(1000000+38*38),500000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1000000/(1000000+38*38),500000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*LET(z,1000000/(1000000+38*38),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000)",
+      "formula": "LET(v,1e100*LET(z,1000000/(1000000+38*38),BETA.DIST(z,500000,0.5,FALSE)*z*(1-z)/500000),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.9589627533369e-152
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.9794817668173e-145
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.9593139107391e-102
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.97966085737684e-96
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.96282804407586e-52
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.98145309383665e-47
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.08633413674122e-17
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.08668321823719e-13
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.09995e-149
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.5499745000003e-142
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.0995000000002e-99
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.54974499999983e-93
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.09500000000006e-49
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.54744999999989e-44
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.50750547997818e-14
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.50706139076833e-10
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.6244128956879e-134
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.3121978336578e-127
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.61666628395602e-84
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.3082471368796e-78
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.53987360858313e-34
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.26909031742426e-29
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 37.4188082782923
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 373487.656227562
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.3406089102761e-110
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,50,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,50,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.7029144322293e-104
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.32894869396494e-60
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,50,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,50,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.64345348615627e-55
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.21773171800867e-10
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,50,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,50,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.00000607682826928272
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.32765138175651e+24
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,50,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,50,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.25619316295721e+28
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.6376395029359e-202
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.6376674397065e-197
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.4561549915565e-132
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.9125316825297e-128
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.009e-198
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.00899e-193
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.9280520974713e-129
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.5855315334038e-124
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.8188165032818e-179
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.8179090964112e-174
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.5250396850366e-109
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.0434151747914e-105
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,100,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,100,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,100,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,100,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.1045069078775e-142
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,100,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,100,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.100479729412e-137
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.18514875044385e-72
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,100,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,100,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.34877319384046e-68
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.609730669016e-205
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.6658557769052e-200
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2170479498174e-134
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.478547170471e-130
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.0189900000001e-201
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.0291698e-196
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.0032718787707e-131
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.0862108203588e-127
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.7253159670435e-182
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.7814909156938e-177
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.0940635578127e-111
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.2260491048746e-107
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,101,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,101,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,101,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,101,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.1276581949847e-145
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,101,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,101,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.2009594588235e-140
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.16340865082236e-74
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,101,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,101,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.34877319384044e-70
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,200,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,200,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,200,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,200,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,200,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,200,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,200,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,200,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,0.5,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,0.5,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,0.5,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,0.5,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,2,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,2,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,2,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,2,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,20,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,20,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,20,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,20,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(1e-5,1000,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(1e-5,1000,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.0001,1000,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.0001,1000,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.001,1000,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.001,1000,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,100,TRUE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,100,TRUE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*BETA.DIST(0.005,1000,100,FALSE)",
+      "formula": "LET(v,1e100*BETA.DIST(0.005,1000,100,FALSE),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    }
+  ]
+}

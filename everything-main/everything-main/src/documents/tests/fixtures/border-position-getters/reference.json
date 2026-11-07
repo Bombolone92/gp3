@@ -1,0 +1,32 @@
+{
+  "referenceBuild": "16.0.20326",
+  "sources": [
+    {
+      "name": "axis",
+      "source": "../border-axis-phase/control.docx",
+      "sourceSha256": "1cca68660607b0f7af0ea1cc6f1f21e3e4d7e6b85a67e10be6e3673184f515e4",
+      "cases": "../border-axis-phase/cases.json",
+      "casesSha256": "4107b1d78a2af58f2e6c9e50cc08ca1bb31d467f08eb04c494f69cdaabcb50bf",
+      "metadata": "native-axis-metadata.json",
+      "metadataSha256": "2f51ddb2c369e8b398f51f0bcb1044047be4515d2317da3a6e24204763e38495",
+      "tables": 128
+    },
+    {
+      "name": "dense",
+      "source": "../border-dense-phase/control.docx",
+      "sourceSha256": "a0fd92f9ef78112cc64ea640420ebef5186025f6660b3cd3f1e8936eff31ae0d",
+      "cases": "../border-dense-phase/cases.json",
+      "casesSha256": "2b63fa69d2e2d067627624418465e9601b0a025104d560767ea33fa7024bc8ca",
+      "metadata": "native-dense-metadata.json",
+      "metadataSha256": "818668d82ac6c9a346608d00f91fe8f21144bb3c01bbef3c675c9291796a8ed3",
+      "tables": 60
+    }
+  ],
+  "scope": "188 read-only Rows position/height getters paired with WordOpenXML coordinates from unchanged originals.",
+  "limits": [
+    "Getter offsets do not justify changing logical OOXML coordinates.",
+    "Only empty, zero-margin single-cell floating tables with exact heights measured.",
+    "Borders 0.25 and 2.25 points; heights 6, 23.65, 23.95, 24.05 and 24.35 points.",
+    "No source save or view setter; only exact owned unchanged sources closed without saving."
+  ]
+}

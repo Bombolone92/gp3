@@ -1,0 +1,221 @@
+--- /dev/null
++++ b/src/engine/svg-word-compositing.js
+@@ -0,0 +1,67 @@
++import {pathFor} from './svg-native-groups.js';
++import {wordSvgFrame} from './svg-native-viewport.js';
++const plans=new WeakMap(),recent=new Set(),MAX_PIXELS=4*1024*1024;
++let pixels=0,hits=0,misses=0;
++const shapes=new Set(['path','rect','circle','ellipse','line','polyline','polygon']);
++function discard(e){recent.delete(e);pixels-=e.width*e.height;e.bitmap.close();e.variants.delete(e.key);}
++export function compositingStats(){return {pixels,entries:recent.size,hits,misses};}
++export function prepareSvgCompositing(root,dimensions){
++ const layers=[];let translucent=false;
++ function visit(node){
++  if(['defs','style','title','desc'].includes(node.localName))return true;
++  const s=getComputedStyle(node);if(s.display==='none')return true;
++  if(s.visibility!=='visible'||s.clipPath!=='none'||s.maskImage!=='none'||s.filter!=='none')return false;
++  if(['svg','g'].includes(node.localName))return Number(s.opacity)===1&&[...node.children].every(visit);
++  if(!shapes.has(node.localName)||s.stroke!=='none')return false;
++  if(s.fill==='none')return true;
++  const color=/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/.exec(s.fill),m=node.getCTM();
++  if(!color||!m||![m.a,m.b,m.c,m.d,m.e,m.f].every(Number.isFinite))return false;
++  const alpha=Number(s.opacity)*Number(s.fillOpacity)*Number(color[4]??1);
++  if(!alpha)return true;
++  const path=new Path2D();path.addPath(pathFor(node),m);
++  const b=node.getBBox(),corners=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f}));
++  const x=Math.min(...corners.map(p=>p.x)),y=Math.min(...corners.map(p=>p.y));
++  const width=Math.max(...corners.map(p=>p.x))-x,height=Math.max(...corners.map(p=>p.y))-y;
++  if(![x,y,width,height,alpha].every(Number.isFinite))return false;
++  layers.push({path,box:{x,y,width,height},rule:s.fillRule,color:`rgb(${color[1]},${color[2]},${color[3]})`,alpha,variants:new Map()});
++  translucent ||= alpha<1;return layers.length<=256;
++ }
++ if(visit(root)&&translucent)plans.set(root,{...dimensions,frame:wordSvgFrame(dimensions.width,dimensions.height),layers});
++}
++export function retainSvgCompositing(root,image){const p=plans.get(root);if(p)plans.set(image,p);}
++export function releaseSvgCompositing(image){const p=plans.get(image);if(p){for(const l of p.layers)for(const e of [...l.variants.values()])discard(e);plans.delete(image);}}
++function bounds(layer,m){
++ const b=layer.box,points=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f}));
++ const left=Math.floor(Math.min(...points.map(p=>p.x)))-1,top=Math.floor(Math.min(...points.map(p=>p.y)))-1;
++ const width=Math.ceil(Math.max(...points.map(p=>p.x)))+1-left,height=Math.ceil(Math.max(...points.map(p=>p.y)))+1-top;
++ return {left,top,width,height};
++}
++export function paintSvgCompositing(c,image,coordinates){
++ const p=plans.get(image);
++ if(!p||c.globalCompositeOperation!=='source-over'||c.globalAlpha!==1||c.filter!=='none'||c.shadowColor!=='rgba(0, 0, 0, 0)'||!c.imageSmoothingEnabled)return false;
++ const [sx,sy,sw,sh,dx,dy,dw,dh]=coordinates.length===8?coordinates:[0,0,image.width,image.height,...coordinates];
++ if(![sx,sy,sw,sh,dx,dy,dw,dh].every(Number.isFinite)||Math.min(sw,sh,dw,dh)<=0)return false;
++ c.save();
++ try{
++  const dest=new Path2D();dest.rect(dx,dy,dw,dh);c.clip(dest);
++  c.translate(dx-sx*dw/sw,dy-sy*dh/sh);c.scale(dw/sw*image.width/p.frame.width,dh/sh*image.height/p.frame.height);c.translate(-p.frame.x,-p.frame.y);
++  const viewport=new Path2D();viewport.rect(0,0,p.width,p.height);c.clip(viewport);
++  const m=c.getTransform(),jobs=p.layers.map(layer=>({layer,...bounds(layer,m)}));
++  if(jobs.some(j=>![j.left,j.top,j.width,j.height].every(Number.isFinite)||j.width<=0||j.height<=0||j.width>8192||j.height>8192)||jobs.reduce((n,j)=>n+j.width*j.height,0)>MAX_PIXELS)return false;
++  for(const {layer,left,top,width,height} of jobs){
++   const key=[m.a,m.b,m.c,m.d,m.e-left,m.f-top,width,height].join(',');
++   let e=layer.variants.get(key);
++   if(!e){
++    misses++;while(pixels+width*height>MAX_PIXELS)discard(recent.values().next().value);
++    const off=new OffscreenCanvas(width,height),ctx=off.getContext('2d');ctx.setTransform(m.a,m.b,m.c,m.d,m.e-left,m.f-top);ctx.fillStyle=layer.color;ctx.globalAlpha=layer.alpha;ctx.fill(layer.path,layer.rule);
++    e={key,bitmap:off.transferToImageBitmap(),width,height,variants:layer.variants};layer.variants.set(key,e);pixels+=width*height;
++   }else hits++;
++   recent.delete(e);recent.add(e);
++   c.save();try{c.resetTransform();c.globalAlpha=1;
++    if(layer.alpha<1){c.globalCompositeOperation='destination-out';c.drawImage(e.bitmap,left,top);c.globalCompositeOperation='lighter';c.drawImage(e.bitmap,left,top);}
++    else{c.globalCompositeOperation='source-over';c.drawImage(e.bitmap,left,top);}
++   }finally{c.restore();}
++  }
++ }finally{c.restore();}
++ return true;
++}
+--- a/src/engine/svg-native-groups.js
++++ b/src/engine/svg-native-groups.js
+@@ -21,7 +21,7 @@
+   return budget.layers<=MAX_LAYER_PIXELS;
+ };
+ 
+-function pathFor(node) {
++export function pathFor(node) {
+   const p=new Path2D(), value=name=>node[name]?.baseVal?.value || 0;
+   if(node.localName==='path') return new Path2D(node.getAttribute('d') || '');
+   if(node.localName==='rect') {
+--- a/src/engine/svg-native-strokes.js
++++ b/src/engine/svg-native-strokes.js
+@@ -1,3 +1,4 @@
++import {prepareSvgCompositing} from './svg-word-compositing.js';
+ // The native SVG-to-PDF path clamps thin positive strokes after the SVG viewport
+ // and uniform element transforms. Independent references: svg-strokes*.docx.
+ // Its 0.14 metafile-unit floor / 0.12 units per intrinsic CSS pixel is 7/6 px.
+@@ -30,7 +31,7 @@
+   shadow.append(svg); document.body.append(host);
+   try {
+     materializeSvgUses(svg);
+-    const {opacities:groupOpacities,overrides,paintOpacities}=svgGroupOpacities(svg,rasterGroups);
++    const {opacities:groupOpacities,overrides,paintOpacities,paintOpacity}=svgGroupOpacities(svg,rasterGroups);
+     // Freeze the specified group cascade only on the disposable preview.
+     // Keep the numeric map: CSSOM serialization can erase decimal boundaries.
+     // Normal numeric declarations need no CSSOM reads or writes here.
+@@ -80,7 +81,7 @@
+     for (const mask of svg.querySelectorAll('mask')) {
+       if (getComputedStyle(mask).maskType === 'alpha') mask.style.maskType = 'luminance';
+     }
+-    wordSvgOpacities(svg);
++    wordSvgOpacities(svg,paintOpacity);
+     for(const node of svg.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon')) {
+       const style=getComputedStyle(node);
+       if(style.stroke==='none' || style.vectorEffect!=='none') continue;
+@@ -90,7 +91,7 @@
+       if(adjusted>width) node.style.strokeWidth=String(adjusted);
+     }
+     if (rasterGroups && correctViewport) wordSvgGroups(svg,groupOpacities,paintOpacities);
+-    if (correctViewport) wordSvgViewport(svg, viewport);
++    if (correctViewport) { prepareSvgCompositing(svg, viewport); wordSvgViewport(svg, viewport); }
+     else {
+       // Keep the bounded concrete image size and previous composition path for
+       // oversized ratio-only coordinates and authored root clips/transforms.
+--- a/src/engine/svg-native-opacity.js
++++ b/src/engine/svg-native-opacity.js
+@@ -1,8 +1,9 @@
+ // The native vector SVG export combines paint/object alpha, then truncates to a
+ // byte. Translucent ancestor groups use a different native raster path.
+ // References: svg-opacity-values and svg-opacity-composition native captures.
++import {svgOpacityFloat} from './svg-group-opacity.js';
+ export function wordSvgAlpha(opacity, paintOpacity, colorAlpha = 1) {
+-  return Math.floor(Math.max(0, Math.min(1, opacity * paintOpacity * colorAlpha)) * 255 + 1e-10) / 255;
++  return Math.floor(svgOpacityFloat(opacity)*svgOpacityFloat(paintOpacity)*svgOpacityFloat(colorAlpha)*255) / 255;
+ }
+ 
+ function solidPaint(value) {
+@@ -11,7 +12,7 @@
+   return match ? { color: `rgb(${match[1]}, ${match[2]}, ${match[3]})`, alpha: Number(match[4] ?? 1) } : null;
+ }
+ 
+-export function wordSvgOpacities(root) {
++export function wordSvgOpacities(root,paintOpacity) {
+   const snapshots = new Map();
+   // Snapshot the cascade before writing overrides: fill/stroke opacity inherit.
+   for (const node of [root, ...root.querySelectorAll('*')]) {
+@@ -30,7 +31,11 @@
+       if (parent === root) break;
+     }
+     if (rasterGroup) continue;
+-    const fill = wordSvgAlpha(s.opacity, s.fillOpacity, s.fill.alpha);
++    const specified=paintOpacity?.(node);
++    if(s.opacity===1&&s.fillOpacity===1&&s.fill.alpha===1&&(specified===undefined||specified===1))continue;
++    const fill = paintOpacity
++      ? Math.floor(specified*svgOpacityFloat(s.fill.alpha)*255)/255
++      : wordSvgAlpha(s.opacity, s.fillOpacity, s.fill.alpha);
+     if (s.opacity === 1 && fill === s.fillOpacity && s.fill.alpha === 1) continue;
+     node.style.opacity = '1';
+     node.style.fill = s.fill.color;
+--- a/src/engine/svg-group-opacity.js
++++ b/src/engine/svg-group-opacity.js
+@@ -31,15 +31,18 @@
+ // Presentation-attribute inherit is honored separately by the native reference.
+ export function svgGroupOpacities(root,paints=false) {
+   const sourceRules=stylesheetRules(root);
+-  const properties=['opacity',...(paints?['fill-opacity']:[])];
+-  const rules=new Map(properties.map(p=>[p,sourceRules.map(r=>({...r,...declaration(r.declarations,false,p)})).filter(r=>r.opacity!==undefined||r.ignored)]));
++  const rules=new Map();
++  const rulesFor=property=>{
++    if(!rules.has(property))rules.set(property,sourceRules.map(r=>({...r,...declaration(r.declarations,false,property)})).filter(r=>r.opacity!==undefined||r.ignored));
++    return rules.get(property);
++  };
+   const result=new Map(),fills=new Map(),paintOpacities=new Map(),overrides=new Set();
+   function resolve(node,property='opacity') {
+     const values=property==='opacity'?result:fills;
+     if(values.has(node))return values.get(node);
+     let value=node.getAttribute(property);
+     let override=false;
+-    for(const rule of rules.get(property))if(node.matches(rule.selector)) {value=rule.opacity??value;override||=rule.ignored;}
++    for(const rule of rulesFor(property))if(node.matches(rule.selector)) {value=rule.opacity??value;override||=rule.ignored;}
+     const style=node.getAttribute('style');
+     if(style) {const inline=declaration(style,true,property);value=inline.opacity??value;override||=inline.ignored;}
+     let opacity;
+@@ -51,8 +54,12 @@
+     return values.get(node);
+   }
+   for(const node of root.querySelectorAll('g'))resolve(node);
++  const paintOpacity=node=>{
++    if(!paintOpacities.has(node))paintOpacities.set(node,svgOpacityFloat(resolve(node))*svgOpacityFloat(resolve(node,'fill-opacity')));
++    return paintOpacities.get(node);
++  };
+   // Capture before preview CSSOM writes, but only when a translucent group can
+   // consume paint values. Ordinary vector-only SVGs need no paint traversal.
+-  if(paints&&[...result].some(([node,value])=>node.localName==='g'&&value<1))for(const node of root.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon'))paintOpacities.set(node,svgOpacityFloat(resolve(node))*svgOpacityFloat(resolve(node,'fill-opacity')));
+-  return {opacities:result,overrides,paintOpacities};
++  if(paints&&[...result].some(([node,value])=>node.localName==='g'&&value<1))for(const node of root.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon'))paintOpacity(node);
++  return {opacities:result,overrides,paintOpacities,paintOpacity};
+ }
+--- a/src/engine/svg-images.js
++++ b/src/engine/svg-images.js
+@@ -1,3 +1,4 @@
++import {retainSvgCompositing,releaseSvgCompositing} from './svg-word-compositing.js';
+ import { parseXml } from './docx-xml.js';
+ import { vectorImage } from './vector-image-effects.js';
+ import { wordSvgStrokes } from './svg-native-strokes.js';
+@@ -124,7 +125,8 @@
+   try {
+     image.src = url; await image.decode();
+     if (!image.naturalWidth || !image.naturalHeight) fail('empty decoded image');
+-    image.close = () => { image.removeAttribute('src'); URL.revokeObjectURL(url); };
++    image.close = () => { releaseSvgCompositing(image); image.removeAttribute('src'); URL.revokeObjectURL(url); };
++    retainSvgCompositing(preview,image);
+     return vectorImage(image);
+   } catch (error) { URL.revokeObjectURL(url); throw error; }
+ }
+--- a/src/engine/paint-image.js
++++ b/src/engine/paint-image.js
+@@ -1,3 +1,4 @@
++import {paintSvgCompositing} from './svg-word-compositing.js';
+ import { vectorEffectSample } from './vector-image-effects.js';
+ // Display-only samples of immutable pictures, bounded to 4 MP (16 MiB RGBA).
+ // LRU entries retain no source bitmap, so they cannot keep a document alive.
+@@ -10,6 +11,7 @@
+ }
+ 
+ export function paintImage(ctx, image, ...coordinates) {
++  if(paintSvgCompositing(ctx,image,coordinates))return;
+   const [sx,sy,sw,sh,dx,dy,dw,dh] = coordinates.length === 8 ? coordinates : [0,0,image.width,image.height,...coordinates];
+   const m = ctx.getTransform();
+   const width = Math.ceil(Math.abs(dw) * Math.hypot(m.a,m.b));

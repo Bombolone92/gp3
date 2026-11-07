@@ -1,0 +1,52 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { unzipSync, zipSync, strFromU8, strToU8 } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+import { expectBodyEditParts } from './helpers/expect-body-edit-parts.js';
+let dom;
+beforeAll(() => { dom = new JSDOM(''); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const folder = 'tests/fixtures/styles-with-effects';
+const reference = JSON.parse(readFileSync(`${folder}/reference.json`));
+const source = () => readFileSync(`${folder}/control.docx`);
+const positions = pkg => layoutDocument(pkg.paragraphs, text => ({ width: text.length * 6, ascent: 10, descent: 3 }), pageGeometry(pkg.pageSettings), pkg.numbering, pkg.tables).lines.flatMap(line => line.fragments.filter(f => f.image).map(f => f.x * .75));
+const save = async (pkg, model) => new Uint8Array(await (await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets)).arrayBuffer());
+it('resolves companion table geometry without merging inheritance graphs or text styles', async () => {
+  for (const control of reference.cases) for (const [name, hash] of Object.entries(control.hashes)) expect(createHash('sha256').update(readFileSync(`${folder}/${name}`)).digest('hex')).toBe(hash);
+  const pkg = await DocxPackage.open(source());
+  expect(pkg.readOnly).not.toBe(true);
+  const actual = positions(pkg), native = reference.cases[0].pictures;
+  expect(actual).toHaveLength(18);
+  actual.forEach((x, index) => expect(x).toBeCloseTo(native[index].x, 2));
+  expect(pkg.tables.map(t => t.indent)).toEqual([360,720,0,0,360,360]);
+  expect(pkg.paragraphs.slice(0,3).map(p => p.runs[0].fontSize)).toEqual([10,12,10]);
+  expect(pkg.styles.definitions.EffectsParagraph).toBeUndefined();
+});
+it('preserves companion and main styles through body edits, export/reopen and exact undo', async () => {
+  const pkg = await DocxPackage.open(source());
+  const model = new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets);
+  const before = positions(pkg);
+  expect(unzipSync(await save(pkg,model))).toEqual(unzipSync(source()));
+  model.select(0);model.replace('Edited ');
+  const edited=await save(pkg,model),parts=unzipSync(edited);
+  expectBodyEditParts(parts, pkg.parts);
+  expect(positions(await DocxPackage.open(edited))).toEqual(before);
+  model.undo();expect(unzipSync(await save(pkg,model))).toEqual(unzipSync(source()));
+});
+it('resolves the companion relationship rather than guessing a conventional part name',async()=>{
+  const parts=unzipSync(source());
+  parts['word/alternate/geometry.xml']=parts['word/stylesWithEffects.xml'];delete parts['word/stylesWithEffects.xml'];
+  parts['word/_rels/document.xml.rels']=strToU8(strFromU8(parts['word/_rels/document.xml.rels']).replace('Target="stylesWithEffects.xml"','Target="alternate/geometry.xml"'));
+  parts['[Content_Types].xml']=strToU8(strFromU8(parts['[Content_Types].xml']).replace('/word/stylesWithEffects.xml','/word/alternate/geometry.xml'));
+  expect(positions(await DocxPackage.open(zipSync(parts)))).toEqual(positions(await DocxPackage.open(source())));
+});
+it('rejects an external companion relationship instead of loading or silently dropping it',async()=>{
+  const parts=unzipSync(source());
+  parts['word/_rels/document.xml.rels']=strToU8(strFromU8(parts['word/_rels/document.xml.rels']).replace('Target="stylesWithEffects.xml"','Target="https://example.com/styles.xml" TargetMode="External"'));
+  await expect(DocxPackage.open(zipSync(parts))).rejects.toThrow(/external stylesWithEffects/);
+});

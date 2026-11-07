@@ -1,0 +1,43 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { projectControlContents } from '../src/engine/docx-content-controls.js';
+const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const source = readFileSync('public/fixtures/control-preview-locked.docx');
+const bare = readFileSync('public/fixtures/control-preview-unwrapped.docx');
+const text = p => new TextDocument(p.paragraphs, p.pageSettings, p.numbering, p.styles, p.tables, p.assets).text;
+it('renders saved locked, persistent, nested and picture control contents with their supported styles and table structure', async () => {
+  const pkg = await DocxPackage.open(source, { bestEffort: true }), plain = await DocxPackage.open(bare);
+  expect(pkg.readOnly).toBe(true);
+  expect(text(pkg)).toBe(text(plain));
+  expect(pkg.paragraphs[0].format.alignment).toBe('center');
+  expect(pkg.paragraphs[0].runs[0]).toMatchObject({ bold: true, fontSize: 20, color: '2050C0' });
+  expect(pkg.paragraphs[1].runs.find(r => r.text === 'red italic')).toMatchObject({ italic: true, color: 'C02050', fontSize: 16 });
+  expect(pkg.paragraphs[1].runs.find(r => r.text === ' nested bold').bold).toBe(true);
+  expect(pkg.tables).toHaveLength(1);
+  expect(pkg.tables[0].grid).toEqual(plain.tables[0].grid);
+  expect(Object.keys(pkg.assets)).toEqual(Object.keys(plain.assets));
+  expect(pkg.paragraphs[2].runs[0].image).toMatchObject({ width: 914400, height: 457200 });
+  expect(pkg.parts).toEqual(unzipSync(source));
+  expect(() => pkg.export()).toThrow(/read-only/);
+  await expect(DocxPackage.open(source)).rejects.toThrow(/content controls/);
+});
+it('preserves wrapper-local namespace bindings and ignores control metadata', () => {
+  const root = new DOMParser().parseFromString(`<w:document xmlns:w="${W}"><w:body><w:sdt xmlns:q="urn:outer"><w:sdtPr><w:alias w:val="metadata"/></w:sdtPr><w:sdtContent><w:p><w:sdt xmlns:q="urn:inner"><w:sdtContent><w:r><w:t>Visible</w:t></w:r></w:sdtContent></w:sdt></w:p></w:sdtContent></w:sdt></w:body></w:document>`, 'application/xml').documentElement;
+  projectControlContents(root);
+  expect(root.getElementsByTagNameNS(W, 'sdt')).toHaveLength(0);
+  expect(root.textContent).toBe('Visible');
+  expect(root.getElementsByTagNameNS(W, 'p')[0].lookupNamespaceURI('q')).toBe('urn:outer');
+  expect(root.getElementsByTagNameNS(W, 'r')[0].lookupNamespaceURI('q')).toBe('urn:inner');
+});
+it('does not choose an arbitrary content branch for malformed duplicate controls', () => {
+  const root = new DOMParser().parseFromString(`<w:p xmlns:w="${W}"><w:sdt><w:sdtContent/><w:sdtContent/></w:sdt></w:p>`, 'application/xml').documentElement;
+  projectControlContents(root);
+  expect(root.getElementsByTagNameNS(W, 'sdt')).toHaveLength(1);
+});

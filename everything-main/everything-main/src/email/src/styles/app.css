@@ -1,0 +1,2267 @@
+/* Screens: gate (intro, permission, errors), Gmail-style inbox shell,
+   message view, onboarding. */
+
+/* -- gate --------------------------------------------------------------------- */
+
+.gate {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* index.html asks for viewport-fit=cover, so the layout viewport runs under
+     the notch, the rounded corners and the home indicator. Every outer edge
+     therefore has to hold the display inset as a floor. env() is 0 where
+     there is no inset, so max() leaves ordinary screens untouched. */
+  padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+           max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  overflow-y: auto;
+}
+
+.gate-inner {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* The app icon on the intro and permission screens. */
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin-bottom: 18px;
+}
+
+/* The same 64px slot, for a glyph that needs a plate drawn under it. */
+.brand-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--accent-ink);
+  margin-bottom: 18px;
+}
+/* --danger is a light red in the dark theme, where a white glyph on it is a
+   2.4:1 wash. The page background is the far side of the contrast from the
+   colour it is drawn on, in either theme. */
+.brand-mark.danger { background: var(--danger); color: var(--bg); }
+
+.gate-title {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.gate-tagline {
+  margin: 0 0 26px;
+  color: var(--ink-2);
+  font-size: 15px;
+  max-width: 42ch;
+}
+
+.gate-features {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.gate-feature {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.gate-feature-icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.gate-feature strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.gate-feature-text {
+  display: block;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.gate-note {
+  margin: 14px 0 0;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.gate .btn-link { margin-top: 14px; }
+
+/* -- app frame ----------------------------------------------------------------- */
+
+.app-frame {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -- top bar --------------------------------------------------------------------- */
+
+.topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 64px;
+  padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+           8px max(8px, env(safe-area-inset-left));
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 156px;
+}
+.brand-icon { display: block; width: 24px; height: 24px; }
+.brand-name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink-2);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.search {
+  position: relative;
+  flex: 1;
+  max-width: 720px;
+}
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 20px 0 48px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--search-bg);
+  border: none;
+  border-radius: 999px;
+}
+.search-input::placeholder { color: var(--ink-2); }
+.search-input:focus {
+  background: var(--surface);
+  outline: 1px solid var(--hairline-strong);
+}
+/* The rule above outranks the global :focus-visible ring on specificity, so
+   the app's most-used control was left with a 1.7:1 hairline for a focus
+   indicator. Restate the ring here, inset so it hugs the pill. */
+.search-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.avatar-btn { padding: 0; }
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+.account-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+/* -- body: sidebar + content ------------------------------------------------------ */
+
+.app-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.sidebar {
+  width: 232px;
+  flex: none;
+  padding: 4px 12px max(16px, env(safe-area-inset-bottom));
+  padding-left: max(12px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.side-refresh,
+.side-compose {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 20px;
+  margin: 4px 0 14px;
+  width: fit-content;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--tonal);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+}
+.side-refresh:hover:not(:disabled),
+.side-compose:hover { opacity: 0.92; }
+.side-refresh:active:not(:disabled),
+.side-compose:active { opacity: 0.85; }
+.side-refresh:disabled { opacity: 0.6; cursor: default; }
+.side-refresh .nav-icon,
+.side-compose .nav-icon { display: flex; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 36px;
+  padding: 0 16px 0 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+.nav-item:hover { background: var(--hover); }
+.nav-item:active { background: var(--pressed); }
+.nav-item[aria-current="true"] {
+  background: var(--accent-wash);
+  font-weight: 700;
+}
+.nav-icon { display: flex; flex: none; color: var(--ink-2); }
+.nav-item[aria-current="true"] .nav-icon { color: var(--ink); }
+.nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-count {
+  flex: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.nav-scrim { display: none; }
+
+/* Collapsed rail (desktop hamburger) */
+.nav-collapsed .sidebar {
+  width: calc(72px + max(0px, env(safe-area-inset-left)));
+  align-items: center;
+}
+.nav-collapsed .nav-label,
+.nav-collapsed .nav-count { display: none; }
+.nav-collapsed .nav-item { width: 48px; justify-content: center; padding: 0; }
+.nav-collapsed .side-refresh,
+.nav-collapsed .side-compose { width: 48px; padding: 0; justify-content: center; }
+
+/* -- content card ------------------------------------------------------------------ */
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) 0;
+}
+
+.card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* -- list view ----------------------------------------------------------------------- */
+
+.list-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.reading .list-view { display: none; }
+
+.list-toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  padding: 4px 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* The count sits at the right of the toolbar, and is the one thing in it that
+   may be cut short: the controls beside it are how the folder is worked, so
+   they keep their size and this shrinks to an ellipsis instead of pushing them
+   out of a narrow card. */
+.list-meta {
+  margin: 0 0 0 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* Mail that arrived while the reader was open, or while the list was scrolled
+   away from the top. Tonal rather than loud: it is an invitation, not an
+   alert. */
+.new-mail {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  margin-left: 6px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--tonal);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.new-mail:hover { opacity: 0.92; }
+.new-mail:active { opacity: 0.85; }
+
+/* Bulk actions live next to the select-all tick, and only appear once
+   something is ticked -- an empty selection has nothing to act on. */
+.list-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.list-actions .icon-btn.danger { color: var(--danger); }
+
+/* The tick at the head of the list stands in the same column as the ticks in
+   the rows under it, so the box around it is only as wide as the tick: the
+   toolbar and a row share their left padding, and the margin here is what used
+   to be the box's own padding. */
+.select-all-box {
+  display: flex;
+  align-items: center;
+  flex: none;
+  margin-right: 12px;
+}
+
+.select-all,
+.row-check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.msglist {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--hairline);
+  cursor: pointer;
+}
+.row:hover {
+  outline: 1px solid var(--hairline-strong);
+  outline-offset: -1px;
+}
+.row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.row.unread {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* A ticked row is tinted rather than outlined: an outline here would fight
+   the hover and focus rings the row already uses. */
+.row.is-selected { background: var(--accent-wash); }
+
+/* Starring a draft would mean nothing: it is not a message yet. */
+.row-draft .star-btn { visibility: hidden; }
+
+.row-marks {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 2px;
+}
+.row.unread .row-sender,
+.row.unread .row-subject,
+.row.unread .row-count,
+.row.unread .row-when { font-weight: 700; color: var(--ink); }
+
+.star-btn {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.star-btn:hover { color: var(--ink); background: var(--hover); }
+.star-btn:active { background: var(--pressed); }
+.star-btn[aria-pressed="true"] { color: var(--star); }
+.star-btn[aria-pressed="true"] svg { fill: var(--star); }
+
+.msglist .row-avatar { display: none; }
+
+/* Unknown headers use quiet shapes rather than temporary sender/date text.
+   Cached rows hydrate before painting and never enter this state. */
+.row-avatar.avatar-pending { background: var(--hover); }
+.row-pending .row-sender::after,
+.row-pending .row-when::after {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  height: 10px;
+  border-radius: 4px;
+  background: var(--hover);
+  animation: reveal-loading 0s 180ms both;
+}
+.row-pending .row-sender::after { width: 110px; }
+.row-pending .row-when::after { width: 40px; }
+
+/* The people column: who is in the conversation, and how many messages they
+   sent. One fixed width for the pair, so a long list of names is what gives
+   way rather than the count -- which is the half that cannot be guessed. */
+.row-people {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  width: 190px;
+  overflow: hidden;
+}
+
+.row-sender {
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hidden for a conversation of one, which is most of them, so a row of
+   ordinary mail looks exactly as it did. */
+.row-count {
+  flex: none;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.row-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.row-snippet { color: var(--ink-3); }
+.row-snippet:not(:empty)::before { content: " - "; }
+
+/* The paperclip and the date, which end the row together. */
+.row-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.row-clip { flex: none; display: flex; color: var(--ink-3); }
+
+.row-when {
+  flex: none;
+  min-width: 56px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Archive and delete take the timestamp's place while the pointer or the
+   keyboard is on the row: the date is not what you want at that moment. */
+.row-actions {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+.row:hover .row-actions,
+.row:focus-visible .row-actions,
+.row:focus-within .row-actions { display: flex; }
+.row:hover .row-when,
+.row:focus-visible .row-when,
+.row:focus-within .row-when { display: none; }
+
+.row-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  font: inherit;
+  color: var(--ink-2);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.row-action:hover { background: var(--hover); color: var(--ink); }
+.row-action svg { pointer-events: none; }
+.row-action:active { background: var(--pressed); }
+.row-action.danger:hover { color: var(--danger); }
+
+.btn-more {
+  display: block;
+  margin: 12px auto;
+  padding: 9px 36px;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+}
+.btn-more:hover:not(:disabled) { background: var(--hover); }
+.btn-more:active:not(:disabled) { background: var(--pressed); }
+.btn-more:disabled { opacity: 0.6; cursor: default; }
+
+/* -- message view ---------------------------------------------------------------------- */
+
+.message-view {
+  flex: 1;
+  min-height: 0;
+  display: none;
+  flex-direction: column;
+}
+.reading .message-view { display: flex; }
+
+.msg-toolbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  padding: 4px 16px 4px 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.msg-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.msg-actions-bar .icon-btn.danger { color: var(--danger); }
+
+.msg-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 56px 48px;
+}
+
+.message { max-width: 860px; }
+
+.msg-subject {
+  margin: 0 0 20px;
+  font-size: 22px;
+  font-weight: 500;
+  overflow-wrap: break-word;
+  outline: none;
+}
+
+.msg-meta {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  background: hsl(var(--hue, 220) var(--avatar-s) var(--avatar-l));
+  user-select: none;
+}
+
+.msg-who { flex: 1; min-width: 0; }
+
+/* The name and the address are laid out as two things rather than one run of
+   text, so a narrow header drops the address to a line of its own instead of
+   breaking it in the middle of the domain. */
+.msg-from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.msg-from-name { font-weight: 700; }
+.msg-from-email {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.msg-to {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.msg-side {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.msg-date {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-right: 6px;
+}
+
+/* -- the conversation ------------------------------------------------------- */
+
+/* How many messages are in it, next to the subject. */
+.msg-count {
+  margin-left: 8px;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.msg-thread {
+  display: flex;
+  flex-direction: column;
+}
+
+.thread-pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.thread-pages[hidden], .print-conversation { display: none; }
+.thread-page-status { color: var(--ink-2); font-size: 13px; }
+
+/* A conversation of one is the message view this app has always had, so it
+   gets none of the separation below: :only-child is what tells them apart. */
+.msg-item:not(:only-child) { padding: 6px 0 14px; }
+.msg-item:not(:only-child) + .msg-item { border-top: 1px solid var(--hairline); }
+
+/* The header. Expanded it is the block a single message has always shown;
+   collapsed it is one line -- who wrote, the preview, the date. The star is a
+   sibling of the part that expands, so it stays a control of its own. */
+.msg-item-head {
+  gap: 2px;
+  margin-bottom: 0;
+}
+.msg-item.is-open .msg-item-head { margin-bottom: 20px; }
+
+.msg-item-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* An open header keeps the sender and the date on one line while both fit, and
+   drops the date to a line of its own when they do not -- which is what the
+   pane does on a phone, and what a long address does on any width. The wrap is
+   decided by how wide the sender actually is: `.msg-who` asks for its content
+   rather than for nothing, capped at the room left beside the avatar so that
+   it is the date that gives way and never the avatar. */
+.msg-item.is-open .msg-item-open { flex-wrap: wrap; row-gap: 4px; }
+.msg-item.is-open .msg-who { flex: 1 1 auto; max-width: calc(100% - 52px); }
+/* On a line of its own the date lines up with the sender above it rather than
+   stranding itself at the right margin. On a shared line the sender grows into
+   the space instead, so the date still ends where it always did. */
+.msg-item.is-open .msg-side { margin-left: 52px; }
+
+.msg-item:not(.is-open) .msg-item-open { align-items: center; }
+/* A smaller disc, because a collapsed message is a line rather than a block --
+   but it keeps the width of the expanded one, so every sender in the stack
+   starts at the same place. Left aligned at 28px it did not: the names of the
+   collapsed messages sat 12px inside the names of the open ones. */
+.msg-item:not(.is-open) .avatar {
+  width: 28px;
+  height: 28px;
+  margin-right: 12px;
+  font-size: 12px;
+}
+/* One line rather than a stack: the preview sits beside the name and takes
+   whatever room is left. */
+.msg-item:not(.is-open) .msg-who {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  overflow: hidden;
+}
+.msg-item:not(.is-open) .msg-from { flex: none; }
+
+.msg-item-snippet {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The part of the header that expands the message under the pointer. It is a
+   click target, so it says so on hover -- and the padding that gives the hover
+   something to fill is pulled back out on the left, so the avatar still lines
+   up with the body underneath it. */
+.msg-item-toggle {
+  padding: 6px 8px;
+  margin-left: -8px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+.msg-item-toggle:hover { background: var(--hover); }
+
+/* The name is the control the keyboard and a screen reader open and close the
+   message with: a real button, styled as the name it was, so the menu and the
+   Unsubscribe link beside it are controls of their own rather than the
+   children of one. */
+.msg-expander {
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.msg-expander:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* One message of a conversation waiting on its file, or saying it could not be
+   read. The placeholder .center draws is sized for a pane it has all of --
+   which is what a single message has, and what a card in a stack does not: it
+   put 220px of nothing between a header and the message under it, then took it
+   all back when the read landed. Here it is a line under the header it belongs
+   to. */
+.msg-item:not(:only-child) .msg-full > .center {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+  height: auto;
+  min-height: 0;
+  padding: 4px 0 12px;
+  text-align: left;
+}
+.msg-item:not(:only-child) .msg-full > .center svg { width: 20px; height: 20px; }
+
+/* The quoted copy of the message above, folded away behind it. Sits inside the
+   pre, so it has to hold a line of its own without stretching one -- but it is
+   still a button, and at 31x15 it was the one control in the app too small to
+   aim at. 24px tall is the floor a pointer needs; the line it sits on grows by
+   two pixels for it, which is nothing next to the paragraph above. */
+.msg-quoted {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  position: relative;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 1.5px;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.msg-quoted:hover { background: var(--hover); color: var(--ink); }
+/* With the quote out, this is the way back in, so it reads as held down --
+   and it is a keyboard stop inside the body, so it shows where the focus is. */
+.msg-quoted[aria-expanded="true"] {
+  background: var(--hover);
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+.msg-quoted:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The copy of the message above, unfolded. Set back behind a rule the way every
+   mail client sets a quote back, so what was written now and what is being
+   answered read as two things. */
+.msg-quote {
+  display: block;
+  margin-top: 6px;
+  padding-left: 12px;
+  border-left: 2px solid var(--hairline-strong);
+  color: var(--ink-2);
+}
+
+.calendar-invite {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+}
+.calendar-badge {
+  flex: 0 0 60px;
+  align-self: flex-start;
+  text-align: center;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+}
+.calendar-month {
+  display: block;
+  padding: 5px;
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.calendar-day { display: block; padding: 6px; font-size: 28px; line-height: 1.2; }
+.calendar-content { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.calendar-status { color: var(--ink-3); font-size: 12px; margin-bottom: 6px; }
+.calendar-title { margin: 0 0 8px; font-size: 20px; line-height: 1.3; font-weight: 600; }
+.calendar-when { margin: 0; font-size: 14px; line-height: 1.6; }
+.calendar-repeat { margin: 4px 0 0; color: var(--ink-3); font-size: 12px; }
+.calendar-details { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 18px; margin: 18px 0; font-size: 13px; line-height: 1.5; }
+.calendar-details:empty { display: none; }
+.calendar-details dt { color: var(--ink-3); }
+.calendar-details dd { margin: 0; white-space: pre-wrap; }
+.calendar-invite summary { cursor: pointer; color: var(--ink-2); }
+.calendar-invite summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.calendar-guests ul { padding-left: 18px; margin: 8px 0 0; }
+.calendar-description { font-size: 13px; margin-top: 14px; }
+.calendar-description p { white-space: pre-wrap; line-height: 1.6; }
+.calendar-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.calendar-actions .btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; min-height: 36px; }
+.calendar-actions .btn > span { display: flex; }
+.calendar-invite.is-cancelled .calendar-status { color: var(--danger); }
+.calendar-invite.is-cancelled .calendar-title { text-decoration: line-through; }
+@media (max-width: 600px) {
+  .calendar-invite { padding: 16px; gap: 12px; }
+  .calendar-badge { flex-basis: 44px; }
+  .calendar-day { font-size: 23px; }
+  .calendar-title { font-size: 18px; }
+  .calendar-details { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .calendar-details dd { margin-bottom: 8px; }
+  .calendar-actions .btn { min-height: 44px; }
+}
+
+.msg-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+.attachment:hover { background: var(--hover); }
+.attachment:active { background: var(--pressed); }
+.attachment-icon { display: flex; color: var(--ink-3); }
+.attachment-name {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.attachment-size { color: var(--ink-3); }
+.attachment-dl { display: flex; color: var(--accent); }
+
+/* The plain text / original formatting switch. Text stays the default; this
+   bar is how the second view is asked for. */
+.msg-format {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 8px 8px 8px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-s);
+  font-size: 13px;
+}
+.msg-format-note { color: var(--ink-2); }
+.msg-format .btn { margin-left: auto; }
+
+/* Nothing to explain, so nothing to read: without the note this is only a way
+   in to the other view, and a tonal strip across the message is far more than
+   that is worth. The button keeps its own padding out of the text column so
+   its label starts where the message does. */
+.msg-format-quiet {
+  margin-bottom: 10px;
+  padding: 0;
+  background: none;
+}
+.msg-format-quiet .btn { margin-left: -10px; }
+
+/* -- the sandboxed HTML view ------------------------------------------------- */
+
+.msg-html {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.msg-frame {
+  display: block;
+  width: 100%;
+  /* No same-origin access to the frame means its content height cannot be
+     measured, by design. So it opens at a readable height, scrolls internally,
+     and the reader can drag it as tall as they like -- which a max-height
+     would have quietly capped after 40px or so of dragging. */
+  height: min(560px, 75vh);
+  resize: vertical;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-s);
+}
+
+.msg-images {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.msg-images-icon { display: flex; color: var(--ink-3); }
+.msg-images-text { flex: 1 1 16rem; min-width: 0; }
+/* One group, so the two choices wrap together rather than the second one
+   stranding itself on the next line at the far left. */
+.msg-images-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+.msg-images .btn { flex: none; }
+
+.msg-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Links in a message body: inline, inheriting the body's type so nothing
+   reflows, and never styled as a control. */
+.msg-link {
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.msg-link:hover { text-decoration-thickness: 2px; }
+
+.msg-link-pair { overflow-wrap: anywhere; }
+
+/* Where a link goes, when that is not what it says. */
+.msg-link-host {
+  color: var(--danger);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.msg-body.msg-source {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  padding: 14px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Reply, Reply all and Forward, wrapping rather than overflowing on a narrow
+   reading pane. */
+.msg-reply {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* -- compose dialog ----------------------------------------------------------------- */
+
+.modal-panel.compose-panel {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* The footer owns the bottom padding and stays outside the scroll area. */
+  padding-bottom: 0;
+}
+
+.compose-panel .modal-head { flex: none; }
+.compose-panel .compose-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.compose-content {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.compose-content :focus-visible { outline-offset: -2px; }
+
+.compose-dock {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(0px, env(safe-area-inset-bottom));
+  /* Under the phone's folder drawer (80) and its scrim (70): above them, the
+     dock sat over the bottom of the open drawer and took taps through the
+     scrim meant to close it. */
+  z-index: 65;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+}
+/* A minimized draft sits over the foot of the window, and on a phone over the
+   whole width of it. The scrollers under it leave room at their end, so the
+   last row of the list -- its star, its tick box -- can be scrolled out from
+   under the dock instead of staying covered by it. */
+.has-compose-dock .msglist,
+.has-compose-dock .msg-scroll { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+.compose-dock-item {
+  display: flex;
+  align-items: center;
+  width: 280px;
+  max-width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 12px 12px 0 0;
+  background: var(--surface-2);
+}
+.compose-dock-restore {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.compose-dock-restore:hover { background: var(--hover); }
+.compose-dock-restore > span:first-child { display: flex; flex: none; }
+.compose-dock-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.modal-panel.compose-expanded { width: min(1080px, 100%); }
+.compose-expanded .rte-body { min-height: 45vh; max-height: 58vh; }
+.compose-panel .modal-title { margin-right: auto; }
+.compose-save-state { margin-left: auto; font-size: 11px; color: var(--ink-3); text-align: right; }
+.compose-save-state.error { color: var(--danger); }
+.rte-link-panel { padding: 12px; background: var(--hover); border-bottom: 1px solid var(--hairline); }
+.rte-link-panel label { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 8px; margin-bottom: 8px; }
+.rte-link-panel input { min-width: 0; width: 100%; padding: 8px; border: 1px solid var(--hairline); border-radius: 6px; color: var(--ink); background: var(--surface); }
+.rte-link-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.rte-link-error { color: var(--danger); font-size: 12px; }
+
+.compose-from {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0 8px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.compose-from strong { color: var(--ink); font-weight: 600; }
+
+.compose-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--hairline);
+  min-height: 48px;
+}
+
+.compose-field label {
+  flex: none;
+  width: 56px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.compose-field input {
+  flex: 1;
+  min-width: 0;
+  height: 47px;
+  padding: 10px 8px;
+  font: inherit;
+  line-height: 20px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+}
+
+.compose-field input:focus-visible { outline: none; }
+.compose-field:focus-within {
+  border-bottom-color: var(--accent);
+  box-shadow: inset 0 -1px 0 var(--accent);
+}
+
+.compose-field.invalid { border-bottom-color: var(--danger); }
+.compose-field.invalid label { color: var(--danger); }
+
+/* Input and chip share one height. The label stays beside the first line
+   when additional recipients genuinely need another line. */
+.compose-field.compose-recipients {
+  --recipient-height: 32px;
+  align-items: flex-start;
+}
+.compose-recipients > label {
+  display: flex;
+  align-items: center;
+  height: calc(var(--recipient-height) + 16px);
+  line-height: 20px;
+}
+
+.recipient-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 2px;
+  /* Most of a half-empty field is gap rather than input, and it should read
+     as somewhere to type. */
+  cursor: text;
+}
+
+/* The input takes the rest of the line the chips leave, and drops to a line of
+   its own only when what is left would be too narrow to read an address in.
+   The basis is that threshold, so it is deliberately modest: a whole empty
+   line above the field costs more than a snug input does. */
+.recipient-box input {
+  flex: 1 1 64px;
+  height: var(--recipient-height);
+  padding: 0 6px;
+  line-height: 20px;
+}
+
+.recipient-box .recipient-chip {
+  max-width: 100%;
+  height: var(--recipient-height);
+  padding: 0 4px 0 9px;
+  font-size: 12.5px;
+  line-height: 20px;
+}
+.recipient-chip { cursor: default; }
+.recipient-chip .chip-name { max-width: 220px; font-weight: 400; }
+.recipient-box .recipient-chip .chip-remove { width: 26px; height: 26px; }
+
+/* The chip's name is the control that corrects it, so it reads as a name and
+   behaves as a button: an address you can see is wrong should not have to be
+   typed again from nothing. */
+.chip-edit {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 0;
+  font: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.chip-edit:hover .chip-name { text-decoration: underline; }
+
+/* The tail of a long list, as a count. A button rather than a chip: it is not
+   one of the addresses, it is the way to see the ones that are not drawn. */
+.recipient-more {
+  flex: none;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  height: var(--recipient-height);
+  line-height: 20px;
+}
+.recipient-more:hover { background: var(--hover); color: var(--ink); }
+.recipient-more:active { background: var(--pressed); }
+
+/* Focus is shown on the row's bottom edge; chip buttons retain inset rings. */
+.recipient-box input:focus-visible { outline: none; }
+.recipient-box :focus-visible { outline-offset: -2px; }
+
+/* Completions, hanging under the field the way the header menus hang under
+   their buttons. Out of flow, so the chips beside it neither move nor wrap
+   differently for it being open; and capped in height, because the panel it
+   sits in scrolls and a list long enough to need that scroll is a list nobody
+   is reading to the end of. */
+.recipient-box { position: relative; }
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  max-height: 264px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+}
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: calc(var(--radius) - 4px);
+  cursor: pointer;
+}
+.suggestion:hover { background: var(--hover); }
+/* The keyboard's place in the list. Focus never leaves the input, so this is
+   the only mark there is -- it has to read as strongly as a focus ring, not
+   as a hover. */
+.suggestion.is-active { background: var(--accent-wash); }
+
+.suggestion-who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+.suggestion-name {
+  font-size: 13.5px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.suggestion-address {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* An address with no name beside it is the whole entry, so it is the line
+   that carries the weight rather than a caption under a missing one. */
+.suggestion-who > .suggestion-address:only-child {
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+/* -- the formatting editor ----------------------------------------------------------- */
+
+/* The toolbar reads as part of the field stack above it, not as a floating
+   strip: one more hairline row under Subject, then the message. */
+.rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.rte-anchor { position: relative; display: flex; }
+
+/* A formatting menu is a palette of small choices, so its rows are tighter
+   than a menu of actions -- and capped, because it opens downward inside a
+   dialog that scrolls: without a height it would run past the bottom of the
+   panel and be clipped by it rather than scrolling itself. */
+.rte-anchor .menu {
+  min-width: 170px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.rte-anchor .menu-item { padding: 6px 10px; }
+
+.rte-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink-2);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+.rte-btn:hover { background: var(--hover); color: var(--ink); }
+.rte-btn:active { background: var(--pressed); }
+/* A mark that is on, and a menu that is open, are both "this is in effect". */
+.rte-btn[aria-pressed="true"],
+.rte-btn[aria-expanded="true"] {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.rte-sep {
+  width: 1px;
+  height: 18px;
+  flex: none;
+  margin: 0 5px;
+  background: var(--hairline);
+}
+
+/* A colour named as well as shown: a swatch alone says nothing to a screen
+   reader, and nothing at all to the 1 in 12 who cannot tell two of these
+   apart. */
+.rte-swatch-label { display: flex; align-items: center; gap: 9px; }
+.rte-swatch {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--hairline-strong);
+}
+
+.rte-body {
+  position: relative;
+  min-height: 200px;
+  /* Capped so a long message scrolls inside the field rather than pushing the
+     Send button off the bottom of the dialog. */
+  max-height: 42vh;
+  overflow-y: auto;
+  padding: 14px 8px;
+  font: inherit;
+  line-height: 1.6;
+  color: var(--ink);
+  overflow-wrap: break-word;
+}
+
+.rte-body:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+/* Out of flow, so it never sits between the caret and the first character. */
+.rte-body.is-empty::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  inset: 14px auto auto 8px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.rte-body blockquote {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--hairline-strong);
+  color: var(--ink-2);
+}
+.rte-body ul,
+.rte-body ol { margin: 0; padding-left: 26px; }
+.rte-body a { color: var(--accent); }
+
+/* A separate footer cannot obscure the editor or its focus indicator. */
+.compose-footer {
+  position: relative;
+  flex: none;
+  z-index: 1;
+  background: var(--surface);
+  padding-bottom: var(--panel-pad);
+}
+
+.compose-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 10px;
+}
+.compose-actions .btn-primary { margin-right: 6px; }
+
+/* -- attachments in the compose dialog ------------------------------------------- */
+
+.compose-form { position: relative; }
+
+.compose-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 0 2px;
+  border-top: 1px solid var(--hairline);
+}
+.compose-attachments.invalid { border-top-color: var(--danger); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 5px 5px 5px 10px;
+  font-size: 12.5px;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+}
+.chip.is-error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.chip-icon { display: flex; color: var(--ink-3); }
+.chip.is-error .chip-icon { color: var(--danger); }
+.chip-name {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.chip-size { color: var(--ink-3); flex: none; }
+.chip.is-error .chip-size { color: var(--danger); }
+
+.chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font: inherit;
+  color: var(--ink-2);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.chip-remove:hover { background: var(--hover); color: var(--ink); }
+.chip-remove:active { background: var(--pressed); }
+
+.attach-total {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.attach-total.over { color: var(--danger); }
+
+/* Drop target: the whole dialog takes a file drag, and says so. */
+.compose-drop {
+  position: absolute;
+  inset: -6px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+.compose-form.dropping .compose-drop { display: flex; }
+.compose-drop-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.compose-status {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  /* What this line says is usually an address, which is one long token with
+     no space in it to break at. Without this it does not wrap -- it runs out
+     of the dialog and over whatever is beside it. */
+  overflow-wrap: anywhere;
+}
+/* Nothing to say is no line at all, rather than a gap the height of one. */
+.compose-status:not(:empty) { margin-top: 12px; }
+.compose-status.error { color: var(--danger); }
+
+/* What a resumed draft could not bring back with it. */
+.compose-note {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border-radius: var(--radius-s);
+}
+
+/* Discard sits apart from the two attach buttons: it is the one control here
+   that throws something away. */
+.compose-actions .icon-btn[aria-label="Discard draft"] { margin-left: auto; }
+.compose-actions .icon-btn[aria-label="Discard draft"]:hover { color: var(--danger); }
+
+/* -- undo in a toast ------------------------------------------------------------------ */
+
+/* The toast region ignores pointer events so it never blocks the list; the
+   action inside one has to take them back. */
+.toast-action {
+  margin: -4px -8px -4px 4px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bg);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  pointer-events: auto;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+/* The toast is the page's ink colour with the page's background as its text,
+   so its hover wash has to come from the same pair: a fixed white one was
+   invisible on the light toast the dark theme draws. */
+.toast-action:hover { background: color-mix(in srgb, var(--bg) 16%, transparent); }
+.toast:has(.toast-action) { padding-right: 8px; }
+/* Undo is the one way back from a move: a finger needs more than the line of
+   text it sits on. The negative margin keeps the toast its own height. */
+@media (pointer: coarse) {
+  .toast-action { min-height: 40px; margin-block: -11px; padding-inline: 14px; }
+}
+
+/* -- onboarding modal ---------------------------------------------------------------- */
+
+.onboard-lead {
+  margin: 0 0 8px;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.onboard-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+}
+
+.onboard-icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.onboard-row strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.onboard-text {
+  display: block;
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.onboard-action { margin-top: 8px; }
+
+/* The steps to the Home Screen, where iOS lets a site take pushes. */
+.push-steps {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.modal-panel .btn-primary.btn-block { margin-top: 14px; }
+
+/* -- responsive ------------------------------------------------------------------------ */
+
+@media (min-width: 801px) and (max-width: 1099px) {
+  .sidebar { width: 184px; }
+  .row-people { width: 150px; }
+  .msg-scroll { padding: 20px 24px 40px; }
+}
+
+@media (max-width: 800px) {
+  .topbar {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+             8px max(12px, env(safe-area-inset-left));
+  }
+  .brand { min-width: 0; }
+  .search {
+    order: 9;
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .search-input { height: 44px; }
+
+  /* Sidebar becomes an off-canvas drawer under the hamburger. */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 280px;
+    max-width: 85vw;
+    padding: max(16px, env(safe-area-inset-top)) 16px
+             max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    background: var(--bg);
+    border-right: 1px solid var(--hairline);
+    z-index: 80;
+    transform: translateX(-105%);
+    /* Slid out of frame is not the same as gone: without visibility the
+       closed drawer keeps its tab stops and its place in the accessibility
+       tree, so Tab from the header walks through three controls nobody can
+       see. The 0s/0.2s delay lets it stay visible for the slide out, then
+       drop out of the tree once it is off screen. */
+    visibility: hidden;
+    transition: transform 0.2s ease, visibility 0s linear 0.2s;
+  }
+  .nav-open .sidebar {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.2s ease, visibility 0s;
+  }
+  .nav-open .nav-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgb(0 0 0 / 0.4);
+    z-index: 70;
+  }
+  /* The collapsed-rail state is a desktop concept. */
+  .nav-collapsed .sidebar { width: 280px; align-items: stretch; }
+  .nav-collapsed .nav-label,
+  .nav-collapsed .nav-count { display: initial; }
+  .nav-collapsed .nav-item { width: 100%; justify-content: flex-start; padding: 0 16px 0 14px; }
+  .nav-collapsed .side-refresh,
+  .nav-collapsed .side-compose { width: fit-content; padding: 0 20px; justify-content: flex-start; }
+
+  .content {
+    padding: 0 max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom))
+             max(8px, env(safe-area-inset-left));
+  }
+  .card { border-radius: 12px; }
+
+  /* Two-line rows with an avatar, like the Gmail mobile list. */
+  .row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    row-gap: 0;
+    align-items: center;
+    height: auto;
+    padding: 10px 8px 10px 16px;
+  }
+  .msglist .row-avatar {
+    display: flex;
+    grid-row: 1 / span 2;
+  }
+  /* The people and the count are one grid cell, the way they are one column
+     on a wide screen. */
+  .row-people { grid-column: 2; grid-row: 1; width: auto; }
+  /* The paperclip stays, beside the date the way Apple Mail puts it: which
+     messages carry a file is not a detail a phone can do without, and it was
+     the one thing the two-line row dropped. */
+  .row-end { grid-column: 3; grid-row: 1; justify-self: end; padding-right: 8px; }
+  .row-marks { grid-column: 3; grid-row: 2; justify-self: end; }
+
+  /* No room for per-row action buttons on a two-line row, and no timestamp to
+     trade them for: on small screens the actions live in the message toolbar
+     and behind the tick boxes. */
+  .row-actions { display: none !important; }
+  /* While rows are ticked the toolbar is about the selection, and five action
+     buttons at a finger's size left no room for the count of what is ticked:
+     "3 selected" was squeezed to nothing. Refresh and Mark all as read step
+     aside until the selection is cleared. */
+  .list-toolbar:has(.list-actions:not([hidden])) > .icon-btn { display: none; }
+  .row:hover .row-when,
+  .row:focus-visible .row-when,
+  .row:focus-within .row-when { display: block; }
+  .row-check,
+  .select-all { width: 20px; height: 20px; }
+
+  /* Subject and preview each get their own line. Sharing one narrow line
+     left the preview with a few characters and a dangling " - ", and often
+     clipped the subject too. The row barely grows for it: the star button
+     already set the height of this grid row. */
+  .row-text {
+     grid-column: 2;
+     grid-row: 2;
+     white-space: normal;
+  }
+  .row-subject,
+  .row-snippet {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .row-snippet:not(:empty)::before { content: none; }
+
+  .msg-scroll { padding: 16px 16px 36px; }
+  .msg-subject { font-size: 18px; }
+  .msg-meta { flex-wrap: wrap; }
+  /* A collapsed message gives its preview a line of its own, for the same
+     reason the list rows do. */
+  .msg-item:not(.is-open) .msg-who { display: block; }
+  .msg-item:not(.is-open) .msg-item-snippet { font-size: 12.5px; }
+  /* On a phone the frame opens at the height it can have without pushing the
+     rest of the message off the screen. */
+  .msg-frame { height: 65vh; }
+  .msg-format .btn,
+  .msg-images-actions { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The open drawer's own rule is the more specific one, and went on sliding
+     it in with reduced motion asked for. */
+  .sidebar, .nav-open .sidebar { transition: none; }
+}
+
+/* -- touch targets -------------------------------------------------------------- */
+
+@media (pointer: coarse) {
+  .star-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .row-check,
+  .select-all { width: 22px; height: 22px; }
+  .new-mail { min-height: 36px; }
+  .row-action { width: 40px; height: 40px; }
+  .nav-item { min-height: 44px; }
+  .btn-more { min-height: 44px; }
+  .attachment { min-height: 44px; }
+  /* The fold in the message body. A 44px pill would be a lump in the middle of
+     a paragraph, so the pill stays the size the text can carry and the target
+     it answers to reaches 44px past it -- five pixels into the leading above
+     and below, which is short of the lines either side. */
+  .msg-quoted { min-height: 34px; padding: 0 16px; }
+  .msg-quoted::after {
+    content: "";
+    position: absolute;
+    inset: -5px -2px;
+  }
+  .compose-field input { height: 51px; }
+  .compose-field.compose-recipients { --recipient-height: 36px; }
+  .recipient-box input { height: var(--recipient-height); padding: 0 6px; }
+  .recipient-box .recipient-chip .chip-remove { width: 30px; height: 30px; }
+  .rte-btn { width: 40px; height: 40px; }
+  .rte-body { max-height: 34vh; }
+  .chip { padding: 7px 7px 7px 12px; }
+  .chip-remove { width: 28px; height: 28px; }
+}
+
+/* -- the signature dialog ------------------------------------------------------------ */
+
+.signature-panel { width: min(520px, 100%); }
+
+.signature-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.signature-input {
+  display: block;
+  width: 100%;
+  min-height: 7em;
+  padding: 10px 12px;
+  font: inherit;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  resize: vertical;
+}
+.signature-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.signature-hint {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+/* What the foot of a message will read, separator included. */
+.signature-preview {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-left: 3px solid var(--hairline-strong);
+}
+
+/* -- a note above a folder's rows ------------------------------------------------------ */
+
+/* Trash carries the one action that applies to the whole folder and cannot be
+   undone, so it is said above the rows rather than hidden in a menu. */
+.folder-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--hairline);
+}
+.folder-note .btn { flex: none; }
+.folder-note .btn:hover { color: var(--danger); }
+
+/* -- unsubscribe --------------------------------------------------------------------- */
+
+/* Beside the sender, where Gmail puts it: small, plain, and a link rather than
+   a button, whichever element it is. */
+.msg-unsubscribe {
+  padding: 0;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.msg-unsubscribe:hover { text-decoration: underline; }
+.msg-unsubscribe:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* -- print --------------------------------------------------------------------------- */
+
+/* On paper the open conversation is the page: no frame around it, no list
+   behind it, no controls on it, and nothing left scrolling inside a box. */
+@media print {
+  html, body, #app { height: auto; }
+  body { background: #fff; color: #000; }
+
+  /* `.msg-more` is the menu beside each message's date, and `.compose-dock`
+     the strip of minimized drafts across the foot of the window: both are
+     controls, both were printing -- the menu as a dangling ⋮ next to every
+     message, the dock as a half-written message under the conversation. */
+  .topbar, .sidebar, .nav-scrim, .list-view, .msg-toolbar,
+  .msg-reply, .toast-region, .star-btn, .msg-unsubscribe, .msg-format, .calendar-actions,
+  .msg-images, .msg-quoted, .msg-more, .compose-dock, .boot, .thread-pages button { display: none !important; }
+  .msg-scroll:has(.print-conversation) > .message:not(.print-conversation) { display: none !important; }
+  .print-conversation { display: block; }
+
+  .app-frame, .app-body, .content, .card, .message-view, .msg-scroll {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  .card { border-radius: 0; background: transparent; }
+  .message { max-width: none; }
+
+  /* A collapsed message prints as its own line, which is what it is on
+     screen; the button that opens it is not a button here. */
+  .msg-item-toggle, .msg-expander { cursor: auto; }
+  .msg-item { break-inside: avoid-page; }
+  .msg-item-head { border: none; }
+
+  /* Whatever the link said, the paper needs the address. */
+  .msg-body a.msg-link[href^="http"]::after {
+    content: " <" attr(href) ">";
+    font-size: 0.85em;
+    color: #444;
+  }
+  .msg-body { color: #000; }
+  .msg-frame { height: auto; min-height: 60vh; border: none; }
+}
+
+/* -- saving an attachment to Puter --------------------------------------------------- */
+
+/* The download chip and the save button read as one control with two ends:
+   the file, and where else it can go. */
+.attachment-group {
+  display: inline-flex;
+  align-items: stretch;
+}
+.attachment-group .attachment {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+.attachment-save {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  cursor: pointer;
+}
+.attachment-save:hover { background: var(--hover); color: var(--accent); }
+.attachment-save:active { background: var(--pressed); }
+.attachment-save:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* -- moving through the list from the reader ---------------------------------------- */
+
+.msg-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.msg-position {
+  margin-right: 6px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+/* The reader's toolbar is the one place a control is worth keeping while it
+   cannot be pressed: the arrows say where the list ends. */
+.msg-nav .icon-btn:disabled { opacity: 0.35; cursor: default; }
+@media (max-width: 800px) {
+  .msg-position { display: none; }
+}
+
+/* -- the reader's toolbar on a narrow screen ---------------------------------------- */
+
+/* Expand all, Print and View source stand as buttons where there is room for
+   them, and go behind one More button where there is not: nine 44px buttons
+   is wider than a phone, and the last of them were cut off at the card's
+   edge. */
+.msg-tools-anchor { display: none; }
+@media (max-width: 800px) {
+  .msg-toolbar .msg-tool-wide { display: none; }
+  .msg-tools-anchor { display: block; }
+}
+
+/* -- the per-message menu ------------------------------------------------------------ */
+
+.msg-more,
+.msg-more-placeholder { width: 32px; height: 32px; flex: none; color: var(--ink-3); }
+@media (pointer: coarse) {
+  .msg-more,
+  .msg-more-placeholder { width: 44px; height: 44px; }
+}
+.msg-side .menu { top: calc(100% + 4px); }
+.msg-side .menu[data-flip="up"] { top: auto; bottom: calc(100% + 4px); }
+
+/* -- previewing an image attachment ------------------------------------------------- */
+
+.preview-panel { width: min(900px, 100%); }
+
+.preview-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  max-height: min(70vh, 720px);
+  overflow: auto;
+  background: var(--surface-2);
+  border-radius: var(--radius-s);
+}
+.preview-image {
+  display: block;
+  max-width: 100%;
+  max-height: min(70vh, 720px);
+  object-fit: contain;
+}
+.preview-failed {
+  margin: 0;
+  padding: 24px;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+.preview-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.preview-size { font-size: 13px; color: var(--ink-3); }
+
+/* -- dragging rows onto folders ----------------------------------------------------- */
+
+.row[draggable="true"] { cursor: pointer; }
+.row.is-dragging { opacity: 0.5; }
+/* While rows are in the air, the folders they can land on say so. */
+.nav-item.is-drop-target {
+  background: var(--accent-wash);
+  color: var(--ink);
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
+
+/* -- density --------------------------------------------------------------------------- */
+
+/* Compact: the same rows, tighter. Nothing is dropped from them; the row is
+   shorter and the type a shade smaller, which is what fits a third more mail
+   on the screen of someone who reads a lot of it. */
+.density-compact .row {
+  height: 34px;
+  font-size: 13px;
+}
+.density-compact .row-action { width: 26px; height: 26px; }
+.density-compact .list-toolbar { min-height: 40px; }
+.density-compact .nav-item { height: 30px; }
+.density-compact .msg-item-head { padding-block: 6px; }
+
+/* On a phone the row is two lines and cannot be held to one line's height:
+   the rule above outranked the phone layout's `height: auto`, and every row
+   was 34px of three lines drawn over each other. Compact keeps its meaning
+   there as a tighter row, not a shorter one. */
+@media (max-width: 800px) {
+  .density-compact .row { height: auto; padding-top: 6px; padding-bottom: 6px; }
+}
+
+/* -- message details ------------------------------------------------------------------ */
+
+.details-panel { width: min(640px, 100%); }
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 13.5px;
+}
+.details-name {
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.details-value {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.result-pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* Loading rows use the same height as the message list, including density
+   and mobile variants. Shapes are decorative and never enter keyboard order. */
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 16px;
+  height: 44px;
+  padding: 0 24px 0 88px;
+  border-bottom: 1px solid var(--hairline);
+}
+.skeleton-sender { width: 65%; }
+.skeleton-subject { width: 75%; }
+.density-compact .skeleton-row { height: 34px; }
+@media (max-width: 800px) {
+  .skeleton-row {
+    height: 83px;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    grid-template-rows: 1fr 1fr;
+    gap: 0 16px;
+    padding: 10px 24px 10px 68px;
+  }
+  .skeleton-subject { grid-row: 2; }
+  .skeleton-date { grid-column: 2; grid-row: 1; }
+  .density-compact .skeleton-row { height: 71px; }
+  /* Reserve the preview line while unthreaded rows receive their headers. */
+  .row-snippet { min-height: 1.5em; }
+}
+
+/* -- right-to-left mail ---------------------------------------------------------- */
+
+/* Mail is in whatever script its sender wrote it in. Each run of it takes its
+   direction from its own first strong character -- per paragraph in a body --
+   rather than from the page's: a Hebrew subject's "?" and "10:00" jumped to
+   the wrong ends, and a body of Arabic read left-aligned with its brackets
+   reversed. The preview is isolated so an RTL subject and an RTL preview
+   beside it are not reordered into one run. */
+.row-people, .row-subject, .msg-subject, .msg-from-name,
+.msg-item-snippet, .msg-body:not(.msg-source) { unicode-bidi: plaintext; }
+.row-snippet { unicode-bidi: isolate; }
+.msg-subject, .msg-body { text-align: start; }
+
+.snooze-picker { display: grid; gap: 8px; padding: 0 24px 24px; }
+.snooze-preset { justify-content: space-between; gap: 16px; }
+.snooze-custom { display: grid; gap: 12px; }
+.snooze-custom[hidden] { display: none; }
+.snooze-custom label { display: grid; gap: 8px; }
+.snooze-custom input {
+  width: 100%; padding: 10px 12px; font: inherit; color: var(--ink);
+  background: var(--surface-2); border: 1px solid var(--hairline-strong); border-radius: var(--radius-s);
+}
+.snooze-preset { flex-wrap: wrap; }

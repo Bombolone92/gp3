@@ -1,0 +1,1053 @@
+/* View-specific styles: page heads, auth, dashboard, detail, contacts, settings. */
+
+/* --- page head --- */
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.page-sub {
+  color: var(--ink-3);
+  font-size: 13.5px;
+  margin-top: 2px;
+}
+
+/* Mobile has the FAB; the header button would be redundant. */
+.head-add {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .head-add {
+    display: inline-flex;
+  }
+}
+
+/* --- toolbar (search + filters) --- */
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.search-wrap {
+  position: relative;
+  max-width: 420px;
+}
+
+.search-wrap > svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.search-input {
+  padding-left: 36px;
+}
+
+/* --- boot --- */
+
+.boot {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--ink-3);
+  font-size: 14px;
+  /* Held back by main.js until the boot has taken long enough to be worth
+     mentioning. */
+  opacity: 0;
+}
+
+.boot.shown {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* --- auth / intro --- */
+
+.auth-view {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 24px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+/* The icon art carries its own rounded corners on transparency, so no
+   border-radius here — a CSS radius would only shave the artwork. */
+.auth-logo {
+  margin-bottom: 18px;
+}
+
+.auth-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.auth-sub {
+  color: var(--ink-2);
+  margin: 8px 0 26px;
+  font-size: 15px;
+}
+
+.auth-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.auth-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  font-size: 14px;
+}
+
+.auth-feature > svg {
+  color: var(--accent);
+  margin-top: 1px;
+}
+
+.auth-cta {
+  width: 100%;
+  max-width: 320px;
+  padding: 13px;
+  font-size: 15px;
+}
+
+.auth-note {
+  margin-top: 16px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* --- onboarding --- */
+
+.onboard-hero {
+  padding: 8px 4px 14px;
+}
+
+.onboard-logo {
+  margin-bottom: 2px;
+}
+
+.onboard-points {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onboard-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.onboard-points svg {
+  color: var(--accent);
+  margin-top: 1px;
+}
+
+/* --- dashboard --- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 720px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/*
+ * Label, figure, footnote: three rows the tiles share, so the figures sit on
+ * one line across the row. As plain blocks each tile started its own stack,
+ * and "Renewing in 60 days" needing two lines on a phone dropped its 3 half a
+ * line below the 7 beside it — four tiles that are read as a row, printed as
+ * a ragged one.
+ *
+ * Row gap comes back to zero here: the tile's own rows are spaced by the
+ * elements' margins, and only the gap between tiles is the grid's. Where
+ * subgrid is not understood the tiles stack internally as they always did.
+ */
+.stat {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
+  row-gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 13px 14px;
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-sub {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A tile is only a button when there is a breakdown worth opening. */
+.stat-btn {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+}
+
+.stat-btn:hover {
+  background: var(--surface-2);
+}
+
+/* Kept out of the label's way: the label wraps before the chevron gives
+   ground, the same as the chevron on a list row. */
+.stat-chev {
+  display: inline-flex;
+  margin-left: auto;
+}
+
+.stat-warn .stat-top {
+  color: var(--warn);
+}
+
+.due-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  flex-shrink: 0;
+}
+
+.due-dot.overdue {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+/* --- contract detail --- */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+/* The way out of a contract, and on a phone a 20px-tall line of text was all
+   there was to aim at — the same treatment the other bare-text actions have
+   already had. The box around it grows to a fingertip; the 14px under the
+   link stays 14px. */
+@media (pointer: coarse) {
+  .back-link {
+    padding: 13px 6px;
+    margin: -13px -6px 1px;
+  }
+}
+
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.detail-head .type-glyph {
+  width: 46px;
+  height: 46px;
+}
+
+/* The title asked for no space of its own, so on a phone the three action
+   buttons took the row and left it a column two characters wide, breaking
+   "infrastructure" across four lines. Below the width a title can be read at,
+   the actions wrap under it instead. */
+.detail-head > .grow {
+  min-width: 170px;
+}
+
+.detail-title {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 18px;
+}
+
+@media (min-width: 720px) {
+  .facts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.fact-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  margin-bottom: 3px;
+}
+
+.fact-value {
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+/* Baseline, not centre: in a half-width column "Maya Lindqvist, Northwind
+   Cloud" takes three lines, and a centred avatar ends up beside the middle
+   one, reading as the initials of whatever word it happens to sit next to.
+   On a single line the two land in the same place either way. */
+.fact-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.fact-link .avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 10.5px;
+}
+
+/* The counterparty's name is the one thing in the facts grid you can follow,
+   and the only thing marking it was the accent — 1.7:1 against the ink of the
+   values beside it. The pointer gets the answer bare text gives everywhere
+   else in this app, the way "View all" and a contract's name in the
+   obligation list already do. */
+.fact-link:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.notes-text {
+  font-size: 14px;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* --- obligations --- */
+
+.ob-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 6px;
+  /* The checkbox is the only fixed width on the first line, so the wrap below
+     measures the duty's share against it rather than against a literal. */
+  --ob-check: 19px;
+}
+
+.ob-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+/*
+ * A checkbox, the duty, an owner badge and two buttons is five columns, and on
+ * a phone they left the duty about 90px — "Provide 30 days written notice to
+ * cancel before auto-renewal" came out two words wide and six lines tall. The
+ * duty takes the first line to itself there, and the badge and buttons wrap
+ * under it, kept right so the text still reads straight down the list.
+ * Only rows that carry buttons: the extraction review has room as it is.
+ */
+@media (max-width: 560px) {
+  .ob-row:has(.icon-btn) {
+    flex-wrap: wrap;
+  }
+
+  .ob-row:has(.icon-btn) > .grow {
+    flex-basis: calc(100% - var(--ob-check) - 12px);
+  }
+
+  .ob-row:has(.icon-btn) > .badge-owner {
+    margin-left: auto;
+    align-self: center;
+  }
+}
+
+.ob-check {
+  width: var(--ob-check);
+  height: var(--ob-check);
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* Ticking a duty off is the whole point of the list, and 19px is a small
+   thing to hit with a thumb. The label toggles it too, but the box is what
+   people aim at. */
+@media (pointer: coarse) {
+  .ob-row {
+    --ob-check: 24px;
+  }
+
+  .ob-check {
+    margin-top: 0;
+  }
+}
+
+.ob-row label {
+  cursor: pointer;
+}
+
+.ob-text {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.ob-text.done {
+  text-decoration: line-through;
+  color: var(--ink-3);
+}
+
+/* Context line: which contract, and when it is due. */
+.ob-meta {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.ob-meta .overdue {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.ob-cadence {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+/* Completed occurrences, folded away until asked for. */
+.ob-history {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.ob-history summary {
+  cursor: pointer;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.ob-history ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ob-contract {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.ob-contract:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.extract-input {
+  font-size: 13.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.extract-busy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 0;
+  color: var(--ink-2);
+}
+
+.doc-source-row {
+  margin-bottom: 12px;
+}
+
+.doc-source-row .field-label {
+  margin-bottom: 8px;
+}
+
+/* --- renewals: attention rows carry their own action --- */
+
+.renewal-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.renewal-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* The wrapper owns the separator, and the chevron gives up its space to the
+   button: tapping the row still opens the contract. */
+.renewal-row > .list-row {
+  border-bottom: 0;
+  /* A flex item refuses to shrink past its own content, so the row kept its
+     full width and shoved "Record decision" off the side of a phone: the one
+     action the attention list exists for, reachable only by scrolling
+     sideways. Below the basis the button takes a line of its own instead of
+     squeezing the deadline it is about. */
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.renewal-row > .list-row .row-chev {
+  display: none;
+}
+
+.renewal-decide {
+  flex-shrink: 0;
+  /* Keeps the button on the right whether it shares the row or wraps under it. */
+  margin-left: auto;
+}
+
+/* --- term history --- */
+
+.term-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 6px;
+}
+
+.term-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.term-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+
+.term-value {
+  font-size: 13px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/*
+ * Both of these rows put fixed columns after the text — what a term cost and
+ * how it ended, a trash entry's two buttons — and on a phone those columns
+ * took the lot: a completed term read "N…" where "Nov 6, 2024 – Nov 6, 2025"
+ * belonged, and a trash entry lost the days it has left, which is the half
+ * that decides whether to restore it. Below that width the text keeps the
+ * first line and the rest follows underneath, right-aligned as it was.
+ */
+@media (max-width: 560px) {
+  .term-row,
+  .trash-row {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* The leading glyph plus the row's own gap. */
+  .term-row > .grow {
+    flex-basis: calc(100% - 39px);
+  }
+
+  .trash-row > .grow {
+    flex-basis: calc(100% - 44px);
+  }
+}
+
+/* --- documents --- */
+
+.doc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 6px;
+}
+
+.doc-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+/*
+ * Download and delete are fixed columns after the name, and on a phone they
+ * took the row: "Cloud infrastructure master services agreement.pdf" arrived
+ * as "Cloud infra…" over "2.4 MB · add…", so neither the file nor the date it
+ * was attached survived. The same wrap the obligation rows above it already
+ * do — the name keeps the first line, the two buttons follow underneath,
+ * kept right.
+ */
+@media (max-width: 560px) {
+  .doc-row {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .doc-row > .doc-open {
+    flex-basis: 100%;
+  }
+}
+
+.doc-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  flex-shrink: 0;
+}
+
+/* --- trash --- */
+
+.trash-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+}
+
+.trash-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* --- contacts --- */
+
+.contact-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.contact-hero .avatar {
+  width: 46px;
+  height: 46px;
+  font-size: 16px;
+}
+
+.contact-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.contact-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.contact-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.contact-line > svg {
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.contact-line span {
+  overflow-wrap: anywhere;
+}
+
+/* The email and phone on a contact's sheet leave the app when you press them,
+   and they answered the pointer with nothing at all. Same response as the
+   counterparty link they were reached from. */
+.contact-line a:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --- settings --- */
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Sign out is a fixed column after the name, and on a narrow phone it left
+   "Synced with your Puter cloud" about 105px to say itself in. The button
+   takes a line of its own there, kept right, the way the document and trash
+   rows do. */
+@media (max-width: 380px) {
+  .user-chip {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* The avatar plus the row's own gap. */
+  .user-chip > .grow {
+    flex-basis: calc(100% - 46px);
+  }
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 6px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  width: 100%;
+}
+
+.settings-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.settings-row:hover {
+  background: var(--surface-2);
+}
+
+.settings-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  flex-shrink: 0;
+}
+
+.about-text {
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+/*
+ * The two links in the app that sit inside a sentence rather than being a
+ * row, a chip or a button — "Built on Puter" here, "Powered by Puter" on the
+ * sign-in page. Both were marked only by their colour, which is 1.13:1
+ * against the ink around them: no difference at all to anyone who does not
+ * read hue, and next to none for anyone who does. An underline says it in
+ * the way running text has always said it.
+ */
+.about-text a,
+.auth-note a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.about-text a:hover,
+.auth-note a:hover {
+  color: var(--accent-strong);
+}
+
+/* --- manual exchange rates --- */
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 7px 0;
+}
+
+.rate-row .input {
+  width: 120px;
+  flex: 0 1 120px;
+}
+
+.rate-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.rate-at {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* A suggested cadence needs its first date before it becomes a schedule. */
+.sug-first-due {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sug-first-due .field-label {
+  margin-bottom: 0;
+}
+
+.sug-due {
+  width: auto;
+  flex: 0 1 170px;
+  padding: 6px 9px;
+  font-size: 13px;
+}
+
+/* --- import: column mapping and preview --- */
+
+.map-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.map-label {
+  flex: 0 0 44%;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.map-required {
+  color: var(--ink-3);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.import-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.import-card {
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  background: var(--surface-2);
+}
+
+.import-fields {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px 14px;
+}
+
+.import-fields dt {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
+.import-fields dd {
+  margin: 0;
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+}
+
+.import-problem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--danger);
+  margin-bottom: 6px;
+}
+
+.import-skipped {
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 520px) {
+  .map-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .map-label {
+    flex: none;
+  }
+}
+
+/* --- calendar subscription --- */
+
+.feed-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.feed-row .input {
+  flex: 1 1 260px;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+}
+
+/* --- document preview --- */
+
+/* The whole document row opens the preview; the action buttons sit outside it. */
+.doc-open {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  border-radius: var(--r-sm);
+}
+
+.doc-open:hover .row-title {
+  color: var(--accent);
+}
+
+.doc-open .row-title,
+.doc-open .row-sub {
+  display: block;
+}
+
+.doc-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doc-page {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  background: #fff;
+}
+
+.doc-image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+}
+
+.doc-text {
+  margin: 0;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

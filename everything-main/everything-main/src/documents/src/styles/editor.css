@@ -1,0 +1,613 @@
+/* ---------- Editor layout ---------- */
+
+.editor {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--surface);
+}
+
+/* Focus mode: only the title row and the page. */
+.editor.focus-mode > .toolbar,
+.editor.focus-mode > .statusbar,
+.editor.focus-mode .menubar { display: none; }
+
+/* Explicit rows: a hidden find bar (display: none) must not shift the rest. */
+.editor > .topbar { grid-row: 1; }
+.editor > .toolbar { grid-row: 2; }
+.editor > .findbar { grid-row: 3; }
+.editor > .import-notice { grid-row: 4; }
+.editor > .editor-host-wrap { grid-row: 5; }
+.editor > .statusbar { grid-row: 6; }
+
+/*
+ * Top bar: two rows. The title row holds the back button, the mark, the
+ * title with its save status, and the document actions; the menu bar has the
+ * full-width row under it. On a phone the menu bar is gone and the bar is
+ * one row again.
+ */
+.topbar {
+  display: flex;
+  flex-direction: column;
+  padding: var(--safe-t) calc(10px + var(--safe-r)) 0 calc(8px + var(--safe-l));
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.topbar .brand-mark { width: 28px; height: 28px; }
+.topbar-row { display: flex; align-items: center; gap: 6px; height: 44px; min-width: 0; }
+.topbar-title-wrap { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+
+.menubar {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  height: 30px;
+  margin: -2px 0 2px;
+}
+
+.doc-title {
+  font-weight: 600;
+  font-size: 15px;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+@media (hover: hover) { .doc-title:hover { background: var(--surface-2); } }
+
+.save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  flex: none;
+}
+
+.save-status svg { flex: none; }
+.save-status[disabled] { cursor: default; opacity: 1; }
+.save-status.retryable { cursor: pointer; padding: 3px 8px; border-radius: var(--r-sm); }
+@media (hover: hover) { .save-status.retryable:hover { background: var(--critical-wash); } }
+.save-status.unsaved { color: var(--warn); }
+.save-status.error, .save-status.offline { color: var(--critical); }
+/* Not signed in: the pill is the invitation to save, not a warning. */
+.save-status.signed-out { color: var(--ink-2); }
+@media (hover: hover) { .save-status.signed-out:hover { background: var(--surface-2); } }
+
+.topbar-actions { display: flex; align-items: center; gap: 2px; flex: none; }
+
+.menu-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 13.5px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.menu-btn[aria-expanded="true"] { background: var(--surface-2); }
+@media (hover: hover) { .menu-btn:hover { background: var(--surface-2); } }
+.menu-btn:focus-visible { outline-offset: -1px; }
+
+@media (width <= 640px) {
+  .save-status .save-label { display: none; }
+  .topbar .desktop-only { display: none !important; }
+  .topbar-row { height: var(--topbar-h); }
+  .doc-title { font-size: 14px; }
+}
+
+/* Continues exactly where the phone rule ends: no width shows both sets or neither. */
+@media (width > 640px) {
+  .topbar .mobile-only { display: none !important; }
+}
+
+/* ---------- Toolbar ---------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  height: var(--toolbar-h);
+  /* The left inset is a transparent border, not padding: the first group's divider is clipped at the padding
+     edge, and a notch inset as padding would leave that divider standing inside the toolbar. */
+  padding: 0 calc(8px + var(--safe-r)) 0 8px;
+  border-left: var(--safe-l) solid transparent;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.toolbar::-webkit-scrollbar { display: none; }
+
+/* The groups in one row. Every group draws a dividing line to its left,
+   fourteen pixels before its content; the row is pulled left by the same
+   distance so the line before the first group of a row falls outside the
+   toolbar's box and is clipped, and no row starts or ends with a line. */
+.tb-rows { display: flex; align-items: center; flex: none; min-height: var(--toolbar-h); margin-left: -14px; }
+
+/* With a mouse there is no swipe, and the scrollbar is hidden: a toolbar
+   that does not fit the window wraps onto a second row instead, so every
+   control stays in reach. Touch screens keep the row that swipes. */
+@media (pointer: fine) {
+  .toolbar { height: auto; overflow: hidden; }
+  .tb-rows { flex: 1 1 auto; flex-wrap: wrap; row-gap: 4px; padding-block: 4px; }
+}
+
+.tb-group { position: relative; display: flex; align-items: center; gap: 2px; flex: none; margin-left: 14px; }
+
+.tb-group::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 1px;
+  height: 22px;
+  margin-top: -11px;
+  background: var(--hairline-strong);
+}
+
+.tb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 6px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  position: relative;
+  flex: none;
+  transition: background 0.12s, color 0.12s;
+}
+
+@media (hover: hover) { .tb-btn:not([disabled]):hover { background: var(--surface-2); color: var(--ink); } }
+.tb-btn[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent-strong); box-shadow: inset 0 0 0 1px var(--accent); }
+.tb-btn[hidden] { display: none; }
+.tb-caret { display: inline-grid; margin-left: -2px; opacity: 0.7; }
+.tb-narrow { min-width: 24px; padding: 0 2px; margin-left: -2px; color: var(--ink-3); }
+.editor-host.painting, .editor-host.painting * { cursor: cell !important; }
+
+.tb-color { flex-direction: column; gap: 0; padding-top: 3px; }
+.tb-color svg { width: 17px; height: 17px; }
+.tb-color-bar {
+  display: block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 2px;
+  background: currentColor;
+  /* A hairline ring keeps the bar visible when its color matches the toolbar (black text on the dark theme). */
+  box-shadow: 0 0 0 1px var(--hairline-strong);
+}
+
+.tb-select {
+  height: 32px;
+  padding: 0 24px 0 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+  flex: none;
+  text-overflow: ellipsis;
+}
+
+@media (hover: hover) { .tb-select:hover { background-color: var(--surface-2); } }
+.tb-select:focus-visible { outline-offset: -1px; }
+.tb-select[disabled] { opacity: 0.45; cursor: default; }
+.tb-style { width: 130px; }
+.tb-font { width: 150px; }
+.tb-size { width: 70px; }
+
+@media (width <= 640px) {
+  .tb-style { width: 118px; }
+  .tb-font { width: 128px; }
+  .tb-size { width: 64px; }
+}
+
+/* ---------- Find bar ---------- */
+
+.findbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px calc(10px + var(--safe-r)) 8px calc(10px + var(--safe-l));
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-2);
+  flex-wrap: wrap;
+}
+
+.findbar[hidden] { display: none; }
+
+.find-row { display: flex; align-items: center; gap: 4px; flex: 1 1 260px; min-width: 0; }
+/* One height for the fields and buttons of a row, so nothing sits a few pixels off its neighbors. */
+.find-input { flex: 1; min-width: 100px; height: 32px; padding: 0 10px; font-size: 13.5px; }
+/* A long message ("Too many matches to replace at once…") wraps instead of pushing the toggles off a phone screen. */
+.find-count { font-size: 12.5px; color: var(--ink-3); min-width: 0; max-width: 45%; text-align: center; line-height: 1.25; }
+.find-regex { font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.5px; }
+.find-regex[aria-pressed="true"] { background: var(--surface); color: var(--accent-strong); box-shadow: inset 0 0 0 1px var(--accent); }
+.findbar.no-match .find-count { color: var(--critical); }
+.findbar .icon-btn { width: 32px; height: 32px; }
+.findbar .btn-sm { flex: none; height: 32px; padding-top: 0; padding-bottom: 0; }
+
+/* ---------- Document host ---------- */
+
+/* Positioned so the loading and error cards are placed against the page frame, not the window. */
+.editor-host-wrap { position: relative; display: flex; min-height: 0; height: 100%; }
+/* The engine's own overlays (resize handles, header editing) carry z-indexes of their own; kept
+   inside the frame so they never rise above the phone-width side panels or the app's banners. */
+.editor-host-frame { position: relative; flex: 1; min-width: 0; min-height: 0; height: 100%; isolation: isolate; }
+/* Picture files being dragged over the page. */
+.editor-host-wrap.dropping .editor-host-frame { outline: 2px dashed var(--accent); outline-offset: -3px; }
+
+.outline {
+  width: 240px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--hairline);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.outline[hidden] { display: none; }
+.outline-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 4px 14px; }
+.outline-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); margin: 0; }
+.outline-list { flex: 1; overflow-y: auto; padding: 4px 8px 12px; }
+.outline-empty { padding: 4px 14px 14px; font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
+.outline-empty[hidden] { display: none; }
+
+.outline-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid transparent;
+}
+
+@media (hover: hover) { .outline-item:hover { background: var(--surface-2); color: var(--ink); } }
+.outline-item.active { color: var(--accent-strong); border-left-color: var(--accent); background: var(--accent-wash); }
+.outline-item.is-empty { font-style: italic; color: var(--ink-3); }
+.outline-item.level-0 { font-weight: 700; font-size: 13.5px; }
+.outline-item.level-1 { font-weight: 600; }
+.outline-item.level-2 { padding-left: 20px; }
+.outline-item.level-3 { padding-left: 32px; font-size: 12.5px; }
+.outline-item.level-4, .outline-item.level-5, .outline-item.level-6 { padding-left: 44px; font-size: 12.5px; }
+
+/* ---------- Comments ---------- */
+
+.comments {
+  width: 300px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--hairline);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.comments[hidden] { display: none; }
+.comments-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 4px 14px; }
+.comments-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); margin: 0; }
+.comments-actions { padding: 4px 12px 10px; }
+.comments-list { flex: 1; overflow-y: auto; padding: 4px 10px 12px; display: grid; gap: 8px; align-content: start; }
+.comments-empty { padding: 4px 14px 14px; font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
+.comments-empty[hidden] { display: none; }
+
+.comment-card {
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+@media (hover: hover) { .comment-card:hover { background: var(--surface-2); } }
+.comment-card.active { border-color: var(--accent); background: var(--accent-wash); }
+/* Small print on the tinted card keeps body-text contrast. */
+.comment-card.active .comment-time, .comment-card.active .comment-anchor { color: var(--ink-2); }
+/* Resolved threads read as done without dimming their small print below legible contrast. */
+.comment-card.resolved { border-style: dashed; }
+.comment-card.resolved .comment-author, .comment-card.resolved .comment-text { color: var(--ink-2); }
+.comment-card.resolved .comment-text { text-decoration: line-through; text-decoration-color: var(--ink-3); }
+.comment-anchor { font-size: 12px; color: var(--ink-3); border-left: 2px solid var(--hairline-strong); padding-left: 8px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comment-msg + .comment-msg { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hairline); }
+.comment-msg.reply { margin-left: 12px; }
+.comment-meta { display: flex; align-items: baseline; gap: 8px; font-size: 12px; }
+.comment-author { font-weight: 600; color: var(--ink); }
+.comment-time { color: var(--ink-3); }
+.comment-text { font-size: 13px; line-height: 1.4; margin-top: 3px; white-space: pre-wrap; word-break: break-word; }
+.comment-tools, .comment-foot { display: flex; gap: 12px; margin-top: 6px; }
+.comment-tools { opacity: 0; transition: opacity 0.12s; }
+.comment-card:focus-within .comment-tools { opacity: 1; }
+@media (hover: hover) { .comment-card:hover .comment-tools { opacity: 1; } }
+/* Touch screens have no hover, and a tap does not always focus the card: keep the tools in view. */
+@media (hover: none) { .comment-tools { opacity: 1; } }
+.link-btn { font-size: 12px; font-weight: 600; color: var(--accent-strong); padding: 2px 0; }
+@media (hover: hover) { .link-btn:hover { text-decoration: underline; } }
+.link-btn.danger { color: var(--critical); }
+.comment-reply-box { margin-top: 8px; display: grid; gap: 8px; }
+.comment-input { font-size: 13px; padding: 8px 10px; resize: vertical; min-height: 40px; }
+
+.has-badge { position: relative; }
+.btn-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+}
+.btn-badge[hidden] { display: none; }
+
+@media (max-width: 900px) {
+  .outline { position: absolute; inset: 0 auto 0 0; z-index: 3; width: min(280px, 80vw); border-right: 1px solid var(--hairline-strong); }
+  .comments { position: absolute; inset: 0 0 0 auto; z-index: 3; width: min(320px, 88vw); border-left: 1px solid var(--hairline-strong); }
+}
+
+.editor-host {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  background: var(--canvas);
+  overflow: hidden;
+}
+
+.editor-host > * { height: 100%; }
+
+.editor-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+  background: var(--canvas);
+  z-index: 2;
+  gap: 12px;
+  grid-auto-rows: max-content;
+  align-content: center;
+  font-size: 13.5px;
+  animation: fade-in 0.2s ease;
+}
+
+.editor-loading.leaving { animation: fade-out 0.2s ease forwards; }
+
+.editor-error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--canvas);
+  z-index: 2;
+}
+
+/* ---------- Status bar ---------- */
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: calc(var(--statusbar-h) + var(--safe-b));
+  padding: 0 calc(8px + var(--safe-r)) var(--safe-b) calc(8px + var(--safe-l));
+  border-top: 1px solid var(--hairline);
+  background: var(--surface);
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: inherit;
+  white-space: nowrap;
+}
+
+@media (hover: hover) { button.status-item:hover { background: var(--surface-2); color: var(--ink); } }
+/* The mode item says so while the original text is shown instead of the suggestions. */
+.status-item .status-note { color: var(--warn); font-weight: 600; }
+/* The mode item's own label already names the state; on a phone the word would push the zoom controls off the bar. */
+@media (width <= 640px) { .status-item .status-note { display: none; } }
+button.status-item[disabled] { pointer-events: none; }
+
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The bar sits on the window's bottom edge, with three pixels below its items: a ring outside them would be cut off. */
+.statusbar :is(.status-item, .icon-btn):focus-visible { outline-offset: -2px; }
+
+.zoom-controls { display: inline-flex; align-items: center; gap: 0; }
+.zoom-controls .icon-btn { width: 28px; height: 24px; border-radius: 6px; }
+.zoom-value { min-width: 46px; text-align: center; font-variant-numeric: tabular-nums; }
+
+@media (width <= 640px) {
+  .statusbar .desktop-only { display: none !important; }
+}
+
+/* ---------- Stats modal ---------- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.stat {
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.stat-value { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-label { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+.stat-selected { font-size: 12px; color: var(--accent-strong); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+/* ---------- Special characters ---------- */
+
+.symbols { display: grid; gap: 14px; margin-bottom: 4px; }
+.symbol-group h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); margin: 0 0 8px; }
+.symbol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 4px; }
+
+.symbol {
+  height: 40px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (hover: hover) { .symbol:hover { background: var(--surface-3); } }
+.symbol.emoji { font-size: 21px; }
+
+/* ---------- Emoji picker ---------- */
+
+.emoji-picker { display: flex; flex-direction: column; gap: 12px; }
+.emoji-search { position: sticky; top: 0; z-index: 1; background: var(--surface); padding-bottom: 2px; height: 44px; }
+.emoji-picker > .symbol-grid { margin-top: 2px; }
+.emoji-picker > div:last-child { display: grid; gap: 14px; }
+/* Group names stop right under the search field, not partly behind it. */
+.emoji-picker .symbol-group h3 { position: sticky; top: 44px; background: var(--surface); padding: 2px 0; }
+/* Arrow-key focus scrolls a symbol out from under the sticky search field and group name. */
+.emoji-picker .symbol { scroll-margin-top: 72px; }
+
+/* ---------- Image crop ---------- */
+
+.crop-dialog { display: flex; flex-direction: column; gap: 14px; }
+.crop-frame { position: relative; width: fit-content; max-width: 100%; margin: 0 auto; }
+.crop-stage { position: relative; width: fit-content; max-width: 100%; margin: 0 auto; overflow: hidden; user-select: none; touch-action: none; background: var(--surface-2); border-radius: var(--r-sm); line-height: 0; transform-origin: center; }
+.crop-image { display: block; max-width: min(560px, 100%); max-height: 52vh; width: auto; height: auto; pointer-events: none; -webkit-user-drag: none; }
+/* A picture turned by a quarter stands in a frame the size of its footprint; its width is what limits the height on screen. */
+.crop-frame.turned { width: auto; }
+.crop-frame.turned .crop-stage { position: absolute; max-width: none; margin: 0; }
+.crop-frame.turned .crop-image { max-width: 52vh; max-height: min(560px, 85vw); }
+.crop-shade { position: absolute; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); pointer-events: none; }
+.crop-box { position: absolute; border: 1.5px solid #fff; outline: 1px solid rgba(0, 0, 0, 0.4); cursor: move; box-sizing: border-box; }
+.crop-box:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.crop-box::before, .crop-box::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
+.crop-box::before { border-left: 1px solid rgba(255, 255, 255, 0.4); border-right: 1px solid rgba(255, 255, 255, 0.4); left: 33.33%; right: 33.33%; }
+.crop-box::after { border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.4); top: 33.33%; bottom: 33.33%; }
+.crop-handle { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; background: #fff; border: 1px solid var(--ink-3); border-radius: 2px; box-sizing: border-box; }
+/* A finger needs more than a twelve-pixel handle. */
+@media (pointer: coarse) { .crop-handle { width: 24px; height: 24px; margin: -12px 0 0 -12px; } }
+.crop-handle[data-h="nw"], .crop-handle[data-h="se"] { cursor: nwse-resize; }
+.crop-handle[data-h="ne"], .crop-handle[data-h="sw"] { cursor: nesw-resize; }
+.crop-handle[data-h="n"], .crop-handle[data-h="s"] { cursor: ns-resize; }
+.crop-handle[data-h="e"], .crop-handle[data-h="w"] { cursor: ew-resize; }
+.crop-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.crop-ratios { display: flex; gap: 6px; flex-wrap: wrap; }
+.crop-size { white-space: nowrap; }
+.crop-actions { display: flex; align-items: center; gap: 8px; }
+
+/* ---------- Link popover ---------- */
+
+.link-pop {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  max-width: min(360px, calc(100vw - 24px));
+  font-size: 13px;
+}
+
+.link-pop-url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 8px;
+  color: var(--accent-strong);
+}
+
+/* A link to a place in the document shows a "go to" button where the address would be. */
+button.link-pop-url { background: none; border: 0; font: inherit; cursor: pointer; text-align: left; line-height: 30px; }
+@media (hover: hover) { button.link-pop-url:hover { text-decoration: underline; } }
+
+.link-pop .icon-btn { width: 30px; height: 30px; }
+
+/* The word goal in the status bar, once reached. */
+.status-item.goal-reached { color: var(--accent); }
+.goal-form { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--hairline); }
+.goal-form .row { align-items: center; }
+.import-notice {
+  flex: 0 0 auto;
+  padding: 9px calc(20px + var(--safe-r)) 9px calc(20px + var(--safe-l));
+  color: var(--ink-2);
+  background: var(--surface);
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12px;
+  max-height: 28vh;
+  overflow: auto;
+}
+.import-notice summary { cursor: pointer; font-weight: 500; }
+.import-notice p { margin: 10px 0; max-width: 85ch; overflow-wrap: anywhere; }
+.import-notice ul { margin: 8px 0; padding-left: 20px; }
+.import-notice li { margin: 4px 0; }
+
+/* Text fields at 16px on touch screens: iOS Safari zooms the page into any
+   smaller field on focus and leaves it zoomed. Listed here, after every rule
+   that sizes one of them smaller, so this is what applies. */
+@media (pointer: coarse) {
+  .input, .select, .tb-select, .home-search, .find-input, .comment-input, .menu-custom-color .color-hex, .assist-output { font-size: 16px; }
+}
+
+/* Six icon buttons in the top bar leave a 320 px phone almost no room for the title: they close up a little. */
+@media (max-width: 400px) { .topbar-actions .icon-btn { width: 32px; } .topbar-actions { gap: 0; } }

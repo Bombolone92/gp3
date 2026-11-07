@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mail</title>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+    :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --bg-sunken: #f6f7f9;
+        --border: #e3e5e8;
+        --text: #16181d;
+        --text-dim: #6b7280;
+        --accent: #2563eb;
+        --accent-soft: #e8f0fe;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #16181d;
+            --bg-sunken: #1d2026;
+            --border: #2c3038;
+            --text: #e8eaed;
+            --text-dim: #9aa1ab;
+            --accent: #6ea8fe;
+            --accent-soft: #23303f;
+        }
+    }
+
+    * { box-sizing: border-box; }
+
+    /* `#panes` and `.center` set `display`, which outranks the UA stylesheet's
+       `[hidden] { display: none }`. Without this, toggling `.hidden` on them
+       silently does nothing. */
+    [hidden] { display: none !important; }
+
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        flex: none;
+    }
+
+    header h1 {
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    #count {
+        color: var(--text-dim);
+        font-size: 13px;
+    }
+
+    header .spacer { flex: 1; }
+
+    button {
+        font: inherit;
+        color: var(--text);
+        background: var(--bg-sunken);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 5px 12px;
+        cursor: pointer;
+    }
+
+    button:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: 0.5; cursor: default; }
+
+    button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+    }
+
+    #panes {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+    }
+
+    #list {
+        width: 340px;
+        flex: none;
+        overflow-y: auto;
+        border-right: 1px solid var(--border);
+        background: var(--bg-sunken);
+    }
+
+    .row {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+    }
+
+    .row:hover { background: var(--accent-soft); }
+    .row[aria-selected="true"] { background: var(--accent-soft); }
+
+    .row .from,
+    .row .subject {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .row .from {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .row .when {
+        font-weight: 400;
+        color: var(--text-dim);
+        font-size: 12px;
+        flex: none;
+    }
+
+    .row .subject { color: var(--text-dim); }
+
+    #reader {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 24px;
+        min-width: 0;
+    }
+
+    #reader h2 {
+        font-size: 18px;
+        margin: 0 0 12px;
+        word-wrap: break-word;
+    }
+
+    .headers {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 2px 12px;
+        margin-bottom: 18px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+    }
+
+    .headers dt { color: var(--text-dim); }
+    .headers dd { margin: 0; word-break: break-word; }
+
+    pre.body {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font: inherit;
+    }
+
+    .center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        height: 100%;
+        padding: 24px;
+        text-align: center;
+        color: var(--text-dim);
+    }
+
+    .center p { margin: 0; max-width: 46ch; }
+    .note { font-size: 13px; }
+    #more { display: block; width: 100%; border-radius: 0; border-width: 0 0 1px; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Mail</h1>
+    <span id="count"></span>
+    <span class="spacer"></span>
+    <button id="refresh" hidden>Refresh</button>
+</header>
+
+<div id="panes" hidden>
+    <div id="list"></div>
+    <div id="reader">
+        <div class="center"><p>Select a message.</p></div>
+    </div>
+</div>
+
+<div id="gate" class="center"><p>Loading…</p></div>
+
+<script type="module">
+// ---------------------------------------------------------------------------
+// The mailbox layout written by the `emailrx` backend extension:
+//
+//   /<username>/.mail/objects/<YYYY-MM-DD>/<uuidv7>--<base64url subject>
+//
+// Each file is the raw RFC822 message. uuid v7 sorts chronologically as text,
+// and so do the date folders, so "newest first" needs no metadata lookups.
+// ---------------------------------------------------------------------------
+
+const MAIL_DIR = '.mail';
+const PAGE_TARGET = 60;      // messages to pull per "load older" batch
+const HEADER_BYTES = 8192;   // enough for the header block of a normal message
+const HEADER_CONCURRENCY = 6;
+
+const $ = (id) => document.getElementById(id);
+const gate = $('gate');
+const panes = $('panes');
+const list = $('list');
+const reader = $('reader');
+const countEl = $('count');
+
+let objectsPath = null;
+let pendingDays = [];   // date folders not yet listed, newest first
+let messages = [];
+
+// -- small helpers ----------------------------------------------------------
+
+const el = (tag, props = {}, children = []) => {
+    const node = Object.assign(document.createElement(tag), props);
+    for (const child of children) node.append(child);
+    return node;
+};
+
+const showGate = (...children) => {
+    panes.hidden = true;
+    gate.hidden = false;
+    gate.replaceChildren(...children);
+};
+
+const base64ToBytes = (b64) => {
+    const padded = b64.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(padded + '='.repeat((4 - padded.length % 4) % 4));
+    return Uint8Array.from(binary, (c) => c.charCodeAt(0));
+};
+
+const decodeBytes = (bytes, charset) => {
+    try {
+        return new TextDecoder(charset || 'utf-8').decode(bytes);
+    } catch {
+        return new TextDecoder('utf-8').decode(bytes);
+    }
+};
+
+// -- filename → subject -----------------------------------------------------
+
+const subjectFromFilename = (name) => {
+    const sep = name.indexOf('--');
+    if (sep === -1) return '';
+    try {
+        return decodeBytes(base64ToBytes(name.slice(sep + 2)));
+    } catch {
+        return '';
+    }
+};
+
+// -- RFC 2047 encoded words (=?utf-8?B?…?=) ---------------------------------
+
+const decodeQuotedPrintable = (text, charset) => {
+    const bytes = [];
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '=' && /^[0-9a-f]{2}$/i.test(text.substr(i + 1, 2))) {
+            bytes.push(parseInt(text.substr(i + 1, 2), 16));
+            i += 2;
+        } else {
+            // A raw non-ASCII byte here is already mis-decoded upstream; the
+            // charCode is the best remaining guess.
+            bytes.push(ch.charCodeAt(0) & 0xff);
+        }
+    }
+    return decodeBytes(Uint8Array.from(bytes), charset);
+};
+
+const decodeWords = (value) => {
+    if (!value.includes('=?')) return value;
+    // Whitespace *between* two encoded words is separator, not content.
+    return value
+        .replace(/\?=\s+=\?/g, '?==?')
+        .replace(/=\?([^?]+)\?([BQbq])\?([^?]*)\?=/g, (whole, charset, enc, text) => {
+            try {
+                return enc.toUpperCase() === 'B'
+                    ? decodeBytes(base64ToBytes(text), charset)
+                    : decodeQuotedPrintable(text.replace(/_/g, ' '), charset);
+            } catch {
+                return whole;
+            }
+        });
+};
+
+// -- RFC 822 parsing --------------------------------------------------------
+
+const splitMessage = (raw) => {
+    const blank = raw.search(/\r?\n\r?\n/);
+    return blank === -1
+        ? { head: raw, body: '' }
+        : { head: raw.slice(0, blank), body: raw.slice(blank).replace(/^\r?\n\r?\n/, '') };
+};
+
+const parseHeaders = (head) => {
+    const headers = new Map();
+    // Unfold continuation lines before splitting on newlines.
+    for (const line of head.replace(/\r?\n[ \t]+/g, ' ').split(/\r?\n/)) {
+        const colon = line.indexOf(':');
+        if (colon === -1) continue;
+        const key = line.slice(0, colon).trim().toLowerCase();
+        if (!headers.has(key)) headers.set(key, line.slice(colon + 1).trim());
+    }
+    return headers;
+};
+
+const parseContentType = (value = '') => {
+    const [type, ...params] = value.split(';');
+    const attrs = {};
+    for (const param of params) {
+        const eq = param.indexOf('=');
+        if (eq === -1) continue;
+        attrs[param.slice(0, eq).trim().toLowerCase()] =
+            param.slice(eq + 1).trim().replace(/^"(.*)"$/, '$1');
+    }
+    return { type: type.trim().toLowerCase(), attrs };
+};
+
+const decodeBody = (body, headers) => {
+    const { attrs } = parseContentType(headers.get('content-type'));
+    const encoding = (headers.get('content-transfer-encoding') || '').toLowerCase();
+    if (encoding === 'base64') {
+        try {
+            return decodeBytes(base64ToBytes(body.replace(/\s+/g, '')), attrs.charset);
+        } catch {
+            return body;
+        }
+    }
+    if (encoding === 'quoted-printable') {
+        return decodeQuotedPrintable(body.replace(/=\r?\n/g, ''), attrs.charset);
+    }
+    return body;
+};
+
+// Walk the MIME tree for the first text/plain part. HTML-only messages are
+// flattened to text rather than rendered: this page holds the Puter auth
+// token, and mail bodies are attacker-supplied.
+const extractText = (body, headers, depth = 0) => {
+    const { type, attrs } = parseContentType(headers.get('content-type') || 'text/plain');
+
+    if (type.startsWith('multipart/') && attrs.boundary && depth < 8) {
+        const parts = body.split(`--${attrs.boundary}`).slice(1, -1);
+        const decoded = parts.map((part) => {
+            const { head, body: partBody } = splitMessage(part.replace(/^\r?\n/, ''));
+            const partHeaders = parseHeaders(head);
+            return { headers: partHeaders, text: extractText(partBody, partHeaders, depth + 1) };
+        });
+        const plain = decoded.find((p) =>
+            parseContentType(p.headers.get('content-type') || 'text/plain').type === 'text/plain');
+        return (plain ?? decoded.find((p) => p.text))?.text ?? '';
+    }
+
+    const text = decodeBody(body, headers);
+    if (type === 'text/html') {
+        const doc = new DOMParser().parseFromString(text, 'text/html');
+        return (doc.body?.textContent ?? '').replace(/\n{3,}/g, '\n\n').trim();
+    }
+    if (type && !type.startsWith('text/')) return '';
+    return text;
+};
+
+// -- listing ----------------------------------------------------------------
+
+const formatWhen = (message) => {
+    const when = message.date ?? (message.modified ? new Date(message.modified * 1000) : null);
+    if (!when) return message.day;
+    const today = new Date().toDateString() === when.toDateString();
+    return today
+        ? when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        : when.toLocaleDateString([], { month: 'short', day: 'numeric' });
+};
+
+const renderList = () => {
+    countEl.textContent = messages.length
+        ? `${messages.length} message${messages.length === 1 ? '' : 's'}`
+        : '';
+
+    const rows = messages.map((message) => {
+        const row = el('div', { className: 'row', tabIndex: 0, role: 'option' }, [
+            el('div', { className: 'from' }, [
+                el('span', { className: 'name', textContent: message.from ?? '…' }),
+                el('span', { className: 'when', textContent: formatWhen(message) }),
+            ]),
+            el('div', { className: 'subject', textContent: message.subject || '(no subject)' }),
+        ]);
+        row.onclick = () => openMessage(message, row);
+        row.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.click(); }
+        };
+        message.row = row;
+        return row;
+    });
+
+    list.replaceChildren(...rows);
+
+    if (pendingDays.length) {
+        const more = el('button', { id: 'more', textContent: 'Load older' });
+        more.onclick = async () => {
+            more.disabled = true;
+            more.textContent = 'Loading…';
+            await loadBatch();
+            renderList();
+        };
+        list.append(more);
+    }
+
+    enrichVisible();
+};
+
+// Fill in the `From` (and a real timestamp) by reading only the head of each
+// file — a message can be 25MB, and the list needs the first few hundred bytes.
+const enrichQueue = [];
+let enrichRunning = 0;
+
+const enrichVisible = () => {
+    for (const message of messages) {
+        if (message.from !== undefined || message.queued || !message.row) continue;
+        const rect = message.row.getBoundingClientRect();
+        if (rect.bottom < -200 || rect.top > window.innerHeight + 400) continue;
+        message.queued = true;
+        enrichQueue.push(message);
+    }
+    pumpEnrich();
+};
+
+const pumpEnrich = () => {
+    while (enrichRunning < HEADER_CONCURRENCY && enrichQueue.length) {
+        const message = enrichQueue.shift();
+        enrichRunning++;
+        enrich(message).finally(() => {
+            enrichRunning--;
+            pumpEnrich();
+        });
+    }
+};
+
+const enrich = async (message) => {
+    try {
+        const blob = await puter.fs.read(message.path, { byte_count: HEADER_BYTES });
+        const headers = parseHeaders(splitMessage(await blob.text()).head);
+        message.from = decodeWords(headers.get('from') || '(unknown sender)');
+        const date = new Date(headers.get('date') || '');
+        if (!Number.isNaN(date.valueOf())) message.date = date;
+        if (!message.subject) message.subject = decodeWords(headers.get('subject') || '');
+    } catch {
+        message.from = '(unreadable)';
+    }
+    if (!message.row) return;
+    message.row.querySelector('.name').textContent = message.from;
+    message.row.querySelector('.when').textContent = formatWhen(message);
+    message.row.querySelector('.subject').textContent = message.subject || '(no subject)';
+};
+
+list.addEventListener('scroll', enrichVisible, { passive: true });
+
+// -- reading pane -----------------------------------------------------------
+
+const openMessage = async (message, row) => {
+    for (const other of list.querySelectorAll('.row')) other.removeAttribute('aria-selected');
+    row.setAttribute('aria-selected', 'true');
+    reader.replaceChildren(el('div', { className: 'center' }, [el('p', { textContent: 'Loading…' })]));
+
+    let raw;
+    try {
+        raw = await (await puter.fs.read(message.path)).text();
+    } catch (e) {
+        reader.replaceChildren(el('div', { className: 'center' }, [
+            el('p', { textContent: `Could not read this message: ${e?.message ?? e}` }),
+        ]));
+        return;
+    }
+
+    const { head, body } = splitMessage(raw);
+    const headers = parseHeaders(head);
+    const fields = [
+        ['From', decodeWords(headers.get('from') || '')],
+        ['To', decodeWords(headers.get('to') || '')],
+        ['Date', headers.get('date') || ''],
+    ].filter(([, value]) => value);
+
+    reader.replaceChildren(
+        el('h2', { textContent: decodeWords(headers.get('subject') || '') || message.subject || '(no subject)' }),
+        el('dl', { className: 'headers' }, fields.flatMap(([label, value]) => [
+            el('dt', { textContent: label }),
+            el('dd', { textContent: value }),
+        ])),
+        el('pre', { className: 'body', textContent: extractText(body, headers) || '(no text content)' }),
+    );
+    reader.scrollTop = 0;
+};
+
+// -- loading ----------------------------------------------------------------
+
+// Pull date folders newest-first until the batch target is met, so a mailbox
+// with years of history doesn't list every folder on open.
+const loadBatch = async () => {
+    const target = messages.length + PAGE_TARGET;
+    while (pendingDays.length && messages.length < target) {
+        const day = pendingDays.shift();
+        let files;
+        try {
+            files = await puter.fs.readdir(`${objectsPath}/${day}`);
+        } catch {
+            continue;
+        }
+        const batch = files
+            .filter((item) => !item.is_dir)
+            .sort((a, b) => b.name.localeCompare(a.name))
+            .map((item) => ({
+                path: item.path,
+                name: item.name,
+                day,
+                size: item.size,
+                modified: item.modified,
+                subject: subjectFromFilename(item.name),
+            }));
+        messages.push(...batch);
+    }
+};
+
+const loadInbox = async () => {
+    messages = [];
+    pendingDays = [];
+
+    let days = [];
+    try {
+        days = await puter.fs.readdir(objectsPath);
+    } catch {
+        // No `objects` folder yet — the mailbox exists but nothing has landed.
+        days = [];
+    }
+
+    pendingDays = days
+        .filter((item) => item.is_dir)
+        .map((item) => item.name)
+        .sort((a, b) => b.localeCompare(a));
+
+    await loadBatch();
+
+    gate.hidden = true;
+    panes.hidden = false;
+    $('refresh').hidden = false;
+
+    if (!messages.length) {
+        list.replaceChildren(el('div', { className: 'center' }, [
+            el('p', { textContent: 'Inbox is empty.' }),
+        ]));
+        countEl.textContent = '';
+        return;
+    }
+    renderList();
+};
+
+// -- permission -------------------------------------------------------------
+
+const requestPermission = (permission) =>
+    puter.perms?.request
+        ? puter.perms.request(permission)
+        : puter.ui.requestPermission({ permission });
+
+const canRead = async (path) => {
+    try {
+        await puter.fs.stat(path);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+const start = async () => {
+    if (!puter.auth.isSignedIn()) {
+        const button = el('button', { className: 'primary', textContent: 'Sign in to Puter' });
+        button.onclick = async () => {
+            await puter.auth.signIn();
+            start();
+        };
+        showGate(el('p', { textContent: 'Sign in to read your mail.' }), button);
+        return;
+    }
+
+    const { username } = await puter.auth.whoami();
+    const mailPath = `/${username}/${MAIL_DIR}`;
+    objectsPath = `${mailPath}/objects`;
+
+    // Being able to stat the folder means read access is already held.
+    if (await canRead(mailPath)) {
+        showGate(el('p', { textContent: 'Loading…' }));
+        await loadInbox();
+        return;
+    }
+
+    const button = el('button', { className: 'primary', textContent: `Grant read access to ${MAIL_DIR}` });
+    button.onclick = async () => {
+        button.disabled = true;
+        await requestPermission(`fs:${mailPath}:read`);
+        if (await canRead(mailPath)) {
+            showGate(el('p', { textContent: 'Loading…' }));
+            await loadInbox();
+            return;
+        }
+        button.disabled = false;
+        showGate(
+            el('p', { textContent: 'Still no access to your mailbox.' }),
+            el('p', {
+                className: 'note',
+                textContent: `This happens if the request was declined, or if ${mailPath} does not exist yet — `
+                    + 'the folder is created when your first message arrives.',
+            }),
+            button,
+        );
+    };
+
+    showGate(
+        el('p', { textContent: `This app reads the messages in ${mailPath}. It asks for read access only.` }),
+        button,
+    );
+};
+
+$('refresh').onclick = async () => {
+    $('refresh').disabled = true;
+    reader.replaceChildren(el('div', { className: 'center' }, [el('p', { textContent: 'Select a message.' })]));
+    await loadInbox();
+    $('refresh').disabled = false;
+};
+
+start().catch((e) => {
+    showGate(el('p', { textContent: `Something went wrong: ${e?.message ?? e}` }));
+});
+</script>
+
+</body>
+</html>

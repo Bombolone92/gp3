@@ -1,0 +1,23 @@
+--- a/src/ai/ai-ui.js
++++ b/src/ai/ai-ui.js
+@@ -297,7 +297,7 @@
+       const b = board();
+       const ids = selection().size ? new Set(selection()) : null;
+       const content = boardText(view().items, ids);
+-      if (!content) return toast("There is no text to summarize.");
++      if (!content) return progress(d, "There is no text to summarize.");
+       return exclusive(d, async () => {
+         const authoringLanguage = language;
+         progress(d, "Summarizing…");
+@@ -381,9 +381,9 @@
+         (i) => selection().has(i.id) && i.type === "note" && i.text?.trim(),
+       );
+       if (notes.length < 2)
+-        return toast("Select two or more sticky notes with text.");
++        return progress(d, "Select two or more sticky notes with text.");
+       if (notes.length > 300)
+-        return toast("Select up to 300 sticky notes at a time.");
++        return progress(d, "Select up to 300 sticky notes at a time.");
+       if (!canEdit(new Set(notes.map((n) => n.id)))) return;
+       return exclusive(d, async () => {
+         const authoringLanguage = language;

@@ -1,0 +1,54 @@
+
+for (const [created, later, labelText] of [
+  ["en", "fr", "Add person"],
+  ["fr", "en", "Ajouter une personne"],
+])
+  test(`library icon alternative text retains ${created} after switching to ${later}`, async () => {
+    const app = await setup(), { doc, w, click } = app;
+    const switchLanguage = async value => {
+      doc.querySelector("#language").value = value;
+      doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+      await app.tick();
+    };
+    try {
+      await switchLanguage(created);
+      await click('[data-action="new"]');
+      await click('[data-action="more-tools"]');
+      await click('[data-feature="icons"]');
+      await click('[data-icon="user-plus"]');
+      const original = selectedClipboard(app)[0];
+      assert.equal(original.alt, labelText);
+      assert.equal(original.text, labelText);
+      assert.equal(original.lang, created);
+      await click('[data-action="undo"]');
+      assert.equal(allClipboard(app).length, 0);
+      await click('[data-action="redo"]');
+      assert.deepEqual(allClipboard(app), [original]);
+      await switchLanguage(later);
+      const name = () => doc.querySelector(`#board-outline [data-id="${original.id}"] [lang="${created}"]`);
+      assert.equal(name().textContent, labelText);
+      await click(`#board-outline [data-id="${original.id}"]`);
+      await click('[data-action="properties"]');
+      assert.equal(doc.querySelector("#object-alt").getAttribute("lang"), created);
+      assert.equal(doc.querySelector("#object-alt").value, labelText);
+      doc.querySelector("dialog[open]").close();
+      await app.tick();
+      const formats = transferData();
+      dispatchTransfer(app, "copy", formats);
+      dispatchTransfer(app, "paste", formats);
+      const copy = selectedClipboard(app)[0];
+      assert.notEqual(copy.id, original.id);
+      assert.equal(copy.lang, created);
+      assert.equal(copy.alt, original.alt);
+      assert.equal(copy.src, original.src);
+      await click('[data-action="undo"]');
+      await click('[data-action="home"]');
+      await click('[data-open]');
+      assert.equal(doc.documentElement.lang, later);
+      assert.deepEqual(allClipboard(app), [original]);
+      assert.equal(name().textContent, labelText);
+      w.eval(axe.source);
+      const scan = await w.axe.run(doc.querySelector("#board-outline"), { rules: { "color-contrast": { enabled: false } } });
+      assert.equal(scan.violations.length, 0);
+    } finally { app.close(); }
+  });

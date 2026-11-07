@@ -1,0 +1,423 @@
+<!doctype html>
+<!--
+  Source for the app-store promotional assets in store/screenshots/.
+
+  This page is the promotional canvas: background, headline, and device frame.
+  The app itself is not re-drawn here — tools/store-promo.mjs screenshots the
+  real running app and hands the picture in, so the UI inside every frame is
+  the product, pixel for pixel.
+
+  It is a real page rather than a hand-drawn image so the assets stay in the
+  app's design language: same Inter, same navy, same accent as the share card
+  in tools/og-image.html. Edit here, then re-render with:
+
+    npm run dev
+    node tools/store-promo.mjs
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Store asset source</title>
+    <style>
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 400;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 500;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 600;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 700;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2') format('woff2');
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #070a14;
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* The canvas                                                        */
+      /* ---------------------------------------------------------------- */
+
+      .canvas {
+        position: relative;
+        box-sizing: border-box;
+        display: flex;
+        overflow: hidden;
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        color: #ffffff;
+        /* The share card's navy, so a store page and a shared link look like
+           the same product. */
+        background:
+          radial-gradient(1100px 660px at 4% -10%, rgba(56, 104, 255, 0.3), transparent 62%),
+          radial-gradient(900px 620px at 100% 108%, rgba(0, 43, 178, 0.42), transparent 60%),
+          linear-gradient(150deg, #0b1226 0%, #070a14 58%, #090d1c 100%);
+      }
+
+      /* A chessboard, faint enough to read as texture rather than a board. */
+      .motif {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: repeating-conic-gradient(
+          #ffffff 0% 25%,
+          transparent 0% 50%
+        );
+        opacity: 0.05;
+      }
+
+      /* Lifts the device off the background so the white UI has something to
+         sit on rather than glow against a flat field. */
+      .halo {
+        position: absolute;
+        pointer-events: none;
+        border-radius: 50%;
+        background: radial-gradient(closest-side, rgba(72, 116, 255, 0.34), transparent);
+      }
+
+      .copy,
+      .device {
+        position: relative; /* above .motif */
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Copy                                                              */
+      /* ---------------------------------------------------------------- */
+
+      .brand {
+        display: flex;
+        align-items: center;
+      }
+
+      .brand img {
+        display: block;
+      }
+
+      .brand span {
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.54);
+      }
+
+      h1 {
+        margin: 0;
+        font-weight: 700;
+        line-height: 1.03;
+        letter-spacing: -0.028em;
+        text-wrap: balance;
+      }
+
+      .sub {
+        margin: 0;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.64);
+        text-wrap: balance;
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* Device frames                                                     */
+      /* ---------------------------------------------------------------- */
+
+      /* The desktop app: a plain rounded card. No title bar and no browser
+         chrome — the app's own header is the window. */
+      .window {
+        border-radius: 20px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.12),
+          0 24px 50px -24px rgba(0, 0, 0, 0.7),
+          0 70px 120px -40px rgba(0, 0, 0, 0.95);
+      }
+
+      .phone {
+        border-radius: var(--r);
+        padding: var(--bezel);
+        background: linear-gradient(160deg, #3d4666 0%, #131829 55%, #0a0d18 100%);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.12),
+          0 24px 50px -24px rgba(0, 0, 0, 0.7),
+          0 70px 120px -40px rgba(0, 0, 0, 0.95);
+      }
+
+      .screen {
+        border-radius: calc(var(--r) - var(--bezel));
+        overflow: hidden;
+        background: #ffffff;
+      }
+
+      .window img,
+      .screen img {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* 1920×1080 — desktop, landscape                                    */
+      /* ---------------------------------------------------------------- */
+
+      .canvas.wide {
+        width: 1920px;
+        height: 1080px;
+        align-items: center;
+        gap: 68px;
+        padding: 0 96px 0 116px;
+      }
+
+      .wide .motif {
+        background-size: 132px 132px;
+        mask-image: radial-gradient(760px 760px at 88% 12%, #000 10%, transparent 72%);
+      }
+
+      .wide .halo {
+        width: 1200px;
+        height: 1200px;
+        right: -140px;
+        top: -60px;
+      }
+
+      .wide .copy {
+        flex: 0 0 660px;
+      }
+
+      .wide .brand {
+        gap: 14px;
+        margin-bottom: 36px;
+      }
+
+      .wide .brand img {
+        width: 52px;
+        height: 52px;
+      }
+
+      .wide .brand span {
+        font-size: 20px;
+      }
+
+      .wide h1 {
+        font-size: 84px;
+      }
+
+      .wide .sub {
+        margin-top: 26px;
+        font-size: 30px;
+        line-height: 1.4;
+      }
+
+      .wide .window img {
+        width: 980px;
+        height: 735px;
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* 1024×768 — tablet, landscape                                      */
+      /* ---------------------------------------------------------------- */
+
+      .canvas.tablet {
+        width: 1024px;
+        height: 768px;
+        align-items: center;
+        gap: 80px;
+        padding: 0 60px 0 64px;
+      }
+
+      .tablet .motif {
+        background-size: 96px 96px;
+        mask-image: radial-gradient(520px 520px at 90% 8%, #000 10%, transparent 70%);
+      }
+
+      .tablet .halo {
+        width: 780px;
+        height: 780px;
+        right: -130px;
+        top: -30px;
+      }
+
+      .tablet .copy {
+        flex: 0 0 470px;
+      }
+
+      .tablet .brand {
+        gap: 11px;
+        margin-bottom: 26px;
+      }
+
+      .tablet .brand img {
+        width: 38px;
+        height: 38px;
+      }
+
+      .tablet .brand span {
+        font-size: 15px;
+      }
+
+      .tablet h1 {
+        font-size: 52px;
+      }
+
+      .tablet .sub {
+        margin-top: 18px;
+        font-size: 20px;
+        line-height: 1.42;
+      }
+
+      .tablet .phone {
+        --bezel: 13px;
+        --r: 46px;
+      }
+
+      .tablet .screen {
+        width: 324px;
+        height: 684px;
+      }
+
+      /* ---------------------------------------------------------------- */
+      /* 1080×2280 — mobile, portrait                                      */
+      /* ---------------------------------------------------------------- */
+
+      .canvas.tall {
+        width: 1080px;
+        height: 2280px;
+        flex-direction: column;
+        align-items: center;
+        padding: 132px 76px 0;
+        text-align: center;
+      }
+
+      .tall .motif {
+        background-size: 120px 120px;
+        mask-image: radial-gradient(760px 760px at 50% 4%, #000 6%, transparent 74%);
+      }
+
+      .tall .halo {
+        width: 1320px;
+        height: 1320px;
+        left: -120px;
+        bottom: -300px;
+      }
+
+      .tall .brand {
+        gap: 16px;
+        justify-content: center;
+        margin-bottom: 40px;
+      }
+
+      .tall .brand img {
+        width: 58px;
+        height: 58px;
+      }
+
+      .tall .brand span {
+        font-size: 24px;
+      }
+
+      .tall h1 {
+        font-size: 92px;
+      }
+
+      .tall .sub {
+        margin-top: 30px;
+        font-size: 34px;
+        line-height: 1.4;
+      }
+
+      /* Pinned to the bottom so a headline that runs to three lines pushes
+         into the gap rather than into the phone. */
+      .tall .device {
+        margin-top: auto;
+        margin-bottom: 88px;
+      }
+
+      .tall .phone {
+        --bezel: 20px;
+        --r: 76px;
+      }
+
+      .tall .screen {
+        width: 720px;
+        height: 1520px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <script>
+      /**
+       * Build one asset. `spec` comes from tools/store-promo.mjs:
+       *
+       *   size     'wide' | 'tablet' | 'tall'
+       *   headline the promotional headline
+       *   sub      one supporting line
+       *   image    data: URI of the app screenshot to sit in the frame
+       *   frame    'window' (desktop card) | 'phone' (bezel)
+       */
+      window.renderAsset = function renderAsset(spec) {
+        const el = (tag, className) => {
+          const node = document.createElement(tag);
+          if (className) node.className = className;
+          return node;
+        };
+
+        const canvas = el('div', `canvas ${spec.size}`);
+        canvas.appendChild(el('div', 'halo'));
+        canvas.appendChild(el('div', 'motif'));
+
+        const copy = el('div', 'copy');
+        const brand = el('div', 'brand');
+        const mark = new Image();
+        mark.src = '/icon-192.png';
+        mark.alt = '';
+        brand.appendChild(mark);
+        brand.appendChild(
+          Object.assign(document.createElement('span'), { textContent: 'chess.puter.com' }),
+        );
+        copy.appendChild(brand);
+        copy.appendChild(Object.assign(document.createElement('h1'), { textContent: spec.headline }));
+        const sub = el('p', 'sub');
+        sub.textContent = spec.sub;
+        copy.appendChild(sub);
+        canvas.appendChild(copy);
+
+        const device = el('div', 'device');
+        const shot = new Image();
+        shot.src = spec.image;
+        shot.alt = '';
+        if (spec.frame === 'phone') {
+          const phone = el('div', 'phone');
+          const screen = el('div', 'screen');
+          screen.appendChild(shot);
+          phone.appendChild(screen);
+          device.appendChild(phone);
+        } else {
+          const win = el('div', 'window');
+          win.appendChild(shot);
+          device.appendChild(win);
+        }
+        canvas.appendChild(device);
+
+        const stage = document.getElementById('stage');
+        stage.replaceChildren(canvas);
+        return Promise.all(
+          [...stage.querySelectorAll('img')].map((img) =>
+            img.decode().catch(() => undefined),
+          ),
+        );
+      };
+    </script>
+  </body>
+</html>

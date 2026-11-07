@@ -1,0 +1,22 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {unzipSync} from 'fflate';
+test('disabled stories permit body editing and survive export, undo and reopen',async({page},info)=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>{window.storyPaint=[];const draw=CanvasRenderingContext2D.prototype.fillText;CanvasRenderingContext2D.prototype.fillText=function(text,...args){window.storyPaint.push(text);return draw.call(this,text,...args);};});
+ await page.goto('/playground.html');
+ const source='tests/fixtures/inactive-stories/disabled.docx';
+ const input=page.getByRole('textbox',{name:'Document text'});
+ await page.getByLabel('Open DOCX file').setInputFiles(source);
+ await expect(input).toHaveValue('Body page 1\nBody page 2\nBody page 3');
+ await expect(input).toBeEditable();await expect(page.locator('canvas.canvas-page')).toHaveCount(3);
+ await expect.poll(()=>page.evaluate(()=>window.storyPaint.includes('Visible default header'))).toBe(true);
+ expect(await page.evaluate(()=>window.storyPaint.some(t=>t.includes('Retained')))).toBe(false);
+ const original=unzipSync(readFileSync(source));
+ const save=async name=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(name+'.docx');await(await pending).saveAs(path);return path;};
+ const text=await input.inputValue();await input.focus();await input.press('ControlOrMeta+Home');await page.keyboard.insertText('Edited ');
+ const edited=await save('edited'),parts=unzipSync(readFileSync(edited));
+ for(const [name,bytes]of Object.entries(original))if(name!=='word/document.xml')expect(parts[name]).toEqual(bytes);
+ await input.press('ControlOrMeta+z');await expect(input).toHaveValue(text);expect(unzipSync(readFileSync(await save('undo')))).toEqual(original);
+ page.once('dialog',d=>d.accept());await page.getByLabel('Open DOCX file').setInputFiles(edited);await expect(input).toHaveValue('Edited '+text);await expect(input).toBeEditable();expect(errors).toEqual([]);
+});

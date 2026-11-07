@@ -1,0 +1,545 @@
+{
+  "name": "contacts",
+  "title": "Contacts",
+  "version": "1.0.0",
+  "description": "The signed-in Puter user's private address book.",
+  "protocolVersion": "2025-06-18",
+  "transport": {
+    "type": "puter-app-connection",
+    "launch": {
+      "name": "contacts",
+      "args": {
+        "service": "mcp"
+      },
+      "background": true
+    }
+  },
+  "capabilities": {
+    "tools": {
+      "listChanged": false
+    },
+    "resources": {
+      "listChanged": true,
+      "subscribe": false
+    }
+  },
+  "instructions": "This is the signed-in user's own private address book.\n\nSearch before you add — the same person is often already here under a different spelling, and create_contact never merges. Contact ids come back from search_contacts and list_contacts; pass one to get_contact, or read contact://<id> for a vCard.\n\nNever invent contact details. If you were not told someone's phone number, leave the field out rather than guessing. Ask the user to confirm before update_contact, naming the person you are about to change.",
+  "tools": [
+    {
+      "name": "search_contacts",
+      "title": "Search contacts",
+      "description": "Search the user's address book across every field — name, email, phone, company, job title, tags, notes and address. Use this first, and prefer it over listing everything. Returns lightweight summaries; each carries the contact id you need for get_contact, update_contact or delete_contact.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "What to look for. Matches anywhere in any field."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Defaults to 50."
+          },
+          "favoritesOnly": {
+            "type": "boolean",
+            "description": "Only contacts the user has starred."
+          },
+          "tag": {
+            "type": "string",
+            "description": "Only contacts carrying this tag."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "first",
+              "last",
+              "updated",
+              "created"
+            ],
+            "description": "Sort order. Defaults to first name."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_contacts",
+      "title": "List contacts",
+      "description": "Every contact in the address book, as summaries. Use this only when you genuinely need the whole book (counting, an overview, an export) — for finding someone, search_contacts is far cheaper.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5000,
+            "description": "Defaults to 1000."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Skip this many, for paging."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "first",
+              "last",
+              "updated",
+              "created"
+            ],
+            "description": "Sort order. Defaults to first name."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "suggest_recipients",
+      "title": "Suggest recipients",
+      "description": "Autocomplete for \"who should this go to?\" — one entry per email address, ranked by how well it matches, favorites first. Use this when you need an address to write to or invite, rather than a whole contact record. Contacts with no email address are left out.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Partial name or address the user typed. Empty returns their most likely contacts."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Defaults to 8."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_contact",
+      "title": "Get a contact",
+      "description": "One contact in full, including notes and every address — the fields the search results leave out. Takes an id from search_contacts or list_contacts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The contact id."
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_contact",
+      "title": "Add a contact",
+      "description": "Add a new person to the address book. Search first — people are often already here under a different spelling, and this always creates a new record rather than merging. Never invent details: leave out anything you were not told.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "Given name."
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Family name."
+          },
+          "nickname": {
+            "type": "string",
+            "description": "What they go by, if it differs from their first name."
+          },
+          "company": {
+            "type": "string",
+            "description": "Employer or organisation."
+          },
+          "jobTitle": {
+            "type": "string",
+            "description": "Role at that company."
+          },
+          "emails": {
+            "type": "array",
+            "description": "Email addresses, most-used first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Personal",
+                    "Work",
+                    "Other"
+                  ]
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "phones": {
+            "type": "array",
+            "description": "Phone numbers, most-used first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Mobile",
+                    "Home",
+                    "Work",
+                    "Main",
+                    "Other"
+                  ]
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "urls": {
+            "type": "array",
+            "description": "Websites and profile links.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Website",
+                    "Work",
+                    "Blog",
+                    "Other"
+                  ]
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "addresses": {
+            "type": "array",
+            "description": "Postal addresses, split into parts. Omit any part you do not know.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Home",
+                    "Work",
+                    "Other"
+                  ]
+                },
+                "street": {
+                  "type": "string",
+                  "description": "Number, street name, and unit or suite."
+                },
+                "street2": {
+                  "type": "string",
+                  "description": "Second address line, if any."
+                },
+                "city": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string",
+                  "description": "State, province, or region, as written locally."
+                },
+                "postalCode": {
+                  "type": "string",
+                  "description": "ZIP or postcode."
+                },
+                "country": {
+                  "type": "string"
+                },
+                "poBox": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "birthday": {
+            "type": "string",
+            "description": "Date of birth as YYYY-MM-DD. Omit unless you know the year."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-form notes about this person."
+          },
+          "tags": {
+            "type": "array",
+            "description": "Short labels, e.g. \"family\", \"clients\".",
+            "items": {
+              "type": "string"
+            }
+          },
+          "favorite": {
+            "type": "boolean",
+            "description": "Whether the user has starred this contact."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "update_contact",
+      "title": "Edit a contact",
+      "description": "Change fields on an existing contact. Only the fields you pass are touched, but a list field you do pass (emails, phones, urls, addresses, tags) replaces the whole list — so read the contact first and send the full list back with your addition. Confirm with the user before overwriting anything.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The contact id."
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Given name."
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Family name."
+          },
+          "nickname": {
+            "type": "string",
+            "description": "What they go by, if it differs from their first name."
+          },
+          "company": {
+            "type": "string",
+            "description": "Employer or organisation."
+          },
+          "jobTitle": {
+            "type": "string",
+            "description": "Role at that company."
+          },
+          "emails": {
+            "type": "array",
+            "description": "Email addresses, most-used first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Personal",
+                    "Work",
+                    "Other"
+                  ]
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "phones": {
+            "type": "array",
+            "description": "Phone numbers, most-used first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Mobile",
+                    "Home",
+                    "Work",
+                    "Main",
+                    "Other"
+                  ]
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "urls": {
+            "type": "array",
+            "description": "Websites and profile links.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Website",
+                    "Work",
+                    "Blog",
+                    "Other"
+                  ]
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "addresses": {
+            "type": "array",
+            "description": "Postal addresses, split into parts. Omit any part you do not know.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "Home",
+                    "Work",
+                    "Other"
+                  ]
+                },
+                "street": {
+                  "type": "string",
+                  "description": "Number, street name, and unit or suite."
+                },
+                "street2": {
+                  "type": "string",
+                  "description": "Second address line, if any."
+                },
+                "city": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string",
+                  "description": "State, province, or region, as written locally."
+                },
+                "postalCode": {
+                  "type": "string",
+                  "description": "ZIP or postcode."
+                },
+                "country": {
+                  "type": "string"
+                },
+                "poBox": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "birthday": {
+            "type": "string",
+            "description": "Date of birth as YYYY-MM-DD. Omit unless you know the year."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-form notes about this person."
+          },
+          "tags": {
+            "type": "array",
+            "description": "Short labels, e.g. \"family\", \"clients\".",
+            "items": {
+              "type": "string"
+            }
+          },
+          "favorite": {
+            "type": "boolean",
+            "description": "Whether the user has starred this contact."
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "delete_contact",
+      "title": "Delete a contact",
+      "description": "Permanently remove a contact from the address book, or several at once by passing `ids` instead of `id` — one call rather than one per person. This cannot be undone. A batch containing an id that does not exist deletes nothing, so pass ids exactly as search_contacts or list_contacts gave them.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The contact id, when removing one person. Pass this or `ids`, never both."
+          },
+          "ids": {
+            "type": "array",
+            "description": "Contact ids to remove together, when removing more than one. Pass this or `id`, never both.",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 500
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "resourceTemplates": [
+    {
+      "uriTemplate": "contact://{id}",
+      "name": "contact",
+      "title": "Contact (vCard)",
+      "mimeType": "text/vcard"
+    }
+  ]
+}

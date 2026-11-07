@@ -1,0 +1,18 @@
+{
+  "application": "Native reference application",
+  "date": "2026-10-03",
+  "method": "Independent 24pt Arial controls generated before changing the shared line breaker; an additional 16pt edge-control page was authored directly in OOXML independently of renderer output. Both opened without repair and were exported to local PDF. Text line boundaries read from native PDF; no PDF, image or reference-application font data is a renderer input.",
+  "observations": {
+    "asciiCompound": ["alpha beta-", "gamma delta"],
+    "negativeNumber": ["alpha -", "1234 delta"],
+    "numericSuffix": ["alpha beta-12", "delta"],
+    "repeatedHyphens": ["alpha beta--", "gamma delta"],
+    "wordJoinerAfterAsciiHyphen": ["alpha beta-", "gamma delta"],
+    "commaAfterAsciiHyphen": ["alpha beta-", ",gamma delta"],
+    "nonbreakingSpace": ["alpha", "beta gamma", "delta"],
+    "feffWordJoiner": ["alpha", "betagamma", "delta"],
+    "unwrapped": ["alpha beta-gamma delta"]
+  },
+  "compatibilityDecision": "Native gives an explicit break opportunity after ASCII hyphens, including before a number, comma or U+2060. Consecutive ASCII hyphens stay on the previous line. This differs from default UAX14 rules. U+2010 and U+2011 do not receive the same native opportunity. Preserve their authored codepoints. U+2010 used native CambriaMath glyph fallback; this observation does not establish exact glyph fidelity for that fallback.",
+  "remaining": "The seventh corpus deck's separate borderline Raleway text-box wrap differs. Font advances and native line fitting still require isolation; this fix does not claim complete text fidelity. Source SVG/native raster antialiasing remains distinct."
+}

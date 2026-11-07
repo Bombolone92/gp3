@@ -1,0 +1,179 @@
+/* Design tokens. Light values on :root; dark values both for an explicit
+   [data-theme='dark'] and for the system preference when no theme is
+   forced. Text and accent pairs meet WCAG AA on their intended surfaces. */
+
+:root {
+  --bg: #f2f4f7;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --surface-3: #eceff3;
+  --surface-hover: #f1f3f6;
+  --border: #e1e5ea;
+  --border-strong: #c9cfd8;
+  --text: #121822;
+  --text-2: #444e5d;
+  --text-3: #5d6878;
+  --text-inverse: #ffffff;
+
+  --accent: #2a5bd7;
+  --accent-hover: #2149b4;
+  --accent-soft: #eaf0fd;
+  --accent-soft-2: #d5e1fa;
+  --accent-text: #2350c2;
+  --on-accent: #ffffff;
+
+  --success: #17784c;
+  --success-soft: #e4f4eb;
+  --warning: #8a4b06;
+  --warning-soft: #fcf0d9;
+  --danger: #be2a30;
+  --danger-hover: #a42227;
+  --danger-soft: #fce8e8;
+  --info: #0b6a80;
+  --info-soft: #e1f2f5;
+  --neutral: #4c5767;
+  --neutral-soft: #edf0f3;
+  --violet: #6a3fc0;
+  --violet-soft: #f0eafb;
+
+  /* The navigation rail stays dark in both themes. */
+  --rail-bg: #0f1a2b;
+  --rail-border: #1f2b3f;
+  --rail-text: #b9c3d3;
+  --rail-text-strong: #ffffff;
+  --rail-hover: #1a2740;
+  --rail-active: #24365a;
+  --rail-accent: #8fb1ff;
+
+  --topbar: #ffffff;
+  --scrim: rgba(13, 20, 28, 0.45);
+  --focus: #2a5bd7;
+  --grid: #e8ebef;
+  --today: #fff8e1;
+  --series-1: #2a5bd7;
+  --series-2: #e0703a;
+  --series-3: #17784c;
+  --series-4: #8a4fd0;
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+
+  --rail-w: 224px;
+  --rail-w-collapsed: 60px;
+  --topbar-h: 56px;
+  --tabbar-h: 60px;
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #0c1016;
+  --surface: #151a22;
+  --surface-2: #1a2029;
+  --surface-3: #242b36;
+  --surface-hover: #1e2530;
+  --border: #262e3a;
+  --border-strong: #38414f;
+  --text: #ecf0f5;
+  --text-2: #b0b9c6;
+  --text-3: #919cab;
+  --text-inverse: #0c1016;
+
+  --accent: #6e9bff;
+  --accent-hover: #8fb1ff;
+  --accent-soft: #19253f;
+  --accent-soft-2: #22335a;
+  --accent-text: #93b4ff;
+  --on-accent: #0a1222;
+
+  --success: #4cc38a;
+  --success-soft: #12291f;
+  --warning: #eeb35c;
+  --warning-soft: #2c2212;
+  --danger: #ff7d7d;
+  --danger-hover: #ff9b9b;
+  --danger-soft: #331719;
+  --info: #5cc5da;
+  --info-soft: #10282e;
+  --neutral: #aeb7c4;
+  --neutral-soft: #222934;
+  --violet: #b99bff;
+  --violet-soft: #241c3b;
+
+  --rail-bg: #0a0f17;
+  --rail-border: #1b2331;
+  --rail-text: #aab4c4;
+  --rail-hover: #151d2b;
+  --rail-active: #1d2a45;
+
+  --topbar: #131922;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --focus: #8fb1ff;
+  --grid: #232a35;
+  --today: #29251a;
+  --series-1: #5b8cf5;
+  --series-2: #e07a45;
+  --series-3: #4cc38a;
+  --series-4: #a585f0;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0c1016;
+    --surface: #151a22;
+    --surface-2: #1a2029;
+    --surface-3: #242b36;
+    --surface-hover: #1e2530;
+    --border: #262e3a;
+    --border-strong: #38414f;
+    --text: #ecf0f5;
+    --text-2: #b0b9c6;
+    --text-3: #919cab;
+    --text-inverse: #0c1016;
+
+    --accent: #6e9bff;
+    --accent-hover: #8fb1ff;
+    --accent-soft: #19253f;
+    --accent-soft-2: #22335a;
+    --accent-text: #93b4ff;
+    --on-accent: #0a1222;
+
+    --success: #4cc38a;
+    --success-soft: #12291f;
+    --warning: #eeb35c;
+    --warning-soft: #2c2212;
+    --danger: #ff7d7d;
+    --danger-hover: #ff9b9b;
+    --danger-soft: #331719;
+    --info: #5cc5da;
+    --info-soft: #10282e;
+    --neutral: #aeb7c4;
+    --neutral-soft: #222934;
+    --violet: #b99bff;
+    --violet-soft: #241c3b;
+
+    --rail-bg: #0a0f17;
+    --rail-border: #1b2331;
+    --rail-text: #aab4c4;
+    --rail-hover: #151d2b;
+    --rail-active: #1d2a45;
+
+    --topbar: #131922;
+    --scrim: rgba(0, 0, 0, 0.6);
+    --focus: #8fb1ff;
+    --grid: #232a35;
+    --today: #29251a;
+    --series-1: #5b8cf5;
+    --series-2: #e07a45;
+    --series-3: #4cc38a;
+    --series-4: #a585f0;
+
+    color-scheme: dark;
+  }
+}

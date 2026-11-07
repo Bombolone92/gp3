@@ -1,0 +1,462 @@
+/* ---------- AI assistant ---------- */
+
+/* The sheet's column (menu bar to status bar) and the assistant beside it, from under the title row down. */
+.editor-body { flex: 1; min-height: 0; display: flex; }
+/* The column is a size container: the status bar lays itself out by the column's width, which the assistant or a
+   pane beside it can make phone-narrow on a tablet-wide window (see editor.css). */
+.editor-main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; container: sheet-column / inline-size; }
+
+.ai-panel {
+  --ai-w: 380px;
+  position: relative;
+  flex: none;
+  width: var(--ai-w);
+  max-width: 60vw;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink);
+}
+.ai-panel[hidden] { display: none; }
+
+/* Collapsed: a thin strip at the edge that says the assistant is there, and opens it. */
+.ai-rail {
+  position: relative;
+  flex: none;
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  /* The expand icon where the panel's collapse icon was. */
+  padding-top: 8px;
+  border-left: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.ai-rail[hidden] { display: none; }
+.ai-rail-icon, .ai-rail-mark { display: inline-flex; }
+.ai-rail-mark { color: var(--accent-strong); }
+@media (hover: hover) { .ai-rail:hover { background: var(--surface-2); color: var(--ink); } }
+.ai-rail:focus-visible { outline-offset: -2px; }
+/* A reply under way while collapsed: a dot on the strip, which pulses where motion is welcome. */
+.ai-rail.busy::after {
+  content: "";
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  margin-left: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface);
+  animation: ai-busy 1.2s ease-in-out infinite;
+}
+@keyframes ai-busy { 50% { opacity: 0.35; } }
+
+/* The edge the panel is resized by: wider than it looks, so it is easy to catch. */
+.ai-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 2;
+  touch-action: none;
+}
+.ai-resize::after { content: ""; position: absolute; top: 0; bottom: 0; left: 3px; width: 2px; background: transparent; transition: background 0.15s; }
+.ai-resize:focus-visible { outline: none; }
+.ai-resize:focus-visible::after, .ai-panel.resizing .ai-resize::after { background: var(--accent); }
+@media (hover: hover) { .ai-resize:hover::after { background: var(--hairline-strong); } }
+.ai-panel.resizing { user-select: none; -webkit-user-select: none; }
+
+.ai-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  /* Match the whole menu row, including its border and any wrapped menu titles. */
+  height: var(--editor-menubar-h, calc(var(--menubar-h) + 1px));
+  padding: 0 6px 0 12px;
+  border-bottom: 1px solid var(--hairline);
+  flex: none;
+}
+.ai-head .icon-btn { width: 28px; height: 28px; }
+.ai-head-mark { display: inline-flex; color: var(--accent-strong); margin-right: 6px; }
+.ai-title { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; margin: 0; }
+.ai-close > span { display: inline-flex; }
+.ai-close > .ai-close-down { display: none; }
+
+.ai-log {
+  /* The box the screen reader's hidden words ("You said:", ", done") are placed in, which they would otherwise take
+     from the panel: they would sit out past its foot, where a long chat ran them on and made the whole page scroll. */
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ai-log:focus { outline: none; }
+
+/* An empty chat: what to ask, and some starting points. It sits in the middle of the
+   log, not at its top over an empty half, and is no wider than reads well however wide the panel is dragged. */
+.ai-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 340px;
+  margin: auto;
+  padding: 16px 4px;
+  text-align: center;
+}
+.ai-empty-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+  margin-bottom: 14px;
+}
+.ai-empty-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3; text-wrap: balance; }
+.ai-suggestions { display: flex; flex-direction: column; gap: 6px; width: 100%; margin: 20px 0 0; padding: 0; list-style: none; }
+.ai-suggestion {
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink);
+  transition: background 0.15s;
+}
+@media (hover: hover) { .ai-suggestion:hover { background: var(--surface-3); } }
+
+.ai-msg { font-size: 13.5px; line-height: 1.5; min-width: 0; }
+.ai-user { align-self: flex-end; max-width: 88%; }
+.ai-bubble {
+  background: var(--surface-2);
+  border-radius: 14px 14px 4px 14px;
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ai-assistant { align-self: stretch; }
+/* The files a message carried, over its text, at its right edge as the text is. */
+.ai-user { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.ai-user-files { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; margin: 0; padding: 0; list-style: none; max-width: 100%; }
+.ai-user-file { display: flex; min-width: 0; max-width: 100%; }
+.ai-user-thumb { display: block; max-width: 160px; max-height: 120px; border-radius: var(--r-md); border: 1px solid var(--hairline); object-fit: cover; background: var(--surface-2); }
+.ai-user-chip { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 220px; padding: 6px 10px; border-radius: var(--r-md); background: var(--surface-2); color: var(--ink-2); font-size: 12.5px; }
+.ai-user-chip > span:first-child { display: inline-flex; flex: none; color: var(--ink-3); }
+.ai-user-chip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-parts { display: flex; flex-direction: column; gap: 6px; }
+.ai-stopped { margin: 0; font-size: 12.5px; color: var(--ink-3); }
+
+/* The reply's Markdown. */
+.md { overflow-wrap: anywhere; }
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+.md p { margin: 0 0 8px; }
+.md .md-h { margin: 12px 0 4px; font-size: 14px; font-weight: 600; line-height: 1.35; }
+.md h4.md-h { font-size: 13.5px; }
+.md .md-list { margin: 0 0 8px; padding-left: 20px; }
+.md .md-list li { margin: 2px 0; }
+.md .md-list .md-list { margin: 2px 0 0; }
+.md .md-quote { margin: 0 0 8px; padding-left: 10px; border-left: 3px solid var(--hairline-strong); color: var(--ink-2); }
+.md .md-rule { border: 0; border-top: 1px solid var(--hairline); margin: 10px 0; }
+.md .md-inline { font-family: var(--mono); font-size: 0.92em; background: var(--surface-2); padding: 1px 4px; border-radius: 4px; }
+.md .md-code {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre;
+}
+.md .md-table-wrap { margin: 0 0 8px; overflow-x: auto; max-width: 100%; }
+.md .md-table-wrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.md .md-table { border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.md .md-table th, .md .md-table td { border: 1px solid var(--hairline-strong); padding: 4px 8px; text-align: left; vertical-align: top; }
+/* A cell breaks between words only, never inside a number or a name: the reply's own breaking anywhere let a wide
+   table squeeze into the panel one or two characters a line, where it is meant to scroll. */
+.md .md-table th, .md .md-table td { overflow-wrap: normal; }
+.md .md-table th { background: var(--surface-2); font-weight: 600; }
+.md .md-link { color: var(--accent-strong); text-decoration: underline; text-underline-offset: 2px; }
+.md .md-image { color: var(--ink-3); font-style: italic; }
+
+/* A cell reference in a reply: it selects its cells. */
+.cell-ref {
+  display: inline;
+  padding: 0 3px;
+  border-radius: 4px;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-strong);
+  background: var(--accent-wash);
+  cursor: pointer;
+}
+@media (hover: hover) { .cell-ref:hover { text-decoration: underline; } }
+.md .md-inline .cell-ref { font-family: var(--mono); background: transparent; padding: 0; }
+
+/* A tool call: what it does, and how it went. */
+.ai-step {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  column-gap: 6px;
+  align-items: start;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+.ai-step-icon { display: inline-flex; margin-top: 1px; color: var(--ink-3); }
+.ai-step-change .ai-step-label { color: var(--ink-2); font-weight: 500; }
+.ai-step-done.ai-step-change .ai-step-icon { color: var(--accent-strong); }
+.ai-step-error .ai-step-icon, .ai-step-error .ai-step-note { color: var(--critical); }
+.ai-step-declined .ai-step-icon { color: var(--warn); }
+.ai-step-declined .ai-step-label, .ai-step-skipped .ai-step-label { text-decoration: line-through; text-decoration-color: var(--hairline-strong); }
+.ai-step-label { min-width: 0; overflow-wrap: anywhere; text-align: left; }
+.ai-step-label.linkish { color: inherit; font: inherit; font-weight: inherit; cursor: pointer; }
+.ai-step-change .ai-step-label.linkish { font-weight: 500; }
+@media (hover: hover) { .ai-step-label.linkish:hover { text-decoration: underline; color: var(--ink); } }
+.ai-step-note { grid-column: 2; min-width: 0; margin-top: 2px; overflow-wrap: anywhere; }
+.ai-step-waiting .ai-step-label { color: var(--ink); font-weight: 600; }
+
+.ai-approve {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline-strong);
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.ai-approve-detail { margin: 0 0 8px; font-size: 13px; line-height: 1.45; color: var(--ink-2); }
+.ai-approve-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+/* The card is filled as a plain button is: Don't allow is outlined on the page's own colour, or it shows as bare text. */
+.ai-approve .btn:not(.btn-primary) { background: var(--surface); border-color: var(--hairline-strong); }
+@media (hover: hover) { .ai-approve .btn:not(.btn-primary):hover { background: var(--surface-3); } }
+
+.ai-typing { display: inline-flex; gap: 4px; padding: 6px 0 2px; }
+.ai-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); opacity: 0.35; animation: ai-dot 1.1s infinite ease-in-out; }
+.ai-typing span:nth-child(2) { animation-delay: 0.15s; }
+.ai-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes ai-dot { 0%, 80%, 100% { opacity: 0.25; transform: none; } 40% { opacity: 0.9; transform: translateY(-2px); } }
+
+.ai-foot { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
+.ai-foot[hidden] { display: none; }
+.ai-foot-summary { color: var(--ink-2); }
+.ai-undo { padding: 4px 10px; gap: 5px; }
+.ai-undo span { display: inline-flex; }
+.ai-foot-undone { font-weight: 600; color: var(--ink-2); }
+.ai-foot-btn { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r-sm); color: var(--ink-3); margin-left: auto; }
+@media (hover: hover) { .ai-foot-btn:hover { background: var(--surface-2); color: var(--ink); } }
+.ai-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--critical-wash);
+  color: var(--ink);
+  font-size: 13px;
+}
+.ai-error-icon { display: inline-flex; color: var(--critical); flex: none; }
+.ai-error-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* Try again, outlined on the page's colour: a plain button's fill barely shows against the failure's tint. */
+.ai-error .btn { flex: none; background: var(--surface); border-color: var(--hairline-strong); }
+@media (hover: hover) { .ai-error .btn:hover { background: var(--surface-3); } }
+
+/* The composer: one box holding the message, what goes with it and Send, and the reminder that replies can be wrong. */
+.ai-composer { flex: none; padding: 6px 12px calc(8px + var(--safe-b)); }
+.ai-context {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 12px;
+}
+.ai-context[hidden] { display: none; }
+.ai-context-icon { display: inline-flex; flex: none; color: var(--ink-3); }
+.ai-context-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ai-context-count { flex: none; color: var(--ink-3); }
+.ai-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  cursor: text;
+}
+.ai-input-wrap:focus-within { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.ai-input-bar { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; margin-left: -6px; }
+.ai-attach {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+@media (hover: hover) { .ai-attach:hover { background: var(--surface-2); color: var(--ink); } }
+
+/* Files waiting to go with the message, in the box over what is written. */
+.ai-tray { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 2px -4px; padding: 0; list-style: none; cursor: default; }
+.ai-tray[hidden] { display: none; }
+.ai-tray-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 180px;
+  height: 40px;
+  padding: 0 28px 0 4px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.ai-tray-thumb { width: 30px; height: 30px; flex: none; border-radius: 5px; object-fit: cover; background: var(--surface-3); }
+.ai-tray-icon { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 5px; background: var(--surface); color: var(--ink-3); }
+.ai-tray-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Still being read: a spinner over its preview, which fades back. */
+.ai-tray-item.reading :is(.ai-tray-thumb, .ai-tray-icon) { opacity: 0.35; }
+.ai-tray-spinner { position: absolute; top: 50%; left: 4px; display: grid; place-items: center; width: 30px; height: 30px; transform: translateY(-50%); color: var(--ink-2); pointer-events: none; }
+.ai-tray-spinner > span { display: grid; }
+.ai-tray-remove {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  /* The smallest target a pointer or a finger should be given (WCAG 2.5.8). */
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-full);
+  color: var(--ink-3);
+  cursor: pointer;
+}
+@media (hover: hover) { .ai-tray-remove:hover { background: var(--surface-3); color: var(--ink); } }
+
+/* A file dragged over the assistant: it is marked as where the file goes, in place of the whole window. */
+body.dropping.dropping-local::after { display: none; }
+.ai-panel.ai-drop, .ai-rail.ai-drop { outline: 3px dashed var(--accent); outline-offset: -3px; background: var(--accent-wash); }
+.ai-panel.ai-drop .ai-input-wrap { border-color: var(--accent); }
+/* Send keeps to the right whether or not the selection is shown beside it. */
+.ai-input-bar .ai-context { margin-right: auto; cursor: default; }
+.ai-input {
+  flex: 1;
+  min-width: 0;
+  min-height: calc(4.35em + 4px); /* Three lines plus the vertical padding. */
+  max-height: 180px;
+  padding: 2px 4px 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  resize: none;
+  outline: none;
+}
+.ai-input::placeholder { color: var(--ink-3); }
+.ai-send {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  color: var(--accent-ink);
+  flex: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+@media (hover: hover) { .ai-send:not(:disabled):not(.stopping):hover { background: var(--accent-strong); } }
+.ai-send:disabled { background: var(--surface-2); color: var(--ink-3); cursor: default; }
+.ai-send.stopping { background: var(--ink); color: var(--surface); }
+/* Stop is the square every media control uses, filled. */
+.ai-send.stopping svg { fill: currentColor; }
+.ai-disclaimer { margin: 6px 2px 0; font-size: 11px; color: var(--ink-3); text-align: center; }
+
+/* Under 16px iOS Safari zooms into a focused field. */
+@media (pointer: coarse) { .ai-input { font-size: 16px; } }
+
+/* A phone has no room beside the sheet: the assistant is a sheet over the lower part of the screen. */
+@media (max-width: 640px) {
+  .ai-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    height: min(70dvh, 560px);
+    z-index: 40;
+    border-left: 0;
+    border-top: 1px solid var(--hairline-strong);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
+  .ai-resize { display: none; }
+  .ai-head { height: var(--menubar-h); }
+  /* A sheet over the grid closes downwards, not to the side. */
+  .ai-close > .ai-close-side { display: none; }
+  .ai-close > .ai-close-down { display: inline-flex; }
+  /* The screen is too narrow to give up a strip: View › AI assistant opens it. */
+  .ai-rail { display: none; }
+  /* Notices go above the sheet, not over its message box and the chat's last lines. */
+  body[data-view="editor"]:has(.ai-panel:not([hidden])) .toast-root { bottom: calc(min(70dvh, 560px) + 12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-typing span { animation: none; opacity: 0.6; }
+  .ai-rail.busy::after { animation: none; }
+}
+
+/* Forced colours (see the note in components.css) repaint fills: the resize handle's focus and drag mark and the
+   typing dots are nothing else, and vanished. */
+@media (forced-colors: active) {
+  .ai-panel, .ai-rail { border-left: 1px solid CanvasText; }
+  .ai-rail.busy::after { background: Highlight; box-shadow: none; }
+  .ai-resize:focus-visible::after, .ai-panel.resizing .ai-resize::after { background: Highlight; }
+  .ai-typing span { background: CanvasText; }
+  .cell-ref { text-decoration: underline; }
+  .ai-panel.ai-drop, .ai-rail.ai-drop { outline-color: Highlight; }
+  .ai-tray-item, .ai-user-chip { border: 1px solid CanvasText; }
+  .ai-send { border: 1px solid ButtonText; }
+  .ai-send:disabled { border-color: GrayText; color: GrayText; }
+}
+
+@media print {
+  .ai-panel, .ai-rail { display: none !important; }
+}

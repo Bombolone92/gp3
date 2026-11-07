@@ -1,0 +1,726 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { unzipSync, strFromU8 } from 'fflate';
+
+const MAC = process.platform === 'darwin';
+const text = page => page.getByRole('textbox', { name: 'Document text' });
+const menubar = page => page.getByRole('menubar', { name: 'Menu bar' });
+const engine = page => page.evaluate(() => {
+  const e = window.__docs.current.view.engine;
+  return { text: e.model.text, range: [...e.model.range], bold: e.model.runFormatting.bold, italic: e.model.runFormatting.italic, viewOnly: !!e.viewOnly,
+    tracking: !!e.session.body.trackChanges, history: e.session.history.length };
+});
+async function openEditor(page, width = 1440) {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+}
+async function select(page, start, end) {
+  await text(page).evaluate((el, [a, b]) => { el.focus(); el.setSelectionRange(a, b); el.dispatchEvent(new Event('select')); }, [start, end]);
+}
+async function openMenu(page, name) {
+  await menubar(page).getByRole('menuitem', { name, exact: true }).click();
+  return page.getByRole('menu', { name, exact: true });
+}
+async function saveDownload(page, info, name, trigger) {
+  const pending = page.waitForEvent('download');
+  await trigger();
+  const path = info.outputPath(name);
+  await (await pending).saveAs(path);
+  return path;
+}
+
+test('the menu bar has the classic menus, moves with the arrow keys and runs commands', async ({ page }) => {
+  await openEditor(page);
+  await expect(menubar(page).getByRole('menuitem')).toHaveText(['File', 'Edit', 'View', 'Insert', 'Format', 'Tools', 'Table', 'Window', 'Help']);
+  const file = await openMenu(page, 'File');
+  for (const name of ['New Document', 'Open…', 'Save', 'Save As…', 'Save as Template…', 'Page Setup…', 'Print…', 'Properties…', 'Preferences…']) await expect(file.getByRole('menuitem', { name, exact: true })).toBeVisible();
+  // Right moves to the next menu, Escape closes and returns to the menu's name.
+  await page.keyboard.press('ArrowRight');
+  const edit = page.getByRole('menu', { name: 'Edit', exact: true });
+  await expect(edit).toBeVisible();
+  await expect(edit.getByRole('menuitem', { name: 'Paste and Match Formatting' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menubar(page).getByRole('menuitem', { name: 'Edit', exact: true })).toBeFocused();
+  // Shortcuts show in the items.
+  const format = await openMenu(page, 'Format');
+  await expect(format.getByRole('menuitem', { name: /^Font…/ })).toContainText(MAC ? 'Cmd+D' : 'Ctrl+D');
+  await page.keyboard.press('Escape');
+  // Edit > Clear > Formatting removes direct formatting in one undo step.
+  await text(page).fill('Plain and bold');
+  await select(page, 10, 14);
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  expect((await engine(page)).bold).toBe(true);
+  await (await openMenu(page, 'Edit')).getByRole('menuitem', { name: 'Clear', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Clear Formatting', exact: true }).click();
+  expect((await engine(page)).bold).toBe(false);
+  await text(page).press('ControlOrMeta+z');
+  expect((await engine(page)).bold).toBe(true);
+  // Edit > Clear > Contents deletes the selection without the clipboard.
+  await select(page, 0, 6);
+  await (await openMenu(page, 'Edit')).getByRole('menuitem', { name: 'Clear', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Contents', exact: true }).click();
+  expect((await engine(page)).text).toBe('and bold');
+});
+
+test('the File view opens over the editor, edits document properties that save into the file, and exports', async ({ page }, info) => {
+  await openEditor(page);
+  await text(page).fill('Harbour report\nThe tide was high.');
+  const fileButton = page.locator('.ribbon-file');
+  await expect(fileButton).toHaveAttribute('aria-expanded', 'false');
+  await fileButton.click();
+  const view = page.getByRole('dialog', { name: 'File' });
+  await expect(view).toBeVisible();
+  await expect(fileButton).toHaveAttribute('aria-expanded', 'true');
+  await expect(view.getByRole('tab', { name: 'Info' })).toHaveAttribute('aria-selected', 'true');
+  await expect(view.locator('.bs-facts').last()).toContainText('Words');
+  await view.getByRole('textbox', { name: 'Title', exact: true }).fill('Harbour Report');
+  await view.getByRole('textbox', { name: 'Keywords', exact: true }).fill('tides, harbour');
+  await view.getByRole('button', { name: 'Save Properties' }).click();
+  await expect(view.getByRole('status')).toContainText('Properties updated');
+  // Escape returns to the document.
+  await page.keyboard.press('Escape');
+  await expect(view).toBeHidden();
+  await expect(text(page)).toBeFocused();
+  await expect(fileButton).toHaveAttribute('aria-expanded', 'false');
+  // Export: .docx carries the properties; Markdown and plain text carry the words.
+  await page.getByRole('button', { name: 'File', exact: true }).click();
+  await view.getByRole('tab', { name: 'Export' }).click();
+  const docx = await saveDownload(page, info, 'properties.docx', () => view.getByRole('button', { name: /^Word document/ }).click());
+  const parts = unzipSync(readFileSync(docx));
+  const core = strFromU8(parts['docProps/core.xml']);
+  expect(core).toContain('<dc:title>Harbour Report</dc:title>');
+  expect(core).toContain('<cp:keywords>tides, harbour</cp:keywords>');
+  expect(core).toMatch(/<dcterms:modified xsi:type="dcterms:W3CDTF">\d{4}-\d\d-\d\dT/);
+  await page.getByRole('button', { name: 'File', exact: true }).click();
+  await view.getByRole('tab', { name: 'Export' }).click();
+  const md = await saveDownload(page, info, 'export.md', () => view.getByRole('button', { name: /^Markdown/ }).click());
+  expect(readFileSync(md, 'utf8')).toContain('The tide was high.');
+  // New lists the templates; Print previews the pages.
+  await page.getByRole('button', { name: 'File', exact: true }).click();
+  await view.getByRole('tab', { name: 'New' }).click();
+  await expect(view.getByRole('button', { name: /^Blank document/ })).toBeVisible();
+  await expect(view.getByRole('button', { name: /^Letter/ })).toBeVisible();
+  await view.getByRole('tab', { name: 'Print' }).click();
+  await expect(view.locator('.bs-page canvas')).toHaveCount(1);
+  await view.getByRole('combobox', { name: 'Pages' }).selectOption('custom');
+  await view.getByRole('textbox', { name: 'Page range' }).fill('3-4');
+  await view.getByRole('button', { name: 'Print', exact: true }).click();
+  await expect(view.getByRole('alert')).toContainText('between 1 and 1');
+  await view.getByRole('button', { name: 'Back to the document' }).click();
+  await expect(view).toBeHidden();
+});
+
+test('quick access is customizable and remembered, and undo lists what it will undo', async ({ page }) => {
+  await openEditor(page);
+  const quick = page.getByRole('toolbar', { name: 'Quick access' });
+  await page.getByRole('button', { name: 'Customize Quick Access Toolbar' }).click();
+  await page.getByRole('menuitemcheckbox', { name: 'New Document' }).click();
+  await expect(quick.getByRole('button', { name: 'New Document' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await expect(quick.getByRole('button', { name: 'New Document' })).toBeVisible();
+  // Undo history: each command names its step; choosing a step undoes everything after it too.
+  await text(page).fill('Steps');
+  await select(page, 0, 5);
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  await page.getByRole('button', { name: 'Italic', exact: true }).click();
+  await quick.getByRole('button', { name: 'Undo history' }).click();
+  const history = page.getByRole('menu', { name: 'Undo history' });
+  await expect(history.getByRole('menuitem').first()).toHaveText('Undo Italic');
+  await history.getByRole('menuitem', { name: /to Bold/ }).click();
+  const state = await engine(page);
+  expect([state.bold, state.italic]).toEqual([false, false]);
+  expect(state.text).toBe('Steps');
+});
+
+test('Editing, Reviewing and Viewing switch track changes and read-only viewing without losing text', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Draft');
+  const mode = page.getByRole('button', { name: /^Editing mode/ });
+  await mode.click();
+  await page.getByRole('menuitemradio', { name: /^Reviewing/ }).click();
+  await expect(mode).toHaveAccessibleName('Editing mode: Reviewing');
+  expect((await engine(page)).tracking).toBe(true);
+  await mode.click();
+  await page.getByRole('menuitemradio', { name: /^Viewing/ }).click();
+  expect((await engine(page)).viewOnly).toBe(true);
+  await text(page).press('End');
+  await page.keyboard.type(' more');
+  expect((await engine(page)).text).toBe('Draft');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeDisabled();
+  await mode.click();
+  await page.getByRole('menuitemradio', { name: /^Editing/ }).click();
+  const state = await engine(page);
+  expect([state.viewOnly, state.tracking]).toEqual([false, false]);
+  await text(page).press('End');
+  await page.keyboard.type('!');
+  expect((await engine(page)).text).toBe('Draft!');
+});
+
+test('command search finds and runs ribbon and menu commands, and falls back to searching the text', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Find the needle here');
+  await select(page, 0, 4);
+  const search = page.getByRole('combobox', { name: 'Search for commands' });
+  await search.click();
+  await search.fill('bold');
+  await expect(page.getByRole('listbox', { name: 'Commands' }).getByRole('option').first()).toContainText('Bold');
+  await search.press('Enter');
+  await expect.poll(async () => (await engine(page)).bold).toBe(true);
+  await expect(text(page)).toBeFocused();
+  // A ribbon drop-down's choice: Layout › Orientation › Landscape.
+  await search.click(); await search.fill('landscape');
+  await expect(page.getByRole('listbox', { name: 'Commands' }).getByRole('option').first()).toContainText('Orientation');
+  await search.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.__docs.current.view.engine.model.pageSettings.orientation)).toBe('landscape');
+  // A menu command: Word Count.
+  await search.click(); await search.fill('word count'); await search.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Word Count' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  // Nothing matching a command: search the document.
+  await search.click(); await search.fill('needle');
+  await page.getByRole('option', { name: /Find “needle” in the document/ }).click();
+  await expect(page.getByRole('searchbox').or(page.getByRole('textbox', { name: /Search document/ })).first()).toHaveValue('needle');
+});
+
+test('the status bar counts the selection, picks a language that saves into the file, and is customizable', async ({ page }, info) => {
+  await openEditor(page);
+  await text(page).fill('one two three');
+  await select(page, 0, 7);
+  const bar = page.locator('.ed-statusbar');
+  await expect(bar.locator('.ed-word-count')).toHaveText('2 of 3 words');
+  await bar.locator('.ed-status-language').click();
+  const dialog = page.getByRole('dialog', { name: 'Language' });
+  await dialog.getByRole('searchbox', { name: 'Search languages' }).fill('fr-FR');
+  await dialog.getByRole('option').first().click();
+  await dialog.getByRole('button', { name: 'OK' }).click();
+  await select(page, 1, 2);
+  await expect(bar.locator('.ed-status-language')).toContainText('French');
+  // Right-click chooses what shows.
+  await bar.click({ button: 'right', position: { x: 300, y: 10 } });
+  await page.getByRole('menuitemcheckbox', { name: 'Word Count' }).click();
+  await expect(bar.locator('.ed-word-count')).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await expect(page.locator('.ed-word-count')).toBeHidden();
+  // The language is written as w:lang.
+  await text(page).fill('Bonjour');
+  await select(page, 0, 7);
+  await page.locator('.ed-status-language').click();
+  await page.getByRole('dialog', { name: 'Language' }).getByRole('searchbox').fill('de-DE');
+  await page.getByRole('dialog', { name: 'Language' }).getByRole('option').first().click();
+  await page.getByRole('dialog', { name: 'Language' }).getByRole('button', { name: 'OK' }).click();
+  await page.getByRole('button', { name: 'File', exact: true }).click();
+  await page.getByRole('dialog', { name: 'File' }).getByRole('tab', { name: 'Export' }).click();
+  const path = await saveDownload(page, info, 'language.docx', () => page.getByRole('dialog', { name: 'File' }).getByRole('button', { name: /^Word document/ }).click());
+  expect(strFromU8(unzipSync(readFileSync(path))['word/document.xml'])).toContain('<w:lang w:val="de-DE"/>');
+});
+
+test('the ContextMenu key on the status bar starts its Customize menu on the first item', async ({ page }) => {
+  await openEditor(page);
+  await page.locator('.ed-statusbar .ed-word-count').focus();
+  await page.keyboard.press('ContextMenu');
+  const menu = page.getByRole('menu', { name: 'Customize Status Bar' });
+  await expect(menu.getByRole('menuitemcheckbox', { name: 'Page Number' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveCount(0);
+  // A right-click still opens it with no item chosen.
+  await page.locator('.ed-statusbar').click({ button: 'right', position: { x: 300, y: 10 } });
+  await expect(menu).toBeFocused();
+});
+
+test('a Language search that finds nothing applies nothing, not a language an earlier letter showed', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Bonjour');
+  await select(page, 0, 7);
+  const status = page.locator('.ed-statusbar .ed-status-language');
+  await expect(status).toContainText('English (United States)');
+  const history = await page.evaluate(() => window.__docs.current.view.engine.session.history.length);
+  await status.click();
+  const dialog = page.getByRole('dialog', { name: 'Language' });
+  // "z" alone finds a language (German (Switzerland)); "zzzz" finds none.
+  await page.keyboard.type('zzzz');
+  await expect(dialog.getByRole('option')).toHaveCount(0);
+  await expect(dialog.getByText('No languages match.')).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'OK' })).toBeDisabled();
+  await page.keyboard.press('Enter');
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(status).toContainText('English (United States)');
+  expect(await page.evaluate(() => window.__docs.current.view.engine.session.history.length)).toBe(history);
+});
+
+test('the Language list is one tab stop that the arrow keys move through', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Bonjour');
+  await select(page, 0, 7);
+  await page.locator('.ed-statusbar .ed-status-language').click();
+  const dialog = page.getByRole('dialog', { name: 'Language' });
+  const list = dialog.getByRole('listbox', { name: 'Languages' });
+  await expect(dialog.getByRole('searchbox', { name: 'Search languages' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(list.getByRole('option', { name: /English \(United States\)/ })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  const british = list.getByRole('option', { name: /English \(United Kingdom\)/ });
+  await expect(british).toBeFocused();
+  await expect(british).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('End');
+  await expect(list.getByRole('option').last()).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(list.getByRole('option').first()).toBeFocused();
+  // Every language was its own tab stop, some thirty presses away from OK.
+  await page.keyboard.press('Tab');
+  await expect(dialog.getByRole('checkbox', { name: 'Do not check spelling or grammar' })).toBeFocused();
+  // Down from the search box lands on the chosen language among those it finds.
+  await dialog.getByRole('searchbox', { name: 'Search languages' }).fill('fr');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await expect(list.getByRole('option', { name: /French \(Canada\)/ })).toBeFocused();
+  await dialog.getByRole('button', { name: 'OK' }).click();
+  await select(page, 1, 2);
+  await expect(page.locator('.ed-statusbar .ed-status-language')).toContainText('French (Canada)');
+});
+
+test('properties typed on the Info page are kept when the File view is left without Save Properties', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Harbour report');
+  const view = page.getByRole('dialog', { name: 'File' });
+  await page.locator('.ribbon-file').click();
+  await view.getByRole('textbox', { name: 'Title', exact: true }).fill('Harbour Report');
+  await page.keyboard.press('Escape');
+  await expect(view).toBeHidden();
+  await page.locator('.ribbon-file').click();
+  await expect(view.getByRole('textbox', { name: 'Title', exact: true })).toHaveValue('Harbour Report');
+  // Going to another page keeps them too.
+  await view.getByRole('textbox', { name: 'Subject', exact: true }).fill('Tides');
+  await view.getByRole('tab', { name: 'Export' }).click();
+  await view.getByRole('tab', { name: 'Info' }).click();
+  await expect(view.getByRole('textbox', { name: 'Subject', exact: true })).toHaveValue('Tides');
+  await view.getByRole('button', { name: 'Back to the document' }).click();
+  await expect(view).toBeHidden();
+  await expect(text(page)).toBeFocused();
+});
+
+test('the ribbon collapses to its tabs and shows KeyTips for the keyboard', async ({ page }) => {
+  await openEditor(page);
+  const card = page.locator('.ed-ribbon');
+  await text(page).fill('Tabs');
+  await select(page, 0, 4);
+  await page.locator('#ribbon-tab-home').dblclick();
+  await expect(card).toBeHidden();
+  // A tab click shows the commands over the document; running one puts them away.
+  await page.locator('#ribbon-tab-home').click();
+  await expect(card).toBeVisible();
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  await expect(card).toBeHidden();
+  expect((await engine(page)).bold).toBe(true);
+  // The chord brings the ribbon back.
+  await text(page).press(MAC ? 'Meta+Alt+r' : 'Control+F1');
+  await expect(card).toBeVisible();
+  // KeyTips: Alt alone labels the tabs; a letter opens one.
+  await text(page).focus();
+  await page.keyboard.press('Alt');
+  await expect(page.locator('.ed-keytip', { hasText: /^N$/ })).toBeVisible();
+  await page.keyboard.press('n');
+  await expect(page.locator('#ribbon-tab-insert')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.ed-keytip').first()).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.ed-keytip')).toHaveCount(0);
+});
+
+test('a KeyTip letter that goes nowhere is ignored, and the letters typed before it still stand', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Keys');
+  await select(page, 0, 4);
+  await page.keyboard.press('Alt');
+  await page.keyboard.press('h');
+  // On Home, B is Bold and QB is the bulleted list.
+  await expect(page.locator('.ed-keytip', { hasText: /^B$/ })).toBeVisible();
+  await expect(page.locator('.ed-keytip', { hasText: /^QB$/ })).toBeVisible();
+  await page.keyboard.press('q');
+  const dimmed = await page.locator('.ed-keytip.is-filtered').count();
+  expect(dimmed).toBeGreaterThan(0);
+  // No KeyTip starts QZ: the key changes nothing.
+  await expect(page.locator('.ed-keytip', { hasText: /^QZ/ })).toHaveCount(0);
+  await page.keyboard.press('z');
+  await expect(page.locator('.ed-keytip.is-filtered')).toHaveCount(dimmed);
+  await page.keyboard.press('b');
+  await expect(page.locator('.ed-keytip')).toHaveCount(0);
+  expect(await page.evaluate(() => window.__docs.current.view.engine.model.listFormatting)).toBe('bullet');
+  expect((await engine(page)).bold).toBe(false);
+});
+
+test('Escape in the text, then Tab, goes to the ribbon, and Escape there comes back', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Words');
+  await text(page).focus();
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#ribbon-tab-home')).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('#ribbon-panel-home').getByRole('button', { name: 'Paste', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(text(page)).toBeFocused();
+  expect((await engine(page)).text).toBe('Words');
+  // Without Escape first, Tab is typed into the text.
+  await page.keyboard.press('Tab');
+  expect((await engine(page)).text).toBe('Words\t');
+});
+
+test('Down on a tab of a collapsed ribbon shows its commands and moves into them', async ({ page }) => {
+  await openEditor(page);
+  const card = page.locator('.ed-ribbon');
+  await text(page).press(MAC ? 'Meta+Alt+r' : 'Control+F1');
+  await expect(card).toBeHidden();
+  await page.locator('#ribbon-tab-home').focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(card).toBeVisible();
+  await expect(page.locator('#ribbon-panel-home').getByRole('button', { name: 'Paste', exact: true })).toBeFocused();
+  // Escape puts the commands away again and returns to the document.
+  await page.keyboard.press('Escape');
+  await expect(card).toBeHidden();
+  await expect(text(page)).toBeFocused();
+});
+
+test('command search and KeyTips reach the Draw and Mailings tabs the feature modules add', async ({ page }) => {
+  await openEditor(page);
+  const search = page.getByRole('combobox', { name: 'Search for commands' });
+  const results = page.getByRole('listbox', { name: 'Commands' });
+  await search.click(); await search.fill('highlight merge fields');
+  await expect(results.getByRole('option').first()).toContainText('Mailings');
+  await search.click(); await search.fill('lasso');
+  await expect(results.getByRole('option').first()).toContainText('Lasso Select');
+  await search.press('Enter');
+  await expect(page.locator('#ribbon-tab-draw')).toHaveAttribute('aria-selected', 'true');
+  // KeyTips label every tab, these two among them.
+  await text(page).focus();
+  await page.keyboard.press('Alt');
+  await expect(page.locator('.ed-keytip', { hasText: /^JI$/ })).toBeVisible();
+  await expect(page.locator('.ed-keytip', { hasText: /^M$/ })).toBeVisible();
+  await page.keyboard.press('m');
+  await expect(page.locator('#ribbon-tab-mailings')).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Escape');
+});
+
+test('the right-click menu fits a link, and Edit > Links lists and removes links', async ({ page }) => {
+  await openEditor(page);
+  await page.evaluate(() => { const e = window.__docs.current.view.engine; e.model.replace('Visit the site today'); e.model.select(6, 14); e.setHyperlink('https://example.com', null, { appearance: true }); e.model.select(8); e.syncInput(); e.onSelection(); });
+  const canvas = page.locator('canvas.canvas-page').first();
+  await canvas.click({ button: 'right', position: { x: 155, y: 110 } });
+  const menu = page.getByRole('menu', { name: 'Document menu' });
+  for (const name of ['Edit link…', 'Open link', 'Copy link', 'Remove link']) await expect(menu.getByRole('menuitem', { name, exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await (await openMenu(page, 'Edit')).getByRole('menuitem', { name: 'Links…', exact: true }).click();
+  const links = page.getByRole('dialog', { name: 'Links' });
+  await expect(links).toContainText('https://example.com');
+  await links.getByRole('button', { name: 'Remove', exact: true }).click();
+  await expect(links).toContainText('This document has no links.');
+  expect(await canvas.count()).toBeGreaterThan(0);
+});
+
+test('copy and paste formatting, Repeat, and Customize Keyboard bindings', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Source target other');
+  await select(page, 0, 6);
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  await text(page).press('ControlOrMeta+Shift+c');
+  await select(page, 7, 13);
+  await text(page).press('ControlOrMeta+Shift+v');
+  expect((await engine(page)).bold).toBe(true);
+  // Repeat runs the last command again (F4).
+  await select(page, 14, 19);
+  await page.getByRole('button', { name: 'Italic', exact: true }).click();
+  await select(page, 0, 6);
+  await text(page).press('F4');
+  expect((await engine(page)).italic).toBe(true);
+  // A binding of your own: Underline on Ctrl/Cmd+Alt+J.
+  await (await openMenu(page, 'Tools')).getByRole('menuitem', { name: 'Customize Keyboard…' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Customize Keyboard' });
+  await dialog.getByRole('searchbox', { name: 'Search commands' }).fill('underline');
+  await dialog.getByRole('option', { name: /^Underline/ }).first().click();
+  await dialog.getByRole('textbox', { name: 'New shortcut' }).click();
+  await page.keyboard.press('ControlOrMeta+Alt+j');
+  await expect(dialog.getByRole('textbox', { name: 'New shortcut' })).toHaveValue(MAC ? 'Cmd+Option+J' : 'Ctrl+Alt+J');
+  await dialog.getByRole('button', { name: 'Assign' }).click();
+  await dialog.getByRole('button', { name: 'Done' }).click();
+  await select(page, 14, 19);
+  await text(page).press('ControlOrMeta+Alt+j');
+  expect(await page.evaluate(() => window.__docs.current.view.engine.model.runFormatting.underline)).toBe(true);
+  // The help sheet lists it.
+  await text(page).press('ControlOrMeta+/');
+  await expect(page.getByRole('dialog', { name: 'Keyboard shortcuts' })).toContainText('Underline');
+});
+
+test('Customize Keyboard keeps listing a command\'s built-in shortcut beside one of your own, and both run it', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Some words');
+  await (await openMenu(page, 'Tools')).getByRole('menuitem', { name: 'Customize Keyboard…' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Customize Keyboard' });
+  const row = name => dialog.locator('.kb-item').filter({ has: page.locator('.kb-label', { hasText: new RegExp(`^${name}$`) }) }).first();
+  const italic = MAC ? 'Cmd+I' : 'Ctrl+I', own = MAC ? 'Cmd+Option+J' : 'Ctrl+Alt+J';
+  await dialog.getByRole('searchbox', { name: 'Search commands' }).fill('italic');
+  await row('Italic').click();
+  await dialog.getByRole('textbox', { name: 'New shortcut' }).click();
+  await page.keyboard.press('ControlOrMeta+Alt+j');
+  await dialog.getByRole('button', { name: 'Assign' }).click();
+  await expect(row('Italic').locator('.kb-keys')).toHaveText(`${own}, ${italic}`);
+  await expect(dialog.locator('.kb-current')).toContainText(italic);
+  await expect(dialog.locator('.kb-current')).toContainText('built in');
+  await dialog.getByRole('button', { name: 'Done' }).click();
+  await select(page, 0, 4);
+  await text(page).press('ControlOrMeta+i');
+  expect((await engine(page)).italic).toBe(true);
+  await text(page).press('ControlOrMeta+Alt+j');
+  expect((await engine(page)).italic).toBe(false);
+});
+
+test('tooltips and menus name the chords the keymap runs now, after a change in this tab or another', async ({ page, context }) => {
+  await openEditor(page);
+  const mod = MAC ? 'Cmd' : 'Ctrl', meta = MAC ? 'Meta' : 'Control';
+  const button = name => page.locator('.ribbon-card').getByRole('button', { name, exact: true });
+  await expect(button('Bold')).toHaveAttribute('title', `Bold (${mod}+B)`);
+  // Another tab gives Bold's chord and the Font dialog's to Italic.
+  const other = await context.newPage();
+  await other.goto('/mock.html#/new');
+  await expect(other.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await other.evaluate(() => localStorage.setItem('documents:keybindings', JSON.stringify({ 'ribbon:home/font/Italic': ['Mod+B', 'Mod+D'] })));
+  await expect(button('Bold')).toHaveAttribute('title', 'Bold');
+  await expect(button('Bold')).not.toHaveAttribute('aria-keyshortcuts', /./);
+  await expect(button('Italic')).toHaveAttribute('title', `Italic (${mod}+I)`);
+  await expect(button('Italic')).toHaveAttribute('aria-keyshortcuts', `${meta}+I ${meta}+B ${meta}+D`);
+  const format = await openMenu(page, 'Format');
+  await expect(format.getByRole('menuitem', { name: /^Font…/ })).not.toContainText(`${mod}+D`);
+  await page.keyboard.press('Escape');
+  // Taken back, the chords show where they were.
+  await other.evaluate(() => localStorage.removeItem('documents:keybindings'));
+  await expect(button('Bold')).toHaveAttribute('title', `Bold (${mod}+B)`);
+  await expect(button('Bold')).toHaveAttribute('aria-keyshortcuts', `${meta}+B`);
+  await expect((await openMenu(page, 'Format')).getByRole('menuitem', { name: /^Font…/ })).toContainText(`${mod}+D`);
+  await other.close();
+});
+
+test('Customize Keyboard no longer lists a built-in shortcut for its command once another command takes it', async ({ page }) => {
+  await openEditor(page);
+  await (await openMenu(page, 'Tools')).getByRole('menuitem', { name: 'Customize Keyboard…' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Customize Keyboard' });
+  const search = dialog.getByRole('searchbox', { name: 'Search commands' });
+  const row = name => dialog.locator('.kb-item').filter({ has: page.locator('.kb-label', { hasText: new RegExp(`^${name}$`) }) }).first();
+  const bold = MAC ? 'Cmd+B' : 'Ctrl+B';
+  await search.fill('bold');
+  await expect(row('Bold').locator('.kb-keys')).toHaveText(bold);
+  // Bold's chord, given to Italic.
+  await search.fill('italic');
+  await row('Italic').click();
+  await dialog.getByRole('textbox', { name: 'New shortcut' }).click();
+  await page.keyboard.press('ControlOrMeta+b');
+  await expect(dialog.locator('#kb-capture-hint')).toHaveText('Built in for Bold. Your shortcut will take its place in the document.');
+  await dialog.getByRole('button', { name: 'Assign' }).click();
+  await expect(row('Italic').locator('.kb-keys')).toContainText(bold);
+  // Bold no longer claims it: the chord now runs Italic.
+  await search.fill('bold');
+  await expect(row('Bold').locator('.kb-keys')).toHaveText('');
+  await row('Bold').click();
+  await expect(dialog.locator('.kb-current')).not.toContainText('built in');
+  await expect(dialog.locator('.kb-current')).toContainText(`${bold} now runs Italic.`);
+  // Resetting Italic gives it back.
+  await search.fill('italic'); await row('Italic').click();
+  await dialog.getByRole('button', { name: 'Reset', exact: true }).click();
+  await search.fill('bold');
+  await expect(row('Bold').locator('.kb-keys')).toHaveText(bold);
+  await dialog.getByRole('button', { name: 'Done' }).click();
+});
+
+test('a saved document keeps versions to restore and publishes a web page from the File view', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Version one');
+  await text(page).press('ControlOrMeta+s');
+  await expect(page.locator('.canvas-save-status')).toHaveAttribute('aria-label', 'Saved to Puter');
+  await page.getByRole('button', { name: 'File', exact: true }).click();
+  const view = page.getByRole('dialog', { name: 'File' });
+  const versions = view.locator('#bs-versions');
+  await versions.getByRole('button', { name: 'Save a Version Now' }).click();
+  await expect(versions.getByRole('button', { name: 'Restore' }).first()).toBeVisible();
+  await page.keyboard.press('Escape');
+  await text(page).press('ControlOrMeta+End');
+  await page.keyboard.type(' and two');
+  await text(page).press('ControlOrMeta+s');
+  await expect(page.locator('.canvas-save-status')).toHaveAttribute('aria-label', 'Saved to Puter');
+  await page.getByRole('button', { name: 'File', exact: true }).click();
+  // The newest entry is the snapshot just before this save's: restore the one holding "Version one".
+  await versions.getByRole('button', { name: 'Restore' }).last().click();
+  await page.getByRole('dialog', { name: 'Restore this version?' }).getByRole('button', { name: 'Restore' }).click();
+  await expect(text(page)).toHaveValue('Version one');
+  // Share: publish a read-only page and get its link.
+  await page.getByRole('button', { name: 'File', exact: true }).click();
+  await view.getByRole('tab', { name: 'Share' }).click();
+  await view.getByRole('button', { name: 'Publish to the Web' }).click();
+  await expect(view.locator('.bs-share-status a')).toHaveAttribute('href', /^https:\/\/.+\.puter\.site/);
+  await expect(view.getByRole('button', { name: 'Stop Publishing' })).toBeVisible();
+});
+
+test('AutoSave off waits for Save; Comments opens the review pane; the page count opens Go To', async ({ page }) => {
+  await openEditor(page);
+  const status = page.locator('.canvas-save-status');
+  await text(page).fill('Autosaved');
+  await expect(status).toHaveAttribute('aria-label', 'Saved to Puter');
+  await page.locator('label.ed-autosave').click();
+  await expect(page.getByRole('switch', { name: 'AutoSave' })).not.toBeChecked();
+  await text(page).press('End'); await page.keyboard.type(' later');
+  await page.waitForTimeout(2500);
+  await expect(status).toHaveAttribute('aria-label', 'Unsaved changes');
+  await page.locator('label.ed-autosave').click();
+  await expect(status).toHaveAttribute('aria-label', 'Saved to Puter');
+  // Comments
+  await page.getByRole('button', { name: 'Comments', exact: true }).click();
+  await expect(page.getByRole('complementary', { name: 'Reviewing Pane' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Comments', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Comments', exact: true }).click();
+  await expect(page.getByRole('complementary', { name: 'Reviewing Pane' })).toBeHidden();
+  // Status bar: Page 1 of 1 opens Go To.
+  await page.locator('.ed-page-count').click();
+  await expect(page.getByRole('dialog', { name: /Go To/i })).toBeVisible();
+});
+
+test('on a phone, panes open together stay within reach below the page', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/mock.html#/new');
+  await expect(text(page)).toBeEditable();
+  const open = async (tab, name) => {
+    await page.locator(`#ribbon-tab-${tab}`).click();
+    const button = page.locator(`#ribbon-panel-${tab}`).getByRole('button', { name, exact: true });
+    await button.scrollIntoViewIfNeeded();
+    await button.click();
+  };
+  await open('home', 'Styles Pane');
+  await open('view', 'Navigation Pane');
+  const styles = page.getByRole('complementary', { name: 'Styles pane' });
+  await expect(styles).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Navigation' })).toBeVisible();
+  // Together they are taller than the room under the page: a swipe over them brings the last one into view.
+  await styles.getByRole('heading', { name: 'Styles' }).hover();
+  await page.mouse.wheel(0, 2000);
+  const bottoms = () => page.evaluate(() => [document.querySelector('.styles-pane'), document.querySelector('.canvas-editor-content')].map(node => Math.round(node.getBoundingClientRect().bottom)));
+  await expect.poll(async () => { const [pane, column] = await bottoms(); return pane <= column; }).toBe(true);
+});
+
+test('dialogs put their buttons at the end of the row', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Two words');
+  // Word Count, Zoom and Share lay out their buttons with .modal-actions, which once had no style of its own:
+  // the buttons sat at the start of the row, unlike every other dialog's.
+  for (const [menu, item, name, button] of [['Tools', /^Word Count…/, 'Word Count', 'Close'], ['View', /^Zoom…/, 'Zoom', 'OK'], ['Tools', /^Share…/, /^Share/, 'Done']]) {
+    await (await openMenu(page, menu)).getByRole('menuitem', { name: item }).click();
+    const dialog = page.locator('.modal-root:not(.closing)').getByRole('dialog', { name });
+    const gap = await dialog.locator('.modal-actions').getByRole('button', { name: button, exact: true }).evaluate(b => {
+      const panel = b.closest('.modal-panel');
+      return Math.round(panel.getBoundingClientRect().right - parseFloat(getComputedStyle(panel).paddingRight) - b.getBoundingClientRect().right);
+    });
+    expect(Math.abs(gap)).toBeLessThanOrEqual(2);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+  }
+});
+
+test('the zoom slider reads its value as a percentage', async ({ page }) => {
+  await openEditor(page);
+  const slider = page.getByRole('slider', { name: 'Zoom slider' });
+  await expect(slider).toHaveAttribute('aria-valuetext', '100%');
+  await page.getByRole('button', { name: 'Zoom In', exact: true }).click();
+  await expect(slider).toHaveValue('110');
+  await expect(slider).toHaveAttribute('aria-valuetext', '110%');
+  await slider.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(slider).toHaveAttribute('aria-valuetext', '109%');
+});
+
+test('on a phone, Preferences opens as a full-width sheet like the other dialogs', async ({ page }) => {
+  await openEditor(page, 390);
+  await text(page).focus();
+  await page.keyboard.press('ControlOrMeta+,');
+  const panel = page.locator('.modal-root:not(.closing) .modal-panel');
+  await expect(panel).toHaveAttribute('aria-label', 'Preferences');
+  // Its desktop width (96vw) applied on phones too, leaving it inset 8px from both edges.
+  expect(await panel.evaluate(node => { const box = node.getBoundingClientRect(); return [Math.round(box.left), Math.round(box.width)]; })).toEqual([0, 390]);
+});
+
+test('Enter in the Tabs dialog with no position typed is OK, not an error', async ({ page }) => {
+  await openEditor(page);
+  await text(page).fill('Tabbed\ttext');
+  await (await openMenu(page, 'Format')).getByRole('menuitem', { name: /^Tabs…/ }).click();
+  const dialog = page.getByRole('dialog', { name: 'Tabs' });
+  await dialog.getByRole('spinbutton', { name: 'Default tab stops (in)' }).fill('1');
+  await dialog.getByRole('textbox', { name: 'Tab stop position (in)' }).focus();
+  // Enter in the empty position field said "Enter a tab stop position." and kept the dialog open.
+  await page.keyboard.press('Enter');
+  await expect(dialog).toHaveCount(0);
+  expect(await page.evaluate(() => window.__docs.current.view.engine.model.pageSettings.defaultTabStop)).toBe(1440);
+  // With a position typed, Enter still sets that stop and keeps the dialog open for the next one.
+  await (await openMenu(page, 'Format')).getByRole('menuitem', { name: /^Tabs…/ }).click();
+  await dialog.getByRole('textbox', { name: 'Tab stop position (in)' }).fill('2');
+  await page.keyboard.press('Enter');
+  await expect(dialog.getByRole('listbox', { name: 'Tab stops' }).getByRole('option')).toHaveCount(1);
+  await expect(dialog).toBeVisible();
+});
+
+test('Escape leaves a submenu that opened over its own item in a narrow window', async ({ page }) => {
+  await openEditor(page, 390);
+  await page.getByRole('button', { name: 'Menus', exact: true }).click();
+  // The mouse stays where it clicked: on a narrow window the File menu opens over the File item.
+  await page.getByRole('menu', { name: 'Menus' }).getByRole('menuitem', { name: 'File', exact: true }).click();
+  await expect(page.getByRole('menu', { name: 'File', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menu', { name: 'File', exact: true })).toBeHidden();
+  await expect(page.getByRole('menu', { name: 'Menus' }).getByRole('menuitem', { name: 'File', exact: true })).toBeFocused();
+  // The menu stays closed: the item uncovered under the resting pointer does not open it again.
+  await page.waitForTimeout(400);
+  await expect(page.getByRole('menu', { name: 'File', exact: true })).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.menu')).toHaveCount(0);
+});
+
+test('a list of choices in a dialog draws no drop-down arrow', async ({ page }) => {
+  await openEditor(page);
+  const arrows = dialog => dialog.locator('select').evaluateAll(lists => lists.filter(s => s.size > 1 || s.multiple)
+    .map(s => [s.getAttribute('aria-label'), getComputedStyle(s).backgroundImage]));
+  await (await openMenu(page, 'Insert')).getByRole('menuitem', { name: 'Field…' }).click();
+  let dialog = page.getByRole('dialog', { name: 'Field' });
+  await expect(dialog).toBeVisible();
+  expect(await arrows(dialog)).toEqual([['Field names', 'none']]);
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await (await openMenu(page, 'Edit')).getByRole('menuitem', { name: 'Find', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Go To…' }).click();
+  dialog = page.getByRole('dialog', { name: 'Go To' });
+  await expect(dialog).toBeVisible();
+  expect(await arrows(dialog)).toEqual([['Go to what', 'none']]);
+});
+
+test('command search names the Navigation Pane chord as the platform does', async ({ page }) => {
+  await openEditor(page);
+  const search = page.getByRole('combobox', { name: 'Search for commands' });
+  await search.click(); await search.fill('navigation pane');
+  const option = page.getByRole('listbox', { name: 'Commands' }).getByRole('option', { name: /^Navigation Pane/ }).first();
+  await expect(option.locator('.ed-search-key')).toHaveText(MAC ? 'Cmd+Option+O' : 'Ctrl+Alt+O');
+  // And the chord opens it.
+  await search.press('Escape'); await search.press('Escape');
+  await text(page).press(MAC ? 'Meta+Alt+o' : 'Control+Alt+o');
+  await expect(page.getByLabel('Search document')).toBeFocused();
+});
+
+test('contrast themes show which way the AutoSave and Preferences switches are set', async ({ page }) => {
+  await page.emulateMedia({ forcedColors: 'active' });
+  await openEditor(page);
+  // The knob must stand out from the track it slides along, and the track must change with the setting.
+  const look = locator => locator.evaluate(el => { const track = getComputedStyle(el), knob = getComputedStyle(el, '::after'); return { track: track.backgroundColor, knob: knob.backgroundColor }; });
+  const autosave = page.locator('.ed-autosave .ed-switch');
+  const on = await look(autosave);
+  expect(on.knob).not.toBe(on.track);
+  await page.getByRole('switch', { name: 'AutoSave' }).uncheck({ force: true });
+  const off = await look(autosave);
+  expect(off.knob).not.toBe(off.track);
+  expect(off.track).not.toBe(on.track);
+});

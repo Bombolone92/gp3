@@ -1,0 +1,173 @@
+{
+  "source": "Desktop Excel saved/recalculated format-spacing-text-native.xlsx, 2026-09-19; all 72 TEXT and LEN pairs match across Courier New, Arial and Open Sans. Distinct cases below. These are width-independent formula outputs, not visual layout expectations.",
+  "cases": [
+    {
+      "label": "trailing dashes",
+      "value": 12,
+      "code": "0*-",
+      "expected": "12",
+      "length": 2
+    },
+    {
+      "label": "leading zero fill",
+      "value": 12,
+      "code": "*00",
+      "expected": "12",
+      "length": 2
+    },
+    {
+      "label": "middle dashes",
+      "value": 12,
+      "code": "\"USD\"*-0.00",
+      "expected": "USD12.00",
+      "length": 8
+    },
+    {
+      "label": "space fill",
+      "value": 125,
+      "code": "_(\"$\"* #,##0.00_);_(\"$\"* \\(#,##0.00\\);_(\"$\"* \"-\"??_);_(@_)",
+      "expected": " $125.00 ",
+      "length": 9
+    },
+    {
+      "label": "negative fill",
+      "value": -125,
+      "code": "_(\"$\"* #,##0.00_);_(\"$\"* \\(#,##0.00\\);_(\"$\"* \"-\"??_);_(@_)",
+      "expected": " $(125.00)",
+      "length": 10
+    },
+    {
+      "label": "zero fill",
+      "value": 0,
+      "code": "_(\"$\"* #,##0.00_);_(\"$\"* \\(#,##0.00\\);_(\"$\"* \"-\"??_);_(@_)",
+      "expected": " $-   ",
+      "length": 6
+    },
+    {
+      "label": "parenthesis pad",
+      "value": 12,
+      "code": "0_)",
+      "expected": "12 ",
+      "length": 3
+    },
+    {
+      "label": "wide pad",
+      "value": 12,
+      "code": "0_W",
+      "expected": "12 ",
+      "length": 3
+    },
+    {
+      "label": "narrow pad",
+      "value": 12,
+      "code": "0_i",
+      "expected": "12 ",
+      "length": 3
+    },
+    {
+      "label": "prefix pad",
+      "value": 12,
+      "code": "_W0",
+      "expected": " 12",
+      "length": 3
+    },
+    {
+      "label": "interior pad",
+      "value": 12,
+      "code": "0_W0",
+      "expected": "1 2",
+      "length": 3
+    },
+    {
+      "label": "both pads",
+      "value": 12,
+      "code": "_W0_i",
+      "expected": " 12 ",
+      "length": 4
+    },
+    {
+      "label": "literal operators",
+      "value": 12,
+      "code": "\"_*\"0",
+      "expected": "_*12",
+      "length": 4
+    },
+    {
+      "label": "escaped operators",
+      "value": 12,
+      "code": "\\_\\*0",
+      "expected": "_*12",
+      "length": 4
+    },
+    {
+      "label": "text fill",
+      "value": "hello",
+      "code": "0;0;0;@*.",
+      "expected": "hello",
+      "length": 5
+    },
+    {
+      "label": "text prefix fill",
+      "value": "hello",
+      "code": "0;0;0;*.@",
+      "expected": "hello",
+      "length": 5
+    },
+    {
+      "label": "text padding",
+      "value": "hello",
+      "code": "0;0;0;_W@_)",
+      "expected": " hello ",
+      "length": 7
+    },
+    {
+      "label": "date fill",
+      "value": 45300,
+      "code": "yyyy*-mm-dd",
+      "expected": "202401-09",
+      "length": 9
+    },
+    {
+      "label": "elapsed fill",
+      "value": 1.25,
+      "code": "[h]*.mm",
+      "expected": "3000",
+      "length": 4
+    },
+    {
+      "label": "fraction fill",
+      "value": 2.25,
+      "code": "# ?/?*-",
+      "expected": "2 1/4",
+      "length": 5
+    },
+    {
+      "label": "fraction zero",
+      "value": 2,
+      "code": "# ?/?*-",
+      "expected": "2    ",
+      "length": 5
+    },
+    {
+      "label": "decimal interior fill",
+      "value": 12.34,
+      "code": "0*-.00",
+      "expected": "12.34",
+      "length": 5
+    },
+    {
+      "label": "exponent fill",
+      "value": 12345,
+      "code": "0.00E+00*.",
+      "expected": "1.23E+04",
+      "length": 8
+    },
+    {
+      "label": "fill and indent",
+      "value": 125,
+      "code": "_(\"$\"* #,##0.00_);_(\"$\"* \\(#,##0.00\\);_(\"$\"* \"-\"??_);_(@_)",
+      "expected": " $125.00 ",
+      "length": 9
+    }
+  ]
+}

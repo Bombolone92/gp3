@@ -1,0 +1,288 @@
+<!doctype html>
+<!--
+  Source for public/og-image.png (the social share card).
+
+  It is a real 1200×630 page rather than a hand-drawn image so it stays in the
+  app's design language: same Inter, same accent, same board colors, same
+  pieces (drawn in CSS here exactly as boardView.js/style.css draw them — the
+  app has no piece artwork to load). Edit here, then re-render with:
+
+    npm run dev
+    node tools/render-og.mjs
+
+  Facebook, LinkedIn, and Slack cache share images per URL, so after changing
+  the picture either re-scrape it in their debuggers or bump the filename.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>og:image source — 1200×630</title>
+    <style>
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 400;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 500;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 600;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 700;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2') format('woff2');
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #070a14;
+      }
+
+      /* Exactly the OG canvas: 1200×630 (1.91:1). */
+      .card {
+        width: 1200px;
+        height: 630px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 58px;
+        padding: 0 76px;
+        overflow: hidden;
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        /* Deep navy so the card reads as the app's icon at thumbnail size,
+           and so it never glares in a dark timeline. */
+        background:
+          radial-gradient(900px 540px at 6% -8%, rgba(56, 104, 255, 0.32), transparent 62%),
+          radial-gradient(760px 520px at 98% 112%, rgba(0, 43, 178, 0.38), transparent 60%),
+          linear-gradient(150deg, #0b1226 0%, #070a14 58%, #090d1c 100%);
+      }
+
+      .copy {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 30px;
+      }
+
+      .brand img {
+        width: 46px;
+        height: 46px;
+        display: block;
+      }
+
+      .brand span {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.54);
+      }
+
+      h1 {
+        margin: 0 0 20px;
+        font-size: 74px;
+        line-height: 1.03;
+        font-weight: 700;
+        letter-spacing: -0.028em;
+        color: #ffffff;
+      }
+
+      .sub {
+        margin: 0 0 34px;
+        font-size: 25px;
+        line-height: 1.4;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.64);
+      }
+
+      .pills {
+        display: flex;
+        gap: 10px;
+      }
+
+      .pill {
+        padding: 9px 17px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.055);
+        font-size: 17px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .board {
+        flex: 0 0 auto;
+        width: 416px;
+        height: 416px;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.1),
+          0 46px 84px -34px rgba(0, 0, 0, 0.92);
+      }
+
+      .sq {
+        position: relative;
+      }
+      /* --sq-light / --sq-dark from style.css. Kept in step by hand: this
+         file is standalone so the card can be rendered without booting the
+         app, which means the board's colours live in two places. */
+      .sq.light {
+        background-color: #ecdbc3;
+      }
+      .sq.dark {
+        background-color: #ac9576;
+      }
+      /* Same last-move wash the app paints, so the crowning move reads first. */
+      .sq.last {
+        background-image: linear-gradient(
+          rgba(190, 200, 60, 0.42),
+          rgba(190, 200, 60, 0.42)
+        );
+      }
+
+      /* Pieces: four circles, drawn in CSS exactly as style.css's .piece
+         rules draw them — there is no piece artwork in this app, in the OG
+         card or in the board itself. */
+      .piece {
+        position: absolute;
+        inset: 8%;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(18, 24, 44, 0.35);
+      }
+      .piece[data-piece^='b'] {
+        background: #14161c;
+        border: 3px solid #f2f3f7;
+      }
+      .piece[data-piece^='w'] {
+        background: #f2f3f7;
+        border: 3px solid #14161c;
+      }
+      .piece .crown {
+        position: absolute;
+        inset: 27%;
+        width: 46%;
+        height: 46%;
+      }
+      .piece[data-piece='bK'] .crown {
+        color: #f2f3f7;
+      }
+      .piece[data-piece='wK'] .crown {
+        color: #14161c;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="copy">
+        <div class="brand">
+          <img src="/icon-192.png" alt="" />
+          <span>checkers.puter.com</span>
+        </div>
+        <h1>Play Checkers Online</h1>
+        <p class="sub">Free in your browser. No sign-up, no ads.</p>
+        <div class="pills">
+          <div class="pill">vs. Computer</div>
+          <div class="pill">Pass &amp; Play</div>
+          <div class="pill">Private Online</div>
+        </div>
+      </div>
+      <div class="board" id="board"></div>
+    </div>
+
+    <script type="module">
+      // A breakthrough endgame, White to move having just crowned: a lean,
+      // legible position (per the engine's own PDN square numbering, 1-32 —
+      // see src/engine/geometry.js) rather than a full 24-piece start, so
+      // the board still reads at thumbnail size. B/b = black king/man,
+      // W/w = white king/man.
+      const POSITION = {
+        30: 'B', 26: 'b', 19: 'b', 9: 'b', 5: 'b',
+        24: 'w', 17: 'w', 14: 'w', 8: 'w', 7: 'w',
+      };
+      // The man's walk onto the crowning row — 25 is empty now, but the
+      // wash marks where the last move started as well as where it landed.
+      const LAST_MOVE = [25, 30];
+
+      // Same numbering as squareToRowCol() in src/engine/geometry.js: row 0
+      // is Black's back row, row 7 is White's; only (row+col) odd squares
+      // are playable.
+      function squareToRowCol(num) {
+        const row = (num - 1) >> 2;
+        const idx = (num - 1) & 3;
+        return [row, idx * 2 + (row % 2 === 0 ? 1 : 0)];
+      }
+
+      const CROWN_PATHS = [
+        'M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z',
+        'M5 21h14',
+      ];
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+
+      function crownIcon() {
+        const svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('class', 'crown');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        for (const d of CROWN_PATHS) {
+          const path = document.createElementNS(SVG_NS, 'path');
+          path.setAttribute('d', d);
+          svg.appendChild(path);
+        }
+        return svg;
+      }
+
+      // PIECE_CODES mirrors boardView.js: lowercase letter = man, uppercase
+      // = king, and data-piece carries the two-letter code style.css keys
+      // its colours off of.
+      const PIECE_CODES = { b: 'bM', B: 'bK', w: 'wM', W: 'wK' };
+
+      const board = document.getElementById('board');
+      const squareNums = new Set(LAST_MOVE);
+
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const dark = (row + col) % 2 === 1;
+          const el = document.createElement('div');
+          el.className = `sq ${dark ? 'dark' : 'light'}`;
+          board.appendChild(el);
+          if (!dark) continue;
+          // Recover this square's PDN number the same way rowColToSquare()
+          // does, so POSITION/LAST_MOVE stay expressed in the app's own
+          // numbering rather than a row/col scheme unique to this file.
+          const num = row * 4 + (col >> 1) + 1;
+          if (squareNums.has(num)) el.classList.add('last');
+          const code = POSITION[num];
+          if (!code) continue;
+          const piece = document.createElement('div');
+          const dataPiece = PIECE_CODES[code];
+          piece.className = 'piece';
+          piece.dataset.piece = dataPiece;
+          if (dataPiece.endsWith('K')) piece.appendChild(crownIcon());
+          el.appendChild(piece);
+        }
+      }
+    </script>
+  </body>
+</html>

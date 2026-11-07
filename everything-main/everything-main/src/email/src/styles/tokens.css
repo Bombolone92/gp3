@@ -1,0 +1,92 @@
+/* Design tokens, Gmail-flavored. Light is the base; dark overrides via the
+   explicit data-theme attribute or, in system mode (no attribute), the OS
+   setting. */
+
+:root {
+  color-scheme: light;
+
+  --bg: #f8fafd;            /* frame: header, sidebar, page background */
+  --surface: #ffffff;       /* content card, unread rows, popovers */
+  --surface-2: #f2f6fc;     /* read rows, hovers, wells */
+  --search-bg: #eaf1fb;     /* header search pill */
+  --tonal: #c2e7ff;         /* sidebar action pill */
+  --ink: #1f1f1f;
+  --ink-2: #444746;
+  --ink-3: #6d7073;
+  --hairline: #e8ebee;
+  --hairline-strong: #85888a;
+
+  /* Interaction state layers. A translucent ink wash reads as the same
+     amount of "lit up" on every surface it lands on, which a flat colour
+     cannot: --surface-2 as a hover fill is invisible over --bg, and
+     literally invisible over a read row that is already --surface-2. */
+  --hover: rgb(31 31 31 / 0.10);
+  --pressed: rgb(31 31 31 / 0.16);
+
+  --accent: #0b57d0;
+  --accent-ink: #ffffff;
+  --accent-wash: #d3e3fd;   /* selected nav item */
+  --star: #f4b400;
+  --danger: #d93025;
+
+  --avatar-s: 42%;
+  --avatar-l: 46%;
+
+  --radius: 16px;
+  --radius-s: 8px;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #131314;
+  --surface: #1e1f20;
+  --surface-2: #17181a;
+  --search-bg: #282a2c;
+  --tonal: #004a77;
+  --ink: #e3e3e3;
+  --ink-2: #c4c7c5;
+  --ink-3: #9aa0a6;
+  --hairline: #2d2f31;
+  --hairline-strong: #6b6f72;
+  --hover: rgb(227 227 227 / 0.10);
+  --pressed: rgb(227 227 227 / 0.16);
+  --accent: #a8c7fa;
+  --accent-ink: #062e6f;
+  --accent-wash: #004a77;
+  --star: #fdd663;
+  --danger: #f28b82;
+
+  --avatar-s: 38%;
+  --avatar-l: 42%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #131314;
+    --surface: #1e1f20;
+    --surface-2: #17181a;
+    --search-bg: #282a2c;
+    --tonal: #004a77;
+    --ink: #e3e3e3;
+    --ink-2: #c4c7c5;
+    --ink-3: #9aa0a6;
+    --hairline: #2d2f31;
+    --hairline-strong: #6b6f72;
+    --hover: rgb(227 227 227 / 0.10);
+    --pressed: rgb(227 227 227 / 0.16);
+    --accent: #a8c7fa;
+    --accent-ink: #062e6f;
+    --accent-wash: #004a77;
+    --star: #fdd663;
+    --danger: #f28b82;
+
+    --avatar-s: 38%;
+    --avatar-l: 42%;
+  }
+}

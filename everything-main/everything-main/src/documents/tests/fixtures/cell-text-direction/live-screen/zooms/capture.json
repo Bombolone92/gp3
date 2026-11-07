@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-03",
+  "installedVersion": "16.0.20326.20158",
+  "versionSource": "Installer configuration VersionToReport registry value; not a runtime automation API query.",
+  "source": "../control.docx",
+  "sourceSha256": "732e93935c19c7aaa811663811e8a8ff89316353619e4d61c115e18d2a15bfe6",
+  "sourceCopy": "rotated-live-current-20261003.docx",
+  "method": "Desktop native reference window screenshots through a desktop automation API.",
+  "opening": "Open-OfficeDocument.ps1 confirmed the exact source copy before UI actions; its unique returned reference window was selected.",
+  "actions": "Closed navigation pane, observed both pages at 100%, selected 200% zoom, captured page zero, used Control+PageDown, captured page one after settling.",
+  "sourceUnchanged": true,
+  "sourceVerification": "The source copy was read after all UI actions and retained the exact source SHA-256. No text input or save action was issued.",
+  "windowSize": [946, 536],
+  "observations": [
+    {"zoomPercent": 100, "screens": [
+      {"file": "native-both-100.png", "page": 0, "crop": [400, 230, 110, 20]},
+      {"file": "native-both-100.png", "page": 1, "crop": [400, 485, 110, 20]}
+    ]},
+    {"zoomPercent": 200, "screens": [
+      {"file": "native-0-200.png", "page": 0, "crop": [340, 263, 200, 24]},
+      {"file": "native-1-200.png", "page": 1, "crop": [340, 289, 200, 24]}
+    ]}
+  ],
+  "limitation": "Further zoom/View/Alt input stopped responding after these captures. No larger fresh view is inferred; no reference application process was restarted. These two zooms do not establish a general device rounding rule."
+}

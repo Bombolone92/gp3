@@ -1,0 +1,145 @@
+name: Browser tests
+
+# Playwright suites are slow and timing-sensitive, so most never run on every
+# pull request.
+#
+# Pull requests: documents (8 shards of about 30 minutes, about $1.30 a run)
+# when the PR changes src/documents or the shared dev/ folder. A change to this
+# file runs every PR and nightly suite. A newer push cancels the older run.
+#
+# Nightly: 3d, email, documents, parametric and building-design, each only if its app changed
+# on main in the last day.
+#
+# Manual only (Actions > Browser tests > Run workflow, list them in "apps"):
+# pdf and presentation, plus any of the above. Each has thousands of tests that
+# take hours on one runner, so a run splits them into shards. On its first CI
+# attempt presentation timed out on most of its first 240 tests.
+#
+# photo-studio's suite is left out: it needs WebGPU or WebGL2, which GitHub's
+# runners (no GPU) do not provide reliably.
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/e2e.yml
+      - src/documents/**
+      - dev/**
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: 'Comma-separated: 3d, email, documents, parametric, building-design, pdf, presentation'
+        default: '3d,email'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name == 'schedule' }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Pick suites
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: .github
+
+      - id: pick
+        env:
+          EVENT: ${{ github.event_name }}
+          APPS: ${{ inputs.apps }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          suites='[
+            {"app": "3d", "script": "test:e2e", "browsers": "chromium", "shards": 1, "nightly": true},
+            {"app": "email", "script": "test:browser", "browsers": "chromium", "shards": 1, "nightly": true},
+            {"app": "parametric", "script": "test:e2e", "browsers": "chromium", "shards": 1, "nightly": true},
+            {"app": "building-design", "script": "test:e2e", "browsers": "chromium", "shards": 1, "nightly": true},
+            {"app": "documents", "script": "test:browser", "browsers": "chromium", "shards": 8, "nightly": true, "pr": true},
+            {"app": "pdf", "script": "test:e2e", "browsers": "chromium firefox webkit", "shards": 8},
+            {"app": "presentation", "script": "test:e2e", "browsers": "chromium", "shards": 8}
+          ]'
+          if [ "$EVENT" = workflow_dispatch ]; then
+            wanted=$(echo "$APPS" | tr -s ', ' '\n' | grep -v '^$' || true)
+          elif [ "$EVENT" = pull_request ]; then
+            changed=$(git diff --no-renames --name-only "$BASE...$HEAD")
+            if echo "$changed" | grep -qE '^\.github/workflows/e2e\.yml$'; then
+              wanted=$(echo "$suites" | jq -r '.[] | select(.nightly or .pr) | .app')
+            elif echo "$changed" | grep -q '^dev/'; then
+              wanted=$(echo "$suites" | jq -r '.[] | select(.pr) | .app')
+            else
+              wanted=$(echo "$suites" | jq -r '.[] | select(.pr) | .app' | while read -r app; do echo "$changed" | grep -q "^src/$app/" && echo "$app"; done || true)
+            fi
+          else
+            wanted=$(echo "$suites" | jq -r '.[] | select(.nightly) | .app')
+            if [ "$EVENT" = schedule ]; then
+              changed=$(git log --since='25 hours ago' --no-renames --name-only --format= HEAD | grep -E '^(src/|dev/)' | cut -d/ -f1-2 | sort -u)
+              if ! echo "$changed" | grep -qx dev/; then
+                wanted=$(echo "$wanted" | while read -r app; do echo "$changed" | grep -qx "src/$app" && echo "$app"; done || true)
+              fi
+            fi
+          fi
+          matrix=$(echo "$suites" | jq -c --arg wanted "$wanted" '
+            ($wanted | split("\n")) as $w
+            | [.[] | select(.app as $a | $w | index($a)) | . as $s
+               | range(1; $s.shards + 1) | $s + {shard: .}]')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "Suites: $(echo "$matrix" | jq -c '[.[] | "\(.app) \(.shard)/\(.shards)"]')"
+
+  e2e:
+    name: ${{ matrix.app }}${{ matrix.shards > 1 && format(' ({0}/{1})', matrix.shard, matrix.shards) || '' }}
+    needs: changes
+    if: needs.changes.outputs.matrix != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Report-only until green: documents has about 270 browser tests failing on
+    # main (layout fidelity drift, and specs still written for the toolbar the
+    # ribbon replaced). Its jobs show red but do not fail the workflow. Remove an
+    # app from this list once its suite is green.
+    continue-on-error: ${{ contains(fromJSON('["documents"]'), matrix.app) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.changes.outputs.matrix) }}
+    defaults:
+      run:
+        working-directory: src/${{ matrix.app }}
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            src/${{ matrix.app }}
+            dev
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/${{ matrix.app }}/package-lock.json
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps ${{ matrix.browsers }}
+
+      - run: npm run ${{ matrix.script }} -- --shard=${{ matrix.shard }}/${{ matrix.shards }}
+
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-${{ matrix.app }}-${{ matrix.shard }}
+          path: |
+            src/${{ matrix.app }}/test-results
+            src/${{ matrix.app }}/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7

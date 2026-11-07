@@ -1,0 +1,143 @@
+title: 摄像头监控
+views:
+  - title: 实时监控
+    path: live
+    icon: mdi:cctv
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        column_span: 2
+        cards:
+          - type: custom:advanced-camera-card
+            cameras:
+              - camera_entity: camera.tangecam_01
+                live_provider: go2rtc
+                frigate:
+                  camera_name: tangecam_01
+            view:
+              default: live
+            menu:
+              style: outside
+
+      - type: grid
+        cards:
+          - type: grid
+            title: 云台
+            columns: 3
+            square: false
+            cards:
+              - type: button
+                name: 左上
+                icon: mdi:arrow-top-left
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: lu}
+              - type: button
+                name: 上
+                icon: mdi:arrow-up
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: up}
+              - type: button
+                name: 右上
+                icon: mdi:arrow-top-right
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: ru}
+              - type: button
+                name: 左
+                icon: mdi:arrow-left
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: left}
+              - type: button
+                name: 停止
+                icon: mdi:stop-circle-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: stop}
+              - type: button
+                name: 右
+                icon: mdi:arrow-right
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: right}
+              - type: button
+                name: 左下
+                icon: mdi:arrow-bottom-left
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: ld}
+              - type: button
+                name: 下
+                icon: mdi:arrow-down
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: down}
+              - type: button
+                name: 右下
+                icon: mdi:arrow-bottom-right
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_ptz
+                  data: {action: rd}
+
+      - type: grid
+        cards:
+          - type: grid
+            title: 白光灯
+            columns: 3
+            square: false
+            cards:
+              - type: button
+                name: 关闭
+                icon: mdi:lightbulb-off-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_light
+                  data: {mode: "off"}
+              - type: button
+                name: 开启
+                icon: mdi:lightbulb-on-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_light
+                  data: {mode: "on"}
+              - type: button
+                name: 智能
+                icon: mdi:lightbulb-auto-outline
+                tap_action:
+                  action: perform-action
+                  perform_action: rest_command.tangecam_01_light
+                  data: {mode: "2"}
+
+      - type: grid
+        cards:
+          - type: entities
+            title: 监控状态
+            entities:
+              - sensor.frigate_status
+              - sensor.tangecam_01_review_status
+              - sensor.tangecam_01_camera_fps
+              - sensor.tangecam_01_detection_fps
+              - sensor.tangecam_01_sound_level
+
+      - type: grid
+        cards:
+          - type: entities
+            title: 录像与检测
+            entities:
+              - switch.tangecam_01_recordings
+              - switch.tangecam_01_snapshots
+              - switch.tangecam_01_detect
+              - switch.tangecam_01_motion
+              - switch.tangecam_01_audio_detection

@@ -1,0 +1,445 @@
+// @vitest-environment jsdom
+import { describe, it, expect } from 'vitest';
+import { TextDocument, paragraph } from '../src/engine/model.js';
+import { listKind } from '../src/engine/numbering.js';
+import { documentHtml, documentMarkdown, documentPlainText } from '../src/lib/document-export.js';
+import { markdownHtml } from '../src/lib/markdown-html.js';
+import { htmlFragment, pasteFragment } from '../src/engine/clipboard-fragment.js';
+
+const blankDoc = () => new TextDocument([paragraph()]);
+const fill = (doc, table, row, cell, text) => { doc.selectCell(table.rows[row].cells[cell].id); doc.replace(text); };
+const body = html => html.slice(html.indexOf('<body>') + 7, html.indexOf('</body>')).trim();
+
+describe('Markdown and plain-text tables', () => {
+  it('keeps cells in their columns around merged cells', () => {
+    const doc = blankDoc();
+    doc.insertTable(3, 3);
+    const t = doc.tables[0];
+    [['Name', 'Q1', 'Q2'], ['Alice', '10', '20'], ['Bob', '30', '40']].forEach((row, r) => row.forEach((text, c) => fill(doc, t, r, c, text)));
+    doc.selectCell(t.rows[1].cells[0].id); doc.mergeCellBelow();
+    expect(documentMarkdown(doc)).toBe('| Name | Q1 | Q2 |\n| --- | --- | --- |\n| Alice<br>Bob | 10 | 20 |\n|   | 30 | 40 |\n');
+    expect(documentPlainText(doc)).toBe('Name\tQ1\tQ2\nAlice Bob\t10\t20\n\t30\t40\n');
+  });
+  it('keeps a cell after a horizontally merged one in its own column', () => {
+    const doc = blankDoc();
+    doc.insertTable(2, 3);
+    const t = doc.tables[0];
+    [['A', 'B', 'C'], ['x', 'y', 'z']].forEach((row, r) => row.forEach((text, c) => fill(doc, t, r, c, text)));
+    doc.selectCell(t.rows[1].cells[0].id); const start = doc.selection.focus;
+    doc.selectCell(t.rows[1].cells[1].id); doc.select(start, doc.selection.focus + 1);
+    expect(doc.mergeCells()).toBeTruthy();
+    expect(documentMarkdown(doc)).toBe('| A | B | C |\n| --- | --- | --- |\n| x<br>y |   | z |\n');
+    expect(documentPlainText(doc)).toBe('A\tB\tC\nx y\t\tz\n');
+  });
+  it('keeps a pipe in a cell, or in a link in one, inside that cell', () => {
+    const doc = blankDoc();
+    doc.insertTable(1, 2);
+    const t = doc.tables[0];
+    fill(doc, t, 0, 0, 'a|b');
+    fill(doc, t, 0, 1, 'site');
+    const at = doc.text.indexOf('site'); doc.select(at, at + 4);
+    doc.setHyperlink('https://example.com/?q=a|b');
+    expect(documentMarkdown(doc)).toBe('| a\\|b | [site](https://example.com/?q=a%7Cb) |\n| --- | --- |\n');
+  });
+  it('keeps the text of a table nested in a cell', () => {
+    const doc = blankDoc();
+    doc.replace('Before');
+    doc.insertTable(1, 2);
+    doc.replace('Outer A');
+    doc.insertTable(1, 2, 3000);
+    doc.replace('Inner secret');
+    const inner = doc.tables.find(t => t.parentCellId);
+    fill(doc, inner, 0, 1, 'Inner two');
+    expect(documentMarkdown(doc)).toContain('Inner secret \\| Inner two');
+    expect(documentPlainText(doc)).toContain('Inner secret Inner two');
+    expect(body(documentHtml(doc))).toContain('Inner secret');
+  });
+});
+
+describe('line, page and column breaks', () => {
+  const doc = () => {
+    const d = blankDoc();
+    d.replace('End of chapter one.'); d.insertPageBreak(); d.replace('Chapter two begins.');
+    d.insertParagraph(); d.replace('Left column.'); d.insertColumnBreak(); d.replace('Right column.');
+    d.insertParagraph(); d.replace('one\vtwo'); d.select(d.text.length - 7, d.text.length); d.toggleBold();
+    return d;
+  };
+  it('start a new line in every format', () => {
+    const d = doc();
+    expect(documentPlainText(d)).toBe('End of chapter one.\nChapter two begins.\nLeft column.\nRight column.\none\ntwo\n');
+    expect(documentMarkdown(d)).toBe('End of chapter one.\\\nChapter two begins.\n\nLeft column.\\\nRight column.\n\n**one\\\ntwo**\n');
+    expect(body(documentHtml(d))).toBe('<p>End of chapter one.<br>Chapter two begins.</p><p>Left column.<br>Right column.</p><p><strong>one<br>two</strong></p>');
+    expect(documentMarkdown(d) + documentPlainText(d) + documentHtml(d)).not.toMatch(/[\f\v\u000e\0]/);
+  });
+  it('keep a list item and a table cell whole, and are left out at a paragraph\'s ends', () => {
+    const d = blankDoc();
+    d.replace('first\vsecond'); d.toggleList('bullet');
+    d.insertParagraph(); d.replace('\vtrailing\v');
+    expect(documentMarkdown(d)).toBe('- first\\\n  second\n- trailing\n');
+    d.insertParagraph(); d.toggleList('bullet');
+    d.insertTable(1, 1); d.replace('cell\vline');
+    expect(documentMarkdown(d)).toContain('| cell<br>line |');
+    expect(documentPlainText(d)).toContain('cell line');
+  });
+});
+
+describe('Markdown text that looks like markup', () => {
+  // Opening the exported file again: the app's own Markdown import.
+  const reopen = markdown => {
+    const doc = blankDoc(), fragment = htmlFragment(markdownHtml(markdown));
+    for (const p of fragment.paragraphs) p.mark = true;
+    pasteFragment(doc, fragment);
+    return doc.paragraphs.map(p => p.runs.map(r => r.text).join(''));
+  };
+  it('comes back as the same text', () => {
+    const lines = ['AT&amp;T and &copy; sign, R&D', '~~not struck~~ and ~one~', '- not a list', '+ plus', '1) paren', '2024. A year', '---', '***', '===', '    four spaces', '\ttab', '# not a heading', '> not a quote'];
+    const doc = blankDoc();
+    lines.forEach((line, i) => { if (i) doc.insertParagraph(); doc.replace(line); });
+    const back = reopen(documentMarkdown(doc));
+    expect(back.map(t => t.trim())).toEqual(lines.map(t => t.trim()));
+  });
+  it('keeps emphasis that starts or ends with punctuation inside a word', () => {
+    const doc = blankDoc();
+    doc.replace('snake_case, readme.txt, un(usual) and price $5!');
+    const format = (word, apply) => { const at = doc.text.indexOf(word); doc.select(at, at + word.length); apply(); };
+    format('_case', () => doc.toggleBold());
+    format('.txt', () => doc.toggleBold());
+    format('(usual)', () => doc.setRunFormat({ italic: true }));
+    format('$5', () => doc.toggleBold());
+    const markdown = documentMarkdown(doc);
+    // Asterisks between a letter and punctuation do not mark emphasis, so it is written as HTML there.
+    expect(markdown).toBe('snake<strong>\\_case</strong>, readme<strong>.txt</strong>, un<em>(usual)</em> and price **$5**!\n');
+    const back = blankDoc(), fragment = htmlFragment(markdownHtml(markdown));
+    for (const p of fragment.paragraphs) p.mark = true;
+    pasteFragment(back, fragment);
+    const styled = d => d.paragraphs[0].runs.map(r => `${r.bold ? '**' : r.italic ? '*' : ''}${r.text}`);
+    expect(styled(back)).toEqual(styled(doc));
+    // A bold line break alone writes no empty pair of markers.
+    const lines = new TextDocument([paragraph('A\vB')]);
+    lines.select(1, 2); lines.toggleBold();
+    expect(documentMarkdown(lines)).toBe('A\\\nB\n');
+  });
+  it('keeps emphasis that changes between two runs with nothing between them', () => {
+    const cases = [[['important', 'bi'], ['!', 'b']], [['foo', 'bi'], ['bar', 'i']], [['Warning', 'b'], [':', 'bi'], [' read this', '']], [['Hello', 'b'], ['World', 'bi']], [['old', 's'], ['new', 'sb']]];
+    const styled = d => d.paragraphs[0].runs.filter(r => r.text).map(r => `${r.text}:${r.bold ? 'b' : ''}${r.italic ? 'i' : ''}${r.strikethrough && r.strikethrough !== 'none' ? 's' : ''}`);
+    for (const runs of cases) {
+      const doc = blankDoc();
+      doc.replace(runs.map(([text]) => text).join(''));
+      let at = 0;
+      for (const [text, format] of runs) {
+        doc.select(at, at + text.length); at += text.length;
+        doc.setRunFormat({ bold: format.includes('b'), italic: format.includes('i'), strikethrough: format.includes('s') ? 'single' : 'none' });
+      }
+      const markdown = documentMarkdown(doc);
+      // Markers never run into the previous run's closing ones ("***important*****!**" showed "**!**").
+      expect(markdown).not.toMatch(/\*{4}|~{4}/);
+      const back = blankDoc(), fragment = htmlFragment(markdownHtml(markdown));
+      for (const p of fragment.paragraphs) p.mark = true;
+      pasteFragment(back, fragment);
+      expect(styled(back)).toEqual(styled(doc));
+    }
+  });
+  it('after a line break too', () => {
+    const doc = blankDoc();
+    doc.replace('Intro\v- dash\v===\v3. three');
+    expect(reopen(documentMarkdown(doc))).toEqual(['Intro\v- dash\v===\v3. three']);
+  });
+});
+
+describe('exported lists', () => {
+  // Levels 0/1/1/0/1/0, the second inner list bulleted.
+  const nested = () => {
+    const doc = blankDoc();
+    doc.replace('a'); doc.toggleList('number');
+    doc.insertParagraph(); doc.replace('a1'); doc.changeListLevel(1);
+    doc.insertParagraph(); doc.replace('a2');
+    doc.insertParagraph(); doc.replace('b'); doc.changeListLevel(-1);
+    doc.insertParagraph(); doc.replace('b1'); doc.toggleList('bullet'); doc.changeListLevel(1);
+    doc.insertParagraph(); doc.replace('c');
+    // The last item continues the first list at its top level.
+    doc.paragraphs.at(-1).list = { ...doc.paragraphs[0].list };
+    return doc;
+  };
+  const shape = doc => doc.paragraphs.map(p => `${p.runs.map(r => r.text).join('')}:${p.list ? `${listKind(doc.numbering, p.list)}@${p.list.level}` : '-'}`);
+  const reopen = (markdownOrHtml, html = false) => {
+    const doc = blankDoc(), fragment = htmlFragment(html ? markdownOrHtml : markdownHtml(markdownOrHtml));
+    for (const p of fragment.paragraphs) p.mark = true;
+    pasteFragment(doc, fragment);
+    return doc;
+  };
+  it('nest each level under its parent item and number each level on its own', () => {
+    const doc = nested();
+    expect(shape(doc)).toEqual(['a:number@0', 'a1:number@1', 'a2:number@1', 'b:number@0', 'b1:bullet@1', 'c:number@0']);
+    expect(documentMarkdown(doc)).toBe('1. a\n   1. a1\n   2. a2\n2. b\n   - b1\n3. c\n');
+    expect(shape(reopen(documentMarkdown(doc)))).toEqual(shape(doc));
+    expect(body(documentHtml(doc))).toBe('<ol><li>a<ol><li>a1</li><li>a2</li></ol></li><li>b<ul><li>b1</li></ul></li><li>c</li></ol>');
+    expect(shape(reopen(documentHtml(doc), true))).toEqual(shape(doc));
+  });
+  it('keep their numbers and bullets in plain text', () => {
+    expect(documentPlainText(nested())).toBe('1.\ta\n  1.1.\ta1\n  1.2.\ta2\n2.\tb\n  ◦\tb1\n3.\tc\n');
+  });
+  it('keep the number a list continues from after a paragraph between its items', () => {
+    const doc = blankDoc();
+    doc.replace('one'); doc.toggleList('number');
+    doc.insertParagraph(); doc.replace('two');
+    doc.insertParagraph(); doc.toggleList('number'); doc.replace('Between');
+    doc.insertParagraph(); doc.replace('three');
+    // "three" continues the list "Between" interrupted, as a list continued in Word does.
+    doc.paragraphs.at(-1).list = { ...doc.paragraphs[0].list };
+    expect(documentMarkdown(doc)).toBe('1. one\n2. two\n\nBetween\n\n3. three\n');
+    expect(body(documentHtml(doc))).toBe('<ol><li>one</li><li>two</li></ol><p>Between</p><ol start="3"><li>three</li></ol>');
+  });
+});
+
+
+describe('hidden text', () => {
+  const doc = () => {
+    const d = blankDoc();
+    d.replace('Answer: 42 (teacher only)');
+    d.select(10, 25); d.setRunFormat({ vanish: true });
+    return d;
+  };
+  it('is left out of every format, as it is left off the page', () => {
+    expect(body(documentHtml(doc()))).toBe('<p>Answer: 42</p>');
+    expect(documentMarkdown(doc())).toBe('Answer: 42\n');
+    expect(documentPlainText(doc())).toBe('Answer: 42\n');
+  });
+});
+
+describe('paragraph alignment', () => {
+  it('is kept in a web page', () => {
+    const doc = new TextDocument([paragraph('Title'), paragraph('Body'), paragraph('Signed'), paragraph('Left')]);
+    for (const [i, alignment] of [[0, 'center'], [1, 'both'], [2, 'right']]) {
+      const at = doc.paragraphs.slice(0, i).reduce((n, p) => n + p.runs[0].text.length + 1, 0);
+      doc.select(at); doc.setParagraphFormat({ alignment });
+    }
+    expect(body(documentHtml(doc))).toBe('<p style="text-align:center">Title</p><p style="text-align:justify">Body</p><p style="text-align:right">Signed</p><p>Left</p>');
+  });
+});
+
+describe('exported links', () => {
+  it('come back as links when the file is opened again, telephone links included', () => {
+    const doc = blankDoc();
+    doc.replace('Call us or write or visit');
+    const link = (word, target) => { const at = doc.text.indexOf(word); doc.select(at, at + word.length); doc.setHyperlink(target); };
+    link('Call us', 'tel:+15551234567'); link('write', 'mailto:hi@example.com'); link('visit', 'https://example.com/');
+    const targets = d => d.paragraphs[0].runs.filter(r => r.link).map(r => [r.text, r.link.target]);
+    const expected = [['Call us', 'tel:+15551234567'], ['write', 'mailto:hi@example.com'], ['visit', 'https://example.com/']];
+    for (const [exported, html] of [[documentMarkdown(doc), false], [documentHtml(doc), true]]) {
+      const back = blankDoc(), fragment = htmlFragment(html ? exported : markdownHtml(exported));
+      pasteFragment(back, fragment);
+      expect(targets(back)).toEqual(expected);
+    }
+  });
+  it('keeps web addresses in the text as they are typed', () => {
+    const lines = ['See https://example.com/path_name_here#top_part for more.', 'Docs (https://en.wikipedia.org/wiki/Foo_(bar)), then www.example.com/a_b*c.', 'Piped https://example.com/a~b|c and 1http://x.y/*a*'];
+    const doc = blankDoc();
+    lines.forEach((line, i) => { if (i) doc.insertParagraph(); doc.replace(line); });
+    const markdown = documentMarkdown(doc);
+    // An address reads best, and links in any Markdown reader, as an autolink; the sentence's punctuation stays outside it.
+    expect(markdown).toContain('See <https://example.com/path_name_here#top_part> for more.');
+    expect(markdown).toContain('(<https://en.wikipedia.org/wiki/Foo_(bar)>),');
+    const back = blankDoc(), fragment = htmlFragment(markdownHtml(markdown));
+    for (const p of fragment.paragraphs) p.mark = true;
+    pasteFragment(back, fragment);
+    expect(back.paragraphs.map(p => p.runs.map(r => r.text).join(''))).toEqual(lines);
+    expect(back.paragraphs[0].runs.find(r => r.link)?.link.target).toBe('https://example.com/path_name_here#top_part');
+  });
+  it('keeps a link that follows an exclamation mark, rather than reading it back as a picture', () => {
+    const doc = blankDoc();
+    doc.replace('Wow!docs and more');
+    doc.select(4, 8); doc.setHyperlink('https://example.com/');
+    const markdown = documentMarkdown(doc);
+    expect(markdown).toBe('Wow\\![docs](https://example.com/) and more\n');
+    const back = blankDoc();
+    pasteFragment(back, htmlFragment(markdownHtml(markdown)));
+    expect(back.paragraphs[0].runs.map(r => [r.text, r.link?.target ?? null])).toEqual([['Wow!', null], ['docs', 'https://example.com/'], [' and more', null]]);
+  });
+});
+
+describe('tracked changes', () => {
+  // Typed with Track Changes off, then revised with it on: "old" deleted, "new" inserted, and the break between the paragraphs deleted.
+  const reviewed = () => {
+    const doc = new TextDocument([paragraph()], undefined, undefined, undefined, [], {}, { trackChanges: false });
+    doc.replace('Hello old world\nSecond part');
+    doc.trackChanges = true;
+    const at = doc.text.indexOf('old'); doc.select(at, at + 3); doc.replace('new');
+    const end = doc.text.indexOf('\n'); doc.select(end, end + 1); doc.replace('');
+    return doc;
+  };
+  it('exports the text as it reads with the changes accepted, leaving the document under review', () => {
+    const doc = reviewed();
+    expect(documentPlainText(doc)).toBe('Hello new worldSecond part\n');
+    expect(documentMarkdown(doc)).toBe('Hello new worldSecond part\n');
+    expect(body(documentHtml(doc))).toBe('<p>Hello new worldSecond part</p>');
+    expect(doc.revisions.map(r => r.type).sort()).toEqual(['del', 'del', 'ins']);
+    expect(doc.text).toBe('Hello oldnew world\nSecond part');
+  });
+});
+
+describe('Markdown web addresses next to other text', () => {
+  // Each character with its formatting: a reader may link part of an address, which splits its runs.
+  const styled = doc => doc.paragraphs.map(p => p.runs.flatMap(r => [...r.text].map(c => `${c}${r.bold ? 'b' : ''}${r.strikethrough && r.strikethrough !== 'none' ? 's' : ''}`)).join('|'));
+  const reopen = markdown => {
+    const doc = blankDoc(), fragment = htmlFragment(markdownHtml(markdown));
+    for (const p of fragment.paragraphs) p.mark = true;
+    pasteFragment(doc, fragment);
+    return doc;
+  };
+  it('reads back the text and formatting that follow a www. address', () => {
+    // A reader's www. link goes on to the next whitespace: it took the next run's markers, an escaped "<"
+    // and an address glued to it into its text, backslashes and all.
+    for (const [text, word, format] of [
+      ['See www.example.org<b> now'],
+      ['Go to www.example.org/start then', 'org/start', { strikethrough: 'single' }],
+      ['Go to www.example.org/start then', 'example.org/start', { strikethrough: 'single' }],
+      ['Site www.example.orgBold here', 'Bold here', { bold: true }],
+      ['Old www.example.org]http://b.example.com/a_b|c end'],
+    ]) {
+      const doc = blankDoc();
+      doc.replace(text);
+      if (word) { const at = text.indexOf(word); doc.select(at, at + word.length); doc.setRunFormat(format); }
+      expect(styled(reopen(documentMarkdown(doc)))).toEqual(styled(doc));
+    }
+  });
+  it('leaves a www. address that ends at a space or the paragraph end for readers to link', () => {
+    const doc = blankDoc();
+    doc.replace('Visit www.example.org today or www.example.net.');
+    expect(documentMarkdown(doc)).toBe('Visit www.example.org today or www.example.net.\n');
+  });
+});
+
+describe('Markdown text split between runs it writes alike', () => {
+  const reopen = markdown => {
+    const doc = blankDoc(), fragment = htmlFragment(markdownHtml(markdown));
+    for (const p of fragment.paragraphs) p.mark = true;
+    pasteFragment(doc, fragment);
+    return doc.paragraphs.map(p => p.runs.map(r => r.text).join(''));
+  };
+  it('reads back as the same text when the runs differ only in color', () => {
+    for (const [text, colored] of [['Read http://example.com/a_b now', 'p://example.com/a'], ['Write AT&amp;T as typed', 'amp;'], ['Keep &#65; as is', '#65']]) {
+      const doc = blankDoc();
+      doc.replace(text);
+      const at = text.indexOf(colored); doc.select(at, at + colored.length); doc.setRunFormat({ color: 'C00000' });
+      expect(doc.paragraphs[0].runs.length).toBeGreaterThan(1);
+      expect(reopen(documentMarkdown(doc))).toEqual([text]);
+    }
+  });
+});
+
+describe('Markdown text that starts the document', () => {
+  it('keeps a no-break space before what would start a list', () => {
+    const doc = blankDoc();
+    doc.replace(' + not an item\n 1. nor this');
+    const markdown = documentMarkdown(doc);
+    const back = blankDoc(), fragment = htmlFragment(markdownHtml(markdown));
+    for (const p of fragment.paragraphs) p.mark = true;
+    pasteFragment(back, fragment);
+    expect(back.paragraphs.map(p => p.runs.map(r => r.text).join(''))).toEqual([' + not an item', ' 1. nor this']);
+    expect(back.paragraphs.some(p => p.list)).toBe(false);
+  });
+});
+
+describe('web page lists numbered with letters or Roman numerals', () => {
+  it('keep their kind of numbering', () => {
+    const doc = blankDoc();
+    doc.replace('First\nSecond'); doc.select(0, doc.text.length); doc.toggleList('number');
+    const { numId } = doc.paragraphs[0].list, abstract = doc.numbering.abstracts[doc.numbering.instances[numId].abstractId];
+    for (const [format, type] of [['lowerLetter', 'a'], ['upperRoman', 'I'], ['decimal', null]]) {
+      abstract.levels[0] = { ...abstract.levels[0], format };
+      expect(body(documentHtml(doc))).toBe(`<ol${type ? ` type="${type}"` : ''}><li>First</li><li>Second</li></ol>`);
+    }
+  });
+});
+
+describe('equations and symbols', () => {
+  const MATH = '<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>E=mc2</m:t></m:r></m:oMath>';
+  const doc = () => {
+    const d = blankDoc();
+    d.replace('Energy: ');
+    d.insertMathRun({ xml: MATH, text: 'E=mc2' });
+    d.replace(' then ');
+    // Symbols inserted with Word's Insert Symbol (w:sym): one a Unicode arrow, one in a symbol font's private range.
+    const at = d.paragraphs[0].runs.at(-1);
+    d.paragraphs[0].runs.push({ ...at, text: '￼', bodySymbol: { font: 'Arial', code: '2192' } }, { ...at, text: ' next', bodySymbol: undefined },
+      { ...at, text: '￼', bodySymbol: { font: 'Wingdings', code: 'F0FC' } }, { ...at, text: ' done', bodySymbol: undefined });
+    return d;
+  };
+  it('keep their text in every format, as copying them does', () => {
+    expect(documentPlainText(doc())).toBe('Energy: E=mc2 then → next done\n');
+    expect(documentMarkdown(doc())).toBe('Energy: E=mc2 then → next done\n');
+    expect(body(documentHtml(doc()))).toBe('<p>Energy: E=mc2 then → next done</p>');
+  });
+});
+
+describe('a list numbered again part-way through', () => {
+  const doc = () => {
+    const d = blankDoc();
+    d.replace('a'); d.toggleList('number');
+    d.insertParagraph(); d.replace('b');
+    d.insertParagraph(); d.replace('c'); d.restartNumbering(1);
+    d.insertParagraph(); d.replace('d');
+    return d;
+  };
+  it('keeps its numbers in a web page and in Markdown', () => {
+    expect(documentPlainText(doc())).toBe('1.\ta\n2.\tb\n1.\tc\n2.\td\n');
+    // A browser numbers each item one past the one before unless told otherwise.
+    expect(body(documentHtml(doc()))).toBe('<ol><li>a</li><li>b</li><li value="1">c</li><li>d</li></ol>');
+    // CommonMark takes only a list's first number: the restarted items start a list of their own.
+    const markdown = documentMarkdown(doc());
+    expect(markdown).toBe('1. a\n2. b\n\n<!-- -->\n\n1. c\n2. d\n');
+    const html = markdownHtml(markdown);
+    expect([...html.matchAll(/<ol(?: start="(\d+)")?>/g)].map(m => m[1] ?? '1')).toEqual(['1', '1']);
+  });
+  it('keeps a number set part-way through a nested list', () => {
+    const d = blankDoc();
+    d.replace('a'); d.toggleList('number');
+    d.insertParagraph(); d.replace('a1'); d.changeListLevel(1);
+    d.insertParagraph(); d.replace('a2');
+    d.insertParagraph(); d.replace('a3'); d.restartNumbering(5);
+    d.insertParagraph(); d.replace('b'); d.changeListLevel(-1);
+    expect(documentPlainText(d)).toBe('1.\ta\n  1.1.\ta1\n  1.2.\ta2\n  1.5.\ta3\n2.\tb\n');
+    expect(body(documentHtml(d))).toContain('<li value="5">a3</li>');
+    const markdown = documentMarkdown(d);
+    expect([...markdownHtml(markdown).matchAll(/<ol(?: start="(\d+)")?>/g)].map(m => m[1] ?? '1')).toEqual(['1', '1', '5']);
+  });
+});
+
+describe('a list in a table cell', () => {
+  it('keeps its numbers and bullets in Markdown, as in plain text', () => {
+    const d = blankDoc();
+    d.replace('x');
+    d.insertTable(1, 2);
+    d.replace('Step one'); d.toggleList('number'); d.insertParagraph(); d.replace('Step two');
+    d.selectCell(d.tables[0].rows[0].cells[1].id); d.replace('Point'); d.toggleList('bullet');
+    expect(documentPlainText(d)).toContain('1.\tStep one 2.\tStep two\t•\tPoint');
+    expect(documentMarkdown(d)).toContain('| 1. Step one<br>2. Step two | • Point |');
+  });
+});
+
+describe('the web page language', () => {
+  it('is the document’s default language, so screen readers read the page in it', () => {
+    const doc = blankDoc();
+    doc.replace('Guten Tag');
+    doc.styles.defaults.run.fontLanguage = 'de-DE';
+    expect(documentHtml(doc)).toContain('<html lang="de-DE">');
+    // Without one, or with a value that is no language tag, the page says English.
+    doc.styles.defaults.run.fontLanguage = '';
+    expect(documentHtml(doc)).toContain('<html lang="en">');
+    doc.styles.defaults.run.fontLanguage = 'x"><script>';
+    expect(documentHtml(doc)).toContain('<html lang="en">');
+  });
+});
+
+describe('Web page languages', () => {
+  it('marks East Asian text with its language where it differs from the page\'s', () => {
+    const doc = new TextDocument([paragraph('English, 日本語の直 and more.'), paragraph('中文直'), paragraph('Plain')]);
+    doc.select(9, 14); doc.setRunFormat({ fontEastAsiaLanguage: 'ja-JP' });
+    doc.select(25, 28); doc.setRunFormat({ fontEastAsiaLanguage: 'zh-CN' });
+    // A run marked Japanese but holding Latin text only needs no mark.
+    doc.select(29, 34); doc.setRunFormat({ fontEastAsiaLanguage: 'ja-JP' });
+    const html = documentHtml(doc);
+    expect(html).toContain('<html lang="en">');
+    expect(body(html)).toBe('<p>English, <span lang="ja-JP">日本語の直</span> and more.</p><p><span lang="zh-CN">中文直</span></p><p>Plain</p>');
+  });
+});

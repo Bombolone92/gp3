@@ -1,0 +1,999 @@
+/*
+ * Copyright (C) 2024-present Puter Technologies Inc.
+ *
+ * This file is part of Puter.
+ *
+ * Puter is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import path from '../../lib/path.js';
+import item_icon from '../../helpers/itemIcon.js';
+import { is_owned_by_me, owner_of_path } from '../../helpers/pathOwner.js';
+import { invalidate_shared_roots } from '../../helpers/sharedAccess.js';
+import { mode_label, options_for } from '../../helpers/shareModes.js';
+import { isTouchPrimaryDevice } from './ContextMenu/ContextMenu.js';
+import { avatarHue, avatarInitial } from '../../helpers/shareAvatar.js';
+import { avatarUserAttr, paintAvatars } from '../../helpers/profilePictures.js';
+import {
+    has_direct_share,
+    mark_item_shared,
+} from '../../helpers/sharedBadge.js';
+import { share_outcome } from '../../helpers/shareOutcome.js';
+import { aggregateOwners, aggregateShares, linkShareState, missingPathsFor } from './shareAggregate.js';
+import shareRecipientPicker from '../../helpers/shareRecipientPicker.js';
+import { isOverlayOnTop } from './dashboardOverlay.js';
+import { teams_for_sharing } from '../../helpers/shareTeams.js';
+import { share_link_for } from '../../helpers/sharePaths.js';
+import { is_plan_gate_error, open_upgrade_flow } from '../../helpers/planGate.js';
+import { with_verification_gate } from '../../helpers/verification_gates.js';
+
+const { html_encode } = window;
+
+const closeIcon = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+const chevronIcon = `<svg class="share-modal-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>`;
+const linkIcon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+const lockIcon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
+const globeIcon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/></svg>`;
+const checkIcon = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>`;
+
+// The option at the foot of a person's access menu that takes their access
+// away. Never a mode the API knows, so it can't be confused with one.
+const REMOVE_OPTION = '__remove';
+
+// How long a success message stays up. Errors stay until the next action.
+const SUCCESS_MS = 4000;
+// How long Copy link reads "Link copied" before going back.
+const COPIED_MS = 2000;
+
+// How many item icons the header fans out before it stops adding to the pile.
+const MAX_STACKED_ICONS = 3;
+
+/** What each outcome of a share call is called on screen. */
+const SHARE_MESSAGE = {
+    invited: 'share_invited',
+    shared: 'share_shared_with',
+    updated: 'share_access_updated',
+    unchanged: 'share_already_shared_with',
+};
+
+// What one /share, /share/revoke or listing pass may cover, matching the
+// backend's documented cap (see doc: rate limits and quotas). Bigger
+// selections are shared in several requests, and skip the access list rather
+// than firing a listing per item.
+const MAX_ITEMS_PER_REQUEST = 50;
+
+/**
+ * Splits `values` into runs of at most `size`.
+ *
+ * @template T
+ * @param {T[]} values
+ * @param {number} size
+ * @returns {T[][]}
+ */
+const chunk = (values, size) => {
+    const out = [];
+    for ( let i = 0; i < values.length; i += size ) out.push(values.slice(i, i + size));
+    return out;
+};
+
+/**
+ * A row's avatar. `username` marks it for the person's picture; teams,
+ * invited emails and link shares have none.
+ *
+ * @param {string} name
+ * @param {string} [username]
+ * @returns {string} markup
+ */
+const avatar_html = (name, username) => {
+    return `<span class="share-modal-avatar" style="--share-avatar-hue: ${avatarHue(name)}"${avatarUserAttr(username)} aria-hidden="true">${html_encode(avatarInitial(name))}</span>`;
+};
+
+// Distinguishes one open dialog from another: the disclosure button points at
+// its item list by id, and each dialog's document keydown has its own namespace.
+let modal_seq = 0;
+
+/** "1 item" / "4 items", HTML-safe. */
+const count_label = (count) => (count === 1
+    ? i18n('items_count_one')
+    : i18n('items_count_other', { count }));
+
+/**
+ * A responsive, from-scratch sharing modal for the Dashboard's Files tab.
+ * Unlike UIWindowShare (which spawns a desktop UIWindow), this renders a
+ * self-contained overlay that behaves as a centered card on desktop and a
+ * bottom sheet on mobile, styled with the dashboard's design tokens.
+ *
+ * Shares one item or a whole selection. With several items the access list is
+ * one row per person folded across them ({@link aggregateShares}), so every
+ * action — grant, change, revoke — reads as a single decision about a person
+ * rather than a chore repeated per file. A person who holds only some of the
+ * selection says so, and can be extended to the rest in one click.
+ *
+ * Feature-equivalent to UIWindowShare: grant access by email or username,
+ * list who has access (owner, direct grants, grants inherited from an
+ * ancestor folder), change a grant's mode, and revoke — with the revoke
+ * confirmation inlined into the row instead of a stacked alert window.
+ *
+ * @param {Object} opts
+ * @param {Array<Object>} [opts.items] - The items to share, each
+ *   `{ path, name?, owner?, fsentry?, icon? }`. Takes the place of the
+ *   single-item fields below.
+ * @param {string} [opts.path] - Full path of the one item to share
+ * @param {string} [opts.name] - Display name; defaults to the path's basename
+ * @param {string} [opts.owner] - Owner's username; defaults to the first path
+ *   segment, which is not the current user when a `manage` recipient opens this
+ * @param {Object} [opts.fsentry] - The item's fs entry, used to render its icon
+ * @param {jQuery} [opts.$container] - Element to append the overlay to (defaults to <body>)
+ * @returns {{ close: () => void }}
+ */
+export default function UIShareModal ({ items, path: item_path, name, owner, fsentry, $container }) {
+    const $root = $container && $container.length ? $container : $('body');
+
+    const targets = (items?.length ? items : [{ path: item_path, name, owner, fsentry }])
+        .filter((item) => typeof item?.path === 'string' && item.path !== '')
+        .map((item) => ({
+            path: item.path,
+            name: item.name ?? path.basename(item.path),
+            owner: item.owner ?? owner_of_path(item.path) ?? window.user.username,
+            fsentry: item.fsentry ?? null,
+            icon: item.icon ?? null,
+        }));
+    const target_paths = targets.map((item) => item.path);
+    const total = targets.length;
+    // Strictest item decides: one borrowed item withholds it for the rest.
+    const allow_manage = target_paths.every((p) => is_owned_by_me(p));
+    const is_multi = total > 1;
+    // Nothing to share: an empty selection is a caller's mistake, not a dialog.
+    if ( total === 0 ) return { close: () => {} };
+    const modal_id = ++modal_seq;
+    const items_list_id = `share-modal-items-${modal_id}`;
+
+    // The header names the one item, or the size of the pile with the names
+    // folded into an expandable list below it.
+    const title_name = is_multi ? count_label(total) : html_encode(targets[0].name);
+    const names_summary = html_encode(targets.map((item) => item.name).join(', '));
+
+    const header_sub = is_multi
+        ? `<button type="button" class="share-modal-title-sub share-modal-items-toggle" aria-expanded="false"
+                aria-controls="${items_list_id}" title="${names_summary}">
+                <span class="share-modal-items-summary">${names_summary}</span>${chevronIcon}
+            </button>`
+        : `<span class="share-modal-title-sub">${i18n('share')}</span>`;
+
+    const items_list = is_multi
+        ? `<ul class="share-modal-items" id="${items_list_id}" hidden>${targets.map((item) => `
+                <li class="share-modal-item">
+                    <span class="share-modal-item-icon"></span>
+                    <span class="share-modal-item-name enable-user-select">${html_encode(item.name)}</span>
+                </li>`).join('')}</ul>`
+        : '';
+
+    const $overlay = $(`
+        <div class="share-modal-overlay">
+            <div class="share-modal" role="dialog" aria-modal="true" tabindex="-1" aria-label="${title_name} ${i18n('share')}">
+                <div class="share-modal-header">
+                    <div class="share-modal-title">
+                        <span class="share-modal-title-icon${is_multi ? ' share-modal-title-stack' : ''}"></span>
+                        <div class="share-modal-title-text">
+                            <span class="share-modal-title-name enable-user-select">${title_name}</span>
+                            ${header_sub}
+                        </div>
+                    </div>
+                    <button type="button" class="share-modal-close" aria-label="${i18n('close')}" title="${i18n('close')}">${closeIcon}</button>
+                </div>
+                <div class="share-modal-body">
+                    ${items_list}
+                    <form class="share-modal-add" novalidate>
+                        <div class="share-modal-add-row">
+                            <input type="text" class="share-modal-recipient" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send"
+                                placeholder="${i18n('share_add_people')}" aria-label="${i18n('share_add_people')}" />
+                            <span class="share-modal-add-actions" hidden>
+                                <select class="share-modal-mode" aria-label="${i18n('share_access_level')}">${options_for('read', { allow_manage })}</select>
+                                <button type="submit" class="share-modal-submit" disabled>
+                                    <span class="share-modal-spinner" aria-hidden="true"></span>
+                                    <span class="share-modal-submit-label">${i18n('share')}</span>
+                                </button>
+                            </span>
+                        </div>
+                    </form>
+                    <div class="share-modal-list" role="group" aria-label="${i18n('share_who_has_access')}" aria-busy="true">
+                        <div class="share-modal-loading"><span class="share-modal-spinner" aria-hidden="true"></span></div>
+                    </div>
+                    ${allow_manage ? `<div class="share-modal-general">
+                        <h3 class="share-modal-heading">${i18n('share_general_access')}</h3>
+                        <div class="share-modal-general-row">
+                            <span class="share-modal-general-icon" aria-hidden="true">${lockIcon}</span>
+                            <span class="share-modal-general-text">
+                                <select class="share-modal-link-access" aria-label="${i18n('share_general_access')}">
+                                    <option value="restricted">${i18n('share_link_restricted')}</option>
+                                    <option value="anyone">${i18n('share_link_anyone')}</option>
+                                    <option value="mixed" disabled hidden>${i18n('share_access_mixed')}</option>
+                                    <option value="unchecked" disabled hidden>${i18n('share_link_unchecked')}</option>
+                                </select>
+                                <span class="share-modal-general-note">${is_multi ? i18n('share_link_restricted_note_items') : i18n('share_link_restricted_note')}</span>
+                            </span>
+                            <select class="share-modal-link-mode" aria-label="${i18n('share_access_level')}" hidden>${options_for('read', { allow_manage: false })}</select>
+                        </div>
+                    </div>` : ''}
+                </div>
+                <div class="share-modal-footer">
+                    <div class="share-modal-status" role="status" aria-live="polite"></div>
+                    <div class="share-modal-footer-row">
+                        ${is_multi ? '' : `<button type="button" class="dashboard-dialog-btn dashboard-dialog-btn-quiet share-modal-copy-link" hidden>
+                            <span class="share-modal-copy-icon">${linkIcon}</span>
+                            <span class="share-modal-copy-label" aria-live="polite">${i18n('share_copy_link')}</span>
+                        </button>`}
+                        <button type="button" class="dashboard-dialog-btn dashboard-dialog-btn-primary share-modal-done">${i18n('share_done')}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+
+    $root.append($overlay);
+
+    // Reveal after paint so the CSS transition (fade + scale/slide) runs.
+    requestAnimationFrame(() => $overlay.addClass('share-modal-show'));
+
+    const $status = $overlay.find('.share-modal-status');
+    const $list = $overlay.find('.share-modal-list');
+    const $recipient = $overlay.find('.share-modal-recipient');
+    const $submit = $overlay.find('.share-modal-submit');
+    const $add_actions = $overlay.find('.share-modal-add-actions');
+    const $link_access = $overlay.find('.share-modal-link-access');
+    const $link_mode = $overlay.find('.share-modal-link-mode');
+    const $link_note = $overlay.find('.share-modal-general-note');
+    const $link_icon = $overlay.find('.share-modal-general-icon');
+    const $copy_link = $overlay.find('.share-modal-copy-link');
+
+    /**
+     * Where the selection stands on "anyone with the link", as last listed.
+     * A selection too large to list (see refresh) is unchecked until set here.
+     */
+    let link_state = { access: total > MAX_ITEMS_PER_REQUEST ? 'unchecked' : 'restricted', mode: null };
+    /** The one item's uid, which its link is built on. Single item only. */
+    let single_uid = is_multi ? null : (targets[0].fsentry?.uid ?? null);
+    $copy_link.prop('hidden', ! single_uid);
+
+    // Focus returns to wherever the user was (usually the shared row) when
+    // the modal closes. While it's up, the recipient input takes it on
+    // desktop; on touch-primary devices the dialog itself does, because
+    // focusing the input would pop the on-screen keyboard over the sheet
+    // before the user has chosen what to do (add, change, or revoke).
+    const el_previous_focus = document.activeElement;
+    if ( isTouchPrimaryDevice() ) {
+        $overlay.find('.share-modal').get(0)?.focus({ preventScroll: true });
+    } else {
+        $recipient.get(0)?.focus({ preventScroll: true });
+    }
+
+    // A success confirms what the list already shows, so it fades on its own;
+    // an error stays until the user does something else.
+    let status_timer = null;
+    let copied_timer = null;
+
+    let closed = false;
+    const close = () => {
+        if ( closed ) return;
+        closed = true;
+        $overlay.removeClass('share-modal-show');
+        clearTimeout(status_timer);
+        clearTimeout(copied_timer);
+        $(document).off(`keydown.share-modal-${modal_id}`);
+        // The recipient field listens on the document to know when a click
+        // landed outside its suggestions; that has to come off with the dialog.
+        picker.destroy();
+        setTimeout(() => $overlay.remove(), 200);
+        if ( el_previous_focus && document.contains(el_previous_focus) ) {
+            try {
+                el_previous_focus.focus({ preventScroll: true });
+            } catch { /* focus restoration is best-effort */ }
+        }
+    };
+
+    // The last successfully aggregated access list, so canceling an inline
+    // revoke confirmation can restore the row without another round-trip.
+    let last_groups = [];
+    // The items whose access that list was read from. An item whose listing
+    // failed may well be shared already: "add to all" granting it the group's
+    // mode could take a stronger grant down.
+    let listed_paths = target_paths;
+    const group_for = (key) => last_groups.find((group) => group.key === key);
+
+    // Re-rendering the list replaces its nodes wholesale, and disabling a
+    // focused control drops focus onto <body> — either would strand a
+    // keyboard user outside the dialog, past the reach of the Tab trap.
+    // Every action that does one of those puts focus back explicitly:
+    // on the same person's control when it survives, else on the dialog.
+    const focus_list_control = (selector, key) => {
+        const $el = $list.find(selector).filter((_, el) => $(el).attr('data-key') === key);
+        if ( !$el.length ) return false;
+        $el.get(0).focus({ preventScroll: true });
+        return true;
+    };
+    const focus_dialog = () => {
+        $overlay.find('.share-modal').get(0)?.focus({ preventScroll: true });
+    };
+    // Focus a round-trip lost (a disabled control drops it on <body>, a
+    // re-render removes it) goes back; focus the user took elsewhere while
+    // waiting, into the add-people field say, stays where they put it.
+    const focus_moved_on = () => {
+        const el = document.activeElement;
+        return !! el && el !== document.body && el !== $overlay.find('.share-modal').get(0)
+            && ! $list.get(0).contains(el);
+    };
+
+    // Both take HTML-safe text; `error_html` encodes the one raw source.
+    const show_error = (html) => {
+        clearTimeout(status_timer);
+        $status
+            .removeClass('share-modal-status-success')
+            .addClass('share-modal-status-error')
+            .html(html);
+    };
+
+    const show_success = (html) => {
+        clearTimeout(status_timer);
+        $status
+            .removeClass('share-modal-status-error')
+            .addClass('share-modal-status-success')
+            .html(html);
+        status_timer = setTimeout(() => {
+            if ( $status.hasClass('share-modal-status-success') ) clear_status();
+        }, SUCCESS_MS);
+    };
+
+    const error_html = (err) => (err?.message
+        ? html_encode(err.message)
+        : (is_multi ? i18n('share_failed_items') : i18n('share_failed')));
+
+    const clear_status = () => {
+        $status.removeClass('share-modal-status-error share-modal-status-success').empty();
+    };
+
+    // -- Access list --
+
+    /**
+     * The muted second line under a person's name: how much of the selection
+     * they reach, and anything about the grants the controls can't change.
+     */
+    const notes_for = (group) => {
+        const notes = [];
+        if ( group.accessCount < total ) {
+            notes.push(i18n('share_coverage', { count: group.accessCount, total }));
+        }
+        if ( group.pendingPaths.length ) {
+            notes.push(i18n('share_awaiting_signup'));
+        }
+        if ( group.inheritedFrom ) {
+            notes.push(i18n('share_inherited_via', { folder: path.basename(group.inheritedFrom) }));
+        } else if ( group.inheritedPaths.length ) {
+            notes.push(i18n('share_inherited_via_count', { count: group.inheritedFolderCount }));
+        }
+        return notes;
+    };
+
+    const group_row_html = (group) => {
+        const key = html_encode(group.key);
+        const who = html_encode(group.name);
+        const you = ! group.pending && group.name === window.user.username
+            ? ` (${i18n('share_you')})`
+            : '';
+        // Only direct grants live on the items themselves; an inherited one
+        // belongs to the ancestor folder and has to be changed there.
+        // Every action addresses a person by name; a withheld invite has none.
+        // Someone the owner let share can only change or withdraw the grants
+        // they issued, and leave their own; on anyone else's the request
+        // would do nothing.
+        const may_act = ! group.anonymous
+            && (allow_manage || group.issuers.every((issuer) => issuer === window.user.username));
+        const is_self = ! group.teamUid && ! group.pending && group.name === window.user.username;
+        const can_change = group.directPaths.length > 0 && may_act;
+        const can_revoke = (may_act && (can_change || group.pendingPaths.length > 0))
+            || (is_self && group.directPaths.length > 0);
+        // Extending someone needs a mode to extend; a person whose grants
+        // disagree levels them with the select first.
+        const missing = missingPathsFor(listed_paths, group).length;
+        const can_add_to_all = can_change && missing > 0 && group.mode !== null;
+
+        // The clauses read as one muted line; the action keeps its own box on
+        // it so a narrow sheet wraps it whole instead of orphaning a separator.
+        const notes = notes_for(group);
+        let via = '';
+        if ( notes.length || can_add_to_all ) {
+            via += `<span class="share-modal-row-via${can_add_to_all ? ' share-modal-row-via-wrap' : ''}">`;
+            if ( notes.length ) via += `<span>${notes.join(' · ')}</span>`;
+            if ( can_add_to_all ) {
+                via += `<button type="button" class="share-modal-row-link" data-key="${key}"
+                    aria-label="${missing === 1
+                        ? i18n('share_add_to_all_for_one', { recipient: group.name })
+                        : i18n('share_add_to_all_for', { recipient: group.name, count: missing })}"
+                    >${i18n('share_add_to_all')}</button>`;
+            }
+            via += '</span>';
+        }
+
+        let row = `<div class="share-modal-row${group.pending ? ' share-modal-row-pending' : ''}${can_change || group.pending ? '' : ' share-modal-row-inherited'}">`;
+        row += avatar_html(group.name, group.key.startsWith('user:') ? group.name : undefined);
+        row += '<span class="share-modal-row-who">';
+        row += `<span class="share-modal-row-name enable-user-select">${who}${you}</span>`;
+        row += via;
+        row += '</span>';
+
+        let fixed_mode = group.inheritedMode;
+        if ( group.pending ) fixed_mode = group.pendingMode;
+        else if ( group.directPaths.length ) fixed_mode = group.mode;
+        const fixed_label = fixed_mode ? mode_label(fixed_mode) : i18n('share_access_mixed');
+
+        if ( can_change || can_revoke ) {
+            // One menu per person: their access level, then a way to take it
+            // away. A grant they can only withdraw shows its level as a fixed
+            // first entry. The accessible name carries the person, so a screen
+            // reader user can tell whose access the control changes.
+            const levels = can_change
+                ? options_for(group.mode, { allow_manage })
+                : `<option value="" selected disabled>${fixed_label}</option>`;
+            const remove_label = group.pending ? i18n('share_cancel_invite') : i18n('share_remove_access');
+            row += `<select class="share-modal-row-mode" data-key="${key}" aria-label="${i18n('share_access_level_for', { recipient: group.name })}">`
+                + `${levels}<hr><option class="share-modal-option-danger" value="${REMOVE_OPTION}">${remove_label}</option></select>`;
+        } else {
+            row += `<span class="share-modal-row-tag">${fixed_label}</span>`;
+        }
+        row += '</div>';
+        return row;
+    };
+
+    const render = (groups) => {
+        last_groups = groups;
+        let rows = '';
+
+        // Ownership comes from owning the item, so it can't be revoked here.
+        // A selection made in the Shared view can span owners.
+        for ( const item_owner of aggregateOwners(targets.map((item) => item.owner)) ) {
+            rows += '<div class="share-modal-row">';
+            rows += avatar_html(item_owner.name, item_owner.name);
+            rows += '<span class="share-modal-row-who">';
+            rows += `<span class="share-modal-row-name enable-user-select">${html_encode(item_owner.name)}${item_owner.name === window.user.username ? ` (${i18n('share_you')})` : ''}</span>`;
+            if ( item_owner.count < total ) {
+                rows += `<span class="share-modal-row-via">${i18n('share_coverage', { count: item_owner.count, total })}</span>`;
+            }
+            rows += '</span>';
+            rows += `<span class="share-modal-row-tag">${i18n('share_owner')}</span>`;
+            rows += '</div>';
+        }
+
+        for ( const group of groups ) {
+            rows += group_row_html(group);
+        }
+        if ( !groups.length ) {
+            rows += `<p class="share-modal-empty">${is_multi ? i18n('share_no_one_items') : i18n('share_no_one')}</p>`;
+        }
+        $list.attr('aria-busy', 'false').html(rows);
+        paintAvatars($list[0]);
+    };
+
+    // Actions on different rows can overlap, each ending in a refresh; only
+    // the newest may render, or an older listing lands last and undoes it.
+    let refresh_seq = 0;
+    const refresh = async () => {
+        const seq = ++refresh_seq;
+        // A listing per item stops being reasonable past the request cap, and
+        // every action would re-run it. Say so instead of firing hundreds.
+        if ( total > MAX_ITEMS_PER_REQUEST ) {
+            last_groups = [];
+            $list.attr('aria-busy', 'false')
+                .html(`<p class="share-modal-empty">${i18n('share_access_list_too_many', { total })}</p>`);
+            render_link_access();
+            return;
+        }
+
+        // One listing per item: a slow or failed item must not hide the rest.
+        const settled = await Promise.allSettled(
+            target_paths.map((target) => puter.fs.getShares(target)),
+        );
+        if ( seq !== refresh_seq ) return;
+
+        /** @type {Map<string, Object[]>} */
+        const by_path = new Map();
+        let failure = null;
+        settled.forEach((result, index) => {
+            if ( result.status === 'fulfilled' ) {
+                by_path.set(target_paths[index], result.value);
+            } else {
+                failure ??= result.reason;
+            }
+        });
+
+        // Each listing is authoritative for its own item. The Files rows
+        // still need it when the dialog was closed while a change was saving.
+        for ( const [target, shares] of by_path ) {
+            mark_item_shared(target, has_direct_share(shares));
+        }
+        if ( closed ) return;
+
+        if ( by_path.size === 0 ) {
+            $list.attr('aria-busy', 'false').empty();
+            // Nothing was being shared: share_failed would say otherwise.
+            show_error(failure?.message ? html_encode(failure.message) : i18n('share_load_failed'));
+            return;
+        }
+        listed_paths = target_paths.filter((target) => by_path.has(target));
+        render(aggregateShares(target_paths, by_path));
+        link_state = linkShareState(target_paths, by_path);
+        render_link_access();
+        if ( failure ) show_error(i18n('share_load_partial_failed'));
+    };
+
+    // -- General access: people only, or anyone with the link --
+
+    /** Put the control where the listings say the selection stands. */
+    const render_link_access = () => {
+        // The link opens the item for anyone who has access, so it's worth
+        // copying whether or not it's open to everyone.
+        $copy_link.prop('hidden', ! single_uid);
+        if ( ! allow_manage ) return;
+        const { access, mode } = link_state;
+        $link_icon
+            .toggleClass('share-modal-general-icon-open', access === 'anyone')
+            .html(access === 'anyone' ? globeIcon : (access === 'mixed' ? linkIcon : lockIcon));
+        $link_access.val(access);
+        $link_mode.prop('hidden', access !== 'anyone');
+        // `null` rests the mode on the "Mixed" placeholder, as the rows do.
+        if ( access === 'anyone' ) $link_mode.html(options_for(mode, { allow_manage: false }));
+        let note;
+        if ( access === 'unchecked' ) {
+            note = i18n('share_link_unchecked_note', { total });
+        } else if ( access === 'mixed' ) {
+            note = i18n('share_link_mixed_note');
+        } else if ( access === 'anyone' ) {
+            note = i18n(`share_link_anyone_note_${mode === 'write' ? 'write' : 'read'}${is_multi ? '_items' : ''}`);
+        } else {
+            note = i18n(is_multi ? 'share_link_restricted_note_items' : 'share_link_restricted_note');
+        }
+        $link_note.html(note);
+    };
+
+    // -- Dismissal wiring --
+    $overlay.on('click', '.share-modal-close, .share-modal-done', close);
+    // Backdrop close goes by where the press STARTED: a drag that begins in
+    // the recipient input (text selection) and releases over the backdrop
+    // registers its click on the overlay, and must not eat the typed name.
+    let backdrop_pressed = false;
+    $overlay.on('mousedown', function (e) {
+        backdrop_pressed = e.target === $overlay[0];
+    });
+    $overlay.on('click', function (e) {
+        if ( e.target === $overlay[0] && backdrop_pressed ) close();
+    });
+    $(document).on(`keydown.share-modal-${modal_id}`, function (e) {
+        // A gate or upgrade window opened over the modal takes its own Escape.
+        if ( e.key !== 'Escape' || ! isOverlayOnTop($overlay[0]) ) return;
+        // An open revoke confirmation swallows the first Escape. Once Remove
+        // is under way it can't be taken back, and the row must not look it.
+        const $confirm = $list.find('.share-modal-row-confirm');
+        if ( $confirm.find('button:disabled').length ) return;
+        if ( $confirm.length ) {
+            const key = $confirm.attr('data-key');
+            render(last_groups);
+            focus_list_control('.share-modal-row-mode', key) || focus_dialog();
+            return;
+        }
+        close();
+    });
+
+    // Keep Tab cycling inside the dialog while it's up.
+    $overlay.on('keydown', function (e) {
+        if ( e.key !== 'Tab' ) return;
+        const focusables = $overlay
+            .find('button, input, select, [tabindex]:not([tabindex="-1"])')
+            .filter(':visible:not(:disabled)');
+        if ( !focusables.length ) return;
+        const first = focusables.get(0);
+        const last = focusables.get(focusables.length - 1);
+        // Focus can legitimately sit on the dialog container (it takes focus
+        // after a revoke removes the focused row); step into the cycle from
+        // either end instead of letting Tab walk out of the dialog.
+        if ( focusables.index(document.activeElement) === -1 ) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus();
+        } else if ( e.shiftKey && document.activeElement === first ) {
+            e.preventDefault();
+            last.focus();
+        } else if ( !e.shiftKey && document.activeElement === last ) {
+            e.preventDefault();
+            first.focus();
+        }
+    });
+
+    // -- Which items this is (best-effort icons, expandable list) --
+    $overlay.on('click', '.share-modal-items-toggle', function () {
+        const expanded = $(this).attr('aria-expanded') === 'true';
+        $(this).attr('aria-expanded', expanded ? 'false' : 'true');
+        $overlay.find('.share-modal-items').prop('hidden', expanded);
+    });
+
+    const paint_icons = () => {
+        const stacked = targets.filter((item) => item.icon).slice(0, MAX_STACKED_ICONS);
+        if ( stacked.length ) {
+            $overlay.find('.share-modal-title-icon').html(
+                stacked.map((item) => `<img src="${html_encode(item.icon)}" alt="">`).join(''),
+            );
+        }
+        $overlay.find('.share-modal-item').each(function (index) {
+            const icon = targets[index]?.icon;
+            if ( icon ) $(this).find('.share-modal-item-icon').html(`<img src="${html_encode(icon)}" alt="">`);
+        });
+    };
+
+    (async () => {
+        await Promise.all(targets.map(async (item) => {
+            if ( item.icon || ! item.fsentry ) return;
+            try {
+                item.icon = (await item_icon(item.fsentry))?.image ?? null;
+            } catch { /* icon is best-effort */ }
+        }));
+        if ( ! closed ) paint_icons();
+    })();
+
+    // -- Grant access --
+
+    // One request per run of MAX_ITEMS_PER_REQUEST, in series so a large
+    // selection can't burst through the share rate limit. Resolves with every
+    // grant that landed, the way a single call would.
+    const grant_access = async (recipient, mode, paths) => {
+        const created = [];
+        for ( const run of chunk(paths, MAX_ITEMS_PER_REQUEST) ) {
+            created.push(...(await with_verification_gate(
+                () => puter.fs.share({ paths: run, recipient, mode }),
+            ) ?? []));
+        }
+        // A selection too large to list again (see refresh) learns which rows
+        // are now shared from the grants themselves.
+        if ( total > MAX_ITEMS_PER_REQUEST ) {
+            for ( const share of created ) mark_item_shared(share.path, true);
+        }
+        return created;
+    };
+
+    const revoke_access = async (recipient, paths) => {
+        for ( const run of chunk(paths, MAX_ITEMS_PER_REQUEST) ) {
+            await puter.fs.unshare({ paths: run, recipient });
+        }
+    };
+
+    /**
+     * Open the selection to anyone with the link at `mode`, or close it with
+     * null. Focus goes back to `el_control`, the select the user changed.
+     */
+    const set_link_access = async (mode, el_control) => {
+        $link_access.prop('disabled', true);
+        $link_mode.prop('disabled', true);
+        try {
+            if ( mode ) {
+                const created = await grant_access({ anyone: true }, mode, target_paths);
+                if ( ! is_multi ) single_uid ??= created?.[0]?.entryUid ?? null;
+                link_state = { access: 'anyone', mode };
+                show_success(i18n(`share_link_on_${mode === 'write' ? 'write' : 'read'}${is_multi ? '_items' : ''}`));
+            } else {
+                await revoke_access({ anyone: true }, target_paths);
+                link_state = { access: 'restricted', mode: null };
+                show_success(i18n(is_multi ? 'share_link_off_items' : 'share_link_off'));
+            }
+        } catch (err) {
+            // A plan gate gets the flow that clears it, where the deployment
+            // has one; a refusal is otherwise reported like any other.
+            if ( is_plan_gate_error(err) ) {
+                if ( ! open_upgrade_flow() ) show_error(i18n('share_link_requires_plan'));
+            } else {
+                show_error(error_html(err));
+            }
+        } finally {
+            $link_access.prop('disabled', false);
+            $link_mode.prop('disabled', false);
+        }
+        // The listings are the truth either way, and they put the control
+        // back; a selection too large to list keeps what was just applied.
+        invalidate_shared_roots();
+        await refresh();
+        render_link_access();
+        if ( el_control && $(el_control).is(':visible') ) el_control.focus({ preventScroll: true });
+        else focus_dialog();
+    };
+
+    $overlay.on('change', '.share-modal-link-access', function () {
+        const value = $(this).val();
+        if ( value === 'mixed' || value === 'unchecked' ) return;
+        // Opening up starts at view. The mode control is hidden unless every
+        // item is already open, so its value may be left over from before.
+        set_link_access(value === 'anyone' ? 'read' : null, this);
+    });
+    $overlay.on('change', '.share-modal-link-mode', function () {
+        const mode = $(this).val();
+        if ( mode ) set_link_access(mode, this);
+    });
+    // The button confirms the copy itself, then goes back to what it was.
+    $overlay.on('click', '.share-modal-copy-link', async function () {
+        if ( ! single_uid ) return;
+        try {
+            await window.copy_to_clipboard(share_link_for(
+                { owner: targets[0].owner, uid: single_uid, name: targets[0].name },
+                window.gui_origin,
+            ));
+            clearTimeout(copied_timer);
+            $copy_link.addClass('share-modal-copied');
+            $copy_link.find('.share-modal-copy-icon').html(checkIcon);
+            $copy_link.find('.share-modal-copy-label').html(i18n('share_link_copied'));
+            copied_timer = setTimeout(() => {
+                $copy_link.removeClass('share-modal-copied');
+                $copy_link.find('.share-modal-copy-icon').html(linkIcon);
+                $copy_link.find('.share-modal-copy-label').html(i18n('share_copy_link'));
+            }, COPIED_MS);
+        } catch (err) {
+            show_error(error_html(err));
+        }
+    });
+
+    // The uid the link is built on, when the row did not carry it.
+    if ( ! is_multi && ! single_uid ) {
+        puter.fs.stat(targets[0].path).then((stat) => {
+            if ( closed ) return;
+            single_uid = stat?.uid ?? null;
+            render_link_access();
+        }).catch(() => { /* the button just stays hidden */ });
+    }
+
+    /** A team is named by uid; a person by the name the row already shows. */
+    const recipient_of = (group) => (group.teamUid ? { team: group.teamUid } : group.name);
+
+    // A share on its way keeps the button down, though the field is edited.
+    let sharing = false;
+
+    // The level and Share button only show once there is someone to share
+    // with, and stay while a share is on its way.
+    const sync_add_actions = () => {
+        const chosen = picker.recipient();
+        $submit.prop('disabled', sharing || ! chosen);
+        $add_actions.prop('hidden', ! (chosen || sharing));
+    };
+
+    // One field for every kind of recipient: a colleague, a whole team, someone
+    // shared with before, or an address typed from scratch.
+    const picker = shareRecipientPicker({
+        $input: $recipient,
+        $row: $overlay.find('.share-modal-add-row'),
+        // Nobody already on the list below: offering them again would only
+        // re-grant what their row already shows.
+        excluded: () => last_groups.map((group) => group.key),
+        onChange: () => {
+            sync_add_actions();
+            // Choosing again retires a stale success/error message.
+            clear_status();
+        },
+    });
+
+    (async () => {
+        const teams = await teams_for_sharing();
+        if ( closed ) return;
+        picker.setTeams(teams);
+        if ( teams.length ) {
+            // Not the encoded form: an attribute set from JS shows entities
+            // literally.
+            const label = i18n('share_add_people_teams', [], false);
+            $recipient.attr('placeholder', label).attr('aria-label', label);
+        }
+    })();
+
+    /** "Shared with ann" / "Shared with ann on 4 items". */
+    const shared_message = (recipient, count) => (count === 1
+        ? i18n('share_shared_with', { recipient })
+        : i18n('share_shared_with_items', { recipient, count }));
+
+    $overlay.on('submit', '.share-modal-add', async function (e) {
+        e.preventDefault();
+        // A team is named by uid; anything typed goes as-is, since a bare
+        // string is what the backend reads as an email or a username.
+        const chosen = picker.recipient();
+        if ( ! chosen || sharing ) return;
+        const recipient = chosen.label;
+
+        sharing = true;
+        $submit.prop('disabled', true).addClass('share-modal-btn-busy');
+        try {
+            const created = await grant_access(
+                chosen.value,
+                $overlay.find('.share-modal-mode').val(),
+                target_paths,
+            );
+            sharing = false;
+            // Clear only what we sent; a name typed mid-flight shouldn't vanish.
+            if ( $recipient.val().trim() === recipient ) picker.clear();
+            sync_add_actions();
+            // A pair the backend refused doesn't fail the others, so say how
+            // many items actually landed rather than implying all of them did.
+            const granted = created?.length ?? 0;
+            // "Shared with" would claim access an invite does not grant.
+            const invited = created?.some((share) => share.pending);
+            if ( ! is_multi ) {
+                // One item, so the list on screen settles what changed.
+                const before = last_groups.map((group) => ({
+                    holder: group.name,
+                    mode: group.mode,
+                }));
+                show_success(
+                    i18n(SHARE_MESSAGE[share_outcome(created, before)], {
+                        recipient,
+                    }),
+                );
+            } else if ( granted < total ) {
+                show_success(i18n('share_shared_with_partial', { recipient, count: granted, total }));
+            } else {
+                show_success(invited
+                    ? i18n('share_invited_items', { recipient, count: total })
+                    : shared_message(recipient, total));
+            }
+            picker.remember(chosen, created);
+            invalidate_shared_roots();
+            await refresh();
+            if ( ! focus_moved_on() ) $recipient.get(0)?.focus({ preventScroll: true });
+        } catch (err) {
+            sharing = false;
+            show_error(error_html(err));
+            sync_add_actions();
+            // Disabling the clicked button dropped focus to <body>; put it
+            // where the correction happens.
+            $recipient.get(0)?.focus({ preventScroll: true });
+        } finally {
+            $submit.removeClass('share-modal-btn-busy');
+        }
+    });
+
+    // -- Change a grant's mode, on every item the person already holds --
+    $overlay.on('change', '.share-modal-row-mode', async function () {
+        const key = $(this).attr('data-key');
+        const group = group_for(key);
+        const mode = $(this).val();
+        if ( ! group || ! mode ) return;
+        if ( mode === REMOVE_OPTION ) {
+            confirm_revoke(key);
+            return;
+        }
+        $(this).prop('disabled', true);
+        try {
+            await grant_access(recipient_of(group), mode, group.directPaths);
+            show_success(group.directPaths.length > 1
+                ? i18n('share_access_updated_items', { recipient: group.name, count: group.directPaths.length })
+                : i18n('share_access_updated', { recipient: group.name }));
+        } catch (err) {
+            show_error(error_html(err));
+        }
+        invalidate_shared_roots();
+        await refresh();
+        if ( ! focus_moved_on() ) focus_list_control('.share-modal-row-mode', key) || focus_dialog();
+    });
+
+    // -- Extend a partial grant to the rest of the selection --
+    $overlay.on('click', '.share-modal-row-link', async function () {
+        const key = $(this).attr('data-key');
+        const group = group_for(key);
+        if ( ! group || group.mode === null ) return;
+        const missing = missingPathsFor(listed_paths, group);
+        if ( ! missing.length ) return;
+        $(this).prop('disabled', true);
+        try {
+            const created = await grant_access(recipient_of(group), group.mode, missing);
+            const granted = created?.length ?? 0;
+            show_success(granted < missing.length
+                ? i18n('share_shared_with_partial', { recipient: group.name, count: granted, total: missing.length })
+                : shared_message(group.name, missing.length));
+        } catch (err) {
+            show_error(error_html(err));
+        }
+        invalidate_shared_roots();
+        await refresh();
+        // The link is gone once they hold everything; the mode select is the
+        // nearest surviving control for the same person.
+        if ( ! focus_moved_on() ) focus_list_control('.share-modal-row-mode', key) || focus_dialog();
+    });
+
+    // -- Revoke, picked from the person's menu and confirmed inline in the row --
+    const confirm_revoke = (key) => {
+        const group = group_for(key);
+        if ( ! group ) return;
+        // An invitation is withdrawn, access is taken away; the prompt must
+        // say which, and over how many items.
+        const affected = group.pending ? group.pendingPaths.length : group.directPaths.length;
+        let confirm_text;
+        if ( group.pending ) {
+            confirm_text = affected > 1
+                ? i18n('share_confirm_cancel_invite_items', { recipient: group.name, count: affected })
+                : i18n('share_confirm_cancel_invite', { recipient: group.name });
+        } else if ( affected > 1 ) {
+            confirm_text = i18n('share_confirm_remove_items', { recipient: group.name, count: affected });
+        } else {
+            // "this item" only reads right when the dialog is about one item.
+            // A team's removal reaches all its members; the desktop says so too.
+            confirm_text = is_multi
+                ? i18n('share_confirm_remove_plain', { recipient: group.name })
+                : i18n(group.teamUid ? 'share_confirm_remove_team' : 'share_confirm_remove', { recipient: group.name });
+        }
+
+        // One confirmation at a time: opening a second one restores the first
+        // row. The re-render replaces every row, so re-find this person's
+        // instead of using the (now detached) menu that was changed.
+        if ( $list.find('.share-modal-row-confirm').length ) {
+            render(last_groups);
+        }
+        $list.find('.share-modal-row-mode')
+            .filter((_, el) => $(el).attr('data-key') === key)
+            .closest('.share-modal-row')
+            .replaceWith(`
+            <div class="share-modal-row share-modal-row-confirm" data-key="${html_encode(key)}">
+                <span class="share-modal-confirm-text">${confirm_text}</span>
+                <span class="share-modal-confirm-actions">
+                    <button type="button" class="share-modal-btn-quiet share-modal-confirm-cancel">${i18n('cancel')}</button>
+                    <button type="button" class="share-modal-btn-danger share-modal-confirm-remove" data-key="${html_encode(key)}">${i18n('share_remove')}</button>
+                </span>
+            </div>
+        `);
+        $list.find('.share-modal-confirm-cancel').trigger('focus');
+    };
+
+    $overlay.on('click', '.share-modal-confirm-cancel', function () {
+        const key = $(this).closest('.share-modal-row-confirm').attr('data-key');
+        render(last_groups);
+        focus_list_control('.share-modal-row-mode', key) || focus_dialog();
+    });
+
+    $overlay.on('click', '.share-modal-confirm-remove', async function () {
+        const key = $(this).attr('data-key');
+        const group = group_for(key);
+        if ( ! group ) return;
+        // Only where they actually hold something: an inherited grant belongs
+        // to the ancestor folder and isn't this dialog's to withdraw.
+        const revoke_paths = group.pending ? group.pendingPaths : group.directPaths;
+        $(this).closest('.share-modal-row-confirm').find('button').prop('disabled', true);
+        try {
+            await revoke_access(recipient_of(group), revoke_paths);
+            // Leaving takes away the access this list is read with, and the
+            // items may leave the listing behind it (the Shared view) too.
+            if ( ! group.teamUid && ! group.pending && group.name === window.user.username ) {
+                invalidate_shared_roots();
+                close();
+                const files = window.dashboard_object;
+                files?.renderDirectory?.(files.currentPath, { consistency: 'strong' });
+                return;
+            }
+            if ( group.pending ) {
+                show_success(i18n('share_invite_cancelled', { recipient: group.name }));
+            } else {
+                show_success(revoke_paths.length > 1
+                    ? i18n('share_access_removed_items', { recipient: group.name, count: revoke_paths.length })
+                    : i18n('share_access_removed', { recipient: group.name }));
+            }
+            invalidate_shared_roots();
+            await refresh();
+            // The focused row is gone; the dialog itself takes focus (the
+            // input would pop the on-screen keyboard on touch devices).
+            if ( ! focus_moved_on() ) focus_dialog();
+        } catch (err) {
+            show_error(error_html(err));
+            render(last_groups);
+            focus_list_control('.share-modal-row-mode', key) || focus_dialog();
+        }
+    });
+
+    refresh();
+
+    return { close };
+}

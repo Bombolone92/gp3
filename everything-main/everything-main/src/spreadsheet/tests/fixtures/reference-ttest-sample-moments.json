@@ -1,0 +1,3017 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Independent Evaluate and worksheet formula2 probes agree; stored formulas checked and scratch ranges cleared with COUNTA zero. Sample sum and squared-deviation overflow, empty/singleton error priority, signs, sample order, all test types, tails, aliases, and real cell references are covered.",
+  "captures": [
+    {
+      "name": "welch-means-controls-v2",
+      "cases": 96,
+      "scope": "Ordinary and sample-sum overflow scales; the intermediate variance/denominator-overflow scale remains diagnostic.",
+      "scriptSha256": "86d5f0af4938f10da4964c14fe4670a83b14e5172230b3735a98f99ca3d276ff",
+      "captureSha256": "ca704de63d7d812da2631e45ef1a35000d5d79afd650e5fa8c0c43595846f0f3"
+    },
+    {
+      "name": "welch-mean-boundaries",
+      "cases": 96,
+      "scope": "All controls.",
+      "scriptSha256": "939da6b16d7fbe8566f9a635d7add98958129b3dc2f1b49947d8f1b87d03a547",
+      "captureSha256": "1ba40cfec65ef89e03bff532d0856e7e7aef80e518da25d233ad1d005d39de0d"
+    },
+    {
+      "name": "welch-mean-references",
+      "cases": 56,
+      "scope": "All T.TEST/TTEST controls; separate AVERAGE/SUM diagnostics remain outside this fix.",
+      "scriptSha256": "c8ffb00733c0140c2373392df4fadb083f2c0966c8bf8b71a96eb6bbf7ad8e5b",
+      "captureSha256": "461e27e84c383944294dfc58ef1b5ad1cc53885f94494dd0627e0bed75a8a7f9"
+    },
+    {
+      "name": "ttest-mean-count-priority",
+      "cases": 48,
+      "scope": "All controls.",
+      "scriptSha256": "11676034a0e205ac13a502591137c7c9927f0d9586d8fd751473486a6a1fb618",
+      "captureSha256": "5dafc3db4ad0efba335a04917198828098666579a0c1ebfae75d7d8ccd1cad02"
+    },
+    {
+      "name": "ttest-moment-count-priority",
+      "cases": 72,
+      "scope": "All controls.",
+      "scriptSha256": "81f248fef7f38ee5164a40b2c909051748477d2e7bb3d7218910d7002fe23308",
+      "captureSha256": "00606ba79a34735b5648238429e98a78df8a86616027584ff7efe33514d8195f"
+    }
+  ],
+  "cases": [
+    {
+      "expression": "T.TEST(1*{1,1},1*{1,1},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,1},1*{1,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{1,1},1*{1,1},1,2)",
+      "formula": "LET(v,TTEST(1*{1,1},1*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1*{1,1},1*{1,1},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,1},1*{1,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{1,1},1*{1,1},1,3)",
+      "formula": "LET(v,TTEST(1*{1,1},1*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1*{1,1},1*{0,0},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,1},1*{0,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{0,0},1*{1,1},1,2)",
+      "formula": "LET(v,TTEST(1*{0,0},1*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1*{1,1},1*{0,0},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,1},1*{0,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{0,0},1*{1,1},1,3)",
+      "formula": "LET(v,TTEST(1*{0,0},1*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1*{1,0},1*{0,1},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,0},1*{0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "TTEST(1*{0,1},1*{1,0},1,2)",
+      "formula": "LET(v,TTEST(1*{0,1},1*{1,0},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "T.TEST(1*{1,0},1*{0,1},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,0},1*{0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "TTEST(1*{0,1},1*{1,0},1,3)",
+      "formula": "LET(v,TTEST(1*{0,1},1*{1,0},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "T.TEST(1*{1,1,1},1*{0,0,0},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,1,1},1*{0,0,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{0,0,0},1*{1,1,1},1,2)",
+      "formula": "LET(v,TTEST(1*{0,0,0},1*{1,1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1*{1,1,1},1*{0,0,0},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,1,1},1*{0,0,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{0,0,0},1*{1,1,1},1,3)",
+      "formula": "LET(v,TTEST(1*{0,0,0},1*{1,1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1*{1,1,0},1*{0,1,0},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,1,0},1*{0,1,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.518518518518519
+    },
+    {
+      "expression": "TTEST(1*{0,1,0},1*{1,1,0},1,2)",
+      "formula": "LET(v,TTEST(1*{0,1,0},1*{1,1,0},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.259259259259259
+    },
+    {
+      "expression": "T.TEST(1*{1,1,0},1*{0,1,0},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,1,0},1*{0,1,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.518518518518519
+    },
+    {
+      "expression": "TTEST(1*{0,1,0},1*{1,1,0},1,3)",
+      "formula": "LET(v,TTEST(1*{0,1,0},1*{1,1,0},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.259259259259259
+    },
+    {
+      "expression": "T.TEST(1*{1,1,-1},1*{0,0,1},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,1,-1},1*{0,0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "TTEST(1*{0,0,1},1*{1,1,-1},1,2)",
+      "formula": "LET(v,TTEST(1*{0,0,1},1*{1,1,-1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "T.TEST(1*{1,1,-1},1*{0,0,1},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,1,-1},1*{0,0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "TTEST(1*{0,0,1},1*{1,1,-1},1,3)",
+      "formula": "LET(v,TTEST(1*{0,0,1},1*{1,1,-1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "T.TEST(1*{1,-1,1},1*{0,0,1},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,-1,1},1*{0,0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "TTEST(1*{0,0,1},1*{1,-1,1},1,2)",
+      "formula": "LET(v,TTEST(1*{0,0,1},1*{1,-1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "T.TEST(1*{1,-1,1},1*{0,0,1},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,-1,1},1*{0,0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "TTEST(1*{0,0,1},1*{1,-1,1},1,3)",
+      "formula": "LET(v,TTEST(1*{0,0,1},1*{1,-1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "T.TEST(1*{1,1},1*{-1,-1},2,2)",
+      "formula": "LET(v,T.TEST(1*{1,1},1*{-1,-1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{-1,-1},1*{1,1},1,2)",
+      "formula": "LET(v,TTEST(1*{-1,-1},1*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1*{1,1},1*{-1,-1},2,3)",
+      "formula": "LET(v,T.TEST(1*{1,1},1*{-1,-1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1*{-1,-1},1*{1,1},1,3)",
+      "formula": "LET(v,TTEST(1*{-1,-1},1*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1},1e307*{1,1},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,1},1e307*{1,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{1,1},1e307*{1,1},1,2)",
+      "formula": "LET(v,TTEST(1e307*{1,1},1e307*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1},1e307*{1,1},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,1},1e307*{1,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{1,1},1e307*{1,1},1,3)",
+      "formula": "LET(v,TTEST(1e307*{1,1},1e307*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1},1e307*{0,0},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,1},1e307*{0,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0},1e307*{1,1},1,2)",
+      "formula": "LET(v,TTEST(1e307*{0,0},1e307*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1},1e307*{0,0},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,1},1e307*{0,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0},1e307*{1,1},1,3)",
+      "formula": "LET(v,TTEST(1e307*{0,0},1e307*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,0},1e307*{0,1},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,0},1e307*{0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,1},1e307*{1,0},1,2)",
+      "formula": "LET(v,TTEST(1e307*{0,1},1e307*{1,0},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,0},1e307*{0,1},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,0},1e307*{0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,1},1e307*{1,0},1,3)",
+      "formula": "LET(v,TTEST(1e307*{0,1},1e307*{1,0},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1,1},1e307*{0,0,0},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,1,1},1e307*{0,0,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0,0},1e307*{1,1,1},1,2)",
+      "formula": "LET(v,TTEST(1e307*{0,0,0},1e307*{1,1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1,1},1e307*{0,0,0},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,1,1},1e307*{0,0,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0,0},1e307*{1,1,1},1,3)",
+      "formula": "LET(v,TTEST(1e307*{0,0,0},1e307*{1,1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1,0},1e307*{0,1,0},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,1,0},1e307*{0,1,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,1,0},1e307*{1,1,0},1,2)",
+      "formula": "LET(v,TTEST(1e307*{0,1,0},1e307*{1,1,0},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1,0},1e307*{0,1,0},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,1,0},1e307*{0,1,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,1,0},1e307*{1,1,0},1,3)",
+      "formula": "LET(v,TTEST(1e307*{0,1,0},1e307*{1,1,0},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1,-1},1e307*{0,0,1},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,1,-1},1e307*{0,0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0,1},1e307*{1,1,-1},1,2)",
+      "formula": "LET(v,TTEST(1e307*{0,0,1},1e307*{1,1,-1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1,-1},1e307*{0,0,1},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,1,-1},1e307*{0,0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0,1},1e307*{1,1,-1},1,3)",
+      "formula": "LET(v,TTEST(1e307*{0,0,1},1e307*{1,1,-1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,-1,1},1e307*{0,0,1},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,-1,1},1e307*{0,0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0,1},1e307*{1,-1,1},1,2)",
+      "formula": "LET(v,TTEST(1e307*{0,0,1},1e307*{1,-1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,-1,1},1e307*{0,0,1},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,-1,1},1e307*{0,0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(1e307*{0,0,1},1e307*{1,-1,1},1,3)",
+      "formula": "LET(v,TTEST(1e307*{0,0,1},1e307*{1,-1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1},1e307*{-1,-1},2,2)",
+      "formula": "LET(v,T.TEST(1e307*{1,1},1e307*{-1,-1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{-1,-1},1e307*{1,1},1,2)",
+      "formula": "LET(v,TTEST(1e307*{-1,-1},1e307*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(1e307*{1,1},1e307*{-1,-1},2,3)",
+      "formula": "LET(v,T.TEST(1e307*{1,1},1e307*{-1,-1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "TTEST(1e307*{-1,-1},1e307*{1,1},1,3)",
+      "formula": "LET(v,TTEST(1e307*{-1,-1},1e307*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1},9e307*{1,1},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,1},9e307*{1,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{1,1},9e307*{1,1},1,2)",
+      "formula": "LET(v,TTEST(9e307*{1,1},9e307*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1},9e307*{1,1},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,1},9e307*{1,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{1,1},9e307*{1,1},1,3)",
+      "formula": "LET(v,TTEST(9e307*{1,1},9e307*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1},9e307*{0,0},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,1},9e307*{0,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0},9e307*{1,1},1,2)",
+      "formula": "LET(v,TTEST(9e307*{0,0},9e307*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1},9e307*{0,0},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,1},9e307*{0,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0},9e307*{1,1},1,3)",
+      "formula": "LET(v,TTEST(9e307*{0,0},9e307*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,0},9e307*{0,1},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,0},9e307*{0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,1},9e307*{1,0},1,2)",
+      "formula": "LET(v,TTEST(9e307*{0,1},9e307*{1,0},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,0},9e307*{0,1},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,0},9e307*{0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,1},9e307*{1,0},1,3)",
+      "formula": "LET(v,TTEST(9e307*{0,1},9e307*{1,0},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1,1},9e307*{0,0,0},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,1,1},9e307*{0,0,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0,0},9e307*{1,1,1},1,2)",
+      "formula": "LET(v,TTEST(9e307*{0,0,0},9e307*{1,1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1,1},9e307*{0,0,0},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,1,1},9e307*{0,0,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0,0},9e307*{1,1,1},1,3)",
+      "formula": "LET(v,TTEST(9e307*{0,0,0},9e307*{1,1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1,0},9e307*{0,1,0},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,1,0},9e307*{0,1,0},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,1,0},9e307*{1,1,0},1,2)",
+      "formula": "LET(v,TTEST(9e307*{0,1,0},9e307*{1,1,0},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1,0},9e307*{0,1,0},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,1,0},9e307*{0,1,0},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,1,0},9e307*{1,1,0},1,3)",
+      "formula": "LET(v,TTEST(9e307*{0,1,0},9e307*{1,1,0},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1,-1},9e307*{0,0,1},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,1,-1},9e307*{0,0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0,1},9e307*{1,1,-1},1,2)",
+      "formula": "LET(v,TTEST(9e307*{0,0,1},9e307*{1,1,-1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1,-1},9e307*{0,0,1},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,1,-1},9e307*{0,0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0,1},9e307*{1,1,-1},1,3)",
+      "formula": "LET(v,TTEST(9e307*{0,0,1},9e307*{1,1,-1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,-1,1},9e307*{0,0,1},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,-1,1},9e307*{0,0,1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0,1},9e307*{1,-1,1},1,2)",
+      "formula": "LET(v,TTEST(9e307*{0,0,1},9e307*{1,-1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,-1,1},9e307*{0,0,1},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,-1,1},9e307*{0,0,1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{0,0,1},9e307*{1,-1,1},1,3)",
+      "formula": "LET(v,TTEST(9e307*{0,0,1},9e307*{1,-1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1},9e307*{-1,-1},2,2)",
+      "formula": "LET(v,T.TEST(9e307*{1,1},9e307*{-1,-1},2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{-1,-1},9e307*{1,1},1,2)",
+      "formula": "LET(v,TTEST(9e307*{-1,-1},9e307*{1,1},1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9e307*{1,1},9e307*{-1,-1},2,3)",
+      "formula": "LET(v,T.TEST(9e307*{1,1},9e307*{-1,-1},2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "TTEST(9e307*{-1,-1},9e307*{1,1},1,3)",
+      "formula": "LET(v,TTEST(9e307*{-1,-1},9e307*{1,1},1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,1,1)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,2,1)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,1,2)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,2,2)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,1,3)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,2,3)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,1*8.8985810175685e+307*SEQUENCE(2)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,1,1)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,2,1)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,1,2)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,2,2)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,1,3)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,2,3)",
+      "formula": "LET(v,T.TEST(8.8985810175685e+307*SEQUENCE(2)^0,-1*8.8985810175685e+307*SEQUENCE(2)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,1,1)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,2,1)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,1,2)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,2,2)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,1,3)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,2,3)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,1*9.0783503310547e+307*SEQUENCE(2)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,1,1)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,2,1)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,1,2)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,2,2)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,1,3)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,2,3)",
+      "formula": "LET(v,T.TEST(9.0783503310547e+307*SEQUENCE(2)^0,-1*9.0783503310547e+307*SEQUENCE(2)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,1,1)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,2,1)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,1,2)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,2,2)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,1,3)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,2,3)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,1*5.9323873450456e+307*SEQUENCE(3)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,1,1)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,2,1)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,1,2)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,2,2)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,1,3)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,2,3)",
+      "formula": "LET(v,T.TEST(5.9323873450456e+307*SEQUENCE(3)^0,-1*5.9323873450456e+307*SEQUENCE(3)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,1,1)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,2,1)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,1,2)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,2,2)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,1,3)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,2,3)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,1*6.0522335540365e+307*SEQUENCE(3)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,1,1)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,2,1)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,1,2)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,2,2)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,1,3)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,2,3)",
+      "formula": "LET(v,T.TEST(6.0522335540365e+307*SEQUENCE(3)^0,-1*6.0522335540365e+307*SEQUENCE(3)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,1,1)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,2,1)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,1,2)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,2,2)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,1,3)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,2,3)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,1*3.5594324070274e+307*SEQUENCE(5)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,1,1)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,2,1)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,1,2)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,2,2)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,1,3)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,2,3)",
+      "formula": "LET(v,T.TEST(3.5594324070274e+307*SEQUENCE(5)^0,-1*3.5594324070274e+307*SEQUENCE(5)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,1,1)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,2,1)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,1,2)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,2,2)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,1,3)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,2,3)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,1*3.6313401324219e+307*SEQUENCE(5)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,1,1)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,2,1)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,1,2)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,2,2)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,1,3)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,2,3)",
+      "formula": "LET(v,T.TEST(3.6313401324219e+307*SEQUENCE(5)^0,-1*3.6313401324219e+307*SEQUENCE(5)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,1,1)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,2,1)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,1,2)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,2,2)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,1,3)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,2,3)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,1*2.2246452543921e+307*SEQUENCE(8)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,1,1)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,2,1)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,1,2)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,2,2)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,1,3)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,2,3)",
+      "formula": "LET(v,T.TEST(2.2246452543921e+307*SEQUENCE(8)^0,-1*2.2246452543921e+307*SEQUENCE(8)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,1,1)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,2,1)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,1,2)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,2,2)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,1,3)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,2,3)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,1*2.2695875827637e+307*SEQUENCE(8)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,1,1)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,1,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,2,1)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,1,2)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,1,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,2,2)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,1,3)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,2,3)",
+      "formula": "LET(v,T.TEST(2.2695875827637e+307*SEQUENCE(8)^0,-1*2.2695875827637e+307*SEQUENCE(8)^0,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "1",
+        "A3": "-1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "1",
+        "A2": "-1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667,
+      "cells": {
+        "A1": "-1",
+        "A2": "1",
+        "A3": "1",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "8e+307",
+        "A3": "-8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "8e+307",
+        "A2": "-8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-8e+307",
+        "A2": "8e+307",
+        "A3": "8e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,1,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,1,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,1,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "-9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "-9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,T.TEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,T.TEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "-9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,T.TEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "text",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,T.TEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "A3": "=NA()",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "8e307",
+        "A2": "8e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,1)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,1)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,1),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e307",
+        "A2": "9e307",
+        "B1": "0",
+        "B2": "0",
+        "B3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "-1e+154",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "-1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "1e+154",
+        "A2": "1e+154",
+        "A3": "1e+154",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "-9e+307",
+        "A3": "0",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "-9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,2)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,2)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,2),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "T.TEST(A1:A3,B1:B3,2,3)",
+      "formula": "LET(v,T.TEST(A1:A3,B1:B3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    },
+    {
+      "expression": "TTEST(B1:B3,A1:A3,2,3)",
+      "formula": "LET(v,TTEST(B1:B3,A1:A3,2,3),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6",
+      "cells": {
+        "A1": "9e+307",
+        "A2": "9e+307",
+        "A3": "9e+307",
+        "B1": "0",
+        "B2": "0"
+      }
+    }
+  ]
+}

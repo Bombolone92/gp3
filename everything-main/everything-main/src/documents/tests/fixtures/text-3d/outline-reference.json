@@ -1,0 +1,962 @@
+{
+  "api": "GetGlyphOutlineW(GGO_NATIVE | GGO_UNHINTED)",
+  "windowsVersion": "10.0.26100",
+  "records": [
+    {
+      "unitsPerEm": 1000,
+      "name": "rectangle",
+      "input": [
+        [
+          {
+            "x": 80,
+            "y": -700,
+            "onCurve": true
+          },
+          {
+            "x": 520,
+            "y": -700,
+            "onCurve": true
+          },
+          {
+            "x": 520,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 80,
+            "y": 0,
+            "onCurve": true
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 78.484375,
+            "y": -705.703125,
+            "onCurve": true
+          },
+          {
+            "x": 530.125,
+            "y": -705.703125,
+            "onCurve": true
+          },
+          {
+            "x": 530.125,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 78.484375,
+            "y": -0.0,
+            "onCurve": true
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 1000,
+      "name": "concave step",
+      "input": [
+        [
+          {
+            "x": 80,
+            "y": -700,
+            "onCurve": true
+          },
+          {
+            "x": 300,
+            "y": -700,
+            "onCurve": true
+          },
+          {
+            "x": 300,
+            "y": -300,
+            "onCurve": true
+          },
+          {
+            "x": 480,
+            "y": -300,
+            "onCurve": true
+          },
+          {
+            "x": 480,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 80,
+            "y": 0,
+            "onCurve": true
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 78.484375,
+            "y": -705.703125,
+            "onCurve": true
+          },
+          {
+            "x": 314.296875,
+            "y": -705.703125,
+            "onCurve": true
+          },
+          {
+            "x": 314.296875,
+            "y": -313.296875,
+            "onCurve": true
+          },
+          {
+            "x": 490.875,
+            "y": -313.296875,
+            "onCurve": true
+          },
+          {
+            "x": 490.875,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 78.484375,
+            "y": -0.0,
+            "onCurve": true
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 1000,
+      "name": "quadratic ring",
+      "input": [
+        [
+          {
+            "x": 500,
+            "y": -700,
+            "onCurve": true
+          },
+          {
+            "x": 900,
+            "y": -700,
+            "onCurve": false
+          },
+          {
+            "x": 900,
+            "y": -350,
+            "onCurve": true
+          },
+          {
+            "x": 900,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 500,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 100,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 100,
+            "y": -350,
+            "onCurve": true
+          },
+          {
+            "x": 100,
+            "y": -700,
+            "onCurve": false
+          }
+        ],
+        [
+          {
+            "x": 500,
+            "y": -170,
+            "onCurve": true
+          },
+          {
+            "x": 700,
+            "y": -170,
+            "onCurve": false
+          },
+          {
+            "x": 700,
+            "y": -350,
+            "onCurve": true
+          },
+          {
+            "x": 700,
+            "y": -530,
+            "onCurve": false
+          },
+          {
+            "x": 500,
+            "y": -530,
+            "onCurve": true
+          },
+          {
+            "x": 300,
+            "y": -530,
+            "onCurve": false
+          },
+          {
+            "x": 300,
+            "y": -350,
+            "onCurve": true
+          },
+          {
+            "x": 300,
+            "y": -170,
+            "onCurve": false
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 500.5,
+            "y": -705.703125,
+            "onCurve": true
+          },
+          {
+            "x": 902.90625,
+            "y": -705.703125,
+            "onCurve": false
+          },
+          {
+            "x": 902.90625,
+            "y": -352.84375,
+            "onCurve": true
+          },
+          {
+            "x": 902.90625,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 500.5,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 98.09375,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 98.09375,
+            "y": -352.84375,
+            "onCurve": true
+          },
+          {
+            "x": 98.09375,
+            "y": -705.703125,
+            "onCurve": false
+          }
+        ],
+        [
+          {
+            "x": 500.5,
+            "y": -185.765625,
+            "onCurve": true
+          },
+          {
+            "x": 686.703125,
+            "y": -185.765625,
+            "onCurve": false
+          },
+          {
+            "x": 686.703125,
+            "y": -352.84375,
+            "onCurve": true
+          },
+          {
+            "x": 686.703125,
+            "y": -519.9375,
+            "onCurve": false
+          },
+          {
+            "x": 500.5,
+            "y": -519.9375,
+            "onCurve": true
+          },
+          {
+            "x": 314.296875,
+            "y": -519.9375,
+            "onCurve": false
+          },
+          {
+            "x": 314.296875,
+            "y": -352.84375,
+            "onCurve": true
+          },
+          {
+            "x": 314.296875,
+            "y": -185.765625,
+            "onCurve": false
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 1000,
+      "name": "triangle with hole",
+      "input": [
+        [
+          {
+            "x": 500,
+            "y": -800,
+            "onCurve": true
+          },
+          {
+            "x": 920,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 80,
+            "y": 0,
+            "onCurve": true
+          }
+        ],
+        [
+          {
+            "x": 610,
+            "y": -250,
+            "onCurve": true
+          },
+          {
+            "x": 500,
+            "y": -530,
+            "onCurve": true
+          },
+          {
+            "x": 390,
+            "y": -250,
+            "onCurve": true
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 500.421875,
+            "y": -803.796875,
+            "onCurve": true
+          },
+          {
+            "x": 922.515625,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 78.484375,
+            "y": -0.0,
+            "onCurve": true
+          }
+        ],
+        [
+          {
+            "x": 598.40625,
+            "y": -264.25,
+            "onCurve": true
+          },
+          {
+            "x": 500.421875,
+            "y": -519.9375,
+            "onCurve": true
+          },
+          {
+            "x": 402.59375,
+            "y": -264.25,
+            "onCurve": true
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 1000,
+      "name": "implied curve midpoint",
+      "input": [
+        [
+          {
+            "x": 500,
+            "y": -700,
+            "onCurve": true
+          },
+          {
+            "x": 900,
+            "y": -700,
+            "onCurve": false
+          },
+          {
+            "x": 900,
+            "y": -350,
+            "onCurve": true
+          },
+          {
+            "x": 900,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 500,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 300,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 100,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 100,
+            "y": -350,
+            "onCurve": true
+          },
+          {
+            "x": 100,
+            "y": -700,
+            "onCurve": false
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 500.5,
+            "y": -705.703125,
+            "onCurve": true
+          },
+          {
+            "x": 902.90625,
+            "y": -705.703125,
+            "onCurve": false
+          },
+          {
+            "x": 902.90625,
+            "y": -352.84375,
+            "onCurve": true
+          },
+          {
+            "x": 902.90625,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 500.5,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 304.296875,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 98.09375,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 98.09375,
+            "y": -352.84375,
+            "onCurve": true
+          },
+          {
+            "x": 98.09375,
+            "y": -705.703125,
+            "onCurve": false
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 2048,
+      "name": "rectangle",
+      "input": [
+        [
+          {
+            "x": 164,
+            "y": -1434,
+            "onCurve": true
+          },
+          {
+            "x": 1065,
+            "y": -1434,
+            "onCurve": true
+          },
+          {
+            "x": 1065,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 164,
+            "y": 0,
+            "onCurve": true
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 160.796875,
+            "y": -1446.0,
+            "onCurve": true
+          },
+          {
+            "x": 1085.203125,
+            "y": -1446.0,
+            "onCurve": true
+          },
+          {
+            "x": 1085.203125,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 160.796875,
+            "y": -0.0,
+            "onCurve": true
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 2048,
+      "name": "concave step",
+      "input": [
+        [
+          {
+            "x": 164,
+            "y": -1434,
+            "onCurve": true
+          },
+          {
+            "x": 614,
+            "y": -1434,
+            "onCurve": true
+          },
+          {
+            "x": 614,
+            "y": -614,
+            "onCurve": true
+          },
+          {
+            "x": 983,
+            "y": -614,
+            "onCurve": true
+          },
+          {
+            "x": 983,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 164,
+            "y": 0,
+            "onCurve": true
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 160.796875,
+            "y": -1446.0,
+            "onCurve": true
+          },
+          {
+            "x": 643.015625,
+            "y": -1446.0,
+            "onCurve": true
+          },
+          {
+            "x": 643.015625,
+            "y": -642.015625,
+            "onCurve": true
+          },
+          {
+            "x": 1004.796875,
+            "y": -642.015625,
+            "onCurve": true
+          },
+          {
+            "x": 1004.796875,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 160.796875,
+            "y": -0.0,
+            "onCurve": true
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 2048,
+      "name": "quadratic ring",
+      "input": [
+        [
+          {
+            "x": 1024,
+            "y": -1434,
+            "onCurve": true
+          },
+          {
+            "x": 1843,
+            "y": -1434,
+            "onCurve": false
+          },
+          {
+            "x": 1843,
+            "y": -717,
+            "onCurve": true
+          },
+          {
+            "x": 1843,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 1024,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 205,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 205,
+            "y": -717,
+            "onCurve": true
+          },
+          {
+            "x": 205,
+            "y": -1434,
+            "onCurve": false
+          }
+        ],
+        [
+          {
+            "x": 1024,
+            "y": -348,
+            "onCurve": true
+          },
+          {
+            "x": 1434,
+            "y": -348,
+            "onCurve": false
+          },
+          {
+            "x": 1434,
+            "y": -717,
+            "onCurve": true
+          },
+          {
+            "x": 1434,
+            "y": -1085,
+            "onCurve": false
+          },
+          {
+            "x": 1024,
+            "y": -1085,
+            "onCurve": true
+          },
+          {
+            "x": 614,
+            "y": -1085,
+            "onCurve": false
+          },
+          {
+            "x": 614,
+            "y": -717,
+            "onCurve": true
+          },
+          {
+            "x": 614,
+            "y": -348,
+            "onCurve": false
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 1024.5,
+            "y": -1446.0,
+            "onCurve": true
+          },
+          {
+            "x": 1848.0,
+            "y": -1446.0,
+            "onCurve": false
+          },
+          {
+            "x": 1848.0,
+            "y": -723.0,
+            "onCurve": true
+          },
+          {
+            "x": 1848.0,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 1024.5,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 201.0,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 201.0,
+            "y": -723.0,
+            "onCurve": true
+          },
+          {
+            "x": 201.0,
+            "y": -1446.0,
+            "onCurve": false
+          }
+        ],
+        [
+          {
+            "x": 1024.5,
+            "y": -381.203125,
+            "onCurve": true
+          },
+          {
+            "x": 1406.0,
+            "y": -381.203125,
+            "onCurve": false
+          },
+          {
+            "x": 1406.0,
+            "y": -723.0,
+            "onCurve": true
+          },
+          {
+            "x": 1406.0,
+            "y": -1063.8125,
+            "onCurve": false
+          },
+          {
+            "x": 1024.5,
+            "y": -1063.8125,
+            "onCurve": true
+          },
+          {
+            "x": 643.015625,
+            "y": -1063.8125,
+            "onCurve": false
+          },
+          {
+            "x": 643.015625,
+            "y": -723.0,
+            "onCurve": true
+          },
+          {
+            "x": 643.015625,
+            "y": -381.203125,
+            "onCurve": false
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 2048,
+      "name": "triangle with hole",
+      "input": [
+        [
+          {
+            "x": 1024,
+            "y": -1638,
+            "onCurve": true
+          },
+          {
+            "x": 1884,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 164,
+            "y": 0,
+            "onCurve": true
+          }
+        ],
+        [
+          {
+            "x": 1249,
+            "y": -512,
+            "onCurve": true
+          },
+          {
+            "x": 1024,
+            "y": -1085,
+            "onCurve": true
+          },
+          {
+            "x": 799,
+            "y": -512,
+            "onCurve": true
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 1024.34375,
+            "y": -1646.015625,
+            "onCurve": true
+          },
+          {
+            "x": 1888.203125,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 160.796875,
+            "y": -0.0,
+            "onCurve": true
+          }
+        ],
+        [
+          {
+            "x": 1224.609375,
+            "y": -542.0,
+            "onCurve": true
+          },
+          {
+            "x": 1024.34375,
+            "y": -1063.8125,
+            "onCurve": true
+          },
+          {
+            "x": 824.390625,
+            "y": -542.0,
+            "onCurve": true
+          }
+        ]
+      ]
+    },
+    {
+      "unitsPerEm": 2048,
+      "name": "implied curve midpoint",
+      "input": [
+        [
+          {
+            "x": 1024,
+            "y": -1434,
+            "onCurve": true
+          },
+          {
+            "x": 1843,
+            "y": -1434,
+            "onCurve": false
+          },
+          {
+            "x": 1843,
+            "y": -717,
+            "onCurve": true
+          },
+          {
+            "x": 1843,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 1024,
+            "y": 0,
+            "onCurve": true
+          },
+          {
+            "x": 614,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 205,
+            "y": 0,
+            "onCurve": false
+          },
+          {
+            "x": 205,
+            "y": -717,
+            "onCurve": true
+          },
+          {
+            "x": 205,
+            "y": -1434,
+            "onCurve": false
+          }
+        ]
+      ],
+      "expected": [
+        [
+          {
+            "x": 1024.5,
+            "y": -1446.0,
+            "onCurve": true
+          },
+          {
+            "x": 1848.0,
+            "y": -1446.0,
+            "onCurve": false
+          },
+          {
+            "x": 1848.0,
+            "y": -723.0,
+            "onCurve": true
+          },
+          {
+            "x": 1848.0,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 1024.5,
+            "y": -0.0,
+            "onCurve": true
+          },
+          {
+            "x": 622.515625,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 201.0,
+            "y": -0.0,
+            "onCurve": false
+          },
+          {
+            "x": 201.0,
+            "y": -723.0,
+            "onCurve": true
+          },
+          {
+            "x": 201.0,
+            "y": -1446.0,
+            "onCurve": false
+          }
+        ]
+      ]
+    }
+  ]
+}

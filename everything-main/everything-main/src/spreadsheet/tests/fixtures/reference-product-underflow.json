@@ -1,0 +1,784 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Each expression was evaluated independently and stored through formula2 in a worksheet. DPRODUCT uses actual database and criteria ranges. All 108 results agree; every stored formula was read back, and temporary cells were cleared with COUNTA zero.",
+  "scriptSha256": "7d6e026146ae0e41202c5017086cb5e08d1c3185f24cb98585db2af76d6c9a0e",
+  "captureSha256": "8265fc12e5bc248e6f1a0921d6c22d886281ba2ba6366a32d1ef77d877a232fd",
+  "cases": [
+    {
+      "expression": "PRODUCT(1e-154,1e-154)",
+      "formula": "LET(v,PRODUCT(1e-154,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(1e-154,1e-154)",
+      "formula": "LET(v,SUMPRODUCT(1e-154,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(-1e-154,1e-154)",
+      "formula": "LET(v,PRODUCT(-1e-154,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(-1e-154,1e-154)",
+      "formula": "LET(v,SUMPRODUCT(-1e-154,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(1e-154,1e-154,1e307)",
+      "formula": "LET(v,PRODUCT(1e-154,1e-154,1e307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(1e-154,1e-154,1e307)",
+      "formula": "LET(v,SUMPRODUCT(1e-154,1e-154,1e307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(1e307,1e-154,1e-154)",
+      "formula": "LET(v,PRODUCT(1e307,1e-154,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(1e307,1e-154,1e-154)",
+      "formula": "LET(v,SUMPRODUCT(1e307,1e-154,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(1e-154,1e307,1e-154)",
+      "formula": "LET(v,PRODUCT(1e-154,1e307,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(1e-154,1e307,1e-154)",
+      "formula": "LET(v,SUMPRODUCT(1e-154,1e307,1e-154),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(1e-307,0.1,1e307)",
+      "formula": "LET(v,PRODUCT(1e-307,0.1,1e307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(1e-307,0.1,1e307)",
+      "formula": "LET(v,SUMPRODUCT(1e-307,0.1,1e307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(1e307,0.1,1e-307)",
+      "formula": "LET(v,PRODUCT(1e307,0.1,1e-307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(1e307,0.1,1e-307)",
+      "formula": "LET(v,SUMPRODUCT(1e307,0.1,1e-307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(EXP(-710),1e307)",
+      "formula": "LET(v,PRODUCT(EXP(-710),1e307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(EXP(-710),1e307)",
+      "formula": "LET(v,SUMPRODUCT(EXP(-710),1e307),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(1e307,EXP(-710))",
+      "formula": "LET(v,PRODUCT(1e307,EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(1e307,EXP(-710))",
+      "formula": "LET(v,SUMPRODUCT(1e307,EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(EXP(-710))",
+      "formula": "LET(v,PRODUCT(EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(EXP(-710))",
+      "formula": "LET(v,SUMPRODUCT(EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(-EXP(-710))",
+      "formula": "LET(v,PRODUCT(-EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "SUMPRODUCT(-EXP(-710))",
+      "formula": "LET(v,SUMPRODUCT(-EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "NEG"
+    },
+    {
+      "expression": "PRODUCT(EXP(-710),1)",
+      "formula": "LET(v,PRODUCT(EXP(-710),1),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(EXP(-710),1)",
+      "formula": "LET(v,SUMPRODUCT(EXP(-710),1),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(1,EXP(-710))",
+      "formula": "LET(v,PRODUCT(1,EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(1,EXP(-710))",
+      "formula": "LET(v,SUMPRODUCT(1,EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(1e-307,0.1,0)",
+      "formula": "LET(v,PRODUCT(1e-307,0.1,0),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(1e-307,0.1,0)",
+      "formula": "LET(v,SUMPRODUCT(1e-307,0.1,0),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(1e307,100,0)",
+      "formula": "LET(v,PRODUCT(1e307,100,0),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUMPRODUCT(1e307,100,0)",
+      "formula": "LET(v,SUMPRODUCT(1e307,100,0),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PRODUCT(1e307,0,100)",
+      "formula": "LET(v,PRODUCT(1e307,0,100),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(1e307,0,100)",
+      "formula": "LET(v,SUMPRODUCT(1e307,0,100),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(0,1e307,100)",
+      "formula": "LET(v,PRODUCT(0,1e307,100),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(0,1e307,100)",
+      "formula": "LET(v,SUMPRODUCT(0,1e307,100),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(2^-1022,1)",
+      "formula": "LET(v,PRODUCT(2^-1022,1),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(2^-1022,1)",
+      "formula": "LET(v,SUMPRODUCT(2^-1022,1),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(2^-1022,0.5)",
+      "formula": "LET(v,PRODUCT(2^-1022,0.5),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(2^-1022,0.5)",
+      "formula": "LET(v,SUMPRODUCT(2^-1022,0.5),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(2^-1022,0.5,2)",
+      "formula": "LET(v,PRODUCT(2^-1022,0.5,2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(2^-1022,0.5,2)",
+      "formula": "LET(v,SUMPRODUCT(2^-1022,0.5,2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(2^-1022,2,0.5)",
+      "formula": "LET(v,PRODUCT(2^-1022,2,0.5),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(2^-1022,2,0.5)",
+      "formula": "LET(v,SUMPRODUCT(2^-1022,2,0.5),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMSQ({1e-154})",
+      "formula": "LET(v,SUMSQ({1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT({1e-154},{1e-154})",
+      "formula": "LET(v,SUMPRODUCT({1e-154},{1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMSQ({1.5e-154})",
+      "formula": "LET(v,SUMSQ({1.5e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT({1.5e-154},{1.5e-154})",
+      "formula": "LET(v,SUMPRODUCT({1.5e-154},{1.5e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMSQ({-1e-154})",
+      "formula": "LET(v,SUMSQ({-1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT({-1e-154},{-1e-154})",
+      "formula": "LET(v,SUMPRODUCT({-1e-154},{-1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMSQ({1e-154,1e-154})",
+      "formula": "LET(v,SUMSQ({1e-154,1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT({1e-154,1e-154},{1e-154,1e-154})",
+      "formula": "LET(v,SUMPRODUCT({1e-154,1e-154},{1e-154,1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMSQ({1.5e-154,1.5e-154})",
+      "formula": "LET(v,SUMSQ({1.5e-154,1.5e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT({1.5e-154,1.5e-154},{1.5e-154,1.5e-154})",
+      "formula": "LET(v,SUMPRODUCT({1.5e-154,1.5e-154},{1.5e-154,1.5e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMSQ({-1e-154,-1e-154})",
+      "formula": "LET(v,SUMSQ({-1e-154,-1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT({-1e-154,-1e-154},{-1e-154,-1e-154})",
+      "formula": "LET(v,SUMPRODUCT({-1e-154,-1e-154},{-1e-154,-1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMSQ({1e-154,1e-154,1e-154})",
+      "formula": "LET(v,SUMSQ({1e-154,1e-154,1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT({1e-154,1e-154,1e-154},{1e-154,1e-154,1e-154})",
+      "formula": "LET(v,SUMPRODUCT({1e-154,1e-154,1e-154},{1e-154,1e-154,1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMSQ({1.5e-154,1.5e-154,1.5e-154})",
+      "formula": "LET(v,SUMSQ({1.5e-154,1.5e-154,1.5e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT({1.5e-154,1.5e-154,1.5e-154},{1.5e-154,1.5e-154,1.5e-154})",
+      "formula": "LET(v,SUMPRODUCT({1.5e-154,1.5e-154,1.5e-154},{1.5e-154,1.5e-154,1.5e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMSQ({-1e-154,-1e-154,-1e-154})",
+      "formula": "LET(v,SUMSQ({-1e-154,-1e-154,-1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT({-1e-154,-1e-154,-1e-154},{-1e-154,-1e-154,-1e-154})",
+      "formula": "LET(v,SUMPRODUCT({-1e-154,-1e-154,-1e-154},{-1e-154,-1e-154,-1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMSQ(SEQUENCE(1,10,1e-154,0))",
+      "formula": "LET(v,SUMSQ(SEQUENCE(1,10,1e-154,0)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(SEQUENCE(1,10,1e-154,0),SEQUENCE(1,10,1e-154,0))",
+      "formula": "LET(v,SUMPRODUCT(SEQUENCE(1,10,1e-154,0),SEQUENCE(1,10,1e-154,0)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMSQ(SEQUENCE(1,10,1.5e-154,0))",
+      "formula": "LET(v,SUMSQ(SEQUENCE(1,10,1.5e-154,0)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT(SEQUENCE(1,10,1.5e-154,0),SEQUENCE(1,10,1.5e-154,0))",
+      "formula": "LET(v,SUMPRODUCT(SEQUENCE(1,10,1.5e-154,0),SEQUENCE(1,10,1.5e-154,0)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMSQ(SEQUENCE(1,10,-1e-154,0))",
+      "formula": "LET(v,SUMSQ(SEQUENCE(1,10,-1e-154,0)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT(SEQUENCE(1,10,-1e-154,0),SEQUENCE(1,10,-1e-154,0))",
+      "formula": "LET(v,SUMPRODUCT(SEQUENCE(1,10,-1e-154,0),SEQUENCE(1,10,-1e-154,0)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUMPRODUCT({1e-154,2},{1e-154,3})",
+      "formula": "LET(v,SUMPRODUCT({1e-154,2},{1e-154,3}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT({1e-154,2},{1e-154,3},{1e307,1})",
+      "formula": "LET(v,SUMPRODUCT({1e-154,2},{1e-154,3},{1e307,1}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT({1e307,1},{1e-154,2},{1e-154,3})",
+      "formula": "LET(v,SUMPRODUCT({1e307,1},{1e-154,2},{1e-154,3}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "POS"
+    },
+    {
+      "expression": "SUMPRODUCT({1e-154,-1e-154},{1e-154,1e-154})",
+      "formula": "LET(v,SUMPRODUCT({1e-154,-1e-154},{1e-154,1e-154}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(TRUE,\"2\",1e-307,0.1)",
+      "formula": "LET(v,PRODUCT(TRUE,\"2\",1e-307,0.1),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(1e-307,0.1,NA())",
+      "formula": "LET(v,PRODUCT(1e-307,0.1,NA()),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "SUMSQ(1e-154,NA())",
+      "formula": "LET(v,SUMSQ(1e-154,NA()),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "SUMPRODUCT({1e-154,1},{1e-154,#N/A})",
+      "formula": "LET(v,SUMPRODUCT({1e-154,1},{1e-154,#N/A}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "SUMPRODUCT({1,2},{1})",
+      "formula": "LET(v,SUMPRODUCT({1,2},{1}),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR3"
+    },
+    {
+      "expression": "SUMSQ(EXP(-710))",
+      "formula": "LET(v,SUMSQ(EXP(-710)),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ZERO"
+    },
+    {
+      "expression": "DPRODUCT(A1:A3,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A3,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(A2:A3)",
+      "formula": "LET(v,PRODUCT(A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A3)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A3)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "DPRODUCT(A1:A4,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A4,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154",
+        "A4": "=1e307"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(A2:A4)",
+      "formula": "LET(v,PRODUCT(A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154",
+        "A4": "=1e307"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A4)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154",
+        "A4": "=1e307"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A4)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e-154",
+        "A3": "=1e-154",
+        "A4": "=1e307"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "DPRODUCT(A1:A4,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A4,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=1e-154",
+        "A4": "=1e-154"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(A2:A4)",
+      "formula": "LET(v,PRODUCT(A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=1e-154",
+        "A4": "=1e-154"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A4)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=1e-154",
+        "A4": "=1e-154"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A4)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=1e-154",
+        "A4": "=1e-154"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "DPRODUCT(A1:A2,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A2,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(A2:A2)",
+      "formula": "LET(v,PRODUCT(A2:A2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A2)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A2)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "DPRODUCT(A1:A3,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A3,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)",
+        "A3": "=1e307"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "PRODUCT(A2:A3)",
+      "formula": "LET(v,PRODUCT(A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)",
+        "A3": "=1e307"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A3)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)",
+        "A3": "=1e307"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A3)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=EXP(-710)",
+        "A3": "=1e307"
+      },
+      "expected": "POS"
+    },
+    {
+      "expression": "DPRODUCT(A1:A4,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A4,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=100",
+        "A4": "=0"
+      },
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PRODUCT(A2:A4)",
+      "formula": "LET(v,PRODUCT(A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=100",
+        "A4": "=0"
+      },
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A4)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=100",
+        "A4": "=0"
+      },
+      "expected": "ERR6"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A4)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=1e307",
+        "A3": "=100",
+        "A4": "=0"
+      },
+      "expected": "ERR6"
+    },
+    {
+      "expression": "DPRODUCT(A1:A4,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A4,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=0",
+        "A3": "=1e307",
+        "A4": "=100"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(A2:A4)",
+      "formula": "LET(v,PRODUCT(A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=0",
+        "A3": "=1e307",
+        "A4": "=100"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A4)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=0",
+        "A3": "=1e307",
+        "A4": "=100"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A4)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A4),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=0",
+        "A3": "=1e307",
+        "A4": "=100"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "DPRODUCT(A1:A3,\"Value\",C1:C2)",
+      "formula": "LET(v,DPRODUCT(A1:A3,\"Value\",C1:C2),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=-1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "PRODUCT(A2:A3)",
+      "formula": "LET(v,PRODUCT(A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=-1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "SUBTOTAL(6,A2:A3)",
+      "formula": "LET(v,SUBTOTAL(6,A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=-1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    },
+    {
+      "expression": "AGGREGATE(6,0,A2:A3)",
+      "formula": "LET(v,AGGREGATE(6,0,A2:A3),IFERROR(IF(v=0,\"ZERO\",IF(v>0,\"POS\",\"NEG\")),\"ERR\"&ERROR.TYPE(v)))",
+      "cells": {
+        "A1": "Value",
+        "C1": "Value",
+        "C2": "<>",
+        "A2": "=-1e-154",
+        "A3": "=1e-154"
+      },
+      "expected": "ZERO"
+    }
+  ]
+}

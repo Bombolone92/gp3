@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Booking links read `calendar.puter.com/#/<host>/<page>` (see linkFor in
+         src/js/booking.js). They land on the app shell but belong to the guest
+         booking page, public/book.html — no sign-in, no SDK, none of the app —
+         so hand them over here, before anything else loads; `replace`, so Back
+         never returns to a page that only ever forwarded. The grammar is
+         exact: the label of a `cal-<host>.puter.work` worker and a page slug —
+         lowercase letters, digits, hyphens, nothing else — so this can only
+         ever forward to the sibling booking page, never anywhere a crafted
+         link might point. Lowercased first: these links get read out and
+         retyped, hostnames are case-insensitive, and page ids are stored
+         lowercase. Any other hash (or an exception here) leaves the calendar
+         to boot as usual. Checked again on every hashchange: a booking link
+         pasted into a tab that already shows the calendar changes only the
+         fragment — a same-document navigation, which reloads nothing — and
+         would otherwise be silently ignored. Kept in step with the same test
+         in src/js/booking.js and public/book.html. -->
+    <script>
+      (function () {
+        function forward() {
+          try {
+            var m = /^#\/([a-z0-9][a-z0-9-]{0,58})\/([a-z0-9][a-z0-9-]{2,30}[a-z0-9])$/.exec(
+              String(location.hash).toLowerCase(),
+            );
+            if (m) location.replace('book.html#/' + m[1] + '/' + m[2]);
+          } catch (_e) {
+            /* not a booking route we can act on — boot the calendar */
+          }
+        }
+        forward();
+        try {
+          addEventListener('hashchange', forward);
+        } catch (_e) {
+          /* the load-time check above still ran */
+        }
+      })();
+    </script>
+
+    <title>Calendar — a fast, private calendar for the web</title>
+    <meta
+      name="description"
+      content="A modern, minimal calendar for the web — month, week, day, and agenda views, recurring events, reminders, search, and iCalendar import/export. Your data stays in your own storage."
+    />
+    <meta
+      name="keywords"
+      content="calendar, web calendar, calendar app, scheduling, events, recurring events, reminders, agenda, ical, ics, puter"
+    />
+    <meta name="author" content="Puter" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://calendar.puter.com/" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e0f13" media="(prefers-color-scheme: dark)" />
+
+    <!-- Paint the user's explicit theme before anything loads: the
+         authoritative applyTheme runs only after the SDK, the session, and
+         the whole calendar have loaded, so an explicit-dark user on a
+         light-OS device watched every boot screen render light for seconds.
+         The offline snapshot (see src/js/offline-store.js) already holds the
+         last-synced settings — read them synchronously, best-effort; main.js
+         re-applies the theme once the calendar is loaded, correcting any
+         drift (a theme changed on another device, a different account). -->
+    <script>
+      (function () {
+        try {
+          var blob = JSON.parse(localStorage.getItem('cal:snapshot') || 'null');
+          var raw = blob && blob.entries && blob.entries['cal:settings'];
+          var settings = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          var theme = settings && settings.theme;
+          if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+        } catch (_e) {
+          /* no snapshot / blocked storage — the OS theme stands until load */
+        }
+      })();
+    </script>
+
+    <!-- Icons -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- PWA / mobile web app -->
+    <meta name="application-name" content="Calendar" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Calendar" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Calendar" />
+    <meta property="og:title" content="Calendar — a fast, private calendar for the web" />
+    <meta
+      property="og:description"
+      content="Month, week, day, and agenda views, recurring events, reminders, search, and iCalendar import/export. Your data stays in your own storage."
+    />
+    <meta property="og:url" content="https://calendar.puter.com/" />
+    <meta property="og:image" content="https://calendar.puter.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Calendar app showing a colorful month view." />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Calendar — a fast, private calendar for the web" />
+    <meta
+      name="twitter:description"
+      content="Month, week, day, and agenda views, recurring events, reminders, search, and iCalendar import/export. Your data stays in your own storage."
+    />
+    <meta name="twitter:image" content="https://calendar.puter.com/og-image.png" />
+    <meta name="twitter:image:alt" content="The Calendar app showing a colorful month view." />
+
+    <!-- Puter.js: the only backend dependency (auth, key-value storage, context menu). -->
+    <script src="https://js.puter.com/v2/"></script>
+
+    <!-- When another Puter app launches the calendar as its headless API (see
+         src/js/api/protocol.js) there is nothing to show. The Puter desktop
+         creates and shows an app's window before the app itself loads, so hide
+         it here — the earliest moment the SDK exists — rather than waiting for
+         the app bundle, which would flash an empty window on screen. main.js
+         hides again; this pass is purely cosmetic and must never throw. -->
+    <script>
+      (function () {
+        try {
+          var raw = new URLSearchParams(location.search).get('puter.args') || '';
+          // Keep in step with SERVICE_ARGS in src/js/api/protocol.js.
+          if (!/"service"\s*:\s*"calendar-api"/.test(raw)) return;
+          if (window.puter && puter.ui && typeof puter.ui.hideWindow === 'function') {
+            puter.ui.hideWindow();
+          }
+        } catch (_e) {
+          /* main.js will hide the window a moment later */
+        }
+      })();
+    </script>
+
+    <!-- Privacy-friendly analytics by Plausible -->
+    <script async src="https://plausible.io/js/pa-D4Hi1FqLc6MHkVYTGoUMl.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init()
+    </script>
+  </head>
+  <body>
+    <div id="app" aria-busy="true"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

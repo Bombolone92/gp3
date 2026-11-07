@@ -1,0 +1,1808 @@
+{
+  "source": "Authored DiagramML controls saved in the native reference application. Expected geometry and text properties are from the native saved drawings; glyph measurements were recorded with Chromium.",
+  "cases": [
+    {
+      "name": "diagram-composite-content-preference[0] fromL linked font 23 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:0\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["2300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"367\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"1022350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"2300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1289,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": true,
+      "fontSize": 23,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,23,18,0.0289,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,23,18,0.0289,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[1] fromL linked font 23 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:1\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"367\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"88900\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"200\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1289,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": true,
+      "fontSize": 23,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,2,2,0.1343,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,12,9,0.1343,0,0,0]": {
+          "requiredHeight": 4.867919921875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,17,13,0.1343,0,0,0]": {
+          "requiredHeight": 13.79243977864583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,14,11,0.1343,0,0,0]": {
+          "requiredHeight": 11.35847981770833,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,13,10,0.1343,0,0,0]": {
+          "requiredHeight": 5.273579915364583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,23,18,0.0289,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,2,2,0.0289,0,0,0]": {
+          "requiredHeight": 0.8113199869791665,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,12,9,0.0289,0,0,0]": {
+          "requiredHeight": 4.867919921875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,7,5,0.0289,0,0,0]": {
+          "requiredHeight": 2.8396199544270826,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,4,3,0.0289,0,0,0]": {
+          "requiredHeight": 1.622639973958333,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,3,2,0.0289,0,0,0]": {
+          "requiredHeight": 1.2169799804687498,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,23,18,0.0289,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,2,2,0.0289,0,0,0]": {
+          "requiredHeight": 0.8113199869791665,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,12,9,0.0289,0,0,0]": {
+          "requiredHeight": 9.73583984375,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,7,5,0.0289,0,0,0]": {
+          "requiredHeight": 2.8396199544270826,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,4,3,0.0289,0,0,0]": {
+          "requiredHeight": 1.622639973958333,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,3,2,0.0289,0,0,0]": {
+          "requiredHeight": 1.2169799804687498,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[2] fromL linked font 3 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:2\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"367\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"133350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1289,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": true,
+      "fontSize": 3,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,3,2,0.0289,0,0,0]": {
+          "requiredHeight": 1.2169799804687498,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,3,2,0.0289,0,0,0]": {
+          "requiredHeight": 1.2169799804687498,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[3] fromL linked font 3 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:3\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 42840
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"367\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"88900\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"200\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1289,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": true,
+      "fontSize": 3,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,3,2,0.0289,0,0,0]": {
+          "requiredHeight": 1.2169799804687498,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,1.1900000000000002,2,2,0.0289,0,0,0]": {
+          "requiredHeight": 0.8113199869791665,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,3,2,0.0289,0,0,0]": {
+          "requiredHeight": 1.2169799804687498,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,1.1900000000000002,2,2,0.0289,0,0,0]": {
+          "requiredHeight": 0.8113199869791665,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[4] fromL literal font 23 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:4\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["2300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"1022350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"2300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5994,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": false,
+      "fontSize": 23,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[5] fromL literal font 23 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:5\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["900"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"400050\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"900\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5994,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": false,
+      "fontSize": 23,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,2,2,0.1343,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,12,9,0.1343,0,0,0]": {
+          "requiredHeight": 4.867919921875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,17,13,0.1343,0,0,0]": {
+          "requiredHeight": 13.79243977864583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,14,11,0.1343,0,0,0]": {
+          "requiredHeight": 11.35847981770833,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,13,10,0.1343,0,0,0]": {
+          "requiredHeight": 5.273579915364583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,2,2,0.1343,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,12,9,0.1343,0,0,0]": {
+          "requiredHeight": 9.73583984375,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,7,5,0.1343,0,0,0]": {
+          "requiredHeight": 2.8396199544270835,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,9,7,0.1343,0,0,0]": {
+          "requiredHeight": 3.65093994140625,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,10,8,0.1343,0,0,0]": {
+          "requiredHeight": 8.113199869791664,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[6] fromL literal font 3 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:6\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"133350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5994,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": false,
+      "fontSize": 3,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[7] fromL literal font 3 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:7\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1087570,
+            "h": 199080
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"133350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1871633,
+            "y": 0,
+            "w": 34397,
+            "h": 324000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5994,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5058,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromL",
+      "linkedReference": false,
+      "fontSize": 3,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.21030304538216,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[8] fromT linked font 23 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:8\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["2300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"194\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"1022350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"2300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 688,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": true,
+      "fontSize": 23,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,0.629384765625,23,18,0.01528505859375,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,0.6287701320648194,23,18,0.01528505859375,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[9] fromT linked font 23 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:9\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"194\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"88900\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"200\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 688,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": true,
+      "fontSize": 23,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,2,2,0.1343,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,12,9,0.1343,0,0,0]": {
+          "requiredHeight": 4.867919921875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,17,13,0.1343,0,0,0]": {
+          "requiredHeight": 13.79243977864583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,14,11,0.1343,0,0,0]": {
+          "requiredHeight": 11.35847981770833,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,13,10,0.1343,0,0,0]": {
+          "requiredHeight": 5.273579915364583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,0.629384765625,23,18,0.01528505859375,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,0.629384765625,2,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,0.6287701320648194,23,18,0.01528505859375,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,0.6287701320648194,2,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[10] fromT linked font 3 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:10\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"194\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"133350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 688,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": true,
+      "fontSize": 3,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,0.629384765625,3,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,0.6287701320648194,3,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[11] fromT linked font 3 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:11\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 22635
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"194\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"88900\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"200\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 688,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": true,
+      "fontSize": 3,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,0.629384765625,3,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,0.629384765625,2,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,0.6287701320648194,3,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,0.6287701320648194,2,2,0.01528505859375,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[12] fromT literal font 23 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:12\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["2300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"1022350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"2300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 6051,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": false,
+      "fontSize": 23,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[13] fromT literal font 23 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:13\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["900"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"400050\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"900\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 6051,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": false,
+      "fontSize": 23,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,2,2,0.1343,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,12,9,0.1343,0,0,0]": {
+          "requiredHeight": 4.867919921875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,17,13,0.1343,0,0,0]": {
+          "requiredHeight": 13.79243977864583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,14,11,0.1343,0,0,0]": {
+          "requiredHeight": 11.35847981770833,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",43,5.53,13,10,0.1343,0,0,0]": {
+          "requiredHeight": 5.273579915364583,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,23,18,0.1343,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,2,2,0.1343,0,0,0]": {
+          "requiredHeight": 0.8113199869791666,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,12,9,0.1343,0,0,0]": {
+          "requiredHeight": 9.73583984375,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,7,5,0.1343,0,0,0]": {
+          "requiredHeight": 2.8396199544270826,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,9,7,0.1343,0,0,0]": {
+          "requiredHeight": 3.650939941406249,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,10,8,0.1343,0,0,0]": {
+          "requiredHeight": 8.113199869791666,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[14] fromT literal font 3 no rules",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:14\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"133350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 6051,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": false,
+      "fontSize": 3,
+      "fontRule": false,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-content-preference[15] fromT literal font 3 font rule",
+      "available": {
+        "w": 53,
+        "h": 17
+      },
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Plan across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-content-preference:15\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"163\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"79\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"79\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"43\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\".08\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"9\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"74\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".0017\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".003\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"3\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"2\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "query",
+          "text": "Plan across regions",
+          "font": ["300"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1098029,
+            "h": 198885
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"1706\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"133350\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"300\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Plan across regions</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1889632,
+            "y": 0,
+            "w": 18367,
+            "h": 323683
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 6051,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 5107,
+            "h": 17982
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "direction": "fromT",
+      "linkedReference": false,
+      "fontSize": 3,
+      "fontRule": true,
+      "measurements": {
+        "[\"query\",\"Plan across regions\",43,5.53,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        },
+        "[\"query\",\"Plan across regions\",30.50082234864446,5.5245996093750005,3,2,0.1343,0,0,0]": {
+          "requiredHeight": 1.21697998046875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-reference-rule-lifecycle[0] live reference, direct owner, canvas 35x22, no text rules",
+      "scope": "group",
+      "ref": "h",
+      "op": "none",
+      "available": {
+        "w": 35,
+        "h": 22
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-reference-rule-lifecycle:0\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\"0.05\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\"0.002\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\"0.002\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "binding": "height-equ",
+      "outerHeight": 22,
+      "originalIndex": 35,
+      "reference": "userA",
+      "boundaryIndex": 5,
+      "parentHeight": 22,
+      "nesting": "direct",
+      "sourceIndex": 1,
+      "expected": [
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 747044,
+            "h": 39600
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 747044,
+            "h": 39600
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"559\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"1422400\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"3200\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Alpha beta gamma</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1245073,
+            "y": 0,
+            "w": 13695,
+            "h": 360000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 547,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2490,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,5,32,25,0.2,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,1.1,32,25,0.044,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",20.751228672106826,1.1,32,25,0.044,0,0,0]": {
+          "requiredHeight": 90.86783854166667,
+          "wordFits": false
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-reference-rule-lifecycle[4] live reference, composite owner, canvas 35x22, no text rules",
+      "scope": "group",
+      "ref": "h",
+      "op": "none",
+      "available": {
+        "w": 35,
+        "h": 22
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-reference-rule-lifecycle:4\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\"0.05\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\"0.002\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\"0.002\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"inner\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" val=\"80\" /><dgm:constr type=\"h\" val=\"60\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "binding": "height-equ",
+      "outerHeight": 22,
+      "originalIndex": 35,
+      "reference": "userA",
+      "boundaryIndex": 5,
+      "parentHeight": 22,
+      "nesting": "nested",
+      "sourceIndex": 1,
+      "expected": [
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 39600
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2880000,
+            "h": 39600
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"559\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"1422400\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"3200\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Alpha beta gamma</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1245073,
+            "y": 0,
+            "w": 13695,
+            "h": 360000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 547,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2490,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",80,60,32,25,0.2,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",80,60,32,25,0.044,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",80,1.1,32,25,0.044,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "diagram-composite-reference-rule-lifecycle[6] literal reference, direct owner, canvas 35x22, no text rules",
+      "scope": "group",
+      "ref": "h",
+      "op": "none",
+      "available": {
+        "w": 35,
+        "h": 22
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:composite-reference-rule-lifecycle:6\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"100\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\"0.05\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\"0.002\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\"0.002\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\"0.2\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".5\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "binding": "literal",
+      "outerHeight": 22,
+      "originalIndex": 35,
+      "reference": "userA",
+      "boundaryIndex": 5,
+      "parentHeight": 22,
+      "nesting": "direct",
+      "sourceIndex": 2,
+      "expected": [
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 747044,
+            "h": 180000
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 747044,
+            "h": 180000
+          },
+          "textXml": "<ns0:txBody xmlns:ns0=\"http://schemas.microsoft.com/office/drawing/2008/diagram\" xmlns:ns1=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><ns1:bodyPr spcFirstLastPara=\"0\" vert=\"horz\" wrap=\"square\" lIns=\"2540\" tIns=\"0\" rIns=\"0\" bIns=\"0\" numCol=\"1\" spcCol=\"1270\" anchor=\"ctr\" anchorCtr=\"0\"><ns1:noAutofit /></ns1:bodyPr><ns1:lstStyle /><ns1:p><ns1:pPr marL=\"0\" lvl=\"0\" indent=\"0\" algn=\"ctr\" defTabSz=\"1422400\"><ns1:lnSpc><ns1:spcPct val=\"100000\" /></ns1:lnSpc><ns1:spcBef><ns1:spcPct val=\"0\" /></ns1:spcBef><ns1:spcAft><ns1:spcPct val=\"35000\" /></ns1:spcAft><ns1:buNone /></ns1:pPr><ns1:r><ns1:rPr sz=\"3200\" kern=\"1200\"><ns1:latin typeface=\"Arial\" /></ns1:rPr><ns1:t>Alpha beta gamma</ns1:t></ns1:r></ns1:p></ns0:txBody>"
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1245073,
+            "y": 0,
+            "w": 13695,
+            "h": 360000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "referenceProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2490,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        },
+        {
+          "name": "constantProbe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2490,
+            "h": 18000
+          },
+          "textBounds": null,
+          "textXml": null
+        }
+      ],
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,5,32,25,0.2,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",20.751228672106826,5,32,25,0.2,0,0,0]": {
+          "requiredHeight": 90.86783854166667,
+          "wordFits": false
+        }
+      }
+    }
+  ]
+}

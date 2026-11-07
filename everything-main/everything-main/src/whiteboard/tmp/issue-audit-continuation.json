@@ -1,0 +1,2208 @@
+{
+  "commit": "d55566bf55d68eb5d3f8e0cac4d2a96fd2787809",
+  "completed": [
+    "f6fe3d8: quoted multiline CSV delimiter detection",
+    "e75ebc1: organization library missing-subtitle exception",
+    "0f237c3: preserve authored PPTX title/note/cell languages; verified and present on origin/main",
+    "2d31059: bind Quick connect gestures to the initiating pointer; verified and present on origin/main",
+    "9b44878: bind crop handle/outside presses to their initiating pointer; verified and present on origin/main",
+    "9389faf: stack crop settings vertically so fields and actions stay inside their panel; verified and present on origin/main",
+    "b3b6e21: wait for every shared sizing recipient before viewer guard assertions; pushed and remote verified",
+    "38ac53d: keep CSV choices and keyboard outlines visible; pushed and remote verified",
+    "b81e78f: keep mind-map child gestures with their initiating pointer; finalunit/app/native/build/format/full1616pass0fail; pushed and remote exact",
+    "05fdd49 Keep mind-map collapse with its initiating pointer; pushedmain exactremoteverified; userauthornoattribution; focusedunit18/app16/build/format/native/full1629pass",
+    "e904b10 Keep comment pin moves with their initiating pointer; pushedmain exactremoteverified; userauthor/noattribution; focused43unit17app/build/format/native/full1649pass",
+    "85e92f4 Keep mind-map control symbols visible at rest; onefile2selectorfix; before/afteractualproductionnative; unit26/app29/build/format/full1649pass; pushedmain exactremote/userauthor/noattribution/cleanworktree",
+    "1f8b803 Keep dense mind-map counts inside their pills; onefilewidth36=>44; actualbefore/prototype/finalnative counts99/100/999/1000/4999/max5499with500comments; default/spacing dark/light French/narrow keyboard/mouse UndoRedo/reload andordinaryQuickconnect PASS; focused46unit29app/build/format/full1649pass; pushedmain exactremote/userauthor/noattribution/cleanworktree",
+    "6e97929 Preserve complete Unicode in bounded object captions; minimal pairguard; before2unit+2app expected failures; final41unit12app/build/format/nativeEnglishdark+Frenchlight/cancel/reload/full1657pass0fail; userauthor/noattribution/pushedmain exactremote/clean"
+  ],
+  "full_suite": {
+    "pass": 1867,
+    "fail": 0,
+    "duration_ms": 750028.818542,
+    "terminal_exit": 0,
+    "session": 47175,
+    "spec": "/tmp/whiteboard-ai-summary-omission-full-spec.log"
+  },
+  "focused_passes": {
+    "csv_content": 84,
+    "library_app": 8,
+    "organization_storage_language": 157,
+    "pptx_export": 36,
+    "pptx_app": 4
+  },
+  "native_csv": "Safari production fixture verified 3 rows / 2 columns, exact multiline and doubled quotes, one-step Undo/Redo and reload persistence. Fixture tab closed; isolated server stopped.",
+  "next": "Paused at user request after pushed3d40f48. Queued scope/alt draft/Unicode remain ignored prototypes only; no tracked edits.",
+  "pending_pptx_language": {
+    "confirmed": "Authored whole-object and passage languages lost in PPTX titles/notes; English and French built-app diagnostics fail. Native PowerPoint before wrongly reports French bonjour/Bonjour as English (Canada).",
+    "candidate": "tmp/pptx-language-candidate.js (imports need normalization from ../src/ to ./ before applying)",
+    "export_tests": "tmp/pptx-language-regressions.js (append to tests/export-formats.test.js, replace EXPORT_PPTX_IMPORT with ../src/export-pptx.js, add validateBoard import)",
+    "app_tests": "tmp/pptx-language-app-regressions.js (append to tests/app.test.js)",
+    "passed": "36 export-format candidate checks; 2,000 randomized note text equivalence checks; 200 mixed-language character oracle checks; real raster equivalence (only title/note XML differs).",
+    "native": "PowerPoint candidate bonjour => French (Canada); Bonjour => French (Canada); hello => English (United Kingdom). Real raster candidate opens and displays board + table correctly, title bonjour French (Canada). Fixture windows closed without edits.",
+    "logs": [
+      "/tmp/whiteboard-pptx-language-before.log",
+      "/tmp/whiteboard-pptx-language-regressions-before.log",
+      "/tmp/whiteboard-pptx-language-app-before.log",
+      "/tmp/whiteboard-pptx-language-candidate-tests.log"
+    ],
+    "next": "None; completed and pushed.",
+    "status": "Complete: final source verified, committed, origin/main matches",
+    "final_logs": [
+      "/tmp/whiteboard-pptx-language-final-export-tests.log",
+      "/tmp/whiteboard-pptx-language-final-app-tests.log",
+      "/tmp/whiteboard-pptx-language-final-build.log",
+      "/tmp/whiteboard-pptx-language-final-format.log"
+    ],
+    "native_final": "tmp/pptx-raster-final.pptx is byte-identical to inspected native candidate; final source also passes randomized 2,000 text cases / 200 language oracle cases."
+  },
+  "previous_full_suite": {
+    "complete": true,
+    "commit": "6e979291027fe2d4d094c7d9a47948d9876c9d1b",
+    "passed": 1657,
+    "failed": 0,
+    "duration_ms": 649496.250958,
+    "session": 18012,
+    "terminal_exit": 0,
+    "spec": "/tmp/whiteboard-object-caption-full-spec.log",
+    "errors": "/tmp/whiteboard-object-caption-full-errors.log",
+    "console": "/tmp/whiteboard-object-caption-full-console.log",
+    "inventory": "/tmp/whiteboard-object-caption-final-inventory.json",
+    "inventory_files": 287,
+    "unchanged_after_commit": true
+  },
+  "csv_formula_audit": {
+    "native": "Excel General text-import positive controls (=1+2 unquoted and quoted) both evaluate to 3. Actual toCSV leading spaces/BOM and escaped baseline import as text; quoted LF splits in this Excel wizard. No exporter injection fix justified from these cases. All synthetic workbooks closed without modifying unrelated workbooks.",
+    "fixtures": [
+      "tmp/csv-formula-synthetic.csv",
+      "tmp/csv-formula-control.csv"
+    ]
+  },
+  "zip_comment_audit": {
+    "result": "Actual exported XLSX with ZIP comment containing EOCD signature fails Whiteboard as too many parts; native Excel also warns of damaged content while unmodified control opens. Do not treat this as established native-supported Office interoperability issue. No source fix.",
+    "fixtures": [
+      "tmp/office-comment-control.xlsx",
+      "tmp/office-comment-signature.xlsx"
+    ]
+  },
+  "quick_pointer_pending": {
+    "status": "Complete: committed, pushed, authoritative origin/main and HEAD match; worktree clean. Full suite terminal 1594 pass / 0 fail, 639029.548208ms, inventory286 unchanged.",
+    "before": "Three built-app before failures: foreign pointerup saves draft prematurely; foreign pointercancel and lostpointercapture discard draft. Separate unit before failure confirms another press can activate a connection.",
+    "fix": "src/quick-connect-ui.js keeps initial press through foreign presses/clicks; move/up/cancel/capture-loss act only for owning pointer.",
+    "focused": "13 unit checks, 8 built-app checks passed, including completion/owner cancellation/undo/redo/persistence. Build and format passed.",
+    "native": "Safari actual production build mouse drag attaches Start->Destination in one undoable edit; redo and reload preserve it. Fixture initial reload reseeded data (fixture error excluded); corrected insert-only seed verifies persistence. Native multi-touch not exercised. Test tab closed, server stopped before further native audit. Additional physical coordinate click on the native port creates one blank node plus attached arrow; one Undo removes both and preserves the original three objects. Actual mouse click and drag both verified. Extra tab closed; server stopped.",
+    "logs": [
+      "/tmp/whiteboard-quick-pointer-before.log",
+      "/tmp/whiteboard-quick-owner-before.log",
+      "/tmp/whiteboard-quick-pointer-unit.log",
+      "/tmp/whiteboard-quick-pointer-app.log",
+      "/tmp/whiteboard-quick-pointer-full-tests.log"
+    ],
+    "full_session": 92089,
+    "full_pid": 78504,
+    "inventory": "/tmp/whiteboard-quick-pointer-final-inventory.json",
+    "full_session_status": "Finished; do not poll or restart92089 / PID78504."
+  },
+  "queued_crop_pointer": {
+    "status": "Complete: committed and pushed; authoritative origin/main and HEAD match; worktree clean.",
+    "before": "Rechecked main2d31059: foreign pointer cancellation/capture loss resets width200->400. Permanent7 before checks:6fail1pass, covers outside press overwrite/loss and late applies.",
+    "fix": "src/image-crop-ui.js retains initiating pointer for handle/outside presses, ignores foreign completion/cancellation, captures outside releases beyond stage.",
+    "focused": "18 built-app and54 unit checks pass; build and format pass.",
+    "native": "Actual production build in Safari: right handle400->200; outside drag releases beyond iframe and remains open with stage capture/up/lost traces; next outside click applies. Single Undo restores full four-color400x240 image; redo/reload/reopen preserves red/blue200x240 crop. Native multi-touch not exercised; permanent built-app checks cover foreign pointers. Isolated test tabs closed and server34197 stopped.",
+    "full_session": 59757,
+    "full_pid": 79323,
+    "full_status": "Finished terminalexit0:1601pass0fail,639912.655334ms;286frozen hashes unchanged. Do not poll/restartsession59757 orPID79323.",
+    "inventory": "/tmp/whiteboard-crop-owner-final-inventory.json",
+    "logs": [
+      "/tmp/whiteboard-crop-pointer-recheck-before.log",
+      "/tmp/whiteboard-crop-owner-permanent-before.log",
+      "/tmp/whiteboard-crop-owner-app.log",
+      "/tmp/whiteboard-crop-owner-unit.log",
+      "/tmp/whiteboard-crop-owner-full-tests.log"
+    ],
+    "next": "None; this issue complete. Broader audit active.",
+    "commit": "9b44878086edb7aa6e03bcc13b0b86c918bc16c9"
+  },
+  "queued_csv_radio_visibility": {
+    "status": "Complete; final focused/build/format/native/full suite verified; committed38ac53d/pushed/remote exact.",
+    "fixture": "tmp/quick-pointer-native/csv-dark-narrow.html (320x400 actual final production app; text-spacing overrides); inner csv-dark.html reports visible focus metrics.",
+    "native": "After selecting CSV then clicking first radio and pressing Down twice, table radio is focused/selected but rect [41,390,18,18] is entirely below scrollable DIALOG bottom380. Dialog scrollTop0; export-sheet [39,253,227,180] scrollTop0. AX confirms focused table radio. Option+Tab reveals Export button (focusVisible true) and scrolls dialog226; backward keyboard/Up changes radio selection but Safari reports radio focusVisible false. Do not claim completed dark-mode focus pass. Check native behavior/limits and an app regression before fix.",
+    "next": "None; issue complete. Native task tabs closed, isolated server stopped.",
+    "before_current": "320x400 dark/text spacing actual production: select CSV, click first radio,DownDown -> table selected/focused rect[41,390,18,18]below dialogbottom380,outer/inner scrollTop0. Also native OptionTab to Export then OptionShiftTab -> radiofocusVisibletrue,ring left visiblyclipped at groupx39 (inputx41,outline5).",
+    "candidate": "tmp/crop-panel-native/csv-candidate.html uses actual final dist and only temporary inline candidate: focusin for #export-sheet input calls closest(label).scrollIntoView({block:nearest,inline:nearest}); #export-sheet padding6px; #export-sheet label flex-shrink0. Source features.js exports callback and scoped style.css rules would be locations; candidate not applied to trackedsource.",
+    "native_candidate": "Input-only reveal movesradio390->361butcaptionpartclipped. Labelreveal movesradio336 butlastcaption14pxclipped because flex-shrunklabel; flex-shrink0 allowsinner scroll27andwholecaption. Addingpadding6 leavesfullnativefocusringinsidegroup. Finalcandidate DownDown rect[47,322.5,18,18],inner scrollTop33,outer54; fullcaptionvisible. UpUp returnsobjectsvisible. OptionTab toExport and OptionShiftTab ->tablefocusVisibletrue rect[47,150.5,18,18],outlinefullyvisible in screenshot,authoredFrenchcaptionpreserved; outer226. Safari arrowafterinitialmouseclick stillreportsfocusVisiblefalse; do not claim a separatefocusringheuristic fix. Fullnativekeyboardtabfocusringverified. Testtabclosed,server15710stopped.",
+    "automated_before": "tmp/csv-focus-visibility-audit.test.js adds actual app regression using native measured viewport adapter. Source before fails focused selected radio visible assertion; selection, authored data and undo checks before it pass. Log /tmp/whiteboard-csv-focus-visibility-audit-before.log.",
+    "automated_candidate": "tmp/csv-focus-visibility-candidate-audit.test.js adds temporary equivalent focus handler inside fixture. Viewport visibility passes, authored French caption intact, undo unchanged, selected table exports exact French CSV cells;1candidatecheckpasses. Log /tmp/whiteboard-csv-focus-visibility-audit-candidate.log. To make permanent use baseline test (without fixture-added handler) and rename/audit wrapper; source handler should supply behavior.",
+    "source": "src/features.js export-sheet focusin reveals caption, then focused radio to handle oversized captions. src/style.css scoped padding6px, nonshrinkinglabels, inputscrollmargin6px. Two permanent actualapp regressions for68px/600pxcaptions.",
+    "permanent_before": "/tmp/whiteboard-csv-focus-permanent-before.log originalmain focusedradiooffdialogfails. /tmp/whiteboard-csv-focus-tall-before.log labelonlysource normalpass/oversizedfail.",
+    "focused_final": "/tmp/whiteboard-csv-focus-app-final.log fourpass includingselectedFrenchCSVdata/authoredlanguage and otherexportoptions. Build/formatpass.",
+    "native_final": "Final production in Safari: 320x400 dark and French light with text spacing, 320x200 oversized405px caption,1200x800 wide all selected/focused radio inside scrolling group/dialog. OptionTab/back visible outline preserved. Undo/redo unchanged. Actual export triggered Safari download approval and was cancelled; generated selected CSV bytes verified in actual app tests.",
+    "full_session": 29725,
+    "full_pid": 83167,
+    "inventory": "/tmp/whiteboard-csv-focus-final-inventory.json",
+    "full_log": "/tmp/whiteboard-csv-focus-full-recheck.log",
+    "full_status": "29725/PID83167 TERMINALexit1:1602pass1fail625145.81475ms; bothCSVregressionsPASS, no lateerror. Secondfailure DIFFERENT assertionexistingbigsharedtest1129 viewerSizingundefined -> true afterforcedclick. TestwaitsbautoFitfalsebutnotc; queuedlegitimateremoteupdatemayarrivebetweensnapshot/action. Needverify test synchronizationfix separately; source stillCSVonlyandfrozen286same.",
+    "shared_drag_recheck_session": 9417,
+    "isolated_shared_drag": "Original9417TERMINALexit0:1pass67281.118292ms. Observerdiagnostic66768TERMINALexit0:1pass67644.83375ms, noCSV_FOCUS_DIAGNOSTIC emitted. Thus CSVfocushandler notexecutedinfailingtest;CSSlayoutnotloadedinJSDOM. No rootcauseorproductionregressionproven. Unchangedfullrecheckstarting; frozen286hashesunchanged."
+  },
+  "queued_crop_panel_layout": {
+    "status": "Complete: committed/pushed; authoritative origin/main and HEAD match9389faf; worktree clean.",
+    "before": "Actual final production build Safari at1200x800 iframe and full native1900x900 content: form.crop-panel.panel inherits generic.panel display:flex row. All children run horizontally, selectors shrink to40px, horizontal scrollbar, Cancel/Apply and status clipped to right. Fullpage reproduces, excluding iframe fixture artifact.",
+    "source": "src/style.css .panel display:flex align-items:center; .crop-panel has no display or flex-direction override. Existing heading/settings/actions have intended individual flex rows.",
+    "candidate": "Ignored tmp/crop-owner-native/layout-candidate.html adds only .crop-panel{display:block}; actual final dist otherwise unchanged. layout-wide.html (1600x800) and layout-narrow.html (320x480) provide read-only native geometry report.",
+    "next": "None; this issue complete. Broader audit active.",
+    "native_candidate": "Desktop panel [1302,88,286,286],clientWidth=scrollWidth284, all controls visible; expanded exact fields panel404high,120px+ fields, zero horizontal overflow. Narrow French panel [12,103,296,240],clientWidth=scrollWidth279; expanded content417high, Option+Tab from Width reaches Apply with vertical scrollTop179. Native screenshot shows focused Apply wholly within panel and no horizontal scrollbar. PlainTab follows native Safari form-only navigation; use OptionTab for all controls. Test-tab closed, server69014 stopped. Final source still requires own commit/final render; text spacing/theme cases pending.",
+    "focused": "12 actual built-app crop/replacement checks pass; build/format pass. No new tests for this one-line reversible layout fix; native geometry is the regression evidence.",
+    "native_final": "Actual production dist from final source, no layout override: original before panel [1302,88,286,281],clientWidth284,scrollWidth518, action x1735 beyond right1588. Final desktop [1302,88,286,286],clientWidth=scrollWidth284, all controls fit. Expanded exact-fields panel404high no horizontal overflow. Native field400->200 and visible Apply crops to red/blue200x240; one Undo restores original four colors, redo/reload preserves200x240. Final narrow320x400 French dark mode with WCAG text-spacing overrides: panel [12,103,296,240],clientWidth=scrollWidth279, expanded485high verticallyscrollable. OptionTab from Width reaches Apply,scrollTop247,Applyrect[133,268,143,58]fullyinsidepanel; screenshot confirms visiblefocus/allactions. KeyboardCancel leavesundo/redo disabled; reload/reopen shows200x240. Native fixture initial absolute-asset path404 and missingicons were fixture-only errors, corrected; exclude from app findings. Testtabclosed; isolatedserver82567stopped. Unrelated tabs left untouched.",
+    "fixture": "tmp/crop-panel-native: before-wide.html uses actual prior9b44878 dist; final-wide.html/final-spaced.html use actual final dist. Seed inserts only missing isolated board; report observes geometry. Original baseline still separately confirmed at full1900width previous turn.",
+    "full_session": 58838,
+    "full_pid": 80776,
+    "full_status": "Final58838/PID80776 finished terminalexit0:1601pass0fail,649599.012042ms,286frozenhashesunchanged, no lateerror/stack. Do not poll/restart58838; previous14090/PID80188 terminalexit1 is retained for first sharing-test teardown finding.",
+    "inventory": "/tmp/whiteboard-crop-panel-final-inventory.json",
+    "logs": [
+      "/tmp/whiteboard-crop-panel-app.log",
+      "/tmp/whiteboard-crop-panel-build.log",
+      "/tmp/whiteboard-crop-panel-format.log",
+      "/tmp/whiteboard-crop-panel-full-tests.log",
+      "/tmp/whiteboard-crop-panel-full-recheck.log"
+    ],
+    "first_full_suite": {
+      "terminal": true,
+      "session": 14090,
+      "passed": 1601,
+      "failed": 1,
+      "duration_ms": 641192.619917,
+      "log": "/tmp/whiteboard-crop-panel-full-tests.log",
+      "failure": "All individual tests pass; app file fails because existing test board reopened while sharing produces unhandledRejection after ending: document querySelector undefined after JSDOMwindowclose."
+    },
+    "commit": "9389fafb6d18f16d0a027fab4a3c48291cf56adf"
+  },
+  "queued_mind_pointer": {
+    "status": "Actual built-app diagnostic confirms two separate controls lose their owner; no tracked source fix.",
+    "before": "Six before cases fail: mind plus and collapse each lose owner41 after foreign42 pointerdown, pointercancel or lostpointercapture. Original click then cannot create a child or collapse its branch. Same native-like down/up/click sequences without foreign event pass both positive controls.",
+    "diagnostic": "tmp/mind-pointer-audit.test.js; run --test-name-pattern=^audit mind (imports normalized for ignored tmp location). Tests use actual appBundle/setup/mindDragFixture/cropPointer.",
+    "logs": [
+      "/tmp/whiteboard-mind-pointer-audit-before.log",
+      "/tmp/whiteboard-mind-pointer-audit-control.log"
+    ],
+    "next": "Assess each separately with permanent before regressions; owner cancel/keyboard/stale-state behavior and history must remain intact. No changes whilecurrentfullsuite59757 runs.",
+    "plus_candidate": {
+      "source": "tmp/mind-map-handles-owner-candidate.js",
+      "unit_before": "tmp/mind-plus-owner-unit-before.test.js /tmp/whiteboard-mind-plus-owner-unit-before.log:4fail,4pass; foreigndown/cancel/capturelossinterruptowner, foreignclickafterownerreleaseactivatesbranchprematurely.",
+      "unit_candidate": "tmp/mind-plus-owner-unit-candidate.test.js /tmp/whiteboard-mind-plus-owner-unit-candidate.log:8pass includesowncancel/lost/drag/staleboard/metadata/keyboard/directions/offscreen fromoriginaltests.",
+      "app_regressions": "tmp/mind-plus-owner-app-regressions.js appendasactualpermanenttestsafterCSVcommit. Importsnone; usesexistingmindDragFixture/cropPointer/mindKey helpers.",
+      "app_before": "/tmp/whiteboard-mind-plus-owner-app-before-final.log:4expectedfail matchingunit; beforeforeignclickafterownerrelease openseditor. ExpectedfailuremaycauseJSDOMlatecallbackafterclose, notseparateproductionfinding.",
+      "app_candidate": "/tmp/whiteboard-mind-plus-owner-app-candidate-final.log:6pass;4reproducedfailuresfixed,oneUndo restoresoriginalhierarchy/layout, Redo/reopenexact; originalallside/localization/protection/authoringpass. CandidateloadedthroughVitepluginwithouttrackededits.",
+      "control_notes": "Firstcandidateapphistoryassertion incorrectlycombinedbranchcreationandseparatetexteditingintooneUndo; correctedtestleavesdefaultNewidea andverifiesbranchcreationatomic. Excludefixturemistakefromappfindings.",
+      "next": "OwnseparatecommitafterCSVfullsuite56812/push. Permanentbeforecheck/newunit+appregressions thenapplycandidate; nativefinalverification plusfullsuite required.",
+      "cancel_controls": "/tmp/whiteboard-mind-plus-owner-cancel-control.log and /tmp/whiteboard-mind-plus-owner-cancel-candidate.log:2passboth, ownercancel/lostcapturepreserveexistingredoandkeyboardactivationcreatesundoablebranch. CandidatepressedguardexplicitlychecksstatebeforeIDmatch.",
+      "native_before": "Actual current CSVfinal dist (plusunmodified) atisolated5191 fixture. ClickRootAX thenAddchildright native down/up/lostcapture/click allpointerId1,detail1exceptloss0. CreatesNewidea childandopenseditor; CmdEnterunchanged then oneUndo restores4nodesandUndoDisabled/RedoEnabled. Validnativebaseline forfinalownerIDclickguard. FixtureinsertsonlymissingID3819522a-13dc-4f9e-a752-a14779505e30; readonlyeventobserver capturesnobehaviorchanges. CurrentnativeSafari testtabMind-map pointerverification leftopen, server39919port5191live fornextfix; unrelatedtabsuntouched. Testtabclosedandserver39919TERMINALexit0stoppednow; baseline4nodespersisted, reopenlaterfromsameisolatedfixtureifneeded."
+    },
+    "collapse_candidate": {
+      "source": "tmp/mind-collapse-owner-candidate.js",
+      "unit_before": "tmp/mind-collapse-owner-unit-before.test.js /tmp/whiteboard-mind-collapse-owner-unit-before.log:4fail,4pass; matchingforeigndown/cancel/lost/clickownershipcases.",
+      "unit_candidate": "tmp/mind-collapse-owner-unit-candidate.test.js /tmp/whiteboard-mind-collapse-owner-unit-candidate.log:8pass includingexistingowncancel/drag/stalemetadata/board/keyboard/denseboundedoverlay.",
+      "app_regressions": "tmp/mind-collapse-owner-app-regressions.js (needsmindPointerClickhelperfromplusregressionsalreadytrackedwhenlaterappended).",
+      "app_before": "/tmp/whiteboard-mind-collapse-owner-app-before.log:4expectedfail. Foreignclickafterreleasecollapsesbeforeownerclick; validrootfailure, earlyJSDOMcloselatecallbackalsoobservedonlyinexpectedfailurecase.",
+      "app_candidate": "/tmp/whiteboard-mind-collapse-owner-app-candidate.log:6pass;4ownershipcasescreateexactoneUndoablecollapse;hiddendescendantsstayincopy;geometryunchanged;redo/reopenpreservescollapsedbranch. Existingnestedcollapse/deletion/export/accessibility/comments/search/revealtestsalsopass.",
+      "next": "Separateissue/commitafterplus. Verifypermanentbefore/finalownlifecyclecontrols/nativeactualbuild/fullsuite. No trackedcollapseeditsyet.",
+      "owner_lifecycle_app": "tmp/mind-collapse-owner-lifecycle-app-regressions.js; currentmaincontrol2pass5395.852667ms andcandidate2pass5409.648666ms. Cancelsowner/lostcapturepreserveexactnodesandexistingredo; laterkeyboardcollapseoneUndo."
+    }
+  },
+  "queued_comment_pointer": {
+    "status": "Actual built-app diagnostic confirms owner loss, no tracked source changes.",
+    "before": "Normal down41/move41/up41 control passes exact pin geometry. Foreign42 pointerdown prevents further owner movement; foreign pointercancel and lostcapture reset draft position1033->913. Three before assertions fail, one control passes.",
+    "diagnostic": "tmp/comment-pointer-audit.test.js (actual appBundle/setup, create local thread, move native-style pointer events).",
+    "log": "/tmp/whiteboard-comment-pointer-audit-before.log",
+    "next": "Separate issue/commit after crop pointer/layout; permanent regressions for owner lifecycle and safe cancellation, persistence, anchored comments and independent board undo required before fixing.",
+    "candidate": {
+      "source": "tmp/comments-owner-candidate.js",
+      "unit_regressions": "tmp/comment-owner-unit-regressions.js",
+      "unit_before": "/tmp/whiteboard-comment-owner-unit-before.log:4expectedfail throughforeign down/cancel/lost/click;move/upcontrolsandowncancelpreserved. 19existing+8newcases=27.",
+      "unit_after": "/tmp/whiteboard-comment-owner-unit-candidate.log27pass. Candidateignoreactiveforeign down,owner-onlycancel/lost,onclickignoresactivedrag. Existinglanguage/access/drafts/paging/move/savefailchecksPASS.",
+      "app_regressions": "tmp/comment-owner-app-model-regressions.js nowcorrect: actualJSONexport modeloracle before/after/reopen; copiescurrentappfixtures andusescommentOwnerBoard helper. Previousstyle/cameraoracleinvalid, superseded.",
+      "app_before": "/tmp/whiteboard-comment-owner-app-model-before.log:7checks,3control/move/upPASS,4expectedfailforeign down/cancel/lost/click. Confirmsforeignclickopensdiscussionduringowneddrag. Allnormalmodelpersistence/historycontrolsPASS.",
+      "app_after": "/tmp/whiteboard-comment-owner-app-model-candidate.log:7PASS6395.33975ms; ownercontinuesfrom+120to+160px, commitscorrectworlddelta, exactcomments/boarditemsreopen, unchangeddrawingundo/redo. Productioncandidateonlytmp/comments-owner-candidate.js.",
+      "next": "AfterCSVandmindplus/collapseissuesseparatecommits: appendcorrectunitregressions+appmodelregressions, permanentbefore/finalsource checks, ownlifecycle/keyboard/staleanchors/permissioncontrols plus nativefinal/fullsuite required. Notrackedcommentedits.",
+      "owner_lifecycle_app": "/tmp/whiteboard-comment-owner-app-lifecycle-control.log and lifecycle-candidate.log:2PASSboth. Ownercancel/lostcapture restoreexactanchor/commentsandboarditemswithoutconsumingexistingredo; laterShiftArrowRightmovespin10worldpixelswhilepreservingdrawingredo.",
+      "owner_access_unit": "tmp/comment-owner-access-unit-regressions.js currentcontrol2pass410.68ms candidate2pass410.540542ms: vieweraccess/boardidentitychanges afterownerpreview thenforeigncancel followedbyownerrelease/lostcapturecannotpersist, restoresoriginalpin/comments.",
+      "native_before": "Currentunchangedcommentssource in actualproductionindex-40DRWCm7.js atisolatedtmp/comment-owner-native port5196: seeded2rects/2threads validatedmodel, readonlyIDBsnapshots. MousepointerId1 drag[300,368]->[400,368] at125% movesanchoredthreadworld300->380,220unchanged, preservesanchorcomment-targetdx100->180/dy40, otherFreeReviewthread780,500unchanged,rectgeometry/labelsunchanged, Undo/RedoDisabledunchanged, no discussionopened. NativeShiftRight adds10worldpixels to390/dx190, no drawingUndo; reloadexactstoredmodelpersists. Anchoredthreadid6480c8df-b514-4a80-ab92-af838339ace6; freethreadid123b4868-483b-4989-b67e-3574ab079557; board627ce816-9152-4672-81c7-47c44c30b77a insert-onlyseed. Tasktabclosed/server71990terminalexit0stopped. Finalcandidate/native stillrequiredafterfix.",
+      "native_fixture_excluded": "Initialport5195 fixture snapshot classic-script IDBopen ranbefore module seed andcreated emptyversion3DB causingblankfixture; not productionissue. Correctedreadonlysnapshot waits forpost-import comment-fixture-ready event, freshisolated5196 successfulvalidatedseed. Oldserver53376terminalexit0stopped, no app/userdatareset/deletion."
+    },
+    "cross_pin": "tmp/comment-owner-unit-regressions.js now includes ninth regression: a different thread pin cannot take over owner movement or open its discussion. Actual component before1expectedfail /tmp/whiteboard-comment-owner-cross-pin-before.log; candidate1pass248.877875ms /tmp/whiteboard-comment-owner-cross-pin-candidate.log. Permanentplannedunit30total (19existing+9owner+2access). Candidate filenamecorrect tmp/comments-owner-candidate.js."
+  },
+  "queued_sharing_test_teardown": {
+    "status": "Initial fullsuite latecallback failure observed once; three isolated checks and unchanged full rerun pass. No production bug/fix established; keep separate queued finding.",
+    "evidence": "tests/app.test.js existingtest20300 closes w.close; JSDOMWindow.js close deletes _document at875. Full app file reports querySelector on undefined aftertestended. CSS isonlytracked change, JS tests ignore production stylesheet layout.",
+    "logs": [
+      "/tmp/whiteboard-crop-panel-full-tests.log",
+      "/tmp/whiteboard-sharing-teardown-audit.log",
+      "/tmp/whiteboard-sharing-teardown-original-recheck.log",
+      "/tmp/whiteboard-sharing-teardown-early-audit.log",
+      "/tmp/whiteboard-crop-panel-full-recheck.log",
+      "/tmp/whiteboard-rejection-trace-control.log"
+    ],
+    "next": "Investigate independently if repro or callbackstack becomesavailable; do not add speculative guards or arbitrary cleanup delays. It is not a blocker to verified CSS layout fix; broad goal staysactive.",
+    "isolated": "Original focused test passes929.709833ms; observer-copy passes917.069125ms; early-close variant without20tickwait passes434.952291ms. Early diagnostic confirms stylesheet count0 in app fixture, so production CSS layout is not exercised by that sharing test. Still no callback stack/reproduction in isolation; do not claim a production fix.",
+    "final_recheck": "Full unchangedrerun1601pass0fail; targetedsharingtest879.705583ms; no capturedlateerror. Observercontrol intentionallylateRejectedPromise fails (exit1) with traceenabled, preservingtestfailuresemantics."
+  },
+  "queued_shared_drag_preview": {
+    "status": "Initial protected drop hint failed once; original isolated/native-main module and final combined full suite pass. No independent production issue established; keep diagnostic queued.",
+    "log": "/tmp/whiteboard-csv-focus-full-tests.log1602pass1fail655983.483792ms",
+    "failure": "built editors join... protectedminddroptargetshouldshowUnlock;conditionfailsafter5secs.",
+    "diagnostic": "tmp/csv-focus-shared-drag-diagnostic.test.js logs cachedgeometry/hintonlyonfailureandCSVfocususage;twoisolatedpasses,no CSVhandleractivation. Observefuturefullifrecurs; donotaddspeculativefixorwaitdelay.",
+    "main_baseline_isolated": "/tmp/whiteboard-csv-main-shared-drag-spec.log:1pass63859.830333ms67175.243542total; featuremodulebyteexactHEADviaViteloadplugin, noCSV focusactivation. Session86642TERMINALexit0.",
+    "parallel_baseline": {
+      "session": 49946,
+      "parent_pid": 83572,
+      "app_pid": 83707,
+      "status": "STOPPEDsession49946exit130aftertargetsharedtestPASS64627.403958ms. Parent83570/83572andapp83707confirmedgone. No fullsuitebaselineclaim; stoppedonce diagnosticoutcomeknown. Immediateerrorlogempty.",
+      "spec": "/tmp/whiteboard-csv-main-parallel-spec.log",
+      "errors": "/tmp/whiteboard-csv-main-parallel-errors.log",
+      "reporter": "/tmp/whiteboard-immediate-test-failure.mjs (JSONerrornonenum messagepossiblemissing; futuredetailedversionavailable)"
+    },
+    "second_full_failure": {
+      "session": 29725,
+      "pid": 83167,
+      "complete": true,
+      "pass": 1602,
+      "fail": 1,
+      "duration_ms": 625145.81475,
+      "log": "/tmp/whiteboard-csv-focus-full-recheck.log",
+      "assertion": "Viewer guard rejects sizing changes even if invoked outside hidden toolbar. Actualtrue expectedundefined atapp1129. Currenttestwaitsonlybfalse beforecapturingc; a togglesenable/disablebeforeb/cselection. Potentialtestsyncgap, needsindependentverification; noactualproductionregressionproven.",
+      "resolution": "Separate verified recipient synchronization correction b3b6e21; do not claim protected hint fixed."
+    }
+  },
+  "pending_shared_sizing_test_sync": {
+    "status": "Complete; b3b6e21 committed/pushed/remote verified; focused1pass and final full1603pass0fail.",
+    "evidence": "Secondfull29725terminal1602/1: viewerSizingundefined->true afterawaitvieweraction. Actualfit.onclick callsformatSelection -> canEditSelection returnsfalseforreadonlybeforeanymutation; legitimateownerupdateonlycause consistentwithtestwaitsonlybfalse andb/cselectedafterownerburst.",
+    "fix": "Selectb/cfittednodebeforeownerchanges;waitbothclientsthroughtruebeforeownerdisable, thenwaitbothfalse beforeviewerSizingcapture. Positivephaseavoidsinitialunsetvaluematchinglaterfalse.",
+    "commit_message": "/tmp/whiteboard-shared-sizing-sync-commit-message.txt",
+    "next": "None; test synchronization issue complete.",
+    "focused_log": "/tmp/whiteboard-shared-sizing-sync-focused.log",
+    "format_log": "/tmp/whiteboard-shared-sizing-sync-format.log",
+    "stage_patch": "/tmp/whiteboard-shared-sizing-sync-only.patch (gitapplycachedcheckPASS; notapplied/stagedyet)",
+    "full_session": 52275,
+    "inventory": "/tmp/whiteboard-csv-and-shared-sizing-final-inventory.json",
+    "spec": "/tmp/whiteboard-csv-and-shared-sizing-full-spec.log",
+    "errors": "/tmp/whiteboard-csv-and-shared-sizing-full-errors.log",
+    "console": "/tmp/whiteboard-csv-and-shared-sizing-full-console.log",
+    "reporter": "/tmp/whiteboard-immediate-test-failure-detailed.mjs: expected-failurepositivecontrol returnsEXIT1andexactmessagestack, no suppression",
+    "full_pid": 84296,
+    "full_progress": "Finished terminalexit0; inventory286 hashes verified unchanged after full suite and after commits."
+  },
+  "queued_unicode_caption": {
+    "status": "Verified actualapp and unit boundary failures; no tracked edits yet",
+    "source": "src/accessibility/object-content.js",
+    "candidate": "tmp/object-content-unicode-candidate.js",
+    "unit_before": "tmp/object-name-unicode-before.test.js /tmp/whiteboard-object-name-unicode-before.log:2pass1fail",
+    "unit_candidate": "/tmp/whiteboard-object-name-unicode-candidate.log:3pass",
+    "app_regressions": "tmp/object-name-unicode-app-regressions.js",
+    "app_before": "/tmp/whiteboard-object-name-unicode-app-before.log:2pass1fail",
+    "app_candidate": "/tmp/whiteboard-object-name-unicode-app-candidate.log:4pass",
+    "evidence": "objectNameHTML rect prefix11 +88Q +emoji cuts surrogate pair at finite100 limit; actual connection endpoint captions malformed.87/89 boundaries controls pass. CSVtable captions already safe.",
+    "next": "Separate issue after pointer fixes; permanentbefore/finalsource/type/lang/boundary controls/native/fullsuite/onecommitpush.",
+    "expanded_unit": "tmp/object-name-unicode-expanded-before.test.js two expectedfailen/fr, candidatetwoPASS. Sweep allUTF16lengths with codepointiteratororacle acrossrect/note/ellipse/imagealt/fileName locked/unlocked/langfr-CA/inlineen-GB/escapedmarkup/unlimited/zero. Initialoracle mistakenlyskippedtruncatedemojiandcontinuedfollowingcharacters;correctedbreakbeforefinalchecks; excludefixturemistake.",
+    "native_before": "Finalunchangedproductionindex-DYbuNeyC.js in Safari actualConnectionendpoints: startsummaryshowsreplacementglyph; bothlabelcaptions100UTF16unitsend55357/lonehighsurrogate\\ud83d,validfalse. Source88Q+emoji validandunchanged,CancelUndo/RedoDisabled. Isolatedfixturetmp/unicode-caption-native board520bb769-438e-4dbd-adb6-5f9d034867b1 insert-onlyseed;readonlyMutationObserver capturescaptionsnooverride. Tasktabclosed;server96215terminalexit0stopped.",
+    "expanded_app": "tmp/object-name-unicode-app-regressions.js now6cases(en/fr\u00d787/88/89) withwholefr-CAandemojiinlineen-GB; preservesexactauthoredmodelandexistingredoCancel/UIlanguage. Before4pass2fail expectedlonesurrogate88inbothlanguages. Candidate6pass7601.809834ms. Logs/tmp/whiteboard-object-name-unicode-app-expanded-before.log andexpanded-candidate.log."
+  },
+  "pending_mind_plus_final": {
+    "status": "Complete: b81e78f userauthor committed/pushed/authoritative remote exactlymatches cleanworktree; frozen286hashes verifiedunchanged afterfull andaftercommit.",
+    "inventory": "/tmp/whiteboard-mind-plus-owner-final-inventory.json",
+    "app": "/tmp/whiteboard-mind-plus-owner-final-app.log",
+    "unit": "/tmp/whiteboard-mind-plus-owner-final-unit.log",
+    "spec": "/tmp/whiteboard-mind-plus-owner-full-spec.log",
+    "errors": "/tmp/whiteboard-mind-plus-owner-full-errors.log",
+    "before": "Permanentunit4fail4pass; permanentapp4fail2ownercontrolpass; originalsource provesforeign events cancelowner/activatewrongclick",
+    "native": "Final productionindex-DYbuNeyC.js inSafari: actualmousepointerId1 down/up/lost/click createsoneNewidea; CmdEnter andsingleUndo restore4,Redo restores5,reloadpersists5. Native OptionTab tochildabove,Right thenEnter emits pointerId-1 detail0 and creates6th;singleUndo restores5andRedoremains. Physicalchildright drag41px/24px cancels without changinghierarchy/consumingRedo;Escape onkeyboardfocusedplusreturnscanvas unchanged. No native multi-touch exercise; actualapp/unit testscoverforeignpointer interference. Firstphysicaldrag hitcollapsecontrol (observerproved), nochange; excludedfromplusverification. Testtabclosed;server33467terminalexit0stopped.",
+    "full_session": 41949,
+    "full_pid": 85119,
+    "app_pid": 85125,
+    "commit_message": "/tmp/whiteboard-mind-plus-owner-commit-message.txt",
+    "full_pass": 1616,
+    "full_fail": 0,
+    "full_duration_ms": 668379.827958
+  },
+  "queued_mind_symbol_visibility": {
+    "status": "Verified production Safari UI issue; no tracked CSS fix yet",
+    "source": "src/style.css3024-3052",
+    "cause": "Generic.quick-port>span:not(.quick-connect-tooltip) visibilityhidden specificity0,2,1 overrides intended .mind-portspan/.mind-collapsespan visibilityvisible0,1,1. Hover/focusvisibleworksbutidleglyphs+/-/hiddennodecountdisappear.",
+    "before": "Actualproductionindex-DYbuNeyC.js/CSSBynTlqQo inSafari isolatedfixture: selectedrootall4+ andexpandedminus computedvisibilityhidden,hoverfalsefocusfalse; screenshotemptybluecircles. Collapse5node map->4hiddencount; pointeroffcontrolviaunchangedtitlefocus leavescountercircleblank. AXcorrecthiddennodecount4 provesdataexists. SingleUndo restores5 expandednodes.",
+    "fixture": "tmp/mind-plus-native/index.html includesreadonlyMutationObservercomputedstyle; no overrides; tasktabclosed/server83281terminalexit0stopped",
+    "next": "SeparateCSSissueafterpointerfixes; appropriate specificity scoping, nativebefore/after atidle/hover/keyboard light/dark/spacing/narrow and unchangednormalQuickconnectsymbolbehavior. Build/format/fullsuite thenowncommitpush. LowimpactCSS nativeverification; no implementation-mirroringtest.",
+    "candidate_css": "tmp/mind-symbol-visibility-candidate.css; change .mind-portspan/.mind-collapsespan selectors to .quick-port.mind-port>span/.quick-port.mind-collapse>span; equalsspecificityofgeneric andlaterwins, keepshover/focusvisible.",
+    "candidate_native": "Ignoredprototype fixturetmp/mind-symbol-native-candidate on5193 appends equivalentscopedselectors toproductionCSSasset; actualJSindex-DYbuNeyC unchanged. Safari visible+ andminusidle; aftercollapsepointerleavestoBoardname,3hiddencount remainsvisiblycenteredincapsule. OrdinaryStandaloneQuickconnect remainsaccentdots/pluscomputedhiddenwhenidle. SingleUndo restoresoriginalhierarchy. Viewportpannedwithoutmodelchanges tocleartoolbar. FixtureJSDate.now literalinitiallyfailedJSONdecode; reconstructedvalidatedmodelseed beforeUIuse,excludedfixtureerror. Not finalsourceverification; testtabclosed/server69653terminalexit0stopped.",
+    "dense_prototype": "tmp/mind-symbol-dense-native-candidate on5200 provisionalproductionCSSappend2selectorsoverridesONLY, actualproductionJSindex-OpUucuU9.js; validatedinsert-only5000nodeboardb3a94a88-d8c8-4a14-a164-eaac3611fb5c rootcollapsed4999hidden. Atidle actualSafari4plusvisible20px andcount4999visible12px; rootselectionincludes5000/4999hidden asintended, clickBoardnamemovespointer/focusoffcontrols; Undo/RedoDisabled throughout/noactivation/modelchanges. Defaultcounter32.125px/pill36border2 eachfitsnearlyinner32. Textspacing1.5/.12em/.16em prototypecount37.890625px(actualtextRange37.8771)/pill36border2, letterspace1.44 fontsystem12, visiblytouches/exceedspilledges. Plus14.4375/pill28 fits. ThisisprovisionalCSSonly, notfinaltrackedsourceverification. Missingdecorativefaviconasset yieldsplaceholderfixturelogo, excludedproductionissue. Native tasktabclosed/server39424terminalexit0stopped."
+  },
+  "queued_search_unicode": {
+    "status": "Verified purefunction and actualbuiltapp bothstart/end surrogate splitting; no trackedsourceedits",
+    "source": "src/board-search.js excerptStart/searchExcerpt/render",
+    "unit": "tmp/search-unicode-regressions.js; /tmp/whiteboard-search-unicode-unit-before.log 4controlpass2expectedfail; candidate9pass includes3existingsearch/index/normalizationcases",
+    "app": "tmp/search-unicode-app-regressions.js; /tmp/whiteboard-search-unicode-app-before.log corrected4controlpass2expectedfail; candidate7pass5434.897917ms includesexistingboardFindnavigation/locked/history/shortcuts",
+    "candidate": "tmp/search-unicode-candidate.js (normalizeimports../src/to./whenapplying)",
+    "evidence": "179Q+emoji 180UTF16excerptendslonehigh; emoji+49X+Q queryQ yieldsstart1 andlonelow. Neighbor178/180tails and48/50startcontrolsvalid. CandidateexcerptRange adjustsstartleft/endleft atpairboundaries usedbybothplainhelperandrender, preservesliteralhits,fr-CAmetadata/originaldata.",
+    "excluded": "Initialappcontrolsfailedonlymissingclosefixtureselector#board-search-close; correctedactual#search-close beforeauthoritativebeforechecks; no productclosingissue.",
+    "next": "Separateissueafterexistingqueuedfixes; permanentbefore/final/bilingualpassages/type/literalquery/index5000/perfcontrols/native/fullsuite onecommitpush.",
+    "native_before": "Verified actual production index-40DRWCm7.js / CSS index-BynTlqQo.css in Safari port5197. Board91d9b540-9213-4bcb-be06-1223c15d30ac 2notes; Q search shows179Q+emoji lone high surrogate at end and emoji+49X+Q lone low surrogate at start. Readonly observer confirms captions valid=false/fr-CA. Original canvas/outline emoji intact; Close search preserves disabled Undo/Redo and canvas focus. Task tab closed; server74888 TERMINAL exit0 stopped. No model edits or permission prompts.",
+    "expanded_languages": "tmp/search-unicode-language-app-regressions.js8en/fr\u00d7note/table\u00d7start49/end179. Before8expectedfail andcandidate8pass5882.178583ms; exactsafeexcerpt, wholefr-CAfornote/tablede+cellfr-CA, emojiinlineen-GB preservedonlywhenincluded; validatedmodels/clipboardexact/existingRedo andUIlangpreserved. /tmp/whiteboard-search-unicode-language-app-before.log andcandidate.log sessions15607exit1/84020exit0. Needappendthisblockalsoforpermanentbefore/final."
+  },
+  "queued_vote_unicode": {
+    "status": "COMPLETE 89c3126a06b0cad0fffb850f9dd1c49ec725b9fe",
+    "source": "src/facilitation/ui.js label/labelHTML/labelContent slice120",
+    "before": "tmp/facilitation-unicode-regressions.js copied into tmp/facilitation-unicode-before.test.js (currentfullsourcesunchanged), /tmp/whiteboard-facilitation-unicode-before.log 4neighborcontrolsPASS2expectedFAIL.119Q+emoji makespreviewandsavedresultlabelinvalidUTF16;118/120controlsPASS. Authorednote unchangedfr-CA.",
+    "next": "Separateissue; actualbuiltapp/native confirmation, capturedrecord/language/ranges/export/history/staleconceal controls beforefix; validoriginalsurrogatepairs only. No speculativeothertruncationfixes.",
+    "native_before": "Actual production index-40DRWCm7.js in Safari port5198, validated insert-only seed board2dcb6ce4-9004-42dc-8dd0-d9c7a41bdc2d. Active vote target119Q+emoji: overlay label, Votable objects, vote button and Results all end lonehigh surrogate; readonly observer reports captions valid=false/langfr-CA, screenshots/AX match; authored canvas/outline emoji intact. End voting yields same malformed completed result; History expanded and reload+History expanded prove persistence. Drawing Undo/Redo disabled throughout. Only isolated vote state changed; no permission prompts/export clicks. Task tab closed and server75545 terminalexit0stopped.",
+    "app_before": "tmp/vote-unicode-app-regressions.js sixactualeditor cases118/119/120 preview/history, wholefr-CA exactsafeexcerpt, drawinghistoryandexactclipboardobject/reopen controls. Before4pass2expectedfail /tmp/whiteboard-vote-unicode-app-before.log terminalexit1 session96073.",
+    "candidate": "tmp/facilitation-unicode-candidate-source.js actualsrcimports; tmp/facilitation-unicode-candidate.js normalizedtmpimports. shortLabel120 retreats only at surrogatepair boundary usedlabelandlabelHTML; labelContent inheritslength/ranges. Component6pass /tmp/whiteboard-vote-unicode-unit-candidate.log; actualbuiltapp8pass7429.914625ms including2existingauthoredlanguage/history cases /tmp/whiteboard-vote-unicode-app-candidate.log. Sessions98606/6435terminalexit0. No trackededits. Need expandedbilingual/mixedlanguage/resultmodel/export/concealment controls/finalnative; queued objectNameHTML boundary fixindependent fallbackpath.",
+    "mixed_language": "tmp/vote-unicode-language-unit-regressions.js6en/fr\u00d7118/119/120 exactcaption+wholefr-CA+emojiinlineen-GB. Candidate6pass3754.575958ms; before4controlpass2expectedfail afterfixingdiagnosticfixture setLanguage lifetime. Controlsassert exactcapturedrecord.label/lang/textRuns, validatedboard/authorednodesunchanged. Logs /tmp/whiteboard-vote-unicode-language-unit-before.log andcandidate.log. Initialall6documentundefined wasfixturecalling setLanguageoutside stubUI lifetime; correctedsetup/restoreordering, excludedproductissue. Sessions26039exit1/51290exit0.",
+    "native_french_before": "Actuallatestproductionbase2ef BwpFkvOH/BlbulZT3 inSafari5219 Frenchlight. Validatedsource119Q+emoji121/frCA withemojiinlineenGB119..121 in tmp/vote-unicode-french-native-fixture.json, isolatedseedactivevote. NativeAnimation->Voter: preview/results120INVALID highsurrogate, frCA wrapper + partialenGB1unit. Actualonevote->Terminerlevote->Historiqueexpanded result120INVALID; freshsavedpage->Animation->Historiqueexpanded same120INVALIDfrCA/partialenGB. Sourceoutline136VALIDfullemoji/frCA/enGBemoji throughreload; UndoRedoDisabled. ActualfinalbeforeHistory screenshot inspected, sourceemojiintact andresulttofu. Onlyisolatedvotestatechanged; noexports/permissionprompts. Dedicatedtenthclosed, prior9restoredFrench table field finalcanvasfocus/writes0; server63909terminalexit0. Root tmp/vote-unicode-french-before-native.",
+    "prepared_bilingual_app": "tmp/vote-unicode-bilingual-app-regressions.js 12casesPREPARED NOT RUN; en/fr\u00d7118/119/120\u00d7preview/history; addedexactinlineenGBemoji oromitteddeclaration andunchangedauthor/language/history/reopen;cleanupawait. Old6actualappbefore/candidate remainsauthoritativeuntilnewpermanentbefore.",
+    "current_component_candidate": {
+      "status": "IGNORED ONLY; current-source freshcandidate, no tracked edits",
+      "source": "tmp/facilitation-unicode-current-candidate-source.js rawcurrent2helpercallerhunks+numericO1shortLabel120; normalized tmp/facilitation-unicode-current-candidate.js imports CURRENT canonical88captionguard modules",
+      "preparer": "tmp/prepare-current-vote-component-candidate.py",
+      "test": "tmp/vote-unicode-current-component-regressions.test.js minimalcomponent14old+6fallback20cases; NO Vite/appBundle; samecurrenttests.fac.stubUI/notes/vote/ballot",
+      "before": "20cases10controlsPASS10exactmalformed/capturedFAIL 639.265667ms; directterminal1; /tmp/whiteboard-vote-unicode-current-component-before.log",
+      "after": "20pass0fail 473.159042ms; directterminal0; /tmp/whiteboard-vote-unicode-current-component-candidate.log",
+      "fallbacks": "tmp/vote-unicode-fallback-component-regressions.js en/fr imagealt/fileName/tablecells totaltranslatedname121clip120; previewHTMLalready119valid control, capturedplain120malformedbefore vs119validafter; exactUIprefix/bodyfrCA capture ranges andunchangedvalidmodel; fileusesmodel.data octetstream1bytevalid",
+      "excluded_fixture": "Initialnewfilecases usedsrc instead requireddata andfailedInvalidAttachment; excluded /tmp/whiteboard-vote-unicode-invalid-attachment-fixture-*.log. Correctedvalidschema above beforeactual20 andcandidate20.",
+      "next": "Regeneratefromlatestbefore permanentissue; staticimports intoexistingfacilitation.test; applyminimalhunks ONLY retainingcaption/tableothers; newactualapp12andpossiblefallbackapp; nativeafter/full/separatecommit."
+    },
+    "current_bilingual_app_before": "12actualcurrenteditor:8controlsPASS4exactsplitFAIL6943.799833ms;92767terminalexit1;/tmp/whiteboard-vote-unicode-current-bilingual-app-before.log",
+    "current_bilingual_app_candidate": "12actualcurrenteditor:12PASS0fail7450.491583ms;86459terminalexit0;/tmp/whiteboard-vote-unicode-current-bilingual-app-candidate.log.12en/fr x118/119/120 xpreview/history;fullsourcefrCA+enGBemoji unchanged history/reopen/savedlabels",
+    "prepared_permanent_unit": "tmp/vote-unicode-permanent-unit-prepared.js latestfacilitationtests+20rawcases/staticobjectKindimport;ignoredNOTapplied/notrunpermanent. Minimalapplyonlyafterbulkpush/pulllatest; noenvironmentmoduleinpermanent."
+  },
+  "pending_mind_collapse_final": {
+    "status": "COMPLETE: fullsession98195terminalexit0 1629pass0fail665946.037834ms;286frozenverifiedafterterminal; commit05fdd49b4cf5ec9a59244ec47acfc10e2aee3a03 pushedmain exactremoteverified, userauthor/noattribution, cleanworktree.",
+    "before_unit": "/tmp/whiteboard-mind-collapse-owner-permanent-unit-before.log4fail4pass",
+    "before_app": "/tmp/whiteboard-mind-collapse-owner-permanent-app-before.log4fail2ownercontrolpass; expectedfailureforeignclickearlycloseproduceslateJSDOMcallbacksameknownfixtureissue; no productioncallbackfixclaim",
+    "focused_unit": "/tmp/whiteboard-mind-collapse-owner-final-unit.log18pass639.8825ms",
+    "focused_app": "/tmp/whiteboard-mind-collapse-owner-final-app.log16pass13993.951042ms",
+    "inventory": "/tmp/whiteboard-mind-collapse-owner-final-inventory.json",
+    "spec": "/tmp/whiteboard-mind-collapse-owner-full-spec.log",
+    "errors": "/tmp/whiteboard-mind-collapse-owner-full-errors.log",
+    "console": "/tmp/whiteboard-mind-collapse-owner-full-console.log",
+    "native": "Finalproductionindex-40DRWCm7.js inSafari actualmousepointerId1 down/up/lostcapture/click collapsesBranchA andhidesNested;oneUndo restores5visible/disabledUndo,Redo collapses4visible. Fit+OptionTab reachescollapsedcontrol,Space expands;singleUndo recollapses,Redoexpands;reloadpreservesexpanded5. Nativephysicalcollapsedpilldrag[763,436]->[805,460] emitsowneddown/up/lost noactivation, keepsNestedvisibleandexistingRedoEnabled/UndoDisabled. NativeEscape onkeyboardfocusedcontrolreturnscanvas/historyunchanged. LaterOptionTab/rightchild+OptionTabcollapse+Enter emitsclick pointerId-1detail0 andcollapses;reloadpreserves4visibleand1hiddennodecount. Wrapperreadonlytrace compact8eventrows; no productionbehavior/layoutoverrides. Viewportpannedwithouteditinggeometry tocleartoolbar. Native multitouchnotexercised; unit/actualappforeigneventtestsverifyit. Testtabclosed;server8767TERMINALexit0stopped. Isolatedboard3819522a-13dc-4f9e-a752-a14779505e30 nowBranchAcollapsedsavedstate5nodes.",
+    "full_session": 98195,
+    "full_pid": 86908,
+    "app_pid": 86914,
+    "progress": "Terminalpass; shipped",
+    "push_session": 55798
+  },
+  "pending_comment_owner_final": {
+    "status": "COMPLETE: full30786terminalexit0 1649pass0fail661206.832625ms;286frozen verified afterterminal andaftercommit; commite904b105cbffa0fd0be12fbf2882851c21168c96 pushedmain exactremoteverified, userauthor/noattribution, cleanworktree.",
+    "before_unit": "30tests25pass5expectedfail2256.103417ms /tmp/whiteboard-comment-owner-permanent-unit-before.log session69900terminalexit1",
+    "before_app": "9tests5controlsPASS4expectedFAIL8106.239875ms /tmp/whiteboard-comment-owner-permanent-app-before.log session10586terminalexit1",
+    "focused_unit": "43pass2495.196833ms /tmp/whiteboard-comment-owner-final-unit.log session33761exit0",
+    "focused_app": "17pass17232.747625ms /tmp/whiteboard-comment-owner-final-app.log session70196exit0",
+    "build": "/tmp/whiteboard-comment-owner-final-build.log session95684exit0 3.52s",
+    "format": "/tmp/whiteboard-comment-owner-final-format.log session26086exit0",
+    "inventory": "/tmp/whiteboard-comment-owner-final-inventory.json",
+    "full_session": 30786,
+    "spec": "/tmp/whiteboard-comment-owner-full-spec.log",
+    "errors": "/tmp/whiteboard-comment-owner-full-errors.log",
+    "console": "/tmp/whiteboard-comment-owner-full-console.log",
+    "expected_total": 1649,
+    "native": "Actual production index-OpUucuU9.js/CSSindex-BynTlqQo.css inSafari5196 validatedinsert-onlyboard627ce816-9152-4672-81c7-47c44c30b77a. Finalfreshdocumentwide-final/index-final explicitlypostsentrypath. Normalphysicalpointer1 [325,368]->[425,368] movesanchor320->400 world, dx120->200; ownerup/lost/click no discussion; ShiftLeft390/dx190; Enter pointerId-1/detail0 opens Anchored review; Move pin draft400 cancel retains390/dx190; directmouse[900,718] opens Free review ordereddown/up/lost/click; reload exact390/220/dx190/dy40, otherfree780/500 and twoobjects/labels unchanged; Undo/RedoDisabled throughout. No behavior/layout override. Nativeforeignmultitouch not exercised; actualapp/unit cover. Bothfinaltasktabsclosed, servers95034/18644terminalexit0stopped.",
+    "excluded": "First navigationtyped URL autocompleted5173; correctedviaexplicitpaste5196. FirstsameHTMLpathnetworkshowedoldcachedmoduleplusnewentry, repeatedwithfreshindex-final/wide-final and explicitproductionentry. Native AX freepin activation emittedclickbeforeup and wascorrectlyignoredwhileactive; laterup/lostobserved; Escape+Fit then directcoordinateclick emittednormalorderedsequenceandopeneddiscussion. Do not treatprovidersequenceasnormalbrowserproof orproductionfix.",
+    "full_pid": 88916,
+    "app_pid": 88922,
+    "push_session": 75619
+  },
+  "queued_table_object_name_unicode": {
+    "status": "COMPLETE d0d04f8ee5cbb4cf1a9699d6ced1dbba065b1801",
+    "source": "src/i18n.js objectName cells flat/join slice0,300; accessibility object-content.js and facilitation/ui.js duplicate body slicing determine translated prefix offsets",
+    "unit": "tmp/table-object-name-unicode-unit-regressions.js3cases298/299/300; before2controlsPASS1expectedfail243.722875ms /tmp/whiteboard-table-object-name-unicode-unit-before.log",
+    "app": "tmp/table-object-name-unicode-app-regressions.js3actualeditor cases; before2controlsPASS1expectedfail3162.341916ms /tmp/whiteboard-table-object-name-unicode-app-before.log session91214terminalexit1",
+    "native": "Actualproductionindex-OpUucuU9.js inSafari5199 freshvalidatedinsert-onlyboardfd6f9ba2-aedc-4d7b-88e9-10a59ff86bba: Source note links table-target299Q+emoji. ActualObjectlinkCurrentdestinationcaption ends lonehigh/AXreplacementglyph/readonlyobservervalidfalse; picker safe120 andoutline safe300 tableTextContent omitwholeemoji. Doubleclickactualcellshowsfull299Q+emoji inselectedAXcell+texteditor; twoEscape preserveauthoredtext andUndo/RedoDisabled. Tasktabclosed/server3250terminalexit0stopped. No copy/linknavigation/export or model changes.",
+    "next": "Separate from finite objectNameHTML100 boundary and vote120 boundary. Need safe300 body consistency acrossi18n/object-content/facilitation prefix offsets to avoidlanguage range regression. No candidate yet; consider small sharedhelperonlyif justified, avoidextra tablelanguage traversal allocations for5000-object names. Afterolderqueuedverifiedfixes permanentbefore/finalnative/full owncommit.",
+    "candidate": "Three rawsrcimportcopies tmp/i18n-table-unicode-candidate-source.js, tmp/object-content-table-unicode-candidate-source.js, tmp/facilitation-table-unicode-candidate-source.js. objectNameContent helper reusesexistingtext/alt/fileName fallback andflat/filter/join table300, retreatonlybetweenpair; sharedbodylookup usedi18n/object-content/facilitation tokeepprefixoffsetstable. Normalizedtmpcopies samewithout-source forunit plus tmp/object-links-table-unicode-candidate.js. No trackededits. Includes finite objectNameHTML100 unchanged andvote120guardunchanged; those separatequeuedfixes stillneeded.",
+    "candidate_unit": "8pass592.829375ms /tmp/whiteboard-table-object-name-unicode-unit-candidate.log includes5existingbounded5000badges/cache/contentread, stale/paging/conceal/compositioncontrols",
+    "candidate_app": "8pass6828.078959ms /tmp/whiteboard-table-object-name-unicode-app-candidate.log terminalsession10470exit0;3newplus3existingobjectlinknavigation/wholeandpassagefacilitlanguage/savedvotelanguage plus2existingPowerPointexporten/fr accidentallyincludedbycelllanguagespattern (additionalvalidcontrols).",
+    "expanded_unit": "tmp/table-object-name-unicode-expanded-unit-regressions.js2en/fr cases iterating298/299/300\u00d7single/multiple/emptycells\u00d7locked/unlocked; codepointoracle expectedbody300, exacttranslatedprefix/name/HTML, tablede/cellfr-CA/emojiinlineen-GB andauthoredmodelunchanged. Before2expectedfails; candidate2pass. /tmp/whiteboard-table-object-name-unicode-expanded-unit-before.log andcandidate.log.",
+    "facilitation_control": "tmp/table-object-name-unicode-facilitation-regressions.js2en/fr controls capturelongmulti-celltable vote label120 exactprefix, deIntro+separator andfr-CAlongcell ranges, emojiinlineen-GB excludedbeyond120, validatedboard/authoredcellunchanged. Control2pass3214.93375ms session41631exit0; candidate2pass3228.71775ms session11910exit0. Logs /tmp/whiteboard-table-object-name-unicode-facilitation-control.log andcandidate.log. InitialfrfixtureusedincorrectTableau prefixandbothfailed; correctedactualtableau de donn\u00e9es string fromsource; no productionclaim. Oldsessions86432/74221terminalexit1.",
+    "IMPORTANT_rebase": "Raw3sourcecandidate copies derivepre-objectNameHTML-finiteguard andpre-vote120guard source. Apply onlytargetedhelper/import/bodylookup hunks ontoLATESTMAIN later; regenerateprototypecopies beforetests. CopyingwholeoldfilesafterearlierUnicodefixeswouldREVERTthosefixes. Runfinitecaption/search/vote originalregressions ascontrols. Sameforotherqueuedrawcandidates: inspectminimaldiff andnormalizeimports.",
+    "native_french_before": "Actuallatestproductionbase2ef main assetBwpFkvOH/BlbulZT3 nativeSafari5218 Frenchlight fixturefd6f... validtable299Q+emoji301. SourceNoteObjectLink currentdestinationcaption320INVALID lonehigh; actualcellgridfull301emoji thenModifierlacellule actualtextentry301VALIDtailQQQQemoji viareadAX; Escape cancelsediting; freshsavedsourceoriginalnamesvalid andAnnulerRetablirDisabled. Dedicatedtenth closed existing9restored French table field finalcanvasfocus/writes0; server82020terminalexit0. Root tmp/table-object-name-french-before-native; readonlyDOMobserver cellselectorold#table-editor textarea didnotmatch actualtextentry, so sourceverificationuses actualAX not observer. No table/link/model edits and no newclaimoutline lang from truncatedreadonlyreport.",
+    "current_composition": "Ignored current-source3modules preserveexistingfinitecaptionpairguard+candidatevote120:expanded2en/frnames36insidecasesPASS460.416417ms /tmp/whiteboard-table-unicode-current-combined-unit.log; all20vote/language/fallback/tablecomponentcasesPASS713.975708ms /tmp/whiteboard-table-vote-unicode-current-combined-component.log; directterminal0. tmp/prepare-current-table-unicode-candidate.py reusable targetedlatestgeneration; NOTtracked/permanent/full.",
+    "current_bilingual_app_before": "6ENFRx298/299/300:4controlsPASS2exactsplitFAIL5569.83975ms;93386terminal1;/tmp/whiteboard-table-unicode-current-bilingual-app-before.log; newvalidfrCA+inlineenGBcellmetadata/originals/Redo/reopen",
+    "current_bilingual_app_candidate": "20PASS0FAIL11048.51625ms;67718terminal0;/tmp/whiteboard-table-unicode-current-bilingual-app-candidate.log;6new+12actualvotepermanent+2authoredPPTXcontrols; latestsourceguard120+finitecaption88 preserved",
+    "raw_bilingual_app": "tmp/table-object-name-unicode-bilingual-app-regressions.js awaitclose; currentprototypefilesloadcurrentfrozenapp/safe3moduleoverlayinmemoryNOdistwrites",
+    "preparer": "tmp/prepare-current-table-unicode-candidate.py nowreadscurrentactualsrcfacilitationui withshippedlaterguard120; targetshunks bodyhelper/imports/offsetlookup only, preservesexistingfinite88 guard",
+    "prepared_permanent": "IgnoredONLY tmp/table-unicode-permanent-i18n-prepared.js (currenti18n+2ENFRmatrix tests/dynamicimports preserveinitialization);tmp/table-unicode-permanent-links-prepared.js(currentobjectLinksUI+3realpreviewcases); rawtmp/table-unicode-permanent-i18n-regressions.js; app6tmp/table-object-name-unicode-bilingual-app-regressions.js. NOTapplied/NOTrunpermanent. Lateraftervotecommit/pullminimalappend latest files notwholestaleapp/source; expectedtable11new=>1789ifvotefull1778."
+  },
+  "queued_mind_dense_counter_readability": {
+    "status": "Observed underprovisional12px visibilityfix; quantify actualsource baselineafterCSSvisibilityfix beforeclaim/shippingseparatecounterissue",
+    "evidence": "4999 count w37.89px under1.5/.12em/.16emspacing exceeds36pxpill (32pxinterior) soleft/rightglyphs touchbackgroundborder. Default32.125 nearly32interior. Button44\u00d744 remainsaccessiblehitarea. Candidatefont12 restoresfromoriginalgeneric20 butbackgroundwidthstill36.",
+    "fixture": "tmp/mind-symbol-dense-native-candidate index-spacing.html/wide-spacing-count.html on5200, boardb3a94a88-d8c8-4a14-a164-eaac3611fb5c validated5000nodes/rootcollapsed",
+    "next": "Aftervisibilityfix separatecounterreadabilityissue ifactualfinalsourceprovesit: CSSbackgroundpill44pxwithinexisting44pxhitbox couldfit4digitcount/textspacing withoutposition/history/modelchanges. Needbefore/candidate/finaldefault+spacing dark/light/French/narrow focus/hover/99/100/999/1000/4999 controls andcountmetadata exact; avoidchangingpointergeometry or3-sourcefrozenfilesuntilterminal."
+  },
+  "pending_mind_symbol_final": {
+    "source": "src/style.css: two selector specificity corrections only",
+    "full_session": 86738,
+    "full_pid": 89814,
+    "full_expected": 1649,
+    "full_spec": "/tmp/whiteboard-mind-symbol-full-spec.log",
+    "full_errors": "/tmp/whiteboard-mind-symbol-full-errors.log",
+    "full_console": "/tmp/whiteboard-mind-symbol-full-console.log",
+    "inventory": "/tmp/whiteboard-mind-symbol-final-inventory.json",
+    "component_passed": 26,
+    "app_passed": 29,
+    "build": "pass 2.43s",
+    "format": "pass",
+    "production_entry": "/assets/index-DzEoaHxQ.js",
+    "production_css": "/assets/index--symkKw2.css",
+    "native_server_session": 87654,
+    "native_server_pid": 89627,
+    "native_before": "actual e904 assets: idle plus/minus/count hidden and count20px; no model/history changes",
+    "native_final": "idle plus visible20/minus+count12; keyboard plus/collapse focus visible; mouseexpand, Spacecollapse, individual Undo/Redo/reload PASS; ordinary Quickconnect idle dots/focus preview/mouse creation+oneundo PASS; Frenchlight idle4plus/minus/count PASS; French light expanded spacing wide and390px narrow idle displayedplus/minus/count legible, geometry/hit targets checked, historyDisabled; tasktabclosed/serverstopped",
+    "native_remaining": null,
+    "native_server_stopped": true,
+    "complete": true,
+    "commit": "85e92f4cd7d4362a73b44d0a2d6e588f77dc17f7",
+    "full_terminal_exit": 0,
+    "full_passed": 1649,
+    "full_failed": 0,
+    "full_duration_ms": 654972.489417,
+    "full_errors_empty": true,
+    "full_console_empty": true,
+    "inventory_unchanged_after_full_and_commit": true,
+    "push_session": 60579,
+    "push_terminal_exit": 0,
+    "remote_head_exact": "85e92f4cd7d4362a73b44d0a2d6e588f77dc17f7",
+    "author": "Nariman Jelveh <nj@puter.com>",
+    "worktree_clean": true
+  },
+  "mind_count_actual_baseline": {
+    "production_entry": "/assets/index-DzEoaHxQ.js",
+    "production_css": "/assets/index--symkKw2.css",
+    "fixture": "tmp/mind-count-actual-baseline",
+    "native_before": "Validated insert-only5000-nodeboard:4999 count37.890625px,pill36px/border2px=>32pxinterior under spacing. 999control28.375 fits;1000boundary35.703125 exceeds32. Dark/en idle screenshot border-touching count; original history/model unchanged.",
+    "prototype": "ONLY CSS width36=>44 in productionCSScopy. 4999same37.890625px fits40pxinterior;1000same35.703125 fits;99=18.921875;100=26.265625. No app JS change; no activation/history mutation.",
+    "limits": "Model max5000nodes; commentthreads max500 => total max5499 forcollapsedroot. Check validmaxwithcomments beforefinal.",
+    "remaining": "Completed and shipped1f8b803; full1649pass/actualnativefinal/build/format/focused; archive before/prototype evidence.",
+    "cleanup": "All counttasktabsclosed;HTTP89562+95463terminalexit0 stopped",
+    "valid_maximum": {
+      "fixture": "fixture-5499.json",
+      "items": 5000,
+      "threads": 500,
+      "counts": {
+        "nodes": 4999,
+        "comments": 500,
+        "total": 5499
+      },
+      "validated": true,
+      "native_before": "5499 measures37.65625px with36pxpill/border2px (32interior), texttouchesborder, AX4999hiddennodes500hiddencomments, UndoRedoDisabled",
+      "native_candidate": "SameactualproductionJS/models; width44onlyprototype; count37.65625px fits40interior, screenshotlegible,AXcountsunchanged, UndoRedoDisabled"
+    }
+  },
+  "pending_mind_count_final": {
+    "source": "src/style.css: ONLY width36=>44 in mind-collapse pseudo-element group",
+    "pull": "85e92f4 main up to date before issue",
+    "unit": {
+      "passed": 46,
+      "duration_ms": 531.345125,
+      "log": "/tmp/whiteboard-mind-count-final-unit.log"
+    },
+    "app": {
+      "passed": 29,
+      "duration_ms": 20364.5765,
+      "log": "/tmp/whiteboard-mind-count-final-app.log"
+    },
+    "build": "PASS2.29s",
+    "format": "PASS",
+    "production_entry": "/assets/index-lbX_UFje.js",
+    "production_css": "/assets/index-BlbulZT3.css",
+    "full_session": 76365,
+    "full_pid": 90622,
+    "full_expected": 1649,
+    "inventory": "/tmp/whiteboard-mind-count-final-inventory.json",
+    "full_spec": "/tmp/whiteboard-mind-count-full-spec.log",
+    "full_errors": "/tmp/whiteboard-mind-count-full-errors.log",
+    "full_console": "/tmp/whiteboard-mind-count-full-console.log",
+    "native_fixture": "tmp/mind-count-final-native",
+    "native_server_session": 80578,
+    "native_server_pid": 90737,
+    "native_progress": "COMPLETE actualfinalproductionJS lbX_UFje/CSS BlbulZT3: expandedspacing counts99=18.921875,100=26.265625,999=28.375,1000=35.703125,4999=37.890625,max5499(with500comments)=37.65625 allfit40interior/44pill and44hitbox. Default4999=32.125 fits. Englishdark/Frenchlight; max5499at390px spans37.65625 andbuttonends378.265625 within390; keyboardfocusvisiblewidth44fits, noactivation/model/historymutationsonlimitboards. Smallfixturecount1=5.953125/minus7.890625 bothfit44pill; plus12.03125 in28pill; mouseexpand + Spacecollapse eachsingleUndo/Redo; reloadcount1persistsfourvisibleobjects anddisabledhistory. Hover/focuscount/minuswidth44. OrdinaryQuickconnectidle11pxdots hiddenplus; keyboardfocus28pillvisibleplus+preview. Tasktabclosed, HTTP80578terminalexit0 stopped.",
+    "native_remaining": null,
+    "native_server_stopped": true,
+    "complete": true,
+    "commit": "1f8b80308359faab0f8bc219fde82c1c27f515ae",
+    "full_terminal_exit": 0,
+    "full_passed": 1649,
+    "full_failed": 0,
+    "full_duration_ms": 653106.511375,
+    "full_errors_empty": true,
+    "full_console_empty": true,
+    "inventory_unchanged_after_full_and_commit": true,
+    "push_session": 49413,
+    "push_terminal_exit": 0,
+    "remote_head_exact": "1f8b80308359faab0f8bc219fde82c1c27f515ae",
+    "author": "Nariman Jelveh <nj@puter.com>",
+    "worktree_clean": true
+  },
+  "unicode_combined_compatibility": {
+    "app": {
+      "session": 87999,
+      "terminal_exit": 0,
+      "passed": 32,
+      "failed": 0,
+      "duration_ms": 13622.662666,
+      "log": "/tmp/whiteboard-unicode-combined-app-compatibility.log",
+      "fixture": "tmp/unicode-combined-app-compatibility.test.js"
+    },
+    "unit": {
+      "terminal_exit": 0,
+      "passed": 6,
+      "failed": 0,
+      "log": "/tmp/whiteboard-unicode-combined-unit-compatibility.log",
+      "fixture": "tmp/unicode-combined-unit-compatibility.test.js",
+      "duration_ms": 407.714833
+    },
+    "scope": "Temporary Vite loader on CURRENT tests/app.test.js, raw4sourceoverrides under ORIGINALmoduleIDs: finiteobjectNameHTML100/search180/vote120/table300. 29queuednewappcases+3existingFind/vote/authoredhistorycontrols. Unit2finiteexpanded+2tableexpanded+2combinedfinitetablelimits0/100/120/300/Infinity inen/fr locked/unlocked. No trackedsource/test edits. Sharedguardscoexistandmodel/history/authoredlanguagepreserved.",
+    "prototypes": [
+      "tmp/unicode-combined-i18n-source.js",
+      "tmp/unicode-combined-object-content-source.js",
+      "tmp/unicode-combined-facilitation-source.js",
+      "tmp/unicode-combined-search-source.js"
+    ],
+    "table_helper_note": "Combinedprototype usescharCodeAtpaircheck in objectNameContent instead ofolderregexcandidate; allcompatibilitypass. Applyminimalhelper/import/bodylookuphunks toLATESTguardedsource whenimplementing eachissue; doNOTapplyoldwholefiles and revertfinite/voteguards."
+  },
+  "pending_object_caption_final": {
+    "status": "Complete: committed and pushed main, exact remote verified; worktree clean",
+    "files": [
+      "src/accessibility/object-content.js",
+      "tests/app.test.js",
+      "tests/object-content.test.js"
+    ],
+    "pulled_main": "1f8b803 up to date before issue",
+    "before_unit": "2 expected failures, 358.500417ms /tmp/whiteboard-object-caption-permanent-before-unit.log",
+    "before_app": "4 controls pass, 2 expected failures, 4650.988042ms session28928 terminalexit1 /tmp/whiteboard-object-caption-permanent-before-app.log",
+    "unit": "41 pass 1024.134041ms /tmp/whiteboard-object-caption-final-unit.log",
+    "app": "12 pass 49800.014292ms session1599 terminalexit0 /tmp/whiteboard-object-caption-final-app.log",
+    "build": "PASS2.39s session62018 terminalexit0",
+    "format": "PASS session4230 terminalexit0",
+    "production_entry": "/assets/index-FDBETwYL.js",
+    "production_css": "/assets/index-BlbulZT3.css",
+    "full_session": 18012,
+    "full_pid": 91321,
+    "full_expected": 1657,
+    "inventory": "/tmp/whiteboard-object-caption-final-inventory.json",
+    "inventory_files": 287,
+    "full_spec": "/tmp/whiteboard-object-caption-full-spec.log",
+    "full_errors": "/tmp/whiteboard-object-caption-full-errors.log",
+    "full_console": "/tmp/whiteboard-object-caption-full-console.log",
+    "native_server_session": 6932,
+    "native_server_pid": 91433,
+    "native_before": "Actual main lbX_UFje: 88Q+emoji100-character endpoint caption invalid high surrogate, neighboring87/89 controls valid; original authored languages and model/history retained on cancel",
+    "native_final_progress": "Actual FDBETwYL: summary/expandedStart88Q caption99 characters valid without partial passage;87 wholeemoji retained100char;89 unchanged100char; keyboard Tab+Space expansion and focus PASS. Continue End/French/cancel/reload then close tasktab/server.",
+    "native_final": "COMPLETE actual production FDBETwYL/CSSBlbulZT3 in Safari: both endpoint lists87full emoji100char/enGB passage,88valid99char/no partial passage,89valid100char/no passage. English dark andFrench light actual labels, Tab+Space expansion/focus, changeddraft87 thenEscape cancel/reload retains original88 connection/full87/88/89 emoji+wholefrCA+enGB passage, Undo/Redo disabled. French/light preference persists. Tasktab closed returns untouchedexistingFrenchfield; server6932 terminalexit0 stopped.",
+    "native_remaining": null,
+    "native_server_stopped": true,
+    "remote_precommit": "Fetched origin/main during full: remains1f8b803 equalHEAD; userauthor Nariman Jelveh <nj@puter.com>",
+    "full_terminal_exit": 0,
+    "full_passed": 1657,
+    "full_failed": 0,
+    "full_duration_ms": 649496.250958,
+    "full_errors_empty": true,
+    "full_console_empty": true,
+    "inventory_unchanged_after_full": true,
+    "native_actual_build_identical": true,
+    "complete": true,
+    "commit": "6e979291027fe2d4d094c7d9a47948d9876c9d1b",
+    "inventory_unchanged_after_full_and_commit": true,
+    "push_session": 88624,
+    "push_terminal_exit": 0,
+    "remote_head_exact": "6e979291027fe2d4d094c7d9a47948d9876c9d1b",
+    "author": "Nariman Jelveh <nj@puter.com>",
+    "worktree_clean": true
+  },
+  "queued_image_replacement_unicode": {
+    "status": "Component AND actual editor defects confirmed; isolated prototypes pass all43compatibility checks; not shipped. Needs latest permanent before/final/native/focused/build/format/full own issuecommit later.",
+    "before": "6 en/fr \u00d798/99/100 labels:4 controls pass,2 expected failures100cut through emoji after99Q; /tmp/whiteboard-image-replacement-unicode-before.log terminalexit1 duration408.070083ms",
+    "unit_block": "tmp/image-replacement-unicode-unit-regressions.js",
+    "candidate": "tmp/image-replacement-unicode-candidate-source.js raw minimal helper/picker use; apply targeted hunks latestmain not whole stale file",
+    "candidate_unit": "9 pass0fail415.422292ms /tmp/whiteboard-image-replacement-unicode-candidate.log terminalexit0;6new plus3existing component controls with candidate import including languages/search/paging/5000images bounded reads/foreground focus",
+    "author_data": "WholefrCA+includedemoji enGB preserved; excludedemoji passage absent; cancellation commits0/modelsunchanged. Before Node localstorage warning same normal environment, not product failure.",
+    "app_block": "tmp/image-replacement-unicode-app-regressions.js",
+    "app_before": "Shared18 actual built-editor cases:12 controls pass6 expected high-surrogate failures (image2,b ulk4);7726.7105ms session75690 terminalexit1 /tmp/whiteboard-image-and-bulk-unicode-app-before.log; current source graph includes finitecaption/search guards; image andbulk clipping unchanged. Exact source/authored languages/existingRedo cancellation checks in controls.",
+    "app_candidate": "43 actual built-editor checks PASS16777.07325ms session66919 terminalexit0 /tmp/whiteboard-image-and-bulk-unicode-app-candidate.log. Candidate Vite load under originalmoduleIDs ONLY image-replace-ui.js+bulk-content.js rawguards; currentfinitecaption+search guards untouched.18new+14permanentsearch+6permanentcaption+5existingFind/nativeimagereplacement/URLvalidation/bulkkeyboard/importedcelllanguages controls. No tracked edits fromfixture.",
+    "native_before": {
+      "status": "reproduced via real Safari UI, actual production DmgPTiex/CSS BlbulZT3",
+      "fixture": "tmp/image-replacement-unicode-native-fixture.json",
+      "board": "40fd9d26-eed0-47c0-ac1c-b494af203912",
+      "origin": "http://127.0.0.1:5207",
+      "server_session": 47307,
+      "tab": "Image replacement Unicode before",
+      "boundary99": "invalid high surrogate and partial en-GB passage; 98 complete emoji and 100 omitted whole controls correct",
+      "cancel": "all source emoji/lang/passages unchanged, Undo/Redo disabled",
+      "server_status": "47307 terminal exit0; task tab closed, prior9 tabs untouched"
+    }
+  },
+  "queued_bulk_preview_unicode": {
+    "status": "COMPLETE 1afd0747f7f466b3e3da0e0160b270e024b9bba2",
+    "before": "12 en/fr \u00d7ideas/cells \u00d7178/179/180 previews:8 controls pass,4 expected failures180cut through emoji after179Q; /tmp/whiteboard-bulk-preview-unicode-before.log terminalexit1 duration239.449833ms",
+    "unit_block": "tmp/bulk-preview-unicode-unit-regressions.js",
+    "candidate": "tmp/bulk-preview-unicode-candidate-source.js raw minimal helper/preview use; apply targeted hunks latestmain not whole stale file",
+    "candidate_unit": "24 pass0fail476.465667ms /tmp/whiteboard-bulk-preview-unicode-candidate.log terminalexit0: new12 actual candidate preview checks;12 original bulk/table controls import unchangedoriginal parsing functions.",
+    "author_data": "WholecellfrCA+includedemoji enGB preserved; excludedemoji passage absent; cancellation inserts0/sourcecells/metadata/modelsunchanged. Ordinary ideas no metadata. No tracked changes; fullcaption inventory287 remainsfrozen.",
+    "app_block": "tmp/bulk-preview-unicode-app-regressions.js",
+    "app_before": "Shared18 actual built-editor cases:12 controls pass6 expected high-surrogate failures (image2,b ulk4);7726.7105ms session75690 terminalexit1 /tmp/whiteboard-image-and-bulk-unicode-app-before.log; current source graph includes finitecaption/search guards; image andbulk clipping unchanged. Exact source/authored languages/existingRedo cancellation checks in controls.",
+    "app_candidate": "43 actual built-editor checks PASS16777.07325ms session66919 terminalexit0 /tmp/whiteboard-image-and-bulk-unicode-app-candidate.log. Candidate Vite load under originalmoduleIDs ONLY image-replace-ui.js+bulk-content.js rawguards; currentfinitecaption+search guards untouched.18new+14permanentsearch+6permanentcaption+5existingFind/nativeimagereplacement/URLvalidation/bulkkeyboard/importedcelllanguages controls. No tracked edits fromfixture.",
+    "native_before": {
+      "status": "actual production FDBETwYL/CSS BlbulZT3, real Safari English and French previews",
+      "board": "11701580-2731-42e8-89c8-853ef59933fb",
+      "fixture": "tmp/bulk-preview-unicode-native-fixture.json",
+      "origin": "http://127.0.0.1:5209",
+      "ideas": "English original181UTF16 Q179\ud83d\ude00 valid draft gives180 invalid high surrogate preview;178 givescomplete180;180 giveswhole180Q andvalidomission",
+      "cells": "English frCA cell Q179 withenGB emoji yieldspartialhighpassage. French threecells178/179/180 produce validfull / invalidpartial / validomitted; allfrCA retained",
+      "cancel_reload": "original note Original\ud83d\ude00 frCA/enGB intact, singleitem, UndoRedoDisabled; Frenchsetting persists, noinsertions",
+      "paste_tool_note": "macApp.paste HTML reports clipboard read timeout; actualnextAX shows successfully opened spreadsheetdialog with3rows anddeclaredmarkup. typeText emoji didnotinsert emoji; replacedviaactualtextpaste, observations above use validactualsource",
+      "cleanup": "tasktabclosed backto9existingFrenchfieldcanvas/writes0; server10248 terminalexit0 stopped"
+    },
+    "prepared_unit": "APPLIED:tests/bulk-content.test.js with12cases;actualbefore8pass4exactfail719.051791ms;candidatepermanent18pass588.492084ms. App12APPLIEDactualbefore8pass4exactfail5761.355292ms;focused17pass13420.660875ms; full30556RUNNINGexpected1746. See pending_bulk_preview_unicode_final forauthoritativecurrentdata."
+  },
+  "dependency_audit_latest": {
+    "date": "2026-10-02",
+    "log": "/tmp/whiteboard-dependency-audit-2026-10-02.json",
+    "command": "npm audit --json",
+    "terminal_exit": 0,
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "dependencies": {
+        "prod": 17,
+        "dev": 117,
+        "optional": 64,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 133
+      }
+    },
+    "scope": "Registry advisory scan only; no dependency changes or claim that all application security is proven."
+  },
+  "previous_goal_turn_classification": "Progress: shipped6e97929 actual remote exact,1657pass/native/model/history verification.",
+  "pending_search_unicode_final": {
+    "status": "complete: committed and pushed",
+    "pull": "main6e97929 up to date before issue",
+    "files": [
+      "src/board-search.js",
+      "tests/board-search.test.js",
+      "tests/app.test.js"
+    ],
+    "before_unit": "6 tests:4 controls pass2 exact high/low-surrogate cutoff failures;73.1225ms /tmp/whiteboard-search-unicode-permanent-before-unit.log terminalexit1",
+    "before_app": "14 tests:4 controls pass10 exact expected failures;5468.125584ms session61818 terminalexit1 /tmp/whiteboard-search-unicode-permanent-before-app.log",
+    "unit": "37 pass923.22525ms /tmp/whiteboard-search-unicode-final-unit.log",
+    "app": "25 pass12435.684458ms session79363 terminalexit0 /tmp/whiteboard-search-unicode-final-app.log;14new6priorcaption5existingFind paging/locks/history/IME/mindhidden/tags controls",
+    "build": "PASS2.35s session13872 terminalexit0",
+    "format": "PASS session70812 terminalexit0",
+    "production_entry": "/assets/index-DmgPTiex.js",
+    "production_css": "/assets/index-BlbulZT3.css",
+    "full_session": 1273,
+    "full_pid": 92110,
+    "full_expected": 1677,
+    "inventory": "/tmp/whiteboard-search-unicode-final-inventory.json",
+    "inventory_files": 287,
+    "full_spec": "/tmp/whiteboard-search-unicode-full-spec.log",
+    "full_errors": "/tmp/whiteboard-search-unicode-full-errors.log",
+    "full_console": "/tmp/whiteboard-search-unicode-full-console.log",
+    "native_fixture": "tmp/search-unicode-final-native",
+    "native_board": "0795e7a6-4b6c-41bd-b09e-d4293a1e27ca",
+    "native_server_session": 2776,
+    "native_server_stopped": true,
+    "native_before": "Actual currentmain FDBETwYL:8results (noteend178/179/180+notestart48/49/50+2tables). Q search produces4invalidcutoff results r1/r4/r6/r7 high/low surrogates/partialenGB passage;4neighbor controlsvalid; all8original emojis/frCA or tablede/cellfrCA withenGB intact;UndoRedoDisabled. Readonlywrapper/insert-only validatedboard, real nativeclick/type, no synthetic browser interaction.",
+    "native_final": "COMPLETE actual final DmgPTiex/CSSBlbulZT3: Q searchall8valid, includedemoji/passagesfull and clippedemoji/no partialpassage;exactlimits maintained (r1 180inclellipsis, r4 52wholetext); Englishdark/Frenchlight; Enter->1/8 ShiftEnter->8/8->7/8 navigatesboth tableboundaryresults, Selectonboard selects originaltable-start and closes/restorescanvasfocus, historiesdisabled/authoredintact. Frenchemoji query findsall8fulloriginal emojis withfullenGB passages includingpreviouslyclippedtail;Escape restorescanvasfocus;reloadFrench/light and8originalemoji/languages/passagespersist, UndoRedoDisabled. Tasktabclosedreturns untouchedexistingFrenchfield;2776terminalexit0 stopped.",
+    "native_remaining": null,
+    "native_actual_build_identical": true,
+    "remote_precommit": "Fetched origin/main: still6e97929 exactlyHEAD; userauthor Nariman Jelveh <nj@puter.com>",
+    "first_full_failure": {
+      "session": 1273,
+      "pid": 92110,
+      "status": "Terminalexit1:1677 total,1676pass1fail; all20new Unicode testsPASS. No cancelled/skipped. Frozen287unchanged; no newsource changes.",
+      "spec": "/tmp/whiteboard-search-unicode-full-spec.log",
+      "errors": "/tmp/whiteboard-search-unicode-full-errors.log",
+      "message": "Cannot read properties of undefined (reading querySelector)",
+      "stack": "main translation/status<-CollaborationSession.failure<-late async SDKcallback; documentmissingafterJSDOMw.close. No search assertion failed. Testsetup close callsw.close only, sharedclose loopsw.close; actualnativeclosedtab cannotexecute appcallbacks. Do notship arbitrarydocumentguard/sleep tohide this.",
+      "isolated_final": {
+        "session": 1499,
+        "terminal_exit": 0,
+        "passed": 2,
+        "failed": 0,
+        "duration_ms": 45549.627375,
+        "log": "/tmp/whiteboard-search-unicode-connection-isolated-final.log"
+      },
+      "isolated_original": {
+        "session": 55957,
+        "terminal_exit": 0,
+        "passed": 2,
+        "failed": 0,
+        "duration_ms": 45565.710417,
+        "log": "/tmp/whiteboard-search-unicode-connection-isolated-original.log",
+        "fixture": "tmp/search-unicode-failure-baseline.test.js",
+        "scope": "CURRENT frozen app tests; ORIGINALHEAD6e97929 board-search.js loaded underoriginalmoduleID Vitepreload; both identical+deletedpendingconnection30scases."
+      },
+      "terminal_exit": 1,
+      "summary": [
+        "\u2139 tests 1677",
+        "\u2139 suites 0",
+        "\u2139 pass 1676",
+        "\u2139 fail 1",
+        "\u2139 cancelled 0",
+        "\u2139 skipped 0",
+        "\u2139 todo 0",
+        "\u2139 duration_ms 634968.881208"
+      ],
+      "duration_ms": 634968.881208
+    },
+    "retry_full_expected": 1677,
+    "retry_full_spec": "/tmp/whiteboard-search-unicode-full-retry-spec.log",
+    "retry_full_errors": "/tmp/whiteboard-search-unicode-full-retry-errors.log",
+    "retry_full_console": "/tmp/whiteboard-search-unicode-full-retry-console.log",
+    "retry_full_session": 71659,
+    "retry_full_pid": 92684,
+    "retry_full_terminal": {
+      "session": 71659,
+      "pid": 92684,
+      "exit": 1,
+      "tests": 1678,
+      "pass": 1677,
+      "fail": 1,
+      "duration_ms": 669285.211084,
+      "cause": "tests/app.test.js file failure due async querySelector on undefined document after grouped drag test ended; all1677 individual tests pass",
+      "trace": "/tmp/whiteboard-search-unicode-full-retry-spec.log lines163-168 and485",
+      "status": "investigating lifecycle failure; no third blind rerun, search3files unchanged"
+    },
+    "resumed_after_cleanup": {
+      "base": "d55566bf55d68eb5d3f8e0cac4d2a96fd2787809",
+      "latest_main_pulled": true,
+      "restored_only3_search_files": true,
+      "new_search_close_awaited": true,
+      "before_unit": {
+        "tests": 6,
+        "pass": 4,
+        "fail": 2,
+        "exit": 1,
+        "duration_ms": 82.799875,
+        "log": "/tmp/whiteboard-search-unicode-resumed-before-unit.log"
+      },
+      "before_app": {
+        "tests": 14,
+        "pass": 4,
+        "fail": 10,
+        "exit": 1,
+        "duration_ms": 6313.518625,
+        "session": 36805,
+        "log": "/tmp/whiteboard-search-unicode-resumed-before-app.log",
+        "other_errors": "none; same exact UTF16 assertions, no after-test callbacks"
+      },
+      "after_unit": {
+        "tests": 37,
+        "pass": 37,
+        "fail": 0,
+        "exit": 0,
+        "session": 3207,
+        "duration_ms": 1130.743917,
+        "log": "/tmp/whiteboard-search-unicode-resumed-final-unit.log"
+      },
+      "after_app": {
+        "tests": 27,
+        "pass": 27,
+        "fail": 0,
+        "exit": 0,
+        "session": 57959,
+        "duration_ms": 13386.841083,
+        "log": "/tmp/whiteboard-search-unicode-resumed-final-app.log",
+        "controls": "14new+6previousfinitecaptions+5Find/navigation/privacy/tags+2cleanupregressions"
+      },
+      "format": {
+        "exit": 0,
+        "session": 62206,
+        "log": "/tmp/whiteboard-search-unicode-resumed-final-format.log"
+      },
+      "expected_full": 1679,
+      "build_exit": 0,
+      "build_session": 9866,
+      "build_duration": "2.08s",
+      "build_log": "/tmp/whiteboard-search-unicode-resumed-final-build.log",
+      "native_final_asset": "DmgPTiex/BlbulZT3 byte-identical to prior native actual final",
+      "source_search_hash_same_as_prior": true,
+      "inventory": "/tmp/whiteboard-search-unicode-resumed-final-inventory.json",
+      "frozen_count": 287,
+      "full_session": 52498,
+      "full_pid": 94647,
+      "full_spec": "/tmp/whiteboard-search-unicode-resumed-full-spec.log",
+      "full_errors": "/tmp/whiteboard-search-unicode-resumed-full-errors.log",
+      "full_console": "/tmp/whiteboard-search-unicode-resumed-full-console.log"
+    },
+    "commit": "3bd29cc95df3166855a0bbdb12a51ae4c5a23c7a",
+    "push": "terminal exit0 session83743; exact remote HEAD, user author+committer, no attribution and clean tracked worktree verified"
+  },
+  "image_bulk_combined_compatibility": {
+    "before_fixture": "tmp/image-and-bulk-unicode-app-before.test.js",
+    "candidate_fixture": "tmp/image-and-bulk-unicode-app-candidate.test.js",
+    "candidate_sources": [
+      "tmp/image-replacement-unicode-candidate-source.js",
+      "tmp/bulk-preview-unicode-candidate-source.js"
+    ],
+    "passed": 43,
+    "failed": 0,
+    "duration_ms": 16777.07325,
+    "session": 66919,
+    "terminal_exit": 0,
+    "log": "/tmp/whiteboard-image-and-bulk-unicode-app-candidate.log",
+    "scope": "Image/bulk guards loaded under originalmodule IDs along with actual latest finitecaption/search guards and exact language/model/history controls;6queued image+12queuedbulk app tests ready. No source or tests mutations."
+  },
+  "queued_board_title_unicode": {
+    "status": "Real imported/copied persisted-title defect confirmed in actual app and native copy; prototype passes. Not shipped; latest permanent before/final/build/format/full/nativefinal/onecommit later.",
+    "app_block": "tmp/board-title-unicode-app-regressions.js",
+    "before": "12 actual editor en/fr \u00d7import/copy \u00d7cutoff\u22122/\u22121/0 cases:8 controlsPASS4 exact high-surrogate failures.5087.395334ms session10568 terminalexit1 /tmp/whiteboard-board-title-unicode-app-before.log. Source titlevalid\u2264200, copiedoriginaltitleuntouched; wholefrCA/emojiinlineenGB contentpreserved controls.",
+    "candidate": "tmp/board-title-unicode-main-candidate-source.js raw src/main.js copy withlocal titleWithSuffix constant-time pairguard andONLYimport/copy callers changed. Applytargetedhunks latestsource, notwholeraw file.",
+    "candidate_app": "34 actual editor PASS11156.839167ms session39146 terminalexit0 /tmp/whiteboard-board-title-unicode-app-candidate.log;12new+existingimportandcopy200limit/doubleclick+Find+14search+6priorcaption guards controls under ORIGINALmainmoduleID Vite override.",
+    "native_before": "Actual production DmgPTiex/CSSBlbulZT3 (search candidateguard only; titlecode unchanged): validated original Q192+\ud83d\ude00 title194valid, second X191+\ud83d\ude00193valid. Native Backtoboards->OptionsQ->Duplicate creates200title Q192+highsurrogate(copy),readonlyisWellFormedfalse/AX\ufffd; bothoriginalsremainfullvalid. Openbadcopy andfreshuniqueview-saved-copy.html load savedcopy487b9048-f2ca-4b8a-95c1-63f17da0e9a7 preservesinvalid200title; authoredOriginal\ud83d\ude00 noteintact. No programmaticcopy/UIclick, readonlywrapper/insert-onlyseedownisolated5206board. TasktabclosedreturnsuntouchedFrenchfield; server85764terminalexit0stopped. Frenchcopy/import appbefore verified; nativeimportnotexercised.",
+    "native_fixture": "tmp/board-title-unicode-native",
+    "native_original": "7fcd440b-1bd4-4ba5-92ef-04ad9b978841",
+    "native_secondary_original": "56978d85-e2e3-4528-a5fc-53d1a22df4cd",
+    "native_bad_copy": "487b9048-f2ca-4b8a-95c1-63f17da0e9a7",
+    "scope": "Newly generated imported/copied title clipping only; preserve source validnames. Existing malformedcopies cannot reconstruct lostcharacters safely. Archivedversiontitle160slice separateunverified UIpath; nativeboardrename maxlength200 unverified, do notinferbrowsertruncation fromprogrammaticfield assignment.",
+    "version_copy_investigation": {
+      "status": "UNVERIFIED extra160-prefix archivedcopy UIpath. Prepared6 en/fr158/159/160 actualeditor cases; not run while cleanfullretry. Do notclaimconfirmed/fixed yet. Investigatebeforefinalizingtitle issue scope.",
+      "block": "tmp/version-copy-title-unicode-app-regressions.js",
+      "source": "src/features.js copy.title = version.title.slice(0,160)+timestamp suffix",
+      "possible_scope": "If confirmed, include archivedboardcopy alongsideimport/librarycopy in generatedboardtitle Unicode issue usingnecessarysharedpureprefix helper across2modules, preserveeachcapacity/suffix and source/content/languages/portablecopy restrictions."
+    },
+    "version_copy_native_before": {
+      "status": "actual production FDBETwYL/CSS BlbulZT3, real Safari history/checkpoint/options/OpenasCopy action; persistent malformed title confirmed",
+      "fixtures": "tmp/version-copy-unicode-native-fixtures.json",
+      "source": "8220bc7c-acf3-46fb-a7e1-f66ec3f1c3d5, Q159+\ud83d\ude00 title161 valid",
+      "bad_copy": "c34effc3-7d7c-4e9d-bd63-05220944706a, title185 invalid high surrogate+timestamp; unique fresh view-saved-copy.html still invalid from IndexedDB",
+      "adjacent_control": "99c7774b-4d53-4a03-a0a4-dd41bd9a443b, X158+\ud83d\ude00 title160 complete; copy a5f55592-06fb-41cb-b2c8-56e9d8c0b56b title185 valid full emoji+timestamp",
+      "originals": "Q161/X160/Z162 valid originals unchanged; copiedOriginal\ud83d\ude00 note/frCA/enGB wholepassage preserved; UndoRedoDisabled",
+      "origin": "http://127.0.0.1:5208",
+      "cleanup": "server21839 terminal0 stopped; dedicatedtasktabclosed back to priorFrenchfixture; 9tabs restored. Initial navigation mistakenly reused priorFrenchtab, immediately Back+Escape restored canvas/writes0 before creatingdedicatedCmdTtab. Use explicitCmdT+Return for futuretasktabs."
+    },
+    "version_copy_native_french_before": {
+      "status": "verified actual persisted corruption in French",
+      "root": "tmp/version-copy-unicode-french-before-native",
+      "asset": "index-CWB4vedx.js",
+      "port": 5213,
+      "source": "8220bc7c-acf3-46fb-a7e1-f66ec3f1c3d5",
+      "copy": "e16cee42-d97a-4889-8b99-5181b08e4a11",
+      "observations": [
+        "Q159+emoji source161 valid; actual French create checkpoint and Open a copy produced182 malformed title ending high surrogate + French formatted date",
+        "Fresh dedicated view-saved-copy loaded same ID from persisted store; title still182 invalid",
+        "Original note content Original \ud83d\ude00 frCA/enGB emoji intact; copied board Undo/Redo disabled",
+        "Back to library original Q161/X160/Z162 titles valid and unchanged beside bad Q182 copy"
+      ],
+      "cleanup": "own tenth task tab closed; prior nine restored French table field final canvas focus/writes0; server10879 terminal exit0"
+    },
+    "version_copy_candidate": "tmp/version-copy-title-unicode-features-candidate-source.js: local safe160 prefix before timestamp; prepared only, actual app before/candidate not yet run. six app regression fragments now await setup close.",
+    "import_native_before": {
+      "status": "actual native imports persisted malformed generated titles in English and French",
+      "root": "tmp/title-import-unicode-before-native",
+      "asset": "index-CWB4vedx.js",
+      "port": 5214,
+      "fixtures": [
+        "tmp/title-import-unicode-en-native-fixture.json",
+        "tmp/title-import-unicode-fr-native-fixture.json"
+      ],
+      "copies": {
+        "en": "2cafd8d3-0f31-4063-8ee0-b827f9741dad",
+        "fr": "ddc78cba-6175-4e47-b2fc-124124cd5246"
+      },
+      "observations": [
+        "Both fixture boards model-validated with well-formed source title and note Original \ud83d\ude00 frCA/enGB before UI import",
+        "English source Q188+emoji190 native Import chooser ->200 invalid title high surrogate + (imported); new view-saved-en reopens same stored ID still200 invalid",
+        "French source Q189+emoji191 native Import chooser ->200 invalid title high surrogate + (import\u00e9); new view-saved-fr reopens same stored ID still200 invalid",
+        "Both imports preserve actual note text Original \ud83d\ude00 and disabled Undo/Redo; original seed titles remain valid in library"
+      ],
+      "caveats": "Initial French Upload-button attempt closed chooser without showing import; not counted as a product failure. Fresh native document and Return on default selected-file action completed actual French import. Use CmdShiftG exact path after chooser AX, then Return to resolve and Return on selected-file chooser. Row/text clicks did not reliably select file.",
+      "cleanup": "own tenth Safari task tab closed; prior nine restored French table field final canvas/writes0; server87389 terminal exit0"
+    },
+    "copy_native_french_before": {
+      "status": "actual native French duplicate persists malformed title",
+      "root": "tmp/board-copy-unicode-french-before-native",
+      "asset": "index-CWB4vedx.js",
+      "port": 5215,
+      "source": "56978d85-e2e3-4528-a5fc-53d1a22df4cd",
+      "copy": "4a5f9d94-98a9-4d43-931a-00c0826fb96b",
+      "observations": [
+        "Validated source X191+emoji193 valid; native French library Options -> Dupliquer producedX200 invalid high surrogate + (copie)",
+        "Original X193 and Q194 titles remain valid unchanged in library",
+        "Opening new copy then fresh view-saved-copy reopens same persisted ID, title200 still malformed; note Original \ud83d\ude00 intact and Undo/Redo disabled"
+      ],
+      "cleanup": "own tenth task tab closed; prior nine restored French table field final canvas/writes0; server86263 terminal exit0"
+    }
+  },
+  "queued_search_alternative_text": {
+    "status": "component observation only, not established as intended product bug",
+    "evidence": "tmp/search-alternative-text-inventory.json",
+    "observation": "validated image/pen alt R\u00e9sum\u00e9 \ud83d\ude00 gives accessible objectName yet createSearchIndex text empty and resume no matches; same primary text control matches1",
+    "remaining": "verify intended search scope and actual editor/native UX before changes",
+    "native_before": {
+      "status": "verified real native Find omission on actual final production assets",
+      "fixture": "tmp/search-alternative-native-fixture.json",
+      "board": "ff6ddac7-99ee-4f93-bcc3-70b30eebd70c",
+      "assets": [
+        "index-DmgPTiex.js",
+        "index-BlbulZT3.css"
+      ],
+      "observations": [
+        "Actual image properties showed empty primary Text and Alternative text R\u00e9sum\u00e9 \ud83d\ude00 with fr-CA language",
+        "All content query resume found only identically titled sticky note; both visual descriptions omitted",
+        "Image and Drawing filters with query resume produced 0 results",
+        "Empty query Image and Drawing filters returned the described objects as Untitled object",
+        "After closing Find and reloading all three original full names, declared languages and disabled Undo/Redo remained intact"
+      ],
+      "cleanup": "dedicated tenth Safari tab closed; nine preexisting tabs restored, French table field final canvas focus/writes0; static server61478 terminated exit0",
+      "limitations": "English UI verified; French UI and final fix still pending"
+    },
+    "component_regressions": {
+      "file": "tmp/search-alternative-unit-regressions.test.js",
+      "before": "7 cases, 2 existing-content controls pass, 5 exact description failures; 368.927208ms, exit1",
+      "candidate": "7 pass, 0 fail; 360.758375ms, exit0",
+      "logs": [
+        "/tmp/whiteboard-search-alternative-unit-before.log",
+        "/tmp/whiteboard-search-alternative-unit-candidate.log"
+      ],
+      "source": "tmp/search-alternative-candidate-source.js",
+      "change": "Add item.alt once to existing search index; alternative text is valid only for images/drawings, preserving table prefix and cell offsets",
+      "controls": "full primary content/links/file names/cells/tags, escaped markup and declared languages, original objects unchanged, 5000 alternative descriptions extracted once and 20 queries reused",
+      "excluded_initial_fixture_errors": "Initial invalid image source and invalid alternative field on table and misplaced prototype imports corrected before authoritative runs",
+      "status": "prototype only; tracked source frozen for live search Unicode full suite"
+    },
+    "prepared_app_regressions": "tmp/search-alternative-app-regressions.js: 4 cases image/drawing \u00d7 en/fr; validated actual PNG/drawing, empty-query type filtering, normalized matching, identical note control, selection navigation, existing redo and authored language/content, reopen; not yet executed while full suite frozen",
+    "native_french_before": {
+      "status": "verified actual native French omission",
+      "root": "tmp/search-alternative-french-before-native",
+      "asset": "index-CWB4vedx.js",
+      "port": 5212,
+      "observations": [
+        "All three native outlined names R\u00e9sum\u00e9 \ud83d\ude00 frCA; All content resume returned only the sticky note, image/drawing descriptions omitted",
+        "Image type + resume returned0; cleared query Image returned1 image Objet sans titre instead of declared description",
+        "Close Find and reload: three full original names/languages and disabled Undo/Redo unchanged"
+      ],
+      "cleanup": "own tenth task tab closed, nine prior restored French table field final canvas focus/writes0; server69507 terminal exit0"
+    }
+  },
+  "pending_test_window_disposal": {
+    "status": "complete, separately committed and pushed to main",
+    "base": "6e979291027fe2d4d094c7d9a47948d9876c9d1b, latest main pulled before issue",
+    "deterministic_before": "two exact failures: pending-save window destroyed early with same status/querySelector rejection, shared sessions issue no leave",
+    "before_log": "/tmp/whiteboard-test-window-disposal-permanent-before.log",
+    "before_session": 93320,
+    "before_exit": 1,
+    "prototype": "local gate and shared session leave/content controls pass; grouped drag and both bilingual connection controls pass (4 tests,46394.461583ms)",
+    "prototype_log": "/tmp/whiteboard-test-window-disposal-candidate.log",
+    "both_prototype_log": "/tmp/whiteboard-test-window-disposal-both-candidate.log",
+    "implementation": "idempotent asynchronous close uses existing home action to await saves and end collaboration; all fixture owners await closure; shared group owns Promise.all; no production guards or sleeps",
+    "focused_session": 53110,
+    "focused_log": "/tmp/whiteboard-test-window-disposal-focused.log",
+    "format_exit": 0,
+    "format_log": "/tmp/whiteboard-test-window-disposal-final-format.log",
+    "search_patch_saved": "/tmp/whiteboard-search-unicode-verified-uncommitted.patch",
+    "search_status": "tracked search3files restored to HEAD for separate lifecycle commit; complete verified patch preserved",
+    "focused_exit": 0,
+    "focused_pass": 15,
+    "focused_duration_ms": 125813.036542,
+    "build_exit": 0,
+    "build_duration": "2.13s",
+    "build_log": "/tmp/whiteboard-test-window-disposal-build.log",
+    "production_asset": "FDBETwYL, exactly previous6e97929 asset; production source unchanged",
+    "full_session": 81448,
+    "full_pid": 93923,
+    "full_expected": 1659,
+    "inventory": "/tmp/whiteboard-test-window-disposal-final-inventory.json",
+    "frozen_count": 287,
+    "full_spec": "/tmp/whiteboard-test-window-disposal-full-spec.log",
+    "full_errors": "/tmp/whiteboard-test-window-disposal-full-errors.log",
+    "full_console": "/tmp/whiteboard-test-window-disposal-full-console.log",
+    "full_exit": 0,
+    "full_tests": 1659,
+    "full_pass": 1659,
+    "full_fail": 0,
+    "full_duration_ms": 667506.598417,
+    "full_logs": "errors and console empty; no DIAGNOSTIC_REJECTION_STACK or after-test async activity in spec",
+    "inventory_verified": true,
+    "commit": "d55566bf55d68eb5d3f8e0cac4d2a96fd2787809",
+    "push_session": 53551,
+    "push_exit": 0,
+    "remote_exact": true,
+    "author": "Nariman Jelveh <nj@puter.com>",
+    "attribution": "none",
+    "clean_worktree_after_push": true
+  },
+  "latest_commit": "3d40f48e71ce9cf6a3902ebb889f2172dd6a8cc9",
+  "pending_image_replacement_unicode_final": {
+    "status": "complete: committed and pushed",
+    "base": "3bd29cc95df3166855a0bbdb12a51ae4c5a23c7a",
+    "files": [
+      "src/image-replace-ui.js",
+      "tests/app.test.js",
+      "tests/image-replace-ui.test.js"
+    ],
+    "diff": "138 insertions, 1 deletion; only 100-character replacement labels and 12 regressions",
+    "before_unit": "6 tests:4 controls pass,2 exact high-surrogate failures; exit1; /tmp/whiteboard-image-replacement-unicode-permanent-before-unit.log",
+    "before_app": "6 tests:4 controls pass,2 exact high-surrogate failures; 4882.011666ms; session70238 terminal exit1; /tmp/whiteboard-image-replacement-unicode-permanent-before-app.log",
+    "focused_unit": "36 tests pass,0 fail,743.246459ms; /tmp/whiteboard-image-replacement-unicode-final-unit.log",
+    "focused_app": "11 tests pass,0 fail,13043.50275ms; session92671 terminal exit0; /tmp/whiteboard-image-replacement-unicode-final-app.log; all new6 plus actual exact pixels/layout/undo/persistence/French/device/URL/corrupt/late/shared image replacement and search paging/nav controls",
+    "build": "session1911 terminal exit0; 2.40s; /tmp/whiteboard-image-replacement-unicode-final-build.log",
+    "format": "terminal exit0; /tmp/whiteboard-image-replacement-unicode-final-format.log",
+    "native_final": {
+      "root": "tmp/image-replacement-unicode-final-native",
+      "asset": "index-CWB4vedx.js",
+      "css": "index-BlbulZT3.css",
+      "port": 5211,
+      "board": "40fd9d26-eed0-47c0-ac1c-b494af203912",
+      "observations": [
+        "Actual English dark and French light replacement dialogs: source98+emoji full100 valid/frCA/enGB emoji; source99+emoji clipped99 valid/frCA/no partial passage; source100+emoji clipped100 valid/frCA/no partial passage",
+        "All original full emoji and frCA/enGB passages unchanged after cancellation and fresh reload; disabled Undo/Redo",
+        "Real native controls/screenshots verified final assets"
+      ],
+      "cleanup": "own tenth Safari task tab closed; prior nine restored to French table field final canvas/writes0; server81010 terminal exit0"
+    },
+    "inventory": "/tmp/whiteboard-image-replacement-unicode-final-inventory.json",
+    "inventory_files": 287,
+    "expected_full_tests": 1691,
+    "full": {
+      "session": 54595,
+      "pid": 95333,
+      "status": "terminal exit0",
+      "expected_tests": 1691,
+      "logs": [
+        "/tmp/whiteboard-image-replacement-unicode-full-spec.log",
+        "/tmp/whiteboard-image-replacement-unicode-full-errors.log",
+        "/tmp/whiteboard-image-replacement-unicode-full-console.log"
+      ],
+      "tests": 1691,
+      "pass": 1691,
+      "fail": 0,
+      "duration_ms": 673369.249459,
+      "error_and_console_logs": "empty",
+      "no_after_test_async_errors": true,
+      "frozen_inventory_exact_verified": true
+    },
+    "commit": "21ac95d6d2a8095543326a629014456a1b3a8794",
+    "push": "session75182 terminal exit0; remote exact HEAD, user author+committer, no attribution and clean tracked worktree verified"
+  },
+  "pending_generated_board_title_unicode_final": {
+    "status": "COMPLETE pushed main2ef7315a8068ae9ffc8eff6c83bfaa0428f304a1",
+    "base": "21ac95d6d2a8095543326a629014456a1b3a8794",
+    "files": [
+      "src/main.js",
+      "src/features.js",
+      "tests/app.test.js"
+    ],
+    "before": "18 cases:12 controls pass,6 exact malformed/split failures;6887.769667ms; session55260 terminalexit1; /tmp/whiteboard-generated-board-title-unicode-permanent-before.log",
+    "focused": "27pass0fail12111.685375ms; session66374 terminalexit0; /tmp/whiteboard-generated-board-title-unicode-final-app.log;18new+9 limits/importmarkup/trash/invalidfile/imagepixel/history/focus/locks/hiddencontent/persistence controls",
+    "build": "session24811 terminalexit0;2.42s; /tmp/whiteboard-generated-board-title-unicode-final-build.log; actualindex-BwpFkvOH.js/BlbulZT3.css",
+    "format": "session23523 terminalexit0; /tmp/whiteboard-generated-board-title-unicode-final-format.log",
+    "native_before": "en/fr all3 actual native paths verified; imports/copies/checkpoint titles malformed persisted after reopening; queued_board_title_unicode records",
+    "native_final": {
+      "status": "COMPLETE: all6 actualnative paths Englishdark/Frenchlight and all6 fresh saved documents passed",
+      "server_session": 42046,
+      "port": 5216,
+      "asset": "index-BwpFkvOH.js",
+      "root": "tmp/generated-board-title-unicode-final-native",
+      "safari": "dedicated tenth task tab, existing9untouched; bindingsearchSafari, filteredobserver titleAX",
+      "completed": {
+        "en_copy": {
+          "id": "208cfe4e-59a4-4321-b7ff-ff187541b0c2",
+          "source": "7fcd440b-1bd4-4ba5-92ef-04ad9b978841",
+          "source_title": "Q192+emoji194valid",
+          "result": "Q192+ (copy)199valid; fresh saved doc same199valid; originalQ194 andX193 remain valid; noteOriginal\ud83d\ude00frCA/enGB intact; UndoRedoDisabled"
+        },
+        "en_version": {
+          "id": "6d23c1e7-115c-4109-b856-673dd34d2538",
+          "source": "8220bc7c-acf3-46fb-a7e1-f66ec3f1c3d5",
+          "result": "Q159+datedsuffix184valid; fresh saved document same184valid; noteOriginal\ud83d\ude00frCA/enGB intact; UndoRedoDisabled"
+        },
+        "en_import": {
+          "id": "9527e7ae-94a6-4410-9c4f-8ef83496abb0",
+          "result": "Validated Q188+emoji190 originalfile imported native; Q188+(imported)199valid; fresh saved document same199valid; noteOriginal\ud83d\ude00frCA/enGB intact; UndoRedoDisabled; remains literal English suffix when interface switched toFrench"
+        },
+        "fr_import": {
+          "id": "f3499336-0aa0-4695-9f79-25ce9bf2f4d8",
+          "result": "Actual French light Q189+emoji191 originalfile import Q189+(import\u00e9)199valid; fresh saved document same199valid; noteOriginal\ud83d\ude00frCA/enGB intact; UndoRedoDisabled"
+        },
+        "fr_copy": {
+          "id": "b04be34e-7a5d-4606-bb50-6f45a4029636",
+          "source": "56978d85-e2e3-4528-a5fc-53d1a22df4cd",
+          "result": "Actual French light sourceX191+emoji193 valid;DuplicateX191+(copie)199valid; original193preservedlibrary; fresh saved document199valid; noteOriginal\ud83d\ude00frCA/enGB intact; UndoRedoDisabled"
+        },
+        "fr_version": {
+          "id": "eda326da-d97a-4193-baa2-2a167d6e6b25",
+          "source": "8220bc7c-acf3-46fb-a7e1-f66ec3f1c3d5",
+          "result": "French light actualnewcheckpointCopy Q159+localizeddate181valid; fresh saved document same181valid; Original\ud83d\ude00frCA/enGB intact; UndoRedoDisabled"
+        }
+      },
+      "caveats": "Initial English final import attempt after Home closed chooser without an import; fresh library document then same native chooser selected-file Return completed actual import. This is not counted as a title regression or claimed as a confirmed separate product failure; investigate file-input lifecycle separately if reproducible.",
+      "cleanup": "Dedicated tenth Safari task tab closed; prior9 restored French table field final canvasfocus/writes0; server42046 terminalexit0"
+    },
+    "inventory": "/tmp/whiteboard-generated-board-title-unicode-final-inventory.json",
+    "inventory_files": 287,
+    "expected_full_tests": 1709,
+    "full": {
+      "session": 58296,
+      "pid": 96016,
+      "status": "TERMINAL exit0",
+      "expected_tests": 1709,
+      "logs": [
+        "/tmp/whiteboard-generated-board-title-unicode-full-spec.log",
+        "/tmp/whiteboard-generated-board-title-unicode-full-errors.log",
+        "/tmp/whiteboard-generated-board-title-unicode-full-console.log"
+      ],
+      "tests": 1709,
+      "passed": 1709,
+      "failed": 0,
+      "duration_ms": 689089.599167,
+      "frozen_inventory": "all287 exact final verification",
+      "error_console": "EMPTY; no after-test async errors"
+    },
+    "commit": "2ef7315a8068ae9ffc8eff6c83bfaa0428f304a1",
+    "push": "session90419 TERMINAL exit0; remote exactHEAD; Nariman author/committer; no coauthor; clean"
+  },
+  "pending_search_alternative_final": {
+    "status": "COMPLETE pushed975803b6fcff2f126fd0047580160bee276ee46b",
+    "base": "2ef7315a8068ae9ffc8eff6c83bfaa0428f304a1",
+    "files": [
+      "src/board-search.js",
+      "tests/board-search.test.js",
+      "tests/app.test.js"
+    ],
+    "before_unit": "7cases:2controlsPASS5exactFAIL441.059292ms; directexit1; /tmp/whiteboard-search-alternative-permanent-before-unit.log",
+    "before_app": "4cases en/fr image/pen:4exactUntitledObjectFAIL4888.2745ms;69723terminalexit1; /tmp/whiteboard-search-alternative-permanent-before-app.log",
+    "native_before": "EN actualimage anddrawing altmatches absent/filteremptyUntitled;FR actualimage altabsent/filteremptyObjetSansTitre; priorqueuedrecords",
+    "source": "1line additem.alt once to indexed text; no tablealt prefix changes for validmodel",
+    "focused_unit": "24pass0fail853.116541ms; directterminalexit0; /tmp/whiteboard-search-alternative-final-unit.log",
+    "focused_app": "21pass0fail13354.589708ms;50465terminalexit0; /tmp/whiteboard-search-alternative-final-app.log",
+    "build": "40757terminalexit0;4.16s; /tmp/whiteboard-search-alternative-final-build.log; actualindex-DIdRyVHN.js/BlbulZT3.css",
+    "format": "62883terminalexit0; /tmp/whiteboard-search-alternative-final-format.log",
+    "inventory": "/tmp/whiteboard-search-alternative-final-inventory.json",
+    "expected_full_tests": 1720,
+    "native_final": {
+      "status": "COMPLETE Englishdark/Frenchlight actualproduction; sourcepersisted intact",
+      "server_session": 45420,
+      "port": 5217,
+      "root": "tmp/search-alternative-final-native",
+      "asset": "index-DIdRyVHN.js",
+      "source_id": "ff6ddac7-99ee-4f93-bcc3-70b30eebd70c",
+      "english": "Actual normalized spaced uppercasequery exactnativepaste =>3validfrCAresults; imageanddrawing filters withquery1each; emptyquery1properdescriptioneach; bothnavigation/SelectOnBoard selects exact type; UndoRedoDisabled; freshsavedsource all3originalsfrCA intact/histdisabled",
+      "input_caveat": "MacApp.typeText spacedquery initially produced RESUM E; corrected nativePaste exact 2spaceRESUME2space and actualAX query verified. Incorrecttyped query not counted as product failure.",
+      "french": "ExactnativePaste2spaceRESUME2space=>3validfrCAresults; imageanddrawing withquery1each; emptyquery1properdescriptioneach; navigation+SelectOnBoard selected exacttypes; AnnulerRetablirDisabled; nativeReload savedsource all3names/langfrCA intact; screenshotfinal3results",
+      "screenshots": "Actual production index-DIdRyVHN/BlbulZT3 bothEnglishdark/Frenchlight observed and inspected; no CSS/layout changes",
+      "cleanup": "Dedicated tenth Safari tasktab closed; existing9 restoredFrench table field finalcanvasfocus/writes0; server45420terminalexit0"
+    },
+    "full": {
+      "session": 65353,
+      "pid": 97168,
+      "status": "TERMINAL exit1, ownSIGINT after existingtemplate failure; not a completed/passing suite",
+      "expected_tests": 1720,
+      "logs": [
+        "/tmp/whiteboard-search-alternative-full-spec.log",
+        "/tmp/whiteboard-search-alternative-full-errors.log",
+        "/tmp/whiteboard-search-alternative-full-console.log"
+      ],
+      "failure": "specialist templates present ordered frames and insert reusable content; line4546;0rows expected53 before searchtests; errorlog1068bytes",
+      "inventory": "all frozen287 hashes still exact before diagnosis"
+    },
+    "preserved_patch": "/tmp/whiteboard-search-alternative-uncommitted.patch",
+    "resumed": {
+      "status": "COMPLETE finalpassed andpushed",
+      "base": "91a5d0da81e2d8879bc260e469465aeb25295960",
+      "before_unit": "7cases2controlsPASS5exactFAIL391.750666ms;directterminalexit1; /tmp/whiteboard-search-alternative-resumed-before-unit.log",
+      "before_app": "4exactUntitledFAIL4173.64025ms;43047terminalexit1; /tmp/whiteboard-search-alternative-resumed-before-app.log",
+      "focused_unit": "24pass0fail624.726ms;directterminal0; /tmp/whiteboard-search-alternative-resumed-final-unit.log",
+      "focused_app": "24pass0fail11412.014166ms;95630terminal0; /tmp/whiteboard-search-alternative-resumed-final-app.log;21Find+2heldtemplate+1specialisttemplate",
+      "build": "85978terminal0;2.72s; /tmp/whiteboard-search-alternative-resumed-final-build.log; actualDIdRyVHN/BlbulZT3",
+      "format": "21170terminal0; /tmp/whiteboard-search-alternative-resumed-final-format.log",
+      "native_reverification": "ALL 58 productionassets exact fullSHA256/names against completedactualEnglishdark/Frenchlight5217final; no productiondifference from readinessfixture-onlybasechange; originalnativefinal/cleanupstillauthoritative",
+      "inventory": "/tmp/whiteboard-search-alternative-resumed-final-inventory.json",
+      "expected_full_tests": 1722,
+      "full": {
+        "session": 3607,
+        "pid": 591,
+        "status": "TERMINAL exit0",
+        "expected_tests": 1722,
+        "logs": [
+          "/tmp/whiteboard-search-alternative-resumed-full-spec.log",
+          "/tmp/whiteboard-search-alternative-resumed-full-errors.log",
+          "/tmp/whiteboard-search-alternative-resumed-full-console.log"
+        ],
+        "tests": 1722,
+        "passed": 1722,
+        "failed": 0,
+        "duration_ms": 694723.995583,
+        "inventory": "all287finalexact",
+        "errors_console": "EMPTY; no after-test async"
+      },
+      "push": "59659terminalexit0; remoteexactHEAD; userNariman author+committer; no attribution; clean"
+    },
+    "commit": "975803b6fcff2f126fd0047580160bee276ee46b"
+  },
+  "pending_template_opening_readiness_final": {
+    "status": "COMPLETE pushed91a5d0da81e2d8879bc260e469465aeb25295960",
+    "base": "2ef7315a8068ae9ffc8eff6c83bfaa0428f304a1",
+    "files": [
+      "tests/app.test.js"
+    ],
+    "before_prototype": "3cases1controlPASS2heldreadFAIL4076.972875ms;43695terminal1; /tmp/whiteboard-template-opening-readiness-before.log",
+    "candidate_prototype": "3pass0fail4577.415834ms;87045terminal0; /tmp/whiteboard-template-opening-readiness-candidate.log",
+    "before_permanent": "3cases1controlPASS2heldreadFAIL4175.710291ms;91901terminal1; /tmp/whiteboard-template-opening-readiness-permanent-before.log",
+    "source": "Template fixture clicks now await #library-panel readiness with same bounded3s board-open convention;2heldIndexedDBread regressions library/editor; finally alwayscloseswindows",
+    "production": "All286otherfiles hashes match latest title final287inventory; gitdiff onlyapp.test; no productionmodifications",
+    "search_resume": "Preserved /tmp/whiteboard-search-alternative-uncommitted.patch and tmp/search-alternative-preserved-*;7unit+4appfragments available; nativefinalDIdRyVHN ENFR complete/cleaned",
+    "focused": "10pass0fail7975.491958ms;7735terminal0; /tmp/whiteboard-template-opening-readiness-final-app.log",
+    "format": "75882terminal0; /tmp/whiteboard-template-opening-readiness-final-format.log",
+    "inventory": "/tmp/whiteboard-template-opening-readiness-final-inventory.json",
+    "expected_full_tests": 1711,
+    "full": {
+      "session": 14537,
+      "pid": 97886,
+      "status": "TERMINAL exit0",
+      "expected_tests": 1711,
+      "logs": [
+        "/tmp/whiteboard-template-opening-readiness-full-spec.log",
+        "/tmp/whiteboard-template-opening-readiness-full-errors.log",
+        "/tmp/whiteboard-template-opening-readiness-full-console.log"
+      ],
+      "tests": 1711,
+      "passed": 1711,
+      "failed": 0,
+      "duration_ms": 705270.557333,
+      "inventory": "287final exact",
+      "errors_console": "EMPTY; no after-test async"
+    },
+    "commit": "91a5d0da81e2d8879bc260e469465aeb25295960",
+    "push": "92907terminalexit0; remoteexactHEAD; Narimanauthor+committer/noattribution; clean"
+  },
+  "pending_bulk_preview_unicode_final": {
+    "base": "975803b6fcff2f126fd0047580160bee276ee46b",
+    "before_unit": "8 controls pass4 exactsplitemoji failures719.051791ms directterminal1 /tmp/whiteboard-bulk-preview-unicode-permanent-before-unit.log",
+    "before_app": "8 controls pass4 exactsplitemoji failures5761.355292ms 71769terminal1 /tmp/whiteboard-bulk-preview-unicode-permanent-before-app.log",
+    "fix": "local numeric O(1) surrogate-pair guard180 andsinglepreviewcaller;3files166insertions1deletion",
+    "unit": "18pass0fail588.492084ms directterminal0 /tmp/whiteboard-bulk-preview-unicode-final-unit.log",
+    "app": "17pass0fail13420.660875ms 79631terminal0 /tmp/whiteboard-bulk-preview-unicode-final-app.log;12new+5bulkkeyboard/paste/capacity/authoredcellcontrols",
+    "build": "42025terminal0 2.70s actualCB0al3yi/BlbulZT3 /tmp/whiteboard-bulk-preview-unicode-final-build.log",
+    "format": "16371terminal0 /tmp/whiteboard-bulk-preview-unicode-final-format.log (initial85586 formattingfailcorrected)",
+    "native": {
+      "root": "tmp/bulk-preview-unicode-final-native",
+      "port": 5220,
+      "fixture": "11701580-2731-42e8-89c8-853ef59933fb",
+      "complete": "Englishdark+Frenchlight: actualnativepaste3boundaries178/179/180 inideasandHTMLcells; preview180/179/180 ALLvalid; taggedcellsfrCA+wholeinlineenGBemojiat178, absentat179/180. Cancelandfreshsavedreload eachlocale fullOriginalemoji/frCA/enGB intact historydisabled. ActualscreenshotsENideas+FRcells inspected",
+      "tool_note": "HTMLpaste toolreportedtimeout; actualfollowingAXconfirmed3cellpasteandmetadata; claimactualobservedUI, nottoolreturnedsuccess",
+      "cleanup": "own10thtabclosed/prior9French table field final restoredcanvasfocuswrites0;38395serverterminal0",
+      "asset_verification": "All58distassets fullSHA256/namesexact against nativefinaldirectory; nofrozen287trackedinputs changed"
+    },
+    "inventory": "/tmp/whiteboard-bulk-preview-unicode-final-inventory.json",
+    "full": {
+      "session": 30556,
+      "state": "TERMINAL_EXIT_0",
+      "expected": 1746,
+      "spec": "/tmp/whiteboard-bulk-preview-unicode-full-spec.log",
+      "errors": "/tmp/whiteboard-bulk-preview-unicode-full-errors.log",
+      "console": "/tmp/whiteboard-bulk-preview-unicode-full-console.log",
+      "pid": 2896,
+      "pass": 1746,
+      "fail": 0,
+      "duration_ms": 686358.223416,
+      "async_errors": "none/errors+consoleEMPTY",
+      "inventory": "all287exact"
+    },
+    "status": "COMPLETE",
+    "commit": "1afd0747f7f466b3e3da0e0160b270e024b9bba2",
+    "push": "53122terminalexit0; remoteexactHEAD; Narimanauthor+committer/noassistantattribution; clean"
+  },
+  "queued_png_fallback_unicode": {
+    "verified": "VALIDQ119emoji121boardtitle produces invalidhighsurrogate134name before-selection.png; PNGunsupportedclipboarddownloadfallback",
+    "before_app": "6en/frx118/119/120:4controlsPASS2exactsplitFAIL4139.568458ms 4444terminal1 /tmp/whiteboard-png-fallback-unicode-app-before.log",
+    "candidate_app": "9PASS0fail5363.071167ms 51508terminal0 /tmp/whiteboard-png-fallback-unicode-app-candidate.log;6new+3existingtruePNG/blockedretry/download/translation/cancel/rasterfailurecontrols",
+    "raw_app": "tmp/png-fallback-unicode-app-regressions.js",
+    "candidate": "tmp/png-fallback-unicode-candidate-source.js minimalnumericO1helper120afterexistingillegalcharsanitization, onlyfilenamecaller; ignoredNOTtracked",
+    "native_before": {
+      "root": "tmp/png-fallback-unicode-before-native",
+      "port": 5221,
+      "asset": "actualCB0al3yi/BlbulZT3 bulkcandidateprodPNGunchanged",
+      "fixture": "2020a801-d862-45b2-983d-2b513c6ec2b4",
+      "environment": "isolateddocumentClipboardItemundefined controlledunsupportedbrowserpath; original download setter observed withvalueunchanged (detachedanchor capturelistenercannotobserveinitialfirstattempt; excluded)",
+      "confirmed": "ActualnativeCopyAsImageandDownloadPNG in Englishdark/Frenchlight eachassignedDOMdownload134INVALID tailhighsurrogate-selection.png; originaltitle121VALID/fullOriginalemoji/frCA/enGB/historydisabled; freshsavedFRreloadunchanged",
+      "permission": "Safari downloadpermissionCANCELLED everyprompt; no actualdownloadcompleted/filenameonfilesystemclaim, no newbrowserpermission granted",
+      "cleanup": "own10thtabclosed/prior9French table field finalcanvasfocuswrites0 restored;17055serverterminal0"
+    },
+    "next": "Aftertable1789green/push/pull:8newpermanentbefore expected6pass2fail; minimalhelper+caller;finalfocused/build/format/nativeafterfilenameobserved(no grantSafari permissions/no savedfileclaim)/full expected1797; owncommitpush. Mind6after =>1803.",
+    "latest_before6": "4controlsPASS2splitFAIL4732.559833ms;19929terminal1;/tmp/whiteboard-png-fallback-unicode-latest-app-before.log",
+    "latest_before8": "8currenteditorcases:6controlsPASS2exactsplitFAIL5363.1585ms;29289terminal1;/tmp/whiteboard-png-fallback-unicode-latest-eight-app-before.log.6boundaryENFR+2deniedcopysanitationcontrols",
+    "latest_candidate": "17PASS0FAIL9482.006209ms;56402terminal0;/tmp/whiteboard-png-fallback-unicode-latest-app-candidate.log;8new+3truePNG/deniedretry/cancel/rasterfailure+6permanenttableUI. In-memoryonePNGmoduleoverlay only, frozen table6files unchanged",
+    "latest_candidate_source": "tmp/png-fallback-unicode-latest-candidate-source.js raw targetedhelper/caller, useminimalhunkslatestNOTwholecopy",
+    "raw_sanitization_controls": "tmp/png-fallback-unicode-sanitization-app-regressions.js 2ENFR: Files/A\\B:C*D?E\"F<G>H|Iemoji=>Files-A-B-C-D-E-F-G-H-Iemoji-selection.png; trueDeniedNotAllowedError branch/retry/original/locale/history/reopen. Addalongside6tmp/png-fallback-unicode-app-regressions.js =>8new permanent appcases later"
+  },
+  "queued_mind_drag_caption_unicode": {
+    "verified": "VALIDQ99emoji101target.text clipped100 emits invalidhighsurrogate in#mind-drop-hint andpartialenGB passage",
+    "before_app": "6en/frx98/99/100:4controlsPASS2exactsplitFAIL5081.424708ms 49531terminal1 /tmp/whiteboard-mind-drag-caption-unicode-app-before.log",
+    "candidate_app": "9PASS0fail7205.607083ms 5232terminal0 /tmp/whiteboard-mind-drag-caption-unicode-app-candidate.log;6new+3drag/reparent/descendants/bypass/protected/undo/cancel/deletioncontrols",
+    "existing_language": "1PASS0fail4417.898917ms 16286terminal0 /tmp/whiteboard-mind-drag-caption-unicode-existing-language-control.log;existingENFRwhole/clippedauthoredlang/escapemarkup/emptycontrol",
+    "raw_app": "tmp/mind-drag-caption-unicode-app-regressions.js (finallypointercancel+awaitclose)",
+    "candidate": "tmp/mind-drag-caption-unicode-candidate-source.js minimalnumericO1helper100+onecaller;helpercurrentlyappended ignoredsourceend;whenapplylatestputnearappropriatehelper; NEVERwholecopystale main",
+    "native_before": {
+      "root": "tmp/mind-drag-caption-unicode-before-native",
+      "port": 5222,
+      "asset": "actualCB0al3yi/BlbulZT3 bulkcandidateprodmainhintunchanged",
+      "fixture": "86cb4070-5abc-4ab5-a17c-10b2bd1ca3cc",
+      "target": "branch-b; originalQ99emoji101frCA+inlineenGB99..101",
+      "confirmed": "Englishdark/Frenchlightactualnative.drag([590,394],[674,603]) captured100INVALIDhint/highsurrogate/partialenGBwhileoriginaloutline112VALIDwholeemoji/langintact. ActualUndo restores branch; Homeflush/freshsavedpage bothlocales targetfullvalid/historydisabled; finalFRsource unchanged. Read-onlyMutationObserverrecordsactualintermediatehint, no JS UIactions",
+      "cleanup": "own10thtabclosed/prior9French table field finalcanvasfocuswrites0restored;10074serverterminal0"
+    },
+    "next": "Laterownissue afterbulk/vote/table/PNG:pull latest/permanentbefore/minimalfix/buildnativeafter/full/owncommitpush",
+    "latest_before": "6cases4controlsPASS2exactsplitFAIL5801.740458ms;89053terminal1;/tmp/whiteboard-mind-drag-caption-unicode-latest-app-before.log",
+    "latest_candidate": "28PASS0FAIL17510.033875ms;31357terminal0;/tmp/whiteboard-mind-drag-caption-unicode-latest-app-candidate.log;6new+3drag/reparent/cancel/protection+1existingENFRauthored/XSSdropstatus+6permanenttable+12permanentvote; currenttable+vote+finite88sourcepreserved; ignoredsinglemainmoduleoverlay only",
+    "latest_candidate_source": "tmp/mind-drag-caption-unicode-latest-candidate-source.js regeneratedfromcurrentmain; appendedlocalnumerichelper100plusonecaller; applyminimalhunkslatestlaterNOTwholesourcecopy"
+  },
+  "pending_vote_unicode_final": {
+    "base": "1afd0747f7f466b3e3da0e0160b270e024b9bba2",
+    "before_unit": "20new:10controlsPASS10exactsplitFAIL3774.619833ms;37431terminalexit1; /tmp/whiteboard-vote-unicode-permanent-before-unit.log",
+    "before_app": "12newen/frx118/119/120xpreview/history:8controlsPASS4exactsplitFAIL8083.500875ms;96642terminalexit1; /tmp/whiteboard-vote-unicode-permanent-before-app.log",
+    "fix": "srcfacilitationui localnumericO1shortLabel120+2callers; labels+HTML/capture shareexactprefix; existingfinitecaptionguard+bulkfixpreserved;3files306insertions3deletions",
+    "focused_unit": "ALL145facilitationPASS0FAIL30610.352583ms;51181terminal0; /tmp/whiteboard-vote-unicode-final-unit.log",
+    "focused_app": "29PASS0FAIL15331.087041ms;34932terminal0; /tmp/whiteboard-vote-unicode-final-app.log;12new+12bulk+4Findalt+1truePNGfallbackcontrol",
+    "build": "47706terminalexit0;3.72s; actualwBKbW0tr/BlbulZT3; /tmp/whiteboard-vote-unicode-final-build.log",
+    "format": "16140terminalexit0; /tmp/whiteboard-vote-unicode-final-format.log",
+    "native_final": {
+      "root": "tmp/vote-unicode-final-native",
+      "port": 5223,
+      "fixtures": "tmp/vote-unicode-final-native-fixtures.json",
+      "english_board": "c7f13523-2976-4f3d-9dca-11a982332abf",
+      "french_board": "2174e8c6-a7a0-43b0-af6e-42dac2a75399",
+      "complete": "Englishdark/Frenchlight actualopenVoting/testVote/End/Historyexpanded/freshsavedpageHistoryexpanded: allpreview/result/savedcaptions119VALIDfrCA/no partialenGB; originalnote121VALIDfullQ119emoji/frCA/enGBemoji intact; drawinghistorydisabled. ActualENdark/FRlight archivedscreenshots inspected",
+      "tool_note": "FirstFRMacApp.typeTextnavunexpectedlywent5173own10thtab; diagnosedAXactualwrongURL, notproductfailure. CorrectedexactnativepasteURL/AXverifiedthenReturn. SubsequentFRsavedexactpaste succeeded. No preexistingtabs modified",
+      "cleanup": "own10thtabclosed/prior9French table field finalrestoredcanvasfocuswrites0;15087serverterminalexit0",
+      "asset_verification": "All58productionassets names/fullSHA256exact"
+    },
+    "inventory": "/tmp/whiteboard-vote-unicode-final-inventory.json",
+    "full": {
+      "state": "TERMINAL_EXIT_0",
+      "session": 77014,
+      "expected": 1778,
+      "spec": "/tmp/whiteboard-vote-unicode-full-spec.log",
+      "errors": "/tmp/whiteboard-vote-unicode-full-errors.log",
+      "console": "/tmp/whiteboard-vote-unicode-full-console.log",
+      "pid": 3919,
+      "last_progress": "3919elapsed6:44; authoredliteralredraw/language+validationfeedbackpass;errors/consoleEMPTY; all287frozenexact",
+      "pass": 1778,
+      "fail": 0,
+      "duration_ms": 693118.080958,
+      "async_errors": "none/errors+consoleEMPTY",
+      "inventory": "all287exact"
+    },
+    "status": "COMPLETE",
+    "commit": "89c3126a06b0cad0fffb850f9dd1c49ec725b9fe",
+    "push": "69045terminal0; remoteexactHEAD; Narimanauthor+committer/noassistantattribution; clean"
+  },
+  "audit_poll_unicode_2026_10_02": "NOnewissue: fieldContent in src/facilitation/authored-field.js13..35 alreadyguardsUTF16 boundary andslicesruns; existingfacilitationtest poll answer language ranges follows trimming/clipping explicitly z199emojiBoundary=>z199 andpassedALL145. Nochangedpollsource/prototypes. Questionfieldmax300/createTextEditor existingbounds; didnotclaimunverifiedquestionfailure.",
+  "pending_table_unicode_final": {
+    "base": "89c3126a06b0cad0fffb850f9dd1c49ec725b9fe",
+    "before_unit": "5new:2controlsPASS3exactsplitFAIL388.43025ms directterminal1;/tmp/whiteboard-table-unicode-permanent-before-unit.log;2ENFRmatrix+3actualObjectLinkcomponent",
+    "before_app": "6ENFRx298/299/300:4controlsPASS2exactsplitFAIL4825.155291ms;39953terminal1;/tmp/whiteboard-table-unicode-permanent-before-app.log",
+    "fix": "exportplainstringobjectNameContent: existingtext/alt/filenamepriority+table300numericO1guard; i18ncaption/HTMLoffset/facilitationoffset sharebody; preservesfinitecaption88 andvote120;6files179insertions15deletions",
+    "focused_unit": "169PASS0FAIL30465.268333ms;27564terminal0;/tmp/whiteboard-table-unicode-final-unit.log;alli18n+ObjectLinksUI+ALL145facilitation",
+    "focused_app": "22PASS0FAIL14680.720459ms;94773terminal0;/tmp/whiteboard-table-unicode-final-app.log;6new+12vote+2PPTX+objectlinks/vieweroutlinecontrols",
+    "caption_controls_unit": "8PASS0FAIL773.920041ms;directterminal0;/tmp/whiteboard-table-unicode-caption-controls-unit.log;object-content+table-language full",
+    "caption_controls_app": "6PASS0FAIL5386.003542ms;9945terminal0;/tmp/whiteboard-table-unicode-caption-controls-app.log;existingconnectionendpoint87/88/89 ENFR",
+    "build": "15170terminal0;3.91s;actualCFA-tpIX/BlbulZT3;/tmp/whiteboard-table-unicode-final-build.log",
+    "format": "20690terminal0;/tmp/whiteboard-table-unicode-final-format.log",
+    "native_final": {
+      "root": "tmp/table-unicode-final-native",
+      "port": 5224,
+      "fixture": "tmp/table-unicode-final-native-fixture.json",
+      "board": "fd6f9ba2-aedc-4d7b-88e9-10a59ff86bba",
+      "complete": "Englishdark+Frenchlight: actualSource/ObjectLink currentcaption306en/319fr VALID; Cancel; actualTable/EditObject/EditCell source301VALIDQ299emoji/frCA+enGBwholeemoji. Escape cancel/Homeflush/freshsavedpage eachlocale samecaption/sourcecell/fullmetadata; drawinghistorydisabled. ActualENdark/FRlight linkdialogscreenshots inspected. No edits/link changes. Freshifabsentseed preservesstore",
+      "observer": "Actual#table-cell-input value/lang/enGB inspected; replacedoldwrongtextareaobserver (oldbeforeFrenchAXaloneauthoritative); originalstablemetadata addedvalidcellLanguagefrCA/enGB tofinalfixture",
+      "cleanup": "own10thtabclosed/prior9French table field finalrestoredcanvasfocuswrites0;36056serverterminal0",
+      "asset_verification": "All58productionassets names/fullSHA256exact"
+    },
+    "inventory": "/tmp/whiteboard-table-unicode-final-inventory.json",
+    "full": {
+      "state": "TERMINAL_EXIT_0",
+      "session": 24249,
+      "expected": 1789,
+      "spec": "/tmp/whiteboard-table-unicode-full-spec.log",
+      "errors": "/tmp/whiteboard-table-unicode-full-errors.log",
+      "console": "/tmp/whiteboard-table-unicode-full-console.log",
+      "pid": 5382,
+      "last_progress": "5382elapsed7:05;linkvalidation/correcteddraftsPASS;errors/consoleEMPTY;frozen287unchanged",
+      "pass": 1789,
+      "fail": 0,
+      "duration_ms": 704352.087,
+      "async_errors": "none/errors+consoleEMPTY",
+      "inventory": "all287exact"
+    },
+    "status": "COMPLETE",
+    "commit": "d0d04f8ee5cbb4cf1a9699d6ced1dbba065b1801",
+    "push": "13060terminal0; remoteexactHEAD; Narimanauthor+committer/noassistantattribution; clean"
+  },
+  "pending_png_fallback_unicode_final": {
+    "base": "d0d04f8ee5cbb4cf1a9699d6ced1dbba065b1801",
+    "before": "8tests:6controlsPASS2exactsplitFAIL5377.693458ms;48454terminal1;/tmp/whiteboard-png-fallback-unicode-permanent-before-app.log",
+    "fix": "filenameTitle numeric pair guard120; existing sanitization/suffix preserved;2files109insertions2deletions",
+    "focused": "17PASS0FAIL12749.181042ms;24538terminal0;/tmp/whiteboard-png-fallback-unicode-final-app.log",
+    "build": "20360terminal0;4.30s;C5fOz_Mx/BlbulZT3",
+    "format": "26835terminal0",
+    "inventory": "/tmp/whiteboard-png-fallback-unicode-final-inventory.json",
+    "native": {
+      "root": "tmp/png-fallback-unicode-final-native",
+      "port": 5225,
+      "server": 9366,
+      "fixtures": "tmp/png-fallback-unicode-final-native-fixtures.json",
+      "assets": "58 productionasset files exact",
+      "complete": "Actual production English dark/French light x118/119/120 CopyAsImage/DownloadPNG: generatedDOMfilename134/133/134 allVALID; wholeemojiat118 omitted119/120. Originaltitles120/121/122VALID andOriginalemoji frCA/enGB retained; drawinghistorydisabled. Homeflush/freshsaveddocumenteachof6 samefulltitle/source/lang/history. ENdarkcanvas/FRlightfallbackscreenshotsinspected.",
+      "limits": "ControlledClipboardItemunsupportedbrowser fixture. Originaldownloadsetter called unchanged; generatedfilename observed. All6Safari downloadpermissionprompts CANCELLED; no grants and no actualsaveddownload claim.",
+      "cleanup": "Own10thtabclosed; prior9 French table field final canvasfocus/writes0restored;9366serverterminal0"
+    },
+    "full": {
+      "state": "TERMINAL_EXIT_0",
+      "session": 45280,
+      "expected": 1797,
+      "pid": 8893,
+      "last_progress": "8893 elapsed7:22;allreportedgreen;errors+consoleEMPTY;all287frozenhashesexact",
+      "pass": 1797,
+      "fail": 0,
+      "duration_ms": 710477.948,
+      "async_errors": "none; errors+consoleEMPTY",
+      "inventory": "all287 exact"
+    },
+    "status": "COMPLETE",
+    "commit": "431bf10242e52b776a33653eb4dea1bdf35ef56a",
+    "push": "79565terminal0;remoteexactHEAD;Narimanauthor+committer/noassistantattribution;clean"
+  },
+  "audit_other_clipping_2026_10_02": "No XLSX sheet-name patch: product callers buildXLSX use fixed localized Objects/TableN/Frames or Tasks/Summary names; xml strips lone surrogates so no actual app replacement-character failure shown. No task assignee patch: sole assigneeFromName caller has maxlength120; overlimit native valid input not verified. No Jira description clipping issue established: valid taskable text<=20000/textOf directtext. No generic Unicode refactor.",
+  "queued_jira_summary_unicode": {
+    "state": "UNIT_BEFORE_AND_CANDIDATE_ONLY_NOT_FIXED",
+    "source": "src/planning/jira.js summary250",
+    "raw": "tmp/jira-summary-unicode-regressions.test.js",
+    "candidate": "tmp/jira-summary-unicode-candidate.js",
+    "before": "Client3validBoard248/249/250:2controlsPASS1exactsplitFAIL85.576334ms;directterminal1;/tmp/whiteboard-jira-summary-unicode-unit-before.log",
+    "after": "Client3PASS0FAIL78.041583ms;directterminal0;/tmp/whiteboard-jira-summary-unicode-unit-candidate.log",
+    "limits": "Before client3/panel6/worker3/native2 all reproduced exact summary250split; candidateclient3/panel6/worker7 pass. No externalJira. No trackedchanges; only fix afterPNG+mind owncommits/pulls.",
+    "worker_raw": "tmp/jira-summary-unicode-worker-regressions.js",
+    "worker_before": "Actual org.jira.create local fetch payload3:2controlsPASS1exactsplitFAIL172.058958ms;directterminal1;/tmp/whiteboard-jira-summary-unicode-worker-before.log",
+    "worker_candidate": "tmp/jira-summary-unicode-worker-candidate.js",
+    "worker_after": "7PASS0FAIL516.039167ms;directterminal0;/tmp/whiteboard-jira-summary-unicode-worker-candidate.log;3new+4existingprojectscope/guestauth/idempotence/laterfailurecontrols",
+    "panel_raw": "tmp/jira-summary-unicode-panel-regressions.test.js",
+    "panel_before": "Actual TaskDetails/SendToJira6 ENFRx248/249/250:4controlsPASS2exactsplitFAIL;directterminal1;/tmp/whiteboard-jira-summary-unicode-panel-before.log",
+    "panel_after": "6PASS0FAIL333.350417ms;directterminal0;/tmp/whiteboard-jira-summary-unicode-panel-candidate.log",
+    "native_before": {
+      "root": "tmp/jira-summary-unicode-before-native",
+      "port": 5226,
+      "entry": "tmp/jira-summary-unicode-native-entry.js",
+      "build": "62095terminal0;Viteinmemorywritefalse/2assets; actual original createPlanning/taskPanel source/CSS, standalonecomponent fixture, notwholeproductioneditor",
+      "complete": "ActualnativeEnglishdark/Frenchlight OpenTaskDetails/SendToJira: capturedlocalorgrequest summary250INVALID/highsurrogate; description275exact/dueexact/source275VALID/wholefrCA+enGBemoji/metadataexact/writes0. Close actualcanvasfocus restored bothlocales; screenshots bothinspected.",
+      "limits": "Controlledlocalorgrequest API; no external Jira calls and no realJiracreated/remoteerrorclaim. No savedboardclaim for standalonecomponent fixture.",
+      "cleanup": "own10thtabclosed/prior9 French table field final canvasfocuswrites0restored;74047serverterminal0"
+    },
+    "permanent_fragments": {
+      "planning": "tmp/jira-summary-unicode-permanent-planning-fragment.js (append, add jiraIssues to existing import; actual source, no candidate selector)",
+      "organization": "tmp/jira-summary-unicode-worker-regressions.js (append to existing setup; local fetcher only)",
+      "new_tests": 12
+    },
+    "native_final_builder": "tmp/build-jira-summary-unicode-final-native.mjs (run after final source fixes; write:false, actual component/CSS, local request capture only)",
+    "status": "Complete; client+worker250 boundary guards, permanentbefore8pass4fail/final221focused/build/format/nativeENdarkFRlight/localpayload/sourcepreserved/focus/cleanup; full1815pass0fail/287hashes; owncommit/push/exactorigin/userauthor/clean",
+    "permanent_before": {
+      "session": 25156,
+      "terminal_exit": 1,
+      "tests": 12,
+      "pass": 8,
+      "fail": 4,
+      "duration_ms": 3290.114042,
+      "log": "/tmp/whiteboard-jira-summary-unicode-permanent-before.log"
+    },
+    "final_focused": {
+      "session": 34601,
+      "terminal_exit": 0,
+      "pass": 221,
+      "fail": 0,
+      "duration_ms": 10578.16325,
+      "log": "/tmp/whiteboard-jira-summary-unicode-final-focused.log"
+    },
+    "final_build": {
+      "session": 71481,
+      "terminal_exit": 0,
+      "duration": "3.83s",
+      "main_js": "index-B68GAB68.js",
+      "css": "index-BlbulZT3.css",
+      "log": "/tmp/whiteboard-jira-summary-unicode-final-build.log"
+    },
+    "final_format": {
+      "session": 20630,
+      "terminal_exit": 0,
+      "log": "/tmp/whiteboard-jira-summary-unicode-final-format.log"
+    },
+    "native_final": {
+      "status": "Complete",
+      "root": "tmp/jira-summary-unicode-final-native",
+      "build_session": 51281,
+      "build_terminal_exit": 0,
+      "server_session": 7295,
+      "server_terminal_exit": 0,
+      "verified": "Actual source createPlanning/CSS EN dark and FR light, Open task details -> real Send to Jira captures local summary249 valid, description275 exact, due exact; source275 valid/whole emoji/fr-CA/en-GB runs unchanged/writes0. Real Close/Fermer returns canvas focus. Both screenshots inspected. Own tenth tab closed; prior nine restored French table5181 canvas focus/writes0.",
+      "scope": "Standalone source component/CSS with controlled local org.request. No real Jira requests/issues or full-editor persistence claim."
+    },
+    "frozen_inventory": "/tmp/whiteboard-jira-summary-unicode-final-inventory.json",
+    "full": {
+      "status": "Complete; do not poll session80174/PID13921",
+      "session": 80174,
+      "pid": 13921,
+      "expected": 1815,
+      "spec": "/tmp/whiteboard-jira-summary-unicode-full-spec.log",
+      "errors": "/tmp/whiteboard-jira-summary-unicode-full-errors.log",
+      "console": "/tmp/whiteboard-jira-summary-unicode-full-console.log",
+      "inventory": "/tmp/whiteboard-jira-summary-unicode-final-inventory.json",
+      "terminal_exit": 0,
+      "pass": 1815,
+      "fail": 0,
+      "duration_ms": 730364.428
+    },
+    "commit": "edba283e2420e5469e0b13c45385031286d46d4b",
+    "push": {
+      "session": 21612,
+      "terminal_exit": 0
+    }
+  },
+  "audit_links_importers_2026_10_02": "Read-only review: object addresses omit credentials/query/invitation; web-only text/object URLs; provider iframe URLs re-derived from canonical HTTPS URLs, credentials rejected; same-origin src refused; markup authoredTextHTML escaped; Office DOCTYPE/ENTITY rejected and external relations skipped; input/ZIP/resource caps already present. Relevant existing tests found; no new concrete exploit/performance reproduction, no security-completeness claim or shotgun patches.",
+  "pending_mind_drag_caption_unicode_final": {
+    "base": "431bf10242e52b776a33653eb4dea1bdf35ef56a",
+    "before": "6ENFRx98/99/100:4controlsPASS2exactsplitFAIL5844.569291ms;4936terminal1;/tmp/whiteboard-mind-drag-caption-unicode-permanent-before-app.log",
+    "fix": "mindTargetText numericO1pairguard100 near draw;oneauthoredHTMLcaller;2files74insertions1deletion",
+    "focused_app": {
+      "state": "TERMINAL_EXIT_0",
+      "session": 56795,
+      "pass": 55,
+      "fail": 0,
+      "duration_ms": 35119.109208,
+      "log": "/tmp/whiteboard-mind-drag-caption-unicode-final-app.log"
+    },
+    "focused_unit": "ALL45relatedmindPASS0FAIL1059.841291ms;98630terminal0;/tmp/whiteboard-mind-drag-caption-unicode-final-unit.log",
+    "build": "51574terminal0;4.25s;/assets/index-46uCoshw.js;BlbulZT3",
+    "format": "86528terminal0",
+    "inventory": "/tmp/whiteboard-mind-drag-caption-unicode-final-inventory.json",
+    "native": {
+      "root": "tmp/mind-drag-caption-unicode-final-native",
+      "port": 5227,
+      "board": "86cb4070-5abc-4ab5-a17c-10b2bd1ca3cc",
+      "fixture": "tmp/mind-drag-caption-unicode-native-fixture.json",
+      "asset_verification": "All58productionassets names/fullSHA256 exact",
+      "complete": "Actual production Englishdark/Frenchlight nativebranchdrag via screenshot-derived590394->674603 capturedtargethint99VALID/frCA/no partialenGB. Actualdrop reparented BranchA+Nested; actualUndo restoredRoot parent/originalgeometry bothlocales. Originaloutline112VALID/Q99wholeemoji/frCA/enGBwholepassage; Homeflush/freshsavedpages eachlocale originaltext/metadata/hierarchy exact drawinghistorydisabled; ENdark/FRlightrestored diagramscreenshots inspected.",
+      "cleanup": "Own10thtabclosed/prior9 French table field final canvasfocuswrites0restored;89048serverterminal0"
+    },
+    "full": {
+      "state": "RUNNING",
+      "expected": 1803,
+      "session": 27800,
+      "pid": 11487,
+      "spec": "/tmp/whiteboard-mind-drag-caption-unicode-full-spec.log",
+      "errors": "/tmp/whiteboard-mind-drag-caption-unicode-full-errors.log",
+      "console": "/tmp/whiteboard-mind-drag-caption-unicode-full-console.log"
+    },
+    "status": "Complete; permanentbefore4controls pass/2exactsplitfail; final55app45unit/build/format/nativeENdarkFRlight/dropUndoHomefresh; full1803pass0fail/287hashes exact; owncommit/push/exactoriginmain/userauthor/clean",
+    "commit": "aa1b71dcbd45264d5b48cb133ad3c431f978f111",
+    "full_terminal_exit": 0,
+    "push_session": 3762,
+    "push_terminal_exit": 0
+  },
+  "audit_theme_caption_2026_10_02": "NO theme caption patch: planClusters already corrects split boundary andsliceslanguage ranges; AI returned/reviewedtheme names usefieldContent120 guarded. sourceclusters themes200 notnewissue.",
+  "queued_ai_request_unicode": {
+    "state": "LOCAL_REQUEST_REPRODUCTIONS_AND_CANDIDATE_ONLY_NOT_FIXED",
+    "source": "src/ai/ai-ui.js boardText perobject2000/total50000 andthemevariable166..500",
+    "theme_raw": "tmp/ai-request-unicode-theme-regressions.js",
+    "theme_before": "12 ENFRx3/300notes xboundary-2/-1/exact:8controlsPASS4exactsplitFAIL566.136958ms;directterminal1;/tmp/whiteboard-ai-request-unicode-theme-before.log",
+    "summary_raw": "tmp/ai-request-unicode-board-text-regressions.test.js",
+    "summary_before": "6 validBoards perobject1998/1999/2000 plusoverall1749/1750/1751:4controlsPASS2exactsplitFAIL98.2835ms;directterminal1;/tmp/whiteboard-ai-request-unicode-board-text-before.log",
+    "candidate": "tmp/ai-request-unicode-candidate.js",
+    "candidate_result": "24PASS0FAIL564.26ms;directterminal0;/tmp/whiteboard-ai-request-unicode-candidate.log;18new+6existingthemecontrols",
+    "summary_controls": "directterminal0;/tmp/whiteboard-ai-request-unicode-summary-controls-candidate.log",
+    "fix_candidate": "localnumericpromptText(text,limit) O1guard and3samefilepromptcutcallers; no genericsharedUnicodeutility; keepsbudget/scopes/source declarations/reviews",
+    "limits": "No externalAI calls; localorg.requeststub captures malformedprompt; validoriginalsource remains exact and no mutations. No claimactualmodelresponsecorrupted. Nativebefore outstanding; afterJira owncommit/pull only.",
+    "native_before": {
+      "status": "Complete; all four actual component actions verified EN dark and FR light, themes and summary. Corrected fixture includes production organization styles and real Lucide icons. Initial missing-CSS screenshot excluded as layout evidence.",
+      "root": "tmp/ai-request-unicode-before-native",
+      "entry": "tmp/ai-request-unicode-native-before-entry.js",
+      "themes": "Actual Group into themes: captured local request has promptValid false/snippet503 invalid high surrogate; source501 valid with whole emoji/fr-CA/en-GB runs unchanged.",
+      "summary": "Actual Summarize: captured local request has promptValid false/snippet2009 invalid high surrogate; source2001 valid with whole emoji/fr-CA/en-GB runs unchanged.",
+      "cleanup": "Actual Close/Fermer both modes/locales: review absent, writes0, source unchanged, focus open. Own tenth Safari tab closed; original nine tabs restored, prior French table final5181 canvas focused/writes0. Server87776 stopped terminal0.",
+      "scope": "Standalone actual createAI component/CSS with controlled local org.request; no external AI calls, no real response corruption or full editor persistence claim."
+    },
+    "permanent_fragments": {
+      "themes": "tmp/ai-request-unicode-theme-regressions.js (append to tests/ai-theme-language.test.js, expose selected in existing setup return for added notes)",
+      "summary": "tmp/ai-request-unicode-permanent-summary-fragment.js (append to tests/ai-summary-language.test.js, add boardText to existing createAI import)",
+      "new_tests": 18
+    },
+    "native_final_builder": "tmp/build-ai-request-unicode-final-native.mjs; actual source createAI, full organization styles, real icons, write:false; run only after AI final fix/pulledmain",
+    "status": "Complete; localpromptText pairguard/3callers; permanentbefore12controls pass6splitfail; final78focused/build/format/nativefourcases source preserved/focus/cleanup; full1833pass0fail/all287hashes; owncommit/push/exactorigin/userauthor/clean",
+    "permanent_before": {
+      "session": 96473,
+      "terminal_exit": 1,
+      "tests": 18,
+      "pass": 12,
+      "fail": 6,
+      "duration_ms": 623.696167,
+      "log": "/tmp/whiteboard-ai-request-unicode-permanent-before.log"
+    },
+    "final_focused": {
+      "session": 86287,
+      "terminal_exit": 0,
+      "pass": 78,
+      "fail": 0,
+      "duration_ms": 1112.860625,
+      "log": "/tmp/whiteboard-ai-request-unicode-final-focused.log"
+    },
+    "final_build": {
+      "session": 8898,
+      "terminal_exit": 0,
+      "duration": "3.76s",
+      "main_js": "index-BjNxv2EF.js",
+      "css": "index-BlbulZT3.css",
+      "log": "/tmp/whiteboard-ai-request-unicode-final-build.log"
+    },
+    "final_format": {
+      "session": 60225,
+      "terminal_exit": 0,
+      "log": "/tmp/whiteboard-ai-request-unicode-final-format.log"
+    },
+    "native_final": {
+      "status": "Complete",
+      "root": "tmp/ai-request-unicode-final-native",
+      "build_session": 41448,
+      "build_terminal_exit": 0,
+      "server_session": 65688,
+      "server_terminal_exit": 0,
+      "verified": "Actual createAI component/fullsourceCSS/realicons; EN dark/FR light both themes andsummary actualactionclicks. Themes snippet502valid/fullpromptvalid vsbefore503invalid, source501valid/wholeemoji/fr-CA/en-GB runs unchanged. Summary snippet2008valid/fullpromptvalid vsbefore2009invalid, source2001valid/wholeemoji/fr-CA/en-GB runs unchanged. All4 realClose/Fermer: reviewabsent/writes0/focusopen/sourceexact. All4 screenshotsinspected. Own10thclosed/prior9French table5181canvasfocus/writes0restored.",
+      "scope": "Standalone actualsource component with controlled local org.request. No externalAI calls/realmodelresponse or fulleditor persistenceclaim."
+    },
+    "frozen_inventory": "/tmp/whiteboard-ai-request-unicode-final-inventory.json",
+    "full": {
+      "status": "Complete; do not poll29142/PID16639",
+      "session": 29142,
+      "pid": 16639,
+      "expected": 1833,
+      "spec": "/tmp/whiteboard-ai-request-unicode-full-spec.log",
+      "errors": "/tmp/whiteboard-ai-request-unicode-full-errors.log",
+      "console": "/tmp/whiteboard-ai-request-unicode-full-console.log",
+      "inventory": "/tmp/whiteboard-ai-request-unicode-final-inventory.json",
+      "terminal_exit": 0,
+      "pass": 1833,
+      "fail": 0,
+      "duration_ms": 735299.638625
+    },
+    "commit": "646f2aeeb2d829d88928e13d878bcc6df9deef4a",
+    "push": {
+      "session": 90689,
+      "terminal_exit": 0
+    }
+  },
+  "queued_ai_summary_prompt_memory": {
+    "status": "Complete, pushed main, exact remote/userauthor/clean/frozen287",
+    "before": "Actual public source boardText on validated 5000object board: frame20000 +4999shortnotes source63881characters ->result50000characters retains100188984extra heapbytes afterGC; elapsed8.809ms in this run. Directterminal0.",
+    "before_script": "tmp/ai-summary-prompt-memory-before.mjs",
+    "before_log": "/tmp/whiteboard-ai-summary-prompt-memory-before.log",
+    "candidate": "tmp/ai-summary-prompt-memory-candidate.js (based on queued AI Unicode candidate; only boardText streams bounded prefix; normalize imports and apply minimal boardText hunk after AI fix)",
+    "candidate_measurement": "Same validated fixture/result50000: retained149336bytes afterGC; elapsed0.145ms in this run. Directterminal0; no browser heap or universal timing claim.",
+    "candidate_log": "/tmp/whiteboard-ai-summary-prompt-memory-candidate.log",
+    "oracle": "301 exact Unicode/selection/output/source equivalence cases vs AI Unicode candidate including full5000object board; directterminal0",
+    "oracle_script": "tmp/ai-summary-prompt-memory-oracle.mjs",
+    "oracle_log": "/tmp/whiteboard-ai-summary-prompt-memory-oracle.log",
+    "native_before_root": "tmp/ai-summary-prompt-memory-before-native",
+    "native_before_builder": "tmp/build-ai-summary-prompt-memory-before-native.mjs",
+    "native_before_build_session": 88476,
+    "native_before_build_terminal_exit": 0,
+    "native_before": {
+      "status": "Complete",
+      "root": "tmp/ai-summary-prompt-memory-before-native",
+      "server_session": 33041,
+      "server_terminal_exit": 0,
+      "verified": "Actual createAI with source CSS/icons; EN dark and FR light actual Summarize -> controlled local request content50000valid, total50376en/50384fr. Source5000objects/frame20000/source63881characters exact JSON unchanged/writes0. Actual Close/Fermer restores open focus. Both screenshots inspected. Own tenth tab closed; prior nine French table5181 canvas focus/writes0 restored.",
+      "scope": "Standalone actual component. No external AI calls, real model response, browser heap measurement or full-editor persistence claim."
+    },
+    "regressions": {
+      "raw": "tmp/ai-summary-prompt-memory-regressions.test.js",
+      "before": "Baseline is queued Unicode-only AI candidate: 4tests3controls pass/1realresourcefail100079168bytes vs10MiBceiling, 227.637625ms, directterminal1; log /tmp/whiteboard-ai-summary-prompt-memory-unit-before.log. Must rerun permanentbefore against actual pulledmain after AI Unicode commit.",
+      "candidate": "4pass0fail193.910667ms/directterminal0; /tmp/whiteboard-ai-summary-prompt-memory-unit-candidate.log",
+      "permanent_fragment": "tmp/ai-summary-prompt-memory-permanent-summary-fragment.js append to tests/ai-summary-language.test.js; add node:child_process spawnSync import; actualsourceURL/no envselector.",
+      "new_tests": 4,
+      "checks": "Subprocess --expose-gc on validatedfull5000board asserts exact first50000/sourceunchanged and retainedheap <10MiB (no brittle time assertion); late selectednote/blankexcludedcontent/Unicodeframe labelatbudgetboundary controls.",
+      "final_fixture_before": "Readable child script reuses validated fullSummaryBoard helper: 4tests3controls pass/1resourceFAIL retained100079136bytes,199.002667ms/directterminal1; /tmp/whiteboard-ai-summary-prompt-memory-unit-before-final-fixture.log",
+      "final_fixture_candidate": "Same readable fixture:4pass0fail210.616166ms/directterminal0; /tmp/whiteboard-ai-summary-prompt-memory-unit-candidate-final-fixture.log"
+    },
+    "native_final_builder": "tmp/build-ai-summary-prompt-memory-final-native.mjs (write:false, actual source/CSS/icons; run only after performance fix)",
+    "all_candidate_controls_log": "/tmp/whiteboard-ai-summary-prompt-memory-all-candidate.log",
+    "all_candidate_controls": {
+      "pass": 66,
+      "fail": 0,
+      "duration_ms": 678.839875,
+      "terminal_exit": 0,
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-all-candidate.log",
+      "scope": "All existing AIhelp, summary and theme tests plus queued18Unicode request regressions and new4resource/output controls against ignored bounded-summary candidate; no tracked source changes."
+    },
+    "table_resource_audit": "Per-object valid table is capped at20rows12columns2000chars/cell (~480k). No unverified giant-table helper/refactor; bounded-summary candidate keeps existing per-object composition, fixes verified repeated frame-label whole-summary100MB retention.",
+    "actual_unicode_fixed_before": {
+      "status": "Actual current AI Unicode final source, read-only verification during frozen full1833; no tracked resource tests/fix yet.",
+      "pass": 3,
+      "fail": 1,
+      "duration_ms": 206.90825,
+      "terminal_exit": 1,
+      "retained_bytes": 100079136,
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-actual-unicode-fixed-before.log"
+    },
+    "candidate_refresh": "Ignored candidate refreshed from actual AI Unicode final source; ONLY boardText bounded construction changes and import-path remapping; current resource4pass190.300334ms and allcontrols rerun log /tmp/whiteboard-ai-summary-prompt-memory-current-source-all-candidate.log. Apply ONLY minimal boardText hunk after AI commit/pull.",
+    "current_source_all_candidate": {
+      "pass": 66,
+      "fail": 0,
+      "duration_ms": 556.117083,
+      "terminal_exit": 0,
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-current-source-all-candidate.log"
+    },
+    "optional_chrome_check": {
+      "status": "Incomplete; concurrent user activity interrupted native action/observation. Not a product issue; no Chrome heap-after or prototype comparison claim.",
+      "root": "tmp/ai-summary-memory-chrome-native",
+      "build_session": 8506,
+      "build_terminal_exit": 0,
+      "server_session": 24611,
+      "server_terminal_exit": 0,
+      "entry_before": "tmp/ai-summary-memory-chrome-before-entry.js",
+      "entry_candidate": "tmp/ai-summary-memory-chrome-candidate-entry.js",
+      "observed": "Chrome local baseline loader/Open AI assistant valid5000source63881/frame20000/writes0; approximate browser heap14370096 before. Summarize action/getAX screenshot rejected user changed app; freshAX showed user had changed tabs. Do not claim clicked request or baseline heap growth.",
+      "cleanup": "Used freshAX own inactive test-tab Close button344, neverCmdW. Owned Chrome memory tab absent on full freshAX; user current selected tab preserved. Actual remainingtabcount14 includes user additions during check; do not close any original/user-added tabs or force original13. Prior Safari9 untouched. All owned servers stopped.",
+      "browser_binding": "memoryChrome native com.google.Chrome; user currently using Chrome. getState browserconnectorunsupportedauth apikey; native apps work; use onlyCUAforUI."
+    },
+    "permanent_before": {
+      "session": 39554,
+      "terminal_exit": 1,
+      "tests": 4,
+      "pass": 3,
+      "fail": 1,
+      "duration_ms": 776.043084,
+      "retained_bytes": 100079136,
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-permanent-before.log"
+    },
+    "final_focused": {
+      "session": 8825,
+      "terminal_exit": 0,
+      "pass": 82,
+      "fail": 0,
+      "duration_ms": 1162.929,
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-final-focused.log"
+    },
+    "final_build": {
+      "session": 38293,
+      "terminal_exit": 0,
+      "duration": "3.06s",
+      "main_js": "index-csRaIJSt.js",
+      "css": "index-BlbulZT3.css",
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-final-build.log"
+    },
+    "final_format": {
+      "session": 13149,
+      "terminal_exit": 0,
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-final-format.log"
+    },
+    "final_oracle": {
+      "pass": 301,
+      "terminal_exit": 0,
+      "script": "tmp/ai-summary-prompt-memory-final-oracle.mjs",
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-final-oracle.log",
+      "scope": "Actual final source boardText exactly matches Unicode-only before implementation for300random validUnicode/source/selection cases plus full5000object case."
+    },
+    "final_component": {
+      "pass": 2,
+      "terminal_exit": 0,
+      "script": "tmp/ai-summary-prompt-memory-final-component.test.js",
+      "log": "/tmp/whiteboard-ai-summary-prompt-memory-final-component.log",
+      "scope": "Actual createAI.summarize in JSDOM EN/FR on validated5000object board. Controlled local org.request captures exact50000body; source/lang/passages unchanged/writes0; review text andlang exact, busy flag clears, actualclose/globalscleanup. No externalrequests or nativeafterlayout/browserheapclaim. Used component checks to avoid interfering with concurrentuserChrome activity."
+    },
+    "controlled_measurements": {
+      "script": "tmp/ai-summary-prompt-memory-controlled-measurement.mjs",
+      "before_log": "/tmp/whiteboard-ai-summary-prompt-memory-controlled-before.log",
+      "before_terminal_exit": 0,
+      "before_retained_bytes": 100199696,
+      "before_ms": 11.455167,
+      "final_log": "/tmp/whiteboard-ai-summary-prompt-memory-controlled-final.log",
+      "final_terminal_exit": 0,
+      "final_retained_bytes": 156312,
+      "final_ms": 0.23825,
+      "scope": "Both validated5000object/source63881chars/result50000. Inputs andvalidatedclone explicitlyheld equally/doubleGC; exactsourceunchanged. Nodecontrolledresourcecase, no universal timing/browserheapclaim. Earlier final measurement had negativeGCdelta dueunrelatedcollections; do not interpret asnegative result memory or cite as156KB evidence."
+    },
+    "frozen_inventory": "/tmp/whiteboard-ai-summary-prompt-memory-final-inventory.json",
+    "full": {
+      "status": "Complete verified terminal0/exact1837pass0failcancel skip/empty errors+console/noasync/all287hashes/exact2files",
+      "session": 49610,
+      "pid": 19946,
+      "expected": 1837,
+      "spec": "/tmp/whiteboard-ai-summary-prompt-memory-full-spec.log",
+      "errors": "/tmp/whiteboard-ai-summary-prompt-memory-full-errors.log",
+      "console": "/tmp/whiteboard-ai-summary-prompt-memory-full-console.log",
+      "inventory": "/tmp/whiteboard-ai-summary-prompt-memory-final-inventory.json",
+      "terminal_exit": 0,
+      "tests": 1837,
+      "pass": 1837,
+      "fail": 0,
+      "duration_ms": 726309.589042,
+      "validator": "/tmp/whiteboard-verify-ai-summary-memory-final.py"
+    },
+    "commit": "1cac5d5819728447091390208bf48e60b8279e0e"
+  },
+  "readonly_import_identifier_audit": {
+    "result": "No new verified issue or source change. Main file/organization board imports regenerate uid before storage; PuterFileStore.save requires uuidPattern before filesystem write and catalog reads filter identifiers. Native canvas selections use model lookup rather than interpolated CSS object-ID selectors; organization library interpolated item selector explicitly CSS.escape. No arbitrary-ID injection/path traversal proof.",
+    "scope": "Read-only actual source checks during frozen AI1833 full; do not broaden into unverified security fixes."
+  },
+  "queued_ai_summary_omission_notice": {
+    "status": "Complete: committed and pushed; remote exact/user author+committer/no attribution/clean/287 frozen hashes; full1867 terminal0",
+    "before_observation": {
+      "script": "tmp/ai-summary-omission-before.mjs",
+      "log": "/tmp/whiteboard-ai-summary-omission-before-observation.log",
+      "exit": 0,
+      "cases": 4,
+      "scope": "Actual createAI.open/Summarize controls EN/FR. Valid single-object/31-object sources omit final decision from request, whole-board scope and unqualified review status, no shortening/omission notice, source preserved/writes0; controlled local response, not an external-model claim."
+    },
+    "before_regressions": {
+      "script": "tmp/ai-summary-omission-baseline.test.js",
+      "log": "/tmp/whiteboard-ai-summary-omission-baseline-regressions.log",
+      "tests": 22,
+      "pass": 12,
+      "fail": 10,
+      "exit": 1,
+      "duration_ms": 637.643333
+    },
+    "candidate": {
+      "source": "tmp/ai-summary-omission-candidate.js",
+      "regressions": "tmp/ai-summary-omission-regressions.js",
+      "controls": "tmp/ai-summary-omission-candidate.test.js",
+      "log": "/tmp/whiteboard-ai-summary-omission-candidate-controls.log",
+      "pass": 44,
+      "fail": 0,
+      "exit": 0,
+      "duration_ms": 480.525125,
+      "oracle": "/tmp/whiteboard-ai-summary-omission-candidate-oracle.log",
+      "oracle_pass": 301,
+      "oracle_exit": 0
+    },
+    "next": "Finalfrozen1867 mustterminal0/all1867pass0failcancel skip/emptyerrorsconsole/noasync/all287hashes/exact2files -> fetchbase1cacexact/userauthor/owncommitpush/pull. Then nextasyncAltDraft8testsfull1875; no unverifiedpatches. Native+serverresourcesallclosed.",
+    "base_commit": "1cac5d5819728447091390208bf48e60b8279e0e",
+    "permanent_before": {
+      "tests": 22,
+      "pass": 12,
+      "fail": 10,
+      "exit": 1,
+      "duration_ms": 448.976042,
+      "log": "/tmp/whiteboard-ai-summary-omission-permanent-before.log"
+    },
+    "final_focused": {
+      "tests": 104,
+      "pass": 104,
+      "fail": 0,
+      "exit": 0,
+      "duration_ms": 530.975292,
+      "log": "/tmp/whiteboard-ai-summary-omission-final-focused.log"
+    },
+    "final_build": {
+      "session": 9526,
+      "exit": 0,
+      "duration": "2.29s",
+      "main_js": "index-gtD72B-u.js",
+      "css": "index-BlbulZT3.css",
+      "log": "/tmp/whiteboard-ai-summary-omission-final-build.log"
+    },
+    "final_format": {
+      "session": 73234,
+      "exit": 0,
+      "log": "/tmp/whiteboard-ai-summary-omission-final-format.log"
+    },
+    "final_oracle": {
+      "pass": 301,
+      "exit": 0,
+      "script": "tmp/ai-summary-omission-final-oracle.mjs",
+      "log": "/tmp/whiteboard-ai-summary-omission-final-oracle.log",
+      "scope": "Exact public summary output/selection/source vs actual pushed memory fix;300 randomized plus full5000board."
+    },
+    "controlled_memory": {
+      "before_bytes": 156312,
+      "final_bytes": 156960,
+      "before_ms": 0.15758299999998826,
+      "final_ms": 0.426833000000002,
+      "script": "tmp/ai-summary-omission-controlled-measurement.mjs",
+      "before_log": "/tmp/whiteboard-ai-summary-omission-memory-before.log",
+      "final_log": "/tmp/whiteboard-ai-summary-omission-memory-final.log",
+      "scope": "Equal held validated5000-object fixture/doubleGC/sourceJSONexact/result50000, both terminal0; about157KB retention preserves memory bound. Single-call timing is not meaningful universal performance evidence."
+    },
+    "final_component": {
+      "pass": 2,
+      "fail": 0,
+      "exit": 0,
+      "duration_ms": 465.010208,
+      "script": "tmp/ai-summary-prompt-memory-final-component.test.js",
+      "log": "/tmp/whiteboard-ai-summary-omission-final-component.log"
+    },
+    "native": {
+      "root": "tmp/ai-summary-omission-native",
+      "builder": "tmp/build-ai-summary-omission-native.mjs",
+      "build_exit": 0,
+      "log": "/tmp/whiteboard-ai-summary-omission-native-build.log",
+      "server_session": 92581,
+      "server_exit": 0,
+      "before": "Actual unchanged pushed-memory source review ENdark640x650 and FRlight320x400 textspacing: selected0/wholeboard, valid31objects/source57149; body50000/decisionSentfalse/sourceJSONexact/writes0/no notice ordescription; bothrealClose/Fermer reviewabsent/focusopen. Screenshots inspected. Controlledlocal org.request only/no externalAI calls.",
+      "final": "Actual finalsource/CSS/icons samecases: exactsame50000body/decisionexcluded/sourceJSONexact/writes0; translated persistent paragraph/aria-describedby ai-summary-scope; ENnoticefullyvisible; FRnotice7linesfullyvisible afteronepage scroll. Safari OptionTab fromsummary reachesContentLanguage/Copy/Add; ENfullyvisiblefocusring. FRAdd reachedinitially atviewportbottom, End scrolls footer fully into view includingfocusring+status; do not claim Tab alone gave fullyvisibleFrenchfocusring. All3finalscreenshots inspected. BothrealClose/Fermer cleanup/sourceexact/focusopen.",
+      "cleanup": "Own10thSafari tabclosedviafreshAX ownedClose; alloriginal9preserved/priorFrench table5181 canvasfocus/writes0 restored. Server92581terminal0. HiddenIAB unavailable; no IABtabcreated. Chrome untouched."
+    },
+    "frozen_inventory": "/tmp/whiteboard-ai-summary-omission-final-inventory.json",
+    "initial_full": {
+      "status": "Intentionally stopped own partial suite for verified expensive empty-table scan in new notice; not product test failure and not finalvalidation. Neednewfull1867 afterrevision.",
+      "session": 28383,
+      "pid": 21645,
+      "expected": 1859,
+      "spec": "/tmp/whiteboard-ai-summary-omission-initial-full-spec.log",
+      "errors": "/tmp/whiteboard-ai-summary-omission-initial-full-errors.log",
+      "console": "/tmp/whiteboard-ai-summary-omission-initial-full-console.log",
+      "inventory": "/tmp/whiteboard-ai-summary-omission-initial-inventory.json",
+      "terminal_exit": 1
+    },
+    "empty_table_measurements": {
+      "actual_notice_before": "/tmp/whiteboard-ai-summary-omission-empty-table-measurement.log",
+      "before_notice_ms": 0.08633400000007896,
+      "initial_notice_ms": 15.706249999999955,
+      "prototype_callback_ms": 7.1580000000000155,
+      "prototype_callback_log": "/tmp/whiteboard-ai-summary-omission-optimized-empty-table-measurement.log",
+      "prototype_loop_ms": 1.9152500000000146,
+      "prototype_loop_log": "/tmp/whiteboard-ai-summary-omission-optimized-empty-table-loop-measurement.log",
+      "scope": "Actual createAI.summarize until local request for validated5000objects/25notesexact50000+4975blank20x12tables=1194000cells. Samplemediansunderconcurrentfullsuite; sourceJSONexact/no false notice. Extra metadata scan isneededtoavoidfalsecoverageclaims at exactboundary; loopsavoidunnecessary flatten allocations. Not universal performance guarantee."
+    },
+    "revised_final": {
+      "focused": {
+        "pass": 112,
+        "fail": 0,
+        "exit": 0,
+        "duration_ms": 931.256042,
+        "log": "/tmp/whiteboard-ai-summary-omission-revised-final-focused.log"
+      },
+      "baseline": {
+        "tests": 30,
+        "pass": 16,
+        "fail": 14,
+        "exit": 1,
+        "duration_ms": 1027.820833,
+        "log": "/tmp/whiteboard-ai-summary-omission-revised-baseline.log",
+        "scope": "Against actual pushedmemory module with latest30 permanent regressioncases/8newtablecases. 16controlsPASS14actualmissingnoticeFAIL."
+      },
+      "build": {
+        "session": 62493,
+        "exit": 0,
+        "duration": "3.24s",
+        "log": "/tmp/whiteboard-ai-summary-omission-revised-final-build.log",
+        "asset": "dist/assets/index-lEEvQBUG.js"
+      },
+      "format": {
+        "session": 69249,
+        "exit": 0,
+        "log": "/tmp/whiteboard-ai-summary-omission-revised-final-format.log"
+      },
+      "oracle": {
+        "pass": 301,
+        "exit": 0,
+        "log": "/tmp/whiteboard-ai-summary-omission-revised-final-oracle.log"
+      },
+      "component": {
+        "pass": 2,
+        "fail": 0,
+        "exit": 0,
+        "duration_ms": 370.717791,
+        "log": "/tmp/whiteboard-ai-summary-omission-revised-final-component.log"
+      },
+      "memory": {
+        "retained_bytes": 156904,
+        "exit": 0,
+        "log": "/tmp/whiteboard-ai-summary-omission-revised-final-memory.log"
+      },
+      "dense_initial_vs_final": {
+        "initial_source": "tmp/ai-summary-omission-initial-source.js",
+        "script": "tmp/ai-summary-omission-initial-versus-final-dense.mjs",
+        "log": "/tmp/whiteboard-ai-summary-omission-initial-versus-final-dense.log",
+        "exit": 0,
+        "initial_ms": 14.174624999999992,
+        "final_ms": 2.1211250000000064,
+        "scope": "Reconstructed initial trackedsource verifiedSHAidentical frozeninitial file before importremap; actualcreateAI untilcontrolledlocalrequest,5000valid/1194000blankcells/exact50000body/no false notice/sourceJSONexact. Loops avoidflattenallocations. Singlefixturematchedmedian; notuniversal performance claim."
+      },
+      "native": {
+        "root": "tmp/ai-summary-omission-native",
+        "builder_exit": 0,
+        "build_log": "/tmp/whiteboard-ai-summary-omission-revised-native-build.log",
+        "server_session": 81421,
+        "server_exit": 0,
+        "scope": "Actual revisedsource/CSS/icons ENdark640x650 and FRlight320x400 prescribedtextspacing. Both localSummarize body50000VALID/decisionSentfalse/31valid/source57149/sourceJSONexact/writes0; translatedscopeparagraph/fieldaria-describedby; ENentirenoticereadable, FRentirenoticevisibleafteronepage. RevisedFRfield+3SafariOptionTab+End => Addfocusringandstatusfullyvisible. All3screenshotsinspected; bothrealClose/Fermer removesreview/noticefocusOpen/sourceexact. Own10thclosedviafreshAX original9preserved/priorFrenchtable5181 canvasfocus8/writes0; serverterminal0. No externalmodelcalls/no full editor persistenceclaim."
+      }
+    },
+    "full": {
+      "status": "Complete",
+      "session": 47175,
+      "pid": 24201,
+      "expected": 1867,
+      "spec": "/tmp/whiteboard-ai-summary-omission-full-spec.log",
+      "errors": "/tmp/whiteboard-ai-summary-omission-full-errors.log",
+      "console": "/tmp/whiteboard-ai-summary-omission-full-console.log",
+      "inventory": "/tmp/whiteboard-ai-summary-omission-final-inventory.json",
+      "pass_count": 1867,
+      "fail": 0,
+      "terminal_exit": 0,
+      "duration_ms": 750028.818542
+    },
+    "commit": "3d40f48e71ce9cf6a3902ebb889f2172dd6a8cc9"
+  },
+  "queued_alt_suggestion_draft": {
+    "status": "Verified real async draft overwrite EN/FR; ignored candidate only, no tracked changes while omission1859 frozen.",
+    "regressions": "tmp/alt-suggestion-draft-regressions.test.js",
+    "before": {
+      "log": "/tmp/whiteboard-alt-suggestion-draft-before.log",
+      "tests": 8,
+      "pass": 4,
+      "fail": 4,
+      "exit": 1,
+      "duration_ms": 1412.057666,
+      "scope": "Actual createAltText/descale path under controlled valid4x4PNG, local heldAI ask. Editing/clearing textarea duringpending reply fails draftpreservation ENFR; untouched/closed controls pass. Source board/alt/frCA unchanged before Save. Not external-model proof."
+    },
+    "candidate": {
+      "source": "tmp/alt-suggestion-draft-candidate.js",
+      "log": "/tmp/whiteboard-alt-suggestion-draft-candidate-corrected.log",
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "exit": 0,
+      "duration_ms": 358.54875,
+      "setup_error": "Initial ignored candidate import of sibling object-content.js was not remapped fromtmp, moduleloadfailed1test. Corrected only candidateimport to actualsrc/accessibility then all8passed. Not a product failure; exclude failedsetup as candidatevalidation.",
+      "existing_controls": {
+        "pass": 26,
+        "fail": 0,
+        "exit": 0,
+        "duration_ms": 609.312375,
+        "script": "tmp/alt-suggestion-draft-existing-controls.test.js",
+        "log": "/tmp/whiteboard-alt-suggestion-draft-existing-candidate-controls.log"
+      }
+    },
+    "next": "After selectedscope owncommit/push/pull, permanent8unit+2app=>full1885; actualminimalasynceditguard, nativefinal ENtypedSave/FRclearSave.",
+    "native": {
+      "root": "tmp/alt-suggestion-draft-native",
+      "builder": "tmp/build-alt-suggestion-draft-native.mjs",
+      "build_session": 7718,
+      "build_exit": 0,
+      "build_log": "/tmp/whiteboard-alt-suggestion-draft-native-before-candidate-build.log",
+      "server_session": 67156,
+      "server_exit": 0,
+      "before": "Actual unchanged createAltText+realbrowser image downscale source4x4PNG/local heldAI ask ENdark+FRlight640x650. ENtyped32char draft duringpending getsreplaced22char Suggesteddescription; FRcleared0char draft getsreplaced21char Description suggeree. Captured describe task/authored frCA/payloadJPEG, saved sourceALT18/frCA/JSONunchanged/writes0 throughout. Bothnative screenshots inspected and realClose/Fermer restoreOpen/leave sourceexact. No externalAI/model calls.",
+      "candidate": "Only FRlight cleared draft testednatively: after localreply fieldempty/count0/frCA unchanged/newFrenchstatuswraps3lines/sourceJSONexact/writes0. RealSave removesalt (decorative), retainsfrCA/writes1/dialogabsent/focusopen. Screenshotinspected. Do not claim ENnativeprototype or actualfinalsource validation yet.",
+      "cleanup": "Own10th inactive? selectedcandidateFR tabclosedusingfreshAX ownedClose; alloriginal9preserved/priorFrenchtable5181statuswrites0, explicitnativecanvasclick focusesimage8. Server67156terminal0. Chromeuntouched.",
+      "next": "After currentomission1859 verified/pushed/pull, applyminimalactualasyncguard+8tests; rebuild with builder final (no baseline rebuild needed); actualfinalnativeENtypedSaveandFRclearSave+sourcechecks. Current candidate source imports actualsrcAI module, same functionality but do not whole-copy remappedimports."
+    },
+    "app": {
+      "regressions": "tmp/alt-suggestion-draft-app-regressions.js",
+      "before": {
+        "pass": 0,
+        "fail": 2,
+        "exit": 1,
+        "duration_ms": 3460.449916,
+        "log": "/tmp/whiteboard-alt-suggestion-draft-app-before.log"
+      },
+      "candidate": {
+        "pass": 2,
+        "fail": 0,
+        "exit": 0,
+        "duration_ms": 4097.375958,
+        "log": "/tmp/whiteboard-alt-suggestion-draft-app-candidate.log"
+      },
+      "scope": "Actual built app ENtyped/FRcleared, localheldAI/realSave/UndoRedo/Home/reopen source/image/lang exact."
+    }
+  },
+  "readonly_image_source_audit": {
+    "result": "Validated model images accept only base64data PNG/JPEG/WebP (src/model.js361-365), alternative description fetch/downscale uses thatsource. No remote-image URL/SSRF proof; no sourcepatch."
+  },
+  "queued_alt_suggestion_unicode": {
+    "status": "Verified actual alternative-description review and realcomponentSave corruption at1000 boundary, ignored candidateonly; do notpatch until omission+asyncdraft commits pushed/pull.",
+    "regressions": "tmp/alt-suggestion-unicode-regressions.test.js",
+    "before": {
+      "tests": 6,
+      "pass": 4,
+      "fail": 2,
+      "exit": 1,
+      "duration_ms": 445.75525,
+      "log": "/tmp/whiteboard-alt-suggestion-unicode-before.log"
+    },
+    "before_observation": {
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "exit": 0,
+      "script": "tmp/alt-suggestion-unicode-before-observation.test.js",
+      "log": "/tmp/whiteboard-alt-suggestion-unicode-before-observation.log",
+      "scope": "Actual createAltText+heldlocal ask under valid4x4PNG ENFR. Valid1001-char reply with emoji after999As =>malformed1000-char review. ActualSubmit writes same malformedalt; validateBoard(JSONroundtrip) accepts/preserves malformedalt/frCA/writes1. Sourceunchanged beforeSave. Controlledvalid oversizedreply allowed byactualworker100000-char output cap; not realexternalmodel output or fulleditor storage proof."
+    },
+    "candidate": {
+      "source": "tmp/alt-suggestion-unicode-candidate.js",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "exit": 0,
+      "duration_ms": 330.426,
+      "log": "/tmp/whiteboard-alt-suggestion-unicode-candidate.log",
+      "controls": {
+        "pass": 34,
+        "fail": 0,
+        "exit": 0,
+        "duration_ms": 460.072791,
+        "log": "/tmp/whiteboard-alt-suggestion-unicode-candidate-existing.log",
+        "scope": "All26existingAI/help +8draft/lifecycle tests usingUnicodecandidatewithpriorasynceditguard."
+      },
+      "scope": "Localnumeric1000pairguard inprivate suggestionText; exacttrim/outerquote cleanup retained; only existingAI alt fieldassignmentcaller. Includesqueuedasync guardasdependency; neverwholecopysource withremappedimports."
+    },
+    "next": "After selectedscope andalt draft separatecommits/pull, permanent6=>full1891; scoped1000pairguard/nativeSave/reopen before owncommit."
+  },
+  "queued_ai_summary_selection_scope": {
+    "status": "Verified actual component and actual two-peer built app scope broadens after last selected object deleted; ignored candidate only. Prioritize before alt draft.",
+    "regressions": "tmp/ai-summary-scope-regressions.test.js",
+    "component_before": "tmp/ai-summary-scope-before.mjs",
+    "before_observation": {
+      "pass": 6,
+      "exit": 0,
+      "log": "/tmp/whiteboard-ai-summary-scope-before-observation.log"
+    },
+    "unit_before": {
+      "pass": 4,
+      "fail": 2,
+      "exit": 1,
+      "duration_ms": 470.185458,
+      "log": "/tmp/whiteboard-ai-summary-scope-unit-before.log"
+    },
+    "candidate": {
+      "source": "tmp/ai-summary-scope-candidate.js",
+      "unit_pass": 6,
+      "unit_fail": 0,
+      "unit_exit": 0,
+      "duration_ms": 251.513042,
+      "log": "/tmp/whiteboard-ai-summary-scope-unit-candidate.log"
+    },
+    "app": {
+      "regressions": "tmp/ai-summary-scope-app-regressions.js",
+      "before": {
+        "pass": 0,
+        "fail": 2,
+        "exit": 1,
+        "duration_ms": 5334.448292,
+        "log": "/tmp/whiteboard-ai-summary-scope-app-before.log"
+      },
+      "candidate": {
+        "pass": 2,
+        "fail": 0,
+        "log": "/tmp/whiteboard-ai-summary-scope-app-candidate.log",
+        "duration_ms": 6077.612583,
+        "terminal": "Session alreadyclosed on resume; final log exact2pass0fail, no independent terminalexit observation on resumed turn."
+      }
+    },
+    "next": "Pull then preserve displayed scope mode in WeakMap. Consider persistent translated unavailable-selected status/early return. 6unit+2app=>1875 nextfull. Need before/after permanent/native/focused/buildformat/full before owncommit."
+  },
+  "user_stop": "User requested stop after committing this one. Omission3d40f48 committed/pushed/remoteexact/full1867green/clean; goal paused. Do not start queued issues without resume."
+}

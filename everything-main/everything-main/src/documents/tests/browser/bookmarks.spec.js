@@ -1,0 +1,127 @@
+import { openReadOnlyPreview } from './helpers/preview.js';
+import { showAllTools, onTab } from './helpers/editor-tools.js';
+import { test, expect } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { unzipSync, zipSync, strToU8, strFromU8 } from 'fflate';
+import { reopenDocx } from './helpers/reopen-docx.js';
+async function choose(input,text,collapsed=false) { await input.evaluate((el,{text,collapsed})=>{const at=el.value.indexOf(text);if(at<0)throw new Error('Missing text');el.setSelectionRange(collapsed?at+1:at,collapsed?at+1:at+text.length);el.dispatchEvent(new Event('select',{bubbles:true}));},{text,collapsed}); }
+async function download(page,info,name) { const event=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(name);await(await event).saveAs(path);return path; }
+async function close(page,label='Done') { await page.getByRole('dialog').getByRole('button',{name:label,exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0); }
+async function manager(page) { await (await onTab(page,'insert')).getByRole('button',{name:'Bookmarks',exact:true}).click();await expect(page.getByRole('dialog')).toBeVisible(); }
+async function selectBookmark(page,name) { const list=page.getByRole('listbox',{name:'Document bookmarks',exact:true}),id=await list.locator('option').filter({hasText:new RegExp('^'+name+' ·')}).first().getAttribute('value');await list.selectOption(id);return id; }
+async function addBookmark(page,name) { await manager(page);await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill(name);await page.getByRole('dialog').getByRole('button',{name:'Add bookmark',exact:true}).click();await close(page); }
+async function linkDialog(page,input) { await input.focus();await input.press('ControlOrMeta+k');await expect(page.getByRole('dialog')).toBeVisible(); }
+async function applyLink(page) { await close(page,'Apply');await expect(page.getByRole('textbox',{name:'Document text'})).toBeFocused(); }
+
+test('edits bookmark names and ranges, updates internal references and saves/reopens an independent DOCX',async({page},info)=>{
+  await page.goto('/playground.html'); await showAllTools(page);await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/bookmarks.docx');const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^Bookmarks and internal links/);await expect((await onTab(page,'insert')).getByRole('button',{name:'Bookmarks',exact:true}).locator('svg')).toHaveAttribute('aria-hidden','true');
+  await choose(input,'Bookmarks');await addBookmark(page,'Created');await choose(input,'target á😀');await input.focus();await page.keyboard.insertText('edited target á😀');await manager(page);await selectBookmark(page,'Target');await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('RenamedTarget');await page.getByRole('dialog').getByRole('button',{name:'Rename',exact:true}).click();await page.getByRole('dialog').screenshot({path:info.outputPath('bookmarks-dialog.png'),animations:'disabled'});await close(page);
+  await choose(input,'jump middle end',true);await linkDialog(page,input);await expect(page.getByRole('combobox',{name:'Link destination type',exact:true})).toHaveValue('bookmark');await expect(page.getByRole('combobox',{name:'Link bookmark',exact:true})).toHaveValue('"RenamedTarget"');await close(page,'Cancel');
+  const text=await input.inputValue(),path=await download(page,info,'bookmarks.docx');await reopenDocx(page,input,path,text);await choose(input,'jump middle end',true);await linkDialog(page,input);await page.getByRole('dialog').getByRole('button',{name:'Open link',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart)).toBe(text.indexOf('edited target á😀'));await expect(input).toBeFocused();
+  await manager(page);await selectBookmark(page,'Created');await page.getByRole('dialog').getByRole('button',{name:'Go to bookmark',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart)).toBe(0);
+});
+
+test('creates bookmarks and internal links using accessible controls, validates names and restores deletion with undo',async({page},info)=>{
+  await page.goto('/playground.html'); await showAllTools(page);await page.getByRole('button',{name:'New',exact:true}).click();const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue('');await input.fill('Jump\nDestination á😀\nEnd');await choose(input,'Destination á😀');await manager(page);await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('two words');await page.getByRole('dialog').getByRole('button',{name:'Add bookmark',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Use 1–40');await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('FreshTarget');await page.getByRole('dialog').getByRole('button',{name:'Add bookmark',exact:true}).click();await close(page);await input.focus();await input.press('ControlOrMeta+End');await addBookmark(page,'NewPoint');
+  await choose(input,'Jump');await linkDialog(page,input);await page.getByRole('combobox',{name:'Link destination type',exact:true}).selectOption('bookmark');await page.getByRole('combobox',{name:'Link bookmark',exact:true}).selectOption('"FreshTarget"');await applyLink(page);await manager(page);await selectBookmark(page,'FreshTarget');await page.getByRole('dialog').getByRole('button',{name:'Delete bookmark',exact:true}).click();await close(page);await page.getByRole('button',{name:'Undo',exact:true}).click();
+  const text=await input.inputValue(),path=await download(page,info,'new-bookmarks.docx');await reopenDocx(page,input,path,text);await choose(input,'Jump',true);await linkDialog(page,input);await page.getByRole('dialog').getByRole('button',{name:'Open link',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart)).toBe(5);await manager(page);await selectBookmark(page,'NewPoint');await page.getByRole('dialog').getByRole('button',{name:'Go to bookmark',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart)).toBe(text.length);
+});
+
+test('navigates repeated-header links at zoom, resolves the first duplicate and missing targets, and keeps external precedence',async({page},info)=>{
+  await page.addInitScript(()=>{window.linkOpens=[];window.open=(...args)=>{window.linkOpens.push(args);return null;};});await page.goto('/playground.html'); await showAllTools(page);await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/bookmarks.docx');const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^Bookmarks and internal links/);const text=await input.inputValue();
+  const rect=await page.evaluate(async()=>{const {DocxPackage}=await import('/src/engine/docx.js'),{layoutDocument,selectionRects}=await import('/src/engine/layout.js'),{hyperlinkRanges}=await import('/src/engine/hyperlinks.js'),{pageGeometry}=await import('/src/engine/page-settings.js'),{fontMetrics}=await import('/src/engine/font-metrics.js'),{setCanvasTextStyle}=await import('/src/engine/canvas-text.js');const p=await DocxPackage.open(new Uint8Array(await(await fetch('/fixtures/bookmarks.docx')).arrayBuffer())),ctx=document.createElement('canvas').getContext('2d'),layout=layoutDocument(p.paragraphs,(text,style)=>{setCanvasTextStyle(ctx,style);return{...fontMetrics(style),width:ctx.measureText(text).width};},pageGeometry(p.pageSettings),p.numbering,p.tables),range=hyperlinkRanges(p.paragraphs).find(r=>r.start===p.paragraphs.map(p=>p.runs.map(r=>r.text).join('')).join('\n').indexOf('Header link')),rects=selectionRects(layout,range.start,range.end);return{...rects.at(-1),count:rects.length};});expect(rect.count).toBeGreaterThan(1);const png=await page.locator('canvas.canvas-page').first().evaluate(c=>c.toDataURL().split(',')[1]);writeFileSync(info.outputPath('bookmarks.png'),Buffer.from(png,'base64'));await page.getByRole('combobox',{name:'Zoom',exact:true}).selectOption('1.5');const canvas=page.locator(`canvas[data-page="${rect.page}"]`);await canvas.evaluate((c,y)=>{const h=c.closest('.canvas-host');h.scrollTop=c.offsetTop+y*1.5-h.clientHeight/2;},rect.y+rect.height/2);const b=await canvas.boundingBox();await page.keyboard.down('ControlOrMeta');await page.mouse.click(b.x+(rect.x+rect.width/2)*1.5,b.y+(rect.y+rect.height/2)*1.5);await page.keyboard.up('ControlOrMeta');expect(await input.evaluate(el=>el.selectionStart)).toBe(text.indexOf('target á😀'));
+  for(const [label,pos]of [['Missing target',0],['Top link',0],['Duplicate link',text.indexOf('First duplicate')],['Unicode link',text.indexOf('Unicode bookmark')],['End link',text.indexOf('Destination at document end')+'Destination at document end'.length]]){await choose(input,label,true);await linkDialog(page,input);await page.getByRole('dialog').getByRole('button',{name:'Open link',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart),label).toBe(pos);}
+  expect(await page.evaluate(()=>window.linkOpens)).toEqual([]);await choose(input,'External precedence',true);await linkDialog(page,input);await expect(page.getByRole('combobox',{name:'Link destination type',exact:true})).toHaveValue('address');await page.getByRole('dialog').getByRole('button',{name:'Open link',exact:true}).click();expect(await page.evaluate(()=>window.linkOpens)).toEqual([['https://example.com/external','_blank','noopener,noreferrer']]);
+});
+
+test('bookmarks track native composition and paragraph splits with separate undo steps',async({page})=>{
+  await page.goto('/playground.html'); await showAllTools(page);await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/bookmarks.docx');const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^Bookmarks and internal links/);const original=await input.inputValue();await choose(input,'target á😀',true);await input.evaluate(el=>{el.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true}));el.setRangeText('한',el.selectionStart,el.selectionEnd,'end');el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertCompositionText',data:'한',isComposing:true}));el.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true,data:'한'}));});await input.press('Enter');await manager(page);await selectBookmark(page,'Target');await page.getByRole('dialog').getByRole('button',{name:'Go to bookmark',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart)).toBe(original.indexOf('target á😀'));await page.getByRole('button',{name:'Undo',exact:true}).click();await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(input).toHaveValue(original);
+});
+
+// Active column bookmarks (colFirst/colLast) are edited since the column-range model; see docs/conformance.md.
+test('previews unmatched and reversed bookmark structures as read-only with the original available, and edits column bookmarks',async({page})=>{
+  await page.goto('/playground.html'); await showAllTools(page);const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^A small beginning/);const original=await input.inputValue();for(const kind of ['unmatched','reversed','column']){const parts=unzipSync(readFileSync('public/fixtures/bookmarks.docx'));let xml=strFromU8(parts['word/document.xml']);if(kind==='unmatched')xml=xml.replace('<w:bookmarkEnd w:id="1"/>','');if(kind==='reversed')xml=xml.replace('<w:bookmarkStart w:id="1" w:name="Target"/>','<w:bookmarkEnd w:id="1"/>');if(kind==='column')xml=xml.replace('w:id="60" w:name="HeaderTarget"','w:id="60" w:name="HeaderTarget" w:colFirst="0" w:colLast="1"');parts['word/document.xml']=strToU8(xml);const file={name:'bad-bookmark.docx',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',buffer:Buffer.from(zipSync(parts))};if(kind!=='column'){await openReadOnlyPreview(page,file);continue;}await page.getByLabel('Open DOCX file').setInputFiles(file);await expect(input).toHaveValue(/^Bookmarks and internal links/);await expect(input).toHaveJSProperty('readOnly',false);await expect(page.locator('.canvas-message-error')).toHaveCount(0);await (await onTab(page,'insert')).getByRole('button',{name:'Bookmarks',exact:true}).click();await expect(page.getByRole('listbox',{name:'Document bookmarks',exact:true}).locator('option').filter({hasText:/^HeaderTarget ·/})).toHaveCount(1);await close(page);}
+});
+
+test('table deletion removes contained bookmarks while retaining the surviving part of cross-table ranges and undo restores them',async({page})=>{
+  await page.goto('/playground.html'); await showAllTools(page);await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/bookmarks.docx');const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^Bookmarks and internal links/);const text=await input.inputValue();await choose(input,'Cell target');await page.getByRole('combobox',{name:'Table actions',exact:true}).selectOption('table');await manager(page);const list=page.getByRole('listbox',{name:'Document bookmarks',exact:true});await expect(list.locator('option').filter({hasText:/^CellTarget ·/})).toHaveCount(0);await selectBookmark(page,'IntoTable');await page.getByRole('dialog').getByRole('button',{name:'Go to bookmark',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart)).toBe(text.indexOf('Before the table'));await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(input).toHaveValue(text);await manager(page);await selectBookmark(page,'CellTarget');await page.getByRole('dialog').getByRole('button',{name:'Go to bookmark',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await input.evaluate(el=>el.selectionStart)).toBe(text.indexOf('Cell target'));
+});
+
+test('refuses a bookmark name starting with an underscore, which would be hidden from the list',async({page})=>{
+  await page.goto('/playground.html'); await showAllTools(page);await page.getByRole('button',{name:'New',exact:true}).click();
+  const input=page.getByRole('textbox',{name:'Document text'});await input.fill('Target text');await choose(input,'Target');
+  await manager(page);await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('_draft');
+  await page.getByRole('dialog').getByRole('button',{name:'Add bookmark',exact:true}).click();
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Start the name with a letter');
+  await expect(page.getByRole('listbox',{name:'Document bookmarks',exact:true}).locator('option')).toHaveCount(0);
+  // A name with a letter first is added and listed.
+  await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('Draft_1');
+  await page.getByRole('dialog').getByRole('button',{name:'Add bookmark',exact:true}).click();
+  await expect(page.getByRole('listbox',{name:'Document bookmarks',exact:true}).locator('option')).toHaveText([/^Draft_1 ·/]);
+  // Renaming to a hidden name is refused the same way.
+  await selectBookmark(page,'Draft_1');await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('_hidden');
+  await page.getByRole('dialog').getByRole('button',{name:'Rename',exact:true}).click();
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Start the name with a letter');
+  await expect(page.getByRole('listbox',{name:'Document bookmarks',exact:true}).locator('option')).toHaveText([/^Draft_1 ·/]);
+});
+
+test('the link dialog offers the document\'s bookmarks without the hidden ones a table of contents adds',async({page})=>{
+  await page.goto('/mock.html#/new');
+  const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toBeVisible();await input.fill('Chapter\nSee here');
+  await page.evaluate(async()=>{
+    const e=window.__docs.current.view.engine;const m=e.model;
+    const toc=await import('/src/engine/toc.js');
+    e.execute(()=>{m.select(0);m.setParagraphStyle(m.paragraphStyles.find(s=>s.name==='Heading 1').id);m.select(0);toc.insertTableOfContents(m,{});return true;});
+  });
+  await choose(input,'Chapter',true);await manager(page);await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('Visible');await page.getByRole('dialog').getByRole('button',{name:'Add bookmark',exact:true}).click();await close(page);
+  expect(await page.evaluate(()=>window.__docs.current.view.engine.bookmarks.map(b=>b.name).some(n=>n.startsWith('_Toc')))).toBe(true);
+  await choose(input,'See here');await linkDialog(page,input);
+  await page.getByRole('combobox',{name:'Link destination type',exact:true}).selectOption('bookmark');
+  await expect(page.getByRole('combobox',{name:'Link bookmark',exact:true}).locator('option')).toHaveText(['Start of document','Visible']);
+  await close(page,'Cancel');
+});
+
+test('adds a bookmark named in another script from the Bookmarks dialog',async({page})=>{
+  await page.goto('/playground.html'); await showAllTools(page);await page.getByRole('button',{name:'New',exact:true}).click();
+  const input=page.getByRole('textbox',{name:'Document text'});await input.fill('Глава первая');await choose(input,'Глава');
+  await manager(page);await page.getByRole('textbox',{name:'Bookmark name',exact:true}).fill('Закладка_1');
+  await page.getByRole('dialog').getByRole('button',{name:'Add bookmark',exact:true}).click();
+  await expect(page.getByRole('listbox',{name:'Document bookmarks',exact:true}).locator('option')).toHaveText([/^Закладка_1 ·/]);
+  await expect(page.getByRole('dialog').getByRole('alert')).toBeHidden();
+});
+
+// Add with a name already in use refused it ("A bookmark with that name already exists."); Word moves the bookmark
+// to the selection, and a cross-reference to it then shows the new place on Update Fields.
+test('Add with a bookmark name already in use moves that bookmark to the selection', async ({ page }) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await input.fill('Alpha section. Beta section.\nSee ');
+  await choose(input, 'Alpha');
+  await addBookmark(page, 'Intro');
+  await page.evaluate(async () => {
+    const { insertCrossReference, referenceTargets } = await import('/src/engine/captions.js');
+    const e = window.__docs.current.view.engine, m = e.model;
+    e.execute(() => { m.select(m.text.length); insertCrossReference(m, referenceTargets(m).bookmarks[0]); return true; });
+  });
+  await expect(input).toHaveValue('Alpha section. Beta section.\nSee Alpha');
+  await choose(input, 'Beta');
+  await manager(page);
+  const dialog = page.getByRole('dialog', { name: 'Bookmarks' });
+  await dialog.getByRole('textbox', { name: 'Bookmark name', exact: true }).fill('intro');
+  await dialog.getByRole('button', { name: 'Add bookmark', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toBeHidden();
+  await expect(dialog.getByRole('listbox', { name: 'Document bookmarks' }).locator('option')).toHaveText([/^Intro · page 1$/]);
+  await close(page);
+  const bookmarks = () => page.evaluate(() => { const b = window.__docs.current.view.engine.session.body; return b.bookmarks.filter(x => !x.name.startsWith('_')).map(x => [x.name, b.text.slice(x.start, x.end)]); });
+  expect(await bookmarks()).toEqual([['Intro', 'Beta']]);
+  await input.focus(); await input.press('F9');
+  await expect(input).toHaveValue('Alpha section. Beta section.\nSee Beta');
+  // One Undo takes back the update, the next the move.
+  await input.press('ControlOrMeta+z');
+  await input.press('ControlOrMeta+z');
+  await expect.poll(bookmarks).toEqual([['Intro', 'Alpha']]);
+  expect(errors).toEqual([]);
+});

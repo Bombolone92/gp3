@@ -1,0 +1,535 @@
+{
+  "provenance": "Semantic controls regenerated and saved in the native reference application on September 20, 2026. Saved layout IDs, node order, constraints, rules, algorithms and parameters were verified against the authored inputs. Visible COMPOSITE roots contain horizontal or vertical LIN groups with successful height fitting or unruled text, different group canvases, and locally declared spacer sizes. These cases isolate drawing bounds from other, separately tracked composite allocation gaps. Expected geometry, text, fonts and text transforms come only from native reference output; browser Arial glyph measurements supply feasibility.",
+  "cases": [
+    {
+      "name": "root-composite / fromL nestedTrue tightFalse limit50",
+      "available": {
+        "w": 300,
+        "h": 100
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:linear-parent-composite:1\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromL\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\" /><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"500\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"1\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"lMarg\" val=\"0\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"50\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "root",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2340000,
+            "h": 973125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "group",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2340000,
+            "h": 973125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          }
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 2160000,
+            "y": 306562,
+            "w": 180000,
+            "h": 360000
+          },
+          "textBounds": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,1,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,50,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,25.5,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,37.75,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,31.625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,28.5625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,27.03125,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "root-composite / fromT nestedTrue tightFalse limit50",
+      "available": {
+        "w": 300,
+        "h": 100
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:linear-parent-composite:5\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /><dgm:param type=\"linDir\" val=\"fromT\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromT\" /><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"500\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"1\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"lMarg\" val=\"0\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"50\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "root",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1333125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "group",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1333125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          }
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 990000,
+            "y": 973125,
+            "w": 180000,
+            "h": 360000
+          },
+          "textBounds": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,1,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,50,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,25.5,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,37.75,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,31.625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,28.5625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,27.03125,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "root-composite / depth1 width40 outer300 localnone heightnone",
+      "available": {
+        "w": 300,
+        "h": 100
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:linear-parent-composite:16\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"40\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\" /><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"500\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"1\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"lMarg\" val=\"0\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "root",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1439648,
+            "h": 360000
+          },
+          "textBounds": null
+        },
+        {
+          "name": "group",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1439648,
+            "h": 360000
+          },
+          "textBounds": null
+        },
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 162000,
+            "w": 1328906,
+            "h": 36000
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 162000,
+            "w": 1328906,
+            "h": 36000
+          }
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1328906,
+            "y": 0,
+            "w": 110742,
+            "h": 360000
+          },
+          "textBounds": null
+        }
+      ],
+      "fits": false,
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,1,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",36.9140625,1,32,25,0,0,0,0]": {
+          "requiredHeight": 51.924479166666664,
+          "wordFits": false
+        }
+      }
+    },
+    {
+      "name": "root-composite / depth1 width40 outer300 local3 heightnone",
+      "available": {
+        "w": 300,
+        "h": 100
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:linear-parent-composite:19\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"40\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\" /><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"500\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"1\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"lMarg\" val=\"0\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" val=\"3\" /></dgm:constrLst></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "root",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1439648,
+            "h": 360000
+          },
+          "textBounds": null
+        },
+        {
+          "name": "group",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1439648,
+            "h": 360000
+          },
+          "textBounds": null
+        },
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 162000,
+            "w": 1328906,
+            "h": 36000
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 162000,
+            "w": 1328906,
+            "h": 36000
+          }
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 1328906,
+            "y": 0,
+            "w": 110742,
+            "h": 360000
+          },
+          "textBounds": null
+        }
+      ],
+      "fits": false,
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,1,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",36.9140625,1,32,25,0,0,0,0]": {
+          "requiredHeight": 51.924479166666664,
+          "wordFits": false
+        }
+      }
+    },
+    {
+      "name": "root-composite / depth1 width200 outer300 localnone height50",
+      "available": {
+        "w": 300,
+        "h": 100
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:linear-parent-composite:27\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\" /><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"500\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"1\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"lMarg\" val=\"0\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"50\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "root",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2340000,
+            "h": 973125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "group",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2340000,
+            "h": 973125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          }
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 2160000,
+            "y": 306562,
+            "w": 180000,
+            "h": 360000
+          },
+          "textBounds": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,1,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,50,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,25.5,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,37.75,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,31.625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,28.5625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,27.03125,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "root-composite / depth1 width200 outer300 local3 height50",
+      "available": {
+        "w": 300,
+        "h": 100
+      },
+      "data": "<dgm:dataModel xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\"/><dgm:pt modelId=\"1\"><dgm:prSet/><dgm:t><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\"/></a:lnSpc></a:pPr><a:r><a:rPr sz=\"3200\"><a:latin typeface=\"Arial\"/></a:rPr><a:t>Alpha beta gamma</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></dgm:cxnLst><dgm:bg/><dgm:whole/></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:linear-parent-composite:30\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"200\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"100\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"lin\"><dgm:param type=\"linDir\" val=\"fromL\" /><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" val=\"500\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"60\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"1\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"10\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"100\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"32\" /><dgm:constr type=\"lMarg\" val=\"0\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"50\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" val=\"3\" /></dgm:constrLst></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "expected": [
+        {
+          "name": "root",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2340000,
+            "h": 973125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "group",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2340000,
+            "h": 973125
+          },
+          "textBounds": null
+        },
+        {
+          "name": "query",
+          "text": "Alpha beta gamma",
+          "font": ["3200"],
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          },
+          "textBounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 973125
+          }
+        },
+        {
+          "name": "probe",
+          "text": "",
+          "font": [],
+          "bounds": {
+            "x": 2160000,
+            "y": 306562,
+            "w": 180000,
+            "h": 360000
+          },
+          "textBounds": null
+        }
+      ],
+      "fits": true,
+      "measurements": {
+        "[\"query\",\"Alpha beta gamma\",60,1,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,50,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,25.5,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,37.75,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,31.625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,28.5625,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        },
+        "[\"query\",\"Alpha beta gamma\",60,27.03125,32,25,0,0,0,0]": {
+          "requiredHeight": 25.962239583333332,
+          "wordFits": true
+        }
+      }
+    }
+  ]
+}

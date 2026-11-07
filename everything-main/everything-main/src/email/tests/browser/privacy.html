@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reader privacy fixture</title></head>
+<body>
+<div id="app"></div>
+<script type="module">
+import '../../src/styles/tokens.css';
+import '../../src/styles/base.css';
+import '../../src/styles/app.css';
+import { renderApp } from '../../src/ui/app.js';
+import { createSampleMailbox } from '../../src/lib/sample.js';
+import { mailFilename } from '../../src/lib/mailbox.js';
+const mailbox = createSampleMailbox();
+const sender = new URLSearchParams(location.search).get('sender') || 'newsletter@example.com';
+const subject = 'Remote image consent test';
+const date = new Date('2026-09-15T12:00:00Z');
+await mailbox.fs.write(`${mailbox.objectsPath}/2026-09-15/${mailFilename(subject, date)}`, [
+  `From: Newsletter <${sender}>`,
+  `Subject: ${subject}`,
+  `Date: ${date.toUTCString()}`,
+  'Content-Type: text/html; charset=utf-8',
+  '',
+  '<p>A newsletter</p><img src="https://tracker.example/pixel.png">',
+].join('\r\n'));
+renderApp(document.querySelector('#app'), {
+  ...mailbox, sample: true, account: { username: 'sample' },
+});
+</script>
+</body>
+</html>

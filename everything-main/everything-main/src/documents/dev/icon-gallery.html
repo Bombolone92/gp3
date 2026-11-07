@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Documents icon gallery</title>
+  <style>
+    body { font: 11px system-ui, sans-serif; margin: 12px; background: #fff; color: #242424; }
+    body.dark { background: #1f1f1f; color: #ddd; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+    .cell { display: flex; align-items: center; gap: 6px; padding: 4px; border: 1px solid #eee; border-radius: 4px; }
+    .dark .cell { border-color: #333; }
+    .cell span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+  <script type="module">
+    import '/src/styles/command-icons.css';
+    import { COMMAND_ICON_NAMES, commandIcon } from '/src/ui/command-icons.js';
+    const params = new URLSearchParams(location.search);
+    if (params.get('theme') === 'dark') { document.body.classList.add('dark'); document.documentElement.dataset.theme = 'dark'; }
+    const grid = document.querySelector('.grid');
+    for (const name of COMMAND_ICON_NAMES) {
+      const cell = document.createElement('div'); cell.className = 'cell';
+      cell.innerHTML = commandIcon(name, 16) + commandIcon(name, 20) + commandIcon(name, 32) + `<span>${name}</span>`;
+      grid.append(cell);
+    }
+  </script>
+</head>
+<body><div class="grid"></div></body>
+</html>

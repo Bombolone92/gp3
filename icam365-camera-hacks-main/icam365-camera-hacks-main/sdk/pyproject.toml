@@ -1,0 +1,16 @@
+[project]
+name = "tangecam"
+version = "0.1.0"
+description = "Tange/Closeli (iCam365/Wosee) camera local SDK: wake, stream, control — no cloud, no app"
+requires-python = ">=3.9"
+dependencies = ["cs2pppp>=0.1.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tangecam = ["../libPPCS_API.so"]

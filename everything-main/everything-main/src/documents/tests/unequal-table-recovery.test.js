@@ -1,0 +1,45 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(() => { dom = new JSDOM(); for (const n of ['Node','document','DOMParser','XMLSerializer']) globalThis[n]=dom.window[n]; });
+afterAll(() => { dom.window.close(); for (const n of ['Node','document','DOMParser','XMLSerializer']) delete globalThis[n]; });
+const source = n => readFileSync(`tests/fixtures/unequal-table-recovery/${n}.docx`);
+const measure = (text, style) => ({ width:text.length*style.fontSize*.6, ascent:style.fontSize, descent:style.fontSize*.25 });
+const layout = (p,bestEffort=false,m=measure) => layoutDocument(p.paragraphs,m,pageGeometry(p.pageSettings),p.numbering,p.tables,p.pageStories,{bestEffort});
+const geometry = l => ({pages:l.pageCount, cells:l.cells.map(c=>({page:c.page,x:c.x,y:c.y,width:c.width,height:c.height})), lines:l.lines.map(l=>({page:l.page,y:l.y,fragments:l.fragments.map(f=>({text:f.text,x:f.x,width:f.width}))}))});
+it.each(['first','second','split'])('retains rich tables and column flow in read-only recovery: %s', async variant => {
+ const bytes=source(`unequal-${variant}`), p=await DocxPackage.open(bytes), c=await DocxPackage.open(source(`equal-${variant}`));
+ const before=JSON.stringify({paragraphs:p.paragraphs,tables:p.tables,page:p.pageSettings});
+ expect(()=>layout(p)).toThrow('Tables in unequal-width section columns');
+ const actual=layout(p,true), expected=layout(c);
+ expect(geometry(actual)).toEqual(geometry(expected));
+ expect(actual.tableColumnApproximations).toHaveLength(1);
+ expect(actual.tableColumnApproximations[0]).toMatchObject({section:0,tableId:p.tables[0].id});
+ expect(actual.tableColumnApproximations[0].message).toContain('table 1:');
+ expect(p.pageSettings.columns.entries.map(c=>c.width)).toEqual([2500,4860]);
+ expect(p.tables).toHaveLength(1); expect(Object.keys(p.assets)).toHaveLength(2);
+ expect(Object.keys(p.pageStories.stories)).toEqual(['word/header1.xml']);
+ expect(actual.cells).toHaveLength(variant==='split'?90:1);
+ if(variant!=='first') expect(actual.cells.some(c=>c.x>200)).toBe(true);
+ expect(JSON.stringify({paragraphs:p.paragraphs,tables:p.tables,page:p.pageSettings})).toBe(before);
+ for(const [name,data] of Object.entries(unzipSync(bytes))) expect(Buffer.from(p.parts[name])).toEqual(Buffer.from(data));
+ expect(()=>layout(p,true,()=>{throw new Error('measurement failure');})).toThrow('measurement failure');
+});
+it('keeps equal-width tables editable with lossless export',async()=>{
+ const bytes=source('equal-second'),p=await DocxPackage.open(bytes);
+ expect(p.readOnly).not.toBe(true); expect(layout(p).tableColumnApproximations).toBeUndefined();
+ const exported=unzipSync(new Uint8Array(await p.export().arrayBuffer()));
+ for(const [n,b] of Object.entries(unzipSync(bytes))) expect(Buffer.from(exported[n])).toEqual(Buffer.from(b));
+});
+it('still wraps ordinary paragraphs against the wider second column',async()=>{
+ const p=await DocxPackage.open(source('unequal-second'));
+ const tail=p.paragraphs.at(-1); tail.runs=[{text:'tailword '.repeat(60)}];
+ const actual=layout(p,true).lines.filter(l=>l.paragraphId===tail.id);
+ expect(actual.length).toBeGreaterThan(1);
+ expect(actual.every(l=>Math.abs(l.columnMeasureWidth-4860/15)<1e-6)).toBe(true);
+});

@@ -1,0 +1,115 @@
+/* Design tokens — light is the default; dark overrides via media query (system)
+   and via [data-theme] stamps set by the in-app theme toggle, which must win
+   in both directions. */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces & ink (cool neutrals) */
+  --page: #f8f9fa;
+  --surface: #ffffff;
+  --surface-2: #f0f1f3;
+  --surface-3: #e5e7ea;
+  --ink: #14161a;
+  --ink-2: #4c5158;
+  /* Muted ink is read on tinted surfaces as often as on white — a badge, a
+     hovered row, an import card — and at #6b7078 it fell to 4.41:1 against
+     --surface-2, under the 4.5 small text needs. Dark enough to clear it
+     everywhere it is used, still plainly quieter than --ink-2. */
+  --ink-3: #666b73;
+  --hairline: rgba(20, 22, 26, 0.1);
+  --hairline-strong: rgba(20, 22, 26, 0.18);
+  --scrim: rgba(20, 22, 26, 0.44);
+
+  /* Accent — the teal the app icon is built out of, darkened until it can
+     carry text on --surface (7:1). */
+  --accent: #0c645d;
+  --accent-strong: #08514a;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(12, 100, 93, 0.1);
+
+  /* Status (always paired with a label or icon, never color alone) */
+  --ok: #1d7a3a;
+  --ok-wash: rgba(29, 122, 58, 0.12);
+  --warn: #8a5a00;
+  --warn-wash: rgba(196, 138, 0, 0.14);
+  --danger: #bb2727;
+  --danger-strong: #9c1f1f;
+  --danger-wash: rgba(197, 48, 48, 0.1);
+
+  /* Shape */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-full: 999px;
+
+  /* Type */
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Layout */
+  --sidebar-w: 244px;
+  --content-max: 960px;
+  --tabbar-h: 64px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Dark values, applied by OS preference unless the app stamped light. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0e0f11;
+    --surface: #17181b;
+    --surface-2: #1f2126;
+    --surface-3: #292b31;
+    --ink: #f4f5f7;
+    --ink-2: #b3b8c0;
+    --ink-3: #8b9098;
+    --hairline: rgba(244, 245, 247, 0.1);
+    --hairline-strong: rgba(244, 245, 247, 0.2);
+    --scrim: rgba(0, 0, 0, 0.6);
+
+    --accent: #5fd6c6;
+    --accent-strong: #88e4d6;
+    --accent-ink: #0e1015;
+    --accent-wash: rgba(95, 214, 198, 0.14);
+
+    --ok: #59c07c;
+    --ok-wash: rgba(89, 192, 124, 0.14);
+    --warn: #e0a83e;
+    --warn-wash: rgba(224, 168, 62, 0.14);
+    --danger: #ec7f7f;
+    --danger-strong: #f4a1a1;
+    --danger-wash: rgba(236, 127, 127, 0.12);
+  }
+}
+
+/* Explicit in-app toggle: dark stamp wins over OS-light. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0e0f11;
+  --surface: #17181b;
+  --surface-2: #1f2126;
+  --surface-3: #292b31;
+  --ink: #f4f5f7;
+  --ink-2: #b3b8c0;
+  --ink-3: #8b9098;
+  --hairline: rgba(244, 245, 247, 0.1);
+  --hairline-strong: rgba(244, 245, 247, 0.2);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --accent: #5fd6c6;
+  --accent-strong: #88e4d6;
+  --accent-ink: #0e1015;
+  --accent-wash: rgba(95, 214, 198, 0.14);
+
+  --ok: #59c07c;
+  --ok-wash: rgba(89, 192, 124, 0.14);
+  --warn: #e0a83e;
+  --warn-wash: rgba(224, 168, 62, 0.14);
+  --danger: #ec7f7f;
+  --danger-strong: #f4a1a1;
+  --danger-wash: rgba(236, 127, 127, 0.12);
+}

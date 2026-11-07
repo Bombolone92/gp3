@@ -1,0 +1,397 @@
+/* Color grading: Color tab in Details (Basic, HSL, Curves, Wheels) and the Color assets tab. */
+
+.color-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.color-tools .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Sections with an on/off checkbox before the title. */
+.grade-section .section-head {
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.grade-section .section-actions {
+  margin-left: auto;
+}
+
+.section-check {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.section-body.is-off {
+  opacity: 0.45;
+}
+
+/* Colored slider tracks that show what the slider does. */
+.inspector .slider-field.track-temp input[type='range']::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #3f78e6, #9a9aa2 50%, #e8c23a);
+}
+
+.inspector .slider-field.track-tint input[type='range']::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #3fb35a, #9a9aa2 50%, #c84fc2);
+}
+
+.inspector .slider-field.track-sat input[type='range']::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #7b7b80, #9a9aa2 50%, #e5484d);
+}
+
+.inspector .slider-field.track-temp input[type='range']::-moz-range-track {
+  background: linear-gradient(to right, #3f78e6, #9a9aa2 50%, #e8c23a);
+}
+
+.inspector .slider-field.track-tint input[type='range']::-moz-range-track {
+  background: linear-gradient(to right, #3fb35a, #9a9aa2 50%, #c84fc2);
+}
+
+.inspector .slider-field.track-sat input[type='range']::-moz-range-track {
+  background: linear-gradient(to right, #7b7b80, #9a9aa2 50%, #e5484d);
+}
+
+.inspector .slider-field:is(.track-temp, .track-tint, .track-sat) input[type='range']::-moz-range-progress {
+  background: transparent;
+}
+
+.lut-missing {
+  margin-top: 2px;
+}
+
+/* HSL */
+.hsl-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.hsl-picker {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+}
+
+.hsl-picker[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+
+.hsl-swatches {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hsl-swatch {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  border: 3px solid var(--swatch);
+  background: transparent;
+  transition: transform var(--t-fast);
+}
+
+.hsl-swatch[aria-checked='true'] {
+  background: var(--swatch);
+  box-shadow: 0 0 0 2px var(--bg-panel), 0 0 0 3.5px var(--text);
+}
+
+.hsl-swatch.changed::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text);
+  border: 1px solid var(--bg-panel);
+}
+
+.inspector .slider-field:is(.hsl-h, .hsl-s, .hsl-l) input[type='range']::-webkit-slider-runnable-track {
+  background: var(--track);
+}
+
+.inspector .slider-field:is(.hsl-h, .hsl-s, .hsl-l) input[type='range']::-moz-range-track {
+  background: var(--track);
+}
+
+.inspector .slider-field:is(.hsl-h, .hsl-s, .hsl-l) input[type='range']::-moz-range-progress {
+  background: transparent;
+}
+
+.hsl-foot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Curves */
+.curve-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.curve-channels {
+  flex: 1;
+  min-width: 0;
+}
+
+.curve-channels button {
+  flex: 1;
+  gap: 5px;
+  padding: 0 4px;
+}
+
+.curve-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--dot);
+  flex: none;
+}
+
+.curve-channels button.changed .curve-dot {
+  background: var(--dot);
+}
+
+.curve-box {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.curve-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.curve-canvas:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.curve-readout {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  min-height: 1.4em;
+}
+
+.curve-help {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-3);
+}
+
+/* Color wheels */
+.wheel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 12px;
+  margin: 6px 0 4px;
+}
+
+.wheel-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wheel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+
+.wheel-title {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.wheel-hint {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.wheel-card.changed .wheel-title::before {
+  content: '';
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.wheel-disk {
+  position: relative;
+  width: 100%;
+  max-width: 132px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, #6f6f73 0%, rgba(111, 111, 115, 0.85) 30%, rgba(111, 111, 115, 0) 100%), var(--ring);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.wheel-disk::before {
+  /* Center cross hair */
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  background: linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)) center / 100% 1px no-repeat, linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)) center / 1px 100% no-repeat;
+  pointer-events: none;
+}
+
+.wheel-disk:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.wheel-puck {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #1a1a1c;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.wheel-level {
+  width: 100%;
+  max-width: 132px;
+}
+
+.inspector .wheel-level::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #111, #9a9aa2 50%, #fff);
+}
+
+.inspector .wheel-level::-moz-range-track {
+  background: linear-gradient(to right, #111, #9a9aa2 50%, #fff);
+}
+
+.inspector .wheel-level::-moz-range-progress {
+  background: transparent;
+}
+
+.wheel-vals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  width: 100%;
+  max-width: 150px;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  text-align: center;
+}
+
+.wheel-val {
+  padding: 2px 0;
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  border-top: 2px solid;
+}
+
+.wheel-val.r {
+  border-top-color: #e5484d;
+}
+
+.wheel-val.g {
+  border-top-color: #46b35a;
+}
+
+.wheel-val.b {
+  border-top-color: #3f73e0;
+}
+
+/* Eyedropper mode on the player */
+.player-stage.eyedropper-active,
+.player-stage.eyedropper-active * {
+  cursor: crosshair !important;
+}
+
+/* Color assets tab */
+.asset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.asset-row .asset-hint {
+  flex: 1;
+  margin: 0;
+}
+
+.tile-wrap {
+  position: relative;
+}
+
+.tile-remove {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  opacity: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  transition: opacity var(--t-fast);
+}
+
+.tile-wrap:hover .tile-remove,
+.tile-remove:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .tile-remove {
+    opacity: 1;
+  }
+}

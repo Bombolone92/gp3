@@ -1,0 +1,9 @@
+/* Table Design ▸ Properties holds the Table Name field and Resize Table beside Table properties:
+   the name sits on one line with its label, so the three rows fit the ribbon's height. */
+.ribbon-group-controls.ribbon-table-properties { gap: 2px; }
+.ribbon-table-properties .ribbon-table-name-field { flex-direction: row; align-items: center; gap: 6px; width: auto; white-space: nowrap; }
+.ribbon-table-properties .ribbon-table-name { height: 24px; width: 120px; }
+@media (pointer: coarse) { .ribbon-table-properties .ribbon-table-name { height: 32px; } }
+
+/* Insert Slicers: one checkbox per field, scrolling when a table is wide. */
+.slicer-fields { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow: auto; }

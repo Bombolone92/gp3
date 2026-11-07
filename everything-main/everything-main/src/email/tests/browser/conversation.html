@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Conversation test fixture</title></head>
+<body>
+<div id="app"></div>
+<script type="module">
+import '../../src/styles/tokens.css';
+import '../../src/styles/base.css';
+import '../../src/styles/app.css';
+import { renderApp } from '../../src/ui/app.js';
+import { openCompose } from '../../src/ui/compose.js';
+import { createSampleMailbox } from '../../src/lib/sample.js';
+const mailbox = createSampleMailbox();
+// In-memory mailbox and intercepted transport. No SDK or account session.
+window.puter = { ui: {}, APIOrigin: location.origin + '/test-api', authToken: 'fixture', fs: mailbox.fs };
+renderApp(document.querySelector('#app'), {
+  ...mailbox, sample: true, account: { username: 'sample' },
+  pageSize: Number(new URLSearchParams(location.search).get('pageSize')) || undefined,
+  onCompose: (prefill, options) => openCompose({ username: 'sample', mailPath: mailbox.mailPath, prefill, ...options, undoSend: 0 }),
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+/* Properties, units, rent roll, leases, tenants, owners. */
+
+/* ---- Lists ---------------------------------------------------------------------- */
+
+.rn-occ {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.rn-occ-text {
+  min-width: 38px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+}
+
+.rn-occ-bar {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  min-width: 56px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.rn-occ-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.rn-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rn-email {
+  display: inline-block;
+  max-width: 240px;
+  vertical-align: bottom;
+}
+
+.rn-toolbar-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ---- Detail pages ------------------------------------------------------------- */
+
+.rn-title {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rn-stats {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.rn-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.rn-two > .card + .card {
+  margin-top: 0;
+}
+
+.rn-narrow {
+  max-width: 760px;
+}
+
+.rn-tags {
+  margin-top: 8px;
+}
+
+.rn-when,
+.rn-date {
+  flex: none;
+  font-size: 13px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.rn-date {
+  min-width: 52px;
+}
+
+.rn-strong {
+  font-weight: 700;
+}
+
+.rn-big {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.rn-big .num {
+  font-size: inherit;
+}
+
+.rn-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.rn-card-foot {
+  padding: 10px 18px 14px;
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+}
+
+.rn-lease-summary,
+.rn-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px 18px;
+}
+
+.rn-lease-summary .section-title,
+.rn-figure .section-title {
+  margin-bottom: 4px;
+}
+
+.rn-people {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 600;
+}
+
+.rn-wrap {
+  flex-wrap: wrap;
+}
+
+.rn-listing-text {
+  margin: 0;
+  color: var(--text-2);
+  white-space: pre-line;
+}
+
+.rn-plain {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+}
+
+.rn-plain li + li {
+  margin-top: 2px;
+}
+
+.rn-line {
+  margin-top: 2px;
+}
+
+.rn-ledger-mini {
+  border-top: 1px solid var(--border);
+}
+
+/* Income statement on the property financials tab */
+.rn-is td,
+.rn-is th {
+  height: 40px;
+}
+
+.rn-is tbody th,
+.rn-is tfoot th {
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  position: static;
+}
+
+.rn-is-head th {
+  padding-top: 14px;
+  color: var(--text-3);
+  font-size: 12px !important;
+  font-weight: 700;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.rn-is-total th,
+.rn-is-total td {
+  font-weight: 700;
+  background: var(--surface-2);
+}
+
+.rn-is-net th,
+.rn-is-net td {
+  font-weight: 700;
+  font-size: 15px;
+  border-top: 2px solid var(--border-strong);
+}
+
+/* ---- Forms -------------------------------------------------------------------- */
+
+.rn-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rn-form-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.rn-form-cols .card + .card {
+  margin-top: 0;
+}
+
+.rn-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.rn-suffix > .input {
+  padding-left: 12px;
+}
+
+.rn-owner-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.rn-owner-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.rn-owner-total.bad {
+  color: var(--danger);
+}
+
+.rn-chips-editor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-height: 40px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r);
+  background: var(--surface);
+  cursor: text;
+}
+
+.rn-chips-editor:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.rn-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rn-chip-x {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rn-chip-x:hover {
+  background: var(--surface-3);
+}
+
+.rn-chip-input {
+  flex: 1;
+  min-width: 140px;
+  height: 28px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+}
+
+.rn-chip-input:focus {
+  outline: none;
+}
+
+.rn-unit-head,
+.rn-unit-row {
+  display: grid;
+  grid-template-columns: minmax(70px, 1.2fr) minmax(54px, 0.7fr) minmax(54px, 0.7fr) minmax(64px, 0.8fr) minmax(90px, 1.1fr) 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.rn-unit-head {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.rn-unit-rows {
+  gap: 8px;
+}
+
+.rn-unit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.rn-gen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.rn-gen .input {
+  height: 32px;
+}
+
+.rn-gen-count {
+  width: 64px;
+}
+
+.rn-gen-start {
+  width: 84px;
+}
+
+.rn-preview {
+  margin: 0;
+  font-size: 13px;
+}
+
+.rn-rows-row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)) 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ---- Responsive --------------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+  .rn-two,
+  .rn-form-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rn-two > .card + .card,
+  .rn-form-cols > .stack + .stack {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .rn-unit-head {
+    display: none;
+  }
+
+  .rn-unit-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) 36px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rn-unit-row > :nth-child(1) {
+    grid-column: 1 / 4;
+  }
+
+  .rn-unit-row > :nth-child(5) {
+    grid-column: 1 / 4;
+  }
+
+  .rn-unit-row > :nth-child(6) {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  /* Two fields per line, the remove button at the end of the first; a
+     last field left on its own takes the whole line. */
+  .rn-rows-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) 36px;
+  }
+
+  .rn-rows-row > :last-child {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .rn-rows-row > :nth-last-child(2):nth-child(odd) {
+    grid-column: 1 / 3;
+  }
+
+  .rn-owner-row {
+    grid-template-columns: minmax(0, 1fr) 90px auto;
+  }
+
+}

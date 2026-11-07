@@ -1,0 +1,44 @@
+{
+  "name": "pdf-editor",
+  "version": "1.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "A private, framework-free PDF workspace powered by Puter.",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run licenses && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "licenses": "node scripts/notices.mjs",
+    "icons": "sh scripts/icons.sh",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@pdf-lib/fontkit": "1.1.1",
+    "@tesseract.js-data/eng": "1.0.0",
+    "@xmldom/xmldom": "0.9.12",
+    "lucide": "1.45.0",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.3.289",
+    "tesseract.js": "7.0.0",
+    "tesseract.js-core": "7.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.11.1",
+    "@playwright/test": "1.63.0",
+    "prettier": "3.9.6",
+    "vite": "8.3.0",
+    "vitest": "4.1.11"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HeyPuter/pdf-editor.git"
+  }
+}

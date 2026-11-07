@@ -1,0 +1,44 @@
+import { getAbsolutePathOrUidForApp } from '../utils/getAbsolutePathForApp.js';
+import { defineOperation, firstDefined } from './scaffold.js';
+
+/** @typedef {import('../types.js').CopyOptions} CopyOptions */
+/** @typedef {import('../../FSItem.js').FSItem} FSItem */
+
+/**
+ * Copies a file or directory to another location. Relative paths resolve
+ * against the app's root directory; a UID-shaped string is read as a uid. When
+ * `destination` is a directory the item is copied into it under the same name;
+ * when it is an existing file, that file is replaced if `overwrite` is set.
+ *
+ * @type {{
+ *   (options: CopyOptions): Promise<FSItem>,
+ *   (
+ *     source: string,
+ *     destination: string,
+ *     options?: CopyOptions,
+ *     success?: (value: FSItem) => void,
+ *     error?: (reason: unknown) => void,
+ *   ): Promise<FSItem>,
+ * }}
+ */
+const copy = defineOperation({
+    positional: ['source', 'destination'],
+    request (options) {
+        return {
+            endpoint: '/copy',
+            body: {
+                // No socket at all for a client that opted out (`puter.socketEnabled`).
+                original_client_socket_id: this.socket?.id,
+                socket_id: this.socket?.id,
+                source: getAbsolutePathOrUidForApp(options.source),
+                destination: getAbsolutePathOrUidForApp(options.destination),
+                overwrite: options.overwrite,
+                new_name: firstDefined(options, 'newName', 'new_name'),
+                // if user is copying an item to where its source is, change the name so there is no conflict
+                dedupe_name: firstDefined(options, 'dedupeName', 'dedupe_name'),
+            },
+        };
+    },
+});
+
+export default copy;

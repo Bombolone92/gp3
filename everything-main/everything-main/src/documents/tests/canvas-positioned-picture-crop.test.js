@@ -1,0 +1,31 @@
+import {beforeAll,afterAll,it,expect} from 'vitest';
+import {JSDOM} from 'jsdom';
+import {readFileSync} from 'node:fs';
+import {unzipSync} from 'fflate';
+import {DocxPackage} from '../src/engine/docx.js';
+import {TextDocument} from '../src/engine/model.js';
+import {layoutDocument,imageAtPoint} from '../src/engine/layout.js';
+import {pageGeometry} from '../src/engine/page-settings.js';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>{dom.window.close();delete globalThis.DOMParser;delete globalThis.XMLSerializer;});
+const source=readFileSync('public/fixtures/positioned-picture-crop.docx');
+const measure=(text,style)=>({width:text.length*style.fontSize*.5,ascent:style.fontSize,descent:style.fontSize/3});
+
+it('edits floating crops/reflections without moving anchors or changing unrelated package parts',async()=>{
+ const pkg=await DocxPackage.open(source),doc=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets);
+ const layout=()=>layoutDocument(doc.paragraphs,measure,pageGeometry(doc.pageSettings),doc.numbering,doc.tables);
+ const frames=()=>layout().floatingObjects.map(f=>[f.page,f.x,f.y,f.width,f.height]);
+ const save=async()=>new Uint8Array(await pkg.export(doc.paragraphs,doc.pageSettings,doc.numbering,doc.styles,doc.tables,doc.assets).arrayBuffer());
+ const before=frames();expect(before).toHaveLength(8);expect(unzipSync(await save())).toEqual(pkg.parts);
+ const f=layout().floatingObjects[1];expect(imageAtPoint(layout(),f.page,f.x+10,f.y+10).image.id).toBe(f.image.id);
+ doc.select(f.start,f.end);doc.setImageProperties({crop:{left:50000,top:-25000},flipH:true,flipV:true});
+ expect(frames()).toEqual(before);const bytes=await save(),again=await DocxPackage.open(bytes);
+ const image=again.paragraphs.flatMap(p=>p.runs).find(r=>r.image?.id===f.image.id).image;
+ expect(image.crop).toEqual({left:50000,top:-25000,right:0,bottom:0});expect(image.flipH&&image.flipV).toBe(true);
+ for(const [n,b] of Object.entries(unzipSync(bytes)))if(n!=='word/document.xml')expect(b).toEqual(pkg.parts[n]);
+ expect(()=>doc.setImageProperties({crop:{left:100000}})).toThrow(/positive source/);
+ expect(doc.setImageProperties({rotation:5400000})).toBe(true);expect(frames()).toEqual(before);
+ expect(doc.selectedImage.rotation).toBe(5400000);doc.undo();
+ doc.undo();expect(frames()).toEqual(before);expect(unzipSync(await save())).toEqual(pkg.parts);
+});

@@ -1,0 +1,512 @@
+[
+  {
+    "label": "C00 none empty legal=False",
+    "levels": [
+      [
+        "none",
+        "",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C01 none > legal=False",
+    "levels": [
+      [
+        "none",
+        ">",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C02 none %1 legal=False",
+    "levels": [
+      [
+        "none",
+        "%1",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C03 none [%1] legal=False",
+    "levels": [
+      [
+        "none",
+        "[%1]",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C04 none A%1B%2C legal=False",
+    "levels": [
+      [
+        "none",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C05 decimal [%1] legal=False",
+    "levels": [
+      [
+        "decimal",
+        "[%1]",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C06 none [%1] legal=True",
+    "levels": [
+      [
+        "none",
+        "[%1]",
+        true
+      ]
+    ]
+  },
+  {
+    "label": "C07 nested legal=False",
+    "levels": [
+      [
+        "decimal",
+        "%1.",
+        false
+      ],
+      [
+        "none",
+        ">%1:%2",
+        false
+      ],
+      [
+        "decimal",
+        "%1/%2/%3",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C08 nested legal=True",
+    "levels": [
+      [
+        "decimal",
+        "%1.",
+        false
+      ],
+      [
+        "none",
+        ">%1:%2",
+        true
+      ],
+      [
+        "decimal",
+        "%1/%2/%3",
+        true
+      ]
+    ]
+  },
+  {
+    "label": "C09 none future defined=False",
+    "levels": [
+      [
+        "none",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C10 none future defined=True",
+    "levels": [
+      [
+        "none",
+        "A%1B%2C",
+        false
+      ],
+      [
+        "decimal",
+        "%2",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C11 decimal future defined=False",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C12 decimal future defined=True",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ],
+      [
+        "decimal",
+        "%2",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C13 nested future reference",
+    "levels": [
+      [
+        "upperRoman",
+        "%1.",
+        false
+      ],
+      [
+        "lowerLetter",
+        "%1/%2/%3",
+        false
+      ],
+      [
+        "decimal",
+        "%1.%2.%3",
+        true
+      ]
+    ]
+  },
+  {
+    "label": "C14 bullet literal %1",
+    "levels": [
+      [
+        "bullet",
+        "%1",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C15 bullet literal %2",
+    "levels": [
+      [
+        "bullet",
+        "%2",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C16 bullet literal A%1B",
+    "levels": [
+      [
+        "bullet",
+        "A%1B",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C17 bullet parent legal=False",
+    "levels": [
+      [
+        "bullet",
+        "*",
+        false
+      ],
+      [
+        "decimal",
+        "%1/%2",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C18 bullet parent legal=True",
+    "levels": [
+      [
+        "bullet",
+        "*",
+        false
+      ],
+      [
+        "decimal",
+        "%1/%2",
+        true
+      ]
+    ]
+  },
+  {
+    "label": "C19 suppressed geometry direct",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C20 suppressed geometry style",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C21 suppressed geometry both",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C22 suppressed geometry tabs",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C23 suppressed left=54 first=0",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C24 suppressed left=54 first=-18",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C25 suppressed left=0 first=18",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C26 suppressed left=36 first=36",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C27 suppressed left=36 first=12",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C28 suppressed left=0 first=36",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C29 suppressed left=18 first=0",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C30 suppressed left=18 first=18",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C31 suppressed left=0 first=-18",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C32 suppressed left=0 first=12",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C33 suppressed left=0 first=24",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C34 suppressed left=0 first=35",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C35 suppressed left=18 first=6",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C36 changed level 1800/900",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C37 changed level 1440/1440",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C38 changed level 1440/360",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C39 suppressed custom tab=9",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C40 suppressed custom tab=18",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C41 suppressed custom tab=24",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C42 suppressed custom tab=108",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C43 suppressed custom tab=15",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C44 suppressed suffix=space",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  },
+  {
+    "label": "C45 suppressed suffix=nothing",
+    "levels": [
+      [
+        "decimal",
+        "A%1B%2C",
+        false
+      ]
+    ]
+  }
+]

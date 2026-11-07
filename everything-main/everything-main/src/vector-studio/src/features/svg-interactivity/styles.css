@@ -1,0 +1,77 @@
+.panel-svgInteractivity {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.svgi-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.svgi-row {
+  display: flex;
+  gap: 6px;
+}
+
+.svgi-event {
+  flex: 1;
+  min-width: 0;
+}
+
+.svgi-code {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+.svgi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 40px;
+}
+
+.svgi-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+}
+
+.svgi-name {
+  flex: none;
+  padding: 2px 4px;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  cursor: pointer;
+}
+
+.svgi-snippet {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.svgi-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.svgi-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}

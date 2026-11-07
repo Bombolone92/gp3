@@ -1,0 +1,2969 @@
+{
+  "provenance": "Synthetic DiagramML controls regenerated and separately saved by the native reference application. Overlapping declarations have equal initial values to isolate ordered rule application from conflicting initial preferences. Both axes, selector relationships, overlapping and disjoint point-type selections, declaration order and rule order are varied. Regression tests choose trials with the general fitter and reevaluate every rule application; native fitted values are never supplied as trial inputs. These cases require no text measurement or cross-dimension reevaluation during final arrangement.",
+  "available": {
+    "w": 100,
+    "h": 100
+  },
+  "cases": [
+    {
+      "name": "rule projection fromL point reverse false none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1481484,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1481484,
+            "y": 1080000,
+            "w": 2116406,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse false source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 1080000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 540000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse false other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 1080000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 720000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse false source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 540000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse false other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 540000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse true none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1481484,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1481484,
+            "y": 1080000,
+            "w": 2116406,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse true source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 1080000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 540000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse true other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 1080000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 720000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse true source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 540000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL point reverse true other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 540000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse false none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1481484,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1481484,
+            "y": 1080000,
+            "w": 2116406,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse false source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 1080000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 540000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse false other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 1080000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 720000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse false source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:rule type=\"w\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 540000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse false other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"des\" forName=\"a\" val=\"30\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 540000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse true none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1481484,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1481484,
+            "y": 1080000,
+            "w": 2116406,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse true source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 1080000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 540000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse true other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 1080000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 720000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse true source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:rule type=\"w\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 830039,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 830039,
+            "y": 540000,
+            "w": 2766796,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromL relationship reverse true other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"des\" forName=\"a\" val=\"30\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 540000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1027968,
+            "y": 540000,
+            "w": 2569921,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 180000,
+            "w": 0,
+            "h": 1080000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse false none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1481484
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1481484,
+            "w": 360000,
+            "h": 2116406
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse false source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse false other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse false source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse false other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3597890,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse true none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1481484
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1481484,
+            "w": 360000,
+            "h": 2116406
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse true source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse true other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse true source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT point reverse true other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"30\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3597890,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse false none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1481484
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1481484,
+            "w": 360000,
+            "h": 2116406
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse false source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse false other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse false source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:rule type=\"h\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse false other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"des\" forName=\"a\" val=\"30\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3597890,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse true none",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1481484
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1481484,
+            "w": 360000,
+            "h": 2116406
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse true source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse true other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse true source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:rule type=\"h\" for=\"des\" forName=\"a\" val=\"30\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 830039
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 830039,
+            "w": 360000,
+            "h": 2766796
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3596835,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule projection fromT relationship reverse true other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"100\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"des\" refForName=\"a\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"des\" forName=\"a\" val=\"30\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 0,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 1027968,
+            "w": 360000,
+            "h": 2569921
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3597890,
+            "w": 1080000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL node-norm source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1199531,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1199531,
+            "y": 1080000,
+            "w": 1199531,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 2399062,
+            "y": 1080000,
+            "w": 1199531,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3598593,
+            "y": 540000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3598593,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL node-norm other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1058203,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1058203,
+            "y": 1080000,
+            "w": 1058203,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 2116406,
+            "y": 1080000,
+            "w": 1481484,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 360000,
+            "w": 0,
+            "h": 1800000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL node-norm source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1284960,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1284960,
+            "y": 720000,
+            "w": 1284960,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 2569921,
+            "y": 720000,
+            "w": 1027968,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 180000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3597890,
+            "y": 0,
+            "w": 0,
+            "h": 1800000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL node-norm other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"50\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1199531,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1199531,
+            "y": 720000,
+            "w": 1199531,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 2399062,
+            "y": 720000,
+            "w": 1199531,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3598593,
+            "y": 180000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3598593,
+            "y": 0,
+            "w": 0,
+            "h": 1800000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL norm-asst source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 959062,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 959062,
+            "y": 1080000,
+            "w": 959062,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 1918125,
+            "y": 1080000,
+            "w": 1678359,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596484,
+            "y": 540000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596484,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL norm-asst other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1080000,
+            "w": 1323984,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1323984,
+            "y": 1080000,
+            "w": 1323984,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 2647968,
+            "y": 1080000,
+            "w": 945703,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3593671,
+            "y": 0,
+            "w": 0,
+            "h": 2520000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3593671,
+            "y": 360000,
+            "w": 0,
+            "h": 1800000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL norm-asst source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"40\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1106718,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1106718,
+            "y": 720000,
+            "w": 1106718,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 2213437,
+            "y": 720000,
+            "w": 1383398,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 180000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 1800000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromL norm-asst other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromL\"/>",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" refType=\"w\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"50\"/><dgm:rule type=\"w\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 720000,
+            "w": 1106718,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1106718,
+            "y": 720000,
+            "w": 1106718,
+            "h": 360000
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 2213437,
+            "y": 720000,
+            "w": 1383398,
+            "h": 360000
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 180000,
+            "w": 0,
+            "h": 1440000
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 3596835,
+            "y": 0,
+            "w": 0,
+            "h": 1800000
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT node-norm source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1199531
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1080000,
+            "y": 1199531,
+            "w": 360000,
+            "h": 1199531
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 1080000,
+            "y": 2399062,
+            "w": 360000,
+            "h": 1199531
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 3598593,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3598593,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT node-norm other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1058203
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1080000,
+            "y": 1058203,
+            "w": 360000,
+            "h": 1058203
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 1080000,
+            "y": 2116406,
+            "w": 360000,
+            "h": 1481484
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 360000,
+            "y": 3597890,
+            "w": 1800000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT node-norm source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 0,
+            "w": 360000,
+            "h": 1284960
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 720000,
+            "y": 1284960,
+            "w": 360000,
+            "h": 1284960
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 720000,
+            "y": 2569921,
+            "w": 360000,
+            "h": 1027968
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3597890,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3597890,
+            "w": 1800000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT node-norm other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"50\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 0,
+            "w": 360000,
+            "h": 1199531
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 720000,
+            "y": 1199531,
+            "w": 360000,
+            "h": 1199531
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 720000,
+            "y": 2399062,
+            "w": 360000,
+            "h": 1199531
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3598593,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3598593,
+            "w": 1800000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT norm-asst source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 959062
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1080000,
+            "y": 959062,
+            "w": 360000,
+            "h": 959062
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 1080000,
+            "y": 1918125,
+            "w": 360000,
+            "h": 1678359
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 540000,
+            "y": 3596484,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596484,
+            "w": 2520000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT norm-asst other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 1080000,
+            "y": 0,
+            "w": 360000,
+            "h": 1323984
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 1080000,
+            "y": 1323984,
+            "w": 360000,
+            "h": 1323984
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 1080000,
+            "y": 2647968,
+            "w": 360000,
+            "h": 945703
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3593671,
+            "w": 2520000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 360000,
+            "y": 3593671,
+            "w": 1800000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT norm-asst source-other",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"40\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"50\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 0,
+            "w": 360000,
+            "h": 1106718
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 720000,
+            "y": 1106718,
+            "w": 360000,
+            "h": 1106718
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 720000,
+            "y": 2213437,
+            "w": 360000,
+            "h": 1383398
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3596835,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 1800000,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "rule adjustment subsets fromT norm-asst other-source",
+      "algorithm": "lin",
+      "params": "<dgm:param type=\"linDir\" val=\"fromT\"/>",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p1\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"p2\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p1\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"norm\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"p2\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"asst\"/>",
+      "rules": "<dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"asst\" val=\"50\"/><dgm:rule type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"40\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"10\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"p1\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode><dgm:layoutNode name=\"p2\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "bounds": {
+            "x": 720000,
+            "y": 0,
+            "w": 360000,
+            "h": 1106718
+          }
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "bounds": {
+            "x": 720000,
+            "y": 1106718,
+            "w": 360000,
+            "h": 1106718
+          }
+        },
+        {
+          "name": "a",
+          "context": "3",
+          "bounds": {
+            "x": 720000,
+            "y": 2213437,
+            "w": 360000,
+            "h": 1383398
+          }
+        },
+        {
+          "name": "p1",
+          "context": "1",
+          "bounds": {
+            "x": 180000,
+            "y": 3596835,
+            "w": 1440000,
+            "h": 0
+          }
+        },
+        {
+          "name": "p2",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 3596835,
+            "w": 1800000,
+            "h": 0
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2162 @@
+/* ---------- Register ---------- */
+
+.register {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.reg-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* The toolbars' glyph-only buttons are .btn, not .icon-btn, so the coarse
+   pointer floor that lifts every other glyph button to 44px passed them by
+   and they stood 38-40px tall under a fingertip - on the tablets this app is
+   built for. Stated as minimums, so the fine-pointer layout is untouched and
+   the held-sales button still sizes to its count. */
+@media (pointer: coarse) {
+  .drawer-btn,
+  .held-btn,
+  .scan-btn,
+  .filter-btn {
+    min-height: 44px;
+  }
+
+  .filter-btn {
+    min-width: 44px;
+  }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.grid-empty {
+  grid-column: 1 / -1;
+}
+
+.product-tile {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 92px;
+  padding: 12px 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  text-align: left;
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+/* A photo fills the tile behind a legibility scrim; the slot color stays
+   underneath as the loading state and the fallback. */
+.tile-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Two-sided scrim: the name sits at the TOP of the tile, so the top band
+   needs real darkness too - a light product photo (pastry, milk carton)
+   under a 4% wash left white text unreadable. */
+.tile-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.12) 45%,
+    rgba(0, 0, 0, 0.60) 100%);
+}
+
+.product-tile .tile-name,
+.product-tile .tile-foot,
+.product-tile .tile-badge {
+  position: relative;
+}
+
+.product-tile.has-photo .tile-name,
+.product-tile.has-photo .tile-price {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.product-tile.has-photo .tile-opts {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* "Out of stock" must be the most readable thing on the tile, not the
+   least: the brand red sat at ~2:1 against the scrim's dark foot. */
+.product-tile.has-photo .tile-badge {
+  color: #ffa6a6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@media (hover: hover) {
+  .product-tile:hover {
+    border-color: var(--hairline-strong);
+  }
+}
+
+.product-tile:active {
+  transform: scale(0.97);
+}
+
+.tile-name {
+  font-weight: 650;
+  font-size: 14px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* The tile shrink-wraps its children, so a name with nothing to break on -
+     a run-together word, a long SKU-ish name, or any language that doesn't
+     space its words - grew this box to three times the tile and was chopped
+     mid-letter at the edge, with no ellipsis to say so. Held to the tile's
+     width it wraps by character, and the clamp ends it honestly. */
+  width: 100%;
+  overflow-wrap: break-word;
+}
+
+.tile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+}
+
+.tile-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  /* A measured product prints its unit here ("$12.00/kg"), and a long one
+     pushed the whole line out past the tile. Truncating from the end keeps
+     the money - the part that has to be read exactly - and says the unit
+     was shortened. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A quiet mark that tapping this tile asks something first. */
+.tile-opts {
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+.tile-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--neg);
+}
+
+.product-tile.out {
+  opacity: 0.75;
+}
+
+/* ---------- Arrange mode ---------- */
+
+/* The bar sits between the chips and the grid, so what changed is next to
+   what changes it. Collapsed to nothing while the register is selling. */
+.arrange-bar {
+  display: none;
+}
+
+.arrange-bar.open {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin: 4px 0 2px;
+  border: 1px solid var(--accent);
+  background: var(--accent-wash);
+  border-radius: var(--r-md);
+}
+
+.arrange-say {
+  flex: 1;
+  min-width: 200px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.arrange-say strong {
+  color: var(--accent-on-wash);
+}
+
+/* A tile being arranged is a drag handle, so the browser must not take the
+   gesture for a scroll - and it is not a button, so it gets the affordance
+   a pointer expects from one. */
+.product-tile.arranging {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  padding-top: 10px;
+  border-color: var(--hairline-strong);
+  border-style: dashed;
+}
+
+.product-tile.dragging {
+  cursor: grabbing;
+  opacity: 0.9;
+  border-style: solid;
+  border-color: var(--accent);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  transform: scale(1.03);
+  z-index: 2;
+}
+
+/* While a tile is in flight, the rest of the grid must not answer the
+   pointer - elementFromPoint needs the tile under it, not its own contents. */
+.dragging-grid .product-tile * {
+  pointer-events: none;
+}
+
+/* The star sits in the tile's top-right corner, so the name has to leave it
+   room - a two-line name ran straight under it. */
+.product-tile.arranging .tile-name {
+  padding-right: 28px;
+}
+
+.tile-star {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+  color: var(--ink-3);
+  z-index: 1;
+}
+
+.tile-star.on {
+  color: var(--accent);
+}
+
+.tile-star.on svg {
+  fill: currentColor;
+}
+
+.product-tile.has-photo .tile-star {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* The price line's place while arranging: the two moves and the position. */
+.tile-arrange-foot {
+  justify-content: space-between;
+}
+
+.tile-move {
+  width: 30px;
+  height: 26px;
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+}
+
+.tile-move:disabled {
+  opacity: 0.35;
+}
+
+.tile-pos {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The pinned-tiles chip: its star reads as the mark on the tiles it holds. */
+.chip-fav svg {
+  fill: currentColor;
+}
+
+.tile-custom {
+  border-style: dashed;
+  border-color: var(--hairline-strong);
+  background: transparent;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  gap: 6px;
+}
+
+.tile-custom .tile-name {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.tile-plus {
+  display: grid;
+  place-items: center;
+}
+
+/* Slot washes (product tiles + dots) */
+.slot-1 { background: var(--slot-1); }
+.slot-2 { background: var(--slot-2); }
+.slot-3 { background: var(--slot-3); }
+.slot-4 { background: var(--slot-4); }
+.slot-5 { background: var(--slot-5); }
+.slot-6 { background: var(--slot-6); }
+.slot-7 { background: var(--slot-7); }
+.slot-8 { background: var(--slot-8); }
+
+.product-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  display: inline-grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14.5px;
+  flex: none;
+  overflow: hidden;
+}
+
+.dot-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The product form's photo on file (or its placeholder). */
+.photo-preview {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  overflow: hidden;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slot-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  display: inline-grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+.slot-swatch.active {
+  border: 2px solid var(--accent);
+}
+
+/* Eight small squares in a row is a fingertip test the swatches were
+   failing; the row already wraps, so they take a second line rather than
+   stay 34px. */
+@media (pointer: coarse) {
+  .slot-swatch {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.slot-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Cart panel */
+.reg-cart {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cart-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 10px;
+}
+
+.cart-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.cart-close {
+  display: none;
+}
+
+.cart-lines {
+  flex: 1;
+  min-height: 60px;
+  overflow-y: auto;
+  padding: 0 8px;
+}
+
+.cart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 26px 16px;
+  color: var(--ink-3);
+  font-size: 13.5px;
+}
+
+.cart-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  transition: background 0.12s;
+}
+
+@media (hover: hover) {
+  .cart-line:hover {
+    background: var(--surface-2);
+  }
+}
+
+.cart-qty {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent-on-wash);
+  background: var(--accent-wash);
+  border-radius: 7px;
+  padding: 3px 6px;
+  flex: none;
+}
+
+.cart-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cart-name {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cart-opts {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cart-line-disc {
+  margin-left: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--pos);
+}
+
+.cart-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  font-size: 14px;
+  flex: none;
+}
+
+.cart-foot {
+  padding: 10px 16px 16px;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cart-disc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--accent);
+  padding: 5px 0;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.trow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.trow dd {
+  font-variant-numeric: tabular-nums;
+}
+
+.trow-total {
+  font-size: 16.5px;
+  font-weight: 750;
+  color: var(--ink);
+  padding-top: 7px;
+  margin-top: 3px;
+  border-top: 1px solid var(--hairline);
+}
+
+.charge-btn {
+  padding: 13px;
+  font-size: 15.5px;
+  border-radius: var(--r-md);
+}
+
+/* Mobile: cart is a bottom sheet + summary bar */
+.cart-bar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + 12px);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 650;
+  font-size: 14.5px;
+  transition: transform 0.2s var(--ease-spring), opacity 0.2s;
+}
+
+/* Empty cart: out of sight *and* out of reach. Opacity alone left a button
+   nobody can see in the tab order and in the accessibility tree, announcing
+   "0 items, $0.00" over the tab bar; `visibility` takes it out of both. Its
+   own transition is delayed so the fade still plays before the bar goes. */
+.cart-bar.hidden {
+  transform: translateY(12px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.2s var(--ease-spring), opacity 0.2s, visibility 0s 0.2s;
+}
+
+.cart-bar-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  background: var(--accent-chip);
+  font-size: 12.5px;
+  font-weight: 750;
+}
+
+.cart-bar .grow {
+  text-align: left;
+}
+
+.cart-bar-total {
+  font-variant-numeric: tabular-nums;
+  font-size: 15.5px;
+}
+
+/* Toasts land bottom-centre, which is exactly where this bar floats: a scan
+   confirmation - or an eight-second one carrying an Undo - sat on top of the
+   running total and swallowed the taps meant for the bar underneath it. While
+   the bar is up, toasts stack above it instead. */
+body.cart-bar-up .toast-root {
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + 72px);
+}
+
+.cart-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: var(--scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.cart-scrim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 999px) {
+  /* Room to scroll the last grid row clear of the floating cart bar. */
+  .register {
+    padding-bottom: 64px;
+  }
+
+  .reg-cart {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    max-height: 78dvh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-bottom: 0;
+    padding-bottom: var(--safe-b);
+    transform: translateY(102%);
+    /* Parked off-screen is not the same as gone: without `visibility` every
+       control in the closed sheet - Hold, Clear, each cart line, the
+       discount button, Charge - stays tabbable and stays in the
+       accessibility tree, so Tab out of the search box walked straight into
+       an invisible cart. Delayed, so the slide-out still plays. */
+    visibility: hidden;
+    transition: transform 0.28s var(--ease-spring), visibility 0s 0.28s;
+  }
+
+  .reg-cart.open {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.28s var(--ease-spring);
+  }
+
+  .cart-close {
+    display: inline-grid;
+  }
+}
+
+/* Between the sidebar appearing (920px) and the cart docking beside the grid
+   (1000px) the register still uses its bottom sheet - but there is no tab bar
+   left to clear, and the sidebar owns the left edge. Without this the bar
+   floated 74px above the bottom over empty space, and the sheet and its scrim
+   ran the full width, across the navigation. */
+@media (min-width: 920px) and (max-width: 999px) {
+  .cart-bar {
+    left: calc(var(--sidebar-w) + 16px);
+    right: 16px;
+    bottom: calc(var(--safe-b) + 16px);
+  }
+
+  .reg-cart,
+  .cart-scrim {
+    left: var(--sidebar-w);
+  }
+
+  /* The bar sits lower here (no tab bar to clear), so the toasts do too. */
+  body.cart-bar-up .toast-root {
+    bottom: calc(var(--safe-b) + 76px);
+  }
+}
+
+@media (min-width: 1000px) {
+  .register {
+    grid-template-columns: minmax(0, 1fr) var(--cart-w);
+  }
+
+  .reg-cart {
+    position: sticky;
+    top: 24px;
+    max-height: calc(100dvh - 48px);
+  }
+
+  .cart-bar,
+  .cart-scrim {
+    display: none;
+  }
+
+  /* The cart docks beside the grid: no floating bar left to clear. */
+  body.cart-bar-up .toast-root {
+    bottom: 22px;
+  }
+}
+
+/* ---------- Payment sheet ---------- */
+
+.pay-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0 16px;
+}
+
+.pay-total-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.pay-total-value {
+  font-size: 38px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.pay-total-value.settled {
+  color: var(--accent);
+}
+
+.pay-total-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.pay-section {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  margin: 4px 0 8px;
+}
+
+.pay-split-btn {
+  margin-top: 10px;
+}
+
+/* Recorded tenders in a split payment */
+.tender-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.tender-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 8px 9px 13px;
+}
+
+.tender-row + .tender-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.tender-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+.tender-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tender-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tender-sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.tender-amount {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.seg-block {
+  margin-bottom: 16px;
+}
+
+.pay-tender {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.pay-change {
+  min-height: 26px;
+  font-size: 15px;
+  color: var(--ink-2);
+  margin-bottom: 10px;
+}
+
+.pay-change strong {
+  font-size: 17px;
+  color: var(--ink);
+}
+
+.pay-short {
+  color: var(--neg);
+  font-weight: 650;
+}
+
+/* "Keep the change as tip", inline with the change figure it converts. */
+.tip-keep-chip {
+  margin-left: 10px;
+  vertical-align: 2px;
+}
+
+/* The optional customer on the payment sheet - present, never in the way. */
+.pay-customer {
+  margin-bottom: 12px;
+}
+
+/* A directory takes names up to 60 characters, and one of those ran the
+   chip clean out of the sheet and gave the payment dialog a horizontal
+   scrollbar. The chip stops at the sheet's width and the name gives way;
+   the ✕ beside it never does. */
+.pay-customer-chip {
+  max-width: 100%;
+}
+
+.pay-customer-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Receipt search: the filter toggle, its row, and the scan's status foot. */
+.filter-btn {
+  flex: none;
+  padding: 9px 11px;
+}
+
+.filter-btn.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.receipt-filters {
+  margin-bottom: 14px;
+}
+
+.receipt-filters .form-grid {
+  max-width: 420px;
+}
+
+.search-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 4px;
+}
+
+/* Directory rows reuse the sidebar avatar at list size. */
+.customer-avatar {
+  flex: none;
+}
+
+.qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  padding: 3px;
+}
+
+.qty-btn {
+  width: 40px;
+  height: 38px;
+  border-radius: 8px;
+}
+
+/* These sizes out-cascade the coarse-pointer .icon-btn bump; restate the
+   fingertip floor here, like the refund stepper's own coarse rule. */
+@media (pointer: coarse) {
+  .qty-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.qty-input {
+  width: 64px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sale complete */
+.sale-done {
+  text-align: center;
+  padding-top: 6px;
+}
+
+.sale-done-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.sale-done-title {
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.sale-done-change {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.sale-done-change strong {
+  font-size: 19px;
+  color: var(--ink);
+}
+
+.sale-done-sub {
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--ink-3);
+}
+
+/* ---------- Reports ---------- */
+
+.report-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 16px;
+  align-items: start;
+}
+
+@media (min-width: 760px) {
+  .report-cols {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+.report-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Cash drawer ---------- */
+
+.drawer-btn {
+  flex: none;
+  width: 44px;
+  padding: 10px 0;
+  position: relative;
+}
+
+/* A day with no opening float yet: marked, never blocking. */
+.drawer-btn.needs-start::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+}
+
+.drawer-totals {
+  margin-bottom: 16px;
+}
+
+.movement-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 14px;
+  font-size: 13.5px;
+}
+
+.movement-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+}
+
+.movement-row + .movement-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.movement-time {
+  flex: none;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  min-width: 58px;
+}
+
+.movement-amount {
+  flex: none;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--pos);
+}
+
+.movement-amount.out {
+  color: var(--neg);
+}
+
+.drawer-diff {
+  font-weight: 700;
+}
+
+.drawer-diff.ok {
+  color: var(--pos);
+}
+
+.drawer-diff.over {
+  color: var(--warn-ink);
+}
+
+.drawer-diff.short {
+  color: var(--neg);
+}
+
+.card-amount.over {
+  color: var(--warn-ink);
+}
+
+.card-amount.short {
+  color: var(--neg);
+}
+
+/* A line's note in the cart: the instruction, in reading ink under the item
+   it belongs to - a cashier checks it against what they are making. */
+.cart-note {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-2);
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+/* A restore point: a row that is read, not tapped - its two actions are. */
+.snapshot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.snapshot-row + .snapshot-row {
+  border-top: 1px solid var(--hairline);
+}
+
+/* Store credit: a balance the shop owes, and the mark that says so. */
+.badge-credit {
+  background: var(--accent-wash);
+  color: var(--accent-on-wash);
+  gap: 3px;
+}
+
+.credit-balance {
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 2px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The punch card at checkout: where it stands, and the one tap that gives
+   the reward. Never applied on its own - the cashier presses this. */
+.loyalty-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 9px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--accent);
+  background: var(--accent-wash);
+  border-radius: var(--r-md);
+}
+
+.loyalty-say {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--accent-on-wash);
+}
+
+.loyalty-say svg {
+  fill: currentColor;
+}
+
+/* The 'Store credit — $18.40 available' line under the tender buttons. */
+.credit-note {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--accent-on-wash);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* A callout that is also the way in to fixing what it warns about. */
+.callout-btn {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 14px;
+  transition: filter 0.15s;
+}
+
+@media (hover: hover) {
+  .callout-btn:hover {
+    filter: brightness(0.97);
+  }
+}
+
+.zreport-wrap {
+  max-height: 52dvh;
+  overflow-y: auto;
+}
+
+.rcpt-z .rcpt-section {
+  font-weight: 750;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+/* ---------- Refunds ---------- */
+
+.refund-lines {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.refund-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.refund-line + .refund-line {
+  border-top: 1px solid var(--hairline);
+}
+
+.refund-line.spent {
+  opacity: 0.6;
+}
+
+.refund-line-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.refund-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.refund-sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.refund-measure {
+  width: 84px;
+  text-align: right;
+}
+
+.refund-stepper {
+  flex: none;
+  padding: 2px;
+}
+
+.refund-stepper .qty-btn {
+  width: 34px;
+  height: 32px;
+}
+
+/* A mis-tap here moves money: refund quantities get fingertip targets. */
+@media (pointer: coarse) {
+  .refund-stepper .qty-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.refund-qty {
+  min-width: 44px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.refund-totals {
+  margin-bottom: 16px;
+}
+
+/* Refund rows read as money leaving, not arriving. */
+.card-row.refunded-row .card-amount {
+  color: var(--neg);
+}
+
+.detail-links {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.detail-links-head {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  margin-bottom: 8px;
+}
+
+.detail-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  font-size: 13.5px;
+  color: var(--ink);
+  transition: background 0.12s;
+}
+
+@media (hover: hover) {
+  .detail-link:hover {
+    background: var(--surface-2);
+  }
+}
+
+.detail-link-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--neg);
+}
+
+/* ---------- Product options (picker + editor) ---------- */
+
+.opt-group {
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.opt-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.opt-name {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.opt-rule {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.opt-chips {
+  margin: 8px 0 4px;
+}
+
+.opt-picked {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin: 10px 0 12px;
+  min-height: 18px;
+}
+
+.options-btn {
+  justify-content: flex-start;
+  gap: 11px;
+  padding: 11px 13px;
+  text-align: left;
+}
+
+.options-btn-ic {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.options-btn-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.options-btn-title {
+  font-size: 14px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.options-btn-sub {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.options-btn-go {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+.opt-editor-group {
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.opt-choice-row {
+  margin-top: 8px;
+}
+
+.opt-delta {
+  width: 88px;
+  flex: none;
+}
+
+.opt-delta .input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Held sales ---------- */
+
+.held-btn {
+  flex: none;
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.held-btn.hidden {
+  display: none;
+}
+
+.held-ic {
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+}
+
+.held-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A row that both opens something and offers a destructive action needs two
+   real buttons, so it can't be a single button element. */
+.hold-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+}
+
+.hold-row + .hold-row {
+  border-top: 1px solid var(--hairline);
+}
+
+@media (hover: hover) {
+  .hold-row:hover {
+    background: var(--surface-2);
+  }
+}
+
+.hold-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+/* ---------- Multi-answer dialog ---------- */
+
+.choice-message {
+  color: var(--ink-2);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice-btn {
+  flex-direction: column;
+  gap: 1px;
+  padding: 12px 16px;
+}
+
+.choice-hint {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.choice-danger {
+  color: var(--neg);
+}
+
+/* ---------- Barcode scanning ---------- */
+
+.scan-btn {
+  flex: none;
+  width: 44px;
+  padding: 10px 0;
+}
+
+/* Pulse a cart line once, so a hands-free scan is visibly acknowledged. */
+.cart-line.flash {
+  animation: line-flash 0.9s ease;
+}
+
+@keyframes line-flash {
+  0% { background: var(--accent-wash); }
+  70% { background: var(--accent-wash); }
+  100% { background: transparent; }
+}
+
+/* ---------- Stocktake sheet ---------- */
+
+/* A button the view hides outright rather than disables: nothing to count. */
+.btn.hidden {
+  display: none;
+}
+
+.count-list {
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  margin: 10px 0 16px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+.count-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+}
+
+.count-row + .count-row {
+  border-top: 1px solid var(--hairline);
+}
+
+/* A counted row is visibly done, so a long sheet shows where the eye left off. */
+.count-row.counted {
+  background: var(--surface-2);
+}
+
+.count-row.flash {
+  animation: line-flash 0.9s ease;
+}
+
+.count-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.count-name {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+.count-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.count-entry {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Wide enough for a shop's biggest count, narrow enough to leave the name
+   room on a phone; the figures line up down the sheet. */
+.count-input {
+  width: 84px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.count-unit {
+  font-size: 12px;
+  color: var(--ink-3);
+  min-width: 20px;
+}
+
+/* The live variance. Fixed width so the names above it don't jump as counts
+   are typed down the sheet. */
+.count-delta {
+  flex: none;
+  width: 78px;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.count-delta.ok {
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.count-delta.short,
+.count-short {
+  color: var(--neg);
+}
+
+.count-delta.over,
+.count-over {
+  color: var(--pos);
+}
+
+.count-delta.none {
+  color: transparent;
+}
+
+@media (max-width: 560px) {
+  .count-delta {
+    width: 60px;
+  }
+
+  .count-input {
+    width: 68px;
+  }
+}
+
+.scan-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 14px 12px;
+  margin-bottom: 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  word-break: break-all;
+}
+
+.scan-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scan-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: #000;
+}
+
+.scan-stage-off {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+
+.scan-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Corner-cut frame: shows where to hold the label without hiding it. */
+.scan-reticle {
+  position: absolute;
+  inset: 18% 12%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--r-sm);
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.28);
+}
+
+.scan-stage-off .scan-reticle {
+  display: none;
+}
+
+.scan-off-ic {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+
+.scan-status {
+  min-height: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.scan-status-error {
+  color: var(--neg);
+  font-weight: 600;
+}
+
+.field-note {
+  margin-top: 6px;
+  color: var(--ink-3);
+}
+
+.field-note-warn {
+  color: var(--warn-ink);
+  font-weight: 600;
+}
+
+/* The live margin under Price and Cost. It belongs to the pair above it, so
+   it sits tight under them and keeps the field rhythm below. */
+.margin-note {
+  margin: -8px 0 14px;
+}
+
+.input-side-btn {
+  border: 1px solid var(--hairline-strong);
+  width: 42px;
+  height: 42px;
+}
+
+@media (pointer: coarse) {
+  .input-side-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ---------- CSV export sheet ---------- */
+
+.export-summary {
+  min-height: 20px;
+  font-size: 13px;
+  color: var(--ink-2);
+  margin: 2px 0 14px;
+}
+
+.export-warn {
+  color: var(--neg);
+  font-weight: 600;
+}
+
+.export-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.export-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  text-align: left;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+@media (hover: hover) {
+  .export-opt:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+}
+
+.export-opt.primary:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.export-opt:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.export-opt-ic,
+.export-opt-go {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.export-opt-go {
+  color: var(--ink-3);
+}
+
+.export-opt-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.export-opt-title {
+  font-size: 14.5px;
+  font-weight: 650;
+}
+
+.export-opt-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.export-opt + .export-opt {
+  margin-top: 10px;
+}
+
+/* ---------- CSV product import: the column mapper ---------- */
+
+.map-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.map-row + .map-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.map-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.map-name {
+  font-size: 14px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.map-req {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-on-wash);
+  background: var(--accent-wash);
+  padding: 2px 6px;
+  border-radius: var(--r-full);
+}
+
+.map-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* The select carries a whole column heading plus a sample value, so it takes
+   the wider half of the row - and drops under the label on a phone. */
+.map-select {
+  flex: none;
+  width: 46%;
+  max-width: 320px;
+}
+
+@media (max-width: 560px) {
+  .map-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .map-select {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.import-skipped {
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 4px 12px;
+  margin-bottom: 4px;
+}
+
+.import-skip-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13px;
+}
+
+.import-skip-row + .import-skip-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.import-skip-row-n {
+  flex: none;
+  min-width: 62px;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.import-skip-why {
+  flex: none;
+  max-width: 55%;
+  text-align: right;
+  color: var(--warn-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- Receipt document ---------- */
+
+.rcpt {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 20px 18px;
+  max-width: 340px;
+  margin: 0 auto;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  /* A slip is 340px wide and everything on it is copy the shopkeeper or the
+     customer typed - store name, address, product names, a customer's name.
+     Anything without a space to break on ran off the paper; the shared image
+     already wraps such a run by character, and now so does the document. */
+  overflow-wrap: break-word;
+}
+
+.rcpt-void-stamp {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 3px 10px;
+  border: 2px solid var(--critical);
+  border-radius: 6px;
+  color: var(--critical);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  transform: rotate(8deg);
+}
+
+.rcpt-head {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* A refund document must be unmistakable at a glance. */
+.rcpt-kind {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--neg);
+  border: 1.5px solid var(--neg);
+  border-radius: 6px;
+  padding: 3px 0;
+  margin: 0 auto 10px;
+  max-width: 160px;
+}
+
+/* A Z-report is a statement, not a warning: same badge, neutral ink. */
+.rcpt-kind-z {
+  color: var(--ink);
+  border-color: var(--hairline-strong);
+  max-width: 190px;
+}
+
+.rcpt-over {
+  color: var(--warn-ink);
+}
+
+.rcpt-short {
+  color: var(--neg);
+}
+
+.rcpt-store {
+  font-weight: 750;
+  font-size: 15.5px;
+}
+
+/* The white chip keeps a dark-ink logo legible on the dark theme's surface -
+   the printed and shared copies are on white anyway. */
+.rcpt-logo {
+  display: block;
+  margin: 0 auto 8px;
+  max-width: 140px;
+  max-height: 64px;
+  padding: 4px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+.rcpt-addr {
+  color: var(--ink-3);
+  font-size: 12px;
+  white-space: pre-line;
+}
+
+.rcpt-reg {
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.rcpt-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  color: var(--ink-3);
+  font-size: 12px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--hairline-strong);
+}
+
+/* Centring sizes each line to its own text, so "For <a long name>" grew
+   wider than the slip instead of wrapping within it. */
+.rcpt-meta > span {
+  max-width: 100%;
+}
+
+.rcpt-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--hairline-strong);
+}
+
+.rcpt-line-main {
+  display: flex;
+  gap: 8px;
+}
+
+.rcpt-qty {
+  color: var(--ink-3);
+  flex: none;
+  min-width: 24px;
+}
+
+.rcpt-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.rcpt-amount {
+  flex: none;
+}
+
+.rcpt-line-sub {
+  padding-left: 32px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.rcpt-disc {
+  color: var(--pos);
+}
+
+/* The punch card, at the foot of the slip: this is what the customer keeps
+   the paper for, so it is centred and reads in full ink. */
+.rcpt-loyalty {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: center;
+  padding: 10px 0;
+  margin-top: 4px;
+  border-top: 1px dashed var(--hairline-strong);
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.rcpt-reward {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* A line's note is an instruction, not a detail of the price: it reads in the
+   body ink so a barista and a customer can both check it at a glance. */
+.rcpt-line-note {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.rcpt-totals,
+.rcpt-pay {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px dashed var(--hairline-strong);
+}
+
+.rcpt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--ink-2);
+}
+
+.rcpt-total {
+  font-weight: 750;
+  font-size: 15.5px;
+  color: var(--ink);
+  padding-top: 3px;
+}
+
+.rcpt-pay {
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+
+.rcpt-note {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.rcpt-footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--hairline-strong);
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+/* ---------- Misc ---------- */
+
+/* Settings → Store: the receipt logo on file. White like the paper it
+   prints on, whatever theme the register wears. */
+.logo-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  min-width: 48px;
+  max-width: 120px;
+  padding: 4px 8px;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  object-fit: contain;
+}
+
+.logo-preview.logo-empty {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+
+#print-root {
+  display: none;
+}

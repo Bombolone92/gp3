@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Expenses (mock dev)</title>
+  <meta name="theme-color" content="#f8f8f6" />
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="./icons/favicon-48x48.png" />
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem('expenses:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    })();
+  </script>
+  <script src="./dev/puter-mock.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div id="app" class="app"></div>
+</body>
+</html>

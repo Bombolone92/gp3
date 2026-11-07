@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Accounting (dev mock)</title>
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="./favicon-32x32.png" type="image/png" sizes="32x32" />
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem('bookkeeping:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    })();
+  </script>
+  <!-- Dev only: an in-memory Puter stand-in, so the whole app runs without an account. -->
+  <script type="module" src="/dev/puter-mock.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+</body>
+</html>

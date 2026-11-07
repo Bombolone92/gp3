@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+  <title>Spreadsheet (mock)</title>
+  <meta name="theme-color" content="#356d49" />
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="./favicon-16x16.png" type="image/png" sizes="16x16" />
+  <link rel="icon" href="./favicon-32x32.png" type="image/png" sizes="32x32" />
+  <link rel="icon" href="./favicon-48x48.png" type="image/png" sizes="48x48" />
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem('spreadsheet:theme');
+        if (t !== 'light' && t !== 'dark') return;
+        document.documentElement.dataset.theme = t;
+        for (const m of document.querySelectorAll('meta[name="theme-color"]')) m.setAttribute('content', t === 'dark' ? '#28593a' : '#356d49');
+      } catch {}
+    })();
+  </script>
+  <!-- Dev harness: an in-memory Puter SDK so the whole app runs without an account. -->
+  <script src="/dev/puter-mock.js"></script>
+  <!-- Editing together: a room worker inside the page, and simulated collaborators (window.__collabDemo). -->
+  <script type="module" src="/dev/collab-mock.js"></script>
+  <!-- Email: the app's email worker inside the page; what it would send lands in window.__mailbox. -->
+  <script type="module" src="/dev/email-mock.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div id="app" class="app"></div>
+</body>
+</html>

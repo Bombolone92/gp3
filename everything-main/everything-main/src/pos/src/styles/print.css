@@ -1,0 +1,111 @@
+/* Receipt printing: while body.printing is set (printReceipt), the receipt
+   is the only thing on paper. Keyed on a class rather than :has() so it
+   works on every browser; a plain print without a receipt is unaffected.
+   Styled for narrow thermal-style output but fine on A4/letter too. */
+
+@media print {
+  body.printing > :not(#print-root) {
+    display: none !important;
+  }
+
+  body.printing #print-root {
+    display: block !important;
+  }
+
+  #print-root .rcpt {
+    border: 0;
+    border-radius: 0;
+    max-width: 300px;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #000;
+    font-size: 12.5px;
+  }
+
+  #print-root .rcpt-store {
+    color: #000;
+  }
+
+  #print-root .rcpt-addr,
+  #print-root .rcpt-reg,
+  #print-root .rcpt-meta,
+  #print-root .rcpt-qty,
+  #print-root .rcpt-line-sub,
+  #print-root .rcpt-note,
+  #print-root .rcpt-footer {
+    color: #333;
+  }
+
+  /* Paper is already white; the on-screen backing chip would only pad. */
+  #print-root .rcpt-logo {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+  }
+
+  #print-root .rcpt-row {
+    color: #111;
+  }
+
+  #print-root .rcpt-total {
+    color: #000;
+  }
+
+  #print-root .rcpt-disc {
+    color: #111;
+  }
+
+  #print-root .rcpt-opts {
+    color: #222;
+  }
+
+  /* The instruction the line was made to: as dark as the item it sits under. */
+  #print-root .rcpt-line-note {
+    color: #000;
+  }
+
+  /* The punch card is the reason a customer keeps the slip. */
+  #print-root .rcpt-loyalty {
+    color: #000;
+    border-color: #bbb;
+  }
+
+  #print-root .rcpt-reward {
+    color: #333;
+  }
+
+  #print-root .rcpt-meta,
+  #print-root .rcpt-lines,
+  #print-root .rcpt-totals,
+  #print-root .rcpt-pay,
+  #print-root .rcpt-footer {
+    border-color: #bbb;
+  }
+
+  #print-root .rcpt-void-stamp {
+    border-color: #000;
+    color: #000;
+  }
+
+  /* REFUND / Z-REPORT headings and the over/short line stay legible in ink. */
+  #print-root .rcpt-kind {
+    border-color: #000;
+    color: #000;
+  }
+
+  #print-root .rcpt-section,
+  #print-root .rcpt-over,
+  #print-root .rcpt-short {
+    color: #000;
+  }
+
+  #print-root .zreport-wrap {
+    max-height: none;
+    overflow: visible;
+  }
+
+  @page {
+    margin: 10mm;
+  }
+}

@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import { writeFile } from 'node:fs/promises';
+import { JSDOM } from 'jsdom';
+import { createCanvas } from '../tests/canvas.js';
+import { board, item, validateBoard } from '../src/model.js';
+import { exportRegions } from '../src/export.js';
+import { exportPPTX } from '../src/export-pptx.js';
+import { readZip } from '../src/unzip.js';
+const b = board('Language preservation');
+const frame = item('frame', 0, 0, {w:900,h:620,text:'Hello bonjour',lang:'en-CA',textRuns:[{start:6,end:13,style:{lang:'fr-CA'}}]});
+const note = item('note', 20, 70, {text:'Bonjour hello\nMerci',lang:'fr-CA',textRuns:[{start:8,end:13,style:{lang:'en-GB'}}],parentId:frame.id});
+b.items=[frame,note];
+validateBoard(b);
+const blob=await exportPPTX(b,exportRegions(b,{scope:'frames'}),{lang:'en',rasterizer:async()=>createCanvas(30,20)});
+await writeFile('tmp/pptx-language-before.pptx',new Uint8Array(await blob.arrayBuffer()));
+const zip=readZip(await blob.arrayBuffer());
+const runs=async path=>{
+ const doc=new JSDOM(await zip.text(path),{contentType:'application/xml'}).window.document;
+ return [...doc.getElementsByTagNameNS('*','r')].map(r=>({text:r.getElementsByTagNameNS('*','t')[0].textContent,lang:r.getElementsByTagNameNS('*','rPr')[0].getAttribute('lang')}));
+};
+const actual={title:await runs('ppt/slides/slide1.xml'),notes:await runs('ppt/notesSlides/notesSlide1.xml')};
+console.log(JSON.stringify(actual,null,2));
+assert.deepEqual(actual.title,[{text:'Hello ',lang:'en-CA'},{text:'bonjour',lang:'fr-CA'}]);
+assert.deepEqual(actual.notes,[{text:'Bonjour ',lang:'fr-CA'},{text:'hello',lang:'en-GB'},{text:'Merci',lang:'fr-CA'}]);

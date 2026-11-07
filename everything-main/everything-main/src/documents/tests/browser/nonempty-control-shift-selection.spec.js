@@ -1,0 +1,52 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { unzipSync } from 'fflate';
+const root = 'tests/fixtures/nonempty-control-shift-selection/';
+const refs = JSON.parse(readFileSync(root + 'reference.json', 'utf8'));
+for (const zoom of [1, .75]) for (const ref of refs.cases) test(`native nonempty control Shift selection ${ref.name} at ${zoom}`, async ({ page }, info) => {
+  test.setTimeout(180000);
+  for (const kind of ['source', 'result']) expect(createHash('sha256').update(readFileSync(root + ref[kind])).digest('hex')).toBe(ref[kind + 'Sha256']);
+  await page.goto('/playground.html', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('textbox', { name: 'Document text' }).waitFor({ state: 'attached', timeout: 120000 });
+  await page.evaluate(async ({ bytes, zoom }) => {
+    const { DocxPackage } = await import('/src/engine/docx.js');
+    const { CanvasEditor } = await import('/src/engine/canvas-editor.js');
+    const host = document.createElement('div'); host.id = 'nonempty-shift-editor';
+    host.style.cssText = 'position:fixed;inset:0;overflow:auto;background:white;z-index:1000'; document.body.append(host);
+    window.shiftPackage = await DocxPackage.open(new Uint8Array(bytes));
+    window.shiftErrors = [];
+    window.shiftEditor = new CanvasEditor(host, { ...window.shiftPackage, onError: e => window.shiftErrors.push(e.message) });
+    window.shiftEditor.zoom = zoom; window.shiftEditor.relayout(); window.shiftEditor.focus();
+  }, { bytes: [...readFileSync(root + ref.source)], zoom });
+  const input = page.locator('#nonempty-shift-editor textarea');
+  await input.focus();
+  for (const key of ref.setup) await input.press(key);
+  expect(await page.evaluate(() => window.shiftEditor.model.selection.controlCaret?.side)).toBe('inside');
+  for (const key of ref.keys) await page.keyboard.press(key);
+  const actual = await page.evaluate(async () => {
+    const { contentControlRanges } = await import('/src/engine/content-controls.js'), d = window.shiftEditor.model;
+    return { text: d.text, controls: contentControlRanges(d.paragraphs).map(r => ({ text: d.text.slice(r.start, r.end), placeholder: !!r.control.placeholder })) };
+  });
+  writeFileSync(info.outputPath('actual.json'), JSON.stringify(actual, null, 2));
+  const bytes = new Uint8Array(await page.evaluate(async () => [...new Uint8Array(await window.shiftEditor.export(window.shiftPackage).arrayBuffer())]));
+  writeFileSync(info.outputPath('actual.docx'), bytes);
+  const parts = unzipSync(readFileSync(root + ref.source)), edited = unzipSync(bytes);
+  for (const [name, original] of Object.entries(parts)) if (name !== 'word/document.xml') expect(edited[name]).toEqual(original);
+  expect(await page.evaluate(() => window.shiftErrors)).toEqual([]);
+  expect(actual).toEqual({ text: ref.text, controls: ref.controls });
+  expect(await page.evaluate(async bytes => {
+    const { DocxPackage } = await import('/src/engine/docx.js');
+    const { TextDocument } = await import('/src/engine/model.js');
+    const { contentControlRanges } = await import('/src/engine/content-controls.js');
+    const p = await DocxPackage.open(new Uint8Array(bytes)), d = new TextDocument(p.paragraphs, p.pageSettings, p.numbering, p.styles, p.tables, p.assets);
+    return { text: d.text, controls: contentControlRanges(d.paragraphs).map(r => ({ text: d.text.slice(r.start, r.end), placeholder: !!r.control.placeholder })) };
+  }, [...bytes])).toEqual(actual);
+  expect(await page.evaluate(() => window.shiftEditor.session.history.length)).toBe(1);
+  await page.keyboard.press('Control+z');
+  const undo = new Uint8Array(await page.evaluate(async () => [...new Uint8Array(await window.shiftEditor.export(window.shiftPackage).arrayBuffer())]));
+  writeFileSync(info.outputPath('undo.docx'), undo); expect(unzipSync(undo)).toEqual(parts);
+  await page.keyboard.press('Control+y');
+  const redo = new Uint8Array(await page.evaluate(async () => [...new Uint8Array(await window.shiftEditor.export(window.shiftPackage).arrayBuffer())]));
+  writeFileSync(info.outputPath('redo.docx'), redo); expect(unzipSync(redo)).toEqual(edited);
+});

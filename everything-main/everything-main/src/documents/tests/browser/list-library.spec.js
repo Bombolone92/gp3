@@ -1,0 +1,61 @@
+import { test, expect } from '@playwright/test';
+import { onTab, downloadDocx } from './helpers/editor-tools.js';
+import { reopenDocx } from './helpers/reopen-docx.js';
+
+test('the bullet and numbering libraries restyle a whole list and survive saving', async ({ page }, info) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await input.fill('Alpha\nBravo\nCharlie');
+  await onTab(page, 'home');
+  await input.press('ControlOrMeta+a');
+  await page.getByRole('button', { name: 'Numbering Library' }).click();
+  await page.getByRole('menuitemradio', { name: 'a) b) c)', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Numbered list', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(input).toBeFocused();
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  // One paragraph's choice changes every item of its list.
+  await input.press('ArrowRight');
+  await page.getByRole('button', { name: 'Numbering Library' }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'a) b) c)', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('menuitemradio', { name: 'I. II. III.', exact: true }).click();
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  const markers = () => page.locator('canvas.canvas-page').first().evaluate(c => c.toDataURL());
+  const roman = await markers();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect.poll(markers).not.toBe(roman);
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await input.press('ControlOrMeta+a');
+  await page.getByRole('button', { name: 'Bullet Library' }).click();
+  await page.getByRole('menuitemradio', { name: 'Check mark bullet', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Bulleted list', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('menu')).toHaveCount(0);
+  const path = info.outputPath('list-library.docx');
+  const download = page.waitForEvent('download'); await downloadDocx(page); await (await download).saveAs(path);
+  await reopenDocx(page, input, path, 'Alpha\nBravo\nCharlie');
+  await input.press('ControlOrMeta+Home');
+  await page.getByRole('button', { name: 'Bullet Library' }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'Check mark bullet', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('menuitemradio', { name: 'None', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Bulleted list', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  expect(errors).toEqual([]);
+});
+
+test('Multilevel List numbers each level of an outline', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await input.fill('Scope\nDetail\nPlan');
+  await onTab(page, 'home');
+  await input.press('ControlOrMeta+a');
+  await page.getByRole('button', { name: 'Multilevel List', exact: true }).click();
+  await page.getByRole('menuitem', { name: '1. 1.1. 1.1.1.', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Numbered list', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await input.evaluate(el => { const at = el.value.indexOf('Detail'); el.setSelectionRange(at, at); el.dispatchEvent(new Event('select', { bubbles: true })); });
+  await page.getByRole('button', { name: 'Increase Indent', exact: true }).click();
+  await expect(input).toHaveValue('Scope\nDetail\nPlan');
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Numbered list', exact: true })).toHaveAttribute('aria-pressed', 'false');
+});

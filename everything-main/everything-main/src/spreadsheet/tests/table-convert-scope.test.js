@@ -1,0 +1,37 @@
+import { expect, it } from 'vitest';
+import { Workbook } from '../src/core/workbook.js';
+
+it.each([false, true])('converts only the chosen table and preserves other table references (other sheet: %s)', (otherSheet) => {
+  const wb = new Workbook();
+  const id = wb.activeSheetId;
+  wb.setCells(id, [['Qty', 'Amount'], [2, null], [3, null]].flatMap((row, r) => row.map((v, c) => ({ r, c, cell: { v } }))));
+  const sales = wb.addTable(id, { r1: 0, c1: 0, r2: 2, c2: 1 }, { name: 'Sales' });
+  wb.setInput(id, 1, 1, '=[@Qty]*2');
+  const oid = otherSheet ? wb.addSheet('Other sheet').id : id;
+  wb.setCells(oid, [['Qty', 'Amount'], [5, null], [7, null]].flatMap((row, r) => row.map((v, c) => ({ r, c: c + 3, cell: { v } }))));
+  const other = wb.addTable(oid, { r1: 0, c1: 3, r2: 2, c2: 4 }, { name: 'Other' });
+  wb.setInput(oid, 1, 4, '=[@Qty]*3');
+  const summary = wb.addSheet('Summary').id;
+  wb.setInput(summary, 0, 0, '=SUM(Sales[Amount])+SUM(Other[Amount])');
+  expect(wb.getValue(summary, 0, 0)).toBe(46);
+  const before = wb.toJSON();
+  wb.clearHistory();
+  wb.deleteTable(id, sales);
+  expect(wb.tableById(id, sales)).toBeNull();
+  expect(wb.getCell(oid, 1, 4).f).toBe('[@Qty]*3');
+  expect(wb.tableById(oid, other).calc['1']).toBe('[@Qty]*3');
+  expect(wb.getCell(summary, 0, 0).f).toContain('SUM(Other[Amount])');
+  expect(wb.getCell(summary, 0, 0).f).not.toContain('Sales[');
+  expect(wb.getValue(summary, 0, 0)).toBe(46);
+  const after = wb.toJSON();
+  expect(wb.undoLabels()).toHaveLength(1);
+  wb.undo();
+  expect(wb.toJSON()).toEqual(before);
+  wb.redo();
+  expect(wb.toJSON()).toEqual(after);
+  wb.setInput(oid, 0, 4, 'Value');
+  const row = wb.addTableRow(oid, other);
+  wb.setInput(oid, row, 3, '11');
+  expect(wb.getValue(oid, row, 4)).toBe(33);
+  expect(wb.getValue(summary, 0, 0)).toBe(79);
+});

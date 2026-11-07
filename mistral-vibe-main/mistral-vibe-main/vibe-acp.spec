@@ -1,0 +1,83 @@
+# -*- mode: python ; coding: utf-8 -*-
+# Onedir build for vibe-acp — no per-launch extraction overhead.
+# Build: bash scripts/ci/build-pyinstaller-binaries.sh vibe-acp.spec
+# Output: dist/vibe-acp-dir/vibe-acp  (+  dist/vibe-acp-dir/_internal/)
+# UPX stays off: it rewrites the Mach-O header and invalidates the macOS code signature.
+
+import os
+import sys
+
+from PyInstaller.utils.hooks import collect_all, collect_data_files
+
+# The Unified Runtime and its native extension are required contents of this
+# executable; the build fails when they cannot be collected.
+sys.path.insert(0, os.path.join(SPECPATH, "pyinstaller"))
+from unified_runtime import collect_unified_runtime
+from rust_tui import collect_rust_tui
+
+# Collect all dependencies (including hidden imports and binaries) from builtins modules
+core_builtins_deps = collect_all('vibe.core.tools.builtins')
+harness_deps = collect_unified_runtime()
+
+# Extract hidden imports and binaries, filtering to ensure only strings are in hiddenimports
+hidden_imports = ["truststore"]
+for item in core_builtins_deps[2] + harness_deps[2]:
+    if isinstance(item, str):
+        hidden_imports.append(item)
+
+# `--setup` execs the bundled vibe-rs, which spawns `vibe-acp --setup-app-server`.
+binaries = core_builtins_deps[1] + harness_deps[1] + collect_rust_tui()
+datas = [
+    # By default, pyinstaller doesn't include the .md files
+    ('vibe/core/prompts/*.md', 'vibe/core/prompts'),
+    ('vibe/core/tools/builtins/prompts/*.md', 'vibe/core/tools/builtins/prompts'),
+    # This is necessary because tools are dynamically called in vibe, meaning there is no static reference to those files
+    ('vibe/core/tools/builtins/*.py', 'vibe/core/tools/builtins'),
+] + harness_deps[0]
+# Built-in plugins are discovered on disk next to vibe.plugins.builtins.
+datas += collect_data_files('vibe.plugins.builtins')
+
+a = Analysis(
+    ['vibe/acp/entrypoint.py'],
+    pathex=[],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hidden_imports,
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=["pyinstaller/runtime_hook_truststore.py"],
+    excludes=[],
+    noarchive=False,
+    optimize=0,
+)
+pyz = PYZ(a.pure)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='vibe-acp',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=False,
+    upx_exclude=[],
+    console=True,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=False,
+    upx_exclude=[],
+    name='vibe-acp-dir',
+)

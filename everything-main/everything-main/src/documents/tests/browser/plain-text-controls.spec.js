@@ -1,0 +1,53 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {unzipSync,strFromU8} from 'fflate';
+import {reopenDocx} from './helpers/reopen-docx.js';
+import {expectBodyEditParts} from './helpers/expect-body-edit-parts.js';
+const source='tests/fixtures/plain-text-controls/control.docx';
+for(const name of ['temp-format','persistent-format','block-temp-format'])test(`formats the whole ${name} control and preserves exact undo`,async({page},info)=>{
+ test.setTimeout(90000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/playground.html');await page.getByLabel('Open DOCX file').setInputFiles(source);
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/existing-break/);await expect(input).toHaveJSProperty('readOnly',false);
+ const original=await input.inputValue(),parts=unzipSync(readFileSync(source));
+ const at=original.indexOf(name+': ')+name.length+2;
+ const select=async(a,b=a)=>input.evaluate((el,[a,b])=>{el.focus();el.setSelectionRange(a,b);el.dispatchEvent(new Event('select',{bubbles:true}));},[a,b]);
+ const save=async label=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(label+'.docx');await(await pending).saveAs(path);return path;};
+ await select(at+2,name==='persistent-format'?at+2:at+4);
+ await page.getByRole('button',{name:'Bold',exact:true}).click();
+ const formatted=await save('formatted'),xml=strFromU8(unzipSync(readFileSync(formatted))['word/document.xml']);
+ const result=await page.evaluate(({xml,name})=>{
+  const w='http://schemas.openxmlformats.org/wordprocessingml/2006/main',d=new DOMParser().parseFromString(xml,'application/xml');
+  const controls=[...d.getElementsByTagNameNS(w,'sdt')],c=controls.find(s=>s.getElementsByTagNameNS(w,'alias')[0]?.getAttributeNS(w,'val')===name);
+  return {count:controls.length,inputBold:!!c.getElementsByTagNameNS(w,'sdtPr')[0].getElementsByTagNameNS(w,'b').length,bold:[...c.getElementsByTagNameNS(w,'sdtContent')[0].getElementsByTagNameNS(w,'r')].map(r=>!!r.getElementsByTagNameNS(w,'b').length)};
+ },{xml,name});
+ expect(result.count).toBe(12);expect(result.inputBold).toBe(true);expect(result.bold.length).toBeGreaterThan(0);expect(result.bold.every(Boolean)).toBe(true);
+ await select(at+8,at+10);await expect(page.getByRole('button',{name:'Bold',exact:true})).toHaveAttribute('aria-pressed','true');
+ await input.press('ControlOrMeta+z');expect(unzipSync(readFileSync(await save('undo')))).toEqual(parts);
+ await select(at+2);await page.keyboard.insertText('X');const text=original.slice(0,at+2)+'X'+original.slice(at+2);
+ await expect(input).toHaveValue(text);const edited=await save('edited'),changed=unzipSync(readFileSync(edited));
+ expectBodyEditParts(changed,parts);
+ expect(strFromU8(changed['word/document.xml']).match(/<w:sdt(?:\s|>)/g)).toHaveLength(name==='persistent-format'?12:11);
+ await reopenDocx(page,input,edited,text);await expect(input).toHaveJSProperty('readOnly',false);
+ writeFileSync(info.outputPath('page.png'),Buffer.from(await page.locator('canvas.canvas-page').first().evaluate(c=>c.toDataURL().split(',')[1]),'base64'));
+ await expect(page.locator('#playground-error')).toBeEmpty();expect(errors).toEqual([]);
+});
+
+for(const name of ['temp-prompt','persistent-prompt'])test(`keeps ${name} input properties separate from its styled prompt`,async({page},info)=>{
+ const source='tests/fixtures/plain-text-controls/placeholders.docx',parts=unzipSync(readFileSync(source));
+ await page.goto('/playground.html');await page.getByLabel('Open DOCX file').setInputFiles(source);
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/persistent-prompt/);
+ const original=await input.inputValue(),at=original.indexOf(name+': ')+name.length+2;
+ const select=async()=>input.evaluate((el,at)=>{el.focus();el.setSelectionRange(at+2,at+4);el.dispatchEvent(new Event('select',{bubbles:true}));},at);
+ await select();await page.getByRole('button',{name:'Bold',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Bold',exact:true})).toHaveAttribute('aria-pressed','true');
+ await input.focus();await page.keyboard.insertText('Entered');
+ await expect(input).toHaveValue(original.slice(0,at)+'Entered'+original.slice(at+'[Enter value]'.length));
+ const save=async label=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(label+'.docx');await(await pending).saveAs(path);return path;};
+ const edited=await save('entered'),xml=strFromU8(unzipSync(readFileSync(edited))['word/document.xml']);
+ const result=await page.evaluate(xml=>{const w='http://schemas.openxmlformats.org/wordprocessingml/2006/main',d=new DOMParser().parseFromString(xml,'application/xml'),r=[...d.getElementsByTagNameNS(w,'r')].find(r=>r.textContent==='Entered');return {bold:!!r.getElementsByTagNameNS(w,'b').length,color:r.getElementsByTagNameNS(w,'color')[0].getAttributeNS(w,'val')};},xml);
+ expect(result).toEqual({bold:false,color:'2050C0'});
+ await input.press('ControlOrMeta+z');await input.press('ControlOrMeta+z');await expect(input).toHaveValue(original);
+ expect(unzipSync(readFileSync(await save('undo')))).toEqual(parts);
+ await reopenDocx(page,input,edited,original.slice(0,at)+'Entered'+original.slice(at+'[Enter value]'.length));
+ await expect(input).toHaveJSProperty('readOnly',false);await expect(page.locator('#playground-error')).toBeEmpty();
+});

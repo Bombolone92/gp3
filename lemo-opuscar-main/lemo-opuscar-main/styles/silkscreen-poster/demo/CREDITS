@@ -1,0 +1,21 @@
+The Long Way Home 绕远路回家 · Silkscreen Travel Poster demo
+LemoLab × Claude Opus 5.5
+
+Picture: drawn in code (Canvas 2D, engine/silk.js). Landmarks (Temple of Heaven, Hagia Sophia, Eiffel Tower, the Obelisco and
+La Boca's houses) are stylised silhouettes drawn as paths from their general shape, not traced from photographs. No logos, no brands,
+no maps. The traveller and the trip are fiction; the distances and years on the stubs are facts, with sources in FACTS.md.
+
+Fonts (SIL Open Font License 1.1; licences in fonts/, files fetched by tools/fetch_fonts.sh):
+  Big Shoulders Display — Patric King / Google Fonts
+  Outfit — Rodrigo Fuenzalida / Google Fonts
+  Noto Sans SC — Adobe / Google
+
+Voice: Kokoro-82M v1.0 (hexgrad, Apache-2.0) via kokoro-onnx, voice bf_emma. Checked with faster-whisper (MIT), model base.en.
+
+Music (original score, music/compose.py) and sound (procedural foley and ambience, mix.py):
+  guitar_nylon, accordion, world_perc (darbuka) — FreePats project (freepats.zenvoid.org), CC0
+  jazz_bass — Karoryfer Samples "Sneakybass" / sfzinstruments, CC0
+  glockenspiel, harmonica, snare2 (taps), shaker, cajon — Versilian Community Sample Library (Versilian Studios), CC0
+  sus_cymbal — Versilian Studios Chamber Orchestra 2 Community Edition (VSCO 2 CE), CC0
+  Squeegee, ink, screen, paper, clamp, wind, water, birds, gulls, ferry horn, bicycle bell and crickets: synthesized in code
+  (core/audio/sfx.py + mix.py).

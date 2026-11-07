@@ -1,0 +1,42 @@
+:root {
+  --bg: #0f1419;
+  --felt: #16604a;
+  --felt-2: #124e3c;
+  --text: #f5f5f5;
+  --muted: #9aa3ad;
+  --accent: #2563eb;
+  --card-bg: #fdfdfd;
+  --card-border: rgba(0,0,0,.12);
+  --red: #c0392b;
+  --black: #1a1a1a;
+  --slot: rgba(255,255,255,.06);
+  --slot-border: rgba(255,255,255,.12);
+  --shadow-card: 0 1px 2px rgba(0,0,0,.18), 0 4px 10px rgba(0,0,0,.18);
+  --shadow-card-hover: 0 2px 4px rgba(0,0,0,.22), 0 10px 24px rgba(0,0,0,.28);
+  --card-radius: 8px;   /* overwritten per-frame by ui/layout.js */
+  --card-tilt: 0deg;    /* overwritten per-card by ui/cardview.js */
+  --back-color: #2c5e8f;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+  color: var(--text);
+  background: radial-gradient(ellipse at top, var(--felt) 0%, var(--felt-2) 60%, #0d3b2e 100%);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+footer.credit {
+  position: fixed;
+  bottom: 6px; right: 10px;
+  font-size: 11px;
+  z-index: 40;
+}
+footer.credit a {
+  color: rgba(255, 255, 255, .35);
+  text-decoration: none;
+}
+footer.credit a:hover { color: rgba(255, 255, 255, .7); }

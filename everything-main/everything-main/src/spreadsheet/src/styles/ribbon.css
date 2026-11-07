@@ -1,0 +1,149 @@
+/* Ribbon styling on the theme tokens, system fonts and Lucide icons. */
+.ribbon.toolbar { display: block; height: auto; min-height: 0; padding: 0; overflow: visible; flex-wrap: nowrap; }
+.ribbon { flex: none; min-width: 0; background: var(--surface-2); border-bottom: 1px solid var(--hairline-strong); }
+.editor.focus-mode .ribbon { display: none; }
+.ribbon-tab-row { display: flex; align-items: center; min-width: 0; padding: 0 8px; }
+.ribbon-tabs { display: flex; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
+.ribbon-tab { flex: none; position: relative; height: 36px; padding: 0 13px; font-size: 13px; color: var(--ink-2); white-space: nowrap; border-radius: 0; }
+.ribbon-tab[aria-selected="true"] { color: var(--accent-strong); font-weight: 600; }
+.ribbon-tab[aria-selected="true"]::after { content: ''; position: absolute; height: 3px; bottom: 2px; left: 12px; right: 12px; background: var(--accent); border-radius: 2px; }
+.ribbon-collapse { flex: none; margin-left: auto; width: 32px; height: 32px; display: grid; place-items: center; color: var(--ink-2); }
+.ribbon-panel { min-width: 0; }
+.ribbon-home, .ribbon-panel-tools {
+  display: flex; align-items: stretch; flex-wrap: nowrap; height: 112px; min-height: 0;
+  gap: 0; padding: 5px 8px 3px; overflow-x: auto; overflow-y: hidden;
+  /* Dedicated scroll buttons and touch/trackpad scrolling keep overflow reachable without
+     an overlay scrollbar obscuring the group captions on macOS. */
+  scrollbar-width: none; border: 0; background: var(--surface);
+}
+.ribbon-home::-webkit-scrollbar, .ribbon-panel-tools::-webkit-scrollbar { display: none; }
+.ribbon-home .toolbar-tools, .ribbon-home .toolbar-tool-content { display: contents; }
+.ribbon-group, .ribbon-home .tb-group {
+  display: flex; flex: none; flex-direction: column; align-items: stretch; flex-wrap: nowrap;
+  min-width: 0; padding: 0 8px; gap: 2px; border-right: 1px solid var(--hairline-strong);
+}
+.ribbon-group:last-child { border-right: 0; }
+.ribbon-group-controls { display: grid; flex: 1; grid-template-rows: repeat(3, 28px); grid-auto-flow: column; align-content: center; justify-items: start; gap: 2px 4px; min-height: 0; }
+.ribbon-group-controls:has(.ribbon-row) { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.ribbon-row { display: flex; align-items: center; gap: 1px; }
+.ribbon-group-label { font-size: 11px; line-height: 16px; text-align: center; color: var(--ink-3); white-space: nowrap; }
+.ribbon .tb-sep { display: none; }
+.ribbon .tb-btn { height: 28px; min-width: 28px; border-radius: 3px; font-size: 12px; padding: 0 4px; }
+.ribbon .tb-font, .ribbon .tb-size, .ribbon .tb-fmt { border: 1px solid var(--field-border); background: var(--surface); }
+.ribbon .tb-font { width: 132px; }
+.ribbon .tb-fmt { width: 140px; }
+.ribbon .ribbon-command, .ribbon .ribbon-labeled { justify-content: flex-start; gap: 5px; }
+.ribbon-button-label { white-space: nowrap; }
+.ribbon .ribbon-home .tb-color { justify-content: center; gap: 0; }
+@media (hover: hover) {
+  .ribbon-tab:hover, .ribbon-collapse:hover { background: var(--surface-3); }
+}
+@media (pointer: coarse) {
+  .ribbon-tab, .ribbon-collapse { min-height: 44px; }
+  .ribbon-home, .ribbon-panel-tools { height: 172px; }
+  .ribbon .tb-btn { min-height: 44px; min-width: 44px; }
+  .ribbon-group-controls { grid-template-rows: repeat(3, 44px); }
+}
+@media (forced-colors: active) {
+  .ribbon-tab[aria-selected="true"]::after { background: Highlight; }
+  .ribbon .tb-btn[aria-pressed="true"] { border: 1px solid Highlight; }
+}
+
+/* Fixed formula-edit actions keep the text origin stable between Ready and Edit. */
+.formula-bar.fixed-actions .fx-actions { border-right: 1px solid var(--hairline); }
+.formula-bar.fixed-actions .fx-action { border-radius: 3px; }
+.formula-bar.fixed-actions .fx-action:disabled { opacity: 0.35; background: transparent; cursor: default; }
+
+.zoom-slider { width: 100px; min-width: 0; margin: 0 4px; accent-color: var(--accent); cursor: pointer; }
+.zoom-slider:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 640px) { .zoom-slider { width: 64px; } }
+
+/* Keep sheet navigation at the left and the add action beside the sheet names. */
+.sheet-tabs.excel-layout .tab-list { flex: 0 1 auto; }
+.sheet-tabs.excel-layout .tab-add { flex: none; }
+
+.ribbon-scroll-controls { display: flex; flex: none; margin-left: auto; }
+.ribbon-scroll { width: 32px; height: 32px; display: grid; place-items: center; color: var(--ink-2); }
+.ribbon-scroll[aria-disabled="true"] { opacity: 0.35; cursor: default; }
+.ribbon-scroll-controls:not([hidden]) + .ribbon-collapse { margin-left: 0; }
+@media (hover: hover) { .ribbon-scroll:hover:not([aria-disabled="true"]) { background: var(--surface-3); } }
+@media (pointer: coarse) { .ribbon-scroll { width: 44px; height: 44px; } }
+
+@container sheet-column (max-width: 640px) { .status-right-wrap { flex: none; } }
+@media (pointer: coarse) { .zoom-slider { min-height: 40px; } }
+
+/* Contextual table controls use the app's table palettes and drawn samples. */
+.ribbon-context-tab { color: var(--accent-strong); border-left: 1px solid var(--hairline); }
+.ribbon-group-controls.ribbon-table-properties { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 5px; }
+.ribbon-table-name-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; width: 150px; }
+.ribbon-table-name { height: 28px; padding: 3px 6px; min-width: 0; }
+.ribbon-table-name:disabled { opacity: 0.5; }
+.ribbon-table-error { display: block; padding: 5px 16px; color: var(--critical); font-size: 12px; }
+.ribbon-group-controls.ribbon-table-gallery { grid-template-rows: 1fr; align-items: center; gap: 4px; }
+.ribbon .ribbon-table-style { display: flex; flex-direction: column; justify-content: center; gap: 4px; height: 76px; min-width: 52px; padding: 4px; }
+.ribbon-table-style .ribbon-button-label { font-size: 11px; }
+.ribbon-table-sample { display: grid; grid-template-columns: repeat(3, 1fr); width: 44px; height: 40px; border: 1px solid var(--hairline-strong); gap: 1px; background: var(--hairline); }
+.ribbon-table-sample span { background: var(--surface); }
+.ribbon-table-sample span[data-row="0"] { background: var(--table-head); }
+.ribbon-table-sample span[data-row="2"] { background: var(--table-band); }
+.ribbon-table-style[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (pointer: coarse) { .ribbon-table-name { height: 44px; } }
+@media (forced-colors: active) {
+  .ribbon-table-style[aria-pressed="true"] { outline-color: Highlight; }
+  .ribbon-table-sample span { background: Canvas; }
+  .ribbon-table-sample span[data-row="0"] { background: Highlight; }
+}
+
+/* Large commands span the group's three rows with the label under the icon. */
+.ribbon .ribbon-large, .ribbon .ribbon-split-large {
+  grid-row: 1 / -1; align-self: stretch;
+}
+.ribbon .tb-btn.ribbon-large {
+  height: auto; min-height: 84px; min-width: 48px; max-width: 74px; padding: 4px 4px;
+  flex-direction: column; justify-content: flex-start; align-items: center; gap: 3px;
+}
+.ribbon .ribbon-large .ribbon-button-label {
+  white-space: normal; text-align: center; line-height: 1.2; font-size: 12px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ribbon .ribbon-large > svg { flex: none; margin-top: 2px; }
+.ribbon .ribbon-large[aria-haspopup="menu"]:not([data-cmd="functionMenu"])::after, .ribbon .ribbon-command:not(.ribbon-large):not(.ribbon-split-arrow)[aria-haspopup="menu"]::after {
+  content: ''; flex: none; width: 5px; height: 5px; border: solid currentColor; border-width: 0 1.4px 1.4px 0;
+  transform: rotate(45deg); opacity: 0.7;
+}
+.ribbon .ribbon-large[aria-haspopup="menu"]::after { margin-top: -1px; }
+.ribbon .ribbon-command:not(.ribbon-large):not(.ribbon-split-arrow)[aria-haspopup="menu"]::after { margin: -3px 2px 0 1px; }
+
+/* Split commands: the face runs the command and the arrow opens its related choices. */
+.ribbon-split { display: inline-flex; align-items: stretch; border-radius: 3px; }
+.ribbon .ribbon-split .ribbon-split-arrow { min-width: 16px; width: 16px; padding: 0; justify-content: center; }
+.ribbon-split-large { flex-direction: column; }
+.ribbon .ribbon-split-large .ribbon-large { min-height: 62px; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.ribbon .ribbon-split-large .ribbon-split-arrow { width: auto; height: 20px; min-height: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+@media (hover: hover) {
+  .ribbon-split:hover { box-shadow: inset 0 0 0 1px var(--hairline-strong); }
+}
+@media (pointer: coarse) {
+  .ribbon .tb-btn.ribbon-large { min-height: 136px; }
+  .ribbon .ribbon-split .ribbon-split-arrow { min-width: 44px; }
+  .ribbon .ribbon-split-large .ribbon-split-arrow { height: 44px; }
+  .ribbon .ribbon-split-large .ribbon-large { min-height: 88px; }
+}
+.ribbon .ribbon-large > svg { width: 26px; height: 26px; }
+
+/* Key tips: small labels over ribbon tabs and commands while Alt or F10 drives the ribbon. */
+.keytips-layer { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+.keytip {
+  position: absolute; transform: translate(-50%, -50%); min-width: 16px; padding: 1px 4px;
+  border: 1px solid var(--hairline-strong); border-radius: 3px; background: var(--surface); color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18); font: 600 11px/14px system-ui, sans-serif; text-align: center; white-space: nowrap;
+}
+@media (forced-colors: active) { .keytip { border-color: CanvasText; background: Canvas; color: CanvasText; } }
+
+/* Home layout: commands stacked in columns of two or three, thin dividers between clusters. */
+.ribbon-home .ribbon-group-controls { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 4px; }
+.ribbon-stack { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3px; }
+.ribbon-home .ribbon-stack:has(> .ribbon-row) { gap: 8px; }
+.ribbon-divider { flex: none; width: 1px; height: 20px; margin: 0 3px; background: var(--hairline-strong); }
+.ribbon-divider.tall { height: 56px; }
+.ribbon-home .ribbon-large > svg { width: 32px; height: 32px; }

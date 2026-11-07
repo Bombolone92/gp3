@@ -1,0 +1,68 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+body { --bg: #e4f4ed; --ink: #073e3c; --soft: #35605b; --decoration: #badfd1; --spot: #c5e8dc; --ui-scale: 3; --ui-width: 326px; }
+body.fundraising { --bg: #073e3c; --ink: #f5fbf1; --soft: #c2e0d5; --decoration: #1c5952; --spot: #23645b; }
+body.hiring { --bg: #f6f1e6; --ink: #103f3b; --soft: #48675d; --decoration: #dedfd0; --spot: #e0e9d8; }
+body.exit { --bg: #0b7974; --ink: #ffffff; --soft: #d9f1e8; --decoration: #2b9387; --spot: #37a193; }
+.canvas { position: relative; width: 100%; height: 100%; overflow: hidden; color: var(--ink); background: var(--bg); }
+.brand { position: absolute; top: 76px; left: 96px; display: flex; align-items: center; gap: 20px; font-size: 44px; font-weight: 650; letter-spacing: -1.5px; }
+.brand img { width: 68px; height: 68px; }
+.chapter { position: absolute; right: 94px; top: 97px; font-size: 36px; font-weight: 620; letter-spacing: 2px; }
+.copy { position: absolute; left: 96px; top: 300px; width: 715px; }
+h1 { margin: 0; font-size: 100px; line-height: 1.06; letter-spacing: -4px; font-weight: 690; }
+.copy p { margin: 38px 0 0; font-size: 36px; line-height: 1.35; letter-spacing: -0.6px; white-space: nowrap; color: var(--soft); }
+.fundraising h1 { font-size: 86px; letter-spacing: -3.5px; }
+.hiring h1 { font-size: 94px; letter-spacing: -4px; }
+.showcase { position: absolute; right: 78px; top: 255px; width: 1048px; padding: 43px 34px 34px; border-radius: 34px; background: #fdfdfd; box-shadow: 0 34px 64px -34px #002d3c66; color: #101113; }
+.context { margin: 0 0 36px; color: #0c706c; font-size: 36px; line-height: 1.2; font-weight: 650; letter-spacing: 1.4px; }
+.ui-frame { width: calc(var(--ui-width) * var(--ui-scale)); overflow: hidden; }
+iframe { display: block; width: var(--ui-width); transform: scale(var(--ui-scale)); transform-origin: top left; border: 0; background: #fdfdfd; pointer-events: none; }
+.caption { margin-top: 34px; padding-top: 28px; border-top: 1px solid #d8e0dc; color: #55565c; font-size: 36px; line-height: 1.25; letter-spacing: -0.6px; }
+.sequence { position: absolute; left: 96px; bottom: 78px; display: flex; gap: 14px; }
+.sequence i { width: 50px; height: 7px; background: var(--ink); opacity: 0.16; border-radius: 9px; }
+.sequence i.active { opacity: 1; width: 98px; }
+.orbit { position: absolute; width: 1060px; height: 1060px; border: 2px solid var(--decoration); border-radius: 50%; right: -205px; top: 40px; }
+.orbit-two { transform: scale(1.22); }
+.accent-disc { position: absolute; width: 710px; height: 710px; background: var(--spot); border-radius: 50%; right: 138px; top: 246px; }
+.fundraising .showcase { top: 316px; }
+.hiring .showcase { top: 230px; }
+.exit .showcase { top: 195px; }
+.hiring .caption, .exit .caption { display: none; }
+
+/* A separate tablet art direction: wide title above one readable close-up. */
+body.tablet { --ui-scale: 2.8; --ui-width: 325px; }
+.tablet .brand { top: 35px; left: 54px; gap: 12px; font-size: 40px; letter-spacing: -1px; }
+.tablet .brand img { width: 48px; height: 48px; }
+.tablet .chapter { display: none; }
+.tablet .copy { left: 54px; top: 108px; width: 916px; }
+.tablet h1 { font-size: 60px; letter-spacing: -2.5px; line-height: 1.04; }
+.tablet .copy p { display: none; }
+.tablet .showcase { top: 225px; left: 34px; right: auto; width: 956px; padding: 26px 23px 23px; border-radius: 25px; }
+.tablet .context { margin-bottom: 21px; font-size: 36px; letter-spacing: 0.2px; }
+.tablet .caption { display: none; }
+.tablet .sequence { display: none; }
+.tablet .orbit { width: 710px; height: 710px; top: 80px; right: -190px; }
+.tablet .accent-disc { width: 600px; height: 600px; top: 240px; right: -100px; }
+.tablet.hiring .copy p { display: none; }
+.tablet.hiring .showcase { top: 225px; }
+.tablet.hiring .caption { display: none; }
+
+/* Mobile is composed for portrait, with expanded UI detail and open margins. */
+body.mobile { --ui-scale: 3.3; --ui-width: 275.757575px; }
+.mobile .brand { top: 92px; left: 78px; gap: 24px; font-size: 65px; letter-spacing: -2px; }
+.mobile .brand img { width: 100px; height: 100px; }
+.mobile .chapter { top: 264px; left: 80px; right: auto; font-size: 36px; letter-spacing: 2px; }
+.mobile .copy { left: 76px; top: 359px; width: 930px; }
+.mobile h1 { font-size: 118px; line-height: 1.055; letter-spacing: -6px; }
+.mobile.fundraising h1, .mobile.hiring h1 { font-size: 100px; letter-spacing: -5px; }
+.mobile .copy p { margin-top: 42px; font-size: 43px; letter-spacing: -0.8px; }
+.mobile .showcase { top: 820px; left: 54px; right: auto; width: 972px; padding: 42px 31px 38px; border-radius: 37px; }
+.mobile.hiring .showcase { top: 1040px; }
+.mobile .context { font-size: 36px; margin-bottom: 38px; letter-spacing: 1.4px; }
+.mobile .caption { font-size: 36px; padding-top: 32px; margin-top: 36px; }
+.mobile .sequence { left: 80px; bottom: 101px; gap: 18px; }
+.mobile .sequence i { width: 80px; height: 9px; }
+.mobile .sequence i.active { width: 136px; }
+.mobile .orbit { top: 750px; right: -220px; width: 1330px; height: 1330px; }
+.mobile .accent-disc { top: 1080px; right: -40px; width: 920px; height: 920px; }

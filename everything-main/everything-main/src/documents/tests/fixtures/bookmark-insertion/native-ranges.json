@@ -1,0 +1,400 @@
+{
+  "sourceSha256": "bc78be7b181474deb24f00693710059aa3a17f522f653af5117a6265c83cc541",
+  "version": "16.0",
+  "build": "16.0.20326",
+  "basis": "Literal marker order in the reference FlatOPC export, projected to paragraph text plus newlines. The reference automation bookmark Range can expand a partial-cell selection to entire rows; those API selections are preserved separately and are not used as XML marker positions.",
+  "cases": {
+    "original": {
+      "xmlSha256": "e1165853d778eb86c7404e3660168fb8e03b38bf7dd2c269dbbaad3ba802e1c1",
+      "text": "A1\nB1\nA2\nB2\nAfter\n",
+      "bookmarks": {
+        "BeforeRows": {
+          "start": 0,
+          "end": 0,
+          "text": ""
+        },
+        "CellOne": {
+          "start": 0,
+          "end": 3,
+          "text": "A1\n"
+        },
+        "RowOne": {
+          "start": 0,
+          "end": 6,
+          "text": "A1\nB1\n"
+        },
+        "WholeTable": {
+          "start": 0,
+          "end": 12,
+          "text": "A1\nB1\nA2\nB2\n"
+        },
+        "WholeBodyTable": {
+          "start": 0,
+          "end": 12,
+          "text": "A1\nB1\nA2\nB2\n"
+        },
+        "BetweenCells": {
+          "start": 3,
+          "end": 3,
+          "text": ""
+        },
+        "CellTwo": {
+          "start": 3,
+          "end": 6,
+          "text": "B1\n"
+        },
+        "BetweenRows": {
+          "start": 6,
+          "end": 6,
+          "text": ""
+        },
+        "RowTwo": {
+          "start": 6,
+          "end": 12,
+          "text": "A2\nB2\n"
+        },
+        "AfterRows": {
+          "start": 12,
+          "end": 12,
+          "text": ""
+        }
+      }
+    },
+    "append-row": {
+      "xmlSha256": "37c06f23847a002f5a76cec52a7ceb3938dc4a28339ef43828e46155d23929a0",
+      "text": "A1\nB1\nA2\nB2\nNew L\nNew R\nAfter\n",
+      "bookmarks": {
+        "BeforeRows": {
+          "start": 0,
+          "end": 0,
+          "text": ""
+        },
+        "CellOne": {
+          "start": 0,
+          "end": 3,
+          "text": "A1\n"
+        },
+        "RowOne": {
+          "start": 0,
+          "end": 6,
+          "text": "A1\nB1\n"
+        },
+        "WholeTable": {
+          "start": 0,
+          "end": 24,
+          "text": "A1\nB1\nA2\nB2\nNew L\nNew R\n"
+        },
+        "WholeBodyTable": {
+          "start": 0,
+          "end": 24,
+          "text": "A1\nB1\nA2\nB2\nNew L\nNew R\n"
+        },
+        "BetweenCells": {
+          "start": 3,
+          "end": 3,
+          "text": ""
+        },
+        "CellTwo": {
+          "start": 3,
+          "end": 6,
+          "text": "B1\n"
+        },
+        "BetweenRows": {
+          "start": 6,
+          "end": 6,
+          "text": ""
+        },
+        "RowTwo": {
+          "start": 6,
+          "end": 24,
+          "text": "A2\nB2\nNew L\nNew R\n"
+        },
+        "AfterRows": {
+          "start": 24,
+          "end": 24,
+          "text": ""
+        }
+      }
+    },
+    "middle-row": {
+      "xmlSha256": "704ec9b4def2bba2432ec918911eec8fe607906e2755e27ff7cdc46d0410fc1d",
+      "text": "A1\nB1\nNew L\nNew R\nA2\nB2\nAfter\n",
+      "bookmarks": {
+        "BeforeRows": {
+          "start": 0,
+          "end": 0,
+          "text": ""
+        },
+        "CellOne": {
+          "start": 0,
+          "end": 3,
+          "text": "A1\n"
+        },
+        "RowOne": {
+          "start": 0,
+          "end": 18,
+          "text": "A1\nB1\nNew L\nNew R\n"
+        },
+        "WholeTable": {
+          "start": 0,
+          "end": 24,
+          "text": "A1\nB1\nNew L\nNew R\nA2\nB2\n"
+        },
+        "WholeBodyTable": {
+          "start": 0,
+          "end": 24,
+          "text": "A1\nB1\nNew L\nNew R\nA2\nB2\n"
+        },
+        "BetweenCells": {
+          "start": 3,
+          "end": 3,
+          "text": ""
+        },
+        "CellTwo": {
+          "start": 3,
+          "end": 6,
+          "text": "B1\n"
+        },
+        "BetweenRows": {
+          "start": 18,
+          "end": 18,
+          "text": ""
+        },
+        "RowTwo": {
+          "start": 18,
+          "end": 24,
+          "text": "A2\nB2\n"
+        },
+        "AfterRows": {
+          "start": 24,
+          "end": 24,
+          "text": ""
+        }
+      }
+    },
+    "prepend-row": {
+      "xmlSha256": "a8ed4b57ab213a4f7d46e6f8d9f24097c830da5f53e56e1112833df80bce7867",
+      "text": "New L\nNew R\nA1\nB1\nA2\nB2\nAfter\n",
+      "bookmarks": {
+        "BeforeRows": {
+          "start": 12,
+          "end": 12,
+          "text": ""
+        },
+        "CellOne": {
+          "start": 12,
+          "end": 15,
+          "text": "A1\n"
+        },
+        "RowOne": {
+          "start": 12,
+          "end": 18,
+          "text": "A1\nB1\n"
+        },
+        "WholeTable": {
+          "start": 12,
+          "end": 24,
+          "text": "A1\nB1\nA2\nB2\n"
+        },
+        "WholeBodyTable": {
+          "start": 12,
+          "end": 24,
+          "text": "A1\nB1\nA2\nB2\n"
+        },
+        "BetweenCells": {
+          "start": 15,
+          "end": 15,
+          "text": ""
+        },
+        "CellTwo": {
+          "start": 15,
+          "end": 18,
+          "text": "B1\n"
+        },
+        "BetweenRows": {
+          "start": 18,
+          "end": 18,
+          "text": ""
+        },
+        "RowTwo": {
+          "start": 18,
+          "end": 24,
+          "text": "A2\nB2\n"
+        },
+        "AfterRows": {
+          "start": 24,
+          "end": 24,
+          "text": ""
+        }
+      }
+    },
+    "append-column": {
+      "xmlSha256": "b278783a79609bc04d8bcce33331c320965f41282def27534ac9485b52c5d598",
+      "text": "A1\nB1\nNew top\nA2\nB2\nNew bottom\nAfter\n",
+      "bookmarks": {
+        "BeforeRows": {
+          "start": 0,
+          "end": 0,
+          "text": ""
+        },
+        "CellOne": {
+          "start": 0,
+          "end": 3,
+          "text": "A1\n"
+        },
+        "RowOne": {
+          "start": 0,
+          "end": 14,
+          "text": "A1\nB1\nNew top\n"
+        },
+        "WholeTable": {
+          "start": 0,
+          "end": 31,
+          "text": "A1\nB1\nNew top\nA2\nB2\nNew bottom\n"
+        },
+        "WholeBodyTable": {
+          "start": 0,
+          "end": 31,
+          "text": "A1\nB1\nNew top\nA2\nB2\nNew bottom\n"
+        },
+        "BetweenCells": {
+          "start": 3,
+          "end": 3,
+          "text": ""
+        },
+        "CellTwo": {
+          "start": 3,
+          "end": 14,
+          "text": "B1\nNew top\n"
+        },
+        "BetweenRows": {
+          "start": 14,
+          "end": 14,
+          "text": ""
+        },
+        "RowTwo": {
+          "start": 14,
+          "end": 31,
+          "text": "A2\nB2\nNew bottom\n"
+        },
+        "AfterRows": {
+          "start": 31,
+          "end": 31,
+          "text": ""
+        }
+      }
+    },
+    "middle-column": {
+      "xmlSha256": "7bc08198b75213566647f5b948962387aafc5cfbe7f5cf753b13f0d80aa6f8b7",
+      "text": "A1\nNew top\nB1\nA2\nNew bottom\nB2\nAfter\n",
+      "bookmarks": {
+        "BeforeRows": {
+          "start": 0,
+          "end": 0,
+          "text": ""
+        },
+        "CellOne": {
+          "start": 0,
+          "end": 11,
+          "text": "A1\nNew top\n"
+        },
+        "RowOne": {
+          "start": 0,
+          "end": 14,
+          "text": "A1\nNew top\nB1\n"
+        },
+        "WholeTable": {
+          "start": 0,
+          "end": 31,
+          "text": "A1\nNew top\nB1\nA2\nNew bottom\nB2\n"
+        },
+        "WholeBodyTable": {
+          "start": 0,
+          "end": 31,
+          "text": "A1\nNew top\nB1\nA2\nNew bottom\nB2\n"
+        },
+        "BetweenCells": {
+          "start": 11,
+          "end": 11,
+          "text": ""
+        },
+        "CellTwo": {
+          "start": 11,
+          "end": 14,
+          "text": "B1\n"
+        },
+        "BetweenRows": {
+          "start": 14,
+          "end": 14,
+          "text": ""
+        },
+        "RowTwo": {
+          "start": 14,
+          "end": 31,
+          "text": "A2\nNew bottom\nB2\n"
+        },
+        "AfterRows": {
+          "start": 31,
+          "end": 31,
+          "text": ""
+        }
+      }
+    },
+    "prepend-column": {
+      "xmlSha256": "3eda4ae189ecdbb98862685b0f4a00473861be49a063d12ec4c2348855a5e9bd",
+      "text": "New top\nA1\nB1\nNew bottom\nA2\nB2\nAfter\n",
+      "bookmarks": {
+        "BeforeRows": {
+          "start": 8,
+          "end": 8,
+          "text": ""
+        },
+        "CellOne": {
+          "start": 8,
+          "end": 11,
+          "text": "A1\n"
+        },
+        "RowOne": {
+          "start": 8,
+          "end": 25,
+          "text": "A1\nB1\nNew bottom\n"
+        },
+        "WholeTable": {
+          "start": 8,
+          "end": 31,
+          "text": "A1\nB1\nNew bottom\nA2\nB2\n"
+        },
+        "WholeBodyTable": {
+          "start": 8,
+          "end": 31,
+          "text": "A1\nB1\nNew bottom\nA2\nB2\n"
+        },
+        "BetweenCells": {
+          "start": 11,
+          "end": 11,
+          "text": ""
+        },
+        "CellTwo": {
+          "start": 11,
+          "end": 14,
+          "text": "B1\n"
+        },
+        "BetweenRows": {
+          "start": 25,
+          "end": 25,
+          "text": ""
+        },
+        "RowTwo": {
+          "start": 25,
+          "end": 31,
+          "text": "A2\nB2\n"
+        },
+        "AfterRows": {
+          "start": 31,
+          "end": 31,
+          "text": ""
+        }
+      }
+    }
+  }
+}

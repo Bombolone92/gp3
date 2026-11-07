@@ -1,0 +1,122 @@
+/* Geometry feature: Pathfinder panel, busy state, Simplify dialog. */
+.panel-pathfinder {
+  padding: 10px 12px 12px;
+}
+
+.pf-label {
+  margin: 4px 0 6px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.pf-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.pf-row .icon-btn {
+  width: 32px;
+  height: 32px;
+}
+
+.pf-modes {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pf-modes .pf-expand {
+  margin-left: auto;
+  height: 32px;
+}
+
+.pf-row .icon-btn[aria-pressed='true'] {
+  background: var(--bg-selected);
+  color: var(--accent);
+}
+
+.pf-props .pf-row {
+  margin-bottom: 0;
+}
+
+.pf-props .pf-more {
+  margin-left: auto;
+}
+
+.pf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pf-status {
+  margin: 8px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+body.geom-busy .canvas-host {
+  cursor: progress !important;
+}
+
+.geom-busy-pill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--status-h) + 12px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-elev);
+  color: var(--text);
+  font-size: var(--fs);
+  box-shadow: var(--shadow-float);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.geom-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: geom-spin 0.8s linear infinite;
+}
+
+@keyframes geom-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geom-spinner {
+    animation: none;
+  }
+}
+
+.simplify-counts {
+  margin: 8px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+}
+
+@media (max-width: 760px) {
+  .pf-row .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .geom-busy-pill {
+    bottom: 16px;
+  }
+}

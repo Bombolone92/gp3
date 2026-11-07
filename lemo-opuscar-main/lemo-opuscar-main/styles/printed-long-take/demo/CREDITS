@@ -1,0 +1,28 @@
+Thirty-Three Cranes (三十三只) — Printed Long Take (Lemo-Opuscar) · LemoLab × Claude Opus 5.5
+
+A film about a real place and real counts (see FACTS.md). No photographs, footage, scans, maps, 3D models or AI-generated
+images: the valley, river, bridge, trees, cranes, sky, board and paper are drawn in code (world.js, look.js, textures.js,
+props.js, scene.js). The bridge's name on the plate is the real name; the plate, thermometer, board, notice and seal are ours.
+
+FONTS (SIL Open Font License 1.1; not in git, build.sh downloads it from github.com/google/fonts)
+- Noto Serif SC (variable, NotoSerifSC[wght].ttf) — Google, instanced at weight 700 and subset by tools/subset.py to the
+  characters the film prints (fonts/NotoSerifSC-700.woff2). Licence text: fonts/OFL-NotoSerifSC.txt
+
+NARRATION
+- Microsoft edge-tts (online neural voices): en-US-AvaNeural for the English version, zh-CN-XiaoxiaoNeural for the Chinese
+  one. The text is the film's own (lines_en.json, lines_zh.json).
+
+MUSIC & SOUND
+- Original score and sound design written for this film in audio.py: synthesis in numpy through the library's
+  core/audio/sfx.py (river, frost, wind, wings, snow, pecking, knife, block, torn paper, seal, and the cranes' calls,
+  synthesised: no recording), plus sampled instruments through core/audio/sampler.py: bowed vibraphone, harp, horn,
+  cellos, violas, violins (sustain, tremolo), contrabass (sustain, pizzicato), xylophone, glockenspiel, hand chimes,
+  timpani, gran cassa.
+- Samples (CC0): VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library
+  (Versilian Studios). Downloaded with sh tools/fetch.sh instruments vsco2ce | vcsl.
+
+CODE
+- Rendering, speech, sampler and mastering tools from Lemo-Opuscar (MIT), used from the library. three.js (MIT).
+
+FACTS
+- Every number and claim on screen and in the narration, with its source and quoted wording: FACTS.md.

@@ -1,0 +1,1651 @@
+// Base class for the animation editors: a channel region on the left, a canvas
+// main region with a frame ruler (scrubbing), markers, preview range shading and
+// playhead, an optional sidebar (N) and footer. Subclasses draw their content.
+import { h, patch, type Child } from '../ui/h';
+import { icon } from '../ui/icons';
+import { app, type ChangeKind } from '../app/app';
+import type { Area, Editor } from '../ui/screen';
+import { openMenu, openPopover, promptText, type MenuItem } from '../ui/menu';
+import './anim.css';
+import { textField, numberField, checkbox, enumMenu } from '../ui/widgets';
+import { getValue, setValue } from '../data/rna';
+import { keyProperty } from '../anim/keyframes';
+import type { ObjectData, TimelineMarker } from '../data/types';
+import { View2D, frameStep, formatSeconds } from './view2d';
+import { C } from './theme';
+import { curveSlot, slotName } from '../anim/slots';
+import { renameSlotEverywhere } from './slotops';
+import { collectionObjects, buildChannels, channelSelected, type ChannelFilter, setChannelSelected, channelCurves, isExpanded, setExpanded, channelState, type Channel, type ChannelList, type SpaceKind, type CurveRef } from './channels';
+import { setKeySelected } from './keyedit';
+import { markerMenu, markerAt, markersLocked } from './markers';
+import { playbackOptions, playbackFooter } from './footer';
+
+export const RULER_H = 22;
+export const MARKER_H = 22;
+
+/** A selectable point in the main region (canvas-local px) for box/circle/lasso selection. */
+export interface Selectable {
+  x: number;
+  y: number;
+  selected: boolean;
+  set(v: boolean): void;
+}
+
+export type Region = 'channels' | 'main' | 'ruler' | 'markers' | 'sidebar' | 'footer';
+
+/** The visible frame range shared by editors with Sync Visible Range on (last change wins). */
+const syncedRange = { a: 0, b: 0, rev: 0 };
+
+export interface SidebarTab {
+  id: string;
+  label: string;
+  draw: () => Child;
+}
+
+export function menuButton(label: string, items: () => MenuItem[]) {
+  return h(
+    'button',
+    {
+      key: `menu-${label}`,
+      class: 'hdr-menu',
+      onpointerdown: (e: PointerEvent) => (e.preventDefault(), openMenu(items(), e.currentTarget as HTMLElement)),
+    },
+    label,
+  );
+}
+
+export function hdrToggle(key: string, ic: string, on: boolean, tip: string, set: () => void) {
+  return h(
+    'button',
+    {
+      key,
+      class: { 'hdr-toggle': true, on },
+      'data-tip': tip,
+      onclick: () => set(),
+    },
+    icon(ic),
+  );
+}
+
+/** The animation editor under the pointer (for keymap `when` predicates). */
+export function hoverEditor(): AnimEditor | null {
+  const ed = (app.hoverArea ?? app.activeArea)?.editor;
+  return ed instanceof AnimEditor ? ed : null;
+}
+export const overChannels = () => hoverEditor()?.hover === 'channels';
+export const overMain = () => {
+  const r = hoverEditor()?.hover;
+  return r !== 'channels' && r !== 'sidebar';
+};
+
+export abstract class AnimEditor implements Editor {
+  el: HTMLElement;
+  abstract keymaps: string[];
+  view = new View2D();
+  scrollY = 0;
+  chWidth = 200;
+  onlySelected = true;
+  showHidden = false;
+  search = '';
+  showSidebar = false;
+  sidebarTab = '';
+  autoSnap = true;
+  showMarkers = true;
+  /** ruler labels in seconds+frames instead of frames */
+  showSeconds = false;
+  /** value sliders next to F-Curve channels */
+  showSliders = false;
+  /** the channel region is shown (View ▸ Channels) */
+  showChannels = true;
+  /** keys moved onto another key's frame replace it (View ▸ Auto-Merge Keyframes) */
+  autoMerge = true;
+  /** View ▸ Realtime Updates: other views follow while keys are transformed */
+  realtimeUpdates = true;
+  /** View ▸ Sync Visible Range: editors with it on show the same frame range */
+  syncRange = false;
+  /** View ▸ Playback Controls: the footer with the playback controls */
+  showFooter = false;
+  /** the channel search matches every word separately (View ▸ Multi-Word Match Search) */
+  multiWordSearch = false;
+  /** Filters popover: only objects of this collection ('' for all) */
+  filterCollection = '';
+  /** Filters popover: channel types not shown */
+  hiddenTypes: string[] = [];
+  /** Filters popover: objects in alphabetical order */
+  sortByName = true;
+  /** Marker ▸ Sync Markers: selected markers move with transformed keys */
+  syncMarkers = false;
+  /** what transforms snap to, and whether keys snap to it (absolute) or move by whole steps */
+  snapMode: 'FRAME' | 'SECOND' | 'MARKER' = 'FRAME';
+  snapAbsolute = false;
+  hover: Region | null = null;
+  private _list: ChannelList = { rows: [], curves: [] };
+  private listDoc: unknown = null;
+  /** Channel list; rebuilt lazily when the document was swapped (undo, Adjust Last Operation). */
+  get list(): ChannelList {
+    if (this.listDoc !== app.doc) this.rebuild();
+    return this._list;
+  }
+  set list(v: ChannelList) {
+    this._list = v;
+    this.listDoc = app.doc;
+  }
+  rowH = 18;
+  boxRect: { x0: number; y0: number; x1: number; y1: number } | null = null;
+  /** markers drawn over the bottom of the content instead of in their own row (short editors) */
+  compactMarkers = false;
+  /** transient overlays drawn over the main region (circle/lasso select, slider tools) */
+  overlay: { circle?: { x: number; y: number; r: number }; lasso?: { x: number; y: number }[]; slider?: { label: string; text: string; t: number | null; t0?: number } } | null = null;
+  protected canvas: HTMLCanvasElement;
+  protected bodyEl: HTMLElement;
+  protected chEl: HTMLElement;
+  protected chTopEl: HTMLElement;
+  protected chRowsEl: HTMLElement;
+  protected mainEl: HTMLElement;
+  protected sbEl: HTMLElement;
+  protected footerEl: HTMLElement;
+  protected fitted = false;
+  private disposed = false;
+
+  constructor(
+    public area: Area,
+    state?: unknown,
+  ) {
+    this.el = document.createElement('div');
+    this.el.className = 'anim-ed';
+    this.bodyEl = div('anim-body');
+    this.chEl = div('anim-ch');
+    this.chTopEl = div('anim-ch-top');
+    this.chRowsEl = div('anim-ch-rows');
+    const grip = div('anim-ch-grip');
+    this.chEl.append(this.chTopEl, this.chRowsEl, grip);
+    this.mainEl = div('anim-main');
+    this.canvas = document.createElement('canvas');
+    this.mainEl.append(this.canvas);
+    this.sbEl = div('anim-sb');
+    this.footerEl = div('anim-footer area-header');
+    this.bodyEl.append(this.chEl, this.mainEl, this.sbEl);
+    this.el.append(this.bodyEl, this.footerEl);
+    this.restore(state);
+
+    this.canvas.addEventListener('pointerdown', (e) => this.onCanvasDown(e));
+    this.canvas.addEventListener('wheel', (e) => this.onWheel(e), {
+      passive: false,
+    });
+    this.canvas.addEventListener('dblclick', (e) => {
+      if (this.regionAt(e) === 'markers') {
+        if (this.markerList().some((m) => m.select)) app.run('marker.rename', {}, { area: this.area });
+        return;
+      }
+      this.onCanvasDblClick(e);
+    });
+    this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    this.mainEl.addEventListener('pointermove', (e) => (this.hover = this.regionAt(e)));
+    this.chEl.addEventListener('pointermove', () => (this.hover = 'channels'));
+    this.sbEl.addEventListener('pointermove', () => (this.hover = 'sidebar'));
+    this.footerEl.addEventListener('pointermove', () => (this.hover = 'footer'));
+    this.chRowsEl.addEventListener(
+      'wheel',
+      (e) => {
+        e.preventDefault();
+        this.scrollBy(e.deltaY);
+      },
+      { passive: false },
+    );
+    this.chRowsEl.addEventListener('pointerdown', (e) => {
+      if (e.target === this.chRowsEl || (e.target as HTMLElement).classList.contains('anim-ch-inner')) {
+        if (e.button === 0 && !app.modal) {
+          const x0 = e.clientX,
+            y0 = e.clientY;
+          const move = (ev: PointerEvent) => {
+            if (Math.hypot(ev.clientX - x0, ev.clientY - y0) < 4) return;
+            cleanup();
+            this.channelBoxGesture(e, (a, b, up) =>
+              app.run('anim.channels_select_box', { ymin: a, ymax: b, extend: e.shiftKey || up.shiftKey, deselect: e.ctrlKey || e.metaKey }, { area: this.area, invoke: false }),
+            );
+          };
+          const up = () => {
+            cleanup();
+            if (e.shiftKey) return;
+            this.deselectChannels();
+            app.pushUndo('Deselect Channels');
+            app.changed('doc');
+          };
+          const cleanup = () => {
+            removeEventListener('pointermove', move);
+            removeEventListener('pointerup', up);
+          };
+          addEventListener('pointermove', move);
+          addEventListener('pointerup', up);
+        }
+      }
+      if (e.button === 1) this.dragScroll(e);
+    });
+    grip.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const x0 = e.clientX,
+        w0 = this.chWidth;
+      const move = (ev: PointerEvent) => {
+        this.chWidth = Math.max(80, Math.min(600, w0 + ev.clientX - x0));
+        this.layout();
+        this.refresh();
+      };
+      const up = () => {
+        removeEventListener('pointermove', move);
+        removeEventListener('pointerup', up);
+      };
+      addEventListener('pointermove', move);
+      addEventListener('pointerup', up);
+    });
+    new ResizeObserver(() => !this.disposed && this.refresh()).observe(this.mainEl);
+    this.layout();
+  }
+
+  // ---------------------------------------------------------------- abstract
+
+  abstract space(): SpaceKind;
+  abstract header(): Child;
+  /** draw the main region content (between ruler and markers) */
+  protected abstract drawContent(g: CanvasRenderingContext2D, W: number, H: number): void;
+  /** LMB in the main region (not ruler/markers); coordinates are canvas-local */
+  protected abstract mainDown(e: PointerEvent, x: number, y: number): void;
+  /** frame range used by View All */
+  abstract viewAll(): void;
+  abstract viewSelected(): void;
+
+  protected sidebarTabs(): SidebarTab[] {
+    return [];
+  }
+  protected footer(): Child | null {
+    return null;
+  }
+  /** row prefix widgets (Graph Editor eye/color) */
+  protected rowPrefix(_ch: Channel, _i: number): Child {
+    return null;
+  }
+  /** row toggles on the right */
+  protected rowToggles(_ch: Channel): Child {
+    return null;
+  }
+  protected rowExtra(ch: Channel): Child {
+    return this.valueSlider(ch);
+  }
+
+  /** Value slider for an F-Curve channel (View ▸ Show Sliders); edits key the value with auto keying. */
+  protected valueSlider(ch: Channel): Child {
+    if (!this.showSliders || ch.kind !== 'FCURVE' || !ch.fc || !ch.ob) return null;
+    const ob = ch.ob,
+      fc = ch.fc;
+    const v = getValue(app.doc, ob, fc.data_path, fc.array_index);
+    if (typeof v !== 'number') return null;
+    return h(
+      'span',
+      { class: 'anim-ch-slider' },
+      numberField({
+        id: `chs-${ch.key}`,
+        value: v,
+        precision: 3,
+        step: 0.1,
+        set: (nv, final) => {
+          setValue(app.doc, ob, fc.data_path, fc.array_index, nv);
+          if (final && app.doc.scene.tool_settings.use_keyframe_insert_auto) keyProperty(app.doc, ob, fc.data_path, fc.array_index);
+          app.changed('doc');
+          if (final) app.pushUndo('Change Channel Value');
+        },
+      }),
+    );
+  }
+  protected mainContextMenu(): MenuItem[] | null {
+    return null;
+  }
+  channelContextMenu(): MenuItem[] {
+    return [];
+  }
+  protected onCanvasDblClick(_e: MouseEvent) {}
+  /** selectable points for shaped (box/circle/lasso) selection */
+  selectables(_includeHandles = true): Selectable[] {
+    return [];
+  }
+  /** whether vertical pan scrolls channel rows (true) or pans the value axis */
+  protected rowScroll = true;
+  /** wheel zoom over the main region */
+  protected wheelZoom(factor: number, x: number, _y: number) {
+    this.view.zoomX(factor, x);
+  }
+
+  // ---------------------------------------------------------------- state
+
+  serialize(): unknown {
+    return {
+      onlySelected: this.onlySelected,
+      showHidden: this.showHidden,
+      chWidth: this.chWidth,
+      showSidebar: this.showSidebar,
+      sidebarTab: this.sidebarTab,
+      autoSnap: this.autoSnap,
+      showMarkers: this.showMarkers,
+      showSeconds: this.showSeconds,
+      showSliders: this.showSliders,
+      showChannels: this.showChannels,
+      autoMerge: this.autoMerge,
+      realtimeUpdates: this.realtimeUpdates,
+      syncRange: this.syncRange,
+      showFooter: this.showFooter,
+      multiWordSearch: this.multiWordSearch,
+      filterCollection: this.filterCollection,
+      hiddenTypes: this.hiddenTypes,
+      sortByName: this.sortByName,
+      syncMarkers: this.syncMarkers,
+      snapMode: this.snapMode,
+      snapAbsolute: this.snapAbsolute,
+      view: {
+        x0: this.view.x0,
+        ppf: this.view.ppf,
+        y0: this.view.y0,
+        ppv: this.view.ppv,
+      },
+      scrollY: this.scrollY,
+      ...this.serializeExtra(),
+    };
+  }
+  protected serializeExtra(): Record<string, unknown> {
+    return {};
+  }
+  protected restore(state: unknown) {
+    const s = (state ?? {}) as Record<string, unknown>;
+    if (typeof s.onlySelected === 'boolean') this.onlySelected = s.onlySelected;
+    if (typeof s.showHidden === 'boolean') this.showHidden = s.showHidden;
+    if (typeof s.chWidth === 'number') this.chWidth = s.chWidth;
+    if (typeof s.showSidebar === 'boolean') this.showSidebar = s.showSidebar;
+    if (typeof s.sidebarTab === 'string') this.sidebarTab = s.sidebarTab;
+    if (typeof s.autoSnap === 'boolean') this.autoSnap = s.autoSnap;
+    if (typeof s.showMarkers === 'boolean') this.showMarkers = s.showMarkers;
+    if (typeof s.showSeconds === 'boolean') this.showSeconds = s.showSeconds;
+    if (typeof s.showSliders === 'boolean') this.showSliders = s.showSliders;
+    if (typeof s.showChannels === 'boolean') this.showChannels = s.showChannels;
+    if (typeof s.autoMerge === 'boolean') this.autoMerge = s.autoMerge;
+    if (typeof s.realtimeUpdates === 'boolean') this.realtimeUpdates = s.realtimeUpdates;
+    if (typeof s.syncRange === 'boolean') this.syncRange = s.syncRange;
+    if (typeof s.showFooter === 'boolean') this.showFooter = s.showFooter;
+    if (typeof s.multiWordSearch === 'boolean') this.multiWordSearch = s.multiWordSearch;
+    if (typeof s.filterCollection === 'string') this.filterCollection = s.filterCollection;
+    if (Array.isArray(s.hiddenTypes)) this.hiddenTypes = s.hiddenTypes.filter((x): x is string => typeof x === 'string');
+    if (typeof s.sortByName === 'boolean') this.sortByName = s.sortByName;
+    if (typeof s.syncMarkers === 'boolean') this.syncMarkers = s.syncMarkers;
+    if (s.snapMode === 'FRAME' || s.snapMode === 'SECOND' || s.snapMode === 'MARKER') this.snapMode = s.snapMode;
+    if (typeof s.snapAbsolute === 'boolean') this.snapAbsolute = s.snapAbsolute;
+    if (typeof s.scrollY === 'number') this.scrollY = s.scrollY;
+    const v = s.view as Record<string, number> | undefined;
+    if (v && typeof v.x0 === 'number') {
+      Object.assign(this.view, { x0: v.x0, ppf: v.ppf, y0: v.y0, ppv: v.ppv });
+      this.fitted = true;
+    }
+  }
+
+  /** list only channels whose property can't be found */
+  onlyErrors = false;
+
+  get filter(): ChannelFilter {
+    return {
+      onlySelected: this.onlySelected,
+      showHidden: this.showHidden,
+      search: this.search,
+      multiWord: this.multiWordSearch,
+      collection: this.filterCollection && app.doc.collections[this.filterCollection] ? collectionObjects(app.doc, this.filterCollection) : null,
+      hiddenTypes: new Set(this.hiddenTypes),
+      sortByName: this.sortByName,
+      onlyErrors: this.onlyErrors,
+      curveError: (ob, fc) => !!fc.disabled || (fc.data_path !== '' && getValue(app.doc, ob, fc.data_path, fc.array_index) === undefined),
+      isVisible: (ob: ObjectData) => app.isVisible(ob.id),
+      activeObject: app.activeObject,
+    };
+  }
+
+  /** Editable curves in scope (unlocked; visible-only in the Graph Editor). */
+  editCurves(): CurveRef[] {
+    return this.list.curves.filter((r) => !r.fc.lock);
+  }
+
+  rebuild() {
+    this.list = buildChannels(app.doc, this.space(), this.filter);
+  }
+
+  // ---------------------------------------------------------------- Editor
+
+  update(kinds?: Set<ChangeKind>) {
+    // Follow Current Frame: page the view along with the playhead during playback
+    if (app.playing && playbackOptions.follow && kinds?.has('frame') && this.mainW) {
+      const x = this.view.fx(app.doc.scene.frame_current);
+      if (x < 0 || x > this.mainW) this.view.panPx(-(x - this.mainW * 0.1), 0);
+    }
+    this.refresh();
+  }
+
+  resize() {
+    this.refresh();
+  }
+
+  dispose() {
+    this.disposed = true;
+  }
+
+  layout() {
+    this.chEl.style.width = `${this.chWidth}px`;
+    this.chEl.style.display = this.showChannels ? '' : 'none';
+    this.sbEl.hidden = !this.showSidebar || !this.sidebarTabs().length;
+  }
+
+  refresh() {
+    if (this.disposed) return;
+    this.rebuild();
+    this.layout();
+    this.clampScroll();
+    this.drawChannels();
+    this.draw();
+    this.drawSidebar();
+    const f = this.showFooter ? (this.footer() ?? playbackFooter()) : null;
+    this.footerEl.hidden = !f;
+    if (f) patch(this.footerEl, f);
+  }
+
+  // ---------------------------------------------------------------- geometry
+
+  get mainW() {
+    return this.mainEl.clientWidth;
+  }
+  get mainH() {
+    return this.mainEl.clientHeight;
+  }
+  markersVisible() {
+    return this.showMarkers && this.markerList().length > 0;
+  }
+  /** bottom of the content region (top of the markers row) */
+  contentBottom() {
+    return this.mainH - (this.markersVisible() && !this.compactMarkers ? MARKER_H : 0);
+  }
+  rowTop(i: number) {
+    return RULER_H + i * this.rowH - this.scrollY;
+  }
+  rowAt(y: number): number {
+    if (y < RULER_H) return -1;
+    return Math.floor((y - RULER_H + this.scrollY) / this.rowH);
+  }
+  regionAt(e: PointerEvent | MouseEvent): Region {
+    const r = this.canvas.getBoundingClientRect();
+    const y = e.clientY - r.top;
+    if (y < RULER_H) return 'ruler';
+    if (this.markersVisible() && y > r.height - (this.compactMarkers ? 12 : MARKER_H)) return 'markers';
+    return 'main';
+  }
+  local(e: { clientX: number; clientY: number }) {
+    const r = this.canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  toClient(x: number, y: number) {
+    const r = this.canvas.getBoundingClientRect();
+    return { x: x + r.left, y: y + r.top };
+  }
+
+  scrollBy(dy: number) {
+    this.scrollY += dy;
+    this.clampScroll();
+    this.drawChannels();
+    this.draw();
+  }
+  clampScroll() {
+    const total = this.list.rows.length * this.rowH;
+    const avail = Math.max(0, this.contentBottom() - RULER_H);
+    this.scrollY = Math.max(0, Math.min(this.scrollY, Math.max(0, total - avail + this.rowH)));
+  }
+
+  // ---------------------------------------------------------------- channels
+
+  deselectChannels() {
+    for (const r of this.list.curves) r.fc.select = false;
+    channelState.selectedGroups.clear();
+    channelState.selectedDrivers.clear();
+    channelState.selectedShapeKeys.clear();
+    for (const ch of this.list.rows) {
+      if (ch.kind === 'NLA_TRACK' && ch.track) ch.track.select = false;
+      if (ch.kind === 'SLOT' && ch.slot) ch.slot.select = false;
+    }
+  }
+
+  /** Markers shown in the marker row (the scene's; the Action Editor can show pose markers). */
+  markerList(): TimelineMarker[] {
+    return app.doc.scene.timeline_markers;
+  }
+  setMarkerList(list: TimelineMarker[]) {
+    app.doc.scene.timeline_markers = list;
+  }
+
+  /** Snap settings for transforms. */
+  snapTo() {
+    const sc = app.doc.scene;
+    return { mode: this.snapMode, absolute: this.snapAbsolute, fps: sc.render.fps / (sc.render.fps_base || 1), markers: sc.timeline_markers.map((m) => m.frame) };
+  }
+
+  /** Header snapping toggle with its options popover. */
+  /** extra rows at the top of the Filters popover (e.g. the Dope Sheet's Summary toggle) */
+  protected filterExtras(): Child {
+    return null;
+  }
+
+  /** Header toggle: list only channels with errors. */
+  errorsToggle(): Child {
+    return hdrToggle('only-errors', 'error', this.onlyErrors, 'Only Show Errors\nOnly include channels whose property (or driver) has an error', () => ((this.onlyErrors = !this.onlyErrors), this.refresh(), app.changed('ui')));
+  }
+
+  /** Header ▸ Filters popover: what the channel list includes. */
+  filtersHeader(): Child {
+    const types: [string, string][] = [
+      ['MESH', 'Meshes'],
+      ['CAMERA', 'Cameras'],
+      ['LIGHT', 'Lights'],
+      ['ARMATURE', 'Armatures'],
+      ['CURVE', 'Curves'],
+      ['EMPTY', 'Empties'],
+      ['GREASEPENCIL', 'Grease Pencil'],
+      ['SPEAKER', 'Speakers'],
+    ];
+    const kinds: [string, string][] = [
+      ['TRANSFORMS', 'Transforms'],
+      ['MODIFIERS', 'Modifiers'],
+      ['MATERIALS', 'Materials'],
+      ['SHAPEKEYS', 'Shape Keys'],
+      ['DATA', 'Object Data'],
+    ];
+    const toggleType = (t: string, on: boolean) => {
+      this.hiddenTypes = on ? this.hiddenTypes.filter((x) => x !== t) : [...this.hiddenTypes, t];
+      this.refresh();
+      app.changed('ui');
+    };
+    const body = (): Child => {
+      const cols = Object.values(app.doc.collections).filter((c) => c.id !== app.doc.scene.collection);
+      return h(
+        'div',
+        { class: 'pop-panel anim-filters' },
+        h('div', { class: 'pop-title' }, 'Filters'),
+        this.filterExtras(),
+        checkbox('af-onlysel', 'Only Show Selected', this.onlySelected, (v) => ((this.onlySelected = v), this.refresh(), app.changed('ui'))),
+        checkbox('af-hidden', 'Show Hidden', this.showHidden, (v) => ((this.showHidden = v), this.refresh(), app.changed('ui'))),
+        checkbox('af-errors', 'Only Show Errors', this.onlyErrors, (v) => ((this.onlyErrors = v), this.refresh(), app.changed('ui'))),
+        h('div', { class: 'opt-head' }, 'Collection'),
+        enumMenu(
+          'af-coll',
+          [{ value: '', label: 'All Collections' }, ...cols.map((c) => ({ value: c.id, label: c.name, icon: 'outliner_collection' }))],
+          this.filterCollection,
+          (v) => ((this.filterCollection = v), this.refresh(), app.changed('ui')),
+        ),
+        h('div', { class: 'opt-head' }, 'Filter by Type'),
+        h('div', { class: 'anim-filter-grid' }, types.map(([t, l]) => checkbox(`af-t-${t}`, l, !this.hiddenTypes.includes(t), (v) => toggleType(t, v)))),
+        h('div', { class: 'anim-filter-grid' }, kinds.map(([t, l]) => checkbox(`af-k-${t}`, l, !this.hiddenTypes.includes(t), (v) => toggleType(t, v)))),
+        h('div', { class: 'opt-head' }, 'Options'),
+        checkbox('af-sort', 'Sort Data-Blocks', this.sortByName, (v) => ((this.sortByName = v), this.refresh(), app.changed('ui')), { tip: 'Objects are listed alphabetically (otherwise in scene order)' }),
+      );
+    };
+    const active = !!this.filterCollection || this.hiddenTypes.length > 0 || this.onlyErrors;
+    return h(
+      'button',
+      {
+        key: 'filters',
+        class: { 'hdr-toggle': true, 'anim-filters-btn': true, on: active },
+        'data-tip': 'Filters\nWhich channels are listed',
+        onpointerdown: (e: PointerEvent) => {
+          e.preventDefault();
+          openPopover(e.currentTarget as HTMLElement, body, { width: 250 });
+        },
+      },
+      icon('filter'),
+      icon('down_arrow_hlt', 'tiny'),
+    );
+  }
+
+  snapHeader(what = 'keyframes'): Child {
+    const modes: [AnimEditor['snapMode'], string][] = [
+      ['FRAME', 'Frame'],
+      ['SECOND', 'Second'],
+      ['MARKER', 'Nearest Marker'],
+    ];
+    return h(
+      'div',
+      { key: 'snap', class: 'hdr-group' },
+      hdrToggle('snap-on', this.autoSnap ? 'snap_on' : 'snap_off', this.autoSnap, `Snap\nSnap ${what} while transforming (Ctrl toggles)`, () => ((this.autoSnap = !this.autoSnap), app.changed('ui'))),
+      h(
+        'button',
+        {
+          key: 'snap-opts',
+          class: 'hdr-toggle',
+          'data-tip': 'Snapping\nWhat transforms snap to',
+          onpointerdown: (e: PointerEvent) => {
+            e.preventDefault();
+            openMenu(
+              [
+                { heading: 'Snap To' },
+                ...modes.map(([v, l]) => ({ label: l, active: this.snapMode === v, action: () => ((this.snapMode = v), app.changed('ui')) })),
+                { separator: true },
+                { label: 'Absolute Time Snap', checked: this.snapAbsolute, action: () => ((this.snapAbsolute = !this.snapAbsolute), app.changed('ui')) },
+              ],
+              e.currentTarget as HTMLElement,
+              { title: 'Snapping' },
+            );
+          },
+        },
+        icon('down_arrow_hlt', 'tiny'),
+      ),
+    );
+  }
+
+  /** Channel row under a client y coordinate. */
+  channelAtClient(clientY: number): Channel | null {
+    const r = this.chRowsEl.getBoundingClientRect();
+    const i = Math.floor((clientY - r.top + this.scrollY) / this.rowH);
+    return this.list.rows[i] ?? null;
+  }
+
+  /** Channel rows overlapping a client y range. */
+  channelRowsBetween(y0: number, y1: number): Channel[] {
+    const r = this.chRowsEl.getBoundingClientRect();
+    const a = Math.floor((Math.min(y0, y1) - r.top + this.scrollY) / this.rowH),
+      b = Math.floor((Math.max(y0, y1) - r.top + this.scrollY) / this.rowH);
+    return this.list.rows.slice(Math.max(0, a), Math.max(0, b + 1));
+  }
+
+  focusSearch() {
+    const inp = this.chTopEl.querySelector('input');
+    if (inp) {
+      inp.focus();
+      inp.select();
+    }
+  }
+
+  /** Vertical drag over the channel list; `done` gets the client y range. */
+  channelBoxGesture(e: { clientX: number; clientY: number }, done: (y0: number, y1: number, ev: PointerEvent) => void) {
+    const y0 = e.clientY;
+    const box = div('anim-ch-box');
+    const r = this.chEl.getBoundingClientRect();
+    box.style.cssText = `position:absolute;left:0;right:0;top:${y0 - r.top}px;height:0;border:1px dashed rgba(255, 255, 255,0.8);background:rgba(255, 255, 255,0.06);pointer-events:none;z-index:3`;
+    this.chEl.append(box);
+    const move = (ev: PointerEvent) => {
+      const a = Math.min(y0, ev.clientY),
+        b = Math.max(y0, ev.clientY);
+      box.style.top = `${a - r.top}px`;
+      box.style.height = `${b - a}px`;
+    };
+    const up = (ev: PointerEvent) => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+      box.remove();
+      done(Math.min(y0, ev.clientY), Math.max(y0, ev.clientY), ev);
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  }
+
+  /** Click on a channel name: select it (Shift toggles). */
+  clickChannel(ch: Channel, extend: boolean) {
+    if (ch.kind === 'SUMMARY') {
+      if (!extend) this.deselectChannels();
+      return;
+    }
+    if (ch.kind === 'OBJECT' && ch.ob) {
+      if (!extend) for (const o of Object.values(app.doc.objects)) o.select = false;
+      ch.ob.select = extend ? !ch.ob.select : true;
+      if (ch.ob.select) app.activeObject = ch.ob;
+      app.changed('select');
+      return;
+    }
+    if (ch.kind === 'ACTION' || ch.kind === 'DRIVERS' || ch.kind === 'NLA_ACTION') return;
+    // a slot row makes its slot the action's active one (shown in the sidebar)
+    if (ch.kind === 'SLOT' && ch.action && ch.slot) ch.action.active_slot = ch.slot.handle;
+    const was = channelSelected(ch);
+    if (!extend) this.deselectChannels();
+    setChannelSelected(ch, extend ? !was : true);
+    if (ch.kind === 'FCURVE' || ch.kind === 'SHAPEKEY') this.onActiveCurve(ch);
+  }
+
+  /** hook: the active F-Curve changed */
+  protected onActiveCurve(_ch: Channel) {}
+
+  renameChannel(ch: Channel) {
+    let current = '';
+    let apply: ((v: string) => void) | null = null;
+    if (ch.kind === 'OBJECT' && ch.ob) {
+      const ob = ch.ob;
+      current = ob.name;
+      apply = (v) => (ob.name = v);
+    } else if (ch.kind === 'ACTION' && ch.action) {
+      const a = ch.action;
+      current = a.name;
+      apply = (v) => (a.name = v);
+    } else if (ch.kind === 'SLOT' && ch.action && ch.slot) {
+      const a = ch.action,
+        slot = ch.slot;
+      current = slotName(slot);
+      apply = (v) => renameSlotEverywhere(app.doc, a, slot, v);
+    } else if (ch.kind === 'NLA_ACTION' && ch.action) {
+      const a = ch.action;
+      current = a.name;
+      apply = (v) => (a.name = v);
+    } else if (ch.kind === 'GROUP' && ch.action && ch.group) {
+      const a = ch.action,
+        old = ch.group;
+      current = old;
+      const slot = ch.curves[0] ? curveSlot(a, ch.curves[0].fc) : undefined;
+      apply = (v) => {
+        for (const fc of a.fcurves) if (fc.group === old && (slot === undefined || curveSlot(a, fc) === slot)) fc.group = v;
+      };
+    } else if (ch.kind === 'NLA_TRACK' && ch.track) {
+      const t = ch.track;
+      current = t.name;
+      apply = (v) => (t.name = v);
+    } else if (ch.kind === 'SHAPEKEY' && ch.shapeKey && ch.ob) {
+      const sk = ch.shapeKey,
+        ob = ch.ob,
+        fc = ch.fc;
+      current = sk.name;
+      apply = (v) => {
+        sk.name = v;
+        if (fc) fc.data_path = `data.shape_keys.key_blocks["${v.replace(/"/g, '\\"')}"].value`;
+        void ob;
+      };
+    } else if (ch.kind === 'MASK' && ch.mask) {
+      const m = ch.mask;
+      current = m.name;
+      apply = (v) => (m.name = v);
+    } else if (ch.kind === 'MASK_LAYER' && ch.maskLayer) {
+      const l = ch.maskLayer;
+      current = l.name;
+      apply = (v) => (l.name = v);
+    }
+    if (!apply) return;
+    const doApply = apply;
+    promptText('Rename', current, (v) => {
+      if (!v) return;
+      doApply(v);
+      app.pushUndo('Rename Channel');
+      app.changed('doc');
+    });
+  }
+
+  /** Select all keys of a channel (double-click). */
+  selectChannelKeys(ch: Channel, extend: boolean) {
+    if (!extend) for (const r of this.list.curves) r.fc.keyframe_points.forEach((k) => setKeySelected(k, false));
+    for (const r of ch.curves) r.fc.keyframe_points.forEach((k) => setKeySelected(k, true));
+  }
+
+  toggleSetting(ch: Channel, setting: 'mute' | 'lock' | 'hide') {
+    const fcs = channelCurves(ch);
+    if (!fcs.length) return;
+    const allOn = fcs.every((f) => !!f[setting]);
+    for (const f of fcs) f[setting] = !allOn;
+    app.pushUndo(setting === 'mute' ? 'Toggle Mute' : setting === 'lock' ? 'Toggle Lock' : 'Toggle Visibility');
+    app.changed('doc');
+  }
+
+  private lastClicked: string | null = null;
+
+  /** Whether a channel can be renamed in place. */
+  canRename(ch: Channel) {
+    return ['OBJECT', 'ACTION', 'SLOT', 'NLA_ACTION', 'GROUP', 'NLA_TRACK', 'SHAPEKEY', 'MASK', 'MASK_LAYER'].includes(ch.kind) && (ch.kind !== 'ACTION' && ch.kind !== 'NLA_ACTION' ? true : !!ch.action);
+  }
+
+  protected channelDown(e: PointerEvent, ch: Channel) {
+    if ((e.target as HTMLElement).closest('.anim-tg, .num-field, input, .anim-exp')) return;
+    if (e.button === 1 && e.altKey) {
+      e.preventDefault();
+      app.run('anim.channel_view_pick', {}, { area: this.area, event: { x: e.clientX, y: e.clientY } });
+      return;
+    }
+    if (e.button === 2) {
+      e.preventDefault();
+      if (!channelSelected(ch)) {
+        this.clickChannel(ch, false);
+        app.changed('doc');
+      }
+      const items = this.channelContextMenu();
+      if (items.length) openMenu(items, { x: e.clientX, y: e.clientY });
+      return;
+    }
+    if (e.button !== 0) return;
+    if (e.shiftKey && (e.ctrlKey || e.metaKey) && ch.curves.length > 1) {
+      // Shift Ctrl: the channel and everything under it
+      this.deselectChannels();
+      setChannelSelected(ch, true);
+      for (const r of ch.curves) r.fc.select = true;
+      this.lastClicked = ch.key;
+      app.pushUndo('Select Channel Children');
+      app.changed('doc');
+      return;
+    }
+    if (e.shiftKey && !(e.ctrlKey || e.metaKey) && this.lastClicked) {
+      // Shift: select the range from the last clicked channel
+      const rows = this.list.rows;
+      const a = rows.findIndex((r) => r.key === this.lastClicked),
+        b = rows.indexOf(ch);
+      if (a >= 0 && b >= 0) {
+        for (let i = Math.min(a, b); i <= Math.max(a, b); i++) if (!['SUMMARY', 'ACTION', 'DRIVERS', 'NLA_ACTION'].includes(rows[i].kind)) setChannelSelected(rows[i], true);
+        app.pushUndo('Select Channels');
+        app.changed('doc');
+        return;
+      }
+    }
+    // Ctrl (or Shift without an anchor) toggles the channel in the selection
+    this.clickChannel(ch, e.shiftKey || e.ctrlKey || e.metaKey);
+    this.lastClicked = ch.key;
+    app.pushUndo('Click Channel');
+    app.changed('doc');
+  }
+
+  /** Double-click: rename channels that have a name, otherwise select the channel's keys. */
+  protected channelDblClick(e: MouseEvent, ch: Channel) {
+    if ((e.target as HTMLElement).closest('.anim-tg, .num-field, input, .anim-exp')) return;
+    if (this.canRename(ch) && !e.shiftKey) {
+      this.renameChannel(ch);
+      return;
+    }
+    this.selectChannelKeys(ch, e.shiftKey);
+    app.pushUndo('Select Channel Keyframes');
+    app.changed('doc');
+  }
+
+  drawChannels() {
+    patch(
+      this.chTopEl,
+      textField('anim-search', this.search, (v) => ((this.search = v), this.refresh()), {
+        placeholder: 'Search',
+        icon: 'search',
+        live: true,
+        className: 'anim-search',
+      }),
+    );
+    const rows = this.list.rows;
+    const total = rows.length * this.rowH;
+    patch(
+      this.chRowsEl,
+      h(
+        'div',
+        {
+          class: 'anim-ch-inner',
+          style: {
+            height: `${total + 40}px`,
+            transform: `translateY(${-this.scrollY}px)`,
+          },
+        },
+        rows.map((ch, i) => {
+          const sel = channelSelected(ch);
+          return h(
+            'div',
+            {
+              key: ch.key,
+              class: {
+                'anim-ch-row': true,
+                [`k-${ch.kind.toLowerCase()}`]: true,
+                sel,
+                muted: ch.kind === 'FCURVE' && !!ch.fc?.mute,
+                err: !!ch.error,
+              },
+              style: {
+                top: `${i * this.rowH}px`,
+                height: `${this.rowH}px`,
+                paddingLeft: `${4 + ch.depth * 8}px`,
+              },
+              onpointerdown: (e: PointerEvent) => this.channelDown(e, ch),
+              ondblclick: (e: MouseEvent) => this.channelDblClick(e, ch),
+            },
+            ch.expandable
+              ? h(
+                  'span',
+                  {
+                    class: 'anim-exp',
+                    onpointerdown: (e: PointerEvent) => {
+                      e.stopPropagation();
+                      if (e.button !== 0) return;
+                      setExpanded(ch.key, !isExpanded(ch.key, ch.kind));
+                      this.refresh();
+                    },
+                  },
+                  icon(ch.expanded ? 'disclosure_tri_down' : 'disclosure_tri_right'),
+                )
+              : this.expanderSpace(ch)
+                ? h('span', { class: 'anim-exp-space' })
+                : null,
+            ch.icon ? icon(ch.icon) : null,
+            this.rowPrefix(ch, i),
+            h('span', { class: 'anim-ch-name' }, ch.label),
+            this.rowExtra(ch),
+            h('span', { class: 'anim-ch-tgs' }, this.rowToggles(ch)),
+          );
+        }),
+      ),
+    );
+  }
+
+  /** Pin of object and group rows: keeps them listed while unselected with Only Show Selected. */
+  protected pinToggle(ch: Channel): Child {
+    const ob = ch.ob;
+    let on: boolean;
+    let flip: () => void;
+    if (ch.kind === 'OBJECT' && ob?.animation_data) {
+      const ad = ob.animation_data;
+      on = !!ad.use_pin;
+      flip = () => (ad.use_pin = !on);
+    } else if (ch.kind === 'GROUP' && ch.action && ch.group) {
+      const act = ch.action,
+        g = ch.group;
+      on = !!act.pinned_groups?.includes(g);
+      flip = () => (act.pinned_groups = on ? (act.pinned_groups ?? []).filter((x) => x !== g) : [...(act.pinned_groups ?? []), g]);
+    } else return null;
+    return h(
+      'button',
+      {
+        key: 'pin',
+        class: { 'anim-tg': true, on, off: !on },
+        'data-tip': 'Pin\nKeep the channel listed in the Graph Editor while it is not selected (Only Show Selected)',
+        onpointerdown: (e: PointerEvent) => {
+          e.stopPropagation();
+          if (e.button !== 0) return;
+          flip();
+          app.pushUndo('Toggle Pin');
+          app.changed('doc');
+        },
+      },
+      icon(on ? 'pinned' : 'unpinned'),
+    );
+  }
+
+  /** Modifiers on / off of curve and group rows (dimmed on curves without modifiers). */
+  protected modifierToggle(ch: Channel): Child {
+    const fcs = channelCurves(ch);
+    if (!fcs.length || (ch.kind !== 'FCURVE' && ch.kind !== 'GROUP')) return null;
+    const withMods = fcs.filter((f) => f.modifiers.length);
+    const modsOff = !withMods.length ? ch.kind === 'FCURVE' : withMods.every((f) => f.modifiers.every((m) => m.mute));
+    return h(
+      'button',
+      {
+        key: 'mods',
+        class: { 'anim-tg': true, off: modsOff },
+        'data-tip': 'Modifiers\nEnable/disable F-Curve modifiers',
+        onpointerdown: (e: PointerEvent) => {
+          e.stopPropagation();
+          if (e.button !== 0 || !withMods.length) return;
+          const allMuted = withMods.every((f) => f.modifiers.every((m) => m.mute));
+          for (const f of withMods) f.modifiers.forEach((m) => (m.mute = !allMuted));
+          app.pushUndo('Toggle Modifiers');
+          app.changed('doc');
+        },
+      },
+      icon(modsOff ? 'modifier_off' : 'modifier_on'),
+    );
+  }
+
+  /** whether a row without an expander keeps its place (indentation) */
+  protected expanderSpace(_ch: Channel): boolean {
+    return true;
+  }
+
+  /** standard mute/lock toggles */
+  protected muteLockToggles(ch: Channel): Child {
+    if (!['GROUP', 'FCURVE', 'SHAPEKEY', 'MASK_LAYER'].includes(ch.kind)) return null;
+    const fcs = channelCurves(ch);
+    if (!fcs.length) return null;
+    const muted = fcs.every((f) => f.mute);
+    const locked = fcs.every((f) => f.lock);
+    return [
+      // mask layers can only be locked
+      ch.kind === 'MASK_LAYER' ? null : h(
+        'button',
+        {
+          key: 'mute',
+          class: { 'anim-tg': true, off: muted },
+          'data-tip': 'Mute\nDoes F-Curve contribute to result',
+          onpointerdown: (e: PointerEvent) => (e.stopPropagation(), e.button === 0 && this.toggleSetting(ch, 'mute')),
+        },
+        icon(muted ? 'checkbox_dehlt' : 'checkbox_hlt'),
+      ),
+      h(
+        'button',
+        {
+          key: 'lock',
+          class: { 'anim-tg': true, on: locked },
+          'data-tip': 'Lock\nF-Curve can not be edited',
+          onpointerdown: (e: PointerEvent) => (e.stopPropagation(), e.button === 0 && this.toggleSetting(ch, 'lock')),
+        },
+        icon(locked ? 'locked' : 'unlocked'),
+      ),
+    ];
+  }
+
+  drawSidebar() {
+    const tabs = this.sidebarTabs();
+    if (!this.showSidebar || !tabs.length) {
+      this.sbEl.hidden = true;
+      return;
+    }
+    this.sbEl.hidden = false;
+    if (!tabs.some((t) => t.id === this.sidebarTab)) this.sidebarTab = tabs[0].id;
+    const tab = tabs.find((t) => t.id === this.sidebarTab)!;
+    patch(this.sbEl, [
+      h('div', { key: 'body', class: 'sb-body' }, tab.draw()),
+      h(
+        'div',
+        { key: 'tabs', class: 'sb-tabs' },
+        tabs.map((t) =>
+          h(
+            'button',
+            {
+              key: t.id,
+              class: { 'sb-tab': true, on: t.id === this.sidebarTab },
+              onclick: () => ((this.sidebarTab = t.id), this.drawSidebar()),
+            },
+            t.label,
+          ),
+        ),
+      ),
+    ]);
+  }
+
+  /** View ▸ Playback Controls: shows / hides the footer */
+  footerMenuItem(): MenuItem {
+    return { label: 'Playback Controls', checked: this.showFooter, action: () => ((this.showFooter = !this.showFooter), this.refresh(), app.changed('ui')) };
+  }
+
+  /** View ▸ Realtime Updates */
+  realtimeMenuItem(): MenuItem {
+    return { label: 'Realtime Updates', checked: this.realtimeUpdates, description: 'Other views follow keyframes while they are being transformed', action: () => ((this.realtimeUpdates = !this.realtimeUpdates), app.changed('ui')) };
+  }
+
+  /** View ▸ Sync Visible Range */
+  syncRangeMenuItem(): MenuItem {
+    return {
+      label: 'Sync Visible Range',
+      checked: this.syncRange,
+      description: 'Keep the visible frame range the same as in the other time editors that have this on',
+      action: () => {
+        this.syncRange = !this.syncRange;
+        this.lastRange = null;
+        if (this.syncRange && syncedRange.rev) this.syncSeen = 0;
+        this.draw();
+        app.changed('ui');
+      },
+    };
+  }
+
+  /** View ▸ Area: split, maximize and close the area */
+  areaMenuItem(): MenuItem {
+    return { label: 'Area', submenu: () => this.area.areaMenu() };
+  }
+
+  private syncSeen = 0;
+  private lastRange: [number, number] | null = null;
+
+  /** Sync Visible Range: publish this editor's range after it changed, or adopt the one published last. */
+  private syncVisibleRange(W: number) {
+    if (!this.syncRange || W <= 0) {
+      this.lastRange = null;
+      return;
+    }
+    const a = this.view.xf(0),
+      b = this.view.xf(W);
+    const same = (r: [number, number] | null, x: number, y: number) => !!r && Math.abs(r[0] - x) < 1e-6 && Math.abs(r[1] - y) < 1e-6;
+    const unchanged = !this.lastRange || same(this.lastRange, a, b);
+    if (this.syncSeen < syncedRange.rev && unchanged) {
+      this.view.ppf = W / Math.max(1e-6, syncedRange.b - syncedRange.a);
+      this.view.x0 = syncedRange.a;
+      this.syncSeen = syncedRange.rev;
+      this.lastRange = [syncedRange.a, syncedRange.b];
+      return;
+    }
+    if (!unchanged || !this.lastRange) {
+      syncedRange.a = a;
+      syncedRange.b = b;
+      this.syncSeen = ++syncedRange.rev;
+      this.lastRange = [a, b];
+      for (const ar of this.area.screen.areas) {
+        const ed = ar.editor;
+        if (ed !== this && ed instanceof AnimEditor && ed.syncRange) ed.draw();
+      }
+    }
+  }
+
+  /** View ▸ Channels: the menu entry that shows / hides the channel region */
+  channelsMenuItem(): MenuItem {
+    return { label: 'Channels', checked: this.showChannels, action: () => ((this.showChannels = !this.showChannels), this.layout(), this.draw(), app.changed('ui')) };
+  }
+
+  toggleSidebar() {
+    this.showSidebar = !this.showSidebar;
+    this.layout();
+    this.refresh();
+  }
+
+  // ---------------------------------------------------------------- drawing
+
+  protected fitInitial(W: number) {
+    const s = app.doc.scene;
+    this.view.width = W;
+    this.view.fitX(s.frame_start, s.frame_end, 40);
+  }
+
+  draw() {
+    const c = this.canvas;
+    const W = this.mainW,
+      H = this.mainH;
+    if (!W || !H) return;
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) {
+      c.width = Math.round(W * dpr);
+      c.height = Math.round(H * dpr);
+      c.style.width = `${W}px`;
+      c.style.height = `${H}px`;
+    }
+    this.view.width = W;
+    this.view.height = Math.max(1, this.contentBottom() - RULER_H);
+    if (!this.fitted) {
+      this.fitInitial(W);
+      this.fitted = true;
+    }
+    this.syncVisibleRange(W);
+    const g = c.getContext('2d')!;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = C.back;
+    g.fillRect(0, 0, W, H);
+    this.drawRanges(g, W, H);
+    this.drawFrameGrid(g, W, H);
+    g.save();
+    g.beginPath();
+    g.rect(0, RULER_H, W, this.contentBottom() - RULER_H);
+    g.clip();
+    this.drawContent(g, W, H);
+    g.restore();
+    this.drawMarkers(g, W, H);
+    this.drawPlayheadLine(g, H);
+    this.drawRuler(g, W);
+    if (this.boxRect) {
+      const b = this.boxRect;
+      g.fillStyle = 'rgba(255, 255, 255,0.06)';
+      g.strokeStyle = 'rgba(255, 255, 255,0.8)';
+      g.setLineDash([4, 3]);
+      g.fillRect(Math.min(b.x0, b.x1), Math.min(b.y0, b.y1), Math.abs(b.x1 - b.x0), Math.abs(b.y1 - b.y0));
+      g.strokeRect(Math.min(b.x0, b.x1) + 0.5, Math.min(b.y0, b.y1) + 0.5, Math.abs(b.x1 - b.x0), Math.abs(b.y1 - b.y0));
+      g.setLineDash([]);
+    }
+    if (this.overlay) this.drawOverlay(g, W);
+  }
+
+  protected drawOverlay(g: CanvasRenderingContext2D, W: number) {
+    const o = this.overlay!;
+    g.save();
+    if (o.circle) {
+      g.strokeStyle = 'rgba(255, 255, 255,0.85)';
+      g.setLineDash([4, 3]);
+      g.beginPath();
+      g.arc(o.circle.x, o.circle.y, o.circle.r, 0, Math.PI * 2);
+      g.stroke();
+    }
+    if (o.lasso && o.lasso.length > 1) {
+      g.strokeStyle = 'rgba(255, 255, 255,0.85)';
+      g.fillStyle = 'rgba(255, 255, 255,0.06)';
+      g.setLineDash([4, 3]);
+      g.beginPath();
+      o.lasso.forEach((p, i) => (i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)));
+      g.closePath();
+      g.fill();
+      g.stroke();
+    }
+    g.setLineDash([]);
+    if (o.slider) {
+      // slider readout centred at the top of the content region
+      const w = Math.min(320, W - 20),
+        x = (W - w) / 2,
+        y = RULER_H + 8,
+        hh = 22;
+      g.fillStyle = 'rgba(27, 28, 29,0.9)';
+      roundRect(g, x, y, w, hh, 5);
+      g.fill();
+      if (o.slider.t !== null) {
+        const t = Math.max(0, Math.min(1, o.slider.t)),
+          t0 = o.slider.t0 ?? 0;
+        g.fillStyle = 'rgba(87, 128, 219,0.55)';
+        const a = Math.min(t, t0),
+          b = Math.max(t, t0);
+        roundRect(g, x + 2 + (w - 4) * a, y + 2, Math.max(0, (w - 4) * (b - a)), hh - 4, 3);
+        g.fill();
+        g.fillStyle = 'rgba(255, 255, 255,0.35)';
+        g.fillRect(Math.round(x + w / 2) + 0.5, y + 3, 1, hh - 6);
+      }
+      g.fillStyle = '#eaebec';
+      g.font = '12px Inter, system-ui, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText(`${o.slider.label}: ${o.slider.text}`, W / 2, y + hh / 2 + 1);
+      g.textBaseline = 'alphabetic';
+    }
+    g.restore();
+  }
+
+  protected drawRanges(g: CanvasRenderingContext2D, W: number, H: number) {
+    const s = app.doc.scene,
+      v = this.view;
+    const a = v.fx(s.frame_start),
+      b = v.fx(s.frame_end);
+    g.fillStyle = C.outOfRange;
+    if (a > 0) g.fillRect(0, RULER_H, Math.min(W, a), H);
+    if (b < W) g.fillRect(Math.max(0, b), RULER_H, W - b, H);
+    if (s.use_preview_range) {
+      const pa = v.fx(s.frame_preview_start ?? s.frame_start),
+        pb = v.fx(s.frame_preview_end ?? s.frame_end);
+      g.fillStyle = C.previewRange;
+      if (pa > 0) g.fillRect(0, RULER_H, Math.min(W, pa), H);
+      if (pb < W) g.fillRect(Math.max(0, pb), RULER_H, W - pb, H);
+    }
+  }
+
+  protected drawFrameGrid(g: CanvasRenderingContext2D, W: number, H: number) {
+    const v = this.view;
+    const step = frameStep(v.ppf, app.doc.scene.render.fps);
+    const first = Math.floor(v.xf(0) / step) * step;
+    g.lineWidth = 1;
+    for (let f = first; v.fx(f) < W + 1; f += step) {
+      const x = Math.round(v.fx(f)) + 0.5;
+      g.strokeStyle = C.grid;
+      g.beginPath();
+      g.moveTo(x, RULER_H);
+      g.lineTo(x, H);
+      g.stroke();
+      // half-step minor line
+      const xm = Math.round(v.fx(f + step / 2)) + 0.5;
+      if (step >= 2 && v.ppf * step > 60) {
+        g.strokeStyle = C.gridMinor;
+        g.beginPath();
+        g.moveTo(xm, RULER_H);
+        g.lineTo(xm, H);
+        g.stroke();
+      }
+    }
+  }
+
+  protected drawRuler(g: CanvasRenderingContext2D, W: number) {
+    const v = this.view,
+      s = app.doc.scene;
+    g.fillStyle = C.rulerBack;
+    g.fillRect(0, 0, W, RULER_H);
+    g.fillStyle = 'rgba(0, 0, 0,0.3)';
+    g.fillRect(0, RULER_H - 1, W, 1);
+    const step = frameStep(v.ppf, s.render.fps);
+    const first = Math.floor(v.xf(0) / step) * step;
+    g.font = '11px Inter, system-ui, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillStyle = C.rulerText;
+    // playhead box (labels under it are skipped)
+    const px = Math.round(v.fx(s.frame_current));
+    const fmt = (f: number) => (this.showSeconds ? formatSeconds(f, s.render.fps / (s.render.fps_base || 1)) : String(f));
+    const label = fmt(s.frame_current);
+    const tw = Math.max(24, g.measureText(label).width + 12);
+    for (let f = first; v.fx(f) < W + 30; f += step) {
+      const x = Math.round(v.fx(f));
+      const lw = g.measureText(fmt(f)).width;
+      if (Math.abs(x - px) < tw / 2 + lw / 2 + 2) continue;
+      g.fillText(fmt(f), x, RULER_H / 2 + 1);
+    }
+    g.fillStyle = C.playhead;
+    roundRect(g, px - tw / 2, 2, tw, RULER_H - 4, 4);
+    g.fill();
+    g.fillStyle = C.playheadText;
+    g.fillText(label, px, RULER_H / 2 + 1);
+    g.textBaseline = 'alphabetic';
+  }
+
+  protected drawPlayheadLine(g: CanvasRenderingContext2D, H: number) {
+    const px = Math.round(this.view.fx(app.doc.scene.frame_current)) + 0.5;
+    g.strokeStyle = C.playhead;
+    g.lineWidth = 2;
+    g.beginPath();
+    g.moveTo(px, RULER_H);
+    g.lineTo(px, H);
+    g.stroke();
+    g.lineWidth = 1;
+  }
+
+  protected drawMarkers(g: CanvasRenderingContext2D, W: number, H: number) {
+    if (!this.markersVisible()) return;
+    if (this.compactMarkers) return this.drawCompactMarkers(g, W, H);
+    const top = H - MARKER_H;
+    g.fillStyle = 'rgba(0, 0, 0,0.25)';
+    g.fillRect(0, top, W, MARKER_H);
+    g.font = '11px Inter, system-ui, sans-serif';
+    g.textAlign = 'left';
+    for (const m of this.markerList()) {
+      const x = Math.round(this.view.fx(m.frame)) + 0.5;
+      if (x < -100 || x > W + 10) continue;
+      g.strokeStyle = m.select ? 'rgba(255, 255, 255,0.55)' : 'rgba(0, 0, 0,0.45)';
+      g.setLineDash([3, 3]);
+      g.beginPath();
+      g.moveTo(x, RULER_H);
+      g.lineTo(x, top + 4);
+      g.stroke();
+      g.setLineDash([]);
+      g.fillStyle = m.select ? C.markerSelected : C.marker;
+      g.beginPath();
+      g.moveTo(x, top + 15);
+      g.lineTo(x - 5, top + 8);
+      g.lineTo(x - 5, top + 4);
+      g.lineTo(x + 5, top + 4);
+      g.lineTo(x + 5, top + 8);
+      g.closePath();
+      g.fill();
+      g.fillStyle = m.select ? '#ffffff' : '#bbbcbe';
+      g.fillText(m.name, x + 8, top + 14);
+    }
+  }
+
+  /** Small markers along the bottom edge (no separate row). */
+  protected drawCompactMarkers(g: CanvasRenderingContext2D, W: number, H: number) {
+    g.font = '10px Inter, system-ui, sans-serif';
+    g.textAlign = 'left';
+    for (const m of this.markerList()) {
+      const x = Math.round(this.view.fx(m.frame)) + 0.5;
+      if (x < -100 || x > W + 10) continue;
+      g.strokeStyle = m.select ? 'rgba(255, 255, 255,0.5)' : 'rgba(0, 0, 0,0.4)';
+      g.setLineDash([3, 3]);
+      g.beginPath();
+      g.moveTo(x, RULER_H);
+      g.lineTo(x, H - 9);
+      g.stroke();
+      g.setLineDash([]);
+      g.fillStyle = m.select ? C.markerSelected : C.marker;
+      g.beginPath();
+      g.moveTo(x, H - 2);
+      g.lineTo(x - 4, H - 8);
+      g.lineTo(x + 4, H - 8);
+      g.closePath();
+      g.fill();
+      g.fillStyle = m.select ? '#ffffff' : '#bbbcbe';
+      g.fillText(m.name, x + 6, H - 2);
+    }
+  }
+
+  // ---------------------------------------------------------------- input
+
+  protected onCanvasDown(e: PointerEvent) {
+    if (app.modal) return;
+    const { x, y } = this.local(e);
+    const region = this.regionAt(e);
+    if (e.button === 1) {
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) this.dragZoom(e);
+      else this.dragPan(e);
+      return;
+    }
+    if (e.button === 2) {
+      e.preventDefault();
+      if (region === 'markers') {
+        openMenu(markerMenu(), { x: e.clientX, y: e.clientY });
+        return;
+      }
+      const items = this.mainContextMenu();
+      if (items) openMenu(items, { x: e.clientX, y: e.clientY });
+      return;
+    }
+    if (e.button !== 0) return;
+    if (region === 'ruler') return this.scrub(e);
+    if (region === 'markers') return this.markerDown(e, x);
+    this.mainDown(e, x, y);
+  }
+
+  scrub(e: PointerEvent) {
+    const set = (ev: PointerEvent) => {
+      let f = Math.round(this.view.xf(this.local(ev).x));
+      const sc = app.doc.scene;
+      if (sc.lock_frame_selection_to_range) {
+        const [a, b] = sc.use_preview_range ? [sc.frame_preview_start ?? sc.frame_start, sc.frame_preview_end ?? sc.frame_end] : [sc.frame_start, sc.frame_end];
+        f = Math.max(a, Math.min(b, f));
+      }
+      if (f !== app.doc.scene.frame_current) app.setFrame(f);
+    };
+    set(e);
+    const up = () => {
+      removeEventListener('pointermove', set);
+      removeEventListener('pointerup', up);
+    };
+    addEventListener('pointermove', set);
+    addEventListener('pointerup', up);
+  }
+
+  protected markerDown(e: PointerEvent, x: number) {
+    if (markersLocked()) return;
+    const list = this.markerList();
+    const best = markerAt(this.view.xf(x), this.view.ppf);
+    if (!best) {
+      // empty marker row: click deselects, drag box-selects markers
+      this.clickOrDrag(
+        e,
+        () => {
+          if (e.shiftKey) return;
+          list.forEach((m) => (m.select = false));
+          app.pushUndo('Select Markers');
+          app.changed('ui');
+          this.draw();
+        },
+        (start) =>
+          this.boxGesture(start, (r, mode) => app.run('marker.select_box', { mode, xmin: this.view.xf(r.x0), xmax: this.view.xf(r.x1) }, { area: this.area, invoke: false })),
+      );
+      return;
+    }
+    if (e.ctrlKey || e.metaKey) {
+      // Ctrl+click: select and make the marker's camera active
+      app.run('marker.select', { frame: best.frame, extend: e.shiftKey, camera: true }, { area: this.area, invoke: false });
+      return;
+    }
+    if (e.shiftKey) best.select = !best.select;
+    else if (!best.select) {
+      list.forEach((m) => (m.select = false));
+      best.select = true;
+    }
+    this.draw();
+    const sel = list.filter((m) => m.select);
+    const orig = sel.map((m) => m.frame);
+    const x0 = e.clientX;
+    let moved = false;
+    const move = (ev: PointerEvent) => {
+      const df = Math.round((ev.clientX - x0) / this.view.ppf);
+      if (Math.abs(ev.clientX - x0) > 3) moved = true;
+      if (!moved) return;
+      sel.forEach((m, i) => (m.frame = orig[i] + df));
+      app.changed('ui');
+      this.draw();
+    };
+    const up = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+      if (!moved && !e.shiftKey) {
+        list.forEach((m) => (m.select = m === best));
+      }
+      app.pushUndo(moved ? 'Move Markers' : 'Select Marker');
+      app.changed('doc');
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  }
+
+  protected dragPan(e: PointerEvent) {
+    let lx = e.clientX,
+      ly = e.clientY;
+    const move = (ev: PointerEvent) => {
+      const dx = ev.clientX - lx,
+        dy = ev.clientY - ly;
+      lx = ev.clientX;
+      ly = ev.clientY;
+      this.view.panPx(dx, this.rowScroll ? 0 : dy);
+      if (this.rowScroll) this.scrollBy(-dy);
+      else this.draw();
+      this.afterViewChange();
+    };
+    const up = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  }
+
+  protected dragZoom(e: PointerEvent) {
+    const { x: ax, y: ay } = this.local(e);
+    let lx = e.clientX,
+      ly = e.clientY;
+    const move = (ev: PointerEvent) => {
+      const dx = ev.clientX - lx,
+        dy = ev.clientY - ly;
+      lx = ev.clientX;
+      ly = ev.clientY;
+      this.view.zoomX(Math.exp(dx * 0.01), ax);
+      if (!this.rowScroll) this.view.zoomY(Math.exp(-dy * 0.01), ay - RULER_H);
+      this.draw();
+      this.afterViewChange();
+    };
+    const up = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  }
+
+  protected dragScroll(e: PointerEvent) {
+    let ly = e.clientY;
+    const move = (ev: PointerEvent) => {
+      this.scrollBy(ly - ev.clientY);
+      ly = ev.clientY;
+    };
+    const up = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  }
+
+  protected onWheel(e: WheelEvent) {
+    e.preventDefault();
+    if (app.modal) {
+      app.modal.onWheel?.(e);
+      return;
+    }
+    const { x, y } = this.local(e);
+    const dx = e.deltaX,
+      dy = e.deltaY;
+    if (e.ctrlKey || e.metaKey) {
+      // Ctrl+wheel scrolls horizontally
+      this.view.panPx(-(dy || dx), 0);
+    } else if (e.shiftKey) {
+      if (this.rowScroll) this.scrollBy(dy || dx);
+      else this.view.panPx(0, -(dy || dx));
+    } else if (Math.abs(dx) > Math.abs(dy)) {
+      this.view.panPx(-dx, 0);
+    } else {
+      const k = Math.exp(-dy * 0.0025);
+      this.wheelZoom(k, x, y - RULER_H);
+    }
+    this.draw();
+    this.afterViewChange();
+  }
+
+  /** hook after pan/zoom (e.g. redraw overlays) */
+  protected afterViewChange() {}
+
+  /** Generic box gesture in the main region. `done` gets canvas-local rect and modifier mode. */
+  boxGesture(
+    e: { clientX: number; clientY: number },
+    done: (r: { x0: number; y0: number; x1: number; y1: number }, mode: 'SET' | 'ADD' | 'SUB') => void,
+    startNow = true,
+    mode0?: 'SET' | 'ADD' | 'SUB',
+  ) {
+    const p0 = this.local(e);
+    this.boxRect = startNow ? { x0: p0.x, y0: p0.y, x1: p0.x, y1: p0.y } : null;
+    let mode = mode0 ?? 'SET';
+    const move = (ev: PointerEvent) => {
+      const p = this.local(ev);
+      if (!this.boxRect) return;
+      this.boxRect.x1 = p.x;
+      this.boxRect.y1 = p.y;
+      this.draw();
+    };
+    const up = (ev: PointerEvent) => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+      const r = this.boxRect;
+      this.boxRect = null;
+      if (!mode0) mode = ev.shiftKey ? 'ADD' : ev.ctrlKey || ev.metaKey ? 'SUB' : 'SET';
+      if (r)
+        done(
+          {
+            x0: Math.min(r.x0, r.x1),
+            y0: Math.min(r.y0, r.y1),
+            x1: Math.max(r.x0, r.x1),
+            y1: Math.max(r.y0, r.y1),
+          },
+          mode,
+        );
+      this.draw();
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  }
+
+  /** Drag threshold helper: calls `onDrag` once the pointer moved, else `onClick` on release. */
+  protected clickOrDrag(e: PointerEvent, onClick: () => void, onDrag: (start: PointerEvent) => void) {
+    const x0 = e.clientX,
+      y0 = e.clientY;
+    let dragging = false;
+    const move = (ev: PointerEvent) => {
+      if (dragging) return;
+      if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 4) {
+        dragging = true;
+        cleanup();
+        onDrag(e);
+      }
+    };
+    const up = () => {
+      cleanup();
+      if (!dragging) onClick();
+    };
+    const cleanup = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  }
+
+  centerCurrentFrame() {
+    this.view.centerOnFrame(app.doc.scene.frame_current);
+    this.draw();
+  }
+
+  viewFrameRange(a: number, b: number) {
+    this.view.width = this.mainW;
+    this.view.fitX(a, b, 40);
+    this.draw();
+  }
+}
+
+export { formatSeconds } from './view2d';
+
+function div(cls: string) {
+  const d = document.createElement('div');
+  d.className = cls;
+  return d;
+}
+
+export function roundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, hh: number, r: number) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + hh, r);
+  g.arcTo(x + w, y + hh, x, y + hh, r);
+  g.arcTo(x, y + hh, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+
+export { markerMenu };

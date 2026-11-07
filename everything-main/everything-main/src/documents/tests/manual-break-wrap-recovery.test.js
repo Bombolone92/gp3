@@ -1,0 +1,85 @@
+import { it, expect, beforeAll, afterAll } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { manualBreakWrapPreview } from '../src/engine/manual-break-wrap-preview.js';
+import { layoutDocument, caretRect, selectionRects } from '../src/engine/layout.js';
+import { layoutPageStories } from '../src/engine/page-story-layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => { dom.window.close(); delete globalThis.DOMParser; delete globalThis.XMLSerializer; });
+const measure = (text, style) => ({ width: text.length * style.fontSize * .6, ascent: style.fontSize, descent: style.fontSize * .2 });
+const folder = 'tests/fixtures/manual-break-wrap/';
+const place = (pkg, bestEffort) => layoutDocument(pkg.paragraphs, measure, pageGeometry(pkg.pageSettings), pkg.numbering, pkg.tables, pkg.pageStories, { bestEffort });
+const geometry = lines => lines.map(l => ({ page: l.page, y: l.y, baseline: l.baseline, fragments: l.fragments.map(f => ({ text: f.text, x: f.x, width: f.width, image: f.image && { width: f.image.width, height: f.image.height, anchor: f.image.anchor } })) }));
+for (const scope of ['body', 'header', 'footer']) it(`retains rich ${scope} content without altering source wrapping`, async () => {
+  const bytes = readFileSync(folder + scope + '-unsupported.docx');
+  const pkg = await DocxPackage.open(bytes), control = await DocxPackage.open(readFileSync(folder + scope + '-matched.docx'));
+  const original = JSON.stringify({ paragraphs: pkg.paragraphs, stories: pkg.pageStories });
+  const strict = place(pkg, false), actual = place(pkg, true), expected = place(control, false);
+  expect(geometry(actual.lines)).toEqual(geometry(strict.lines));
+  const stories = layoutPageStories(actual, pkg.pageStories, [pkg.pageSettings], measure, pkg.numbering, { bestEffort: true });
+  const matched = layoutPageStories(expected, control.pageStories, [control.pageSettings], measure, control.numbering);
+  const strictStories = layoutPageStories(strict, pkg.pageStories, [pkg.pageSettings], measure, pkg.numbering);
+  expect(geometry(stories.lines)).toEqual(geometry(strictStories.lines));
+  expect(geometry(scope === 'body' ? actual.lines : stories.lines)).not.toEqual(geometry(scope === 'body' ? expected.lines : matched.lines));
+  const issues = scope === 'body' ? actual.manualBreakWrapApproximations : stories.unsupported;
+  expect(issues || []).toHaveLength(0);
+  expect(JSON.stringify({ paragraphs: pkg.paragraphs, stories: pkg.pageStories })).toBe(original);
+  expect(unzipSync(new Uint8Array(await pkg.export().arrayBuffer()))).toEqual(unzipSync(bytes));
+});
+it('retains supported wrapping even in previews and recovers only unsupported cell wrapping', () => {
+  const picture = wrap => ({ text: '\ufffc', image: { width: 100, height: 200, anchor: { wrap, x: 40, y: 80, vertical: 'paragraph', behindDoc: true } } });
+  const healthy = { id: 'healthy', runs: [picture('square'), { text: 'No break' }] };
+  const unwrapped = picture('none');
+  const supported = { id: 'supported', runs: [{ text: 'Before\vAfter' }, picture('square')] };
+  const affected = { id: 'affected', cellId: 'cell', runs: [{ text: 'Before\vAfter' }, picture('square'), unwrapped] };
+  const pageBreak = { id: 'page', runs: [{ text: '\v\f' }, picture('square')] };
+  const columnBreak = { id: 'column', runs: [{ text: '\v\u000e' }, picture('square')] };
+  const source = [healthy, affected, pageBreak, columnBreak, supported], snapshot = structuredClone(source);
+  const result = manualBreakWrapPreview(source);
+  expect(result.paragraphs[0]).toBe(healthy);
+  expect(result.paragraphs[2]).toBe(pageBreak); expect(result.paragraphs[3]).toBe(columnBreak);
+  expect(result.paragraphs[4]).toBe(supported);
+  expect(result.paragraphs[1].runs[2]).toBe(unwrapped);
+  expect(result.paragraphs[1].runs[1].image).toEqual({ ...affected.runs[1].image, anchor: { ...affected.runs[1].image.anchor, wrap: 'none' } });
+  expect(result.approximations).toHaveLength(1); expect(source).toEqual(snapshot);
+  expect(manualBreakWrapPreview([healthy]).paragraphs[0]).toBe(healthy);
+  expect(manualBreakWrapPreview([supported]).paragraphs[0]).toBe(supported);
+});
+it('propagates unexpected measurement defects', async () => {
+  const pkg = await DocxPackage.open(readFileSync(folder + 'body-unsupported.docx'));
+  expect(() => layoutDocument(pkg.paragraphs, () => { throw Error('measurement defect'); }, pageGeometry(pkg.pageSettings), pkg.numbering, pkg.tables, pkg.pageStories, { bestEffort: true })).toThrow('measurement defect');
+});
+it('keeps the source break between the two text regions on one physical row', async () => {
+  const pkg = await DocxPackage.open(readFileSync('tests/fixtures/manual-break-wrapping/body.docx'));
+  const layout = place(pkg, false);
+  const row = layout.lines.find(l => l.page === 5 && l.wrapSegments);
+  expect(row.wrapSegments).toHaveLength(2);
+  const [left, right] = row.wrapSegments;
+  expect(left.hardBreak).toBe('line');
+  expect(left.fragments.filter(f => !f.image).map(f => f.text).join('')).toBe('FIRST 5');
+  expect(right.fragments.map(f => f.text).join('')).toBe('SECOND 5');
+  expect(right.start).toBe(left.end + 1);
+  const before = caretRect(layout, left.end), after = caretRect(layout, right.start);
+  expect(after.y).toBe(before.y); expect(after.x).toBeGreaterThan(before.x);
+  const rects = selectionRects(layout, left.fragments.find(f => !f.image).start, right.end);
+  expect(rects).toHaveLength(2);
+  expect(rects[0].x + rects[0].width).toBeLessThan(rects[1].x);
+});
+it('continues rejecting positioned page/column breaks and wrapping inside cells', async () => {
+  for (const text of ['\f', '\u000e']) {
+    const pkg = await DocxPackage.open(readFileSync(folder + 'body-unsupported.docx'));
+    const p = pkg.paragraphs.find(p => p.runs.some(r => r.image));
+    p.runs.push({text});
+    expect(() => place(pkg, false)).toThrow(/page\/column breaks/);
+  }
+  const pkg = await DocxPackage.open(readFileSync(folder + 'body-unsupported.docx'));
+  const image = pkg.paragraphs.find(p => p.runs.some(r => r.image)).runs.find(r => r.image);
+  const cell = pkg.paragraphs.find(p => p.cellId);
+  cell.runs.push({text:'\vAfter cell break'}, structuredClone(image));
+  expect(() => place(pkg, false)).toThrow(/table drawings require no wrapping/);
+  expect(() => place(pkg, true)).not.toThrow();
+});

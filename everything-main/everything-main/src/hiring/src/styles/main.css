@@ -1,0 +1,4091 @@
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                       */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f1f1f3;
+  --surface-3: #e9e9ec;
+  --border: #e4e4e8;
+  --border-strong: #d1d1d6;
+  --text: #1a1a1e;
+  --text-2: #55555e;
+  --text-3: #6b6b75;
+  /* Brand yellow (#fad319) fills; text-level accents use a darkened same-hue
+     tone so links, active nav, and focus rings hold 4.5:1 on light surfaces. */
+  --brand: #fad319;
+  --brand-strong: #e9c308;
+  --on-brand: #221c03;
+  --accent: #75610a;
+  --accent-strong: #5d4d05;
+  --danger: #dc2626;
+  /* Text on a solid --danger fill; the dark theme's lighter red needs
+     dark text to keep the error toast at AA contrast. */
+  --on-danger: #ffffff;
+  --success: #15803d;
+  --warning: #b45309;
+  --scrim: rgba(24, 24, 27, 0.45);
+  --stage-applied: #64748b;
+  --stage-screen: #0e7490;
+  --stage-interview: #2563eb;
+  --stage-offer: #b45309;
+  --stage-hired: #15803d;
+  /* Palette for user-defined stages, assigned in order of appearance. */
+  --stage-custom-1: #7c3aed;
+  --stage-custom-2: #0f766e;
+  --stage-custom-3: #be185d;
+  --stage-custom-4: #4d7c0f;
+  --stage-custom-5: #a21caf;
+  --stage-custom-6: #4338ca;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #101013;
+  --surface: #18181c;
+  --surface-2: #212126;
+  --surface-3: #2a2a30;
+  --border: #26262c;
+  --border-strong: #3a3a42;
+  --text: #f0f0f2;
+  --text-2: #a5a5af;
+  --text-3: #8b8b96;
+  --brand: #fad319;
+  --brand-strong: #ffe14d;
+  --on-brand: #221c03;
+  --accent: #fad319;
+  --accent-strong: #ffe14d;
+  --danger: #f26d6d;
+  --on-danger: #101013;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --scrim: rgba(0, 0, 0, 0.55);
+  --stage-applied: #94a3b8;
+  --stage-screen: #38bdf8;
+  --stage-interview: #82a5f5;
+  --stage-offer: #fbbf24;
+  --stage-hired: #4ade80;
+  --stage-custom-1: #a78bfa;
+  --stage-custom-2: #2dd4bf;
+  --stage-custom-3: #f472b6;
+  --stage-custom-4: #a3e635;
+  --stage-custom-5: #e879f9;
+  --stage-custom-6: #818cf8;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #101013;
+    --surface: #18181c;
+    --surface-2: #212126;
+    --surface-3: #2a2a30;
+    --border: #26262c;
+    --border-strong: #3a3a42;
+    --text: #f0f0f2;
+    --text-2: #a5a5af;
+    --text-3: #8b8b96;
+    --brand: #fad319;
+    --brand-strong: #ffe14d;
+    --on-brand: #221c03;
+    --accent: #fad319;
+    --accent-strong: #ffe14d;
+    --danger: #f26d6d;
+    --on-danger: #101013;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --scrim: rgba(0, 0, 0, 0.55);
+    --stage-applied: #94a3b8;
+    --stage-screen: #38bdf8;
+    --stage-interview: #82a5f5;
+    --stage-offer: #fbbf24;
+    --stage-hired: #4ade80;
+    --stage-custom-1: #a78bfa;
+    --stage-custom-2: #2dd4bf;
+    --stage-custom-3: #f472b6;
+    --stage-custom-4: #a3e635;
+    --stage-custom-5: #e879f9;
+    --stage-custom-6: #818cf8;
+    color-scheme: dark;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+dt,
+ul,
+ol {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+}
+
+.icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand) 40%, transparent);
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--text-3);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.link-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons                                                             */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.btn:hover {
+  background: var(--surface-2);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--on-brand);
+}
+
+.btn-primary:hover {
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
+}
+
+.btn-danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border-strong));
+}
+
+.btn-danger:hover {
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+.btn-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-2);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.btn-icon {
+  width: 34px;
+  padding: 0;
+}
+
+.btn-sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  border-radius: 7px;
+}
+
+.btn-sm.btn-icon {
+  width: 28px;
+  padding: 0;
+}
+
+.btn-icon-danger:hover {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 9%, transparent);
+}
+
+.btn-block {
+  width: 100%;
+  height: 40px;
+}
+
+.btn-dashed {
+  border-style: dashed;
+}
+
+/* Pressed states. Every control had a hover and nothing else, so a press
+   was acknowledged only on a device that can hover — and even there, a
+   button held down looked no different from one merely pointed at. These
+   come after the :hover rules deliberately: both match while the pointer
+   is down, and the later one is meant to win. */
+.btn:active {
+  background: var(--surface-3);
+}
+
+/* A filled button has no surface token to step to, and the brand ramp
+   runs opposite ways in the two themes (hover darkens on light, lightens
+   on dark). An inset wash dims the fill the same amount either way, and
+   sits under the label so the text stays crisp. */
+.btn-primary:active {
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
+  box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.08);
+}
+
+.btn-danger:active {
+  background: color-mix(in srgb, var(--danger) 16%, var(--surface));
+}
+
+.btn-icon-danger:active {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Forms                                                               */
+/* ------------------------------------------------------------------ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field > label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+}
+
+.textarea {
+  height: auto;
+  min-height: 68px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b8b95' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  padding-right: 30px;
+}
+
+input[type='date'].input,
+input[type='time'].input {
+  font-variant-numeric: tabular-nums;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-grid .span-2 {
+  grid-column: span 2;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-row .select {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.input-sep {
+  color: var(--text-3);
+}
+
+.form-error {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 9%, transparent);
+}
+
+.form-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 11%, transparent);
+}
+
+.error-region:empty {
+  display: none;
+}
+
+.confirm-message {
+  color: var(--text-2);
+  font-size: 13.5px;
+}
+
+/* Segmented control */
+
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  gap: 2px;
+}
+
+.segmented button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 4px 11px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.segmented button:hover {
+  color: var(--text);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  padding: 3px 10px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Badges, avatars                                                     */
+/* ------------------------------------------------------------------ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 21px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  background: var(--surface-2);
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+/* Badge text mixes 20% of --text into the status color: the raw tokens
+   sit at 4.0–4.5:1 over their own light-theme tints — under AA for
+   11.5px/600 text — and these pills carry the primary status words
+   (Rejected, Hired, Awaiting signature). The mix darkens text in light
+   mode and lightens it in dark mode, landing 5.4:1+ in both. */
+.badge-success {
+  background: color-mix(in srgb, var(--success) 13%, transparent);
+  color: color-mix(in srgb, var(--success) 80%, var(--text));
+}
+
+.badge-warning {
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
+  color: color-mix(in srgb, var(--warning) 80%, var(--text));
+}
+
+.badge-danger {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: color-mix(in srgb, var(--danger) 80%, var(--text));
+}
+
+.badge-accent {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: color-mix(in srgb, var(--accent) 80%, var(--text));
+}
+
+.badge-info {
+  background: color-mix(in srgb, var(--stage-screen) 13%, transparent);
+  color: color-mix(in srgb, var(--stage-screen) 80%, var(--text));
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: color-mix(in srgb, var(--person, var(--accent)) 16%, var(--surface));
+  color: var(--person, var(--accent));
+  user-select: none;
+}
+
+[data-theme='dark'] .avatar {
+  background: color-mix(in srgb, var(--person, var(--accent)) 22%, var(--surface));
+  color: color-mix(in srgb, var(--person, var(--accent)) 55%, #ffffff);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .avatar {
+    background: color-mix(in srgb, var(--person, var(--accent)) 22%, var(--surface));
+    color: color-mix(in srgb, var(--person, var(--accent)) 55%, #ffffff);
+  }
+}
+
+.avatar-lg {
+  width: 44px;
+  height: 44px;
+  font-size: 14.5px;
+}
+
+.avatar-sm {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+/* ------------------------------------------------------------------ */
+/* App shell                                                           */
+/* ------------------------------------------------------------------ */
+
+.app {
+  display: grid;
+  grid-template-columns: 236px 1fr;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  min-height: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 14px;
+}
+
+.brand-img {
+  display: block;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.brand-name {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.nav-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.nav-item[aria-current='page'] {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+.nav-badge {
+  margin-left: auto;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+  /* Same 20%-of-text mix the status pills use: raw --warning over its own
+     tint is 4.0:1 in light mode, under AA for 11px text, and this counter
+     is the only thing saying how much work is waiting. */
+  color: color-mix(in srgb, var(--warning) 80%, var(--text));
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--border);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px;
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.user-card .name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-card .meta {
+  font-size: 11.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Footer actions are secondary; keep them compact so the name has room. */
+.user-card .btn-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.user-card .user-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.powered {
+  font-size: 11px;
+  color: var(--text-3);
+  padding: 0 6px 2px;
+}
+
+.powered a {
+  color: var(--text-3);
+}
+
+/* Main column */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.mobile-topbar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 14px;
+  padding-top: env(safe-area-inset-top);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.mobile-topbar .spacer {
+  flex: 1;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.content-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 22px 24px 40px;
+}
+
+.view-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.view-header h1 {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.view-header .subtitle {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.view-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 22px 0 10px;
+}
+
+section:first-of-type .section-title {
+  margin-top: 0;
+}
+
+.back-link {
+  margin-bottom: 10px;
+  margin-left: -10px;
+}
+
+/* Bottom tab bar (mobile) */
+
+.tabbar {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Columns follow the item count, so adding or removing a tab needs no
+   change here. `1fr` keeps an auto minimum, which lets the widest label
+   ("Interviews") borrow a few pixels from its neighbours on a 320px
+   phone rather than being clipped. */
+.tabbar-inner {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  height: 56px;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 0;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab-item[aria-current='page'] {
+  color: var(--accent);
+}
+
+/* The same counter the sidebar shows. A tab is a two-line column, so the
+   pill cannot sit at the end of a row the way it does there: pin it to
+   the top-right of the icon, which is where a tab badge is looked for,
+   and out of the label's way. */
+.tab-item {
+  position: relative;
+}
+
+.tab-item .nav-badge {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  margin-left: 4px;
+  min-width: 17px;
+  height: 17px;
+  font-size: 10.5px;
+  /* Over the bar's own surface rather than the transparent tint the
+     sidebar row can rely on, so the count keeps its contrast. */
+  background: color-mix(in srgb, var(--warning) 16%, var(--surface));
+}
+
+/* Tab bar's "More" sheet: the sidebar's nav rows, sized for a thumb. */
+.nav-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-sheet .nav-item {
+  padding: 12px;
+  font-size: 14px;
+}
+
+.fab {
+  display: none;
+  position: fixed;
+  right: 18px;
+  bottom: calc(74px + env(safe-area-inset-bottom));
+  z-index: 39;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid var(--brand-strong);
+  background: var(--brand);
+  color: var(--on-brand);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards, stats, lists                                                 */
+/* ------------------------------------------------------------------ */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.card-pad {
+  padding: 16px;
+}
+
+.card-title {
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+}
+
+.card-pad > .card-title {
+  margin-bottom: 10px;
+}
+
+.card-title-pad {
+  padding: 14px 16px 6px;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px 8px;
+}
+
+.card-title-row.no-pad {
+  padding: 0 0 10px;
+}
+
+.card-empty {
+  padding: 6px 16px 16px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.card-pad .card-empty {
+  padding: 0;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: border-color 120ms ease;
+}
+
+/* Only some stat cards navigate (statCard with onClick); the affordance
+   belongs to those alone — Reports' cards are plain numbers. */
+.stat-card[role='button'] {
+  cursor: pointer;
+}
+
+.stat-card[role='button']:hover {
+  border-color: var(--border-strong);
+}
+
+.stat-card .stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-3);
+}
+
+.stat-card .stat-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stat-card .stat-sub {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.row-list > * + * {
+  border-top: 1px solid var(--border);
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  min-width: 0;
+}
+
+.item-row.is-clickable {
+  cursor: pointer;
+}
+
+.item-row.is-clickable:hover {
+  background: var(--surface-2);
+}
+
+/* A past interview is history, not a disabled control. Fading the whole
+   row took its sub-line — already --text-3 — to 3.0:1 in light mode and
+   3.4:1 in dark, so the format and the panel became the least readable
+   thing on the profile, and it dimmed the row's Edit/Delete buttons until
+   they read as unavailable. Step the heading down instead, the way a
+   zero stage dot does, and leave the rest at full strength. */
+.item-row.is-muted .item-title {
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.item-row.is-muted .itv-type-icon {
+  background: var(--surface-2);
+  color: var(--text-3);
+}
+
+.item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  /* Half these titles are <button> (a candidate name that opens the
+     profile, an attachment that downloads). A button is sized to its
+     content, so `width: auto` ignored the column it was in: the name kept
+     its full width, overran .item-main, and was drawn underneath the row's
+     action buttons — with overlapping hit areas, so tapping the tail of a
+     name could fire Join video call. Capping it at the column restores
+     the ellipsis every div title already got. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-sub {
+  font-size: 12.5px;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 44px 24px;
+  color: var(--text-3);
+}
+
+.empty-state > .icon {
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+
+.empty-state h3 {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.empty-state p {
+  font-size: 13px;
+  max-width: 400px;
+}
+
+.empty-state .empty-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dashboard                                                           */
+/* ------------------------------------------------------------------ */
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.funnel-row {
+  display: grid;
+  grid-template-columns: 84px 1fr 30px;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 4px 2px;
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.funnel-row:hover {
+  background: var(--surface-2);
+}
+
+.funnel-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.funnel-track {
+  height: 14px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+  display: block;
+}
+
+.funnel-bar {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  min-width: 2px;
+  transition: width 300ms ease;
+}
+
+/* The minimum above keeps one candidate out of two hundred visible. At
+   zero there is nothing to keep visible, and it drew a coloured chip
+   against every stage — five of them down an all-noughts funnel on the
+   overview of an account that has not started yet. */
+.funnel-bar.is-empty {
+  min-width: 0;
+}
+
+/* Bars are colored inline from the configured stage list (stagesFrom). */
+
+.funnel-count {
+  font-size: 12.5px;
+  font-weight: 650;
+  text-align: right;
+  color: var(--text-2);
+}
+
+.when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.when-day {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.when-time {
+  font-size: 12.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.when-sub {
+  font-size: 11.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* The zone a slot is in, under its times — drawn only when it is not the
+   reader's own clock, so its presence is itself the signal. */
+.when-zone {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.attention-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  color: var(--warning);
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Jobs                                                                */
+/* ------------------------------------------------------------------ */
+
+.job-grid {
+  display: grid;
+  /* min(300px, 100%), not a flat 300px: on a 320px phone the content
+     column is 292px, and a rigid 300px track made every job card 8px
+     wider than the screen it was on. The whole grid then scrolled
+     sideways, so the status badge on each card sat half off the edge and
+     the view drifted horizontally while being read. The min() keeps the
+     multi-column behaviour wherever there is room for it and lets the
+     single track shrink to the container when there is not. */
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: 12px;
+}
+
+.job-card {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+
+.job-card:hover {
+  border-color: var(--border-strong);
+}
+
+.job-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.job-card-title {
+  font-size: 14.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.job-card-meta {
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+
+.job-card-salary {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.job-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.job-card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.stage-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.stage-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 10.5px;
+  font-weight: 650;
+  color: var(--text-2);
+}
+
+/* "0 in Screening" is information, not decoration: dim it one text step
+   (still 4.6:1+ on the pill) instead of fading the whole pill to ~2:1. */
+.stage-dot.is-zero {
+  color: var(--text-3);
+}
+
+.job-detail-salary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 10px;
+}
+
+.job-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* A description is pasted prose: one long URL with no break opportunity
+     would otherwise run out of the card and take the view's width with it. */
+  overflow-wrap: anywhere;
+}
+
+.job-desc-p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.job-desc-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.job-admin-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Pipeline board                                                      */
+/* ------------------------------------------------------------------ */
+
+.search-input {
+  width: 200px;
+}
+
+.job-filter {
+  width: auto;
+  max-width: 200px;
+}
+
+.board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(248px, 1fr);
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+  align-items: start;
+}
+
+.board-col {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-height: 220px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+}
+
+.board-col.is-over {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-2));
+}
+
+.board-col-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px 8px;
+  color: var(--text-2);
+}
+
+.board-col-title {
+  font-size: 12.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.board-col-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-3);
+}
+
+.board-col-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 8px 10px;
+  flex: 1;
+}
+
+.board-empty {
+  padding: 18px 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: 9px;
+}
+
+.board-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+
+.board-card:hover {
+  border-color: var(--border-strong);
+}
+
+.board-card.is-dragging {
+  opacity: 0.45;
+}
+
+.board-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.board-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-card-job {
+  font-size: 12px;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.board-card-days {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quiet, not loud: same size and weight as the other card chips, only
+   the color says "read this one". */
+.board-card-days.is-flagged {
+  color: var(--danger);
+}
+
+.board-card-lean {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 550;
+}
+
+.lean-hire { color: var(--success); }
+.lean-no_hire { color: var(--danger); }
+.lean-split { color: var(--warning); }
+
+/* ------------------------------------------------------------------ */
+/* Candidate profile                                                   */
+/* ------------------------------------------------------------------ */
+
+.profile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.profile-id {
+  display: flex;
+  gap: 14px;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.profile-head .subtitle {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.contact-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.contact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.stage-select {
+  width: auto;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.detail-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  font-size: 13px;
+}
+
+.detail-list dt {
+  color: var(--text-3);
+}
+
+.detail-list dd {
+  color: var(--text);
+  font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* A snapshot's sub-line carries what it holds and how big it is; one
+   ellipsised line would hide exactly the part you came to read. */
+.snapshot-list .item-sub {
+  white-space: normal;
+  overflow: visible;
+}
+
+/* A control row that may carry more than fits on a phone — a picker plus
+   two buttons. .input-row itself must not wrap: it is what keeps a
+   "min – max" pair on one line. */
+.input-row.wrap {
+  flex-wrap: wrap;
+}
+
+/* Onboarding templates: a row per task — what it is, where it groups, and
+   when it is due relative to the start date. */
+
+.plan-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plan-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.plan-editor-row > .input {
+  flex: 1 1 45%;
+  min-width: 0;
+}
+
+.plan-editor-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 50%;
+  min-width: 0;
+}
+
+.plan-editor .plan-category {
+  flex: 1 1 55%;
+  min-width: 0;
+}
+
+.plan-editor .plan-offset {
+  width: auto;
+  flex: 1 1 45%;
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .plan-editor-row {
+    flex-wrap: wrap;
+  }
+
+  .plan-editor-row > .input {
+    flex: 1 1 100%;
+  }
+}
+
+/* Interview guides: the settings editor, the read-aloud view, and the
+   per-question note fields inside a scorecard. */
+
+.guide-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.guide-editor-row .input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.guide-editor .guide-dimension {
+  width: auto;
+  flex: 0 0 auto;
+  max-width: 40%;
+}
+
+/* Never squeezed: a fixed-size icon target (44px on a touch screen)
+   loses its icon, not its width, when a nowrap row runs out of room. */
+.guide-editor-row > .btn {
+  flex: none;
+}
+
+/* A question is a sentence, and on a phone it was sharing one line with
+   the dimension select and the remove control — 154px for wording that
+   runs to 300 characters, beside a × squeezed to 16px. Give the question
+   the full width and put its dimension underneath, the way the job
+   editor's screening questions already do. */
+@media (max-width: 767px) {
+  .guide-editor-row {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'index question remove'
+      'index dimension dimension';
+    row-gap: 6px;
+  }
+
+  .guide-editor-row .slot-editor-index {
+    grid-area: index;
+  }
+
+  .guide-editor-row .input {
+    grid-area: question;
+  }
+
+  .guide-editor .guide-dimension {
+    grid-area: dimension;
+    max-width: none;
+    width: 100%;
+  }
+
+  .guide-editor-row > .btn {
+    grid-area: remove;
+  }
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-list li {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.guide-question {
+  overflow-wrap: anywhere;
+}
+
+.guide-dimension-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 11.5px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.guide-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.rating-group {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 6px;
+}
+
+.guide-answer-q {
+  font-size: 12.5px;
+  color: var(--text-2);
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+}
+
+.scorecard-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Tags: chips wherever a candidate is shown, editable on the profile. */
+
+.tag-editor {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 100%;
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.tag-chip.is-editable {
+  padding-right: 4px;
+}
+
+.tag-chip-text {
+  overflow-wrap: anywhere;
+}
+
+.tag-chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.tag-chip-x:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.tag-chip-x:active {
+  transform: scale(0.94);
+}
+
+.board-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.board-card-tags .tag-chip {
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+@media (pointer: coarse) {
+  .tag-chip-x {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Screening answers on the profile: the question as asked, then what
+   they said — stacked, since a question is a sentence, not a label. */
+
+.answer-list {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.answer-list-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.answer-q {
+  font-size: 12.5px;
+  color: var(--text-3);
+  overflow-wrap: anywhere;
+}
+
+.answer-a {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.answer-a.is-flagged {
+  color: var(--danger);
+}
+
+.answer-flag {
+  display: inline-flex;
+  flex: none;
+  margin-top: 2px;
+}
+
+.candidate-notes {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.itv-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.attachment-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.conflict-flag {
+  color: var(--warning);
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* Scorecards */
+
+.score-summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 16px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.lean {
+  font-weight: 650;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 1px;
+  color: var(--border-strong);
+}
+
+.stars .icon.is-filled {
+  color: var(--warning);
+  fill: var(--warning);
+}
+
+.scorecard-row {
+  padding: 11px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.scorecard-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scorecard-author {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.scorecard-avg {
+  display: inline-flex;
+}
+
+.scorecard-notes {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Rating picker */
+
+.rating-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rating-label {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.star-picker {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--border-strong);
+  cursor: pointer;
+}
+
+.star-btn:hover {
+  background: var(--surface-2);
+  color: var(--warning);
+}
+
+.star-btn.is-filled {
+  color: var(--warning);
+}
+
+.star-btn.is-filled .icon {
+  fill: var(--warning);
+}
+
+.rec-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.rec-btn {
+  height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rec-btn:hover {
+  background: var(--surface-2);
+}
+
+.rec-btn[aria-checked='true'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.rec-btn.rec-no[aria-checked='true'],
+.rec-btn.rec-strong_no[aria-checked='true'] {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  color: var(--danger);
+}
+
+.rec-btn.rec-yes[aria-checked='true'],
+.rec-btn.rec-strong_yes[aria-checked='true'] {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+  color: var(--success);
+}
+
+/* Offers */
+
+.offer-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.offer-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  /* The terms line carries the equity note, which is free text. */
+  overflow-wrap: anywhere;
+}
+
+.offer-salary {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.offer-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.offer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.offer-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.offer-card-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.offer-expiry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text-2);
+}
+
+.offer-expiry.is-urgent {
+  color: var(--warning);
+}
+
+.letter {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text-2);
+}
+
+/* Timeline */
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding: 0 0 14px;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item:last-child::before {
+  display: none;
+}
+
+.timeline-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 13px;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+/* The one timeline row with an affirmation on it. Pushed to the end of
+   the row so a column of events keeps a single line of buttons. */
+.timeline-action {
+  flex: none;
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.timeline-when {
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+.timeline-dot.is-note {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border-color: transparent;
+}
+
+.timeline-note {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.timeline-item > .btn {
+  opacity: 0;
+  margin-left: auto;
+}
+
+/* Except the affirmation: deleting a note is a tidy-up you go looking
+   for, but "Mark as sent" is the point of the row it sits on — hidden
+   until hover, it would never be found (and never at all on touch). */
+.timeline-item > .timeline-action {
+  opacity: 1;
+}
+
+.timeline-item:hover > .btn,
+.timeline-item > .btn:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .timeline-item > .btn {
+    opacity: 1;
+  }
+}
+
+.note-add {
+  margin: 0 0 14px;
+}
+
+/* Onboarding tasks */
+
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--success);
+  transition: width 220ms ease;
+}
+
+.task-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.task-group-title {
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.task-row .btn {
+  opacity: 0;
+}
+
+.task-row:hover .btn,
+.task-row .btn:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .task-row .btn {
+    opacity: 1;
+  }
+}
+
+.task-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 0;
+  font-size: 13.5px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-label.is-done span {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+
+.task-check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--success);
+  flex-shrink: 0;
+}
+
+.task-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.task-add .input {
+  height: 32px;
+}
+
+.task-add .btn {
+  height: 32px;
+}
+
+/* Onboarding view */
+
+.onboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.onboard-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 16px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 12px;
+}
+
+.onboard-head:hover {
+  background: var(--surface-2);
+}
+
+.onboard-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.onboard-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 4px;
+}
+
+.onboard-profile-link {
+  margin-top: 12px;
+}
+
+/* The "no start date yet" note sits above the checklist it explains. */
+.onboard-note {
+  margin-top: 10px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Modal                                                               */
+/* ------------------------------------------------------------------ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: var(--scrim);
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.modal-wide {
+  max-width: 620px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 18px 0;
+}
+
+.modal-header h2 {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.modal-body {
+  padding: 14px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    max-width: none;
+    max-height: 92dvh;
+    border-radius: 14px 14px 0 0;
+    border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Toasts                                                              */
+/* ------------------------------------------------------------------ */
+
+.toast-region {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* `left: 50%` with no `right` leaves this shrink-to-fit box only
+     100vw - 50% to lay out in, which is half the screen: the translate
+     moves the painted box but not the width it was measured against. So
+     on a 390px phone a long error toast was capped at 195px and ran to
+     six lines, while its own max-width was asking for 358 — and the
+     longest messages are the ones the toast lifetime was tuned for.
+     Size from the content and cap at the viewport instead. */
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+/* The bulk bar shares the toasts' bottom-center anchor and sits below
+   them in the stack: a confirmation toast would cover the remaining
+   actions and the selection count for its whole lifetime, right when
+   the user is mid-flow. Lift toasts above it while it is on screen. */
+body:has(.bulk-bar) .toast-region {
+  bottom: calc(84px + env(safe-area-inset-bottom));
+}
+
+/* On phones the bar itself is lifted above the tab bar (76px) and
+   usually wraps to two rows; 84px would park the toast inside the bar —
+   covering the selection count and actions mid-flow, exactly what the
+   lift above exists to prevent. Clear the whole stack instead.
+   767px, not 760: this has to switch on exactly where the tab bar does. */
+@media (max-width: 767px) {
+  body:has(.bulk-bar) .toast-region {
+    bottom: calc(172px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Same for the mobile tab bar, which occupies the bottom edge. */
+@media (max-width: 767px) {
+  .toast-region {
+    bottom: calc(74px + env(safe-area-inset-bottom));
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 500;
+  max-width: min(420px, calc(100vw - 32px));
+  animation: toast-in 160ms ease;
+}
+
+.toast .icon {
+  color: inherit;
+}
+
+.toast.is-error {
+  background: var(--danger);
+  color: var(--on-danger);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Auth / landing                                                      */
+/* ------------------------------------------------------------------ */
+
+.auth-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 24px 0;
+}
+
+.auth-card .auth-mark {
+  margin-bottom: 14px;
+}
+
+.auth-card .auth-mark .brand-img {
+  width: 76px;
+  height: 76px;
+}
+
+.auth-card h1 {
+  font-size: 27px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.auth-card .tagline {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  max-width: 330px;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin: 20px 0 22px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-2);
+  text-align: left;
+}
+
+.feature-item .icon {
+  color: var(--accent);
+}
+
+.auth-card .btn {
+  width: 100%;
+  height: 42px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+.auth-footer {
+  margin-top: 18px;
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+
+.auth-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Onboarding modal (first run) */
+
+.onboard-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 8px 4px 6px;
+}
+
+.onboard-hero-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.onboard-hero h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.onboard-hero p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-2);
+  max-width: 350px;
+}
+
+/* Sample-data banner */
+
+.sample-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  flex-shrink: 0;
+}
+
+.sample-banner .grow {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Publish card */
+
+.publish-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+
+.publish-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--success) 13%, transparent);
+  /* Same 20%-of-text mix as the status pills: raw --success over its own
+     tint is 4.2:1 in light mode, under AA for this 11.5px pill. */
+  color: color-mix(in srgb, var(--success) 80%, var(--text));
+  font-size: 11.5px;
+  font-weight: 650;
+  flex-shrink: 0;
+}
+
+.publish-url {
+  font-size: 12.5px;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.publish-note {
+  margin-bottom: 12px;
+}
+
+/* Reports */
+
+.funnel-row.is-static {
+  cursor: default;
+  grid-template-columns: 118px 1fr auto;
+}
+
+.funnel-row.is-static:hover {
+  background: transparent;
+}
+
+.funnel-row.is-static .funnel-count {
+  white-space: nowrap;
+}
+
+.report-note {
+  margin: -6px 0 10px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.report-table th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  padding: 4px 0 8px;
+}
+
+.report-table td {
+  padding: 7px 0;
+  border-top: 1px solid var(--border);
+}
+
+.report-table .num {
+  text-align: right;
+}
+
+/* Import wizard and settings data section */
+
+.data-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Settings: pipeline stage editor */
+
+/* One grid for the whole list rather than a flex box per row: what
+   follows the name differs from row to row — a "First"/"Last" hint, two
+   movers and a remove, two movers and the "Signing" note — so row-level
+   layout gave the five name inputs three different widths, 60px apart.
+   Sharing a grid makes the trailing column as wide as its widest row, so
+   the inputs line up and the movers stack into a real column. */
+.stage-editor {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.stage-editor-row {
+  display: contents;
+}
+
+.stage-editor-row .input {
+  min-width: 0;
+}
+
+.stage-editor-icon {
+  color: var(--text-3);
+  display: inline-flex;
+  width: 20px;
+  justify-content: center;
+  flex: none;
+}
+
+.stage-editor-controls {
+  display: inline-flex;
+  gap: 2px;
+  flex: none;
+}
+
+.stage-editor-hint {
+  font-size: 12px;
+  color: var(--text-3);
+  flex: none;
+  min-width: 68px;
+  text-align: center;
+}
+
+/* Screening questions on a job: one block per question — its wording on
+   its own line, then the controls that shape how it is asked. */
+
+.q-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.q-editor-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+.q-editor-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* The shared .select rule is width:100%; in a content-sized row it needs
+   to size to its own options, like .job-filter and .stage-select. */
+.q-editor .q-kind {
+  width: auto;
+  flex: none;
+}
+
+.q-editor .q-check {
+  flex: none;
+  padding: 0;
+  gap: 6px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+/* `hidden` needs to beat the display these two inherit from .task-label
+   and the flex row: an attribute alone loses to a class selector. */
+.q-editor .q-check[hidden],
+.q-editor .q-editor-options[hidden] {
+  display: none;
+}
+
+/* Proposed interview options: one row per slot in the editor, and the
+   one-click confirm buttons wherever a proposal is shown. */
+
+.slot-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slot-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.slot-editor-row .input[type='date'] {
+  flex: 1 1 40%;
+  min-width: 0;
+}
+
+.slot-editor-row .input-row {
+  flex: 1 1 55%;
+  min-width: 0;
+}
+
+/* Never squeezed: it is a fixed-size icon target (44px on a touch
+   screen), and shrinking it clips the icon rather than the row. */
+.slot-editor-row > .btn {
+  flex: none;
+}
+
+.slot-editor-index {
+  flex: none;
+  width: 16px;
+  color: var(--text-3);
+  font-size: 12.5px;
+}
+
+/* A phone has no room for an index, a date, two times and a remove
+   control on one line: the date read "2026-08-2" and each time showed
+   its hour with the minutes cut off, which made the options being
+   offered unreadable. Give the range its own line under the date, the
+   way the onboarding plan's rows already do. */
+@media (max-width: 767px) {
+  .slot-editor-row {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'index date remove'
+      'index time time';
+    row-gap: 6px;
+  }
+
+  .slot-editor-row .slot-editor-index {
+    grid-area: index;
+  }
+
+  .slot-editor-row .input[type='date'] {
+    grid-area: date;
+  }
+
+  .slot-editor-row .input-row {
+    grid-area: time;
+  }
+
+  .slot-editor-row > .btn {
+    grid-area: remove;
+  }
+}
+
+.slot-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* One option per button, and the label is a date, a time range, its zone
+   when it is a foreign one, and "passed" once it has gone by. `.btn` is
+   nowrap at a fixed height, so on a narrow phone the longest of those
+   spilled out past the card's edge; let these wrap inside the column
+   instead and grow to fit what they say. */
+.slot-picks .btn {
+  max-width: 100%;
+  height: auto;
+  min-height: 34px;
+  padding: 6px 13px;
+  white-space: normal;
+  text-align: left;
+}
+
+.day-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.day-checks .day-check {
+  flex: none;
+  gap: 6px;
+  padding: 0;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.mapping-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Candidate comparison */
+
+.compare-pick {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.compare-pick-row {
+  cursor: pointer;
+  gap: 10px;
+}
+
+.compare-card {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 10px 14px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  min-width: 150px;
+}
+
+.compare-table tbody tr:last-child th,
+.compare-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.compare-row-label {
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text-2);
+  /* Wraps, because a row label is not always a word or two: a job's
+     screening questions are rows here, and their labels are whole
+     sentences of up to 160 characters. Kept on one line, one question
+     took the pinned label column to 262px of a 390px phone — and a
+     label at the cap would have covered the screen it is pinned over.
+     The candidate columns' own minimum keeps short labels on one line. */
+  white-space: normal;
+  width: 1%;
+}
+
+/* The label column has to survive the horizontal scroll. Three finalists
+   need more width than a phone has, so the table is scrolled almost by
+   definition there — and once it was, the rows read "–, –, None yet, 0,
+   4d" with nothing left on screen saying which row was which. Pin the
+   labels; the hairline marks them as pinned. */
+.compare-table .compare-row-label,
+.compare-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  box-shadow: 1px 0 0 var(--border);
+}
+
+.compare-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.compare-person-name {
+  white-space: nowrap;
+}
+
+.compare-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.compare-recs {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.compare-rec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.compare-rec-author {
+  font-size: 12.5px;
+}
+
+/* A screening answer in a comparison cell: preserve its line breaks and
+   let a must-have miss speak in the same red the profile uses. */
+.compare-answer {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.compare-answer.is-flagged {
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.compare-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+/* Print: the comparison doubles as a debrief document, and any view
+   should print without app chrome. */
+@media print {
+  /* Paper is white and browsers skip background colors by default, so the
+     dark theme's near-white text would print unreadably on a blank page —
+     and Compare exists to be printed as a debrief. Force the light tokens
+     whichever way dark mode was reached (stamped attribute or OS
+     preference); these selectors match the theme blocks above and win on
+     source order. */
+  :root,
+  :root[data-theme='dark'],
+  :root:not([data-theme='light']) {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f1f1f3;
+    --surface-3: #e9e9ec;
+    --border: #d1d1d6;
+    --border-strong: #b9b9c0;
+    --text: #1a1a1e;
+    --text-2: #55555e;
+    --text-3: #6b6b75;
+    --brand: #fad319;
+    --brand-strong: #e9c308;
+    --on-brand: #221c03;
+    --accent: #75610a;
+    --accent-strong: #5d4d05;
+    --danger: #dc2626;
+    --on-danger: #ffffff;
+    --success: #15803d;
+    --warning: #b45309;
+    --stage-applied: #64748b;
+    --stage-screen: #0e7490;
+    --stage-interview: #2563eb;
+    --stage-offer: #b45309;
+    --stage-hired: #15803d;
+    --stage-custom-1: #7c3aed;
+    --stage-custom-2: #0f766e;
+    --stage-custom-3: #be185d;
+    --stage-custom-4: #4d7c0f;
+    --stage-custom-5: #a21caf;
+    --stage-custom-6: #4338ca;
+    color-scheme: light;
+  }
+
+  .sidebar,
+  .tabbar,
+  .mobile-topbar,
+  .sample-banner,
+  .fab,
+  .bulk-bar,
+  .back-link,
+  .view-actions,
+  .toast {
+    display: none !important;
+  }
+
+  .app {
+    display: block;
+  }
+
+  .content {
+    overflow: visible;
+    padding: 0;
+  }
+
+  .card {
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+
+  /* Printing a dialog: the interview guide exists to be read during the
+     call, on paper. A dialog is a fixed overlay whose body scrolls, so
+     printing it put the view behind it on the same sheet and cut the
+     dialog off at one screenful — a guide runs to twenty questions. Print
+     the dialog alone, in normal flow, at its full length. */
+  body:has(.modal-overlay) .app {
+    display: none !important;
+  }
+
+  .modal-overlay {
+    position: static;
+    padding: 0;
+    background: none;
+  }
+
+  .modal {
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .modal-body {
+    overflow: visible;
+    padding: 0;
+  }
+
+  /* Controls do not belong on paper; the dialog's title does. */
+  .modal-footer,
+  .modal-header .btn {
+    display: none !important;
+  }
+
+  /* Nor do the in-place controls a record carries. A printed profile or
+     onboarding checklist came out with a row of icon buttons beside every
+     interview and attachment, an empty "Add a task…" box, and a stack of
+     offer actions — furniture that does nothing on paper and crowds out
+     the content somebody printed it for. The text they sit beside (the
+     interview, the task, the note) prints as it is. */
+  .task-add,
+  .item-actions,
+  .offer-actions,
+  .slot-picks,
+  /* Both of the timeline's: "Mark as sent" and a note's delete ×. */
+  .timeline-item .btn,
+  .onboard-profile-link,
+  .board-card-action,
+  .card-title-row .btn,
+  .scorecard-head .btn,
+  /* The × on an editable tag chip. It is the one control that sits
+     inside a word rather than beside a row, so it printed as a stray
+     glyph in the middle of the profile's tag list. */
+  .tag-chip-x,
+  /* The row's own remove button, but never its checkbox: an unticked box
+     is the whole point of a checklist on paper. */
+  .task-row .btn {
+    display: none !important;
+  }
+
+  /* The chip gave that × its right-hand padding; take it back, or every
+     tag prints noticeably lopsided. */
+  .tag-chip.is-editable {
+    padding-right: 9px;
+  }
+
+  /* Compare is meant to be printed as a debrief, but its table scrolls
+     sideways — four finalists need more width than a portrait page has —
+     and print clips a scrolling box instead of letting it run on. The
+     last columns were cut off whatever paper or orientation was chosen.
+     Let the table lay out against the page: at four finalists it needs
+     about 810px, so a landscape sheet now holds all of it. */
+  .compare-card,
+  .table-scroll {
+    overflow: visible;
+  }
+
+  .compare-table th,
+  .compare-table td {
+    min-width: 0;
+  }
+
+  .compare-person-name {
+    white-space: normal;
+  }
+}
+
+/* Board selection mode and bulk actions */
+
+.board-card-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 5px;
+  background: var(--surface);
+  color: transparent;
+}
+
+.board-card.is-selected .board-card-check {
+  background: var(--brand);
+  border-color: var(--brand-strong);
+  color: var(--on-brand);
+}
+
+.board-card.is-selectable {
+  cursor: pointer;
+}
+
+.board-card.is-selected {
+  border-color: var(--brand-strong);
+  box-shadow: 0 0 0 1px var(--brand-strong);
+}
+
+.bulk-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Same trap as the toast region above: without a width the shrink-to-fit
+     box gets half the viewport to lay out in, so on a phone this bar was
+     195px wide and its six controls wrapped into five rows 211px tall,
+     covering a third of the board it acts on. The max-width below could
+     never take effect. */
+  width: max-content;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  max-width: calc(100vw - 24px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* The shared field rule sizes a select to 100%, which is right inside a
+   form field and wrong in a content-sized toolbar: the stage select
+   claimed the whole bar, so the bar stretched and wrapped onto three rows
+   even on a wide screen. Size it to its content, the way .input-row .select
+   and the header's .job-filter already do (max-width because a custom
+   stage name can be any length). */
+.bulk-bar .select {
+  width: auto;
+  max-width: 200px;
+}
+
+.bulk-count {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bulk-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+}
+
+/* Lifted clear of the tab bar, at exactly the width the tab bar appears:
+   761-767px used to fall between the two rules, and there the bar was
+   drawn straight over the tabs (it stacks above them), hiding the entry
+   points to Interviews, Offers and More while a selection was live. */
+@media (max-width: 767px) {
+  .bulk-bar {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Now that the bar takes the width a phone actually has, it lands on top
+   of the add-candidate button, which would show as a 2px arc of brand
+   yellow poking out from under it. Selection mode is not the moment to
+   add someone new anyway, and the button comes back with Done. */
+body:has(.bulk-bar) .fab {
+  display: none;
+}
+
+/* Quick-find palette */
+
+.palette-overlay {
+  align-items: flex-start;
+  padding-top: min(14vh, 140px);
+}
+
+/* The palette borrows .modal-overlay, and below 560px that rule drops the
+   overlay's padding to zero so a dialog can sit flush against the bottom
+   edge as a sheet, with only its top corners rounded. The palette is not
+   a sheet: it floats near the top of the screen with all four corners
+   rounded, so a zero inset ran those 14px radii straight off both edges
+   and the card read as clipped rather than floating. Give it its margins
+   back; the top inset above already survives. */
+@media (max-width: 560px) {
+  .palette-overlay {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+.palette {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.palette-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.palette-input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+}
+
+.palette-results {
+  max-height: min(48vh, 420px);
+  overflow-y: auto;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+
+.palette-item.is-active {
+  background: var(--surface-2);
+}
+
+.palette-item-icon {
+  display: inline-flex;
+  color: var(--text-3);
+  flex: none;
+}
+
+.palette-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.palette-item-title {
+  font-size: 13.5px;
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.palette-item-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.palette-hint {
+  padding: 8px 16px 10px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.palette-hint:empty {
+  display: none;
+}
+
+/* Sidebar search entry */
+
+.nav-search {
+  margin: 0 12px 4px;
+  width: calc(100% - 24px);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.nav-kbd {
+  margin-left: auto;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface-2);
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* Follow-ups */
+
+.followup-row {
+  padding: 9px 16px;
+}
+
+.followup-row .task-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.followup-row .task-label span {
+  overflow-wrap: anywhere;
+}
+
+.followup-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.followup-due.is-today {
+  color: var(--warning);
+  font-weight: 550;
+}
+
+.followup-due.is-overdue {
+  color: var(--danger);
+  font-weight: 550;
+}
+
+.followup-alert {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.board-card-action {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+}
+
+/* Duplicate-email notice in the candidate editor */
+
+.dup-notice:empty {
+  display: none;
+}
+
+.dup-notice .form-error {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Retention banner on the archive */
+
+.retention-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  color: var(--text-2);
+  font-size: 13.5px;
+}
+
+.retention-banner .icon {
+  color: var(--warning);
+  flex: none;
+}
+
+.retention-list .item-row {
+  flex-wrap: wrap;
+}
+
+/* Talent pool rows: name with inline tag badges */
+
+.pool-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Paste-application preview */
+
+.paste-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.paste-preview:empty {
+  display: none;
+}
+
+.paste-preview-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  font-size: 13px;
+}
+
+.paste-preview-row {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.paste-preview-row > span:last-child {
+  overflow-wrap: anywhere;
+}
+
+.paste-preview-label {
+  flex: none;
+  width: 46px;
+  font-weight: 550;
+  color: var(--text-3);
+}
+
+.paste-preview-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.mapping-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.mapping-label {
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text-2);
+}
+
+.import-preview {
+  overflow-wrap: anywhere;
+}
+
+.skip-list {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.modal-footer.no-pad {
+  padding: 0;
+}
+
+/* Theme menu */
+
+.menu {
+  position: fixed;
+  z-index: 150;
+  min-width: 160px;
+  padding: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  /* The other two floating layers are lifted off the page (the palette by
+     18px/50px, the bulk bar by 10px/30px) and this one was not, so the
+     app's only dropdown had a hairline and nothing else. In light mode
+     that hairline separates #ffffff from a #f7f7f8 page: the menu read as
+     part of the sidebar it opened from rather than above it. Same ramp,
+     one step below the bulk bar, since a menu sits close to its anchor. */
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-item:hover {
+  background: var(--surface-2);
+}
+
+.menu-item > .icon {
+  color: var(--text-2);
+}
+
+.menu-item .check {
+  margin-left: auto;
+  color: var(--accent);
+}
+
+/* Rows and rails are activated as often as buttons, so they get the same
+   press feedback (see the note beside .btn:active). Placed here because
+   both :hover and :active match while the pointer is down and the later
+   rule is the one meant to win — every hover rule is above this line. */
+.item-row.is-clickable:active,
+.nav-item:active,
+.menu-item:active,
+.funnel-row:active,
+.onboard-head:active,
+.palette-item:active,
+.tab-item:active {
+  background: var(--surface-3);
+}
+
+/* Cards are activated as often as those rows: a job card opens the job, a
+   board card opens a profile or ticks a checkbox, an overview stat jumps
+   to its view, a contact chip starts a call. All four signalled hover and
+   only hover, by warming their border, so a held press looked exactly
+   like a pointer resting on them and a fingertip got nothing back at all.
+   Step the surface instead of the border, which is already spoken for. */
+.job-card:active,
+.stat-card[role='button']:active {
+  background: var(--surface-2);
+}
+
+/* One step further down: a board card sits on a --surface-2 column, so
+   the step the cards above use would make it vanish into its stage. */
+.board-card:active,
+.contact-chip:active {
+  background: var(--surface-3);
+}
+
+/* ------------------------------------------------------------------ */
+/* Touch targets                                                       */
+/* ------------------------------------------------------------------ */
+
+/* These controls are sized for a cursor, which lands where it is
+   pointing; a fingertip is roughly 9mm across and lands near it. The
+   smallest of them — the row action buttons, the follow-up button on a
+   board card, the stars of a rating — sat at 24–28px, and several are
+   destructive. Widen the ones a finger has to hit, only where the
+   primary pointer cannot hover, so a mouse keeps the compact layout. */
+@media (pointer: coarse) {
+  .btn-sm.btn-icon,
+  .board-card-action,
+  .star-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Checklist rows: the box is 16px, but the whole label toggles it, so
+     it is the label that has to be thumb-sized. */
+  .task-label {
+    padding: 11px 0;
+  }
+
+  .task-check {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* The pass above widened the row actions and skipped the size up from
+     them, which is every icon-only button in the app's chrome: the phone
+     topbar's search, settings, theme and sign-out — the only controls a
+     phone has outside the tab bar — and the close button of every dialog.
+     All of them sat at 34px square. */
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* The segmented control is the primary filter on five of the seven
+     views (Jobs, Pipeline, Interviews, Offers, Reports), and its segments
+     were the smallest text controls left in the app at 27px tall. The
+     pressed segment trades a padding pixel for its border, so it keeps
+     doing that here: equal padding would shift the row by 2px on every
+     press. */
+  .segmented button {
+    min-width: 44px;
+    min-height: 44px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .segmented button[aria-pressed='true'] {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+
+  /* Scorecard recommendation picker: a four-way choice at 32px, and the
+     control that decides whether a candidate moves forward. */
+  .rec-btn {
+    height: 44px;
+  }
+
+  /* Contact chips place a call or open a mail draft; at 26px they were
+     the smallest link on the profile. */
+  .contact-chip {
+    height: 44px;
+    padding: 0 14px;
+  }
+}
+
+/* The sidebar footer shrinks its own icon buttons to 28px so the account
+   name has room. That trade is right on the 236px rail; on the
+   768-1023px icon rail the card is a column, so there is nothing to take
+   room from and no reason to keep the smallest targets in the app. Above
+   1023px the name still needs the space, so the rule stops there. */
+@media (pointer: coarse) and (max-width: 1023px) {
+  .user-card .btn-icon {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 1023px) and (min-width: 768px) {
+  .app {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .brand {
+    justify-content: center;
+    padding: 16px 0 12px;
+  }
+
+  .brand-name,
+  .user-card .user-info,
+  .powered {
+    display: none;
+  }
+
+  /* The counter used to be hidden here along with the labels, which left
+     the 768-1023px rail with no signal at all that work was waiting: too
+     narrow for the sidebar pill, too wide for the phone tab bar. Put it
+     on the icon, the same place and shape the tab bar uses. */
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-item .nav-badge {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    margin-left: 4px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 10.5px;
+    background: color-mix(in srgb, var(--warning) 16%, var(--surface));
+  }
+
+  /* Collapsing the nav to icons must not take its labels out of the
+     accessibility tree: display:none excludes them from the accessible
+     name, and with the icons aria-hidden that left every button in the
+     app's only navigation announced as an unnamed "button". Hide the
+     label visually and keep it readable. */
+  .nav-item > span:not(.nav-badge) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* The shortcut hint has nothing to sit beside once the label is gone.
+     It overflowed its button by 10px and shoved the search icon 21px out
+     of the column every other nav icon lines up in. */
+  .nav-kbd {
+    display: none;
+  }
+
+  .nav {
+    padding: 6px 12px;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  .sidebar-footer {
+    align-items: center;
+  }
+
+  .user-card {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .mobile-topbar {
+    display: flex;
+  }
+
+  .tabbar {
+    display: block;
+  }
+
+  .fab {
+    display: flex;
+  }
+
+  .content-inner {
+    padding: 16px 14px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* An interview row carries up to five icon actions — 156px of fixed
+     width beside a fixed time column and a format icon. On a phone that
+     left the name 42px, so the schedule read "Jon…" over "Seni…" and told
+     nobody anything. Send the action cluster to its own line: the row is
+     one line taller, and the name and panel are readable again. */
+  .item-row .item-actions {
+    flex-basis: 100%;
+    justify-content: flex-end;
+  }
+
+  .item-row {
+    flex-wrap: wrap;
+  }
+
+  .view-header h1 {
+    font-size: 17px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid .span-2 {
+    grid-column: span 1;
+  }
+
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .view-actions {
+    width: 100%;
+  }
+
+  .view-actions > .btn-primary {
+    margin-left: auto;
+  }
+
+  /* Except a toggle. The rule above is meant for the header's one main
+     action, but the pipeline's Select button turns into a .btn-primary
+     while selection mode is on, so pressing it moved it 49px to the right
+     of the finger that had just pressed it — and a second tap to switch it
+     off landed beside it. A control must not relocate on its own press. */
+  .view-actions > .btn-primary[aria-pressed] {
+    margin-left: 0;
+  }
+
+  .board {
+    grid-auto-columns: 82vw;
+    scroll-snap-type: x mandatory;
+  }
+
+  .rec-picker {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .onboard-progress {
+    width: 90px;
+  }
+
+  .profile-head .view-actions {
+    width: 100%;
+  }
+
+  .toast-region {
+    bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+}

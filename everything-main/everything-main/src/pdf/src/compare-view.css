@@ -1,0 +1,408 @@
+/* Compare files: two versions side by side with the changes marked and listed. */
+.compare-view {
+  --cmp-insert: #1e9e5a;
+  --cmp-delete: #d6403a;
+  --cmp-replace: #e3a008;
+  --cmp-format: #c98500;
+  --cmp-image: #7a5cd6;
+  --cmp-page: var(--select);
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+  background: var(--doc-bg);
+  color: var(--ink);
+}
+.compare-view[hidden] {
+  display: none;
+}
+
+/* Toolbar */
+.compare-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 48px;
+  padding: 6px 12px 6px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--chrome-line);
+}
+.compare-title {
+  margin: 0 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.compare-files {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 340px;
+  font-size: 12px;
+}
+.compare-files svg {
+  flex: none;
+  color: var(--muted);
+}
+.compare-file {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.compare-summary {
+  flex: 1 1 120px;
+  min-width: 0;
+  margin-left: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--muted);
+}
+.compare-sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 6px;
+  background: var(--chrome-line);
+}
+.compare-toolbar .icon-btn {
+  width: 34px;
+  min-width: 34px;
+  min-height: 34px;
+}
+.compare-toolbar .icon-btn[aria-pressed='true'] {
+  background: var(--surface-2);
+}
+.compare-position {
+  min-width: 56px;
+  font-size: 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.compare-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 8px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.compare-filter-label {
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.compare-filter-btn {
+  min-height: 28px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.compare-filter-btn:hover {
+  background: var(--surface-2);
+}
+.compare-filter-btn[aria-pressed='true'] {
+  background: var(--select);
+  color: var(--select-ink);
+}
+.compare-btn,
+.compare-close {
+  min-height: 32px;
+  font-size: 13px;
+}
+
+/* Body: the list beside the documents */
+.compare-body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.compare-side {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 300px;
+  overflow: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--chrome-line);
+}
+.compare-side[hidden] {
+  display: none;
+}
+.compare-list {
+  padding: 6px 0 16px;
+  outline: none;
+}
+.compare-group[hidden] {
+  display: none;
+}
+.compare-group-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 14px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface);
+}
+.compare-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 1px 6px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.compare-item[hidden] {
+  display: none;
+}
+.compare-item:hover {
+  background: var(--surface-2);
+}
+.compare-item[aria-selected='true'] {
+  background: var(--select-wash);
+}
+.compare-item-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  color: #fff;
+  background: var(--cmp-color);
+}
+.compare-item-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+.compare-item-type {
+  font-weight: 600;
+}
+.compare-item-detail {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}
+.compare-item-detail ins,
+.compare-item-detail del {
+  border-radius: 3px;
+  padding: 0 2px;
+  color: var(--ink);
+}
+.compare-item-detail ins {
+  text-decoration: none;
+  background: color-mix(in srgb, var(--cmp-insert) 22%, transparent);
+}
+.compare-item-detail del {
+  background: color-mix(in srgb, var(--cmp-delete) 18%, transparent);
+}
+.compare-format {
+  display: block;
+  font-size: 11px;
+}
+.compare-empty {
+  margin: 0;
+  padding: 18px 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.compare-view .is-insert {
+  --cmp-color: var(--cmp-insert);
+}
+.compare-view .is-delete {
+  --cmp-color: var(--cmp-delete);
+}
+.compare-view .is-replace {
+  --cmp-color: var(--cmp-replace);
+}
+.compare-view .is-format {
+  --cmp-color: var(--cmp-format);
+}
+.compare-view .is-image {
+  --cmp-color: var(--cmp-image);
+}
+.compare-view .is-page {
+  --cmp-color: var(--cmp-page);
+}
+.compare-view .is-note {
+  --cmp-color: var(--muted);
+}
+
+/* The documents */
+.compare-docs {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  outline: none;
+}
+.compare-view .compare-docs:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.compare-sheet {
+  position: relative;
+  padding-bottom: 24px;
+}
+.compare-heads {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 8px 24px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--doc-bg);
+  border-bottom: 1px solid var(--chrome-line);
+}
+.compare-heads > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+.compare-heads strong {
+  color: var(--ink);
+}
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+  padding: 12px 24px;
+  border-radius: 8px;
+}
+.compare-row.is-active {
+  background: color-mix(in srgb, var(--select) 7%, transparent);
+}
+.compare-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.compare-paper {
+  position: relative;
+  flex: none;
+  background: #fff;
+  box-shadow: var(--float-shadow);
+}
+.compare-paper canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.compare-row.is-added .compare-paper[data-side='new'],
+.compare-row.is-removed .compare-paper[data-side='old'] {
+  outline: 3px solid color-mix(in srgb, var(--cmp-page) 70%, transparent);
+  outline-offset: 2px;
+}
+.compare-row.is-moved .compare-paper {
+  outline: 2px dashed color-mix(in srgb, var(--cmp-page) 70%, transparent);
+  outline-offset: 2px;
+}
+.compare-placeholder {
+  display: grid;
+  place-items: center;
+  flex: none;
+  padding: 12px;
+  border: 2px dashed var(--strong);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+.compare-page-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.compare-badge {
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--select-ink);
+  background: var(--cmp-page);
+}
+
+/* Marks over the changed words */
+.compare-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.compare-mark {
+  position: absolute;
+  border-radius: 2px;
+  pointer-events: auto;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--cmp-color) 26%, transparent);
+  border-bottom: 2px solid var(--cmp-color);
+  mix-blend-mode: multiply;
+}
+.compare-mark.is-format {
+  background: color-mix(in srgb, var(--cmp-color) 14%, transparent);
+  border-bottom-style: dashed;
+}
+.compare-mark.is-image {
+  background: color-mix(in srgb, var(--cmp-color) 12%, transparent);
+  border: 2px solid var(--cmp-color);
+}
+.compare-mark.is-active {
+  background: color-mix(in srgb, var(--cmp-color) 42%, transparent);
+  outline: 2px solid var(--cmp-color);
+  outline-offset: 1px;
+}
+.compare-view[data-filter='text'] .compare-mark:is(.is-format, .is-image),
+.compare-view[data-filter='format'] .compare-mark:not(.is-format) {
+  display: none;
+}
+
+/* Narrow windows: the list floats over the documents when it is open. */
+@media (max-width: 760px) {
+  .compare-side {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 3;
+    width: min(300px, 85vw);
+    box-shadow: var(--float-shadow);
+  }
+  .compare-files,
+  .compare-summary,
+  .compare-btn span,
+  .compare-close span {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  .compare-mark {
+    border: 2px solid CanvasText;
+    mix-blend-mode: normal;
+  }
+  .compare-mark.is-active {
+    outline: 3px solid Highlight;
+  }
+}
+@media print {
+  .compare-view {
+    display: none !important;
+  }
+}

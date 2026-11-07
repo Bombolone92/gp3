@@ -1,0 +1,632 @@
+/* Ledger, banking, bills, chart of accounts, budgets, transaction dialogs. */
+
+.acct-stack {
+  gap: 16px;
+}
+
+.acct-page > .stats,
+.acct-page > .notice,
+.acct-page > .acct-stack > .stats {
+  margin-bottom: 16px;
+}
+
+.acct-page .acct-stack > .stats,
+.acct-page .acct-stack > .notice {
+  margin-bottom: 0;
+}
+
+/* ---- Numbers ---------------------------------------------------------------- */
+
+.acct-page .num,
+.acct-page .acct-rec-value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.acct-page .num.strong {
+  font-weight: 700;
+}
+
+.acct-page .num.neg,
+.acct-bad {
+  color: var(--danger);
+}
+
+.acct-good {
+  color: var(--success);
+}
+
+.acct-page .num.struck {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+
+.acct-in {
+  color: var(--success);
+}
+
+.acct-small {
+  font-size: 12px;
+}
+
+/* ---- Toolbars and filters -------------------------------------------------------- */
+
+.acct-toolbar .select,
+.acct-filters .select {
+  width: auto;
+  min-width: 150px;
+  max-width: 220px;
+}
+
+.acct-filters {
+  row-gap: 8px;
+}
+
+.acct-period {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.acct-dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.acct-dates[hidden] {
+  display: none;
+}
+
+.acct-dates .input {
+  width: 150px;
+}
+
+.acct-wrap {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.acct-results-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* ---- Two-column layouts -------------------------------------------------------------- */
+
+.acct-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.acct-grid.even {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .acct-grid,
+  .acct-grid.even {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- Statements ------------------------------------------------------------------------ */
+
+.acct-desc {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 420px;
+}
+
+.acct-memo {
+  font-size: 12px;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acct-statement {
+  display: flex;
+  flex-direction: column;
+}
+
+.acct-group {
+  border-bottom: 1px solid var(--border);
+}
+
+.acct-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.acct-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.acct-group > summary::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--text-3);
+  border-bottom: 2px solid var(--text-3);
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+  flex: none;
+}
+
+.acct-group[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.acct-group > summary:hover {
+  background: var(--surface-hover);
+}
+
+.acct-stmt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.acct-stmt th,
+.acct-stmt td {
+  padding: 7px 18px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.acct-stmt th {
+  padding-left: 35px;
+}
+
+.acct-stmt td.r {
+  text-align: right;
+}
+
+.acct-stmt tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+.acct-stmt th a {
+  color: var(--text);
+}
+
+.acct-stmt tfoot th,
+.acct-stmt tfoot td {
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.acct-no {
+  display: inline-block;
+  min-width: 44px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.acct-none {
+  margin: 0;
+  padding: 4px 18px 14px 35px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.acct-net {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--surface-2);
+  font-weight: 700;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+
+/* Label and amount rows (cash, payments, links) */
+.acct-cash {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.acct-cash > li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.acct-cash > li:last-child {
+  border-bottom: 0;
+}
+
+.acct-cash > li > a {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+}
+
+.card-body:not(.flush) .acct-cash > li {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.acct-report-links {
+  list-style: none;
+  margin: -16px -18px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.acct-report-links .list-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.acct-subhead {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ---- Journal lines ------------------------------------------------------------------- */
+
+.acct-lines tfoot th,
+.acct-lines tfoot td {
+  height: 44px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  font-weight: 700;
+  position: static;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+}
+
+/* ---- Registers and banking ------------------------------------------------------------- */
+
+.acct-opening {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 13px;
+  color: var(--text-2);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+
+.acct-cleared {
+  display: inline-flex;
+  color: var(--success);
+}
+
+.acct-bank-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  flex: none;
+}
+
+/* Reconcile summary */
+.acct-rec-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: center;
+  gap: 1px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--border);
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.acct-rec-bar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  background: var(--surface);
+  height: 100%;
+  justify-content: center;
+}
+
+.acct-rec-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.acct-rec-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.acct-rec-diff.ok {
+  background: var(--success-soft);
+}
+
+.acct-rec-diff.ok .acct-rec-value {
+  color: var(--success);
+}
+
+.acct-rec-diff.off .acct-rec-value {
+  color: var(--danger);
+}
+
+.acct-rec-count {
+  font-size: 13px;
+}
+
+@media (max-width: 767px) {
+  .acct-rec-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .acct-rec-value {
+    font-size: 17px;
+  }
+}
+
+.acct-rec-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.acct-rec-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.acct-rec-list > li:last-child .acct-rec-row {
+  border-bottom: 0;
+}
+
+.acct-rec-row:hover {
+  background: var(--surface-hover);
+}
+
+.acct-rec-row:has(input:checked) {
+  background: var(--accent-soft);
+}
+
+.acct-rec-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.acct-rec-date {
+  width: 96px;
+  flex: none;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* ---- Bills -------------------------------------------------------------------------------- */
+
+.acct-sel {
+  width: 44px;
+  padding-right: 0 !important;
+}
+
+.acct-sel input,
+.acct-mobile-bill > input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.acct-selbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 14px;
+}
+
+.acct-mobile-bill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.acct-mobile-bill > .mobile-row {
+  border-bottom: 0;
+  min-width: 0;
+}
+
+/* ---- Chart of accounts -------------------------------------------------------------------- */
+
+.acct-coa .card-head .num {
+  color: var(--text-2);
+}
+
+.acct-coa-table td {
+  height: 48px;
+}
+
+.acct-no-cell {
+  width: 80px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.acct-act {
+  width: 48px;
+}
+
+.acct-inactive td {
+  color: var(--text-3);
+}
+
+.acct-inactive .primary-link {
+  color: var(--text-2);
+}
+
+.acct-pill-inline {
+  margin-left: 8px;
+  vertical-align: 1px;
+}
+
+.acct-lock {
+  display: inline-flex;
+  margin-left: 6px;
+  color: var(--text-3);
+  vertical-align: -2px;
+}
+
+/* ---- Budgets ------------------------------------------------------------------------------ */
+
+.acct-budget-grid th,
+.acct-budget-grid td {
+  height: auto;
+  padding: 4px 6px;
+}
+
+.acct-budget-grid thead th {
+  height: 38px;
+  padding: 0 8px;
+}
+
+.acct-budget-grid th:first-child,
+.acct-budget-grid td:first-child {
+  padding-left: 14px;
+}
+
+.acct-grid-name {
+  min-width: 170px;
+  max-width: 220px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.acct-cell {
+  width: 92px;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+.acct-grid-section th {
+  height: 34px !important;
+  padding-top: 12px !important;
+  background: var(--surface-2) !important;
+  color: var(--text-2);
+  position: static;
+}
+
+.acct-grid-total th,
+.acct-grid-total td {
+  height: 40px !important;
+  background: var(--surface-2);
+  font-weight: 700;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  position: static;
+}
+
+.acct-grid-total.net th,
+.acct-grid-total.net td {
+  border-top: 1px solid var(--border-strong);
+}
+
+.acct-bva td,
+.acct-bva th[scope='row'] {
+  height: 44px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  color: var(--text);
+  position: static;
+}
+
+.acct-bva .acct-grid-total th {
+  font-weight: 700;
+}
+
+.acct-hint {
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* ---- Phones -------------------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  .acct-toolbar .select,
+  .acct-filters .select,
+  .acct-filters .search,
+  .acct-dates {
+    width: 100%;
+    max-width: none;
+  }
+
+  .acct-dates .input {
+    flex: 1;
+    width: auto;
+  }
+
+  .acct-report-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+.acct-selbar.idle {
+  background: var(--surface-2);
+  color: var(--text-3);
+}

@@ -1,0 +1,157 @@
+/* ---- Print -------------------------------------------------------------
+   ⌘P on a board, a list, or a timeline should produce a page, not a
+   screenshot with a sidebar in it: no chrome, no controls that cannot be
+   pressed on paper, ink-friendly fills, and the project name and date at the
+   top of the sheet.
+
+   Nothing here is a separate print view: it is the same DOM, with the parts
+   that only make sense on screen taken out. */
+
+/* The header each view renders for paper only. */
+.print-head { display: none; }
+
+@media print {
+  :root {
+    /* Paper is white and ink is black, whatever the screen was doing. */
+    color-scheme: light;
+    --page: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #ffffff;
+    --surface-3: #f2f2f2;
+    --ink: #000000;
+    --ink-2: #1a1a1a;
+    --ink-3: #444444;
+    --hairline: #bbbbbb;
+    --hairline-strong: #888888;
+    --accent: #000000;
+    --accent-wash: #f2f2f2;
+    --grid-line: #dddddd;
+    --weekend: #f7f7f7;
+    --pop-shadow: none;
+  }
+
+  html, body { background: #fff; }
+
+  /* Height-bounded flex columns and inner scrollers are what make the app fit
+     a window; on paper they are what would clip it to one screenful. */
+  .shell, .main, .view-wrap, .view { display: block; height: auto; overflow: visible; }
+  .board, .col, .col-body, .list-scroll, .tl-scroll, .agenda { overflow: visible !important; }
+  .col-body, .list-scroll { max-height: none; }
+
+  /* Chrome, and everything that is a control rather than content. */
+  .sidebar,
+  .menu-btn,
+  .back-btn,
+  .tabs,
+  .filterbar,
+  .views-bar,
+  .brief-more,
+  .brief-edit,
+  .col-foot,
+  .add-col,
+  .add-card-btn,
+  .card-menu,
+  .list-toolbar,
+  .bulk-bar,
+  .toast-root,
+  .menu,
+  .modal-root,
+  .offline-bar,
+  .sample-banner,
+  .save-state,
+  .icon-btn,
+  .list-check,
+  .col-pick,
+  .tl-bar-handle,
+  .print-hide { display: none !important; }
+
+  .view { padding: 0; }
+  .view-head { padding: 0 0 8px; border-bottom: 1px solid var(--hairline); }
+  .view-title { font-size: 18px; }
+
+  .print-head {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  /* On paper there is no "More" to press, so the brief prints in full. */
+  .brief-body.collapsed {
+    display: block;
+    -webkit-line-clamp: none;
+    overflow: visible;
+  }
+
+  .brief { border-color: var(--hairline); break-inside: avoid; }
+
+  /* Board: columns stack down the page instead of scrolling sideways off it,
+     and a card never breaks across two sheets. */
+  .board { display: block; }
+
+  .col {
+    width: auto;
+    max-height: none;
+    background: none;
+    border: 1px solid var(--hairline);
+    border-radius: 0;
+    margin-bottom: 10px;
+    break-inside: avoid-page;
+  }
+
+  .col-head { border-bottom: 1px solid var(--hairline); cursor: default; }
+
+  .col-body { display: block; padding: 6px 10px; }
+
+  .card {
+    break-inside: avoid;
+    border: 1px solid var(--hairline);
+    box-shadow: none;
+    margin-bottom: 6px;
+  }
+
+  /* Colour carries meaning on screen; on paper it has to survive greyscale,
+     so the label chips keep a visible outline. */
+  .label-chip { border: 1px solid var(--hairline-strong); }
+  .label-chip.small { min-width: 22px; }
+
+  /* List: a table with rules, and a header that repeats on every sheet. */
+  .list-table { font-size: 11px; }
+  .list-table thead { display: table-header-group; }
+  .list-table tr { break-inside: avoid; }
+  .list-table td, .list-table th { border-bottom: 1px solid var(--grid-line); }
+  .list-scroll { border: none; }
+  .list-inline, .list-cell-btn { border-color: transparent; background: none; }
+  /* Selects print their box and their arrow; the value alone is the content. */
+  select.list-inline { appearance: none; padding-left: 0; }
+
+  /* Timeline: keep the grid, drop the interaction, and fill bars with ink
+     rather than a screen tint. The bar carries its project's colour as an
+     inline style, which is the one thing paper cannot use — a wall of purple
+     is a wall of grey on most printers — so this is the rare place that has
+     to say !important. */
+  .tl-scroll { border: none; }
+  .tl-bar {
+    background: var(--surface-3) !important;
+    border: 1px solid #444;
+    color: #000;
+    opacity: 1;
+  }
+  .tl-bar.done { background: #fff !important; border-style: dashed; }
+  /* An instruction about dragging is not content on a page nobody can drag. */
+  .tl-unscheduled .form-hint { display: none; }
+  .tl-bar.overdue { outline: 2px solid #000; }
+  .tl-diamond-shape { background: #000; }
+  .tl-today-line { background: #000; }
+
+  /* Agenda and cards: no page breaks in the middle of a row. */
+  .agenda-row, .agenda-group, .project-card, .milestone-card { break-inside: avoid; }
+
+  /* Links: the text is what is readable on paper, not the URL. */
+  a { color: inherit; text-decoration: none; }
+  .md a { text-decoration: underline; }
+}
+
+@page {
+  margin: 14mm;
+}

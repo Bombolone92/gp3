@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {board,item,validateBoard} from '../src/model.js';
+const {boardText}=await import(process.env.WHITEBOARD_AI_OMISSION_BEFORE?'./ai-summary-omission-before.js':'../src/ai/ai-ui.js');
+const b=board('Summary memory fixture'),f=item('frame',0,0,{text:'F'.repeat(20000)});
+b.items=[f,...Array.from({length:4999},(_,n)=>item('note',n%100,Math.floor(n/100),{text:'Note '+n,parentId:f.id}))];
+globalThis.heldSource=b;
+globalThis.heldValidatedClone=validateBoard(structuredClone(b));
+globalThis.heldSnapshot=JSON.stringify(b);
+assert.equal(b.items.length,5000);assert.equal(typeof globalThis.gc,'function');
+globalThis.gc();globalThis.gc();
+const before=process.memoryUsage().heapUsed,start=performance.now();
+globalThis.fixturePrompt=boardText(b.items);
+const elapsed=performance.now()-start;
+globalThis.gc();globalThis.gc();
+const after=process.memoryUsage().heapUsed;
+assert.equal(globalThis.fixturePrompt.length,50000);assert.equal(globalThis.fixturePrompt.isWellFormed(),true);assert.equal(JSON.stringify(b),globalThis.heldSnapshot);assert.equal(globalThis.heldValidatedClone.items.length,5000);
+console.log(JSON.stringify({validItems:b.items.length,sourceCharacters:b.items.reduce((n,i)=>n+i.text.length,0),resultCharacters:globalThis.fixturePrompt.length,elapsedMs:elapsed,retainedHeapIncrease:after-before,inputsRetainedInBothSamples:true}));

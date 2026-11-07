@@ -1,0 +1,83 @@
+import { test, expect } from '@playwright/test';
+import { PDFDocument } from 'pdf-lib';
+import { readFile } from 'node:fs/promises';
+import { radioPagesPdf } from '../fixtures/radio-pages.js';
+
+for (const defaultOnly of [false, true])
+  for (const mode of ['on page', 'dialog'])
+    test(`edits inherited radio options (${mode}, default=${defaultOnly})`, async ({ page }) => {
+      await page.route('https://js.puter.com/**', (route) => route.fulfill({ body: '' }));
+      await page.goto('/#library');
+      const { doc, field } = await radioPagesPdf({
+        defaultOnly,
+        inherited: true,
+        inheritedOptions: true,
+      });
+      const name = field.getName();
+      const open = async (document) => {
+        const pending = page.waitForEvent('filechooser');
+        await page.keyboard.press('ControlOrMeta+o');
+        await (
+          await pending
+        ).setFiles({
+          name: 'inherited-radio.pdf',
+          mimeType: 'application/pdf',
+          buffer: Buffer.from(await document.save({ updateFieldAppearances: false })),
+        });
+        await expect(page.locator('.editor')).toHaveAttribute('aria-busy', 'false');
+        await page.getByRole('button', { name: 'Next page', exact: true }).click();
+        await expect(page.locator('.page-caption')).toHaveText('Page 2 of 2');
+      };
+      const download = async () => {
+        const pending = page.waitForEvent('download');
+        await page.getByRole('button', { name: 'Download', exact: true }).click();
+        return PDFDocument.load(await readFile(await (await pending).path()));
+      };
+      await open(doc);
+      const pickup = page.getByRole('radio', { name: `${name}: Pickup (on page)`, exact: true });
+      const express = page.getByRole('radio', { name: `${name}: Express (on page)`, exact: true });
+      await expect(pickup).toBeChecked();
+      if (mode === 'on page') await express.check();
+      else {
+        await page.getByRole('button', { name: 'Fill forms', exact: true }).click();
+        const dialog = page.getByRole('dialog', { name: 'Fill forms' });
+        const choice = dialog.getByLabel(name, { exact: true });
+        await expect(choice.locator('option')).toHaveText([
+          'Choose an option',
+          'Courier',
+          'Pickup',
+          'Express',
+        ]);
+        await expect(choice).toHaveValue('Pickup');
+        await choice.selectOption('Express');
+        await dialog.getByRole('button', { name: 'Save form', exact: true }).click();
+      }
+      const saved = await download();
+      expect(saved.getForm().getRadioGroup(name).acroField.getValue().decodeText()).toBe('2');
+      await expect(express).toBeChecked();
+      await page.getByRole('button', { name: 'Undo', exact: true }).click();
+      await expect(pickup).toBeChecked();
+      await page.getByRole('button', { name: 'Redo', exact: true }).click();
+      await expect(express).toBeChecked();
+      await open(saved);
+      await expect(express).toBeChecked();
+      await page.getByRole('button', { name: 'Previous page', exact: true }).click();
+      const bar = page.getByRole('menubar', { name: 'PDF menus' });
+      if (await bar.isVisible())
+        await bar.getByRole('menuitem', { name: 'Page', exact: true }).click();
+      else {
+        await page.getByRole('button', { name: 'Menu', exact: true }).click();
+        await page.getByRole('menu').getByRole('menuitem', { name: 'Page', exact: true }).click();
+      }
+      await page
+        .getByRole('menu')
+        .getByRole('menuitem', { name: 'Delete page', exact: true })
+        .click();
+      await page.getByRole('button', { name: 'Delete page', exact: true }).click();
+      await expect(page.locator('.page-caption')).toHaveText('Page 1 of 1');
+      await expect(express).toBeChecked();
+      expect((await download()).getForm().getRadioGroup(name).getOptions()).toEqual([
+        'Pickup',
+        'Express',
+      ]);
+    });

@@ -1,0 +1,192 @@
+/* Design tokens. Light is the default; dark applies by OS preference unless
+   the app stamped light, and by an explicit [data-theme="dark"] stamp which
+   wins in both directions. Flat surfaces only: no gradients, no shadows. */
+
+/* The sheet is paper in every app theme. Scope the light palette to all
+   sheet surfaces, including frozen panes and the editor above those panes,
+   and to samples of what a cell will look like there (.sheet-paper). */
+:root,
+.grid-viewport,
+.frz-layer,
+.grid > .grid-editor,
+.sheet-paper {
+  color-scheme: light;
+
+  --page: #f9f9f7;
+  --surface: #ffffff;
+  --surface-2: #f2f1ee;
+  --surface-3: #e7e6e1;
+  --ink: #0b0b0b;
+  --ink-2: #4f4e4b;
+  --ink-3: #6b6964;
+  --hairline: rgba(11, 11, 11, 0.1);
+  --hairline-strong: rgba(11, 11, 11, 0.18);
+  --field-border: rgba(11, 11, 11, 0.48); /* a text field's only boundary, so 3:1 on every surface it sits on */
+  --grid: #e4e3dd;
+  --scrim: rgba(11, 11, 11, 0.44);
+  /* The drop-down arrow on <select>; a data URI cannot read currentColor, so each theme names its own ink. */
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6964' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --filter-glyph: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6964' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'/></svg>");
+
+  /* Forest green sampled from icon.png. Accent fill needs 4.5:1 with its label. */
+  --accent: #356d49;
+  --accent-strong: #28593a;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(53, 109, 73, 0.12);
+  --selection: rgba(53, 109, 73, 0.3); /* text selection, strong enough to see */
+
+  --pos: #006300;
+  --critical: #c22a2a;
+  --critical-wash: rgba(194, 42, 42, 0.1);
+  --warn: #8a5a00;
+
+  /* Chart fills and reference highlights: each reads at 3:1 on the white sheet (SERIES_COLORS in chartsvg.js mirrors them). */
+  --series-1: #337bfc;
+  --series-2: #eb6834;
+  --series-3: #0f8f61;
+  --series-4: #b57a00;
+  --series-5: #c4417a;
+  --series-7: #4a3aa7;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-full: 999px;
+
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --topbar-h: 48px;
+  --menubar-h: 34px;
+  --toolbar-h: 44px;
+  --formulabar-h: 40px;
+  --tabs-h: 40px;
+  --statusbar-h: 28px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #161616;
+    --surface-2: #1f1f1e;
+    --surface-3: #2a2a29;
+    --ink: #f5f5f2;
+    --ink-2: #c3c2b7;
+    --ink-3: #918f88;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --hairline-strong: rgba(255, 255, 255, 0.2);
+    --field-border: rgba(255, 255, 255, 0.4);
+    --grid: #2b2b2a;
+    --scrim: rgba(0, 0, 0, 0.6);
+    /* The drop-down arrow on <select>; a data URI cannot read currentColor, so each theme names its own ink. */
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23918f88' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    --filter-glyph: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23918f88' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'/></svg>");
+
+    --accent: #83be94;
+    --accent-strong: #a1d2af;
+    --accent-ink: #0d0d0d;
+    --accent-wash: rgba(131, 190, 148, 0.18);
+    --selection: rgba(131, 190, 148, 0.42);
+
+    --pos: #3fb950;
+    --critical: #ef6f6f;
+    --critical-wash: rgba(239, 111, 111, 0.14);
+    --warn: #e0a22e;
+
+    --series-1: #4a8dff;
+    --series-2: #ff7a45;
+    --series-3: #2dc48f;
+    --series-4: #f0b429;
+    --series-5: #f28cb5;
+    --series-7: #9a8cf0;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #161616;
+  --surface-2: #1f1f1e;
+  --surface-3: #2a2a29;
+  --ink: #f5f5f2;
+  --ink-2: #c3c2b7;
+  --ink-3: #918f88;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-strong: rgba(255, 255, 255, 0.2);
+  --field-border: rgba(255, 255, 255, 0.4);
+  --grid: #2b2b2a;
+  --scrim: rgba(0, 0, 0, 0.6);
+  /* The drop-down arrow on <select>; a data URI cannot read currentColor, so each theme names its own ink. */
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23918f88' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --filter-glyph: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23918f88' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'/></svg>");
+
+  --accent: #83be94;
+  --accent-strong: #a1d2af;
+  --accent-ink: #0d0d0d;
+  --accent-wash: rgba(131, 190, 148, 0.18);
+  --selection: rgba(131, 190, 148, 0.42);
+
+  --pos: #3fb950;
+  --critical: #ef6f6f;
+  --critical-wash: rgba(239, 111, 111, 0.14);
+  --warn: #e0a22e;
+
+  --series-1: #4a8dff;
+  --series-2: #ff7a45;
+  --series-3: #2dc48f;
+  --series-4: #f0b429;
+  --series-5: #f28cb5;
+  --series-7: #9a8cf0;
+}
+
+/* Paper is white: the printed sheet uses the light palette whatever the screen theme,
+   so text boxes and charts do not come out as dark blocks. */
+@media print {
+  :root, :root[data-theme="dark"] {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #ffffff;
+    --surface-2: #f2f1ee;
+    --surface-3: #e7e6e1;
+    --ink: #0b0b0b;
+    --ink-2: #4f4e4b;
+    --ink-3: #6b6964;
+    --hairline: rgba(11, 11, 11, 0.1);
+    --hairline-strong: rgba(11, 11, 11, 0.18);
+    --field-border: rgba(11, 11, 11, 0.48);
+    --grid: #e4e3dd;
+    --scrim: rgba(11, 11, 11, 0.44);
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6964' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    --filter-glyph: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6964' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'/></svg>");
+    --accent: #356d49;
+    --accent-strong: #28593a;
+    --accent-ink: #ffffff;
+    --accent-wash: rgba(53, 109, 73, 0.12);
+    --selection: rgba(53, 109, 73, 0.3); /* text selection, strong enough to see */
+    --pos: #006300;
+    --critical: #c22a2a;
+    --critical-wash: rgba(194, 42, 42, 0.1);
+    --warn: #8a5a00;
+    --series-1: #337bfc;
+    --series-2: #eb6834;
+    --series-3: #0f8f61;
+    --series-4: #b57a00;
+    --series-5: #c4417a;
+    --series-7: #4a3aa7;
+  }
+}
+
+/* Simplified Chinese interface: the platforms' own Simplified Chinese UI fonts, named ahead of the
+   system font so an English system does not draw Chinese text with a Japanese or Traditional face
+   (the same code points take different glyphs per language). Workbook cells keep their own fonts. */
+:root:lang(zh-Hans),
+:root:lang(zh-Hans) :is(.grid-viewport, .frz-layer, .grid > .grid-editor, .sheet-paper) {
+  --font: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", "Segoe UI", Roboto, sans-serif;
+}

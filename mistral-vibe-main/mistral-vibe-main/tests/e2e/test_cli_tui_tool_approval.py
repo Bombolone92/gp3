@@ -1,0 +1,111 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import pexpect
+import pytest
+
+from tests.e2e.agent_loop_characterization.support import assert_tool_result_contains
+from tests.e2e.common import (
+    SpawnedVibeProcessFixture,
+    send_ctrl_c_until_quit_confirmation,
+    wait_for_dialog_to_accept_keys,
+    wait_for_main_screen,
+    wait_for_rendered_text,
+    wait_for_request_count_while_draining_child_output,
+)
+from tests.e2e.mock_server import ChatCompletionsRequestPayload, StreamingMockServer
+
+PREDICTABLE_OUTPUT = "__E2E_BASH_OK__"
+TOOL_ARGUMENTS = f'{{"command":"printf \\"{PREDICTABLE_OUTPUT}\\\\n\\""}}'
+
+
+def _tool_call_factory(
+    request_index: int, _payload: ChatCompletionsRequestPayload
+) -> list[dict[str, object]]:
+    if request_index == 0:
+        return [
+            StreamingMockServer.build_chunk(
+                created=1,
+                delta=StreamingMockServer.build_tool_call_delta(
+                    call_id="call_bash_1", tool_name="bash", arguments=TOOL_ARGUMENTS
+                ),
+                finish_reason=None,
+            ),
+            StreamingMockServer.build_chunk(
+                created=2,
+                delta={},
+                finish_reason="tool_calls",
+                usage={"prompt_tokens": 3, "completion_tokens": 4},
+            ),
+        ]
+
+    return [
+        StreamingMockServer.build_chunk(
+            created=3,
+            delta={
+                "role": "assistant",
+                "content": f"The string {PREDICTABLE_OUTPUT} has been printed successfully.",
+            },
+            finish_reason=None,
+        ),
+        StreamingMockServer.build_chunk(
+            created=4, delta={"content": PREDICTABLE_OUTPUT}, finish_reason=None
+        ),
+        StreamingMockServer.build_chunk(
+            created=5,
+            delta={},
+            finish_reason="stop",
+            usage={"prompt_tokens": 3, "completion_tokens": 4},
+        ),
+    ]
+
+
+@pytest.mark.timeout(25)
+@pytest.mark.unified_default
+@pytest.mark.parametrize(
+    "streaming_mock_server",
+    [pytest.param(_tool_call_factory, id="tool-call-stream")],
+    indirect=True,
+)
+def test_spawn_cli_asks_bash_permission_and_shows_tool_output_after_approval(
+    streaming_mock_server: StreamingMockServer,
+    setup_e2e_env: None,
+    e2e_workdir: Path,
+    spawned_vibe_process: SpawnedVibeProcessFixture,
+) -> None:
+    with spawned_vibe_process(e2e_workdir) as (child, captured):
+        wait_for_main_screen(child, timeout=15)
+        child.send("Run a shell command")
+        child.send("\r")
+
+        wait_for_request_count_while_draining_child_output(
+            child,
+            captured,
+            lambda: len(streaming_mock_server.requests),
+            expected_count=1,
+            timeout=10,
+        )
+        # The unified runtime names builtins by their canonical route
+        # (``file_system.bash`` stands for Vibe's ``bash``).
+        wait_for_dialog_to_accept_keys(
+            child, captured, needle="Permission for the file_system.bash tool"
+        )
+        child.send("y")
+        child.send("\r")
+        # The command on screen already shows PREDICTABLE_OUTPUT: wait for the
+        # model's reply to the tool result instead.
+        wait_for_rendered_text(
+            child, captured, needle="has been printed successfully", timeout=10
+        )
+
+        send_ctrl_c_until_quit_confirmation(child, captured, timeout=5)
+        child.expect(pexpect.EOF, timeout=10)
+
+    # The scripted reply follows a denial too: only the tool result shows the
+    # approved command ran.
+    assert_tool_result_contains(
+        streaming_mock_server.requests[1],
+        call_id="call_bash_1",
+        expected=PREDICTABLE_OUTPUT,
+    )

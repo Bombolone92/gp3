@@ -1,0 +1,277 @@
+// Footnote areas: after pagination, each page reserves room at the foot of its
+// text area for the notes referenced on it, separated from the body by a short
+// rule. Pagination repeats until the reservations settle (a reference pushed to
+// the next page takes its note with it).
+import { measurePageStory, storyContentKey } from './page-story-measure.js';
+import { noteNumbers, noteReferences, numberedParagraphs, footnoteStoryPath } from './footnotes.js';
+
+export const FOOTNOTE_SEPARATOR = 16; // px: the separator paragraph, about one 12pt line
+const SEPARATOR_RULE = 192; // px: the separator spans two inches of the text width
+
+/** Notes of `kind` referenced from the body, with their display numbers, or null. */
+export function notePlan(definition, paragraphs, kind = 'footnote') {
+  const settings = definition?.[kind === 'footnote' ? 'footnotes' : 'endnotes'];
+  if (!settings) return null;
+  // As the revision view shows them: a reference Simple Markup hides takes no note and no number.
+  const refs = noteReferences(paragraphs, kind, true);
+  if (!refs.length) return null;
+  const numbers = noteNumbers(paragraphs, settings, kind, null, true);
+  const stories = new Map();
+  for (const id of numbers.keys()) {
+    const story = definition.stories[footnoteStoryPath(settings.part, id)];
+    if (story) stories.set(id, story);
+  }
+  return { kind, refs, numbers, stories, part: settings.part, settings, restart: settings.restart || 'continuous', position: settings.position || (kind === 'footnote' ? 'pageBottom' : 'docEnd') };
+}
+/** Footnotes referenced from the body, with their display numbers, or null. */
+export const footnotePlan = (definition, paragraphs) => notePlan(definition, paragraphs, 'footnote');
+/** Endnotes referenced from the body, with their display numbers, or null. */
+export const endnotePlan = (definition, paragraphs) => notePlan(definition, paragraphs, 'endnote');
+/** Page-restarted footnote numbers once the notes' pages are known (numRestart eachPage, §17.11.19). */
+export function pageRestartedNumbers(plan, paragraphs, placed) {
+  const pages = new Map();
+  for (const area of placed.footnoteAreas || []) for (const note of area.notes) pages.set(note.id, area.page);
+  return noteNumbers(paragraphs, { ...plan.settings, restart: 'eachPage' }, 'footnote', pages, true);
+}
+
+/** The page of each reference: Map(page -> [ids]) in reference order. */
+export function assignFootnotes(placed, refs) {
+  const pages = new Map(), seen = new Set();
+  // Each paragraph's lines, in layout order: a long document has many references and many lines.
+  const byParagraph = new Map();
+  for (const line of placed.lines) {
+    if (line.virtual || line.pageStory) continue;
+    const list = byParagraph.get(line.paragraphId);
+    if (list) list.push(line); else byParagraph.set(line.paragraphId, [line]);
+  }
+  for (const ref of refs) {
+    if (seen.has(ref.id)) continue;
+    const lines = byParagraph.get(ref.paragraphId) || [];
+    const line = lines.find(l => l.start <= ref.position && ref.position < l.end) || lines.find(l => l.start <= ref.position && ref.position <= l.end);
+    if (!line) continue;
+    seen.add(ref.id);
+    if (!pages.has(line.page)) pages.set(line.page, []);
+    pages.get(line.page).push(ref.id);
+  }
+  return pages;
+}
+
+/**
+ * Measure one note at the page's text width, showing its number. `pageContext` is the page it is shown on
+ * ({ pageNumber, pageCount, sectionPageCount, pageNumbering }), for PAGE and NUMPAGES fields in the note.
+ */
+export function measureNote(story, display, numbers, geometry, measure, numbering, options = {}) {
+  const paragraphs = numberedParagraphs(story.paragraphs, numbers, display);
+  return measurePageStory({ ...story, paragraphs }, { ...geometry, storyKind: 'footnote', top: 0, bottom: 0 }, measure, numbering,
+    options.pageContext || { pageNumber: 1, pageCount: 1, sectionPageCount: 1 }, { styles: options.styles, drawingLayouts: options.drawingLayouts, onUnsupported: options.bestEffort ? () => {} : undefined, stylesKey: options.storyStylesKey, numberingKey: options.storyNumberingKey, storyKeys: options.storyKeys, contentKey: options.contentKey });
+}
+
+/**
+ * The line that holds each referenced note's reference (its page, top `y`, `height` and `bottom`), and
+ * the top of the body text on each page.
+ */
+function referenceExtents(placed, refs) {
+  const byParagraph = new Map(), tops = new Map(), lines = new Map();
+  for (const line of placed.lines) {
+    if (line.virtual || line.pageStory) continue;
+    if (!(line.y >= tops.get(line.page))) tops.set(line.page, line.y);
+    const list = byParagraph.get(line.paragraphId);
+    if (list) list.push(line); else byParagraph.set(line.paragraphId, [line]);
+  }
+  const extents = new Map();
+  for (const ref of refs) {
+    if (lines.has(ref.id)) continue;
+    const list = byParagraph.get(ref.paragraphId) || [];
+    const line = list.find(l => l.start <= ref.position && ref.position < l.end) || list.find(l => l.start <= ref.position && ref.position <= l.end);
+    if (!line) continue;
+    // One object per line, so references sharing a line compare equal.
+    if (!extents.has(line)) extents.set(line, { page: line.page, y: line.y, height: line.height, bottom: line.y + line.height });
+    lines.set(ref.id, extents.get(line));
+  }
+  return { lines, tops };
+}
+
+/** For each reference, the line of its paragraph that holds it: measurement, not pagination, decides this. */
+function referenceLines(placed, refs) {
+  const byParagraph = new Map();
+  for (const line of placed.lines) {
+    if (line.virtual || line.pageStory) continue;
+    const list = byParagraph.get(line.paragraphId);
+    if (list) list.push(line); else byParagraph.set(line.paragraphId, [line]);
+  }
+  return refs.map(ref => {
+    const lines = byParagraph.get(ref.paragraphId) || [];
+    const index = lines.findIndex(l => l.start <= ref.position && ref.position < l.end);
+    return `${ref.paragraphId}:${index < 0 ? lines.findIndex(l => l.start <= ref.position && ref.position <= l.end) : index}`;
+  }).join(' ');
+}
+
+// A page's footnotes end at the bottom of its text area: the bottom margin, or the top of a footer
+// taller than that margin (layoutPass noteBottoms).
+const noteBottom = (placed, page) => {
+  const geometry = placed.pages[page] || placed.page;
+  return Math.min(geometry.height - geometry.bottom, placed.noteBottoms?.[page] ?? Infinity);
+};
+
+/**
+ * Lay out with footnote reservations. `layout(reserve)` paginates with `reserve[page]` px kept
+ * free above the bottom margin. Returns the final layout with `footnoteAreas`.
+ *
+ * Settling the reservations lays the body out several times. With a measurer that remembers
+ * paragraphs, `flowContext` names everything besides the body's blocks that the settling reads
+ * (the notes, page stories, styles and page counts). An edit that leaves the blocks paginating
+ * alike (layoutPass flowSignature), its references on the same lines and the context unchanged
+ * settles exactly as before: the remembered final reservation is laid out once instead.
+ */
+export function layoutWithFootnotes(plan, layout, measure, numbering, options, flowContext) {
+  const heights = new Map(), numbersKey = JSON.stringify([...plan.numbers]);
+  const noteHeight = (id, geometry) => {
+    const key = `${id}/${geometry.width}/${geometry.left}/${geometry.right}`;
+    if (!heights.has(key)) {
+      const contentKey = storyContentKey(options.storyStories, footnoteStoryPath(plan.part, id), plan.numbers.get(id), numbersKey);
+      try { heights.set(key, measureNote(plan.stories.get(id), plan.numbers.get(id), plan.numbers, geometry, measure, numbering, { ...options, contentKey }).placed.endY); }
+      catch (error) { if (!options.bestEffort) throw error; heights.set(key, 0); }
+    }
+    return heights.get(key);
+  };
+  const needed = (placed, pages) => {
+    const next = {}, { lines, tops } = referenceExtents(placed, plan.refs);
+    for (const [page, ids] of pages) {
+      const geometry = placed.pages[page] || placed.page, bottom = noteBottom(placed, page);
+      const notes = ids.filter(id => plan.stories.has(id));
+      if (!notes.length) continue;
+      const heights = notes.map(id => noteHeight(id, geometry));
+      // Notes are kept whole: the notes that fit beneath their reference lines stay, in order, and
+      // the first that does not moves to the next page with its reference line (and any reference
+      // sharing that line). Reserving every note of the page instead could leave no room for the
+      // body at all, emptying the page and the next.
+      let kept = 0, sum = 0;
+      while (kept < notes.length && lines.get(notes[kept]).bottom + Math.ceil(FOOTNOTE_SEPARATOR + (sum + heights[kept])) <= bottom + 1e-6) sum += heights[kept++];
+      if (kept === notes.length) { next[page] = Math.ceil(FOOTNOTE_SEPARATOR + sum); continue; }
+      while (kept > 0 && lines.get(notes[kept - 1]) === lines.get(notes[kept])) kept--;
+      if (kept) { next[page] = Math.max(Math.ceil(FOOTNOTE_SEPARATOR + heights.slice(0, kept).reduce((total, height) => total + height, 0)), Math.floor(bottom - lines.get(notes[kept]).y)); continue; }
+      const first = lines.get(notes[0]), alone = Math.ceil(FOOTNOTE_SEPARATOR + heights[0]);
+      // A first note too tall to fit beneath its reference line even at the top of a page would push the
+      // line on and on, and then be drawn over the body. Its line starts the next page, where the note
+      // has the most room, and at the top of a page the notes keep the room beneath the page's reference
+      // lines; what does not fit is cut off at the page edge (continuing a note on the next page is not
+      // supported).
+      if (alone <= bottom - tops.get(page) - first.height) next[page] = alone;
+      else if (first.y > tops.get(page) + 1e-6) next[page] = Math.floor(bottom - first.y);
+      else {
+        const lowest = Math.max(...notes.map(id => lines.get(id).bottom));
+        next[page] = Math.max(0, Math.min(Math.ceil(FOOTNOTE_SEPARATOR + heights.reduce((total, height) => total + height, 0)), Math.floor(bottom - lowest)));
+      }
+    }
+    return next;
+  };
+  // A reference that only fits without its note's reservation moves to the next
+  // page and takes the note along; that can alternate. When a state repeats,
+  // reserve the union so the final layout and its note areas agree.
+  let reserve = {}, placed, pages, settled = false;
+  const cache = flowContext ? measure.paragraphCache?.() : null;
+  const flowKey = cache && cache.intern(JSON.stringify([flowContext, [...plan.numbers], plan.settings, plan.position, plan.restart]));
+  const remembered = cache?.flows.get(flowKey);
+  if (remembered) {
+    const candidate = layout(remembered.reserve);
+    if (candidate.flowSignature !== undefined && candidate.flowSignature === remembered.signature && referenceLines(candidate, plan.refs) === remembered.references) {
+      placed = candidate; reserve = remembered.reserve; pages = assignFootnotes(placed, plan.refs); settled = true;
+    }
+  }
+  const seen = new Set();
+  for (let attempt = 0; attempt < 8 && !settled; attempt++) {
+    placed = layout(reserve);
+    pages = assignFootnotes(placed, plan.refs);
+    const next = needed(placed, pages), key = JSON.stringify(next);
+    if (key === JSON.stringify(reserve)) break;
+    if (seen.has(key) || attempt === 7) {
+      const union = { ...reserve };
+      for (const [page, height] of Object.entries(next)) union[page] = Math.max(union[page] || 0, height);
+      reserve = union;
+      placed = layout(reserve);
+      pages = assignFootnotes(placed, plan.refs);
+      break;
+    }
+    seen.add(JSON.stringify(reserve));
+    reserve = next;
+  }
+  if (cache && placed.flowSignature !== undefined) {
+    cache.flows.delete(flowKey);
+    cache.flows.set(flowKey, { reserve, signature: placed.flowSignature, references: referenceLines(placed, plan.refs) });
+    if (cache.flows.size > 8) cache.flows.delete(cache.flows.keys().next().value);
+  }
+  const final = needed(placed, pages);
+  placed.footnoteAreas = [];
+  for (const [page, ids] of pages) {
+    const geometry = placed.pages[page] || placed.page, notes = ids.filter(id => plan.stories.has(id));
+    if (!notes.length || !final[page]) continue;
+    // Never draw notes over body text: start the area below the body's reserved space.
+    // Notes placed beneath text (§17.11.21 beneathText) follow the page's last body line instead.
+    const height = Math.max(final[page], reserve[page] || 0);
+    let top = noteBottom(placed, page) - height;
+    if (plan.position === 'beneathText') {
+      const bodyBottom = Math.max(...placed.lines.filter(line => line.page === page && !line.virtual && !line.pageStory).map(line => line.y + line.height));
+      if (Number.isFinite(bodyBottom)) top = Math.min(top, bodyBottom);
+    }
+    placed.footnoteAreas.push({ page, top, notes: notes.map(id => ({ id, path: footnoteStoryPath(plan.part, id), display: plan.numbers.get(id) })) });
+    (placed.columnSeparators ||= []).push({ page, x: geometry.left, y: top + FOOTNOTE_SEPARATOR / 2, width: Math.min(SEPARATOR_RULE, geometry.width - geometry.left - geometry.right), height: 0.75, footnote: true });
+  }
+  return placed;
+}
+
+const ENDNOTE_GAP = 12; // px between the last body line and the endnote separator
+
+/**
+ * Place endnotes (§17.11.4) after the document's last body line, continuing on added pages when they do
+ * not fit. Each note stays whole on one page. Adds `endnoteAreas` [{ page, top, separator, notes: [{ id,
+ * path, display, y }] }] to `placed` and returns it.
+ */
+export function placeEndnotes(plan, placed, measure, numbering, options) {
+  if (!placed.pageCount) return placed;
+  const geometryOf = page => placed.pages[page] || placed.page;
+  const noteTop = page => placed.footnoteAreas?.find(area => area.page === page)?.top ?? Infinity;
+  // The page's text area: a header or footer taller than its margin moves its edges in (page-bounds.js).
+  const textArea = page => placed.pageRegions?.[page]?.at(-1)?.drawingBounds;
+  const bottomOf = page => { const g = geometryOf(page); return Math.min(g.height - g.bottom, textArea(page)?.bottom ?? Infinity, noteTop(page)); };
+  const topOf = page => Math.max(geometryOf(page).top, textArea(page)?.top ?? -Infinity);
+  const heights = new Map(), numbersKey = JSON.stringify(['endnote', ...plan.numbers]);
+  const height = (id, geometry) => {
+    const key = `${id}/${geometry.width}/${geometry.left}/${geometry.right}`;
+    if (!heights.has(key)) {
+      const contentKey = storyContentKey(options.storyStories, footnoteStoryPath(plan.part, id), plan.numbers.get(id), numbersKey);
+      try { heights.set(key, measureNote(plan.stories.get(id), plan.numbers.get(id), { footnote: new Map(), endnote: plan.numbers }, geometry, measure, numbering, { ...options, contentKey }).placed.endY); }
+      catch (error) { if (!options.bestEffort) throw error; heights.set(key, 0); }
+    }
+    return heights.get(key);
+  };
+  const appendPage = () => {
+    const last = placed.pageCount - 1, geometry = geometryOf(last), region = placed.pageRegions?.[last]?.at(-1);
+    placed.pages.push(geometry); placed.pageSections.push(placed.pageSections[last]);
+    (placed.pageRegions ||= []).push(region ? [{ ...region, top: geometry.top, bottom: geometry.top }] : []);
+    placed.pageCount++;
+    return placed.pageCount - 1;
+  };
+  let page = placed.pageCount - 1;
+  const last = placed.lines.filter(line => line.page === page && !line.virtual && !line.pageStory).map(line => line.y + line.height);
+  let y = Math.max(last.length ? Math.max(...last) : topOf(page), Number.isFinite(placed.endY) ? placed.endY : -Infinity) + ENDNOTE_GAP;
+  const ids = [...new Set(plan.refs.map(ref => ref.id))].filter(id => plan.stories.has(id));
+  if (!ids.length) return placed;
+  // The separator and the first note keep together.
+  if (y + FOOTNOTE_SEPARATOR + height(ids[0], geometryOf(page)) > bottomOf(page) && y > topOf(page) + ENDNOTE_GAP) { page = appendPage(); y = topOf(page); }
+  const areas = [{ page, top: y, separator: true, notes: [] }];
+  y += FOOTNOTE_SEPARATOR;
+  for (const id of ids) {
+    let area = areas.at(-1);
+    const h = height(id, geometryOf(page));
+    if (y + h > bottomOf(page) && area.notes.length) {
+      page = appendPage(); y = topOf(page);
+      area = { page, top: y, separator: false, notes: [] }; areas.push(area);
+    }
+    area.notes.push({ id, path: footnoteStoryPath(plan.part, id), display: plan.numbers.get(id), y });
+    y += h;
+  }
+  placed.endnoteAreas = areas;
+  const first = areas[0], geometry = geometryOf(first.page);
+  (placed.columnSeparators ||= []).push({ page: first.page, x: geometry.left, y: first.top + FOOTNOTE_SEPARATOR / 2, width: Math.min(SEPARATOR_RULE, geometry.width - geometry.left - geometry.right), height: 0.75, footnote: true });
+  return placed;
+}

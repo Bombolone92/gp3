@@ -1,0 +1,75 @@
+
+for (const [created, later, rootText, childText, laterText] of [
+  ["en", "fr", "Central idea", "New idea", "Nouvelle idée"],
+  ["fr", "en", "Idée centrale", "Nouvelle idée", "New idea"],
+])
+  test(`generated mind-map labels retain ${created} when the interface changes to ${later}`, async () => {
+    const app = await setup(), { doc, w, click } = app;
+    const switchLanguage = async code => {
+      doc.querySelector("#language").value = code;
+      doc.querySelector("#language").dispatchEvent(new w.Event("change"));
+      await app.tick();
+    };
+    const label = id => doc.querySelector(`#board-outline [data-id="${id}"]`);
+    try {
+      await switchLanguage(created);
+      await click('[data-action="new"]');
+      await click('[data-action="more-tools"]');
+      await click('[data-feature="mind-map"]');
+      assert.equal(doc.querySelector(`#canvas-text-editor [lang="${created}"]`).textContent, rootText);
+      mindKey(app, "Tab");
+      assert.equal(doc.querySelector(`#canvas-text-editor [lang="${created}"]`).textContent, childText);
+      mindKey(app, "Enter", { ctrlKey: true });
+      const initial = allClipboard(app);
+      const root = initial.find(i => i.mindMap && !i.mindMap.parent);
+      const child = initial.find(i => i.mindMap?.parent === root.id);
+      assert.equal(root.lang, created);
+      assert.equal(child.lang, created);
+      await click('[data-action="undo"]');
+      assert.deepEqual(allClipboard(app).map(i => i.id), [root.id]);
+      await click('[data-action="redo"]');
+      for(const i of initial) assert.deepEqual(allClipboard(app).find(row => row.id === i.id), i);
+      await switchLanguage(later);
+      assert.equal(label(root.id).querySelector(`[lang="${created}"]`).textContent, rootText);
+      assert.equal(label(child.id).querySelector(`[lang="${created}"]`).textContent, childText);
+      await click(`#board-outline [data-id="${child.id}"]`);
+      await click('[data-action="mind-sibling"]');
+      assert.equal(doc.querySelector(`#canvas-text-editor [lang="${later}"]`).textContent, laterText);
+      mindKey(app, "Enter", { ctrlKey: true });
+      const original = allClipboard(app);
+      const sibling = original.find(i => i.id !== root.id && i.id !== child.id);
+      assert.equal(sibling.lang, later);
+      assert.equal(sibling.mindMap.parent, root.id);
+      await click(`#board-outline [data-id="${root.id}"]`);
+      const formats = transferData();
+      dispatchTransfer(app, "copy", formats);
+      dispatchTransfer(app, "paste", formats);
+      const copied = selectedClipboard(app);
+      assert.equal(copied.length, 3);
+      for(const i of original) {
+        const copy = copied.find(row => row.text === i.text);
+        assert.notEqual(copy.id, i.id);
+        assert.equal(copy.lang, i.lang);
+      }
+      await click('[data-action="undo"]');
+      assert.equal(allClipboard(app).length, 3);
+      await click(`#board-outline [data-id="${child.id}"]`);
+      await click("#content-language-options");
+      doc.querySelector("#content-language-tag").value = "de-DE";
+      await click("#content-language-save");
+      assert.equal(selectedClipboard(app)[0].lang, "de-DE");
+      await click('[data-action="undo"]');
+      assert.equal(allClipboard(app).find(i => i.id === child.id).lang, created);
+      await click('[data-action="home"]');
+      await click('[data-open]');
+      assert.equal(doc.documentElement.lang, later);
+      const saved = allClipboard(app);
+      for(const i of original) {
+        assert.deepEqual(saved.find(row => row.id === i.id), i);
+        assert.equal(label(i.id).querySelector(`[lang="${i.lang}"]`).textContent, i.text);
+      }
+      w.eval(axe.source);
+      const scan = await w.axe.run(doc.querySelector("#board-outline"), { rules: { "color-contrast": { enabled: false } } });
+      assert.equal(scan.violations.length, 0);
+    } finally { app.close(); }
+  });

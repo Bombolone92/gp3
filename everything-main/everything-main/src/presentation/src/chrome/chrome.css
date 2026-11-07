@@ -1,0 +1,995 @@
+/* The editor's window chrome, laid out as desktop presentation software
+   lays out its own: a grey frame holding the title bar, the ribbon on a
+   white card, the thumbnails pane, the slide on its grey canvas, the notes
+   pane under it, and the status bar. */
+:root {
+  --chrome: #f5f5f5;
+  --chrome-ink: #262626;
+  --chrome-muted: #616161;
+  --chrome-line: #e0e0e0;
+  --chrome-rule: #d1d1d1;
+  --chrome-hover: #ebebeb;
+  --chrome-pressed: #dcdcdc;
+  --chrome-card: #ffffff;
+  --chrome-field: #ffffff;
+  --chrome-field-line: #c7c7c7;
+  --chrome-selected: #fbe9e3;
+  --ribbon-accent: #c43e1c;
+  --ribbon-accent-ink: #b03a1c;
+  --ribbon-focus: #c43e1c;
+  --thumb-accent: #c43e1c;
+}
+:root[data-theme="dark"] {
+  --chrome: #1f1f1f;
+  --chrome-ink: #e6e6e6;
+  --chrome-muted: #a8a8a8;
+  --chrome-line: #3a3a3a;
+  --chrome-rule: #444;
+  --chrome-hover: #333;
+  --chrome-pressed: #3d3d3d;
+  --chrome-card: #2a2a2a;
+  --chrome-field: #1f1f1f;
+  --chrome-field-line: #555;
+  --chrome-selected: #4a2a20;
+  --ribbon-accent: #f08b73;
+  --ribbon-accent-ink: #f4a28d;
+  --ribbon-focus: #f08b73;
+  --thumb-accent: #f08b73;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --chrome: #1f1f1f;
+    --chrome-ink: #e6e6e6;
+    --chrome-muted: #a8a8a8;
+    --chrome-line: #3a3a3a;
+    --chrome-rule: #444;
+    --chrome-hover: #333;
+    --chrome-pressed: #3d3d3d;
+    --chrome-card: #2a2a2a;
+    --chrome-field: #1f1f1f;
+    --chrome-field-line: #555;
+    --chrome-selected: #4a2a20;
+    --ribbon-accent: #f08b73;
+    --ribbon-accent-ink: #f4a28d;
+    --ribbon-focus: #f08b73;
+    --thumb-accent: #f08b73;
+  }
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- The frame ---- */
+.editor {
+  background: var(--chrome);
+  color: var(--chrome-ink);
+  font-size: 13px;
+}
+.editor-header {
+  background: var(--chrome);
+  border-bottom: 0;
+}
+.editor .topbar-row {
+  height: 42px;
+  gap: 4px;
+  position: relative;
+}
+.editor .topbar-row > .icon-btn {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--chrome-muted);
+}
+.editor-header .brand-mark {
+  width: 22px;
+  height: 22px;
+  margin: 0 4px 0 2px;
+}
+.qat {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding-right: 6px;
+  margin-right: 4px;
+  border-right: 1px solid var(--chrome-line);
+}
+.qat-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--chrome-ink);
+}
+.qat-btn:hover:not(:disabled) {
+  background: var(--chrome-hover);
+}
+.qat-btn:disabled {
+  opacity: 0.38;
+}
+.editor .menubar {
+  height: 28px;
+  margin: 0;
+}
+.editor .menu-btn {
+  height: 26px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--chrome-ink);
+  border-radius: 5px;
+}
+.editor .menu-btn[aria-expanded="true"],
+.editor .menu-btn:hover {
+  background: var(--chrome-hover);
+}
+/* The presentation's name sits in the middle of the bar, as a window title
+   does, with its save status beside it. */
+.editor .topbar-title-wrap {
+  /* Centered while it fits; never pushed past the menus when it doesn't. */
+  justify-content: safe center;
+  gap: 4px;
+}
+/* When the bar is short of room the save status gives way first, down to
+   its icon, and then the name, down to a few letters. */
+.editor .topbar-title-wrap > .editor-title {
+  flex: 0 1 auto;
+  min-width: 60px;
+}
+.editor .topbar-title-wrap > .save-status {
+  flex: 0 100 auto;
+  min-width: 16px;
+  overflow: hidden;
+}
+.editor .save-status > svg {
+  flex: none;
+}
+.editor .save-status > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.editor .document-title {
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 26px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: var(--chrome-ink);
+}
+.editor .document-title:hover {
+  background: var(--chrome-hover);
+}
+.editor .save-status {
+  font-size: 12px;
+  color: var(--chrome-muted);
+}
+.editor .topbar-actions {
+  gap: 6px;
+  /* The presentation's actions keep their size; the title gives way. */
+  flex-shrink: 0;
+}
+.editor .document-title {
+  max-width: 100%;
+}
+/* A phone keeps Undo and Redo one tap away in the title bar (Save is the
+   cloud button among the actions), and Present goes by its icon to make the
+   room. */
+@media (max-width: 760px) {
+  .editor-header .qat.desktop-only {
+    display: flex;
+    padding-right: 0;
+    margin-right: 0;
+    border-right: 0;
+  }
+  .editor-header .qat .qat-save {
+    display: none;
+  }
+  .editor-header .qat-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+@media (max-width: 480px) {
+  .editor .topbar-actions .btn.present-button {
+    padding: 0 9px;
+  }
+  .editor .topbar-actions .btn.present-button span {
+    display: none;
+  }
+}
+/* The narrowest phones leave Redo to the Edit menu. */
+@media (max-width: 360px) {
+  .editor-header .qat #redo {
+    display: none;
+  }
+}
+/* A tablet has no room for the menus beside the title and the actions: the
+   menu bar takes a row of its own under them. */
+@media (max-width: 1230px) and (min-width: 761px) {
+  .editor .topbar-row {
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 0;
+    padding-top: 6px;
+  }
+  .editor .topbar-row > .menubar {
+    order: 1;
+    flex-basis: 100%;
+    margin-bottom: 2px;
+  }
+}
+.command-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  width: 180px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--chrome-hover);
+  color: var(--chrome-muted);
+}
+.command-search:focus-within {
+  background: var(--chrome-card);
+  box-shadow: 0 0 0 1px var(--ribbon-focus);
+}
+.command-search-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--chrome-ink);
+}
+.command-search-input::-webkit-search-cancel-button {
+  display: none;
+}
+@media (max-width: 1350px) {
+  .command-search {
+    width: 120px;
+  }
+}
+@media (max-width: 1200px) {
+  .command-search {
+    display: none;
+  }
+}
+.editor .topbar-actions .btn {
+  min-height: 28px;
+  height: 28px;
+  padding: 0 11px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+.editor .topbar-actions .btn.ai-toggle {
+  border-radius: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+}
+.editor .topbar-actions .btn.primary {
+  background: var(--ribbon-accent);
+  border-color: var(--ribbon-accent);
+}
+/* The account button is a fixed circle: it must not shrink with the header,
+   or a profile picture inside it is squeezed into an oval. */
+.editor-header .account-button {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 5px;
+}
+.editor-header .account-button:has(.account-picture) {
+  padding: 0;
+  min-height: 0;
+}
+.editor-header .account-picture {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+/* ---- Panes ---- */
+.editor .editor-body {
+  background: var(--chrome);
+}
+.editor .slide-sidebar {
+  position: relative;
+  width: var(--thumbnail-width, 210px);
+  min-width: var(--thumbnail-width, 210px);
+  background: var(--chrome);
+  border-right: 1px solid var(--chrome-rule);
+}
+.editor .slide-list {
+  padding: 10px 14px 16px 4px;
+}
+/* On a phone the thumbnails are a strip across the screen, under the slide;
+   its width is the screen's, not the one dragged on a wider window. */
+@media (max-width: 760px) {
+  .editor .slide-sidebar {
+    width: 100%;
+    min-width: 0;
+    border-right: 0;
+  }
+  .editor .slide-sidebar > .pane-resize {
+    display: none;
+  }
+  .editor .slide-list {
+    padding: 8px 12px;
+  }
+}
+.editor .slide-item {
+  padding: 4px 0 10px;
+  gap: 4px;
+}
+.editor .slide-number {
+  min-width: 20px;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--chrome-ink);
+  text-align: right;
+}
+.editor .slide-item.active .slide-number,
+.editor .slide-item.selected .slide-number {
+  color: var(--chrome-ink);
+  font-weight: 400;
+}
+.editor .slide-thumb {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+.editor .slide-thumb img {
+  border: 1px solid var(--chrome-rule);
+  border-radius: 4px;
+}
+.editor .slide-item:not(.active) .slide-thumb:hover {
+  border-color: var(--chrome-rule);
+}
+.editor .slide-item.selected .slide-thumb {
+  border-color: color-mix(in srgb, var(--thumb-accent) 60%, transparent);
+  background: none;
+}
+.editor .slide-item.active .slide-thumb {
+  border-color: var(--thumb-accent);
+}
+.editor .slide-item.active .slide-thumb img,
+.editor .slide-item.selected .slide-thumb img {
+  border-color: transparent;
+}
+.editor .slide-item > .icon-btn {
+  bottom: 14px;
+  right: 8px;
+}
+.pane-resize {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  right: -3px;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+}
+.pane-resize.horizontal {
+  top: -3px;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 6px;
+  cursor: row-resize;
+}
+.pane-resize:hover,
+.pane-resize:focus-visible {
+  background: color-mix(in srgb, var(--ribbon-accent) 35%, transparent);
+  outline: none;
+}
+.editor .workspace {
+  background: var(--chrome);
+}
+.editor .canvas-area {
+  padding: 26px 34px;
+}
+.editor .canvas-label {
+  display: none;
+  margin: 0;
+}
+.editor .slide-canvas {
+  max-width: none;
+  outline: 0;
+  box-shadow:
+    0 0 0 0.5px rgb(0 0 0 / 0.14),
+    0 1px 3px rgb(0 0 0 / 0.1);
+}
+.editor .notes-area {
+  position: relative;
+  height: var(--notes-height, 70px);
+  padding: 8px 10px 4px;
+  background: var(--chrome);
+  border-top: 1px solid var(--chrome-rule);
+}
+.editor .notes-area textarea {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  resize: none;
+  padding: 2px 0 0;
+  font-size: 14px;
+  color: var(--chrome-ink);
+}
+.editor .notes-area textarea::placeholder {
+  color: var(--chrome-ink);
+  opacity: 0.85;
+}
+.editor.hide-notes .notes-area {
+  display: none;
+}
+.editor .inspector {
+  width: 300px;
+  min-width: 300px;
+  background: var(--chrome-card);
+  border-left: 1px solid var(--chrome-rule);
+}
+.editor .inspector .panel-heading {
+  min-height: 44px;
+  padding: 8px 10px 8px 16px;
+  border-bottom: 1px solid var(--chrome-line);
+}
+.editor .inspector .panel-heading h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.editor .inspector-close {
+  display: inline-flex;
+  border: 0;
+}
+
+/* ---- Status bar ---- */
+.editor .status-bar {
+  height: calc(28px + env(safe-area-inset-bottom));
+  padding: 0 max(12px, env(safe-area-inset-right)) env(safe-area-inset-bottom)
+    max(14px, env(safe-area-inset-left));
+  background: var(--chrome);
+  border-top: 1px solid var(--chrome-line);
+  font-size: 12px;
+  color: var(--chrome-ink);
+}
+.status-left,
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.status-item {
+  white-space: nowrap;
+  padding: 0 8px;
+}
+.status-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font-size: 12px;
+}
+.status-button:hover {
+  background: var(--chrome-hover);
+}
+.status-button[aria-pressed="true"] {
+  background: none;
+}
+.status-views {
+  display: flex;
+  gap: 2px;
+  margin: 0 6px;
+}
+.status-view {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--chrome-ink);
+}
+.status-view:hover {
+  background: var(--chrome-hover);
+}
+.status-view[aria-pressed="true"] {
+  background: var(--chrome-pressed);
+}
+.editor .zoom-control {
+  gap: 4px;
+}
+.editor .zoom-control .zoom-step {
+  width: 18px;
+  min-width: 18px;
+  height: 20px;
+  min-height: 20px;
+  border: 0;
+  background: none;
+  color: var(--chrome-ink);
+}
+.editor .zoom-control .zoom-step svg {
+  width: 12px;
+  height: 12px;
+}
+.editor .zoom-slider {
+  width: 120px;
+  height: 14px;
+  accent-color: var(--chrome-muted);
+}
+.editor .zoom-level {
+  min-width: 46px;
+  min-height: 22px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  color: var(--chrome-ink);
+  justify-content: center;
+}
+/* A tablet's status bar leaves the language to the Review tab and shows the
+   accessibility check by its icon (its words stay its accessible name). */
+@media (max-width: 1150px) {
+  .editor .status-bar #status-language {
+    display: none;
+  }
+  .editor .status-bar #status-accessibility span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .editor .zoom-slider {
+    width: 90px;
+  }
+}
+/* A phone's status bar keeps the slide count, Notes and zoom; the language,
+   the accessibility check and the views are in the ribbon's Review and View
+   tabs. */
+@media (max-width: 760px) {
+  .editor .zoom-slider,
+  .editor .status-bar .desktop-only {
+    display: none;
+  }
+  .editor .status-bar {
+    padding: 0 max(4px, env(safe-area-inset-right)) env(safe-area-inset-bottom)
+      max(6px, env(safe-area-inset-left));
+  }
+}
+
+/* ---- The canvas while a tool is armed ---- */
+.editor.drawing .slide-canvas,
+.editor.drawing .slide-canvas * {
+  cursor: crosshair !important;
+}
+.editor.painting .slide-canvas .object-hit {
+  cursor: copy;
+}
+.draw-preview {
+  position: absolute;
+  z-index: 6;
+  border: 1px solid var(--ribbon-accent);
+  background: color-mix(in srgb, var(--ribbon-accent) 8%, transparent);
+  pointer-events: none;
+}
+
+/* ---- Rulers, gridlines and guides ---- */
+.canvas-aids {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.canvas-aids.grid {
+  background-image:
+    linear-gradient(to right, rgb(0 0 0 / 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.12) 1px, transparent 1px);
+  background-size: var(--grid-x) var(--grid-y);
+}
+.guide-line {
+  position: absolute;
+  border: 0 dashed #7a7a7a;
+}
+.guide-line.vertical {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  border-left-width: 1px;
+}
+.guide-line.horizontal {
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top-width: 1px;
+}
+.ruler {
+  position: absolute;
+  z-index: 1;
+  background: var(--chrome-card);
+  color: var(--chrome-muted);
+  font-size: 9px;
+  box-shadow: 0 0 0 0.5px var(--chrome-rule);
+  pointer-events: none;
+}
+.ruler.horizontal {
+  left: 0;
+  right: 0;
+  top: -22px;
+  height: 16px;
+}
+.ruler.vertical {
+  top: 0;
+  bottom: 0;
+  left: -22px;
+  width: 16px;
+}
+.editor.show-ruler .canvas-area {
+  padding-top: 34px;
+  padding-left: 40px;
+}
+.ruler .tick {
+  position: absolute;
+  background: currentColor;
+}
+.ruler.horizontal .tick {
+  bottom: 0;
+  width: 1px;
+  height: 3px;
+}
+.ruler.horizontal .tick.half {
+  height: 5px;
+}
+.ruler.horizontal .tick.major {
+  height: 0;
+}
+.ruler.vertical .tick {
+  right: 0;
+  height: 1px;
+  width: 3px;
+}
+.ruler.vertical .tick.half {
+  width: 5px;
+}
+.ruler.vertical .tick.major {
+  width: 0;
+}
+.ruler .tick[data-label]::after {
+  content: attr(data-label);
+  position: absolute;
+  transform: translate(-50%, 0);
+  bottom: 3px;
+  color: var(--chrome-ink);
+}
+.ruler.vertical .tick[data-label]::after {
+  transform: translate(0, -50%);
+  bottom: auto;
+  right: 3px;
+}
+/* Grayscale and black-and-white views of the slide. */
+.editor[data-color-mode="grayscale"] .slide-image,
+.editor[data-color-mode="grayscale"] .slide-thumb img {
+  filter: grayscale(1);
+}
+.editor[data-color-mode="blackwhite"] .slide-image,
+.editor[data-color-mode="blackwhite"] .slide-thumb img {
+  filter: grayscale(1) contrast(4) brightness(1.2);
+}
+
+/* ---- Task panes beside the slide ---- */
+.task-pane {
+  width: 260px;
+  min-width: 260px;
+  background: var(--chrome-card);
+  border-left: 1px solid var(--chrome-rule);
+  overflow: auto;
+  outline: none;
+}
+.task-pane-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 6px 8px 6px 16px;
+  border-bottom: 1px solid var(--chrome-line);
+}
+.task-pane-head h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.task-pane-head .icon-btn {
+  border: 0;
+}
+.task-pane .helper {
+  padding: 16px;
+}
+.selection-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+}
+.selection-list li {
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+.selection-list li.selected {
+  background: var(--chrome-selected);
+}
+.selection-list li.hidden-object .selection-name {
+  color: var(--chrome-muted);
+}
+.selection-name {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.selection-eye {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--chrome-muted);
+}
+
+/* ---- Pickers inside menus ---- */
+.palette {
+  padding: 4px 10px 6px;
+}
+.palette-heading {
+  padding: 6px 0 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--chrome-muted, #616161);
+}
+.palette-row {
+  display: grid;
+  grid-template-columns: repeat(10, 18px);
+  gap: 5px;
+}
+.palette-columns {
+  display: grid;
+  grid-template-columns: repeat(10, 18px);
+  column-gap: 5px;
+  margin-top: 6px;
+}
+.palette-column {
+  display: flex;
+  flex-direction: column;
+}
+.palette-swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 0.14);
+  border-radius: 2px;
+}
+.palette-column .palette-swatch {
+  height: 15px;
+  border-radius: 0;
+  border-top-width: 0;
+}
+.palette-column .palette-swatch:first-child {
+  border-top-width: 1px;
+}
+.palette-swatch:hover,
+.palette-swatch:focus-visible,
+.palette-swatch.current {
+  outline: 2px solid var(--ribbon-accent);
+  outline-offset: 1px;
+  position: relative;
+  z-index: 1;
+}
+.palette-picker {
+  position: fixed;
+  left: -100px;
+  top: -100px;
+  opacity: 0;
+}
+.table-picker-wrap {
+  padding: 6px 10px;
+}
+.table-picker-label {
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--chrome-ink, #262626);
+}
+.table-picker {
+  display: grid;
+  grid-template-columns: repeat(10, 16px);
+  gap: 3px;
+}
+.table-picker-cell {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid #b7b7b7;
+  background: #fff;
+}
+.table-picker-cell.on {
+  border-color: var(--ribbon-accent);
+  background: color-mix(in srgb, var(--ribbon-accent) 18%, #fff);
+}
+.shape-gallery-row,
+.quick-styles,
+.wordart-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px 8px 6px;
+  max-width: 300px;
+}
+.quick-styles {
+  display: grid;
+  grid-template-columns: repeat(7, 40px);
+  max-width: none;
+  gap: 4px;
+}
+.shape-choice,
+.quick-style,
+.wordart-choice {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: var(--chrome-ink, #262626);
+}
+.quick-style {
+  width: 40px;
+  height: 30px;
+}
+.wordart-choice {
+  width: 44px;
+  height: 44px;
+  font:
+    32px/1 Georgia,
+    serif;
+}
+.shape-choice:hover,
+.shape-choice:focus-visible,
+.quick-style:hover,
+.quick-style:focus-visible,
+.wordart-choice:hover,
+.wordart-choice:focus-visible {
+  border-color: var(--chrome-rule, #d1d1d1);
+  background: var(--chrome-hover, #ebebeb);
+  outline: none;
+}
+.shape-glyph path {
+  fill: #dbe7f5;
+  stroke: #2f74c0;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+.style-swatch {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 24px;
+  border: 1.5px solid;
+  border-radius: 2px;
+  font-size: 10px;
+}
+.symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 32px);
+  gap: 2px;
+}
+.symbol-cell {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--chrome-line, #e0e0e0);
+  border-radius: 3px;
+  background: var(--chrome-card, #fff);
+  font-size: 17px;
+}
+.symbol-cell:hover {
+  background: var(--chrome-hover, #ebebeb);
+}
+.a11y-list h3 {
+  font-size: 13px;
+  margin: 12px 0 4px;
+}
+.a11y-list ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* ---- Gallery items drawn by the app ---- */
+.theme-thumb {
+  padding: 2px;
+}
+.theme-swatch-thumb {
+  position: relative;
+  display: block;
+  width: 72px;
+  height: 44px;
+  border: 1px solid var(--chrome-rule, #d1d1d1);
+  overflow: hidden;
+}
+.theme-aa {
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  font:
+    600 17px/1 Georgia,
+    serif;
+}
+.theme-bar {
+  position: absolute;
+  bottom: 6px;
+  width: 12px;
+  height: 5px;
+}
+.theme-bar:nth-of-type(2) {
+  left: 8px;
+}
+.theme-bar:nth-of-type(3) {
+  left: 22px;
+}
+.theme-bar:nth-of-type(4) {
+  left: 36px;
+}
+.style-thumb {
+  min-width: 46px;
+}
+.table-sample {
+  display: grid;
+  grid-template-columns: repeat(4, 9px);
+  gap: 1px;
+  padding: 1px;
+  background: rgb(0 0 0 / 0.08);
+}
+.table-sample span {
+  width: 9px;
+  height: 6px;
+}
+.table-sample.grid {
+  background: #000;
+}
+.transition-choice {
+  min-width: 58px;
+}

@@ -1,0 +1,79 @@
+import { $SCOPE, CallbackManager, Dehydrator, Hydrator } from '../lib/xdrpc.js';
+
+/**
+ * The Util module exposes utilities within puter.js itself.
+ * These utilities may be used internally by other modules.
+ */
+export default class Util {
+    constructor () {
+        // This is in `puter.util.rpc` instead of `puter.rpc` because
+        // `puter.rpc` is reserved for an app-to-app RPC interface.
+        // This is a lower-level RPC interface used to communicate
+        // with iframes.
+        this.rpc = new UtilRPC();
+    }
+}
+
+/**
+ * The lower-level RPC interface used to talk to iframes: it swaps functions in
+ * a value for callback ids so the value survives `postMessage`, and resolves
+ * them back on the other side.
+ */
+export class UtilRPC {
+    constructor () {
+        this.callbackManager = new CallbackManager();
+        this.callbackManager.attach_to_source(globalThis);
+    }
+
+    /**
+     * A dehydrator that replaces functions in a value with callback ids this
+     * side can later resolve, so the value survives `postMessage`. Only
+     * `target` may invoke the callbacks it registers.
+     *
+     * @param {{ target?: Window, origin?: string | null }} [config]
+     * @returns {{ dehydrate: (value: unknown) => unknown }}
+     */
+    getDehydrator ({ target, origin } = {}) {
+        return new Dehydrator({
+            callbackManager: this.callbackManager,
+            source: target,
+            origin,
+        });
+    }
+
+    /**
+     * A hydrator that turns callback ids in a dehydrated value back into
+     * functions which post to `target`.
+     *
+     * @param {{ target: Window | Worker | MessagePort }} config
+     * @returns {{ hydrate: (value: unknown) => unknown }}
+     */
+    getHydrator ({ target }) {
+        return new Hydrator({ target });
+    }
+
+    /**
+     * Registers a function under a callback id `source` can invoke. Pass
+     * `once` for a reply, so the id is freed after its first call.
+     *
+     * @param {(value: unknown) => void} resolve
+     * @param {Window} [source]
+     * @param {{ once?: boolean, origin?: string | null }} [options]
+     * @returns {string}
+     */
+    registerCallback (resolve, source, options) {
+        return this.callbackManager.register_callback(resolve, source, options);
+    }
+
+    /**
+     * Invokes a registered callback on `target` by id.
+     *
+     * @param {Window | Worker | MessagePort} target
+     * @param {string} id
+     * @param {...unknown} args
+     * @returns {void}
+     */
+    send (target, id, ...args) {
+        target.postMessage({ $SCOPE, id, args }, '*');
+    }
+}

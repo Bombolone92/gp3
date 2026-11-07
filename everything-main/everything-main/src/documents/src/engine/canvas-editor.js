@@ -1,0 +1,2463 @@
+import { isNoteStoryKind } from './footnotes.js';
+import { pageBackingSize } from './canvas-backing.js';
+import { StorySession } from './story-session.js';
+import { decodeShape } from './canvas-shapes.js';
+import { wordPosition, optionWordPosition } from './word-navigation.js';
+import { carriesFormatting, copyFragment, fragmentHtml, htmlFragment, pasteFragment, formattedPasteFits, copiesPicture, pictureHtml, htmlPicture } from './clipboard-fragment.js';
+import { copiesDrawing, drawingHtml, htmlDrawing, pasteDrawing, equationHtml, htmlEquation, pastedEquation, uncopiedHtml, copiedUncopied, UNCOPIED_MESSAGE, UNCUT_MESSAGE } from './drawing-clipboard.js';
+import { xmlAttributeText } from './text-limits.js';
+import { textEdit, followEdit } from './text-edit.js';
+import { showLink } from './link-appearance.js';
+import { revisionView } from './revisions.js';
+import { hiddenRun, hiddenStretchAt, pastHiddenText, outsideHiddenText } from './hidden-text.js';
+
+export const PASTED_PICTURE = /^image\/(png|jpeg|tiff)$/i;
+const MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
+import { inlineControlCaret, adjacentInlineControl, moveInlineControlCaret, documentStartControlCaret, moveInlineControlHomeEnd, emptyControlPointerCaret, pointerControlSelection } from './content-control-caret.js';
+import { paintControlCarets } from './canvas-control-caret.js';
+import { paintStoryChrome, storyBoundaries } from './canvas-story-chrome.js';
+import { paintInsertionCaret, paintCompositionUnderline, zoomedCaret } from './canvas-caret.js';
+import { cellTextLocalPoint } from './cell-text-direction.js';
+import { pageStorySelectionLayout } from './page-story-positions.js';
+import { pageStoryAtPoint } from './page-story-hit.js';
+import { paintImage } from './paint-image.js';
+import { paintWatermark } from './canvas-watermarks.js';
+import { prepareText3dFonts } from './text-3d-fonts.js';
+import { localFontVersion } from './local-fonts.js';
+import { createCanvasMeasurer } from './canvas-measurer.js';
+import { displayedFont } from './font-availability.js';
+import { preparedScriptMetrics } from './script-font-size.js';
+import { text3dSurface } from './text-3d.js';
+import { enterCellText, leaveCellText } from './canvas-cell-text.js';
+import { tableBorderWidth } from './table-border-layout.js';
+import { layoutPageStories } from './page-story-layout.js';
+import { layoutSerializer } from './page-story-measure.js';
+import { drawingPageContexts, drawingPageContext } from './shape-page-fields.js';
+import { paintParagraphBorder } from './canvas-paragraph-borders.js';
+import { paintTableBorder, paintCellDiagonals } from './canvas-table-borders.js';
+import { deviceTableBorders, deviceTableFillRects } from './border-device-layout.js';
+import { paragraphBackgrounds, paintOnParagraphBackground } from './paragraph-backgrounds.js';
+import { paintParagraphBackgrounds } from './canvas-paragraph-backgrounds.js';
+import { hyperlinkAtPoint } from './hyperlink-hit.js';
+import { internalHyperlink, hyperlinkLabel, openableHyperlink } from './hyperlinks.js';
+import { paintUnderline } from './canvas-underlines.js';
+import { paintText, paintTextShadows } from './canvas-paint-text.js';
+import { strikeSpans } from './strikethrough.js';
+import { setCanvasTextStyle, setCanvasFontAlternatives, loadCanvasFonts } from './canvas-text.js';
+import { hasRunBackground, runBackground, foregroundBackground, runBackgroundRect } from './backgrounds.js';
+import { paintColor } from './colors.js';
+import { TextDocument, boundaries, locate, paragraphFormat, paragraphText } from './model.js';
+import { cellContext, rowGrid, verticalMerges } from './tables.js';
+import { cellBlockRects, cellBlockPlacements, wholeRows, blockBetween } from './table-selection.js';
+import { clearCells, splitTable, insertTablePageBreak } from './table-editing.js';
+import { paragraphEdges } from './paragraph-geometry.js';
+import { pageGeometry } from './page-settings.js';
+import { pageBorderStrokes } from './page-borders.js';
+import { lineNumberLabels } from './line-numbers.js';
+import { paintPagePictureBackground } from './canvas-page-background.js';
+import { setDarkPage } from './canvas-dark-page.js';
+import { viewGeometry, viewPageStories, fitContinuousPages, isContinuousView, usesScreenGeometry } from './document-views.js';
+import { pageLookup } from './page-lookup.js';
+import { font, layoutDocument, caretRect, lineAtPosition, verticalLine, hitTestStop, nearestStop, imageAtPoint, selectionRects, selectionRectFinder } from './layout.js';
+import { refreshPageReferences } from './page-reference-refresh.js';
+import { positionedImageBounds, drawingOwnRotation } from './positioned-images.js';
+import { createImageInteraction } from './image-interaction.js';
+import { paintDecodedImage, imageInfo, decodeImage, decodeImages, validateImageAssets, imageCropRect, inlineImagePaintFrame, normalizedRotation, ANGLE_PER_DEGREE, EMU_PER_PX, isPositionedImage } from './images.js';
+import { sectionColumnIntervals } from './section-columns.js';
+let nextAsset = 0;
+// A document longer than this paints only the pages on screen (and a screenful either side) at
+// once; the rest are painted when they scroll into view, when their pixels are read, or while the
+// browser is idle. Painting every page of a document of a few dozen pages took most of each
+// keystroke and caret move.
+const EAGER_PAGES = 8;
+// Pages off screen are painted once changes have paused this long (schedulePaint).
+const QUIET_PAINT_MS = 600;
+// How long a finger rests on the text before it opens the context menu.
+const LONG_PRESS_MS = 500;
+
+/**
+ * The change bars' ranges with those that touch or overlap joined into one, in document order. A bar marks every
+ * line a range touches (starts at or before the line's end and ends after its start), and a joined range touches
+ * exactly the lines its parts do, so the bars are painted the same. Typing on in a tracked insertion splits it
+ * into ranges a second each (or around text typed inside it), while the bars carried across the keystroke cover
+ * it whole: joined, the two are found equal and the pages are not painted a second time for each keystroke.
+ */
+export function joinedBarRanges(ranges) {
+  const sorted = ranges.map(r => ({ start: r.start, end: r.end })).sort((a, b) => a.start - b.start), joined = [];
+  for (const range of sorted) {
+    const last = joined.at(-1);
+    if (last && range.start <= last.end) last.end = Math.max(last.end, range.end); else joined.push(range);
+  }
+  return joined;
+}
+
+/** Canvas paint surface plus a real textarea for native input, composition and accessible text. */
+export class CanvasEditor {
+  constructor(host, { paragraphs, pageSettings, numbering, styles, tables, pageStories, comments = null, trackChanges, assets = {}, images = new Map(), borrowImages = false, drawingLayouts, inputLabel, readOnly = false, protectedPageFields = false, onChange = () => {}, onSelection = () => {}, onSave = () => {}, onLink = () => {}, onOpenLink = () => {}, onLinkClick = () => {}, onError = () => {}, onNotice = () => {}, onContextMenu = () => {}, onUpdateFields = null, correctTyping = null, linkTyping = null, measure = null, preparePicture = null } = {}) {
+    this.host = host;
+    this.inputLabel = inputLabel;
+    this.readOnly = readOnly;
+    // Names this open document on the clipboard: text copied here carries its pictures, shapes and equations only
+    // to a paste in this document (clipboard-fragment.js).
+    this.clipboardToken = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+    this.protectedPageFields = protectedPageFields;
+    this.session = new StorySession(new TextDocument(paragraphs, pageSettings, numbering, styles, tables, assets, { displayOnly: readOnly, comments, trackChanges }), pageStories);
+    this.session.caret = () => ({ affinity: this.caretAffinity, page: this.caretPage });
+    // Track Changes records changes in the body only. A header, footer or note is still edited with it on, as Word
+    // users expect to, and the first change on each visit says it is not tracked (onNotice), rather than nothing.
+    this.onNotice = onNotice;
+    this.session.untracked = path => {
+      if (this.untrackedNoticePath === path) return;
+      this.untrackedNoticePath = path;
+      this.onNotice('Changes to headers, footers and notes aren’t tracked. Track Changes records changes to the main text only.');
+    };
+    this.storyPage = 0;
+    this.images = images;
+    this.borrowedImages = new Set(borrowImages ? images.values() : []);
+    this.drawingLayouts = drawingLayouts;
+    this.onChange = onChange; this.onSelection = onSelection; this.onSave = onSave; this.onError = onError;
+    this.correctTyping = correctTyping; this.linkTyping = linkTyping;
+    this.onUpdateFields = onUpdateFields;
+    // Turns a picture file into one the session can hold (the app scales down large photos and screenshots).
+    this.preparePicture = preparePicture;
+    this.onLink = onLink; this.onOpenLink = onOpenLink; this.onLinkClick = onLinkClick; this.visitedLinks = new Set();
+    this.zoom = 1;
+    // The document view laid out on screen (document-views.js); null is Print Layout.
+    this.view = null;
+    // Screen-only painters run over each page after its content: (context, pageIndex, geometry) => void.
+    this.overlays = [];
+    this.destroyed = false;
+    this.composition = null;
+    this.accessible = false;
+    this.preferredX = null;
+    this.caretAffinity = 'forward';
+    this.caretPage = null;
+    this.abort = new AbortController();
+    this.pages = document.createElement('div'); this.pages.className = 'canvas-pages';
+    this.input = document.createElement('textarea');
+    this.input.className = 'canvas-input';
+    this.input.readOnly = readOnly;
+    this.input.setAttribute('aria-label', 'Document text');
+    this.input.setAttribute('aria-describedby', 'canvas-input-help');
+    this.input.setAttribute('spellcheck', 'false');
+    this.input.setAttribute('autocapitalize', 'off');
+    this.input.setAttribute('autocomplete', 'off');
+    this.input.wrap = 'off';
+    this.input.style.font = font({});
+    this.input.setAttribute('data-testid', 'document-input');
+    host.replaceChildren(this.pages, this.input);
+    this.imageInteraction = createImageInteraction(this);
+    // Measurements and measured paragraphs are remembered between layouts (canvas-measurer.js),
+    // starting from those of the opening validation when it hands its measurer over.
+    if (measure) this.measure = measure;
+    else {
+      const context = document.createElement('canvas').getContext('2d');
+      if (!context) throw new Error('Canvas 2D is unavailable in this browser.');
+      setCanvasFontAlternatives(context, this.model.styles.fontAlternatives);
+      this.measure = createCanvasMeasurer(context);
+    }
+    this.measure.onFontsReady = () => { if (!this.destroyed) { try { this.relayout(); this.revealCaret(); } catch (error) { this.onError(error); } } };
+    this.measureCache = { clear: () => this.measure.clear() };
+    const listen = (node, name, fn) => node.addEventListener(name, fn, { signal: this.abort.signal });
+    listen(this.pages, 'pointerdown', e => { this.longPressed = false; this.holdPages = false; this.pointerDown(e); });
+    // The pages scroll up and down under a finger, except while it moves the selected picture.
+    listen(this.pages, 'touchmove', e => { if (this.holdPages && this.imageInteraction.active && e.cancelable) e.preventDefault(); }, { passive: false });
+    // A press anywhere else ends a run of quick presses, as it does natively.
+    listen(document, 'pointerdown', e => { if (!this.pages.contains(e.target)) this.lastPress = null; });
+    listen(this.pages, 'pointermove', e => this.pointerMove(e));
+    listen(this.pages, 'pointerup', e => this.pointerUp(e));
+    listen(this.pages, 'pointercancel', () => this.cancelPointer());
+    listen(this.pages, 'contextmenu', e => {
+      e.preventDefault();
+      // The menu a held finger opened already (see longPress) is not opened again by the browser's own.
+      if (this.longPressed) return;
+      this.openContextMenu(e);
+    });
+    // A long press opens the menu; lifting that finger is not a tap.
+    this.openContextMenu = e => {
+      this.touch = null;
+      const selected=this.model.selectedImage, position = this.point(e, false), normal=this.pointImage;
+      this.point({clientX:e.clientX,clientY:e.clientY,altKey:true},false);
+      const candidate=this.pointImage, picture=normal || (selected && candidate?.image.id===selected.id ? candidate : null);
+      if (picture) this.model.select(picture.start, picture.end);
+      else if (position < this.model.range[0] || position > this.model.range[1]) { this.point(e); this.preferredX = null; this.model.select(position, position); }
+      this.focus(); this.onSelection();
+      const behind = !this.model.selectedImage && candidate;
+      onContextMenu({event:e, behind, selectBehind:()=>{ if(behind){this.model.select(behind.start,behind.end);this.focus();this.onSelection();} }});
+    };
+    listen(this.pages, 'dblclick', e => this.selectWord(e));
+    // A third click selects the paragraph. Pointer events report no click
+    // count, so the click that follows the third press carries it.
+    listen(this.pages, 'click', e => { if (e.detail === 3 && e.button === 0 && !e.shiftKey) this.selectParagraph(e); });
+    listen(this.input, 'keydown', e => this.keydown(e));
+    listen(this.input, 'contextmenu', e => {e.preventDefault();onContextMenu({event:e});});
+    listen(this.input, 'beforeinput', e => this.beforeInput(e));
+    listen(this.input, 'input', e => this.nativeInput(e));
+    listen(this.input, 'compositionstart', () => {
+      if (this.readOnly) return;
+      // A composition that starts while one is open (the browser committed the last one without ending it) goes on in
+      // its undo step: only where its text begins in the field changes.
+      if (this.composition) { this.compositionStart = this.input.selectionStart; this.compositionText = ''; return; }
+      // A selected floating drawing is not text a composition replaces (keydown, beforeInput): what an input method,
+      // a dead key or a composing emoji picker writes goes after its anchor. The field's composition still replaces
+      // the drawing's character there (moving the field's selection now confuses the input method); the document
+      // keeps it, and reads the field with it put back (keptComposition).
+      this.compositionKeeps = !this.viewOnly && this.selectedFloatingDrawing ? this.model.range[0] : null;
+      if (this.compositionKeeps !== null) this.model.select(this.compositionKeeps + 1);
+      const entry = this.session.capture(), before = entry.state, [start, end] = this.model.range;
+      const caret = this.model.selection.controlCaret;
+      const explicit = caret && inlineControlCaret(this.model.paragraphs, start, caret);
+      const placeholder = caret ? caret.side === 'inside' && explicit?.control.placeholder && explicit : this.model.placeholderAt(start);
+      if (placeholder && end <= placeholder.end) {
+        this.model.select(placeholder.start, placeholder.end);
+        this.model.typingFormat = { ...before.typingFormat }; this.model.typingStyle = before.typingStyle; this.model.typingDirectCleared = before.typingDirectCleared;
+        this.syncInput(); this.paint();
+      }
+      this.composition = entry;
+      // Where the composed text begins in the native field, and what it is so far (compositionRange).
+      this.compositionStart = this.input.selectionStart; this.compositionText = '';
+      // The text before it, to tell cheaply whether committing changed the document (finishComposition).
+      this.compositionBaseText = this.model.text;
+      // Composed at the end of the text typed just before, it goes on in that typing's undo step (typeText): an
+      // input method for Korean commits each syllable as a composition of its own.
+      const group = this.typingGroup, [from, to] = this.model.range;
+      this.compositionGroup = group && from === to && group.at === from && group.revision === this.session.revision && group.path === this.session.path ? group : null;
+    });
+    listen(this.input, 'compositionupdate', e => { if (this.composition) this.compositionText = e.data || ''; });
+    listen(this.input, 'compositionend', e => this.finishComposition(e.data));
+    listen(this.input, 'select', () => this.nativeSelection());
+    listen(this.input, 'keyup', () => this.nativeSelection());
+    // A click in the native text (accessible text mode) moves the caret with no key or select
+    // event; the toolbar's commands must act where it now is.
+    listen(this.input, 'pointerup', () => this.nativeSelection());
+    listen(this.input, 'focus', () => this.paint());
+    listen(this.input, 'blur', () => { this.finishComposition(); this.paint(); });
+    listen(this.input, 'copy', e => this.copy(e, false));
+    listen(this.input, 'cut', e => this.copy(e, true));
+    // A later key press starts a new action: a paste after it is not the one a plain paste's clipboard read stood in for.
+    listen(this.input, 'keydown', () => { this.plainPasteReadAt = 0; });
+    listen(this.input, 'paste', e => {
+      // Paste without formatting (the host sets plainPaste for its chord): the text alone.
+      const plain = this.plainPaste; this.plainPaste = false;
+      // The browser's paste arriving after the host read the clipboard for the same chord: already pasted.
+      const read = this.plainPasteReadAt; this.plainPasteReadAt = 0;
+      if (read && performance.now() - read < 1000) { e.preventDefault(); return; }
+      if (this.composition || !e.clipboardData) return;
+      e.preventDefault();
+      const text = e.clipboardData.getData('text/plain').replace(/\ufffc/g, '');
+      if (plain) { this.pasteData(text, ''); return; }
+      // A copied picture or screenshot arrives as a file with no text beside it (or only an object's U+FFFC).
+      const picture = !text && [...(e.clipboardData.files || [])].find(file => PASTED_PICTURE.test(file.type));
+      if (picture) { if (!this.readOnly) this.insertImageFile(picture).catch(error => this.onError(error)); return; }
+      this.pasteData(text, e.clipboardData.getData('text/html'));
+    });
+    // Moving the window to another display or changing browser zoom changes the device pixel ratio.
+    // Give the page canvases a backing store at the new ratio, so text stays sharp.
+    const watchResolution = () => {
+      const query = typeof matchMedia === 'function' ? matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`) : null;
+      query?.addEventListener('change', () => { if (this.destroyed) return; watchResolution(); this.resizeCanvases(); }, { once: true, signal: this.abort.signal });
+    };
+    watchResolution();
+    // Pages left unpainted by the last paint are painted before they are shown.
+    this.stalePages = new Set();
+    document.addEventListener('scroll', () => this.paintShownPages(), { capture: true, passive: true, signal: this.abort.signal });
+    window.addEventListener('resize', () => this.paintShownPages(), { signal: this.abort.signal });
+    // The view also grows without the window: a pane closes, the ribbon folds, Focus starts.
+    if (typeof ResizeObserver === 'function') {
+      const resized = new ResizeObserver(() => this.paintShownPages());
+      resized.observe(this.host);
+      this.abort.signal.addEventListener('abort', () => resized.disconnect());
+    }
+    this.relayout();
+  }
+  /** Give the document the keyboard and paint it; { paint: false } when the caller paints once it has moved the view. */
+  focus({ paint = true } = {}) { this.input.focus({ preventScroll: true }); this.syncInput(); if (paint) this.paint(); }
+  /** The page the caret is on: a header or footer's own page while editing one. */
+  get caretPageIndex() {
+    if (this.session.path !== null) return this.storyPage ?? 0;
+    try { return caretRect(this.selectionLayout, this.model.selection.focus, this.caretAffinity, this.caretPage).page ?? 0; } catch { return 0; }
+  }
+  get model() { return this.session.model; }
+  get pageStories() { return this.session.pageStories; }
+  exportText() { return this.session.body.text; }
+  export(pkg) { return this.session.export(pkg); }
+  /** export(), zipped off the page's thread: a Promise of the Blob. */
+  exportAsync(pkg) { return this.session.export(pkg, { async: true }); }
+  editStory(path = null, page = 0) {
+    if (this.readOnly || path !== null && !this.pageStories?.stories[path]?.editable) return false;
+    this.finishComposition();
+    if (path !== this.session.path) this.untrackedNoticePath = null;
+    this.session.activate(path); this.session.page = page; this.storyPage = page; this.caretPage = page;
+    this.caretAffinity = 'forward'; this.preferredX = null;
+    this.relayout(); this.focus(); this.revealCaret(); return true;
+  }
+  validateStory() {
+    if (this.session.path === null && !this.protectedPageFields) return;
+    for (const p of this.model.paragraphs) {
+      if (this.session.path !== null && (p.sectionEnd || p.bookmarks?.length)) throw new Error('Sections and bookmarks cannot be added to headers or footers yet.');
+      for (const r of p.runs) if (r.field && (r.text !== '\ufffc' || Object.keys(r.overrides || {}).length || r.styleChanged)) throw new Error('Page-field formatting cannot be changed yet. Select the surrounding text instead.');
+    }
+  }
+  async refreshFonts() {
+    if (this.destroyed) return;
+    if (this.fontRefresh) return this.fontRefresh;
+    this.fontRefresh = (async () => {
+      // Font access changes presentation, never document formatting or history.
+      // Rebuild retained text/diagram previews as well as body/story metrics.
+      while (!this.destroyed) {
+        const revision = this.session.revision;
+        const fontVersion = localFontVersion();
+        await loadCanvasFonts({ ...this.model, pageStories: this.pageStories });
+        if (this.destroyed) return;
+        const missing = new Set();
+        const images = await decodeImages(this.model.assets, this.model.styles.fontAlternatives, name => missing.add(name),
+          this.readOnly ? (id, error) => this.onError(new Error(`Image ${id}: ${error.message}`)) : undefined);
+        if (this.destroyed || revision !== this.session.revision || fontVersion !== localFontVersion()) {
+          for (const image of images.values()) image.close?.();
+          continue;
+        }
+        const previous = this.images;
+        this.images = images;
+        this.measureCache.clear();
+        try { this.relayout(); }
+        catch (error) {
+          this.images = previous;
+          for (const image of images.values()) image.close?.();
+          throw error;
+        }
+        this.releaseImages(previous);
+        this.missingPictureFonts = [...missing];
+        return;
+      }
+    })();
+    try { await this.fontRefresh; }
+    finally { this.fontRefresh = null; }
+  }
+  // Every match of an open search is tinted; the selected one keeps the selection color.
+  setFindHighlights(matches = []) {
+    const current = this.findHighlights || [];
+    const same = matches.length === current.length && matches.every((m, i) => m.start === current[i].start && m.end === current[i].end);
+    if (!same) { this.findHighlights = matches; this.findRects = null; }
+    this.noteOverlayText();
+    if (!same) this.paint();
+  }
+  /** Tinted document ranges beneath the text, such as commented text: [{ start, end, fill }] in document order. */
+  setRangeTints(tints = [], layer = 'default') {
+    // Separate layers (comments, highlighted merge fields) combine without replacing each other.
+    this.tintLayers = { ...this.tintLayers, [layer]: tints };
+    tints = Object.values(this.tintLayers).flat().sort((a, b) => a.start - b.start || a.end - b.end);
+    const current = this.rangeTints || [];
+    const same = tints.length === current.length && tints.every((t, i) => t.start === current[i].start && t.end === current[i].end && t.fill === current[i].fill);
+    if (!same) { this.rangeTints = tints; this.tintRects = null; }
+    this.noteOverlayText();
+    if (!same) this.paint();
+  }
+  /** Vertical bars in the left margin beside lines that touch the given ranges (tracked changes). */
+  // side: 'left', 'right' or 'outside' (right on odd pages, left on even ones).
+  setMarginBars(ranges = [], color = '#7a7a7a', side = 'left') {
+    ranges = joinedBarRanges(ranges);
+    const key = JSON.stringify([ranges.map(r => [r.start, r.end]), color, side]);
+    const same = key === this.marginBarKey;
+    if (!same) { this.marginBarKey = key; this.marginBars = { ranges, color, side }; }
+    this.noteOverlayText();
+    if (!same) this.paint();
+  }
+  /** The body text that the tints', bars' and search matches' offsets refer to, while there are any. */
+  noteOverlayText() {
+    this.overlayText = this.rangeTints?.length || this.marginBars?.ranges.length || this.findHighlights?.length && this.session.path === null ? this.session.body.text : undefined;
+  }
+  /**
+   * Carry the tints, bars and search matches across an edit to the body, before the edit is painted.
+   * Whoever set them sets them again once it has caught up (the comments, tracked changes and an open
+   * search after each keystroke), and finding them where they already are then costs no second paint
+   * of the pages on screen.
+   */
+  followOverlays() {
+    const before = this.overlayText;
+    if (before === undefined) return;
+    const text = this.session.body.text, edit = textEdit(before, text);
+    this.overlayText = text;
+    if (!edit) return;
+    if (this.rangeTints?.length) {
+      this.tintLayers = Object.fromEntries(Object.entries(this.tintLayers).map(([layer, tints]) => [layer, followEdit(tints, edit)]));
+      this.rangeTints = followEdit(this.rangeTints, edit); this.tintRects = null;
+    }
+    // Matches in a header or footer being edited keep its offsets.
+    if (this.findHighlights?.length && this.session.path === null) { this.findHighlights = followEdit(this.findHighlights, edit); this.findRects = null; }
+    if (this.marginBars?.ranges.length) {
+      const { color, side } = this.marginBars, ranges = joinedBarRanges(followEdit(this.marginBars.ranges, edit, { endAfter: true }));
+      this.marginBars = { ranges, color, side };
+      this.marginBarKey = JSON.stringify([ranges.map(r => [r.start, r.end]), color, side]);
+    }
+  }
+  rangeTintRects() {
+    const tints = this.rangeTints, layout = this.session.path === null ? this.selectionLayout : null;
+    if (!tints?.length || !layout) return [];
+    if (this.tintRects?.layout === layout) return this.tintRects.rects;
+    const rects = [], { page, pages } = layout;
+    // Tints cover text, not floating drawings: the lines alone.
+    const rectsOf = selectionRectFinder({ lines: [...layout.lines, ...(layout.repeatedLines || [])], page, pages });
+    for (const tint of tints) if (tint.end > tint.start) for (const rect of rectsOf(tint.start, tint.end)) rects.push({ ...rect, fill: tint.fill });
+    this.tintRects = { layout, rects };
+    return rects;
+  }
+  /**
+   * The selection's rectangles on every page. Pages left for later are painted a couple at a time and
+   * as they scroll into view; a long selection (all of a long document) is worked out once per layout.
+   */
+  selectedRects(start, end) {
+    const layout = this.selectionLayout, cached = this.selectionRectCache;
+    if (cached?.layout === layout && cached.start === start && cached.end === end) return cached.rects;
+    const rects = selectionRects(layout, start, end);
+    this.selectionRectCache = { layout, start, end, rects };
+    return rects;
+  }
+  /**
+   * The tinted boxes of the open search's matches on one page. Each keystroke lays the document out again and moves
+   * the matches after it, so they are found only for the pages painted: finding every match's boxes in a long
+   * document held up typing while Find was open.
+   */
+  findHighlightRects(pageIndex) {
+    const matches = this.findHighlights, layout = this.selectionLayout;
+    if (!matches?.length || !layout) return [];
+    if (this.findRects?.layout !== layout) this.findRects = { layout, pages: new Map() };
+    const known = this.findRects.pages.get(pageIndex);
+    if (known) return known;
+    const rects = [], { page, pages } = layout;
+    // Matches are in document order, so each line looks only at the matches that can reach it.
+    for (const line of [...layout.lines, ...(layout.repeatedLines || [])]) {
+      if (line.page !== pageIndex) continue;
+      let low = 0, high = matches.length;
+      while (low < high) { const mid = (low + high) >> 1; if (matches[mid].end <= line.start) low = mid + 1; else high = mid; }
+      for (let i = low; i < matches.length && matches[i].start <= line.end; i++)
+        for (const rect of selectionRects({ lines: [line], page, pages }, matches[i].start, matches[i].end)) rects.push({ ...rect, match: matches[i] });
+    }
+    this.findRects.pages.set(pageIndex, rects);
+    return rects;
+  }
+  selectMatch(match) {
+    this.finishComposition(); this.model.select(match.start, match.end);
+    this.caretAffinity = 'forward'; this.caretPage = null; this.preferredX = null;
+    this.syncInput(); this.paint(); this.revealCaret(); this.onSelection();
+  }
+  replaceMatches(query, text, options, all) {
+    this.finishComposition(); let count = 0, failure;
+    const ok = this.execute(() => { count = this.model.replaceMatches(query, text, options, all); return count > 0; }, e => { failure = e; });
+    if (!ok) throw failure || new Error('The replacement could not fit the document. Try shorter text.');
+    return count;
+  }
+  execute(action, onFailure, options, quiet = false) {
+    if (this.readOnly || this.viewOnly) return;
+    // A command chosen while an input method composes (Bold on the toolbar) commits the composition
+    // and then applies, rather than being dropped.
+    this.finishComposition();
+    try {
+      const revision = this.session.revision;
+      this.session.run(() => action(), () => {
+        this.validateStory(); this.preferredX = null; this.caretAffinity = 'forward';
+        this.relayout(); this.revealCaret();
+      }, options);
+      if (this.session.revision !== revision) this.onChange();
+      return true;
+    } catch (e) {
+      this.relayout(); if (!quiet) this.onError(e); onFailure?.(e); return false;
+    }
+  }
+  /**
+   * Tab (1) and Shift+Tab (-1) in a table. Tab in the last cell adds a row: an edit, one step to undo.
+   * Otherwise the caret only goes to another cell (or out before the table), and that is done as a caret
+   * move is: the document is unchanged, so it is not laid out again and the copy kept for the next undo
+   * step stays. The rest is what the edit command does with an unchanged document.
+   */
+  tabCell(direction) {
+    if (this.readOnly || this.viewOnly) return;
+    this.finishComposition();
+    const move = this.model.cellMove(direction);
+    let valid = true;
+    try { this.validateStory(); } catch { valid = false; }
+    // A story the command would refuse (and report) goes through the command, as before.
+    if (!move || move.addRow || !valid) { this.execute(() => this.model.moveCell(direction, move)); return; }
+    this.model.moveCell(direction, move);
+    this.preferredX = null; this.caretAffinity = 'forward';
+    this.syncInput(); this.paint(); this.onSelection(); this.revealCaret();
+  }
+  setTableProperties(patch) { return this.execute(() => this.model.setTableProperties(patch)); }
+  /** Lay out a body model as this editor would, for field refreshes inside a transaction. */
+  layoutModel(model) {
+    return layoutDocument(model.paragraphs, this.measure, pageGeometry(model.pageSettings), model.numbering, model.tables, this.pageStories, { styles: model.styles, drawingLayouts: this.drawingLayouts });
+  }
+  /**
+   * The file's section a section on screen takes its headers and footers from: section breaks inserted since
+   * opening the file make sections of its own list (see StorySession.pageStories), so the two numberings differ.
+   */
+  sourceSection(shown, count) {
+    const ends = this.session.body.paragraphs.filter(p => p.sectionEnd);
+    return Math.max(0, Math.min(count - 1, shown < ends.length ? ends[shown].sectionSourceIndex ?? shown : count - 1));
+  }
+  /** Show a header, footer or footnote story the package just created; headers and footers apply to every section without one. */
+  attachPageStory(path, kind, paragraphs, extra = {}) {
+    const sections = this.session.body.paragraphs.filter(p => p.sectionEnd).length + 1;
+    const current = this.session.definition || { sections: Array.from({ length: sections }, () => ({ header: {}, footer: {}, firstPageDifferent: false })), stories: {}, evenAndOdd: false };
+    const { variant = 'default', section: shown = 0, story = {}, ...settings } = extra;
+    const first = this.sourceSection(shown, current.sections.length);
+    this.session.definition = { ...current, ...settings, stories: { ...current.stories, [path]: { kind, paragraphs, tables: [], editable: true, ...story } },
+      sections: isNoteStoryKind(kind) ? current.sections : current.sections.map((section, i) => i < first || section[kind][variant] ? section : { ...section, [kind]: { ...section[kind], [variant]: path } }) };
+    this.session.sectionRevision = undefined;
+    this.relayout();
+  }
+  /** Different first page for a section, and different odd and even pages for the document (display only; the package writes them). */
+  setStoryOptions({ section, firstPageDifferent, evenAndOdd, pageNumbering } = {}) {
+    const current = this.session.definition || { sections: Array.from({ length: this.session.body.paragraphs.filter(p => p.sectionEnd).length + 1 }, () => ({ header: {}, footer: {}, firstPageDifferent: false })), stories: {}, evenAndOdd: false };
+    const source = section === undefined ? undefined : this.sourceSection(section, current.sections.length);
+    this.session.definition = { ...current, ...(evenAndOdd !== undefined ? { evenAndOdd: !!evenAndOdd } : {}),
+      sections: current.sections.map((s, i) => {
+        if (i !== source) return s;
+        const next = firstPageDifferent !== undefined ? { ...s, firstPageDifferent: !!firstPageDifferent } : { ...s };
+        // Page numbering (format and restart) applies to this section's PAGE fields and page count.
+        if (pageNumbering !== undefined) { if (pageNumbering) next.pageNumbering = pageNumbering; else delete next.pageNumbering; }
+        return next;
+      }) };
+    this.session.sectionRevision = undefined;
+    if (this.session.path !== null) this.editStory(null); else this.relayout();
+  }
+  /**
+   * Change header, footer and note settings (`change()` sets them in the package and here, setStoryOptions) as one
+   * undo step, named `label` when given. Whether anything changed.
+   */
+  changeSettings(change, label) {
+    if (this.readOnly || this.viewOnly) return false;
+    this.finishComposition();
+    let changed;
+    try { changed = this.session.changeSettings(change, { label }); } finally { this.relayout(); }
+    if (changed) this.onChange();
+    return changed;
+  }
+  /** Run `action`, whose edits can reach several stories (each in its own command), as one undo step. */
+  transact(action) { return this.session.transact(action); }
+  /** The section index of a body page. */
+  sectionOfPage(page = this.caretPageIndex) { return this.layout?.pageSections?.[page] ?? 0; }
+  updatePageReferences() {
+    if (this.session.path !== null) { this.onError(new Error('Update page references from the document body.')); return false; }
+    let result;
+    const ok = this.execute(() => {
+      result = refreshPageReferences(this.model, model => layoutDocument(model.paragraphs, this.measure, pageGeometry(model.pageSettings), model.numbering, model.tables, this.pageStories, { styles: model.styles, drawingLayouts: this.drawingLayouts }), this.pageStories, { checkpoint: false });
+    });
+    if (ok && result?.issues.length) this.onError(new Error([...new Set(result.issues.map(issue => issue.message))].join(' ')));
+    this.syncInput(); this.onSelection(); return ok;
+  }
+  setCellVerticalAlignment(value) { return this.execute(() => this.model.setCellVerticalAlignment(value)); }
+  setCellShading(value) { return this.execute(() => this.model.setCellShading(value)); }
+  setCellBorders(value) { return this.execute(() => this.model.setCellBorders(value)); }
+  setCellMargins(value) { return this.execute(() => this.model.setCellMargins(value)); }
+  setTableRowHeight(value) { return this.execute(() => this.model.setTableRowHeight(value)); }
+  setImageProperties(patch) { return this.execute(() => this.model.setImageProperties(patch)); }
+  async applyDrawingText(pkg, image, frame, paragraphs, { signal, tables } = {}) {
+    this.finishComposition();
+    if (this.readOnly || this.viewOnly || this.destroyed || signal?.aborted) return false;
+    const revision = this.session.revision, model = this.model;
+    if (model.selectedImage !== image) throw new Error('Select the drawing again before editing its text.');
+    const prepared = pkg.prepareDrawingTextEdit(image, frame, paragraphs, model.assets, model.styles, model.numbering, tables);
+    if (!prepared) return true;
+    validateImageAssets(model.assets, prepared.asset);
+    const id = `drawing-edit:${++nextAsset}`;
+    const pixelCount = image => image.previewPlaceholder ? 0 : image.rasterPixelCount ?? (image.bitmap ? image.bitmap.width * image.bitmap.height : image.width * image.height);
+    const checkPixels = next => {
+      const total = [...this.images].reduce((n, [key, bitmap]) => n + (key === id ? 0 : pixelCount(bitmap)), 0) + pixelCount(next);
+      if (total > 64000000) throw new Error('This editing session supports up to 64 megapixels of image previews.');
+    };
+    const preview = await decodeShape(prepared.asset, this.images, model.styles.fontAlternatives, (_, next) => checkPixels(next));
+    try {
+      checkPixels(preview);
+      if (this.destroyed || signal?.aborted) { preview.close(); return false; }
+      if (revision !== this.session.revision || this.model !== model || model.selectedImage !== image) throw new Error('The document changed while the drawing text was being prepared.');
+      model.assets[id] = prepared.asset; this.images.set(id, preview);
+      let failure;
+      if (!this.execute(() => model.replaceDrawingText(image, id, prepared.shell), error => { failure = error; })) throw failure || new Error('The drawing text could not be applied.');
+      return true;
+    } catch (error) {
+      this.images.delete(id); delete model.assets[id]; preview.close(); throw error;
+    }
+  }
+  /**
+   * Viewing: the document stays editable underneath (layout, styles and saving are unchanged) while
+   * every edit path refuses, so switching back loses nothing. A read-only package stays read-only.
+   */
+  setViewOnly(on) {
+    this.finishComposition();
+    this.viewOnly = !!on;
+    this.input.readOnly = this.readOnly || this.viewOnly;
+    if (this.viewOnly && this.session.path !== null) this.editStory(null);
+    this.onSelection?.();
+  }
+  /**
+   * Insert a picture file at the selection, at its own size or `size` (EMUs, as copied, with the copy's crop,
+   * flips and rotation), within the column.
+   */
+  async insertImageFile(file, size = {}) {
+    if (this.readOnly || this.viewOnly) return false;
+    if (!this.preparePicture && file.size > 10 * 1024 * 1024) throw new Error('Choose a PNG, JPEG or TIFF image up to 10 MB.');
+    this.finishComposition();
+    const path = this.session.path, revision = this.session.revision, selection = { ...this.model.selection };
+    // A pasted photo or screenshot can be larger than the session holds; it is scaled down as Insert > Pictures does.
+    if (this.preparePicture) {
+      file = await this.preparePicture(file);
+      if (file.size > 10 * 1024 * 1024) throw new Error('Choose a PNG, JPEG or TIFF image up to 10 MB.');
+    }
+    const bytes = new Uint8Array(await file.arrayBuffer()), info = imageInfo(bytes), asset = { bytes, mime: info.mime };
+    validateImageAssets(this.model.assets, asset);
+    const bitmap = await decodeImage(asset);
+    if (this.destroyed) { bitmap.close(); return false; }
+    if (path !== this.session.path || revision !== this.session.revision || selection.anchor !== this.model.selection.anchor || selection.focus !== this.model.selection.focus) { bitmap.close(); throw new Error('The insertion position changed while the image opened. Select its position and insert it again.'); }
+    const line = lineAtPosition(this.selectionLayout, this.model.range[0], 'forward', this.caretPage), p = this.layout.pages[line.page] || this.layout.page;
+    const paragraph = this.model.paragraphs[locate(this.model.paragraphs, this.model.range[0]).index], context = cellContext(this.model.tables, paragraph.cellId);
+    const cell = this.selectionLayout.cells.find(c => c.id === line.cellId && c.page === line.page && c.column === line.column);
+    // Outside tables, the picture fits the text column holding the caret (a section can have several).
+    let column = null;
+    if (!cell && p.columns && !p.storyKind) try { column = sectionColumnIntervals(p.columns, p.left * 15, (p.width - p.left - p.right) * 15)[line.column ?? 0]; } catch { column = null; }
+    const cellPage = cell ? { ...p, left: cell.x + context.cell.margins.left / 15, right: p.width - cell.x - cell.width + context.cell.margins.right / 15 }
+      : column ? { ...p, left: column.left / 15, right: p.width - column.right / 15 } : p;
+    const format = paragraphFormat(paragraph, this.model.numbering), edges = [true, false].map(first => paragraphEdges(format, cellPage, first));
+    const width = Math.min(...edges.map(e => e.right - e.left));
+    const sized = size.width > 0 && size.height > 0, natural = sized ? { width: size.width / EMU_PER_PX, height: size.height / EMU_PER_PX } : bitmap;
+    const height = Math.max(1, (p.height - p.top - p.bottom) / (format.lineRule === 'auto' ? format.lineSpacing : 1) - 32), scale = Math.min(1, width / natural.width, height / natural.height);
+    let id; do { id = `canvas-image-${++nextAsset}`; } while (this.model.assets[id]);
+    this.model.assets[id] = asset; this.images.set(id, bitmap);
+    const extent = key => Math.max(1, Math.floor(scale === 1 && sized ? size[key] : natural[key] * scale * EMU_PER_PX));
+    const copied = sized ? Object.fromEntries(['crop', 'flipH', 'flipV', 'rotation'].filter(key => size[key] !== undefined).map(key => [key, size[key]])) : {};
+    const ok = this.execute(() => this.model.insertImage(id, { width: extent('width'), height: extent('height'), alt: xmlAttributeText(String(size.alt || '')), ...copied }));
+    if (!ok) { delete this.model.assets[id]; this.images.delete(id); bitmap.close(); }
+    this.focus(); return ok;
+  }
+  fitTable(mode) { this.execute(() => this.model.fitTable(mode)); this.focus(); }
+  mergeCells() { this.execute(() => this.model.mergeCells()); this.focus(); }
+  mergeCellBelow() { this.execute(() => this.model.mergeCellBelow()); this.focus(); }
+  splitCell() { this.execute(() => this.model.splitCell()); this.focus(); }
+  setTableRowKeep(value) { this.execute(() => this.model.setTableRowKeep(value)); this.focus(); }
+  setTableHeaderRows(count) { this.execute(() => this.model.setTableHeaderRows(count)); this.focus(); }
+  insertTable(rows, columns) {
+    return this.execute(() => {
+      const parent = this.model.tableContext;
+      const box = parent && this.selectionLayout.cells.find(cell => cell.id === parent.cell.id);
+      const width = box ? box.width * 15 - Math.max(parent.cell.margins.left, tableBorderWidth(box.borders.left) * 15 / 2) - Math.max(parent.cell.margins.right, tableBorderWidth(box.borders.right) * 15 / 2) : undefined;
+      return this.model.insertTable(rows, columns, width);
+    });
+  }
+  insertTableRow() { this.execute(() => this.model.insertTableRow()); this.focus(); }
+  insertTableParagraph(after) { this.execute(() => this.model.insertTableParagraph(after)); this.focus(); }
+  insertTableColumn() { this.execute(() => this.model.insertTableColumn()); this.focus(); }
+  deleteTablePart(kind) { this.execute(() => this.model.deleteTablePart(kind)); this.focus(); }
+  setCharacterStyle(id) { this.execute(() => this.model.setCharacterStyle(id)); this.focus(); }
+  editCharacterStyle(id, patch) { return this.execute(() => this.model.editCharacterStyle(id, patch)); }
+  createCharacterStyle(name, basedOn) { return this.execute(() => this.model.createCharacterStyle(name, basedOn)); }
+  setParagraphStyle(id) { this.execute(() => this.model.setParagraphStyle(id)); this.focus(); }
+  setOutlineLevel(value) { this.execute(() => this.model.setOutlineLevel(value)); this.focus(); }
+  get outline() { return this.model.outline.map(entry => ({ ...entry, page: lineAtPosition(this.selectionLayout, entry.start, 'forward').page + 1 })); }
+  goToParagraph(id) {
+    this.finishComposition();
+    const index = this.model.paragraphs.findIndex(p => p.id === id); if (index < 0) return false;
+    this.model.select(this.model.paragraphOffset(index));
+    this.caretAffinity = 'forward'; this.caretPage = null; this.preferredX = null;
+    this.focus(); this.revealCaret(); this.onSelection(); return true;
+  }
+  editParagraphStyle(id, patch) { return this.execute(() => this.model.editParagraphStyle(id, patch)); }
+  createParagraphStyle(name, basedOn) { return this.execute(() => this.model.createParagraphStyle(name, basedOn)); }
+  toggleBold() { this.execute(() => this.model.toggleBold()); this.focus(); }
+  setRunFormat(patch) { this.execute(() => this.model.setRunFormat(patch)); this.focus(); }
+  setFontSize(size) { this.execute(() => this.model.setFontSize(size)); this.focus(); }
+  toggleItalic() { this.execute(() => this.model.toggleItalic()); this.focus(); }
+  toggleUnderline() { this.execute(() => this.model.toggleUnderline()); this.focus(); }
+  clearDirectTextFormatting() { this.finishComposition(); const ok = this.execute(() => this.model.clearDirectTextFormatting()); this.focus(); return ok; }
+  clearDirectParagraphFormatting() { this.finishComposition(); const ok = this.execute(() => this.model.clearDirectParagraphFormatting()); this.focus(); return ok; }
+  setParagraphFormat(patch) { this.execute(() => this.model.setParagraphFormat(patch)); this.focus(); }
+  setParagraphLineSpacing(value) { return this.execute(() => this.model.setParagraphLineSpacing(value)); }
+  setParagraphGeometry(patch, defaultTabStop) { return this.execute(() => this.model.setParagraphGeometry(patch, defaultTabStop)); }
+  toggleList(kind) { this.execute(() => this.model.toggleList(kind)); this.focus(); }
+  changeListLevel(delta) { this.execute(() => this.model.changeListLevel(delta)); this.focus(); }
+  restartNumbering() { this.execute(() => this.model.restartNumbering()); this.focus(); }
+  adjustIndent(delta) { this.execute(() => this.model.adjustIndent(delta)); this.focus(); }
+  insertTab() { this.execute(() => this.model.replace('\t')); this.focus(); }
+  setPageSettings(patch, options) { return this.execute(() => this.model.setPageSettings(patch, options)); }
+  insertSectionBreak(type) { const ok = this.execute(() => this.model.insertSectionBreak(type)); this.focus(); return ok; }
+  insertPageBreak() { this.execute(() => this.model.insertPageBreak()); this.focus(); }
+  travelHistory(direction) {
+    if (this.readOnly || this.viewOnly) return;
+    this.finishComposition();
+    // The host can keep history beyond this editor's (changes that reopened the package).
+    if (!this.session[direction === 'undo' ? 'history' : 'future'].length && this.onHistoryEnd?.(direction)) return;
+    try {
+      // The caret moves to the restored selection, on the side of a line's end it was on there: Up and Down start
+      // from its column there, not the one before.
+      const entry = this.session[direction === 'undo' ? 'history' : 'future'].at(-1), caret = entry?.caret, resume = entry?.resume;
+      if (this.session[direction](() => { this.validateStory(); this.preferredX = null; this.caretAffinity = caret?.affinity || 'forward'; this.caretPage = caret ? caret.page : this.caretPage; this.relayout(); })) {
+        // A change made from a header, footer or note to another story (its section's distances) goes on there.
+        if (resume && this.session.path !== resume.path) this.editStory(resume.path, resume.page);
+        this.onChange();
+      }
+      this.focus(); this.revealCaret();
+    } catch (e) { this.relayout(); this.onError(e); }
+  }
+  undo() { this.travelHistory('undo'); }
+  redo() { this.travelHistory('redo'); }
+  /** `at`: { clientX, clientY }, a point to keep where it is (a pointer zooming); otherwise the view's middle. */
+  setZoom(value, at = null) {
+    if (!Number.isFinite(value)) return;
+    const zoom = Math.max(0.1, Math.min(2, value)), anchor = zoom !== this.zoom ? this.viewAnchor(at) : null;
+    this.zoom = zoom;
+    this.resizeCanvases();
+    // The text in the middle of the view stays there: keeping the scroll offset instead showed another
+    // part of a long document, pages away, after each zoom step.
+    if (anchor) {
+      const r = this.canvases[anchor.index]?.getBoundingClientRect();
+      if (r) {
+        // Whole pixels: a page scrolled to a fractional position is resampled, which blurs it.
+        if (!anchor.atStart) this.host.scrollTop = Math.round(this.host.scrollTop + r.top + anchor.y * zoom - anchor.top);
+        this.host.scrollLeft = Math.round(this.host.scrollLeft + r.left + anchor.x * zoom - anchor.left);
+      }
+    }
+  }
+  /**
+   * The page point at the middle of the visible part of the view (or at `at`, a point on screen), and
+   * where it is on screen. `atStart`: the view shows the start of the document, which it keeps showing.
+   */
+  viewAnchor(at = null) {
+    if (!this.canvases?.length) return null;
+    const host = this.host.getBoundingClientRect();
+    const top = Math.max(host.top, 0), bottom = Math.min(host.bottom, window.innerHeight), left = Math.max(host.left, 0), right = Math.min(host.right, window.innerWidth);
+    if (bottom <= top || right <= left) return null;
+    const pointed = Number.isFinite(at?.clientX) && Number.isFinite(at?.clientY);
+    const x = pointed ? Math.max(left, Math.min(at.clientX, right)) : (left + right) / 2, y = pointed ? Math.max(top, Math.min(at.clientY, bottom)) : (top + bottom) / 2;
+    let best = null;
+    this.canvases.forEach((canvas, index) => {
+      const r = canvas.getBoundingClientRect(), distance = Math.max(r.top - y, 0, y - r.bottom) + Math.max(r.left - x, 0, x - r.right);
+      if (!best || distance < best.distance) best = { index, r, distance };
+    });
+    // A point between pages or beside them is kept relative to the nearest page.
+    return { index: best.index, x: (x - best.r.left) / this.zoom, y: (y - best.r.top) / this.zoom, left: x, top: y, atStart: !pointed && this.host.scrollTop <= 0 };
+  }
+  setAccessible(value) {
+    this.accessible = value;
+    this.host.classList.toggle('accessible-editing', value);
+    // The hidden field follows the caret with inline offsets and the caret's height (positionInput);
+    // shown as the text, it takes the size Text mode gives it. Leaving Text mode places it again (paint).
+    if (value) for (const property of ['left', 'top', 'height']) this.input.style.removeProperty(property);
+    this.syncInput(); this.paint(); this.focus();
+  }
+  /**
+   * Show the document in a screen view: { kind: 'web' | 'draft' | 'read', width, height, … } in layout
+   * pixels, or null for Print Layout. Only the display changes; the model and its pages are untouched.
+   */
+  setView(view) {
+    const next = view && usesScreenGeometry(view.kind) ? { ...view } : null;
+    if (JSON.stringify(next) === JSON.stringify(this.view)) return false;
+    this.finishComposition();
+    if (next && this.session.path !== null) { this.session.activate(null); this.caretPage = null; }
+    const previous = this.view;
+    this.view = next;
+    // A view the document cannot be laid out in (indents wider than the window, a page-number restart
+    // in a section the view makes continuous) leaves the editor in the view it had: kept, every later
+    // layout, the next keystroke's included, failed the same way and nothing could be typed.
+    try { this.relayout(); }
+    catch (error) { this.view = previous; this.relayout(); throw error; }
+    return true;
+  }
+  /** Lay the body and its page stories out for a view (null: the authored pages). */
+  computeLayout(view = this.view) {
+    // Each view keeps its last layout's measurements while another is shown (paragraph-measure-cache.js).
+    this.measure.paragraphCache?.().nextGeneration(view?.kind ?? null);
+    const body = this.session.body;
+    const stories = view ? viewPageStories(this.pageStories, view.kind) : this.pageStories;
+    // The body and its page stories read the same styles and list definitions: serialize each once.
+    const serialize = layoutSerializer();
+    let layout = layoutDocument(body.paragraphs, this.measure, pageGeometry(body.pageSettings), body.numbering, body.tables, stories, { bestEffort: this.readOnly, drawingLayouts: this.drawingLayouts, serialize, ...(!this.readOnly ? { styles: this.model.styles } : {}), ...(view ? { viewGeometry: viewGeometry(view) } : {}) });
+    const storyLayout = layoutPageStories(layout, stories, [...body.paragraphs.filter(p => p.sectionEnd).map(p => p.sectionEnd), body.pageSettings], this.measure, this.model.numbering, { bestEffort: this.readOnly, drawingLayouts: this.drawingLayouts, serialize, ...(!this.readOnly ? { styles: this.model.styles } : {}) });
+    if (view && isContinuousView(view.kind)) layout = fitContinuousPages(layout, storyLayout);
+    // Draft shows text only: floating drawings stay in the document but are not drawn or hit.
+    if (view?.kind === 'draft') layout = { ...layout, floatingObjects: [] };
+    return { layout, storyLayout };
+  }
+  relayout() {
+    this.tablePaintCache = new Map();
+    this.followOverlays();
+    ({ layout: this.layout, storyLayout: this.storyLayout } = this.computeLayout());
+    if (this.session.path !== null) {
+      this.storyPage = this.session.page;
+      const occurrences = this.storyLayout.positions.filter(p => p.path === this.session.path);
+      this.storyPage = occurrences.find(p => p.page === this.storyPage)?.page ?? occurrences[0]?.page;
+      if (this.storyPage === undefined) {
+        // A header or footer no page shows any more (Different First Page undone while editing the first page's)
+        // gives way to the one of its kind its page now shows, as the place being edited; else the body.
+        const stories = this.pageStories.stories, kind = stories[this.session.path]?.kind, page = this.session.page;
+        const shown = (kind === 'header' || kind === 'footer') && this.storyLayout.positions.find(p => p.page === page && stories[p.path]?.kind === kind && stories[p.path].editable);
+        if (shown) { this.session.activate(shown.path); this.storyPage = this.session.page = shown.page; } else this.session.activate(null);
+      } else this.session.page = this.storyPage;
+    }
+    // Section line numbers are labels beside the finished body lines (§17.6.8); views without pages show none.
+    const body = this.session.body;
+    this.lineNumbers = this.view ? [] : lineNumberLabels(this.layout, body.paragraphs, body.numbering, body.styles, this.measure);
+    this.selectionLayout = this.session.path === null ? this.layout : pageStorySelectionLayout(this.layout, this.storyLayout, this.session.path, this.storyPage);
+    this.input.setAttribute('aria-label', this.inputLabel || (this.session.path === null ? 'Document text' : ({ header: 'Header text', footer: 'Footer text', footnote: 'Footnote text', endnote: 'Endnote text' }[this.pageStories.stories[this.session.path].kind] || 'Story text')));
+    this.drawingPageContexts = drawingPageContexts(this.layout, this.pageStories);
+    while (this.pages.children.length > this.layout.pageCount) this.pages.lastChild.remove();
+    while (this.pages.children.length < this.layout.pageCount) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'canvas-page';
+      canvas.setAttribute('aria-hidden', 'true');
+      // A page left for later paints itself before anything reads its pixels.
+      for (const name of ['getContext', 'toDataURL', 'toBlob']) canvas[name] = (...args) => {
+        const index = this.canvases?.indexOf(canvas) ?? -1;
+        if (this.stalePages.has(index)) this.paint({ pages: [index] });
+        return HTMLCanvasElement.prototype[name].apply(canvas, args);
+      };
+      this.pages.append(canvas);
+    }
+    this.canvases = [...this.pages.children];
+    this.resizeCanvases();
+    // Font and style edits can introduce an effect face absent at import time.
+    // Prepare outlines without delaying input; repaint only the latest layout.
+    const effectStyles = new Map(), approximateScripts = new Map();
+    for (const lines of [this.layout.lines, this.storyLayout.lines]) for (const line of lines) for (const fragment of line.fragments) {
+      if ((fragment.verticalAlign === 'superscript' || fragment.verticalAlign === 'subscript') && !fragment.image && fragment.text?.trim()) {
+        const family = displayedFont(fragment, this.model.styles.fontAlternatives);
+        const metrics = preparedScriptMetrics({ ...fragment, fontFamily: family });
+        if (metrics.size === null || metrics.position === null) approximateScripts.set(family.toLowerCase(), family);
+      }
+      for (const color of fragment.colors?.length ? fragment.colors : [fragment]) {
+        if (!color.text3d) continue;
+        const style = { ...fragment, ...color };
+        if (text3dSurface(style)) effectStyles.set(`${style.fontFamily}/${!!style.bold}/${!!style.italic}`, style);
+      }
+    }
+    const layout = this.layout;
+    if (effectStyles.size) prepareText3dFonts([...effectStyles.values()], this.model.styles.fontAlternatives).then(changed => {
+      if (changed && !this.destroyed && this.layout === layout) this.paint();
+    });
+    const scriptFonts = [...approximateScripts.values()].sort();
+    const scriptNoticeChanged = JSON.stringify(scriptFonts) !== JSON.stringify(this.approximateScriptFonts || []);
+    this.approximateScriptFonts = scriptFonts;
+    if (scriptNoticeChanged) this.onSelection();
+  }
+  resizeCanvases() {
+    this.canvases.forEach((canvas, index) => {
+      const geometry = this.layout.pages[index] || this.layout.page;
+      canvas.dataset.page = index;
+      const ratio = window.devicePixelRatio || 1;
+      // Shown at exactly its backing store's size: the browser draws a canvas at a whole number of
+      // CSS pixels, so a fractional page size (A4, fit-width and slider zooms, or any odd number of
+      // device pixels on a 2x display) would otherwise be resampled, which blurs every page.
+      const cssWidth = Math.max(1, Math.round(geometry.width * this.zoom)), cssHeight = Math.max(1, Math.round(geometry.height * this.zoom));
+      // A page too large for the browser's canvas limit gets fewer device pixels (canvas-backing.js).
+      const { width, height } = pageBackingSize(cssWidth, cssHeight, ratio);
+      // Assigning a dimension clears and reallocates the canvas even when unchanged, and pages
+      // off screen are repainted only later: keep the backing store of pages that kept their size.
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      canvas.style.width = `${cssWidth}px`;
+      canvas.style.height = `${cssHeight}px`;
+    });
+    this.pages.style.gap = `${this.layout.page.gap * this.zoom}px`;
+    this.syncInput(); this.paint(); this.onSelection();
+  }
+  /**
+   * Whether the printed pages differ from the screen's: a screen view is showing, or hidden text is shown
+   * (laid out only while the formatting marks show it).
+   */
+  printDiffersFromScreen() {
+    const hidden = revisionView.showHidden && [this.session.body, ...Object.values(this.pageStories?.stories || {})].some(story => story?.paragraphs?.some(p => p.runs.some(r => r.vanish)));
+    return { differs: !!this.view || hidden, hidden };
+  }
+  /**
+   * The authored pages laid out as printed, without touching the screen's: { layout, storyLayout }. Remembered
+   * for the layout on screen, so asking again before the next change lays nothing out.
+   */
+  printLayout() {
+    const { differs, hidden } = this.printDiffersFromScreen();
+    if (!differs) return { layout: this.layout, storyLayout: this.storyLayout };
+    const cached = this.printedLayoutCache;
+    if (cached?.layout === this.layout && cached.showHidden === revisionView.showHidden) return cached.value;
+    const shown = revisionView.showHidden;
+    if (hidden) revisionView.showHidden = false;
+    let value;
+    try { value = this.computeLayout(null); } finally { revisionView.showHidden = shown; }
+    this.printedLayoutCache = { layout: this.layout, showHidden: shown, value };
+    return value;
+  }
+  /**
+   * The printed pages' count and the caret's page among them (1-based), whatever the screen shows: Web Layout
+   * and Draft show strips of the window's height, and shown hidden text takes lines the paper does not have.
+   */
+  printedPages() {
+    const { layout } = this.printLayout();
+    let page = 0;
+    if (layout === this.layout) page = this.caretPageIndex;
+    else if (this.session.path === null) {
+      try { page = caretRect(layout, this.model.selection.focus, this.caretAffinity).page ?? 0; } catch { page = 0; }
+    }
+    return { count: layout.pageCount, current: Math.min(layout.pageCount, page + 1) };
+  }
+  /**
+   * The printed pages, painted at print resolution: a canvas for each page, at its index. With `pages`
+   * (indices of printed pages), only those are painted; the others are left out (holes in the list).
+   */
+  printSheets(pages = null) {
+    this.finishComposition();
+    // Printing always uses the authored pages, whatever view is on screen, and leaves out hidden text:
+    // lay the pages out privately and put the screen layout back afterwards, without touching the page canvases.
+    const { differs, hidden } = this.printDiffersFromScreen();
+    if (differs) {
+      const screen = { view: this.view, layout: this.layout, storyLayout: this.storyLayout, selectionLayout: this.selectionLayout, tablePaintCache: this.tablePaintCache, drawingPageContexts: this.drawingPageContexts, lineNumbers: this.lineNumbers };
+      const printed = this.printLayout(), shown = revisionView.showHidden;
+      if (hidden) revisionView.showHidden = false;
+      try {
+        const body = this.session.body;
+        // The printed pages' own line numbers: a screen view has none, and shown hidden text has lines the paper does not.
+        const lineNumbers = lineNumberLabels(printed.layout, body.paragraphs, body.numbering, body.styles, this.measure);
+        Object.assign(this, printed, { selectionLayout: printed.layout, tablePaintCache: new Map(), drawingPageContexts: drawingPageContexts(printed.layout, this.pageStories), view: null, lineNumbers });
+        return this.paintSheets(pages);
+      } finally { revisionView.showHidden = shown; Object.assign(this, screen); }
+    }
+    return this.paintSheets(pages);
+  }
+  paintSheets(pages = null) {
+    this.printedLayout = { layout: this.layout, storyLayout: this.storyLayout };
+    const count = this.layout.pages.length, sheets = new Array(count);
+    const chosen = pages ? [...new Set(pages)].filter(index => Number.isInteger(index) && index >= 0 && index < count).sort((a, b) => a - b) : [...sheets.keys()];
+    for (const index of chosen) {
+      const geometry = this.layout.pages[index], canvas = document.createElement('canvas');
+      canvas.className = 'document-page';
+      canvas.style.width = `${geometry.width}px`; canvas.style.height = `${geometry.height}px`;
+      ({ width: canvas.width, height: canvas.height } = pageBackingSize(geometry.width, geometry.height, 2));
+      sheets[index] = canvas;
+    }
+    this.paint({ canvases: sheets, printing: true, pages: chosen });
+    return sheets;
+  }
+  /** Indices of the page canvases on screen, with a screenful of margin; every page in a short document. */
+  shownPages() {
+    const all = this.canvases.map((_, index) => index);
+    if (all.length <= EAGER_PAGES) return all;
+    const host = this.host.getBoundingClientRect();
+    const top = Math.max(host.top, 0), bottom = Math.min(host.bottom, window.innerHeight);
+    const left = Math.max(host.left, 0), right = Math.min(host.right, window.innerWidth);
+    const height = Math.max(0, bottom - top), width = Math.max(0, right - left);
+    return all.filter(index => {
+      const r = this.canvases[index].getBoundingClientRect();
+      return r.bottom > top - height && r.top < bottom + height && r.right > left - width && r.left < right + width;
+    });
+  }
+  paintShownPages() {
+    if (this.destroyed || !this.stalePages.size) return;
+    const pages = this.shownPages().filter(index => this.stalePages.has(index));
+    if (pages.length) this.paint({ pages });
+  }
+  /** Paint every page left for later, for callers that read the page canvases' pixels. */
+  flushPaint() {
+    if (!this.destroyed && this.stalePages.size) this.paint({ pages: [...this.stalePages] });
+  }
+  schedulePaint() {
+    if (this.paintTask || !this.stalePages.size || this.destroyed) return;
+    // Every change repaints the pages on screen at once. The others wait until changes pause: painting
+    // a long document's every page after each keystroke only competes with the next keystroke, and a
+    // page scrolled into view, or whose pixels are read, is painted then (paintShownPages, flushPaint).
+    const quiet = (this.changedAt ?? -Infinity) + QUIET_PAINT_MS - performance.now();
+    if (quiet > 0) {
+      this.paintTask = { idle: false, id: setTimeout(() => { this.paintTask = null; this.schedulePaint(); }, quiet) };
+      return;
+    }
+    const idle = typeof requestIdleCallback === 'function';
+    const run = deadline => {
+      this.paintTask = null;
+      if (this.destroyed || !this.stalePages.size) return;
+      // A change since this was scheduled starts the wait again.
+      if ((this.changedAt ?? -Infinity) + QUIET_PAINT_MS > performance.now()) { this.schedulePaint(); return; }
+      // Nearest pages first, a couple at a time while the browser has idle time, so typing and
+      // scrolling stay responsive.
+      const shown = this.shownPages(), anchor = shown.length ? shown[0] : 0;
+      const order = [...this.stalePages].sort((a, b) => Math.abs(a - anchor) - Math.abs(b - anchor));
+      do this.paint({ pages: order.splice(0, 2) });
+      while (order.length && deadline && !deadline.didTimeout && deadline.timeRemaining() > 4);
+      this.schedulePaint();
+    };
+    this.paintTask = idle ? { idle, id: requestIdleCallback(run, { timeout: 250 }) } : { idle, id: setTimeout(run, 16) };
+  }
+  /** Screen pages as dark paper with light ink (the dark appearance's Dark page preference); printing is unaffected. */
+  setDarkPage(on) {
+    if (!!this.darkPage === !!on) return;
+    this.darkPage = !!on;
+    this.paint();
+  }
+  paint({ canvases = this.canvases, printing = false, pages = null } = {}) {
+    if (this.destroyed || !this.layout) return;
+    let indices = null;
+    if (canvases === this.canvases && !printing) {
+      if (pages) { indices = pages.filter(index => index < canvases.length); for (const index of indices) this.stalePages.delete(index); }
+      else {
+        indices = this.shownPages();
+        const shown = new Set(indices);
+        this.stalePages = new Set(canvases.map((_, index) => index).filter(index => !shown.has(index)));
+        this.changedAt = performance.now();
+      }
+    } else if (pages) indices = pages.filter(index => canvases[index]);
+    const [start, end] = this.model.range;
+    // A shape selected on its own shows only its frame handles.
+    const shapeOnly = end === start + 1 && this.drawingEditor?.canResize(this.model.selectedImage);
+    // A rectangular cell selection highlights whole cells rather than the text range through them.
+    const rects = shapeOnly ? [] : this.model.cellBlock ? cellBlockRects(this.selectionLayout, this.model) : this.selectedRects(start, end);
+    const owned = this.model.selection.controlCaret?.side === 'inside' && start === end && !this.accessible && document.activeElement === this.input
+      ? inlineControlCaret(this.model.paragraphs, start, this.model.selection.controlCaret) : null;
+    const controlRects = owned && !owned.control.hiddenAppearance ? owned.start === owned.end
+      ? [{ ...caretRect(this.selectionLayout, owned.start, this.caretAffinity, this.caretPage), empty: true }]
+      : selectionRects(this.selectionLayout, owned.start, owned.end) : null;
+    const caret = caretRect(this.selectionLayout, this.model.selection.focus, this.caretAffinity, this.caretPage);
+    const tinted = printing ? [] : this.rangeTintRects();
+    const composing = printing ? null : this.compositionRange();
+    const composedRects = composing ? selectionRects(this.selectionLayout, ...composing) : [];
+    for (const index of indices || canvases.keys()) {
+      const canvas = canvases[index], ctx = canvas.getContext('2d'), geometry = this.layout.pages[index] || this.layout.page;
+      // A canvas keeps its pixels and drawing state between paints (resizeCanvases keeps unchanged sizes).
+      ctx.reset?.();
+      // Dark page turns the screen's colors only; a page with a background picture keeps the picture's own light.
+      setDarkPage(ctx, !printing && !!this.darkPage && !geometry.backgroundPicture);
+      setCanvasFontAlternatives(ctx, this.model.styles.fontAlternatives);
+      const scale = canvas.width / geometry.width;
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      ctx.fillStyle = geometry.background || '#FFFFFF'; ctx.fillRect(0, 0, geometry.width, geometry.height);
+      paintPagePictureBackground(ctx, geometry, this.images, { bestEffort: this.readOnly });
+      ctx.fillStyle = '#000000';
+      for (const separator of this.layout.columnSeparators || []) if (separator.page === index) ctx.fillRect(separator.x, separator.y, separator.width, separator.height);
+      const sectionPage = geometry.pageBorders ? index - (this.layout.pageSections?.indexOf(this.layout.pageSections[index]) ?? 0) : 0;
+      const pageBorders = pageBorderStrokes(this.storyLayout.borderMargins?.[index] ? { ...geometry, ...this.storyLayout.borderMargins[index] } : geometry, sectionPage);
+      if (geometry.pageBorders?.zOrder === 'back') for (const border of pageBorders) paintParagraphBorder(ctx, border);
+      // Screen cues for the story being edited: the inactive header/footer or body is faded.
+      let storyChrome = null;
+      if (!printing && this.pageStories) {
+        const kindOf = path => this.pageStories.stories[path]?.kind;
+        const activeKind = this.session.path === null ? 'body' : kindOf(this.session.path);
+        const storyLines = this.storyLayout.lines.filter(line => line.page === index);
+        if (activeKind === 'body' ? storyLines.some(line => ['header', 'footer'].includes(kindOf(line.pageStory))) : ['header', 'footer'].includes(activeKind))
+          storyChrome = { bounds: storyBoundaries(geometry, storyLines, kindOf), active: activeKind };
+      }
+      // Header/footer stories paint beneath the body. Front/behind text
+      // and relative drawing order apply within each story, not across them.
+      for (const pageStory of [true, false]) {
+        // Fade the header and footer before the body paints, so body text and drawings that reach
+        // into the margins keep their own colours.
+        if (!pageStory && storyChrome?.active === 'body') paintStoryChrome(ctx, geometry, storyChrome.bounds, 'body');
+        // A header's or footer's Word watermark lies beneath everything else on the page.
+        if (pageStory) for (const w of this.storyLayout.watermarks || []) if (w.page === index) paintWatermark(ctx, w, this.images);
+        const floatingObjects = pageStory ? this.storyLayout.floatingObjects : this.layout.floatingObjects || [];
+        const paintFloating = behind => {
+          // A hidden drawing (§20.4.2.5) keeps its anchor and place but paints nothing; hidden ink likewise.
+          for (const f of floatingObjects) if (f.page === index && !!f.image.anchor.behind === behind && !this.hiddenDrawing?.(f.image) && !f.image.hidden) {
+            if (f.cellClip) { ctx.save(); ctx.beginPath(); ctx.rect(f.cellClip.left ?? 0, f.cellClip.top, (f.cellClip.right ?? geometry.width) - (f.cellClip.left ?? 0), f.cellClip.bottom - f.cellClip.top); ctx.clip(); }
+            const angle = normalizedRotation(f.image.rotation);
+            if (angle) {
+              ctx.save(); ctx.translate(f.x + f.width / 2, f.y + f.height / 2);
+              ctx.rotate(angle / ANGLE_PER_DEGREE * Math.PI / 180);
+              ctx.translate(-f.x - f.width / 2, -f.y - f.height / 2);
+            }
+            const bitmap = this.images.get(f.image.assetId);
+            if (bitmap) {
+              if (f.image.opacity !== undefined) { ctx.save(); ctx.globalAlpha *= f.image.opacity; }
+              const { flipH, flipV } = f.image, cropped = !bitmap.previewPlaceholder && f.image.crop && Object.values(f.image.crop).some(Boolean);
+              if (flipH || flipV || cropped) {
+                ctx.save();
+                ctx.translate(f.x + (flipH ? f.width : 0), f.y + (flipV ? f.height : 0));
+                ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+                // Crop the source viewport, leaving negative crop outsets clear.
+                // The anchor/wrapping frame stays fixed, including under flips.
+                const rect = imageCropRect(bitmap.previewPlaceholder ? undefined : f.image.crop, bitmap.width, bitmap.height);
+                if (rect) {
+                  const [x, y, w, h] = rect.destination;
+                  const [sx, sy, sw, sh] = rect.source, scaleX = w * f.width / sw, scaleY = h * f.height / sh;
+                  ctx.beginPath(); ctx.rect(x * f.width, y * f.height, w * f.width, h * f.height); ctx.clip();
+                  paintDecodedImage(ctx, bitmap, x * f.width - sx * scaleX, y * f.height - sy * scaleY, bitmap.width * scaleX, bitmap.height * scaleY, { ...drawingPageContext(this.drawingPageContexts, index, f.pageStory ? undefined : f.region), pageStory: !!f.pageStory, printing });
+                }
+                ctx.restore();
+              } else paintDecodedImage(ctx, bitmap, f.x, f.y, f.width, f.height, { ...drawingPageContext(this.drawingPageContexts, index, f.pageStory ? undefined : f.region), pageStory: !!f.pageStory, printing, bitmapDisplayScale: printing ? undefined : scale });
+              if (f.image.opacity !== undefined) ctx.restore();
+            }
+            // A selected shape shows its frame handles only; pictures and objects within a text selection are tinted.
+            const handlesOnly = start === f.start && end === f.end && this.drawingEditor?.canResize(f.image);
+            if (!printing && this.session.path === null && !f.pageStory && start < f.end && end > f.start && !handlesOnly) { ctx.fillStyle = 'rgba(55,95,145,.25)'; ctx.fillRect(f.x, f.y, f.width, f.height); }
+            if (angle) ctx.restore();
+            if (f.cellClip) ctx.restore();
+          }
+        };
+        paintFloating(true);
+        const paintedCells = pageStory ? this.storyLayout.cells : this.layout.cells;
+        // Selection/caret paints reuse this layout's display projection. A new
+        // layout clears the cache; zoom/DPR replace screen entries. Print must
+        // have its own entry even when its scale equals the screen's 200% zoom.
+        const cacheKey = `${printing}:${pageStory}:${index}`;
+        let tablePaint = this.tablePaintCache.get(cacheKey);
+        if (!tablePaint || tablePaint.scale !== scale) {
+          const sourceTableBorders = (pageStory ? this.storyLayout.tableBorders : this.layout.tableBorders).filter(stroke => stroke.page === index);
+          const tableBorders = deviceTableBorders(ctx, sourceTableBorders, printing, geometry);
+          const pageCells = paintedCells.filter(cell => cell.page === index), filledCells = pageCells.filter(cell => cell.fill);
+          tablePaint = { scale, tableBorders, pageCells, filledCells, fillRects: deviceTableFillRects(ctx, pageCells, sourceTableBorders, tableBorders, printing) };
+          this.tablePaintCache.set(cacheKey, tablePaint);
+        }
+        const { tableBorders, pageCells, filledCells, fillRects } = tablePaint;
+        for (const cell of filledCells) {
+          const rect = fillRects.get(cell.id);
+          ctx.fillStyle = cell.fill;
+          if (rect.width > 0 && rect.height > 0) ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+        }
+        const pageLines = (pageStory ? this.storyLayout.lines : [...this.layout.lines, ...(this.layout.repeatedLines || [])]).filter(line => line.page === index);
+        const backgrounds = paragraphBackgrounds(pageLines, geometry, pageCells);
+        const paragraphBorders = (pageStory ? this.storyLayout.borders : this.layout.paragraphBorders || []).filter(border => border.page === index);
+        const paintedParagraphInk = paintParagraphBackgrounds(ctx, new Set([...backgrounds.values()].map(value => value.rect).filter(Boolean)), paragraphBorders);
+        // Dashed gridlines mark borderless cell edges on screen (View Gridlines); they never print.
+        for (const guide of printing || this.showTableGridlines === false ? [false] : [true, false]) for (const stroke of tableBorders) if (stroke.guide === guide) paintTableBorder(ctx, stroke);
+        paintCellDiagonals(ctx, pageCells.filter(cell => cell.borders?.tl2br || cell.borders?.tr2bl));
+        for (const border of paragraphBorders) paintParagraphBorder(ctx, border, paintedParagraphInk.get(border));
+        // Run backgrounds precede selection and glyphs, including repeated headers.
+        const surfaceGeometry = geometry;
+        for (const physical of pageLines) {
+          const { rect, base } = backgrounds.get(physical);
+          paintOnParagraphBackground(ctx, rect, geometry, base, background => {
+            ctx.save();
+            const { line, geometry } = enterCellText(ctx, physical, surfaceGeometry);
+            if (line.clip) { ctx.beginPath(); ctx.rect(0, line.y, geometry.width, line.height); ctx.clip(); }
+            if (line.cellClip) { ctx.beginPath(); ctx.rect(line.cellClip.left ?? 0, line.cellClip.top, (line.cellClip.right ?? geometry.width) - (line.cellClip.left ?? 0), line.cellClip.bottom - line.cellClip.top); ctx.clip(); }
+            if (line.textClip) { ctx.beginPath(); ctx.rect(line.textClip.left, 0, line.textClip.right - line.textClip.left, geometry.height); ctx.clip(); }
+            const spans = [...(line.backgrounds || []), ...(line.marker && hasRunBackground(line.marker) ? [line.marker] : [])];
+            for (const span of spans) {
+              const band = runBackgroundRect(line, span);
+              ctx.fillStyle = runBackground(span, background); ctx.fillRect(band.x, band.y, band.width, band.height);
+            }
+            ctx.restore();
+          });
+        }
+        if (!printing && !pageStory) for (const r of tinted) if (r.page === index) { ctx.fillStyle = r.fill; ctx.fillRect(r.x, r.y, r.width, r.height); }
+        if (!printing && !pageStory && this.marginBars?.ranges.length) {
+          const side = this.marginBars.side === 'outside' ? (index % 2 ? 'left' : 'right') : this.marginBars.side;
+          const bars = this.marginBars.ranges, x = side === 'right' ? Math.min(geometry.width - 5, geometry.width - (geometry.right ?? 96) + 20) : Math.max(4, (geometry.left ?? 96) - 22);
+          ctx.fillStyle = this.marginBars.color;
+          for (const line of pageLines) if (bars.some(r => r.start <= line.end && r.end > line.start)) ctx.fillRect(x, line.y, 1.25, line.height);
+        }
+        if (!printing && pageStory === (this.session.path !== null)) {
+          ctx.fillStyle = 'rgba(255,196,0,.38)';
+          for (const r of this.findHighlightRects(index)) if (r.page === index && (r.match.start !== start || r.match.end !== end)) ctx.fillRect(r.x, r.y, r.width, r.height);
+        }
+        ctx.fillStyle = 'rgba(55,105,180,.28)';
+        if (!printing && pageStory === (this.session.path !== null)) for (const r of rects) if (r.page === index) ctx.fillRect(r.x, r.y, r.width, r.height);
+        ctx.fillStyle = '#000000'; ctx.textBaseline = 'alphabetic';
+        // Inline drawing ink paints over surrounding paragraph glyphs,
+        // including ink extending outside the drawing's layout rectangle.
+        const inlinePictureLines = pageLines.filter(line => line.fragments.some(fragment => fragment.image && !isPositionedImage(fragment.image)));
+        for (const imagesOnly of [false, true]) for (const physical of imagesOnly ? inlinePictureLines : pageLines) {
+          const { rect, base } = backgrounds.get(physical);
+          paintOnParagraphBackground(ctx, rect, geometry, base, background => {
+            ctx.save();
+            const { line, geometry } = enterCellText(ctx, physical, surfaceGeometry);
+            if (line.clip && line.clipText !== false) { ctx.beginPath(); ctx.rect(0, line.y, geometry.width, line.height); ctx.clip(); }
+            if (line.cellClip) { ctx.beginPath(); ctx.rect(line.cellClip.left ?? 0, line.cellClip.top, (line.cellClip.right ?? geometry.width) - (line.cellClip.left ?? 0), line.cellClip.bottom - line.cellClip.top); ctx.clip(); }
+            if (line.textClip) { ctx.beginPath(); ctx.rect(line.textClip.left, 0, line.textClip.right - line.textClip.left, geometry.height); ctx.clip(); }
+            if (!imagesOnly && line.marker) {
+              const marker = line.marker; ctx.fillStyle = paintColor(marker.color, foregroundBackground(marker, background)); setCanvasTextStyle(ctx, marker); paintTextShadows(ctx, marker, line.baseline); paintText(ctx, marker, line.baseline);
+              for (const u of marker.underlines || []) { ctx.fillStyle = paintColor(u.color, foregroundBackground(u, background)); paintUnderline(ctx, { ...u, x: u.x + marker.x }, line.baseline); }
+            }
+            // Bar tabs: a hairline over the line's full height, so consecutive lines join.
+            for (const bar of imagesOnly ? [] : line.bars || []) { ctx.fillStyle = paintColor('auto', background); ctx.fillRect(Math.round(bar.x), line.y, 1, line.height); }
+            for (const leader of imagesOnly ? [] : line.leaders || []) {
+              ctx.save(); ctx.beginPath(); ctx.rect(leader.x, line.clipText === false ? 0 : line.y, leader.width, line.clipText === false ? geometry.height : line.height); ctx.clip();
+              ctx.fillStyle = paintColor(leader.color, foregroundBackground(leader, background));
+              setCanvasTextStyle(ctx, leader); paintTextShadows(ctx, leader, line.baseline); paintText(ctx, leader, line.baseline); ctx.restore();
+            }
+            for (const fragment of line.fragments) {
+              if (!!fragment.image !== imagesOnly) continue;
+              if (isPositionedImage(fragment.image)) continue;
+              if (fragment.image) {
+                const clipImage = line.clip && line.clipText === false || !!normalizedRotation(fragment.image.rotation);
+                if (clipImage) { ctx.save(); ctx.beginPath(); ctx.rect(0, line.y, geometry.width, line.height); ctx.clip(); }
+                const upright = fragment.uprightImage;
+                if (upright) { ctx.save(); leaveCellText(ctx, physical.cellText.matrix); }
+                const bitmap = this.hiddenDrawing?.(fragment.image) || fragment.image.hidden ? null : this.images.get(fragment.image.assetId), top = upright?.y ?? line.baseline - fragment.ascent;
+                if (bitmap) {
+                  if (fragment.image.opacity !== undefined) { ctx.save(); ctx.globalAlpha *= fragment.image.opacity; }
+                  const { flipH, flipV } = fragment.image, angle = normalizedRotation(fragment.image.rotation), transformed = flipH || flipV || angle;
+                  const {x: x0, y: y0, width, height} = inlineImagePaintFrame(fragment.image, upright?.x ?? fragment.x, top);
+                  if (transformed) {
+                    ctx.save(); ctx.translate(x0 + width / 2, y0 + height / 2);
+                    if (angle) ctx.rotate(angle / ANGLE_PER_DEGREE * Math.PI / 180);
+                    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+                  }
+                  const left = transformed ? -width / 2 : x0, upper = transformed ? -height / 2 : y0;
+                  if (bitmap.previewPlaceholder || !fragment.image.crop || !Object.values(fragment.image.crop).some(Boolean)) paintDecodedImage(ctx, bitmap, left, upper, width, height, { ...drawingPageContext(this.drawingPageContexts, index, line.pageStory ? undefined : line.region), pageStory: !!line.pageStory, printing, bitmapDisplayScale: printing ? undefined : scale });
+                  else {
+                    const rect = imageCropRect(fragment.image.crop, bitmap.width, bitmap.height);
+                    if (rect) { const [x, y, w, h] = rect.destination; paintImage(ctx, bitmap, ...rect.source, left + x * width, upper + y * height, w * width, h * height); }
+                  }
+                  if (transformed) ctx.restore();
+                  if (fragment.image.opacity !== undefined) ctx.restore();
+                }
+                if (!printing && this.session.path === null && !line.pageStory && start < fragment.end && end > fragment.start && !(start === fragment.start && end === fragment.end && this.drawingEditor?.canResize(fragment.image))) {
+                  const box = normalizedRotation(fragment.image.rotation)
+                    ? positionedImageBounds(inlineImagePaintFrame(fragment.image, upright?.x ?? fragment.x, top))
+                    : {x:upright?.x ?? fragment.x,y:top,width:upright?.width ?? fragment.width,height:upright?.height ?? fragment.ascent};
+                  ctx.save(); ctx.fillStyle = 'rgba(55,95,145,.25)'; ctx.fillRect(box.x, box.y, box.width, box.height); ctx.restore();
+                }
+                if (upright) ctx.restore();
+                if (clipImage) ctx.restore();
+              } else {
+                setCanvasTextStyle(ctx, fragment);
+                paintTextShadows(ctx, fragment, line.baseline);
+                const colors = fragment.colors || [{ value: fragment.color }];
+                colors.forEach((span, i) => {
+                  ctx.save(); ctx.fillStyle = paintColor(span.value, foregroundBackground(span, background));
+                  if (colors.length > 1) {
+                    // Paint the same shaped text through adjacent color windows.
+                    // Color boundaries must not break kerning or ligature shaping.
+                    const left = i ? fragment.x + span.x : 0;
+                    const right = i < colors.length - 1 ? fragment.x + span.x + span.width : geometry.width;
+                    ctx.beginPath(); ctx.rect(left, 0, right - left, geometry.height); ctx.clip();
+                  }
+                  paintText(ctx, Object.hasOwn(span, 'textOutline') ? { ...fragment, textOutline: span.textOutline, textFill: span.textFill ?? null, text3d: span.text3d ?? null, textScene: span.textScene ?? null } : fragment, line.baseline); ctx.restore();
+                });
+              }
+            }
+            for (const u of imagesOnly ? [] : line.underlines) { ctx.fillStyle = paintColor(u.color, foregroundBackground(u, background)); paintUnderline(ctx, u, line.baseline); }
+            for (const u of imagesOnly ? [] : [...(line.strikes || []), ...(line.marker ? strikeSpans(line.marker, line.marker, line.marker.x, line.marker.width) : [])]) { ctx.fillStyle = paintColor(u.color, foregroundBackground(u, background)); ctx.fillRect(u.x, line.baseline + u.offset, u.width, u.thickness); }
+            ctx.restore();
+          });
+        }
+        // Spelling marks belong to the body's text: a picture in front of the text covers them as it covers the words.
+        if (!pageStory && !printing) for (const overlay of this.overlays) if (overlay.spelling) overlay(ctx, index, geometry);
+        paintFloating(false);
+      }
+      for (const label of this.lineNumbers || []) if (label.page === index) {
+        ctx.save(); ctx.fillStyle = paintColor(label.style.color, geometry.background || '#FFFFFF'); setCanvasTextStyle(ctx, label.style);
+        paintText(ctx, { ...label.style, text: label.text, x: label.x, width: label.width }, label.baseline); ctx.restore();
+      }
+      if (geometry.pageBorders?.zOrder !== 'back') for (const border of pageBorders) paintParagraphBorder(ctx, border);
+      if (storyChrome && storyChrome.active !== 'body') paintStoryChrome(ctx, geometry, storyChrome.bounds, storyChrome.active);
+      if (!printing) for (const overlay of this.overlays) if (!overlay.spelling) overlay(ctx, index, geometry);
+      if (!printing && controlRects) paintControlCarets(ctx, controlRects, index, scale);
+      if (composedRects.length) paintCompositionUnderline(ctx, composedRects, this.selectionLayout.lines, index, scale);
+      if (!printing && start === end && caret.page === index && document.activeElement === this.input && !this.accessible) {
+        const line = lineAtPosition(this.selectionLayout, this.model.selection.focus, this.caretAffinity, this.caretPage);
+        const clip = line.cellClip;
+        paintInsertionCaret(ctx, zoomedCaret(caret, this.zoom), scale, {
+          left: Math.max(0, clip?.left ?? 0), top: Math.max(0, clip?.top ?? 0),
+          right: Math.min(geometry.width, clip?.right ?? geometry.width), bottom: Math.min(geometry.height, clip?.bottom ?? geometry.height),
+        });
+      }
+    }
+    if (!printing) { this.positionInput(caret); this.imageInteraction?.update(); this.schedulePaint(); }
+    // Page thumbnails follow the pages as they are painted (the Navigation pane).
+    if (indices?.length) this.onPagesPainted?.(indices);
+  }
+  positionInput(caret) {
+    if (this.accessible) return;
+    const canvas = this.canvases[caret.page];
+    if (!canvas) return;
+    // Keep the native composition candidate window near the drawn caret.
+    this.input.style.left = `${canvas.offsetLeft + caret.x * this.zoom}px`;
+    this.input.style.top = `${canvas.offsetTop + caret.y * this.zoom}px`;
+    this.input.style.height = `${caret.height * this.zoom}px`;
+  }
+  get inputText() { return this.model.text.replace(/[\v\f\u000e]/g, '\n'); }
+  syncInput() {
+    if (this.composition) return;
+    // The browser inserts the typed text into the field itself once the keystroke's handler returns.
+    if (this.nativeInsertion != null && this.inputText === this.nativeInsertion) return;
+    if (this.input.value !== this.inputText) this.input.value = this.inputText;
+    const [start, end] = this.model.range;
+    const direction = this.model.selection.focus < this.model.selection.anchor ? 'backward' : 'forward';
+    if (this.input.selectionStart !== start || this.input.selectionEnd !== end || this.input.selectionDirection !== direction) this.input.setSelectionRange(start, end, direction);
+  }
+  nativeSelection() {
+    if (this.composition || this.input.value !== this.inputText) return;
+    const a = this.input.selectionStart, b = this.input.selectionEnd;
+    const backward = this.input.selectionDirection === 'backward';
+    const anchor = backward ? b : a, focus = backward ? a : b;
+    if (anchor === this.model.selection.anchor && focus === this.model.selection.focus) return;
+    this.caretAffinity = 'forward'; this.caretPage = null; this.preferredX = null;
+    this.model.select(anchor, focus); this.syncInput(); this.paint(); this.onSelection();
+  }
+  openHyperlink(link = this.model.hyperlink?.link) {
+    if (!link) return;
+    if (internalHyperlink(link)) { this.goToBookmark(this.session.body.bookmarks.find(b => b.name === link.anchor)?.id); return; }
+    if (link.history && openableHyperlink(link)) this.visitedLinks.add(link.target);
+    this.onOpenLink(link.target);
+  }
+  /** The link under a pointer event, or null. */
+  linkAtPointer(event) { this.point(event, false); return this.pointLink; }
+  /**
+   * A plain click on a link follows it where nothing can be edited. In an editable document the click
+   * places the caret, as in any text, and offers the link (onLinkClick) with the box it was painted in.
+   */
+  linkClicked(range, x, y) {
+    if (this.readOnly || this.viewOnly) { this.openHyperlink(range.link); return; }
+    this.onLinkClick({ ...range, rect: this.linkClientRect(range, x, y) });
+  }
+  /** The painted box of a link under a client point, in client coordinates; the point itself when no box holds it. */
+  linkClientRect(range, x, y) {
+    for (const canvas of this.canvases) {
+      const r = canvas.getBoundingClientRect();
+      if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+      const page = Number(canvas.dataset.page), px = (x - r.left) / this.zoom, py = (y - r.top) / this.zoom;
+      const box = range.start < range.end && selectionRects(this.selectionLayout, range.start, range.end)
+        .find(b => b.page === page && px >= b.x && px <= b.x + b.width && py >= b.y && py <= b.y + b.height);
+      if (box) return { left: r.left + box.x * this.zoom, top: r.top + box.y * this.zoom, width: box.width * this.zoom, height: box.height * this.zoom };
+    }
+    return { left: x, top: y, width: 0, height: 0 };
+  }
+  setHyperlink(target, text, { appearance = false } = {}) {
+    this.execute(() => { const changed = this.model.setHyperlink(target, text); if (changed && appearance) showLink(this.model); return changed; });
+    this.focus();
+  }
+  removeHyperlink() { this.execute(() => this.model.removeHyperlink()); this.focus(); }
+  /** The body's bookmarks (headers, footers and notes hold none), each with the page it is on as that page is numbered. */
+  get bookmarks() {
+    const body = this.session.body, printed = pageLookup(this.layout, this.pageStories);
+    return body.bookmarks.map(b => {
+      const at = b.columnRange?.target ?? b.start, line = lineAtPosition(this.layout, at, 'forward');
+      return { id: b.id, name: b.name, start: b.start, end: b.end, page: printed(at, line.paragraphId)?.text ?? String(line.page + 1) };
+    });
+  }
+  addBookmark(name, options) { return this.execute(() => this.model.addBookmark(name, options)); }
+  // A bookmark listed from a header or footer is the body's: renaming or deleting it works there.
+  renameBookmark(id, name) { if (this.session.path !== null) this.editStory(null); return this.execute(() => this.model.renameBookmark(id, name)); }
+  removeBookmark(id) { if (this.session.path !== null) this.editStory(null); return this.execute(() => this.model.removeBookmark(id)); }
+  goToBookmark(id) {
+    // Bookmarks are in the body: a link followed from a note, header or footer goes there, not to the story's start.
+    this.finishComposition(); if (this.session.path !== null) this.editStory(null);
+    const bookmark = this.model.bookmarks.find(b => b.id === id);
+    this.model.select(bookmark?.columnRange?.target ?? bookmark?.start ?? 0);
+    this.caretAffinity = 'forward'; this.caretPage = null; this.preferredX = null;
+    this.focus(); this.revealCaret(); this.onSelection(); return true;
+  }
+  point(event, updateCaret = true) {
+    // Coordinates remain in page units across zoom, scroll, and display scaling.
+    // The vertically nearest page; pages shown side by side share a row, so the horizontal distance decides between them.
+    const nearest = this.canvases.reduce((best, canvas) => {
+      const r = canvas.getBoundingClientRect();
+      const distance = Math.max(r.top - event.clientY, 0, event.clientY - r.bottom), across = Math.max(r.left - event.clientX, 0, event.clientX - r.right);
+      return !best || distance < best.distance || distance === best.distance && across < best.across ? { canvas, r, distance, across } : best;
+    }, null);
+    if (!nearest) return 0;
+    const page = Number(nearest.canvas.dataset.page), y = (event.clientY - nearest.r.top) / this.zoom;
+    this.pointImage = imageAtPoint(this.selectionLayout, page, (event.clientX - nearest.r.left) / this.zoom, y, { includeBehindText: !!event.altKey, rotationOf: image => drawingOwnRotation(image, this.model.assets) });
+    // A view can hide some drawings (hidden ink); they are not painted, so they are not hit either.
+    if (this.pointImage && this.hiddenDrawing?.(this.pointImage.image)) this.pointImage = null;
+    // A stop inside hidden text shows where that text is passed over.
+    const hit = hitTestStop(this.selectionLayout, page, (event.clientX - nearest.r.left) / this.zoom, y), position = updateCaret ? outsideHiddenText(this.model.paragraphs, hit.offset) : hit.offset;
+    this.pointLink = hyperlinkAtPoint(this.selectionLayout, this.model.paragraphs, page, (event.clientX - nearest.r.left) / this.zoom, y, this.pointImage);
+    if (!updateCaret) return position;
+    this.caretPage = page;
+    const prior = lineAtPosition(this.selectionLayout, position, 'backward', page);
+    this.caretAffinity = prior.page === page && position === prior.end && Math.abs(prior.y + prior.height / 2 - y) <= prior.height / 2 ? 'backward' : 'forward';
+    if (prior.wrapSegments && prior.page === page && y >= prior.y && y <= prior.y + prior.height) {
+      const stop = nearestStop(prior, (event.clientX - nearest.r.left) / this.zoom);
+      if (stop.offset === position && prior.wrapSegments.some(s => s.stops.at(-1) === stop)) this.caretAffinity = 'backward';
+    }
+    if (hit.affinity) this.caretAffinity = hit.affinity;
+    return position;
+  }
+  controlPointerCaret(e, position, caret) {
+    if (!caret || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey || position !== this.model.text.length) return caret;
+    // At the story end, an outside position is exposed in the blank area
+    // past the final text. An internal paragraph end has no such pointer stop.
+    const line = lineAtPosition(this.selectionLayout, position, this.caretAffinity, this.caretPage);
+    const canvas = this.canvases[line.page], rect = canvas.getBoundingClientRect();
+    let x = (e.clientX - rect.left) / this.zoom;
+    if (line.cellText) x = cellTextLocalPoint(line.cellText.matrix, x, (e.clientY - rect.top) / this.zoom).x;
+    const local = line.cellText?.line || line, edge = local.stops.reduce((right, s) => Math.max(right, s.x), -Infinity);
+    return x > edge && local.stops.some(s => s.offset === position && s.x === edge) ? { ...caret, side: 'after' } : caret;
+  }
+  /**
+   * A finger on the pages may be starting a scroll (touch-action: pan-y), so it does not place the
+   * caret or bring up the keyboard yet: a tap does that when the finger lifts, and a sideways drag,
+   * which never scrolls, selects from where it went down. Pictures take the press at once, and so does a picture
+   * being cropped; a finger elsewhere, with a picture selected or not, may still be scrolling.
+   */
+  deferTouch(e) {
+    if (e.pointerType !== 'touch' || this.cropActive || this.imageInteraction.active) return false;
+    this.point(e, false);
+    if (this.pointImage) return false;
+    // Scrolling is up to touch-action; this only stops the emulated mouse press from taking focus.
+    e.preventDefault();
+    const touch = this.touch = { down: e, x: e.clientX, y: e.clientY, moved: false };
+    setTimeout(() => this.longPress(touch), LONG_PRESS_MS);
+    return true;
+  }
+  /**
+   * A finger held still on the text opens the context menu, as a right-click does. Not every touch browser
+   * reports a long press as a contextmenu event (Safari on iPhone and iPad does not); one that does is then
+   * ignored for that press.
+   */
+  longPress(touch) {
+    if (this.touch !== touch || touch.moved || this.destroyed) return;
+    this.longPressed = true;
+    this.openContextMenu(touch.down);
+    // Lifting the finger may still be reported as a click, at the menu item now under it: that is not a choice.
+    const done = new AbortController(), end = () => done.abort(), signal = done.signal;
+    this.abort.signal.addEventListener('abort', end, { signal });
+    document.addEventListener('click', e => { e.preventDefault(); e.stopImmediatePropagation(); end(); }, { capture: true, signal });
+    document.addEventListener('pointerup', e => { if (e.pointerId === touch.down.pointerId) setTimeout(end, 400); }, { capture: true, signal });
+    document.addEventListener('pointerdown', end, { capture: true, signal });
+  }
+  /** Forget the press in progress (the browser took it for a scroll, or a second finger made it a pinch). */
+  cancelPointer() { this.touch = null; this.linkPress = null; this.dragging = false; this.dragControl = null; this.stopAutoScroll(); this.imageInteraction.cancel(); }
+  pointerDown(e, tapped = false) {
+    // Control+click is a Mac's secondary click: the context menu follows, and the selection it acts on stays.
+    if (e.button !== 0 || MAC && e.ctrlKey) return;
+    this.linkPress = null;
+    // A press during composition commits it and goes on to place the caret, as in a native field;
+    // returning would let the press take focus from the document, losing what is typed next.
+    if (this.composition) this.finishComposition();
+    if (!tapped && this.deferTouch(e)) return;
+    this.touch = null;
+    this.typingGroup = null; this.deleteGroup = null;
+    // Pointer events carry no click count: a quick second or third press in place counts up, unless the
+    // pages moved in between (a scroll or relayout puts other text under the pointer).
+    const last = this.lastPress, { left, top } = this.pages.getBoundingClientRect();
+    const presses = last && e.timeStamp - last.time < 500 && Math.hypot(e.clientX - last.x, e.clientY - last.y) < 5
+      && left === last.left && top === last.top ? last.presses % 3 + 1 : 1;
+    this.lastPress = { time: e.timeStamp, x: e.clientX, y: e.clientY, left, top, presses };
+    this.unit = null;
+    e.preventDefault();
+    // Crop mode and Shift+click drawing selection take the press first (image-interaction.js).
+    if (this.imageInteraction.pointerDown(e)) return;
+    if (this.session.path !== null) {
+      const story = this.storyAtEvent(e);
+      if (story && this.pageStories.stories[story.pageStory].editable && (story.pageStory !== this.session.path || story.page !== this.storyPage)) this.editStory(story.pageStory, story.page);
+      // Footnotes are edited in place: a click back in the body leaves the note.
+      else if (!story && isNoteStoryKind(this.pageStories?.stories[this.session.path]?.kind) && !this.readOnly) this.editStory(null);
+    } else if (!this.readOnly) {
+      // A click in a footnote edits it directly.
+      const story = this.storyAtEvent(e, true);
+      if (story && isNoteStoryKind(this.pageStories?.stories[story.pageStory]?.kind) && this.pageStories.stories[story.pageStory].editable) this.editStory(story.pageStory, story.page);
+    }
+    let position = this.point(e), restoredPromptSelection, restoredOutsideCaret, sameOffsetCaret;
+    if ((e.ctrlKey || e.metaKey) && this.pointLink) { this.openHyperlink(this.pointLink.link); return; }
+    // A plain press on a link is settled when it lifts: a click there is a click on the link, a drag selects.
+    if (this.pointLink && presses === 1 && !e.shiftKey && !e.altKey) this.linkPress = { range: this.pointLink, x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+    const selection = this.model.selection;
+    if (!this.readOnly && !e.shiftKey && selection.anchor === selection.focus && selection.controlCaret?.side === 'inside') {
+      const range = inlineControlCaret(this.model.paragraphs, selection.focus, selection.controlCaret);
+      if (range && range.start === range.end && position === range.start) sameOffsetCaret = this.controlPointerCaret(e, position, selection.controlCaret);
+      if (range && range.start === range.end && (position !== range.start || sameOffsetCaret?.side === 'after')) {
+        const { scrollTop, scrollLeft } = this.host;
+        const extendPrompt = !e.ctrlKey && !e.metaKey && !e.altKey;
+        const word = extendPrompt && new Intl.Segmenter(undefined, { granularity: 'word' }).segment(this.model.text).containing(Math.max(0, position - 1));
+        const targetEnd = word?.isWordLike ? word.index + word.segment.length : position;
+        if (!this.execute(() => this.model.leaveEmptyControl(position < range.start ? 'before' : 'after'))) return;
+        const exited = this.model.selection;
+        // Restoring a glossary prompt can wrap lines. Hit the physical pointer
+        // again after layout, without letting revealCaret move its target.
+        this.host.scrollTop = scrollTop; this.host.scrollLeft = scrollLeft;
+        position = this.point(e);
+        sameOffsetCaret = undefined;
+        if (extendPrompt && position === exited.focus) restoredOutsideCaret = exited.controlCaret;
+        const prompt = this.model.placeholderAt(position);
+        if (extendPrompt && prompt?.control.id === range.control.id) {
+          // The first exit click extends through the original target word,
+          // mapped across restoration. Do not consume the rest of its line
+          // or paragraph; later ordinary clicks select only the prompt.
+          restoredPromptSelection = [prompt.start, Math.max(prompt.end, targetEnd + prompt.end - range.start)];
+        }
+      }
+    }
+    if (this.pointImage && !e.shiftKey) {
+      // A finger on the picture already selected moves it; one on another picture selects it and may still scroll.
+      const held = e.pointerType === 'touch' && this.model.selectedImage?.id === this.pointImage.image.id;
+      this.model.select(this.pointImage.start, this.pointImage.end);
+      if (this.imageInteraction.begin(e)) { this.holdPages = held; this.onSelection(); return; }
+    }
+    else if (restoredPromptSelection) this.model.select(...restoredPromptSelection);
+    else if (!e.shiftKey && (this.model.macroButtonAt(position)||this.model.placeholderAt(position))) { const range = this.model.macroButtonAt(position)||this.model.placeholderAt(position); this.model.select(range.start, range.end); }
+    else {
+      const caret = !e.shiftKey ? restoredOutsideCaret || sameOffsetCaret || emptyControlPointerCaret(this.model.paragraphs, position, this.model.selection.controlCaret) : undefined;
+      const extent = e.shiftKey ? pointerControlSelection(selection, position) : undefined;
+      const anchorCaret = e.shiftKey && selection.anchor === position
+        ? selection.controlCaret || (extent && { id: extent.id, side: 'inside' }) : undefined;
+      this.model.select(e.shiftKey ? this.model.selection.anchor : position, position,
+        anchorCaret || (caret && !restoredOutsideCaret && !sameOffsetCaret ? this.controlPointerCaret(e, position, caret) : caret), extent);
+      // The second press takes the word and the third the paragraph; a drag from there extends by
+      // whole words or paragraphs, as native selection does.
+      const unit = !e.shiftKey && presses > 1 && !this.model.selection.controlCaret && this.textUnit(e, position, presses);
+      if (unit) { this.model.select(unit.start, unit.end); this.unit = { ...unit, presses, model: this.model, path: this.session.path }; }
+    }
+    const dragSelection = this.model.selection;
+    const dragRange = !this.readOnly && !e.shiftKey && dragSelection.anchor === dragSelection.focus &&
+      dragSelection.controlCaret?.side === 'inside' && inlineControlCaret(this.model.paragraphs, position, dragSelection.controlCaret);
+    this.dragControl = dragRange && dragRange.start === dragRange.end
+      ? { position, caret: dragSelection.controlCaret, model: this.model, revision: this.session.revision } : null;
+    this.dragging = true;
+    // A tap is handled as its finger lifts, when there is no pointer left to capture.
+    try { this.pages.setPointerCapture(e.pointerId); } catch { /* released */ }
+    this.preferredX = null;
+    this.focus(); this.onSelection();
+  }
+  pointerMove(e) {
+    if (this.touch?.down.pointerId === e.pointerId) {
+      const dx = Math.abs(e.clientX - this.touch.x), dy = Math.abs(e.clientY - this.touch.y);
+      if (Math.hypot(dx, dy) > 10) this.touch.moved = true;
+      if (dx < 10 || dx <= dy) return;
+      this.pointerDown(this.touch.down, true);
+    }
+    if (this.imageInteraction.move(e)) return;
+    if (!this.dragging) {
+      this.point(e, false);
+      const openable = this.pointLink && openableHyperlink(this.pointLink.link);
+      this.pages.title = this.pointLink ? `${this.pointLink.link.tooltip || hyperlinkLabel(this.pointLink.link)}${openable ? this.readOnly || this.viewOnly ? ' (Click to open)' : ` (${MAC ? 'Cmd' : 'Ctrl'}+click to open)` : ''}` : '';
+      this.pages.style.cursor = openable && (this.readOnly || this.viewOnly || e.metaKey || e.ctrlKey && !MAC) ? 'pointer' : '';
+      return;
+    }
+    this.dragTo(e);
+    this.dragPoint = { clientX: e.clientX, clientY: e.clientY, altKey: e.altKey };
+    this.autoScroll();
+  }
+  /** The word (two presses) or paragraph (three) at a pointer position. */
+  textUnit(e, position, presses) {
+    if (presses === 3) {
+      const { index, offset } = locate(this.model.paragraphs, position), start = position - offset;
+      return { start, end: start + paragraphText(this.model.paragraphs[index]).length };
+    }
+    return this.wordAt(e, position);
+  }
+  /** The word under the pointer; none on a paragraph mark or break (an empty line, past a line's end), which typing would remove. */
+  wordAt(e, position) {
+    const word = new Intl.Segmenter(undefined, { granularity: 'word' }).segment(this.model.text).containing(this.pointCharacter(e, position));
+    return word && !/[\n\v\f\u000e]/.test(word.segment) ? { start: word.index, end: word.index + word.segment.length } : null;
+  }
+  /** Extend a pointer selection to a point. */
+  dragTo(e) {
+    const unit = this.unit?.model === this.model && this.unit;
+    if (unit) {
+      const position = this.point(e), other = this.textUnit(e, position, unit.presses) || { start: position, end: position };
+      if (other.start < unit.start) this.model.select(unit.end, Math.min(other.start, position));
+      else this.model.select(unit.start, Math.max(other.end, position, unit.end));
+      this.syncInput(); this.paint(); this.onSelection();
+      return;
+    }
+    const position = this.point(e), selection = this.model.selection;
+    const extent = pointerControlSelection(selection, position);
+    this.model.select(selection.anchor, position,
+      position === selection.anchor && this.dragControl?.position === position &&
+      this.dragControl.model === this.model && this.dragControl.revision === this.session.revision ? this.dragControl.caret
+        : position === selection.anchor ? selection.controlCaret || (extent && { id: extent.id, side: 'inside' }) : undefined, extent);
+    this.syncInput(); this.paint(); this.onSelection();
+  }
+  /**
+   * While a selection drag holds the pointer near or past an edge of the view, keep scrolling (faster
+   * the further out it is) and extend the selection over the text that comes under it, as native
+   * selection does; the pointer need not keep moving.
+   */
+  autoScroll() {
+    const step = () => {
+      const point = this.dragPoint, bounds = this.host.getBoundingClientRect(), edge = 30;
+      const speed = beyond => beyond > 0 ? Math.min(80, 8 + Math.round(beyond / 2)) : 0;
+      const dy = point ? speed(point.clientY - (bounds.bottom - edge)) - speed(bounds.top + edge - point.clientY) : 0;
+      const dx = point ? speed(point.clientX - (bounds.right - edge)) - speed(bounds.left + edge - point.clientX) : 0;
+      if (!this.dragging || this.destroyed || !dx && !dy) { this.stopAutoScroll(); return; }
+      const { scrollTop, scrollLeft } = this.host;
+      this.host.scrollTop += dy; this.host.scrollLeft += dx;
+      if (this.host.scrollTop !== scrollTop || this.host.scrollLeft !== scrollLeft) this.dragTo(point);
+    };
+    if (!this.scrollTimer) { this.scrollTimer = setInterval(step, 30); step(); }
+  }
+  stopAutoScroll() { clearInterval(this.scrollTimer); this.scrollTimer = null; this.dragPoint = null; }
+  pointerUp(e) {
+    if (this.touch?.down.pointerId === e.pointerId) {
+      const { down, x, y } = this.touch;
+      this.touch = null;
+      if (Math.hypot(e.clientX - x, e.clientY - y) > 10) return;
+      this.pointerDown(down, true);
+    }
+    const press = this.linkPress; this.linkPress = null;
+    this.release(e);
+    if (press?.pointerId === e.pointerId && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 5 && !this.destroyed) this.linkClicked(press.range, e.clientX, e.clientY);
+  }
+  /** The end of a press on the pages: a picture move or resize, a drag, or a drag out of an empty control. */
+  release(e) {
+    if (this.imageInteraction.end(e)) return;
+    const control = this.dragControl, wasDragging = this.dragging;
+    this.dragging = false; this.dragControl = null; this.stopAutoScroll();
+    if (!wasDragging || !control || this.readOnly || this.composition ||
+      control.model !== this.model || control.revision !== this.session.revision) return;
+    const position = this.point(e);
+    if (position === control.position && this.controlPointerCaret(e, position, control.caret)?.side !== 'after') return;
+    // A completed drag out of an empty persistent wrapper restores its prompt.
+    // Its zero-length owner must survive the temporary drag selection, and the
+    // release point must be tested again after the restored prompt reflows.
+    const { scrollTop, scrollLeft } = this.host;
+    const extendPrompt = !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey;
+    const word = extendPrompt && new Intl.Segmenter(undefined, { granularity: 'word' }).segment(this.model.text).containing(Math.max(0, position - 1));
+    const targetEnd = word?.isWordLike ? word.index + word.segment.length : position;
+    this.model.select(control.position, control.position, control.caret);
+    if (!this.execute(() => this.model.leaveEmptyControl(position < control.position ? 'before' : 'after'))) return;
+    const exited = this.model.selection;
+    this.host.scrollTop = scrollTop; this.host.scrollLeft = scrollLeft;
+    const target = this.point(e), placeholder = this.model.placeholderAt(target);
+    if (this.pointImage) this.model.select(this.pointImage.start, this.pointImage.end);
+    else if (placeholder) {
+      // As with an exit click, release inside the restored owner selects
+      // through the originally targeted word, not the rest of its line.
+      const end = extendPrompt && placeholder.control.id === control.caret.id
+        ? Math.max(placeholder.end, targetEnd + placeholder.end - control.position) : placeholder.end;
+      this.model.select(placeholder.start, end);
+    }
+    else this.model.select(target, target, extendPrompt && target === exited.focus ? exited.controlCaret : undefined);
+    this.syncInput(); this.paint(); this.onSelection();
+  }
+  storyAtEvent(e, preferBody = this.session.path === null) {
+    // Pointer capture retargets the double-click to the pages container.
+    const canvas = this.canvases.find(canvas => { const r = canvas.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect(), page = Number(canvas.dataset.page);
+      const x = (e.clientX - rect.left) / this.zoom, y = (e.clientY - rect.top) / this.zoom;
+      return pageStoryAtPoint(this.layout, this.storyLayout, page, x, y, preferBody);
+    }
+  }
+  selectWord(e) {
+    if (!this.readOnly) {
+      const storyLine = this.storyAtEvent(e, true);
+      if (storyLine && this.pageStories.stories[storyLine.pageStory].editable) this.editStory(storyLine.pageStory, storyLine.page);
+      else if (this.session.path !== null) this.editStory(null);
+    }
+    // The second press already took the word, and a drag since extended it word by word.
+    if (this.unit?.presses === 2 && this.unit.model === this.model && this.unit.path === this.session.path) return;
+    const pos = this.point(e);
+    if (this.pointImage) {
+      this.model.select(this.pointImage.start, this.pointImage.end); this.focus(); this.onSelection();
+      // Double-clicking a drawing opens what it holds for editing, where the app can (onOpenDrawing).
+      if (!this.readOnly && !this.viewOnly && this.model.selectedImage) this.onOpenDrawing?.(this.model.selectedImage);
+      return;
+    }
+    const word = this.wordAt(e, pos);
+    if (word) { this.model.select(word.start, word.end); this.focus(); this.onSelection(); }
+  }
+  /**
+   * The offset of the character under the pointer. A press resolves to the nearest caret stop, which
+   * for the right half of a letter is the stop after it; the letter is the one between that stop and
+   * its neighbour on the pointer's side.
+   */
+  pointCharacter(e, position) {
+    let line;
+    try { line = lineAtPosition(this.selectionLayout, position, this.caretAffinity, this.caretPage); } catch { return position; }
+    const rect = this.canvases[line.page]?.getBoundingClientRect();
+    if (!rect) return position;
+    let x = (e.clientX - rect.left) / this.zoom;
+    if (line.cellText) x = cellTextLocalPoint(line.cellText.matrix, x, (e.clientY - rect.top) / this.zoom).x;
+    const local = line.cellText?.line || line, stop = nearestStop(local, x);
+    if (!stop || stop.offset !== position || x === stop.x) return position;
+    const side = local.stops.filter(s => x < stop.x ? s.x < stop.x : s.x > stop.x)
+      .reduce((best, s) => !best || Math.abs(s.x - stop.x) < Math.abs(best.x - stop.x) ? s : best, null);
+    return side && side.offset !== position ? Math.min(position, side.offset) : position;
+  }
+  selectParagraph(e) {
+    if (this.unit?.presses === 3 && this.unit.model === this.model && this.unit.path === this.session.path) return;
+    const pos = this.point(e, false);
+    if (this.pointImage) return;
+    const { index, offset } = locate(this.model.paragraphs, pos), start = pos - offset;
+    this.model.select(start, start + paragraphText(this.model.paragraphs[index]).length);
+    this.focus(); this.onSelection();
+  }
+  /**
+   * Text mode shows the text in the field itself, which scrolls to its caret as the browser types there, but not to
+   * a caret placed by a command (Enter, Undo, Find, Go To). Its line is found in a copy of the field's text up to
+   * the caret, laid out as the field lays it out, and the field scrolls just enough to show it.
+   */
+  revealFieldCaret() {
+    // Typed text is inserted by the browser, which keeps it in view, and a deletion leaves the caret in view.
+    if (this.typing || this.deleting || this.composition) return;
+    this.syncInput();
+    const input = this.input, style = getComputedStyle(input), mirror = document.createElement('div');
+    for (const property of ['boxSizing', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
+      'borderStyle', 'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant', 'fontStretch', 'fontKerning', 'letterSpacing', 'wordSpacing', 'lineHeight',
+      'textTransform', 'textIndent', 'tabSize', 'whiteSpace', 'wordBreak', 'overflowWrap']) mirror.style[property] = style[property];
+    // The field's lines are as wide as its content box beside any scroll bar.
+    const borders = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth), padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    Object.assign(mirror.style, { position: 'absolute', top: '0', left: '0', visibility: 'hidden', overflow: 'hidden', height: 'auto',
+      width: `${style.boxSizing === 'border-box' ? input.clientWidth + borders : input.clientWidth - padding}px` });
+    const marker = document.createElement('span');
+    marker.textContent = '\u200b';
+    mirror.append(this.inputText.slice(0, this.model.selection.focus), marker);
+    document.body.append(mirror);
+    const top = marker.offsetTop, height = marker.offsetHeight || parseFloat(style.lineHeight) || 20;
+    mirror.remove();
+    const view = input.clientHeight, padTop = parseFloat(style.paddingTop) || 0;
+    if (top - padTop < input.scrollTop) input.scrollTop = Math.max(0, top - padTop);
+    else if (top + height > input.scrollTop + view) input.scrollTop = top + height - view + (parseFloat(style.paddingBottom) || 0);
+  }
+  /** Where a body position sits in the scrolling host's content box, for margin annotations. */
+  positionGeometry(position) {
+    if (!this.layout || this.accessible) return null;
+    let caret;
+    try { caret = caretRect(this.layout, position, 'forward'); } catch { return null; }
+    const canvas = this.canvases?.[caret.page];
+    if (!canvas) return null;
+    return { page: caret.page, top: canvas.offsetTop + caret.y * this.zoom, left: canvas.offsetLeft + caret.x * this.zoom, height: caret.height * this.zoom,
+      pageLeft: canvas.offsetLeft, pageRight: canvas.offsetLeft + canvas.offsetWidth, pageTop: canvas.offsetTop, textRight: (() => { const g = this.layout.pages[caret.page] || this.layout.page; return canvas.offsetLeft + (g.width - (g.right || 0)) * this.zoom; })() };
+  }
+  revealCaret() {
+    if (this.accessible) { this.revealFieldCaret(); return; }
+    const caret = caretRect(this.selectionLayout, this.model.selection.focus, this.caretAffinity, this.caretPage), canvas = this.canvases[caret.page];
+    const top = canvas.offsetTop + caret.y * this.zoom;
+    if (top < this.host.scrollTop + 12) this.host.scrollTop = Math.max(0, top - 24);
+    if (top + caret.height * this.zoom > this.host.scrollTop + this.host.clientHeight - 12) this.host.scrollTop = top + caret.height * this.zoom - this.host.clientHeight + 24;
+    // Zoomed in, or on a narrow screen, the page is wider than the view: keep the caret in sight sideways too.
+    const left = canvas.offsetLeft + caret.x * this.zoom;
+    if (left < this.host.scrollLeft + 12) this.host.scrollLeft = Math.max(0, left - 24);
+    else if (left > this.host.scrollLeft + this.host.clientWidth - 12) this.host.scrollLeft = left - this.host.clientWidth + 24;
+  }
+  move(key, shift, word, mod) {
+    this.typingGroup = null; this.deleteGroup = null;
+    // Arrow keys follow the physical reading axis. The reference application's
+    // automation MoveUp/MoveDown calls do not perform this keyboard dispatch for rotated cells.
+    const currentLine = ['ArrowUp', 'ArrowDown'].includes(key) || this.selectionLayout.hasRotatedCells && ['ArrowLeft', 'ArrowRight'].includes(key)
+      ? lineAtPosition(this.selectionLayout, this.model.selection.focus, this.caretAffinity, this.caretPage) : null;
+    const rotatedCrossLine = currentLine?.cellText && ['ArrowLeft', 'ArrowRight'].includes(key);
+    const preferredCellId = rotatedCrossLine ? currentLine.cellId : null;
+    if (this.preferredCellId !== preferredCellId) this.preferredX = null;
+    this.preferredCellId = preferredCellId;
+    if (rotatedCrossLine) {
+      const forward = (key === 'ArrowRight' ? 1 : -1) === currentLine.cellText.matrix[2];
+      key = forward ? 'ArrowDown' : 'ArrowUp';
+    } else if (currentLine?.cellText) {
+      const forward = (key === 'ArrowDown' ? 1 : -1) === currentLine.cellText.matrix[1];
+      key = forward ? 'ArrowRight' : 'ArrowLeft';
+    }
+    if (!['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'].includes(key)) this.preferredX = null;
+    // With a block of table cells selected, Shift+Left and Shift+Right grow or shrink it by a cell, as in Word,
+    // rather than moving its corner a character at a time through the cell's text.
+    // Up and Down likewise go a row at a time, not a line at a time through a cell of several lines.
+    if (shift && !word && !currentLine?.cellText && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key) && this.model.activeCellBlock
+      && this.extendCellBlock(key === 'ArrowLeft' ? -1 : key === 'ArrowRight' ? 1 : 0, key === 'ArrowUp' ? -1 : key === 'ArrowDown' ? 1 : 0)) return;
+    const { focus, anchor } = this.model.selection;
+    // Ctrl word navigation follows the Windows native reference. Option follows
+    // native Mac text fields: word starts going left, word ends going right.
+    const nativeWord = word && mod;
+    let target = focus, affinity = key === 'End' ? 'backward' : 'forward';
+    const [start, end] = this.model.range;
+    if (!shift && start !== end && ['ArrowLeft', 'ArrowRight'].includes(key)) {
+      const direction = key === 'ArrowLeft' ? -1 : 1, edge = direction < 0 ? start : end;
+      target = nativeWord ? this.model.promptBoundary(wordPosition(this.model.text, edge, direction, true), direction) : edge;
+    }
+    else if (word && !rotatedCrossLine && (key === 'ArrowUp' || key === 'ArrowDown')) {
+      // Paragraph steps. Up goes to the start of this paragraph, or of the one
+      // before when already there. Down goes to the next paragraph's start with
+      // Ctrl, and to this paragraph's end (or the next's) with Option.
+      const paragraphs = this.model.paragraphs, { index, offset } = locate(paragraphs, focus);
+      const from = focus - offset, to = from + paragraphText(paragraphs[index]).length;
+      if (key === 'ArrowUp') target = offset > 0 || index === 0 ? from : from - 1 - paragraphText(paragraphs[index - 1]).length;
+      else if (nativeWord) target = index < paragraphs.length - 1 ? to + 1 : to;
+      else target = focus < to || index === paragraphs.length - 1 ? to : to + 1 + paragraphText(paragraphs[index + 1]).length;
+      affinity = key === 'ArrowDown' && !nativeWord ? 'backward' : 'forward';
+      this.preferredX = null; this.caretPage = null;
+    }
+    else if (key === 'PageUp' || key === 'PageDown') {
+      // A screenful of lines in the preferred column; the view scrolls by the
+      // same distance so the caret keeps its place on screen.
+      // Side to Side lays the pages out in a row (document-views.js): there a screenful is the pages the
+      // window shows whole, and the caret keeps its height on the page. Measured down the column, the
+      // whole row was less than a screen and PageDown went to the end of the document.
+      const across = this.pages.classList.contains('is-side-to-side');
+      const direction = key === 'PageUp' ? -1 : 1, top = across ? l => this.canvases[l.page].offsetLeft : l => this.canvases[l.page].offsetTop + l.y * this.zoom;
+      const from = lineAtPosition(this.selectionLayout, focus, this.caretAffinity, this.caretPage);
+      this.preferredX ??= caretRect(this.selectionLayout, focus, this.caretAffinity, this.caretPage).x;
+      const shown = () => { const view = this.host.getBoundingClientRect(); return this.canvases.filter(c => { const r = c.getBoundingClientRect(); return r.left >= view.left - 1 && r.right <= view.right + 1; }).length; };
+      const goal = across ? from.page + direction * Math.max(1, shown()) : top(from) + direction * Math.max(this.host.clientHeight - 48, 48);
+      const position = across ? l => l.page : top;
+      let line = from;
+      for (let next; (next = verticalLine(this.selectionLayout, line, direction, this.preferredX));) {
+        line = next;
+        if (direction * (position(line) - goal) >= 0) break;
+      }
+      if (across && line !== from) for (let next; (next = verticalLine(this.selectionLayout, line, direction, this.preferredX)) && next.page === line.page && direction * (from.y - next.y) >= 0;) line = next;
+      const stop = line === from ? null : nearestStop(line, this.preferredX);
+      target = stop ? stop.offset : direction < 0 ? 0 : this.model.text.length;
+      affinity = stop && (stop.affinity || (target === line.end ? 'backward' : 'forward')) || 'forward';
+      this.caretPage = stop ? line.page : null;
+      if (across) this.host.scrollLeft += top(line) - top(from); else this.host.scrollTop += top(line) - top(from);
+    }
+    else if (key === 'ArrowLeft' || key === 'ArrowRight') {
+      const direction = key === 'ArrowLeft' ? -1 : 1;
+      target = pastHiddenText(this.model.paragraphs, focus, direction, from => {
+        let next;
+        if (nativeWord) next = wordPosition(this.model.text, from, direction);
+        else if (word) next = optionWordPosition(this.model.text, from, direction);
+        else {
+          // The caret stops are in order: find the neighbours by halving, not by reading a long document's every stop.
+          const stops = boundaries(this.model.text);
+          let low = 0, high = stops.length;
+          while (low < high) { const middle = (low + high) >> 1; if (stops[middle] < from) low = middle + 1; else high = middle; }
+          next = direction < 0 ? stops[low - 1] ?? 0 : stops[stops[low] === from ? low + 1 : low] ?? this.model.text.length;
+        }
+        return this.model.promptBoundary(next, direction);
+      });
+      this.preferredX = null;
+    } else {
+      const line = currentLine || lineAtPosition(this.selectionLayout, focus, this.caretAffinity, this.caretPage);
+      if (key === 'Home') target = mod ? 0 : line.start;
+      if (key === 'End') target = mod ? this.model.text.length : line.end;
+      if (key === 'ArrowUp' || key === 'ArrowDown') {
+        const readingLayout = rotatedCrossLine ? { page: { width: Infinity }, lines: [{ ...line.cellText.line, page: 0 }] } : this.selectionLayout;
+        this.preferredX ??= caretRect(readingLayout, focus, this.caretAffinity, rotatedCrossLine ? null : this.caretPage).x;
+        const next = verticalLine(this.selectionLayout, line, key === 'ArrowUp' ? -1 : 1, this.preferredX);
+        if (next) this.preferredX += (next.columnOffset || 0) - (line.columnOffset || 0);
+        const nextStop = next ? nearestStop(rotatedCrossLine ? next.cellText.line : next, this.preferredX) : null;
+        target = nextStop ? nextStop.offset
+          : rotatedCrossLine ? (key === 'ArrowUp' ? line.start : line.end) : key === 'ArrowUp' ? 0 : this.model.text.length;
+        affinity = next && target === next.end ? 'backward' : 'forward';
+        if (next?.wrapSegments?.some(s => s.stops.at(-1) === nextStop)) affinity = 'backward';
+        if (nextStop?.affinity) affinity = nextStop.affinity;
+        this.caretPage = next?.page ?? null;
+      }
+    }
+    // Up, Down, Home, End and the page keys can reach a stop inside hidden text; the caret shows past it.
+    if (!['ArrowLeft', 'ArrowRight'].includes(key)) target = outsideHiddenText(this.model.paragraphs, target);
+    this.caretAffinity = affinity;
+    if (mod && ['Home', 'End'].includes(key)) this.caretPage = null;
+    let controlMove = null;
+    if (shift && !word && !this.readOnly && this.model.hasPersistentControls && ['ArrowLeft', 'ArrowRight'].includes(key) && anchor === focus) {
+      const selection = this.model.selection, direction = key === 'ArrowLeft' ? -1 : 1;
+      const owner = selection.controlCaret?.side === 'inside' && inlineControlCaret(this.model.paragraphs, focus, selection.controlCaret);
+      // Crossing an SDT boundary consumes a selection step before selecting
+      // adjacent text, even when the control itself has nonempty contents.
+      // Reversing that step returns to the same inside caret.
+      if (owner && (owner.start === owner.end || focus === (direction < 0 ? owner.start : owner.end) || selection.controlSelection)) {
+        const extent = selection.controlSelection;
+        if (!extent || extent.direction !== direction) {
+          // Reversing an adjacent-boundary step returns to the original
+          // wrapper's boundary before reversing its first outward step.
+          this.model.select(anchor, focus, extent?.adjacent ? { id: extent.id, side: 'inside' } : selection.controlCaret,
+            !extent ? { id: owner.control.id, direction } : extent.adjacent ? { id: extent.id, direction: extent.direction } : undefined);
+          this.syncInput(); this.paint(); this.onSelection(); return;
+        }
+        if (owner.start === owner.end) {
+          this.execute(() => {
+            this.model.leaveEmptyControl(direction < 0 ? 'before' : 'after', target);
+            this.model.select(anchor, this.model.selection.focus, undefined, extent);
+          });
+          this.onSelection(); return;
+        }
+        if (!extent.adjacent) {
+          const next = adjacentInlineControl(this.model.paragraphs, owner, direction);
+          if (next) {
+            // The neighboring SDT adds another zero-width stop. Backward
+            // replacement at that junction uses its preceding wrapper.
+            this.model.select(anchor, focus, direction < 0 ? { id: next.control.id, side: 'inside' } : selection.controlCaret,
+              { ...extent, adjacent: next.control.id });
+            this.syncInput(); this.paint(); this.onSelection(); return;
+          }
+        }
+      }
+    }
+    if (!shift && this.model.hasPersistentControls) {
+      if (!word && ['ArrowLeft', 'ArrowRight'].includes(key))
+        controlMove = moveInlineControlCaret(this.model.paragraphs, this.model.selection, target, key === 'ArrowLeft' ? -1 : 1);
+      else if (!this.readOnly && ['Home', 'End'].includes(key))
+        controlMove = moveInlineControlHomeEnd(this.model.paragraphs, this.model.selection, target, key === 'Home' ? -1 : 1);
+    }
+    if (controlMove?.restoreEmpty && !this.readOnly) {
+      const ok = this.execute(() => this.model.leaveEmptyControl(controlMove.controlCaret.side, controlMove.destination));
+      if (ok && key === 'End') { this.caretAffinity = affinity; this.paint(); this.revealCaret(); }
+      this.onSelection(); return;
+    }
+    let extent = shift ? this.model.selection.controlSelection : undefined;
+    if (extent && !word && !this.readOnly && ['ArrowLeft', 'ArrowRight'].includes(key)) {
+      const direction = key === 'ArrowLeft' ? -1 : 1;
+      // Once the text selection has expanded, its focus still passes through
+      // rich-text control boundary stops independently of the original anchor.
+      const next = anchor !== focus ? moveInlineControlCaret(this.model.paragraphs,
+        { anchor: focus, focus, controlCaret: extent.focusCaret }, target, direction) : null;
+      if (next && !next.restoreEmpty) {
+        target = next.focus;
+        extent = { ...extent, focusCaret: next.controlCaret };
+      } else {
+        extent = { ...extent }; delete extent.focusCaret;
+        const original = inlineControlCaret(this.model.paragraphs, anchor, { id: extent.id, side: 'inside' });
+        const owner = original && adjacentInlineControl(this.model.paragraphs, original, direction);
+        if (owner && owner.start < target && target < owner.end) extent.focusCaret = { id: owner.control.id, side: 'inside' };
+      }
+    }
+    if (controlMove) this.model.select(controlMove.anchor, controlMove.focus, controlMove.controlCaret);
+    else this.model.select(shift ? anchor : target, target,
+      !shift && mod && key === 'Home' && this.model.hasPersistentControls ? documentStartControlCaret(this.model.paragraphs) : undefined, extent);
+    this.syncInput(); this.paint(); this.revealCaret(); this.onSelection();
+  }
+  keydown(e) {
+    if (e.isComposing || this.composition || e.keyCode === 229) return;
+    if (this.imageInteraction.keydown(e)) return;
+    if (e.key === 'F9' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+      e.preventDefault(); if (this.onUpdateFields) this.onUpdateFields(); else this.updatePageReferences(); return;
+    }
+    // Where nothing can be typed (a read-only preview, Viewing), Tab moves on to the next control, as from any
+    // read-only field, rather than doing nothing.
+    const leaveWithTab = e.key === 'Tab' && (this.leaveWithTab || this.readOnly || this.viewOnly);
+    this.leaveWithTab = false;
+    // A letter chord follows the letter the layout types (QWERTZ moves Z, AZERTY moves A), and the
+    // physical key only when the layout types another script there.
+    const mod = e.ctrlKey || e.metaKey, typed = e.key || '';
+    const letter = /^[a-z]$/i.test(typed) ? typed.toLowerCase() : [...typed].length === 1 && /\p{L}/u.test(typed) ? /^Key([A-Z])$/.exec(e.code || '')?.[1].toLowerCase() || '' : '';
+    if (mod && !e.altKey && !e.shiftKey && (e.code === 'Space' || e.key === ' ')) {
+      e.preventDefault(); this.clearDirectTextFormatting(); return;
+    }
+    // A shifted chord is another shortcut (Shift+A is all caps, not select all); only redo shares its letter with undo.
+    if (mod && !e.altKey && (!e.shiftKey || letter === 'z') && ['b', 'i', 'u', 'z', 'y', 's', 'a', 'k', 'j'].includes(letter)) {
+      e.preventDefault();
+      if (letter === 'b') this.toggleBold();
+      if (letter === 'i') this.toggleItalic();
+      if (letter === 'u') this.toggleUnderline();
+      if (letter === 'z') e.shiftKey ? this.redo() : this.undo();
+      if (letter === 'y') this.redo();
+      if (letter === 's') this.onSave();
+      if (letter === 'k' && !this.readOnly) this.onLink();
+      if (letter === 'j') this.setParagraphFormat({ alignment: 'both' });
+      if (letter === 'a') { this.model.select(0, this.model.text.length); this.syncInput(); this.paint(); this.onSelection(); }
+      return;
+    }
+    // A list item's level: Alt+Shift+Right/Left, and Control+Shift+Right/Left on a Mac (beside Control+Shift+Up/Down,
+    // which move paragraphs there), where Option+Shift+Right/Left selects by word as in every Mac text field.
+    const levelChord = MAC ? e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey : e.altKey && e.shiftKey && !mod;
+    if (levelChord && ['ArrowLeft', 'ArrowRight'].includes(e.key) && this.model.selectedParagraphs.every(p => p.list)) {
+      e.preventDefault(); this.changeListLevel(e.key === 'ArrowRight' ? 1 : -1); return;
+    }
+    // A selected floating drawing (a shape, text box or picture placed on the page) is not text the keys type over,
+    // as in Word: Enter edits its text, Tab and Shift+Tab go to the next or previous drawing, and Ctrl+Enter breaks
+    // the page after its anchor. Typed text goes into its text (beforeInput). Each used to delete the drawing.
+    if (!this.readOnly && !this.viewOnly && this.selectedFloatingDrawing && !e.altKey && (e.key === 'Enter' || e.key === 'Tab' && !mod)) {
+      if (e.key === 'Tab') { e.preventDefault(); this.selectNextDrawing(e.shiftKey ? -1 : 1); return; }
+      if (!mod) { e.preventDefault(); this.typeIntoDrawing(''); return; }
+      this.model.select(this.model.range[1]);
+    }
+    if (e.key === 'Enter' && !e.altKey) {
+      e.preventDefault();
+      if (!this.readOnly && !this.viewOnly) this.narrowCellBlock();
+      // In a table, Ctrl+Shift+Enter splits it above the caret's row (from the first row: a paragraph
+      // before it), as Word does; a column break in a cell would not show.
+      // Ctrl+Enter there starts the caret's row on a new page, the table split around the break.
+      const columnBreak = () => this.model.tableContext ? splitTable(this.model) : this.model.insertColumnBreak();
+      const pageBreak = () => this.model.tableContext ? insertTablePageBreak(this.model) : this.model.insertPageBreak();
+      const done = this.execute(() => mod ? (e.shiftKey ? columnBreak() : pageBreak()) : e.shiftKey ? this.model.replace('\v') : this.model.insertParagraph());
+      // A new paragraph ends the word before it, which may be an address to link.
+      if (done && !mod && !e.shiftKey) {
+        const caret = this.model.selection.focus, place = locate(this.model.paragraphs, caret);
+        if (place.offset === 0 && place.index > 0) {
+          const previous = paragraphText(this.model.paragraphs[place.index - 1]);
+          this.linkTypedAddress(caret - 1 - previous.length, place.index - 1, previous.length, caret);
+          this.correctParagraphEnd(place.index - 1);
+        }
+      }
+      return;
+    }
+    // Escape then Tab leaves the editor; Shift+Tab also keeps normal focus navigation.
+    if (e.key === 'Escape') { if (this.session.path !== null) { e.preventDefault(); this.editStory(null); } else this.leaveWithTab = true; return; }
+    if (e.key === 'Tab' && !mod && !e.altKey && !leaveWithTab && this.model.tableContext) {
+      e.preventDefault(); this.tabCell(e.shiftKey ? -1 : 1); return;
+    }
+    // At the start of list items, Tab demotes them and Shift+Tab promotes them, as in other word processors.
+    // At the top level Shift+Tab still moves focus on.
+    if (e.key === 'Tab' && !mod && !e.altKey && !leaveWithTab && this.listTab(e.shiftKey ? -1 : 1)) {
+      e.preventDefault(); this.changeListLevel(e.shiftKey ? -1 : 1); return;
+    }
+    // Tab over a selection that runs past a paragraph's end indents those paragraphs (list items a level) and Shift+Tab
+    // outdents them, as other word processors do: one tab typed over them took their text away.
+    if (e.key === 'Tab' && !mod && !e.altKey && !leaveWithTab && this.tabIndents(e.shiftKey ? -1 : 1)) {
+      e.preventDefault(); this.changeListLevel(e.shiftKey ? -1 : 1); return;
+    }
+    if (e.key === 'Tab' && !e.shiftKey && !mod && !e.altKey && !leaveWithTab) {
+      e.preventDefault(); this.insertTab(); return;
+    }
+    if (this.accessible) return; // Native textarea navigation in accessible text mode.
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) {
+      e.preventDefault();
+      if (e.metaKey && ['ArrowLeft', 'ArrowRight'].includes(e.key)) this.move(e.key === 'ArrowLeft' ? 'Home' : 'End', e.shiftKey, false, false);
+      // Cmd+Up and Cmd+Down go to the start and end of the document on a Mac.
+      else if (e.metaKey && ['ArrowUp', 'ArrowDown'].includes(e.key)) this.move(e.key === 'ArrowUp' ? 'Home' : 'End', e.shiftKey, false, true);
+      else this.move(e.key, e.shiftKey, e.altKey || e.ctrlKey, mod);
+    } else if (['Backspace', 'Delete'].includes(e.key) && !mod && !e.altKey) {
+      // Shift+Delete on a selection is Cut on Windows and Linux; the browser's own key binding sends
+      // the cut event (copy, then delete), or a plain forward delete on a Mac.
+      if (e.key === 'Delete' && e.shiftKey && this.model.range[0] !== this.model.range[1]) return;
+      e.preventDefault(); this.deleteText(e.key === 'Backspace' ? -1 : 1);
+    }
+  }
+  /** Whether Tab changes the level of the selected list items: the selection starts a list item and the level can move. */
+  listTab(delta) {
+    const targets = this.model.selectedParagraphs, [start] = this.model.range;
+    return locate(this.model.paragraphs, start).offset === 0 && targets.every(p => p.list && p.list.level + delta >= 0 && p.list.level + delta <= 8);
+  }
+  /** Whether Tab (1) or Shift+Tab (-1) indents or outdents the selected paragraphs: the selection runs past a paragraph's end. */
+  tabIndents(delta) {
+    const [start, end] = this.model.range, paragraphs = this.model.paragraphs;
+    if (start === end || locate(paragraphs, start).index === locate(paragraphs, end).index) return false;
+    // Outdented already, Shift+Tab moves on from the document, as it does elsewhere.
+    return delta > 0 || this.model.selectedParagraphs.some(p => p.list ? p.list.level > 0 : paragraphFormat(p, this.model.numbering).indentLeft > 0);
+  }
+  beforeInput(e) {
+    if (this.readOnly || this.viewOnly) { e.preventDefault(); return; }
+    if (e.isComposing || this.composition || !e.cancelable) return;
+    // Any deletion over a block of table cells (Option or Ctrl+Backspace, Cmd+Backspace, Control+H) empties the
+    // block's own cells, as Delete does, not every cell its text range runs through.
+    if (e.inputType.startsWith('delete') && this.model.activeCellBlock) { e.preventDefault(); this.deleteSelection(); return; }
+    this.nativeSelection();
+    // Option or Ctrl+Backspace (or Delete) beside text the view hides deletes the word a reader sees past it: from
+    // the caret the field would delete the hidden words, struck out already, and the key did nothing.
+    if (e.inputType === 'deleteWordBackward' || e.inputType === 'deleteWordForward') this.passHiddenText(e.inputType === 'deleteWordBackward' ? -1 : 1);
+    if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') { e.preventDefault(); e.inputType === 'historyUndo' ? this.undo() : this.redo(); return; }
+    if (['insertText', 'insertLineBreak', 'insertParagraph', 'insertReplacementText'].includes(e.inputType) && this.selectedFloatingDrawing) {
+      e.preventDefault(); this.typeIntoDrawing(e.inputType === 'insertText' ? e.data || '' : ''); return;
+    }
+    const actions = {
+      insertText: () => this.model.replace(e.data || ''),
+      insertLineBreak: () => this.model.replace('\v'),
+      insertParagraph: () => this.model.insertParagraph(),
+      // Cmd+Backspace and Cmd+Fn+Backspace on a Mac. The native field's line is the whole paragraph.
+      deleteSoftLineBackward: () => this.deleteToLineEdge(-1),
+      deleteSoftLineForward: () => this.deleteToLineEdge(1),
+      formatBold: () => this.model.toggleBold(),
+      formatStrikeThrough: () => this.model.setRunFormat({ strikethrough: this.model.runFormatting.strikethrough === 'single' ? 'none' : 'single' }),
+      formatItalic: () => this.model.toggleItalic(), formatUnderline: () => this.model.toggleUnderline(),
+      formatJustifyFull: () => this.model.setParagraphFormat({ alignment: 'both' }),
+      formatRemove: () => this.model.clearDirectTextFormatting(),
+    };
+    if (e.inputType === 'insertText') {
+      // Replacing the native field's whole text makes the browser lay a long document's text out again;
+      // inserting the typed text itself costs it little. When the document took exactly that text, the
+      // field is left for the browser to update (syncInput skips it), and the input event that follows
+      // is already in the document (nativeInput).
+      const value = this.input.value, a = this.input.selectionStart, b = this.input.selectionEnd, data = e.data || '';
+      const expected = value === this.inputText ? value.slice(0, a) + data.replace(/[\v\f\u000e]/g, '\n') + value.slice(b) : null;
+      this.nativeInsertion = expected;
+      try { this.typeText(actions.insertText, data); } finally { this.nativeInsertion = null; }
+      const [start, end] = this.model.range;
+      // Text with line breaks (dictation, a text replacement, an input method's long commit) the browser inserts a
+      // line at a time, one input event each: every one would set the document's text back to the partial field
+      // and lay it out again, so a long insertion took seconds. The field takes the document's text at once instead.
+      if (expected !== null && data && !/[\n\r\v\f\u000e]/.test(data) && start === end && start === a + data.length && this.inputText === expected) {
+        this.awaitedInput = expected;
+        // Should the browser not insert it after all, the field takes the document's text as usual.
+        setTimeout(() => { if (this.awaitedInput === expected) { this.awaitedInput = null; this.syncInput(); } });
+      } else { e.preventDefault(); this.syncInput(); }
+      return;
+    }
+    // Backspace and Delete reach here in Text mode and from on-screen keyboards: a run of them is
+    // one undo step, as with the keys in the document.
+    if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward') {
+      e.preventDefault(); this.deleteText(e.inputType === 'deleteContentBackward' ? -1 : 1); return;
+    }
+    if (actions[e.inputType]) { e.preventDefault(); this.execute(actions[e.inputType]); }
+  }
+  /** Delete from the caret to the start (or end) of its line as laid out, or the selection. */
+  deleteToLineEdge(direction) {
+    const [start, end] = this.model.range;
+    if (start !== end) return this.model.replace('');
+    const line = lineAtPosition(this.selectionLayout, start, this.caretAffinity, this.caretPage);
+    const edge = direction < 0 ? line.start : line.end;
+    // At the edge already, the key deletes what is across it, as Backspace or Delete would.
+    if (edge === start) return this.model.delete(direction);
+    // Selected from the caret toward the edge, so a tracked deletion leaves the caret on the far side of it.
+    this.model.select(start, edge);
+    return this.model.replace('');
+  }
+  // Typing continues one undo step until a new word starts.
+  // Any other change, caret move, undo or story switch ends it.
+  typeText(action, text) {
+    // Text is not typed into the middle of hidden text, where nobody sees it go.
+    if (this.model.range[0] === this.model.range[1]) { const at = this.model.range[0], shown = outsideHiddenText(this.model.paragraphs, at); if (shown !== at) this.model.select(shown); }
+    const group = this.typingGroup, [start, end] = this.model.range;
+    const newWord = /\S/u.test(text[0] || '') && /\s/u.test(group?.last || '');
+    const merge = !!group && !newWord && start === end && group.at === start &&
+      group.revision === this.session.revision && group.path === this.session.path;
+    this.typingGroup = null;
+    // While true, the host may refresh its controls after the frame that shows the typed text.
+    this.typing = true;
+    let executed;
+    try { executed = this.execute(action, undefined, { record: !merge, typing: true, label: 'Typing' }); } finally { this.typing = false; }
+    if (executed) {
+      this.typingGroup = { revision: this.session.revision, path: this.session.path, at: this.model.selection.focus, last: text.at(-1) };
+      if (text.length === 1) this.assistTyping(text);
+    }
+  }
+  /**
+   * Once the view hides text (Simple Markup, No Markup, hidden text no longer shown), a caret left inside it goes to
+   * where it shows: typed text already does (typeText), but an input method composes at the field's caret.
+   */
+  leaveHiddenText() {
+    const [start, end] = this.model.range;
+    if (start !== end || this.composition) return;
+    const shown = outsideHiddenText(this.model.paragraphs, start);
+    if (shown === start) return;
+    this.model.select(shown); this.caretAffinity = 'forward'; this.preferredX = null;
+    this.syncInput(); this.onSelection();
+  }
+  /** Move a caret beside hidden text in `direction` past it, so the native field's next deletion starts there. */
+  passHiddenText(direction) {
+    const [start, end] = this.model.range, stretch = start === end && hiddenStretchAt(this.model.paragraphs, start);
+    if (!stretch || (direction < 0 ? stretch[0] >= start : start >= stretch[1])) return;
+    this.model.select(stretch[direction < 0 ? 0 : 1]); this.syncInput();
+  }
+  // A run of Backspace (or Delete) presses is one undo step,
+  // until the caret moves or anything else changes.
+  deleteText(direction) {
+    const group = this.deleteGroup, [start, end] = this.model.range;
+    const merge = !!group && start === end && group.direction === direction && group.at === start &&
+      group.revision === this.session.revision && group.path === this.session.path;
+    this.deleteGroup = null; this.typingGroup = null;
+    // A key's deletion leaves the caret where it was or a step back, already in view in Text mode's field.
+    this.deleting = true;
+    let done;
+    // Hidden text beside the caret is passed over: the key deletes the character a reader sees next to it.
+    const stretch = start === end && hiddenStretchAt(this.model.paragraphs, start);
+    const past = stretch && (direction < 0 ? stretch[0] < start : start < stretch[1]) ? stretch[direction < 0 ? 0 : 1] : null;
+    try {
+      done = this.execute(() => {
+        if (past !== null) this.model.select(past);
+        return this.model.delete(direction);
+      }, undefined, { record: !merge, typing: true, label: 'Typing' });
+    } finally { this.deleting = false; }
+    if (done) this.deleteGroup = { direction, at: this.model.selection.focus, revision: this.session.revision, path: this.session.path };
+  }
+  // Corrections and links made as you type (the host decides which, from its
+  // settings). Each is its own undo step, so Undo takes back the change alone.
+  assistTyping(typed) {
+    const paragraphs = this.model.paragraphs, at = this.model.selection.focus, { index, offset } = locate(paragraphs, at);
+    const fix = this.correctTyping?.(paragraphText(paragraphs[index]).slice(0, offset), typed, { list: !!paragraphs[index].list });
+    if (fix && fix.back <= offset && fix.text !== undefined) {
+      this.execute(() => {
+        this.model.select(at - fix.back, at);
+        const changed = this.model.replace(fix.text);
+        // A typed list marker ("* ", "1. ") becomes a list.
+        if (fix.list) this.model.toggleList(fix.list);
+        return changed;
+      }, undefined, { label: fix.list ? 'AutoFormat' : 'AutoCorrect' }, true);
+      if (fix.list) return;
+    }
+    if (/\s/.test(typed)) {
+      const caret = this.model.selection.focus, place = locate(this.model.paragraphs, caret);
+      this.linkTypedAddress(caret - place.offset, place.index, place.offset - 1, caret);
+    }
+  }
+  /**
+   * A new paragraph ends the word before it as a space does, so the corrections a space makes (the pronoun i, a
+   * fraction) are made at the end of paragraph `index` too, as their own undo step; the caret stays at the start of
+   * the next paragraph. A list marker typed alone is not a list without the space after it.
+   */
+  correctParagraphEnd(index) {
+    const paragraph = this.model.paragraphs[index], text = paragraphText(paragraph);
+    const fix = this.correctTyping?.(`${text} `, ' ', { list: !!paragraph.list });
+    if (!fix || fix.list || typeof fix.text !== 'string' || !fix.text.endsWith(' ') || fix.back < 2 || fix.back - 1 > text.length) return;
+    const end = this.model.paragraphOffset(index) + text.length;
+    this.execute(() => {
+      this.model.select(end - (fix.back - 1), end);
+      const changed = this.model.replace(fix.text.slice(0, -1));
+      // The replacement ends at the paragraph's end (after any deletion Track Changes keeps): the next paragraph follows.
+      this.model.select(this.model.selection.focus + 1);
+      return changed;
+    }, undefined, { label: 'AutoCorrect' }, true);
+    this.typingGroup = null;
+  }
+  /** Link the web address or email ending at `end` in a paragraph starting at `from`, and leave the caret at `caret`. */
+  linkTypedAddress(from, index, end, caret) {
+    const candidate = this.linkTyping?.(paragraphText(this.model.paragraphs[index]), end);
+    if (!candidate) return;
+    this.execute(() => {
+      this.model.select(from + candidate.start, from + candidate.end);
+      const linked = !this.model.hyperlink && this.model.setHyperlink(candidate.href);
+      if (linked) showLink(this.model);
+      this.model.select(caret);
+      return linked;
+    }, undefined, { label: 'AutoFormat' }, true);
+    this.typingGroup = null;
+  }
+  /**
+   * Apply the native field's new value to the model. `caret` is the native field's collapsed caret after
+   * the change, which ends where a deletion started or an insertion ended; `backward` marks a deletion
+   * toward the start (Option or Ctrl+Backspace).
+   */
+  reconcile(value, checkpoint, { caret = null, backward = false } = {}) {
+    const old = this.inputText;
+    if (old === value) return false;
+    const selection = this.model.selection, at = selection.focus, added = value.length - old.length;
+    // Identical neighboring text makes a longest-prefix diff ambiguous. Keep an
+    // insertion at its selected SDT boundary when the native value permits it.
+    if (selection.controlCaret && selection.anchor === at && added > 0 &&
+        value.slice(0, at) === old.slice(0, at) && value.slice(at + added) === old.slice(at)) {
+      return this.model.replace(value.slice(at, at + added), { checkpoint });
+    }
+    let start = 0, end = old.length, tail = value.length;
+    // Where the native caret shows the change was, take it: deleting "two " before "three" also reads
+    // as deleting "wo t", which would strike the wrong letters and keep the wrong one's formatting.
+    const from = caret === null ? -1 : added < 0 ? caret : caret - added;
+    const exact = from >= 0 && value.slice(0, from) === old.slice(0, from) && value.slice(from + Math.max(0, added)) === old.slice(from + Math.max(0, -added));
+    if (exact) { start = from; end = from + Math.max(0, -added); tail = from + Math.max(0, added); }
+    else while (start < end && start < tail && old[start] === value[start]) start++;
+    // Keep diffs at complete grapheme boundaries, including composed emoji.
+    const points = boundaries(old);
+    start = [...points].reverse().find(p => p <= start) ?? 0;
+    if (!exact) while (end > start && tail > start && old[end - 1] === value[tail - 1]) { end--; tail--; }
+    const safeEnd = points.find(p => p >= end) ?? old.length;
+    tail += safeEnd - end; end = safeEnd;
+    const typingFormat = this.model.typingFormat, typingStyle = this.model.typingStyle, typingDirectCleared = this.model.typingDirectCleared;
+    const controlCaret = start === end && start === selection.anchor && end === selection.focus ? selection.controlCaret : undefined;
+    const sameRange = start === Math.min(selection.anchor, selection.focus) && end === Math.max(selection.anchor, selection.focus);
+    // A backward deletion leaves the caret before what it removed, also when Track Changes keeps that
+    // text as a deletion, so the next press goes on to the word before.
+    this.model.select(sameRange ? selection.anchor : backward ? end : start, sameRange ? selection.focus : backward ? start : end, controlCaret, sameRange ? selection.controlSelection : undefined);
+    this.model.typingFormat = typingFormat; this.model.typingStyle = typingStyle; this.model.typingDirectCleared = typingDirectCleared;
+    return this.model.replace(value.slice(start, tail), { checkpoint });
+  }
+  nativeInput(e) {
+    if (this.awaitedInput != null) {
+      const awaited = this.awaitedInput;
+      this.awaitedInput = null;
+      if (this.input.value === awaited && awaited === this.inputText) { this.syncInput(); return; }
+    }
+    if (this.readOnly || this.viewOnly) { this.syncInput(); return; }
+    try {
+      const revision = this.session.revision;
+      this.session.run(() => {
+        const { value, a, b } = this.keptComposition();
+        const text = this.inputText, model = this.model, selection = model.selection, revision = model.revision;
+        const typing = [model.typingFormat, model.typingStyle, model.typingDirectCleared];
+        this.reconcile(value, false, { caret: a === b ? a : null, backward: /Backward$/.test(e?.inputType || '') });
+        // A change the document refuses (Option or Ctrl+Backspace across a table's edge) leaves the selection as it
+        // was, rather than on what the field removed, where typing would go next; the field takes the text back.
+        if (!this.composition && model.revision === revision && text !== value) {
+          model.selection = selection; [model.typingFormat, model.typingStyle, model.typingDirectCleared] = typing;
+        }
+        this.followNativeSelection(value, a, b);
+      }, () => { this.validateStory(); this.relayout(); this.revealCaret(); }, { record: !this.composition });
+      if (!this.composition && revision !== this.session.revision) this.onChange();
+    } catch (e) {
+      // A composition the document refuses (in a protected part) takes the field's text back, and its caret too:
+      // setting the text alone left the caret at the field's end, where the input method's next keystroke put the
+      // composed text instead, at the end of the document.
+      if (this.composition) { this.input.value = this.inputText; this.input.setSelectionRange(...this.model.range); }
+      this.onError(e);
+      // Setting the field's text ends the browser's composition without a compositionend event: end ours with it,
+      // or the keys after it (arrows, a typed letter) were left to the field while the document stood still.
+      if (this.composition) this.finishComposition();
+      this.relayout();
+    }
+  }
+  /**
+   * Take the native field's selection once its value is in the model. During a composition with Track
+   * Changes on, the text it replaced stays in the document, struck out, but not in the native field;
+   * that text lies before the composition, so the selection maps across by the text after it.
+   */
+  /**
+   * The field's text and selection as the document reads them. While a composition began over a selected floating
+   * drawing, the field lacks the drawing's character, which the composition replaced there: it is put back.
+   */
+  keptComposition() {
+    let value = this.input.value, a = this.input.selectionStart, b = this.input.selectionEnd;
+    const at = this.composition ? this.compositionKeeps : null;
+    if (at != null && value[at] !== '\ufffc' && value.slice(0, at) === this.inputText.slice(0, at)) {
+      value = value.slice(0, at) + '\ufffc' + value.slice(at);
+      if (a >= at) a++;
+      if (b >= at) b++;
+    }
+    return { value, a, b };
+  }
+  followNativeSelection(value, a, b) {
+    const text = this.inputText, shift = text.length - value.length;
+    if (text !== value && !(this.composition && shift > 0 && text.endsWith(value.slice(a)))) return;
+    a += shift; b += shift;
+    const selection = this.model.selection, same = a === selection.anchor && b === selection.focus;
+    const typingFormat = this.model.typingFormat, typingStyle = this.model.typingStyle, typingDirectCleared = this.model.typingDirectCleared;
+    this.model.select(a, b, same ? selection.controlCaret : undefined, same ? selection.controlSelection : undefined);
+    this.model.typingFormat = typingFormat; this.model.typingStyle = typingStyle; this.model.typingDirectCleared = typingDirectCleared;
+  }
+  /**
+   * The text an input method is still composing, as document offsets, or null. With Track Changes on,
+   * the text the composition replaced stays in the document before it, struck out, but not in the field.
+   */
+  compositionRange() {
+    if (!this.composition || this.compositionStart == null || !this.compositionText) return null;
+    const start = this.compositionStart + Math.max(0, this.inputText.length - this.input.value.length);
+    const end = Math.min(start + this.compositionText.length, this.model.text.length);
+    return end > start ? [start, end] : null;
+  }
+  /** Commit the composition; `committed` is the text it ended with, when an input method ended it. */
+  finishComposition(committed = null) {
+    if (!this.composition) return;
+    const before = this.composition;
+    try {
+      this.session.run(() => {
+        const { value, a, b } = this.keptComposition();
+        this.reconcile(value, false);
+        // Committing re-reads the text the composition replaced, which leaves the caret before it.
+        if (this.inputText !== value) this.followNativeSelection(value, a, b);
+      }, () => this.validateStory(), { record: false });
+    } catch (e) { this.session.restore(before); this.onError(e); }
+    this.composition = null; this.compositionKeeps = null;
+    // Unchanged without a new revision, and changed with new text; only the rest (text composed and then removed,
+    // over a selection Track Changes kept struck out) compares the whole document: a long one took a while for every
+    // syllable an input method commits.
+    const model = this.model, changed = model.revision !== before.revision && (model.text !== this.compositionBaseText
+      || JSON.stringify(before.state.paragraphs) !== JSON.stringify(model.paragraphs));
+    this.compositionBaseText = null;
+    const group = this.compositionGroup, composed = typeof committed === 'string' ? committed : this.compositionText || '';
+    this.compositionGroup = null; this.typingGroup = null;
+    // A new word starts a new undo step, as it does for typed text. So does text the composition put anywhere but
+    // where that typing ended: the caret then ends right after it (a caret the model had not yet followed).
+    const { anchor, focus } = model.selection;
+    const merge = changed && !!group && anchor === focus && focus === group.at + composed.length
+      && !(/\S/u.test(composed[0] || '') && /\s/u.test(group.last || ''));
+    if (changed && !merge) this.session.record(before);
+    this.relayout();
+    if (changed) this.onChange();
+    if (changed) this.typingGroup = { revision: this.session.revision, path: this.session.path, at: this.model.selection.focus, last: composed.at(-1) ?? group?.last };
+    // A dead key (´ then e, or a quote on an international layout) composes one character, which is corrected and
+    // linked as one typed with a key is: É at a sentence's start, a typographic quote.
+    if (changed && typeof committed === 'string' && [...committed].length === 1) this.assistTyping(committed);
+  }
+  copy(e, cut) {
+    if (this.composition || !e.clipboardData) return;
+    const [start, end] = this.model.range;
+    if (start === end && !this.model.activeCellBlock) return;
+    e.preventDefault();
+    const { text, html, uncopied } = this.clipboardData();
+    e.clipboardData.setData('text/plain', text);
+    if (html) e.clipboardData.setData('text/html', html);
+    if (!cut || this.readOnly || this.viewOnly) return;
+    // A chart, diagram or other drawing the clipboard cannot carry would be lost on its way: a paste brings back
+    // only its plain-text stand-in. Cut leaves it in place and says so, as the Edit menu offers no Cut for it.
+    if (uncopied) { this.onError(new Error(UNCUT_MESSAGE)); return; }
+    this.deleteSelection();
+  }
+  /**
+   * Remove the selection, as a cut or Clear Contents does: the selected text, or the contents of a block of table
+   * cells. A block's text range runs through every cell between its corners in reading order (or covers only its
+   * first cell), so removing that range cleared cells that were not selected.
+   */
+  deleteSelection() {
+    return this.execute(() => this.model.activeCellBlock ? clearCells(this.model) : this.model.replace(''));
+  }
+  /**
+   * Typing, a break or a paste over a block of table cells replaces the first cell's text only; the other cells
+   * keep theirs, rather than the cells between the block's corners in reading order losing theirs. Whole rows are
+   * one stretch of text, which they replace.
+   */
+  narrowCellBlock() {
+    const model = this.model, block = model.cellBlock && model.activeCellBlock;
+    if (!block) return;
+    if (wholeRows(block.table, block)) { model.cellBlock = null; return; }
+    const first = cellBlockPlacements(block.table, block)[0]?.cell;
+    const from = model.paragraphs.findIndex(p => p.cellId === first?.id), to = model.paragraphs.findLastIndex(p => p.cellId === first?.id);
+    if (from < 0) return;
+    model.select(model.paragraphOffset(from), model.paragraphOffset(to) + paragraphText(model.paragraphs[to]).length);
+    this.syncInput();
+  }
+  /** Whether the selection is one picture that copies as itself (see clipboardData). */
+  copiesPicture() { return copiesPicture(this.model); }
+  /**
+   * Move the corner of the selected block of cells (the selection's focus) to the cell beside its cell: `dx` 1 to
+   * the right or -1 to the left in its row, `dy` 1 below or -1 above in its column. Returns whether the key was
+   * taken; at the table's left or right edge the block stays as it is.
+   */
+  extendCellBlock(dx, dy = 0) {
+    const model = this.model, block = model.activeCellBlock, { anchor, focus } = model.selection;
+    const cellAt = offset => model.paragraphs[locate(model.paragraphs, offset).index]?.cellId || null;
+    let context, from;
+    try { context = cellContext(model.tables, cellAt(focus)); from = cellContext(model.tables, cellAt(anchor)); } catch { return false; }
+    if (!context || context.table !== block.table || from?.table !== block.table) return false;
+    const table = block.table, merge = verticalMerges(table).get(context.cell.id);
+    const rowIndex = dy > 0 ? (merge?.endRow ?? context.rowIndex) + 1 : dy < 0 ? (merge?.rowIndex ?? context.rowIndex) - 1 : context.rowIndex;
+    const column = dx > 0 ? context.end : dx < 0 ? context.column - 1 : context.column;
+    const row = table.rows[rowIndex];
+    // Up from the first row or Down from the last goes on out of the table, as a text selection.
+    if (!row) return false;
+    const beside = rowGrid(row).find(c => c.column <= column && column < c.end)?.cell;
+    // A cell merged down from above is selected through the cell it continues.
+    const target = beside && (verticalMerges(table).get(beside.id)?.cell || beside);
+    const last = target ? model.paragraphs.findLastIndex(p => p.cellId === target.id) : -1;
+    const next = last >= 0 && blockBetween(table, from.cell.id, target.id);
+    if (next) {
+      // The corner goes to the end of the cell's text, and the block is the rectangle between the two corner cells.
+      model.select(anchor, model.paragraphOffset(last) + paragraphText(model.paragraphs[last]).length);
+      model.cellBlock = { tableId: table.id, top: next.top, bottom: next.bottom, left: next.left, right: next.right };
+    }
+    this.caretAffinity = 'forward'; this.preferredX = null;
+    this.syncInput(); this.paint(); this.revealCaret(); this.onSelection();
+    return true;
+  }
+  /** The selected drawing when it floats on the page (not in line with the text), else null. */
+  get selectedFloatingDrawing() { const image = this.model.selectedImage; return image && isPositionedImage(image) ? image : null; }
+  /**
+   * Text typed (or Enter) with a floating drawing selected goes into the drawing's text, as in Word: the host opens
+   * its text (onDrawingTyping returns whether it could). A drawing with no text to edit keeps the keys from it.
+   */
+  typeIntoDrawing(text) {
+    this.finishComposition();
+    if (!this.onDrawingTyping?.(text)) this.syncInput();
+  }
+  /** Tab and Shift+Tab with a drawing selected select the next or previous drawing in the text, round to the first. */
+  selectNextDrawing(direction) {
+    const starts = []; let at = 0;
+    this.model.paragraphs.forEach(p => { for (const run of p.runs) { if (run.image) starts.push(at); at += run.text.length; } at++; });
+    const current = starts.indexOf(this.model.range[0]);
+    if (starts.length < 2 || current < 0) return;
+    const next = starts[(current + direction + starts.length) % starts.length];
+    this.model.select(next, next + 1); this.preferredX = null;
+    this.syncInput(); this.paint(); this.revealCaret(); this.onSelection();
+  }
+  /** Whether a copy carries the selected shape, text box or group (drawing-clipboard.js). */
+  copiesDrawing() { return copiesDrawing(this); }
+  /** The selection as plain text, and as formatted HTML when it holds only text or one picture. */
+  clipboardData() {
+    // A note reference copies as the number or mark it shows on the page.
+    const noteText = (run, at) => {
+      const shown = this.selectionLayout.lines.find(line => line.start <= at && at < line.end)?.fragments?.find(f => f.noteMark && f.start === at)?.text;
+      return (shown || '').replace(/[\u200b\u2002]/g, '');
+    };
+    // A block of table cells copies as its rows, with a tab between cells, as other applications copy a table.
+    const block = this.model.activeCellBlock;
+    if (block) {
+      const model = this.model, rows = new Map();
+      for (const { cell, rowIndex } of cellBlockPlacements(block.table, block)) {
+        const first = model.paragraphs.findIndex(p => p.cellId === cell.id), last = model.paragraphs.findLastIndex(p => p.cellId === cell.id);
+        const text = first < 0 ? '' : model.clipboardText(noteText, [model.paragraphOffset(first), model.paragraphOffset(last) + paragraphText(model.paragraphs[last]).length], hiddenRun);
+        if (!rows.has(rowIndex)) rows.set(rowIndex, []);
+        rows.get(rowIndex).push(text);
+      }
+      return { text: [...rows.values()].map(cells => cells.join('\t')).join('\n'), html: '' };
+    }
+    const text = this.model.clipboardText(noteText, undefined, hiddenRun);
+    const picture = pictureHtml(this.model) || drawingHtml(this, text) || equationHtml(this.model);
+    // A chart, diagram or drawing the clipboard cannot carry copies as its text stand-in for other applications;
+    // pasted here, that stand-in ("[Image]", its title) would only be stray text, so the paste says why it can't.
+    if (!picture && this.model.selectedImage) return { text, html: uncopiedHtml(text), uncopied: true };
+    // What the view hides (a deletion in Simple Markup, hidden text) is not copied: pasted, it came back as ordinary text.
+    const fragment = !picture && copyFragment(this.model, { hidden: hiddenRun, objects: { token: this.clipboardToken, story: this.session.path } });
+    return { text, html: picture || (fragment ? fragmentHtml(fragment) : '') };
+  }
+  /** Paste with the clipboard's formatting where the document can take it, else as plain text. */
+  pasteData(text, html = '') {
+    // U+FFFC stands in for an object (a picture, field or note) in other applications' text, and is
+    // this document's own placeholder for one: pasted as a character it would be an invisible stray.
+    text = String(text || '').replace(/\ufffc/g, '');
+    // A header, footer or note takes no page or column break: pasted text keeps them as paragraph breaks.
+    const breakless = !!this.model.refusesBreaks;
+    if (breakless) text = text.replace(/[\f\u000e]/g, '\n');
+    // Over a block of table cells, a paste from a menu (which reads the clipboard itself, with no paste event) replaces
+    // the first cell's text, as the keyboard's does, not every cell the block's text range runs through.
+    if (!this.readOnly && !this.viewOnly) this.narrowCellBlock();
+    // Over a selected floating drawing a paste goes after its anchor, as typing does not replace it (keydown).
+    if (!this.readOnly && !this.viewOnly && this.selectedFloatingDrawing) { this.model.select(this.model.range[1]); this.syncInput(); }
+    // A picture copied here comes back as the picture, not as its plain-text stand-in.
+    const picture = htmlPicture(html);
+    if (picture) { if (!this.readOnly && !this.viewOnly) this.insertImageFile(picture.file, picture).catch(error => this.onError(error)); return; }
+    // A shape, text box or group copied here comes back as the drawing.
+    const drawing = htmlDrawing(html);
+    if (drawing) { if (!this.readOnly && !this.viewOnly) pasteDrawing(this, drawing).catch(error => this.onError(error)); return; }
+    if (copiedUncopied(html)) { this.onError(new Error(UNCOPIED_MESSAGE)); return; }
+    // An equation copied here comes back as the equation, not its linear text.
+    const equation = htmlEquation(html);
+    if (equation) { this.execute(() => this.model.insertMathRun(pastedEquation(this.model, equation))); return; }
+    const fragment = html && carriesFormatting(this.model) && !this.model.tableContext ? htmlFragment(html) : null;
+    if (fragment && fragment.paragraphs.some(p => p.text) && formattedPasteFits(fragment) && !(breakless && fragment.paragraphs.some(p => /[\f\u000e]/.test(p.text))) && this.execute(() => pasteFragment(this.model, fragment, { token: this.clipboardToken, story: this.session.path }), () => {}, undefined, true)) return;
+    if (text) this.execute(() => this.model.replace(text));
+  }
+  releaseImages(images) { for (const image of images.values()) if (!this.borrowedImages.has(image)) image.close?.(); images.clear(); }
+  destroy() {
+    if (this.paintTask) (this.paintTask.idle ? cancelIdleCallback : clearTimeout)(this.paintTask.id);
+    this.destroyed = true; this.stopAutoScroll(); this.abort.abort(); this.releaseImages(this.images); this.borrowedImages.clear(); this.host.replaceChildren(); }
+}

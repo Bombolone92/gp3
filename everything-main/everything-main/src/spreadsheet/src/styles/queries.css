@@ -1,0 +1,157 @@
+/* Data ▸ Get & Transform: the Power Query Editor window, the source dialogs, and the Queries & Connections pane. */
+
+/* The editor: a large window of its own over the workbook. */
+.modal-panel.pq-editor-modal { padding: 0; overflow: hidden; display: flex; flex-direction: column; height: calc(100dvh - 24px); }
+.modal-panel.pq-editor-modal > .modal-head, .modal-panel.pq-editor-modal > .sheet-handle { display: none; }
+@media (min-width: 640px) {
+  .modal-panel.pq-editor-modal { max-width: min(1440px, calc(100vw - 32px)); width: calc(100vw - 32px); height: min(860px, calc(100dvh - 32px)); padding: 0; border-radius: 8px; }
+}
+.pq-editor { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; font-size: 12.5px; background: var(--surface); }
+.pq-titlebar { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 6px 14px; background: var(--accent); color: var(--accent-ink); }
+.pq-title { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; }
+.pq-title svg { background: #fff; border-radius: 3px; }
+.pq-titlebar .icon-btn { color: inherit; }
+.pq-ribbon { border-bottom: 1px solid var(--hairline); background: var(--surface); }
+.pq-tabs { display: flex; gap: 2px; padding: 4px 8px 0; }
+.pq-tab { border: 0; background: none; padding: 5px 12px; font: inherit; color: var(--ink-2); border-bottom: 2px solid transparent; cursor: pointer; }
+.pq-tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.pq-ribbon-panel { display: flex; align-items: stretch; gap: 0; padding: 4px 6px 2px; overflow-x: auto; min-height: 86px; background: var(--surface-2); }
+.pq-rgroup { display: flex; flex-direction: column; padding: 0 4px; border-right: 1px solid var(--hairline); flex: none; }
+.pq-rgroup-controls { display: flex; flex-wrap: wrap; align-content: flex-start; flex-direction: column; max-height: 66px; gap: 1px 2px; flex: 1; }
+.pq-rgroup-label { text-align: center; font-size: 11px; color: var(--ink-3); padding-top: 2px; white-space: nowrap; }
+.pq-rb { display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; background: none; border-radius: 4px; padding: 2px 4px; font: inherit; font-size: 12px; color: var(--ink); cursor: pointer; white-space: nowrap; min-height: 22px; }
+.pq-rb:hover { background: var(--surface-3); }
+.pq-rb-large { flex-direction: column; justify-content: flex-start; height: 66px; width: auto; max-width: 64px; padding: 3px 2px; white-space: normal; text-align: center; line-height: 1.15; gap: 3px; }
+.pq-rb-split { display: inline-flex; flex-direction: column; }
+.pq-rb-split .pq-rb-large { height: 52px; }
+.pq-rb-arrow { justify-content: center; min-height: 12px; padding: 0; }
+.pq-rb-field { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 1px 6px; }
+.pq-type-select { min-height: 22px !important; padding: 0 22px 0 6px; font-size: 12px !important; width: auto; }
+.pq-body { display: grid; grid-template-columns: 200px minmax(0, 1fr) 240px; flex: 1; min-height: 0; }
+.pq-side { border-right: 1px solid var(--hairline); display: flex; flex-direction: column; min-height: 0; }
+.pq-side-head, .pq-settings-head { font-weight: 600; padding: 8px 12px; border-bottom: 1px solid var(--hairline); }
+.pq-query-list { overflow: auto; padding: 4px; }
+.pq-query { display: flex; width: 100%; align-items: center; gap: 6px; border: 0; background: none; padding: 5px 8px; border-radius: 4px; font: inherit; text-align: left; color: var(--ink); cursor: pointer; }
+.pq-query span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pq-query[aria-selected="true"] { background: var(--accent-wash); font-weight: 600; }
+.pq-query.pq-changed span::after { content: ' *'; color: var(--ink-3); font-weight: 400; }
+.pq-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.pq-formula { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-bottom: 1px solid var(--hairline); min-height: 30px; }
+.pq-fx { font-style: italic; font-family: Georgia, serif; color: var(--ink-3); }
+.pq-formula-text { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; white-space: nowrap; overflow-x: auto; color: var(--ink); flex: 1; user-select: text; }
+.pq-grid { flex: 1; overflow: auto; min-height: 0; outline: none; position: relative; }
+.pq-grid:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.pq-settings { border-left: 1px solid var(--hairline); display: flex; flex-direction: column; min-height: 0; padding-bottom: 8px; }
+.pq-settings > .field { padding: 0 12px; }
+.pq-settings .field-error { padding: 0 12px; }
+.pq-settings-section { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-3); padding: 10px 12px 4px; }
+.pq-steps { list-style: none; margin: 0; padding: 0 6px; overflow: auto; flex: 1; }
+.pq-step { display: flex; align-items: center; border-radius: 4px; }
+.pq-step[aria-current="step"] { background: var(--accent-wash); }
+.pq-step-name { flex: 1; text-align: left; border: 0; background: none; font: inherit; color: var(--ink); padding: 5px 8px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pq-step[aria-current="step"] .pq-step-name { font-weight: 600; }
+.pq-step .icon-btn { width: 22px; height: 22px; min-width: 22px; opacity: 0.55; }
+.pq-step .pq-step-delete { visibility: hidden; }
+.pq-step:hover .pq-step-delete, .pq-step[aria-current="step"] .pq-step-delete, .pq-step-delete:focus-visible { visibility: visible; }
+.pq-step-error .pq-step-name { color: var(--critical); }
+.pq-status { display: flex; justify-content: space-between; padding: 3px 12px; font-size: 11px; color: var(--ink-3); border-top: 1px solid var(--hairline); background: var(--surface-2); letter-spacing: 0.02em; }
+.pq-empty { padding: 40px 24px; text-align: center; color: var(--ink-2); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.pq-error-box { margin: 18px; display: flex; gap: 10px; padding: 12px 14px; border: 1px solid var(--critical); background: var(--critical-wash); border-radius: 6px; color: var(--ink); }
+.pq-error-box > span { color: var(--critical); }
+.pq-error-box p { margin: 4px 0 8px; }
+
+/* The preview grid (and the smaller previews of the source dialogs). */
+.pq-table { border-collapse: separate; border-spacing: 0; font-size: 12px; min-width: 100%; }
+.pq-table th, .pq-table td { border-right: 1px solid var(--grid); border-bottom: 1px solid var(--grid); padding: 3px 8px; white-space: nowrap; max-width: 280px; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.pq-table thead th { position: sticky; top: 0; background: var(--surface-2); font-weight: 600; z-index: 1; }
+.pq-table .pq-rownum, .pq-table .pq-corner { position: sticky; left: 0; background: var(--surface-2); color: var(--ink-3); font-weight: 400; text-align: right; width: 1%; z-index: 1; }
+.pq-table thead .pq-corner { z-index: 2; }
+.pq-table td.pq-num { text-align: right; font-variant-numeric: tabular-nums; }
+.pq-table td.pq-null { color: var(--ink-3); font-style: italic; }
+.pq-table td.pq-error { color: var(--critical); font-weight: 600; }
+.pq-table .pq-type { display: inline-block; font-size: 9.5px; font-weight: 700; color: var(--ink-3); margin-right: 6px; border: 0; background: none; padding: 1px 2px; letter-spacing: -0.02em; border-radius: 3px; font-family: inherit; }
+.pq-live .pq-col { cursor: default; user-select: none; padding-right: 4px; }
+.pq-live .pq-col[aria-selected="true"] { background: var(--accent-wash); box-shadow: inset 0 -2px 0 var(--accent); }
+.pq-live td.pq-selcol { background: var(--accent-wash); }
+.pq-live button.pq-type { cursor: pointer; }
+.pq-live button.pq-type:hover, .pq-filter:hover, .pq-table-btn:hover { background: var(--surface-3); }
+.pq-filter, .pq-table-btn { border: 0; background: none; padding: 2px; margin-left: 6px; border-radius: 3px; cursor: pointer; color: var(--ink-2); vertical-align: middle; }
+.pq-settings .pq-name, .pq-popup .input[type="search"], .pq-form .input[type="search"] { min-height: 26px; height: 26px; padding: 2px 8px; font-size: 12.5px; }
+.pq-rename { min-height: 20px !important; padding: 0 4px; width: 140px; font-size: 12px !important; }
+
+/* The filter drop-down under a column header. */
+.pq-popup { position: absolute; z-index: 5; width: 270px; background: var(--surface); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 2px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.1); }
+.pq-pop-item { display: flex; align-items: center; gap: 8px; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; padding: 4px 6px; border-radius: 4px; cursor: pointer; min-height: 24px; }
+.pq-pop-item:hover, .pq-pop-item:focus-visible { background: var(--surface-2); }
+.pq-pop-item svg { flex: none; }
+.pq-pop-item:not(:has(svg)) > span:first-child { padding-left: 24px; }
+.pq-pop-sub > span:first-child { flex: 1; padding-left: 24px; }
+.pq-pop-sep { height: 1px; background: var(--hairline); margin: 3px 0; }
+.pq-popup .input[type="search"] { margin: 4px 0; }
+.pq-checklist { display: flex; flex-direction: column; gap: 2px; max-height: 220px; overflow: auto; border: 1px solid var(--hairline); border-radius: 4px; padding: 4px 6px; }
+.pq-checklist .check { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.pq-checklist .check[hidden] { display: none; }
+.pq-popup .row { gap: 6px; margin-top: 6px; }
+
+/* Dialogs: Filter Rows, Group By, Merge, Split Column, the source previews and Import Data. */
+.pq-form { display: flex; flex-direction: column; gap: 8px; }
+.pq-form .row-end { gap: 8px; margin-top: 6px; }
+.pq-filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pq-group-rows { display: flex; flex-direction: column; gap: 6px; }
+.pq-group-row { display: grid; gap: 8px; align-items: center; }
+.pq-group-keys .pq-group-row { grid-template-columns: 1fr 30px; }
+.pq-group-aggs .pq-group-row { grid-template-columns: 1fr 1fr 1fr 30px; }
+.pq-group-row:only-child .icon-btn { visibility: hidden; }
+.pq-group-head { display: grid; grid-template-columns: 1fr 1fr 1fr 30px; gap: 8px; font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+.pq-form > .btn-sm { align-self: flex-start; }
+.pq-radio-group { display: flex; flex-direction: column; gap: 4px; border: 0; padding: 0; margin: 0; }
+.pq-radio-group.pq-inline { flex-direction: row; gap: 16px; }
+.pq-merge { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pq-advanced > summary { cursor: pointer; color: var(--ink-2); }
+.pq-source-text { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; width: 100%; resize: vertical; }
+@media (min-width: 640px) { .modal-panel.pq-source-dialog { max-width: min(900px, calc(100vw - 48px)); } }
+.pq-dialog { display: flex; flex-direction: column; gap: 10px; }
+.pq-dialog-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pq-custom-delim { margin-top: 4px; }
+.pq-preview { border: 1px solid var(--hairline); border-radius: 4px; max-height: 360px; overflow: auto; }
+.pq-nav { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 10px; min-height: 300px; }
+.pq-nav-side { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.pq-nav-side .field-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pq-nav-list { display: flex; flex-direction: column; border: 1px solid var(--hairline); border-radius: 4px; padding: 4px; overflow: auto; max-height: 360px; }
+.pq-nav-item { display: flex; align-items: center; gap: 6px; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; padding: 4px 6px; border-radius: 4px; cursor: pointer; }
+.pq-nav-item[aria-selected="true"] { background: var(--accent-wash); font-weight: 600; }
+.pq-dialog-buttons { gap: 8px; flex-wrap: wrap; }
+.pq-split { display: inline-flex; }
+.pq-split > .btn-primary { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+.pq-load-arrow { border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; padding: 0 6px !important; background: var(--accent) !important; color: var(--accent-ink); border-color: var(--accent) !important; border-left: 1px solid rgba(255, 255, 255, 0.4) !important; }
+.pq-import { display: flex; flex-direction: column; gap: 12px; }
+.pq-indent { padding-left: 24px; }
+.pq-disabled { opacity: 0.55; }
+@media (max-width: 760px) {
+  /* Stacked, the preview keeps room for a few rows and the queries and applied steps their full height;
+     on a short window the body scrolls instead of squeezing the preview to nothing or cutting off the steps. */
+  .pq-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(160px, 1fr) auto; overflow-y: auto; }
+  .pq-side, .pq-settings { border: 0; border-bottom: 1px solid var(--hairline); min-height: auto; }
+  .pq-nav, .pq-dialog-options, .pq-merge { grid-template-columns: 1fr; }
+}
+
+/* Data ▸ Queries & Connections: the pane along the right (its frame is the Accessibility pane's). */
+.qc-pane { top: 160px; }
+.qc-tabs { display: flex; align-items: center; gap: 8px; padding: 6px 14px 0; border-bottom: 1px solid var(--hairline); }
+.qc-tab { font-weight: 600; padding: 4px 0; border-bottom: 2px solid var(--accent); }
+.qc-count { font-size: 11px; color: var(--ink-3); background: var(--surface-2); border-radius: 8px; padding: 0 6px; }
+.qc-list { display: flex; flex-direction: column; gap: 2px; }
+.qc-item { display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 6px; outline: none; }
+.qc-item:hover, .qc-item:focus-visible { background: var(--surface-2); }
+.qc-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.qc-icon { color: var(--accent); flex: none; display: inline-flex; }
+.qc-text { flex: 1; min-width: 0; }
+.qc-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qc-status { color: var(--ink-3); font-size: 11.5px; }
+.qc-failed .qc-status { color: var(--critical); }
+.qc-actions { display: flex; gap: 0; opacity: 0; }
+.qc-item:hover .qc-actions, .qc-item:focus-within .qc-actions { opacity: 1; }
+.qc-actions .icon-btn { width: 24px; height: 24px; min-width: 24px; }
+.qc-empty { color: var(--ink-2); margin: 8px 0; }
+@media (hover: none) { .qc-actions { opacity: 1; } }

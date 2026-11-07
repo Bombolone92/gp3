@@ -1,0 +1,27 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {unzipSync,strFromU8} from 'fflate';
+import {reopenDocx} from './helpers/reopen-docx.js';
+const source='tests/fixtures/persistent-block-controls/control.docx';
+test('edits and restores a persistent block placeholder through export, reopen and undo',async({page},info)=>{
+ test.setTimeout(120000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/playground.html');await page.getByLabel('Open DOCX file').setInputFiles(source);
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^Before insert/);await expect(input).toHaveJSProperty('readOnly',false);
+ const original=await input.inputValue(),parts=unzipSync(readFileSync(source));
+ const save=async name=>{const event=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(name+'.docx');await(await event).saveAs(path);return path;};
+ const inspect=async path=>page.evaluate(xml=>{const w='http://schemas.openxmlformats.org/wordprocessingml/2006/main',d=new DOMParser().parseFromString(xml,'application/xml');const controls=[...d.getElementsByTagNameNS(w,'sdt')];return controls.map(c=>({name:c.getElementsByTagNameNS(w,'alias')[0].getAttributeNS(w,'val'),parent:c.parentNode.localName,placeholder:!!c.getElementsByTagNameNS(w,'showingPlcHdr').length,paragraphs:c.getElementsByTagNameNS(w,'p').length}));},strFromU8(unzipSync(readFileSync(path))['word/document.xml']));
+ expect(unzipSync(readFileSync(await save('noedit')))).toEqual(parts);
+ await input.evaluate(el=>{const at=el.value.indexOf('Before placeholder\n')+'Before placeholder\n'.length;el.focus();el.setSelectionRange(at+2,at+2);el.dispatchEvent(new Event('select'));});
+ await page.keyboard.insertText('Entered');const edited=original.replace('Before placeholder\nAlpha beta','Before placeholder\nEntered');await expect(input).toHaveValue(edited);
+ const path=await save('edited'),out=unzipSync(readFileSync(path));for(const[n,b]of Object.entries(parts))if(n!=='word/document.xml')expect(out[n]).toEqual(b);
+ expect((await inspect(path)).find(c=>c.name==='placeholder')).toMatchObject({parent:'body',placeholder:false,paragraphs:1});
+ await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(input).toHaveValue(original);expect(unzipSync(readFileSync(await save('undo')))).toEqual(parts);
+ await reopenDocx(page,input,path,edited);
+ await input.evaluate(el=>{const at=el.value.indexOf('Entered');el.focus();el.setSelectionRange(at,at+7);el.dispatchEvent(new Event('select'));});await input.press('Backspace');
+ const restoredText=original.replace('Before placeholder\nAlpha beta','Before placeholder\n     ');await expect(input).toHaveValue(restoredText);const restored=await save('restored');expect((await inspect(restored)).find(c=>c.name==='placeholder')).toMatchObject({parent:'body',placeholder:true});
+ await reopenDocx(page,input,restored,restoredText);
+ await input.evaluate(el=>{const at=el.value.indexOf('Before split\n')+'Before split\n'.length+5;el.focus();el.setSelectionRange(at,at);el.dispatchEvent(new Event('select'));});await input.press('Enter');
+ const split=restoredText.replace('Before split\nAlpha beta','Before split\nAlpha\n beta');await expect(input).toHaveValue(split);const splitPath=await save('split');expect((await inspect(splitPath)).find(c=>c.name==='split')).toMatchObject({parent:'body',paragraphs:2});
+ await reopenDocx(page,input,splitPath,split);await expect(input).toHaveJSProperty('readOnly',false);expect(errors).toEqual([]);
+});

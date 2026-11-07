@@ -1,0 +1,266 @@
+import { useEffect, useRef } from 'react'
+import {
+  formatHoursWithUnit,
+  freebucksShortfallLine,
+} from '@codebuff/common/util/freebuff-hours'
+import { formatFreebuffHardBlockedPrivacySignals } from '@codebuff/common/util/freebuff-privacy'
+
+import {
+  resolveFreebuffModelPickForSession,
+  refreshFreebuffSessionMetadata,
+  startFreebuffSession,
+} from './use-freebuff-session'
+import {
+  useFreebuffChatStore,
+  type ChatAdmission,
+} from '../state/freebuff-chat-store'
+import { getFreebuffModelDirectory } from '../state/freebuff-catalog-store'
+import { useFreebuffModelStore } from '../state/freebuff-model-store'
+import { useFreebuffSessionStore } from '../state/freebuff-session-store'
+import { freebucksOf, freebucksRowIntent } from '../utils/freebucks'
+import type { FreebuffSessionResponse } from '../types/freebuff-session'
+import type { StreamStatus } from './use-message-queue'
+
+export function freebuffAdmissionNotice(
+  session: FreebuffSessionResponse | null,
+): string | null {
+  if (!session) return null
+  switch (session.status) {
+    case 'banned':
+      return 'This account is suspended. To appeal, visit https://freebuff.com/account?tab=standing. If this is a mistake, contact support@freebuff.com.'
+    case 'country_blocked':
+      return session.countryBlockReason === 'anonymous_network'
+        ? `Freebuff detected ${formatFreebuffHardBlockedPrivacySignals(session.ipPrivacySignals)} traffic. Disable VPN, proxy or Tor traffic and try again.`
+        : session.countryCode === 'UNKNOWN'
+          ? 'Freebuff could not verify your location. Check your VPN or proxy settings and try again.'
+          : `Freebuff is unavailable in ${session.countryCode}. Use /byok to use your own API key.`
+    case 'rate_limited':
+      return session.freebucksShortfall
+        ? `${
+            freebucksShortfallLine({
+              ...session.freebucksShortfall,
+              modelName: getFreebuffModelDirectory().get(session.model)
+                .displayName,
+            }).line
+          } Choose another model or visit https://freebuff.com/plans.`
+        : 'Session limit reached. Choose another model or visit https://freebuff.com/plans.'
+    case 'spend_limited':
+      return session.message
+    case 'ip_capped':
+      return 'Too many Freebuff sessions on this network. Try again after another session finishes.'
+    case 'superseded':
+      return 'This session was taken over elsewhere. Send again to start a new session.'
+    default:
+      return null
+  }
+}
+
+/** Identity-check every continuation: a cancelled send must never restart itself. */
+export async function beginFreebuffChatAdmission(admission: ChatAdmission) {
+  if (useFreebuffChatStore.getState().admission !== admission) return
+  if (admission.phase === 'confirm') {
+    const intentFor = (session: FreebuffSessionResponse | null | undefined) =>
+      freebucksRowIntent(
+        freebucksOf(session),
+        admission.model,
+        session?.status === 'active' ? session.model : undefined,
+      )
+    // A price/balance change must update the question before its answer can
+    // authorize spending. This re-check is the only guard: the server takes
+    // no wallet ceiling, so a stale answer would spend unasked.
+    if (
+      JSON.stringify(intentFor(admission.previousSession)) !==
+      JSON.stringify(intentFor(useFreebuffSessionStore.getState().session))
+    ) {
+      useFreebuffChatStore.setState({
+        admission: { phase: 'requested', model: admission.model },
+      })
+      return
+    }
+  }
+  const starting: ChatAdmission = {
+    ...admission,
+    phase: 'starting',
+    message: undefined,
+    previousSession: useFreebuffSessionStore.getState().session,
+  }
+  useFreebuffSessionStore.getState().setFailure(null)
+  useFreebuffChatStore.setState({ admission: starting })
+  try {
+    await startFreebuffSession(starting.model, {
+      preserveQueue: true,
+      persistSelection: false,
+    })
+  } catch (error) {
+    if (useFreebuffChatStore.getState().admission !== starting) return
+    useFreebuffChatStore.setState({
+      admission: {
+        ...starting,
+        phase: 'failed',
+        message: error instanceof Error ? error.message : String(error),
+      },
+    })
+  }
+}
+
+/** A turn is running: its stream is live or its chain is still in progress. */
+export function freebuffTurnRunning(queue: {
+  chainInProgress: boolean
+  streamStatus: StreamStatus
+}): boolean {
+  return queue.chainInProgress || queue.streamStatus !== 'idle'
+}
+
+/**
+ * Admission buys an hour for the queue to spend, so it waits until the queue
+ * can spend it. A user-paused queue sends nothing: admitting for one bought
+ * an hour no turn started, which the server refunds after five minutes.
+ */
+export function freebuffChatAdmissionMayStart(queue: {
+  turnRunning: boolean
+  queuedCount: number
+  queuePaused: boolean
+}): boolean {
+  return !queue.turnRunning && queue.queuedCount > 0 && !queue.queuePaused
+}
+
+/** Shown while a requested admission waits on a paused queue. */
+export const FREEBUFF_ADMISSION_QUEUE_PAUSED_MESSAGE =
+  'Your queue is paused, so no session was started. Press Esc to put your message back in the draft and send it when you are ready.'
+
+/** The queue holds the submitted text and attachments while admission runs. */
+export function useFreebuffChatAdmission(enabled: boolean) {
+  const checking = useRef<ChatAdmission | null>(null)
+  const admission = useFreebuffChatStore((s) => s.admission)
+  const pickerOpen = useFreebuffChatStore((s) => s.pickerOpen)
+  const session = useFreebuffSessionStore((s) => s.session)
+  const failure = useFreebuffSessionStore((s) => s.failure)
+
+  useEffect(() => {
+    if (!enabled || !admission) return
+    if (admission.phase === 'starting') {
+      if (failure && !failure.retry) {
+        useFreebuffChatStore.setState({
+          admission: {
+            ...admission,
+            phase: 'failed',
+            message: failure.message,
+          },
+        })
+      } else if (session === admission.previousSession) {
+        return
+      } else if (session?.status === 'active') {
+        useFreebuffChatStore.setState({ admission: null, nextModel: null })
+      } else {
+        const message = freebuffAdmissionNotice(session)
+        if (message)
+          useFreebuffChatStore.setState({
+            admission: {
+              ...admission,
+              phase: 'failed',
+              message,
+              chooseModel: session?.status === 'rate_limited',
+            },
+          })
+      }
+      return
+    }
+    // A pick in progress replaces this request; don't price the old model.
+    if (admission.phase !== 'requested' || pickerOpen) return
+    if (!session) {
+      if (failure && !failure.retry)
+        useFreebuffChatStore.setState({
+          admission: {
+            ...admission,
+            phase: 'failed',
+            message: failure.message,
+          },
+        })
+      return
+    }
+    if (!admission.metadataChecked) {
+      if (checking.current === admission) return
+      checking.current = admission
+      void refreshFreebuffSessionMetadata()
+        .then(() => {
+          if (useFreebuffChatStore.getState().admission === admission)
+            useFreebuffChatStore.setState({
+              admission: { ...admission, metadataChecked: true },
+            })
+        })
+        .catch((error) => {
+          if (useFreebuffChatStore.getState().admission === admission)
+            useFreebuffChatStore.setState({
+              admission: {
+                ...admission,
+                phase: 'failed',
+                message: error instanceof Error ? error.message : String(error),
+              },
+            })
+        })
+      return
+    }
+    if (session.status === 'banned' || session.status === 'country_blocked') {
+      useFreebuffChatStore.setState({
+        admission: {
+          ...admission,
+          phase: 'failed',
+          message: freebuffAdmissionNotice(session)!,
+        },
+      })
+      return
+    }
+    // A send before the first session response captured the launch seed.
+    const { hasExplicitPick, selectedModel } = useFreebuffModelStore.getState()
+    const model = resolveFreebuffModelPickForSession(
+      hasExplicitPick ? admission.model : selectedModel,
+      session,
+    )
+    const freebucks = freebucksOf(session)
+    const intent = freebucksRowIntent(
+      freebucks,
+      model,
+      session.status === 'active' ? session.model : undefined,
+    )
+    const resolved = { ...admission, model }
+    if (intent.kind === 'paywall') {
+      useFreebuffChatStore.setState({
+        admission: {
+          ...resolved,
+          phase: 'failed',
+          message: `Not enough hours for ${getFreebuffModelDirectory().get(model).displayName}: an hour on it takes ${formatHoursWithUnit(intent.price)}. Choose another model or visit https://freebuff.com/plans.`,
+          chooseModel: true,
+        },
+      })
+    } else if (
+      intent.kind === 'confirm' ||
+      // Full access is never asked, not even to end the live session.
+      (!freebucks?.spendWithoutAsking &&
+        session.status === 'active' &&
+        session.model !== model)
+    ) {
+      const cost =
+        intent.price === undefined
+          ? freebucksOf(session) === null
+            ? 'may spend wallet hours'
+            : 'starts a new session'
+          : `takes ${formatHoursWithUnit(intent.price)} from your balance`
+      const wallet =
+        intent.kind === 'confirm' && intent.walletSpend
+          ? ` Uses ${formatHoursWithUnit(intent.walletSpend)} from your wallet.`
+          : ''
+      useFreebuffChatStore.setState({
+        admission: {
+          ...resolved,
+          phase: 'confirm',
+          previousSession: session,
+          message: `${getFreebuffModelDirectory().get(model).displayName} ${cost}.${wallet}${session.status === 'active' ? ' This ends your current model session; your conversation is kept.' : ''}${intent.kind === 'confirm' && 'claimEarned' in intent && intent.claimEarned ? ' Earned hours will be claimed on admission.' : ''}`,
+        },
+      })
+    } else {
+      // Keep the exact object used by the asynchronous admission continuation.
+      useFreebuffChatStore.setState({ admission: resolved })
+      void beginFreebuffChatAdmission(resolved)
+    }
+  }, [enabled, admission, pickerOpen, session, failure])
+}

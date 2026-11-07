@@ -1,0 +1,172 @@
+/* Two-sided flipper: a .card that's animating a reveal contains a
+   .flipper inner with two .face children (back + front). The flipper
+   spins on Y while the parent .card arcs right + closer + back. */
+.card.flip-host {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  perspective: 1200px;
+  overflow: visible;
+  animation: cardFlipArc .4s cubic-bezier(.34,.1,.34,1) both;
+  z-index: 50;
+}
+.card.flip-host .flipper {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  animation: cardFlipSpin .4s cubic-bezier(.5,.05,.5,.95) both;
+}
+.card.flip-host .face {
+  position: absolute; inset: 0;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+.card.flip-host .face.back {
+  background: linear-gradient(135deg, #2c5e8f 0%, #1f4a73 100%);
+  border-color: rgba(0,0,0,.25);
+}
+.card.flip-host .face.back::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,.18);
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 4px, transparent 4px 8px);
+}
+.card.flip-host .face.front {
+  transform: rotateY(180deg);
+  padding: 6px 8px;
+}
+@keyframes cardFlipArc {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(45%, -10%, 0) scale(1.12); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes cardFlipSpin {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(180deg); }
+}
+
+/* Stock-draw flight: a temporary .card that flies from stock to waste,
+   spinning around Y and arcing slightly upward. Position is set inline
+   via CSS vars --fly-dx / --fly-dy. */
+.card.flying {
+  z-index: 900;
+  pointer-events: none;
+  perspective: 1200px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible;
+  animation: flyArc .55s cubic-bezier(.34,.1,.34,1) both;
+  animation-delay: var(--fly-delay, 0ms);
+}
+.card.flying .flipper {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  animation: flySpin .55s cubic-bezier(.5,.05,.5,.95) both;
+  animation-delay: var(--fly-delay, 0ms);
+}
+.card.flying .face {
+  position: absolute; inset: 0;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+.card.flying .face.back {
+  background: linear-gradient(135deg, #2c5e8f 0%, #1f4a73 100%);
+  border-color: rgba(0,0,0,.25);
+}
+.card.flying .face.back::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,.18);
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 4px, transparent 4px 8px);
+}
+.card.flying .face.front {
+  transform: rotateY(180deg);
+  padding: 6px 8px;
+}
+/* The card is rendered at its destination (waste). It starts displaced
+   back to the source (stock) by (--fly-dx, --fly-dy) and arcs/spins
+   into its final position. */
+@keyframes flyArc {
+  0%   { transform: translate3d(var(--fly-dx), var(--fly-dy), 0) scale(.96); }
+  50%  { transform: translate3d(calc(var(--fly-dx) * .5), calc(var(--fly-dy) * .5 - 30px), 0) scale(1.12); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes flySpin {
+  0%   { transform: rotateY(180deg); }
+  100% { transform: rotateY(0deg); }
+}
+/* When flying, the .face.front faces the camera at the END (rotateY 0),
+   so we need the back to start facing us. Override .face.front transform
+   to be at 0deg and .face.back at 180deg. */
+.card.flying .face.front { transform: rotateY(0deg); }
+.card.flying .face.back  { transform: rotateY(180deg); }
+/* A card that is already face up (a finished Spider run's King heading
+   home) arcs across without the spin. */
+.card.flying.slide .flipper { animation: none; }
+.pile.drop-hover .slot,
+.pile.drop-hover > .card:last-child {
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 14px rgba(37,99,235,.35);
+  transition: box-shadow .12s ease-out;
+}
+.pile.drop-hover .slot {
+  background: rgba(37,99,235,.10);
+  border-color: rgba(37,99,235,.55);
+}
+
+/* Win cascade: a full-viewport canvas the animation loop stamps cards onto
+   and never clears — the accumulated stamps are the trail effect. It must
+   sit above the board and win overlay's backdrop but let every click/tap
+   through to whatever is underneath, since a window-level pointerup is
+   how the cascade recognises "the player wants this to end now" (see
+   animate.js's onPointerEnd for why pointerup, not pointerdown or click). */
+.cascade-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* Win overlay */
+#win {
+  position: fixed; inset: 0;
+  background: rgba(10,15,20,.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 70;
+}
+#win.show { display: flex; }
+#win.show .win-card { animation: winIn .55s cubic-bezier(.2,.7,.2,1.15) both; }
+@keyframes winIn {
+  from { transform: translateY(26px) scale(.92); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.win-card {
+  background: rgba(255,255,255,.08);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  padding: 36px 40px;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 20px 60px rgba(0,0,0,.4);
+  max-width: 360px;
+}
+.win-card h2 { margin: 0 0 8px; font-size: 28px; letter-spacing: -0.02em; }
+.win-card p { margin: 0 0 24px; color: var(--muted); font-size: 14px; }

@@ -1,0 +1,388 @@
+/* Ownership chart: horizontal stacked bar + legend.
+   Marks wear series colors; all text wears text tokens. */
+
+.own-bar {
+  display: flex;
+  width: 100%;
+  height: 22px;
+  border-radius: 6px;
+  overflow: hidden;
+  gap: 2px; /* the surface gap - white does the separating */
+  background: transparent;
+}
+
+.own-seg {
+  height: 100%;
+  min-width: 3px;
+  border-radius: 2px;
+}
+
+.own-seg:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.own-seg:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+/* A sized container, so a legend row can lay itself out for the width the
+   card actually gives it. What runs out here is the card's width, not the
+   window's, and the two part company in both layouts this legend appears
+   in: the dashboard's ownership card is 626px wide at a 1440px window, and
+   the exit view's proceeds card is 256px at a 960px one. */
+.own-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 14px;
+  container-type: inline-size;
+}
+
+/* A read-out, not a control: no hover background. Everywhere else in the app
+   a row that lights up under the cursor is one you can press - the nav items,
+   the More sheet rows, the checklist, the clickable table rows - and these
+   rows look exactly like the checklist's while doing nothing when clicked. */
+.own-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  padding: 5px 6px;
+}
+
+.own-legend-row .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.own-legend-row .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+/* Last of the pair, so it is what the two number columns are measured from.
+   Shrink-to-fit, it was as wide as whatever it happened to hold - "2.40%" is
+   narrower than "66.55%" - which slid the share count beside it left and
+   right by a character from row to row. Tabular figures line the digits up
+   and then the column itself wandered. A floor wide enough for "100.00%"
+   fixes the width, so both columns read straight down. */
+.own-legend-row .val {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+  white-space: nowrap;
+  min-width: 4.3em;
+  text-align: right;
+}
+
+.own-legend-row .shares {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* The pair, so they move as one - and margin-left: auto holds them to the
+   right edge once they move. It costs nothing on a single line: the name's
+   flex-grow has already claimed every spare pixel, so there is no free
+   space left for an auto margin to take. */
+.own-legend-row .figures {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+}
+
+/* Narrow card: the name gets the first line to itself and the two figures
+   drop underneath it.
+
+   The name was the only part of this row that could give when the row ran
+   short - the count and the percentage beside it are nowrap - so on a 360px
+   phone "Series Seed Preferred" read "Series Seed Pre..." and "Option pool
+   (unallocated)" read "Option pool (un...", while every digit of 2,058,823
+   and 19.03% survived intact. That truncates the label to protect the
+   number, which is the priority backwards: the legend is where the chart
+   says what each colour is. The same squeeze catches holder names in
+   by-holder mode, and the exit view's proceeds card, which is narrower
+   again. The ellipsis stays as the last resort for a name longer than a
+   whole line.
+
+   A container query rather than a media query, and rather than a min-width
+   floor on the name: a floor makes each row decide for itself, and the
+   share counts differ in width from row to row ("7,200,000" against
+   "60,000"), so around a 340px card some rows wrapped and others didn't and
+   the legend came out ragged. The query asks the one question that applies
+   to every row at once. */
+@container (max-width: 320px) {
+  .own-legend-row {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+
+  /* Exactly the row less the swatch and its gap, so the name fills the
+     first line and the figures have to take the second. */
+  .own-legend-row .name {
+    flex-basis: calc(100% - 19px);
+  }
+}
+
+/* Dilution dumbbell rows (rounds view): before → after per holder. */
+
+.dilution-row {
+  display: grid;
+  /* Wide enough for the one label the app writes itself, "Option pool
+     (unallocated)", which was the only row on a desktop that read with an
+     ellipsis. Phones reflow below, so the width costs the track nothing there. */
+  grid-template-columns: minmax(90px, 170px) 1fr 108px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13px;
+}
+
+.dilution-row .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.dilution-track {
+  position: relative;
+  height: 16px;
+}
+
+.dilution-track .rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--grid);
+}
+
+.dilution-track .link {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: var(--baseline);
+  border-radius: 1px;
+}
+
+.dilution-track .dot {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--surface); /* surface ring keeps overlaps legible */
+}
+
+.dilution-track .dot.before {
+  background: var(--series-mute);
+}
+
+.dilution-track .dot.after {
+  background: var(--accent);
+}
+
+.dilution-row .delta {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.dilution-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.dilution-legend .key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dilution-legend .key i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Phone: the name and the delta take a line of their own and the track gets
+   the full width underneath.
+
+   Three columns on one line don't fit here. The name asks for up to 150px and
+   the delta ("21.74% (+21.74)") is 108px of tabular figures that must not
+   wrap, so on a 390px screen the track was left with 27px - less than the two
+   10px dots it has to hold apart, which put every holder's before and after
+   on top of each other and turned a ten-point drop into a smudge. The row is
+   the only thing on this card that carries the size of the move.
+
+   Explicit grid areas, not just spans: source order is name, track, delta, so
+   auto-placement would push the delta past the full-width track onto a third
+   line of its own. */
+@media (max-width: 560px) {
+  .dilution-row {
+    grid-template-columns: 1fr auto;
+    gap: 4px 10px;
+    padding: 9px 0;
+  }
+
+  .dilution-row .name {
+    grid-area: 1 / 1;
+  }
+
+  .dilution-row .delta {
+    grid-area: 1 / 2;
+  }
+
+  .dilution-row .dilution-track {
+    grid-area: 2 / 1 / 3 / -1;
+  }
+}
+
+/* The same reflow for the width the rows actually get, not the viewport's.
+   From 960px the round model sits beside a 340px form under a 248px sidebar,
+   so the card the rows live in is 240-420px wide up to about 1180px - a
+   laptop window, an iPad on its side - and the one-line layout left the
+   track between 0 and 80px for two 10px dots to be told apart in. The phone
+   rule above never fired there. */
+.dilution-list {
+  container-type: inline-size;
+}
+
+@container (max-width: 480px) {
+  .dilution-row {
+    grid-template-columns: 1fr auto;
+    gap: 4px 10px;
+    padding: 9px 0;
+  }
+
+  .dilution-row .name {
+    grid-area: 1 / 1;
+  }
+
+  .dilution-row .delta {
+    grid-area: 1 / 2;
+  }
+
+  .dilution-row .dilution-track {
+    grid-area: 2 / 1 / 3 / -1;
+  }
+}
+
+/* Vesting forecast: a column per month.
+
+   Two plots share this markup - monthly vesting and the cumulative position -
+   because they differ only in what fills the column. Neither carries a y-axis:
+   the caption states the peak and the totals, and every column names its own
+   figure on hover, which is what a reader of a forecast actually reads. */
+
+.month-chart {
+  container-type: inline-size;
+}
+
+.month-cols {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px; /* the surface gap - see .own-seg */
+  height: 116px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--baseline);
+}
+
+.month-col {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* The whole schedule, behind the part of it that has vested. */
+.month-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px 3px 0 0;
+  background: var(--surface-3);
+}
+
+.month-bar {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  border-radius: 3px 3px 0 0;
+  background: var(--accent);
+}
+
+.month-axis {
+  display: flex;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.month-axis span {
+  flex: 1;
+  min-width: 0;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* Under about 380px the quarter labels stop fitting side by side; the columns
+   still read, and the figures are in the caption above them. */
+@container (max-width: 380px) {
+  .month-axis {
+    display: none;
+  }
+}
+
+/* Paper drops background fills by default, which would leave an empty frame
+   where the forecast was - and this chart prints on the holder's statement. */
+@media print {
+  /* Pure background colour, which browsers drop in print by default: the
+     ownership bar printed as an empty strip beside a legend with no swatches. */
+  .month-bar, .month-track, .own-seg, .own-legend-row .swatch, .dilution-track .dot {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .month-bar {
+    border: 1px solid #6b7280;
+  }
+}
+
+/* The marks below are pure background colour, and forced colours would blank
+   every bar, segment and dot into the page colour. Their values are also in
+   text (legends, aria summaries), so keeping the author colours costs
+   nothing that mode protects. */
+@media (forced-colors: active) {
+  .own-seg,
+  .own-legend-row .swatch,
+  .meter,
+  .meter-fill,
+  .month-bar,
+  .month-track,
+  .dilution-track .dot,
+  .dilution-legend .key i,
+  .tab-dot {
+    forced-color-adjust: none;
+  }
+}

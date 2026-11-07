@@ -1,0 +1,211 @@
+/**
+ * Libraries: personal collections of reusable assets (colors, gradients,
+ * graphics, character and paragraph styles, graphic styles) that are
+ * available in every document. Each library is one JSON file:
+ *
+ *   { format: 'vector-studio-library', version: 1, id, name, modified,
+ *     items: [{ id, kind, name, data, thumb? }] }
+ *
+ * kinds and their data:
+ *   color           { paint }                         a solid paint
+ *   gradient        { paint }                         a linear/radial paint
+ *   graphic         { items: [subtree], bounds, assets }  artwork (as the clipboard stores it)
+ *   characterStyle  { char }                          character attributes
+ *   paragraphStyle  { para }                          paragraph attributes
+ *   graphicStyle    { style }                         fill, stroke, effects, ...
+ *   text            { text }                          plain text
+ *
+ * Libraries live in the user's Puter cloud (app data folder "libraries")
+ * when signed in, else in this browser's private storage, so they follow
+ * the user across devices whenever possible.
+ */
+import { puterBackend, opfsBackend, opfsAvailable, memoryBackend } from '../files/backends.js';
+import { uid } from '../../lib/ids.js';
+
+export const ITEM_KINDS = ['color', 'gradient', 'graphic', 'characterStyle', 'paragraphStyle', 'graphicStyle', 'text'];
+
+export const KIND_LABELS = {
+  color: 'Colors',
+  gradient: 'Gradients',
+  graphic: 'Graphics',
+  characterStyle: 'Character Styles',
+  paragraphStyle: 'Paragraph Styles',
+  graphicStyle: 'Graphic Styles',
+  text: 'Text',
+};
+
+export function newLibrary(name) {
+  return { format: 'vector-studio-library', version: 1, id: uid('lib'), name, modified: Date.now(), items: [] };
+}
+
+/** A clean library object from parsed JSON, or null when it is not one. */
+export function normalizeLibrary(data) {
+  if (!data || typeof data !== 'object' || !Array.isArray(data.items)) return null;
+  return {
+    format: 'vector-studio-library',
+    version: 1,
+    id: typeof data.id === 'string' && data.id ? data.id : uid('lib'),
+    name: String(data.name || 'Library').slice(0, 120),
+    modified: Number(data.modified) || Date.now(),
+    items: data.items.filter((it) => it && ITEM_KINDS.includes(it.kind) && it.data && typeof it.data === 'object').map((it) => ({ id: String(it.id || uid('li')), kind: it.kind, name: String(it.name || '').slice(0, 200), data: it.data, ...(typeof it.thumb === 'string' ? { thumb: it.thumb } : {}) })),
+  };
+}
+
+export class LibraryStore {
+  /** `backend` overrides the storage choice (tests). */
+  constructor(app, backend = null) {
+    this.app = app;
+    this.fixed = backend;
+    this.libraries = [];
+    this.loaded = false;
+    this.loading = null;
+    this.listeners = new Set();
+    this.pending = new Map(); // library id -> timer
+  }
+
+  get backend() {
+    if (this.fixed) return this.fixed;
+    const puter = this.app.puter;
+    const cloud = Boolean(puter?.fs && (this.app.env === 'app' || this.app.user));
+    const key = cloud ? 'cloud' : opfsAvailable() ? 'local' : 'memory';
+    if (key !== this.backendKey) {
+      this.backendKey = key;
+      this.cachedBackend = key === 'cloud' ? puterBackend(puter, 'libraries') : key === 'local' ? opfsBackend('vector-studio-libraries') : memoryBackend();
+      this.loaded = false;
+    }
+    return this.cachedBackend;
+  }
+
+  /** Where libraries are kept, for the panel's footnote. */
+  get location() {
+    void this.backend;
+    return this.fixed ? 'memory' : this.backendKey;
+  }
+
+  onChange(fn) {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
+
+  #emit() {
+    for (const fn of this.listeners) fn();
+  }
+
+  async load(force = false) {
+    const backend = this.backend;
+    if (this.loaded && !force) return this.libraries;
+    if (this.loading) return this.loading;
+    this.loading = (async () => {
+      try {
+        const files = (await backend.list('')).filter((f) => !f.isDir && f.name.endsWith('.json'));
+        const libs = [];
+        for (const f of files) {
+          try {
+            const lib = normalizeLibrary(await backend.readJSON(f.name));
+            if (lib) libs.push(lib);
+          } catch {
+            // A damaged library file is skipped; the others still load.
+          }
+        }
+        libs.sort((a, b) => a.name.localeCompare(b.name));
+        this.libraries = libs;
+      } catch {
+        this.libraries = [];
+      }
+      this.loaded = true;
+      this.loading = null;
+      this.#emit();
+      return this.libraries;
+    })();
+    return this.loading;
+  }
+
+  get(id) {
+    return this.libraries.find((l) => l.id === id) || null;
+  }
+
+  async save(lib, { immediate = false } = {}) {
+    lib.modified = Date.now();
+    this.#emit();
+    clearTimeout(this.pending.get(lib.id));
+    const write = async () => {
+      this.pending.delete(lib.id);
+      await this.backend.writeJSON(`${lib.id}.json`, lib);
+    };
+    if (immediate) return write();
+    // Quick successive edits (adding several items) are written once.
+    this.pending.set(lib.id, setTimeout(() => write().catch((err) => this.app.notify?.(`Could not save the library: ${err?.message || err}`, { error: true })), 400));
+    return undefined;
+  }
+
+  async create(name) {
+    const lib = newLibrary(name);
+    this.libraries.push(lib);
+    this.libraries.sort((a, b) => a.name.localeCompare(b.name));
+    await this.save(lib, { immediate: true });
+    return lib;
+  }
+
+  async remove(id) {
+    clearTimeout(this.pending.get(id));
+    this.libraries = this.libraries.filter((l) => l.id !== id);
+    await this.backend.remove(`${id}.json`);
+    this.#emit();
+  }
+
+  async rename(id, name) {
+    const lib = this.get(id);
+    if (!lib) return;
+    lib.name = name;
+    this.libraries.sort((a, b) => a.name.localeCompare(b.name));
+    await this.save(lib, { immediate: true });
+  }
+
+  async duplicate(id) {
+    const src = this.get(id);
+    if (!src) return null;
+    const copy = { ...JSON.parse(JSON.stringify(src)), id: uid('lib'), name: `${src.name} copy` };
+    copy.items = copy.items.map((it) => ({ ...it, id: uid('li') }));
+    this.libraries.push(copy);
+    this.libraries.sort((a, b) => a.name.localeCompare(b.name));
+    await this.save(copy, { immediate: true });
+    return copy;
+  }
+
+  /** Add items ({ kind, name, data, thumb }) to a library. Returns the stored items. */
+  addItems(id, items) {
+    const lib = this.get(id);
+    if (!lib) return [];
+    const added = items.map((it) => ({ id: uid('li'), kind: it.kind, name: it.name || '', data: it.data, ...(it.thumb ? { thumb: it.thumb } : {}) }));
+    lib.items.push(...added);
+    this.save(lib);
+    return added;
+  }
+
+  removeItems(id, itemIds) {
+    const lib = this.get(id);
+    if (!lib) return;
+    const drop = new Set(itemIds);
+    lib.items = lib.items.filter((it) => !drop.has(it.id));
+    this.save(lib);
+  }
+
+  renameItem(id, itemId, name) {
+    const it = this.get(id)?.items.find((x) => x.id === itemId);
+    if (!it) return;
+    it.name = name;
+    this.save(this.get(id));
+  }
+
+  /** Import a library from parsed JSON (a new id, so it never replaces one). */
+  async importLibrary(data) {
+    const lib = normalizeLibrary(data);
+    if (!lib) throw new Error('This file is not a Vector Studio library.');
+    lib.id = uid('lib');
+    if (this.libraries.some((l) => l.name === lib.name)) lib.name = `${lib.name} (imported)`;
+    this.libraries.push(lib);
+    this.libraries.sort((a, b) => a.name.localeCompare(b.name));
+    await this.save(lib, { immediate: true });
+    return lib;
+  }
+}

@@ -1,0 +1,798 @@
+{
+  "provenance": "Independently authored semantic data/layout; expected geometry/font sizes read from local native reference regeneration. Browser glyph measurements are inputs to semantic reflow, not native output geometry. All twelve native pages visually reviewed. The narrow word-overflow control remains explicitly unsupported.",
+  "cases": [
+    {
+      "name": "unbounded composite base",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:0\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1192500
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 760500,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,20,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,40,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,30,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,35,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,32.5,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.75,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.125,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite short text",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>Teams plan together.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:1\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 360000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 288000,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,18,14,0,0,0,0]": {
+          "requiredHeight": 6.57169189453125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite narrow",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:2\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"30\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 1080000,
+            "h": 2880000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 2448000,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",30,10,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,20,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,40,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,80,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,60,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,70,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,75,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,77.5,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        },
+        "[\"label\",\"1\",30,78.75,18,14,0,0,0,0]": {
+          "requiredHeight": 78.860302734375,
+          "wordFits": false
+        }
+      },
+      "unsupported": "unsupported diagram composite height content retry"
+    },
+    {
+      "name": "unbounded composite wide",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:3\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"90\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 3240000,
+            "h": 967500
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 535500,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",90,10,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",90,20,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",90,40,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",90,30,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",90,25,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",90,27.5,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",90,26.25,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",90,26.875,18,14,0,0,0,0]": {
+          "requiredHeight": 26.286767578125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite small font",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:4\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 641250
+          },
+          "font": 12.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 288000,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 12.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,12,9,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,20,12,9,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,15,12,9,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,17.5,12,9,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,18.75,12,9,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,18.125,12,9,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,17.8125,12,9,0,0,0,0]": {
+          "requiredHeight": 17.52451171875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite large font",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:5\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"24\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 2565000
+          },
+          "font": 24.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 2133000,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 24.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,20,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,40,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,80,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,60,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,70,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,75,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,72.5,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,71.25,24,19,0,0,0,0]": {
+          "requiredHeight": 70.098046875,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite small initial canvas",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:6\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"5\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1192500
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 760500,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,20,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,40,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,30,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,35,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,32.5,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.75,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.125,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite large initial canvas",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:7\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"50\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1192500
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1368000,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,20,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,40,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,30,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,35,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,32.5,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.75,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.125,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite small initial text height",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:8\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"1\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1188000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 756000,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,1,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,2,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,4,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,8,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,16,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,32,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,64,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,48,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,40,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,36,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,34,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite large initial text height",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:9\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"30\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"12\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1215000
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 783000,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,30,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,60,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,45,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,37.5,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.75,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,31.875,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,32.8125,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite zero offset",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:10\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"0\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1192500
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 1192500,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,20,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,40,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,30,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,35,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,32.5,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.75,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.125,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "unbounded composite large offset",
+      "available": {
+        "w": 100,
+        "h": 100
+      },
+      "data": "<d:dataModel xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><d:ptLst><d:pt modelId=\"0\" type=\"doc\"/><d:pt modelId=\"1\" type=\"node\"><d:t><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill><a:latin typeface=\"Arial\"/></a:rPr><a:t>A broad perspective helps teams build durable plans. Clear goals guide consistent action.</a:t></a:r></a:p></d:t></d:pt></d:ptLst><d:cxnLst><d:cxn modelId=\"101\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\"/></d:cxnLst><d:bg/><d:whole/></d:dataModel>",
+      "layout": "<d:layoutDef xmlns:d=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:owned:composite-height-control:11\"><d:title val=\"Independent content rule control\"/><d:layoutNode name=\"root\"><d:alg type=\"lin\"><d:param type=\"horzAlign\" val=\"none\"/><d:param type=\"vertAlign\" val=\"none\"/></d:alg><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"box\" val=\"60\"/><d:constr type=\"h\" for=\"ch\" forName=\"box\" val=\"20\"/></d:constrLst><d:ruleLst></d:ruleLst><d:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><d:layoutNode name=\"box\" styleLbl=\"node1\"><d:alg type=\"composite\"/><d:shape type=\"none\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"w\" for=\"ch\" forName=\"label\" refType=\"w\"/><d:constr type=\"h\" for=\"ch\" forName=\"label\" val=\"10\"/><d:constr type=\"t\" for=\"ch\" forName=\"label\" val=\"30\"/><d:constr type=\"primFontSz\" for=\"ch\" forName=\"label\" val=\"18\"/><d:constr type=\"w\" for=\"ch\" forName=\"marker\" val=\"5\"/><d:constr type=\"h\" for=\"ch\" forName=\"marker\" val=\"0\"/><d:constr type=\"t\" for=\"ch\" forName=\"marker\" refType=\"h\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst><d:layoutNode name=\"label\" styleLbl=\"node1\"><d:alg type=\"tx\"/><d:shape type=\"rect\"/><d:presOf axis=\"self\"/><d:constrLst><d:constr type=\"lMarg\" val=\"0\"/><d:constr type=\"rMarg\" val=\"0\"/><d:constr type=\"tMarg\" val=\"0\"/><d:constr type=\"bMarg\" val=\"0\"/></d:constrLst><d:ruleLst><d:rule type=\"h\" val=\"INF\"/></d:ruleLst></d:layoutNode><d:layoutNode name=\"marker\" styleLbl=\"node1\"><d:alg type=\"sp\"/><d:shape type=\"rect\"/></d:layoutNode></d:layoutNode></d:forEach></d:layoutNode></d:layoutDef>",
+      "expected": [
+        {
+          "name": "label",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "w": 2160000,
+            "h": 1192500
+          },
+          "font": 18.0
+        },
+        {
+          "name": "marker",
+          "context": "1",
+          "bounds": {
+            "x": 0,
+            "y": 112500,
+            "w": 180000,
+            "h": 0
+          },
+          "font": 18.0
+        }
+      ],
+      "measurements": {
+        "[\"label\",\"1\",60,10,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,20,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,40,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,30,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,35,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,32.5,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.75,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        },
+        "[\"label\",\"1\",60,33.125,18,14,0,0,0,0]": {
+          "requiredHeight": 32.85845947265625,
+          "wordFits": true
+        }
+      }
+    }
+  ]
+}

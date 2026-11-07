@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teamchat responsive preview</title>
+  <style>
+    body { margin: 0; padding: 24px; background: #2a2a2e; font-family: system-ui, sans-serif; color: #ddd; display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+    figure { margin: 0; }
+    figcaption { font-size: 12px; margin-bottom: 8px; opacity: 0.8; }
+    iframe { border: 0; border-radius: 28px; background: #000; display: block; }
+  </style>
+</head>
+<body>
+  <script>
+    // /dev/phone.html?hash=%23/ws/abc/c/def  shows every frame at that route.
+    const hash = new URLSearchParams(location.search).get('hash') || '#/';
+    const frames = [
+      ['iPhone 15 (393 x 852)', 393, 852],
+      ['Small Android (360 x 780)', 360, 780],
+      ['iPad portrait (820 x 1000)', 820, 1000],
+    ];
+    for (const [label, w, h] of frames) {
+      const fig = document.createElement('figure');
+      const cap = document.createElement('figcaption');
+      cap.textContent = label;
+      const f = document.createElement('iframe');
+      f.width = w;
+      f.height = h;
+      f.title = label;
+      f.src = `/mock.html${hash}`;
+      fig.append(cap, f);
+      document.body.append(fig);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,7384 @@
+import { workbookPathUri } from '../core/workbook-location.js';
+import { conditionalFontStyle, conditionalNumberFormat } from '../core/style-values.js';
+import { openSparklineDialog } from '../ui/sparklinedialog.js';
+import { openSparklineCreateDialog } from '../ui/sparklinecreatedialog.js';
+import { openSlicerDialog } from '../ui/slicerdialog.js';
+import { openInsertSlicersDialog } from '../ui/insertslicers.js';
+import { openInsertTimelineDialog, openTimelineSettingsDialog } from '../ui/inserttimeline.js';
+import { deleteObjectsWithTimelines, deleteTimeline } from '../core/timeline.js';
+import { openTableResizeDialog } from '../ui/tableresize.js';
+import { setTableHeaderRow, setTableFilterButton, tableFilterButtonOn } from '../core/table-header-row.js';
+import { nativePivotAt, tableSlicerProblem } from '../core/slicer-insert.js';
+import { slicerClipboard, readSlicerClipboard } from '../ui/slicer.js';
+import { slicerItems } from '../core/slicer.js';
+import { filterValueIdentity, filterTable } from '../core/sheet-filters.js';
+import { openScrollDialog } from '../ui/scrolldialog.js';
+import { scrollControlValue, scrollControlTarget } from '../core/scroll-control.js';
+import { scrollControlClipboard, readScrollControlClipboard } from '../ui/scroll-control.js';
+import { conditionalFormulaFields } from '../core/conditional-scale.js';
+/**
+ * The editor screen: top bar, formatting toolbar, formula bar, grid, sheet
+ * tabs, and status bar around one open Doc. Everything the toolbar, menus,
+ * and shortcuts can do goes through ctx.run(command), so each action has
+ * exactly one implementation.
+ */
+import { imageToPng } from '../ui/picture-raster.js';
+
+import { isComposing, el, isMod, MOD_KEY, IS_MAC, formatBytes } from '../ui/dom.js';
+import { t, hasMessage, formatDate as formatUiDate, formatNumber as formatUiNumber, formatList } from '../i18n/index.js';
+import { icon } from '../ui/icons.js';
+import { createGrid } from '../ui/grid.js';
+import { ACCOUNTING_CODE, accountingCode, isAccountingCode, FONT_SIZES, ptToPx, pxToPt } from '../ui/toolbar.js';
+import { createRibbon } from '../ui/ribbon.js';
+import { createInk } from '../ui/ink.js';
+import { openInsertDeleteDialog } from '../ui/insertdeletedialog.js';
+import { openSymbolDialog } from '../ui/symboldialog.js';
+import { shapeSvg, iconSvg, svgDataUrl, openShapesMenu, openIconsDialog } from '../ui/shapes.js';
+import { flashFill } from '../core/flashfill.js';
+import { createWatchWindow } from '../ui/watchwindow.js';
+import { createAccessibilityPane } from '../ui/accessibility-pane.js';
+import { createChangesPane } from '../ui/changes-pane.js';
+import { openAltTextDialog } from '../ui/alttext.js';
+import { invalidCells } from '../core/validation-circles.js';
+import { openRecommendedPivots } from '../ui/recommended-pivots.js';
+import { createErrorSmartTag, openErrorCheckingOptions } from '../ui/error-smarttag.js';
+import { createQuickAnalysis } from '../ui/quick-analysis.js';
+import { quickTotalEntries } from '../core/quick-totals.js';
+import { createComments, COMMENT_COMMANDS } from '../ui/comments.js';
+import { copyThreads, pasteThreads } from '../core/comments.js';
+import { pageBreaks, pagesOf, insertBreaks, removeBreaks, hasBreakAt, moveBreak, moveAreaEdge } from '../ui/pagebreaks.js';
+import { createPageLayout } from '../ui/page-layout.js';
+import { consolidate, consolidationSource } from '../core/consolidate.js';
+import { openConsolidateDialog } from '../ui/consolidatedialog.js';
+import { attachKeyTips } from '../ui/keytips.js';
+import { createFormulaBar } from '../ui/formulabar.js';
+import { createSheetTabs, sheetHoldsWork } from '../ui/sheettabs.js';
+import { openCopySheetDialog } from '../ui/copysheet.js';
+import { openMoveSheetDialog } from '../ui/movesheet.js';
+import { placeSheet } from '../core/sheet-placement.js';
+import { openImportPlacementDialog } from '../ui/importdialog.js';
+import { openTextBoxDialog } from '../ui/textboxdialog.js';
+import { rangeLink } from '../lib/links.js';
+import { chipFor, isRangeSource, checkValue } from '../core/validation.js';
+import { createStatusBar } from '../ui/statusbar.js';
+import { createFindBar } from '../ui/findbar.js';
+import { openPrintDialog, currentPrintPrefs } from '../ui/printdialog.js';
+import { installSheetFontLoading } from '../ui/sheet-fonts.js';
+import { installPrintFallback, printFolder, effectivePrintSettings } from '../ui/print.js';
+import { openNamesManager } from '../ui/names.js';
+import { openCreateNamesDialog } from '../ui/createnames.js';
+import { conditionalFormattingItems, openQuickRuleDialog, presetRule, clearRules } from '../ui/condformat-quick.js';
+import { rememberFunction } from '../ui/recent-functions.js';
+import { openInsertFunctionDialog, openFunctionArgumentsDialog } from '../ui/insertfunction.js';
+import { openConditionalFormatting } from '../ui/condformat.js';
+import { openValidationManager } from '../ui/validation.js';
+import { openSortDialog, looksLikeHeader, sortHeaderDefault, rearrangeProblem, sortExpansion, confirmSortExpansion } from '../ui/sortdialog.js';
+import { openChartDialog } from '../ui/chartdialog.js';
+import { runChartAction, insertChart as insertExcelChart, insertChartSheet } from '../ui/chart-actions.js';
+import { createChartUi } from '../ui/chart-format-pane.js';
+import { openTemplatePicker } from '../ui/templates.js';
+import { openSubtotalDialog } from '../ui/subtotaldialog.js';
+import { openDataForm } from '../ui/dataform.js';
+import { openEditLinks, updateAllLinks } from '../ui/editlinks.js';
+import { openFormatCellsDialog } from '../ui/formatcells.js';
+import { openTableDialog } from '../ui/tabledialog.js';
+import { openAiDialog } from '../ui/aidialog.js';
+import { createAiPanel, loadAiSettings } from '../ui/aipanel.js';
+import { openEvaluateDialog } from '../ui/evaluatedialog.js';
+import { resolveImportPath, parseImportRange, readImportRange, rowsFromDelimited, rowsFromHtml, rowsFromXml, importNameFor, sniffImageType } from '../core/importrange.js';
+import { resolveTableSpec, TABLE_STYLES } from '../core/tables.js';
+import { signatureFor } from '../core/formula/hints.js';
+import { openPivotDialog } from '../ui/pivotdialog.js';
+import { openSeriesDialog } from '../ui/seriesdialog.js';
+import { openGoalSeek } from '../ui/goalseek.js';
+import { openDataTable } from '../ui/datatable.js';
+import { openForecastSheet } from '../ui/forecast-sheet.js';
+import { openScenarioManager } from '../ui/scenario-manager.js';
+import { openSolver } from '../ui/solver.js';
+import { openDataAnalysis } from '../ui/analysis-tools.js';
+import { openCustomViews } from '../ui/customviews.js';
+import { openZoomDialog } from '../ui/zoomdialog.js';
+import { openSheetViewOptions, askViewName, nextViewName } from '../ui/sheetviews.js';
+import { createSelectionPane } from '../ui/selection-pane.js';
+import { createSmartArtUi, runSmartArtAction, smartArtLook } from '../ui/smartart.js';
+import { createSmartArtPane } from '../ui/smartart-pane.js';
+import { smartArtSvg, smartArtAltText } from '../core/smartart.js';
+import { arrangeTargets } from '../ui/arrange-ribbon.js';
+import { openAdvancedFilter } from '../ui/advanced-filter.js';
+import { fromText as getDataText, fromWorkbook as getDataWorkbook, fromWeb as getDataWeb, fromTable as getDataTable, blankQuery, queryIo, fitQueryTables } from '../ui/get-data.js';
+import { openQueryEditor } from '../ui/query-editor.js';
+import { createQueriesPane } from '../ui/queries-pane.js';
+import { createAutomate, AUTOMATE_COMMANDS, scriptOfLink } from '../ui/automate.js';
+import { createPictures, PICTURE_COMMANDS } from '../ui/pictures.js';
+import { isCellPicture } from '../core/cell-picture.js';
+import { pictureIsPlain } from '../core/picture-format.js';
+import { linkedPictureTarget, rangePicture } from '../core/range-picture.js';
+import { refreshAll as refreshAllQueries, refreshQuery as refreshOneQuery, queryById, queryForTable } from '../core/queries.js';
+import { clearSheetFilters, reapplySheetFilters, sheetHasFiltering } from '../core/advanced-filter.js';
+import { refreshPivot, refreshablePivotSheets, hasPivotDefinition } from '../core/pivot.js';
+import { toggleDetail } from '../core/outline-detail.js';
+import { openDatePicker } from '../ui/datepicker.js';
+import { openDedupeDialog } from '../ui/dedupedialog.js';
+import { openTextToColumnsDialog } from '../ui/textcolumnsdialog.js';
+import { splitSourceText } from '../core/text-split.js';
+import { openProtectedRanges } from '../ui/protect.js';
+import { openColumnStats } from '../ui/colstats.js';
+import { cellStyle, cellStyleLabel } from '../core/cellstyles.js';
+import { definitionFor, stylePatch, styleFromPreset, customStyleNamed, builtinOverride } from '../core/custom-cell-styles.js';
+import { openCellStylesGallery, openStyleDialog, openMergeStylesDialog, saveCellStyle, deleteCellStyle } from '../ui/cellstyles-ui.js';
+import { autoOutline, clearOutline, applyOutlineStyles } from '../core/auto-outline.js';
+import { openOutlineSettings } from '../ui/outline-settings.js';
+import { renderChartSvg, standaloneSvg, setThemeSeriesColors } from '../ui/chartsvg.js';
+import { openWordArtMenu } from '../ui/wordart.js';
+import { openEquationDialog, runInsertEquation } from '../ui/equation.js';
+import { openThemeEffectsMenu } from '../ui/theme-effects.js';
+import { openThemesMenu, openThemeColorsMenu, openThemeFontsMenu } from '../ui/themes.js';
+import { themedPreset, themedCellStylePatch, themedSeriesColors } from '../core/workbook-theme.js';
+import { chartData, textBoxText, placeAlong } from '../core/charts.js';
+import { chartSheetCommand } from '../core/chartsheet.js';
+import { openCellContextMenu } from '../ui/contextmenu.js';
+import { openMenu } from '../ui/menu.js';
+import { openValuePicker } from '../ui/listpicker.js';
+import { promptDialog, openModal, confirmDialog, fieldAlert } from '../ui/modal.js';
+import { toast } from '../ui/toast.js';
+import { confirmValidation, validationAlertStyle } from '../ui/validation-alert.js';
+import { openAppMenu, openLocaleDialog, openAbout, renderAccountButton } from '../ui/appmenu.js';
+import { createMenubar, SPECIAL_KINDS } from '../ui/menubar.js';
+import { paletteCommands, openCommandPalette } from '../ui/palette.js';
+import { openVersionHistory } from '../ui/versions.js';
+import { openShareDialog } from '../ui/share.js';
+import { openSendCopyDialog, openSendLinkDialog } from '../ui/send-mail.js';
+import { createMentionNotifier, createMentionAlerts } from '../ui/mention-notify.js';
+import { createMailer } from '../lib/mail.js';
+import { createPeopleBar, peopleHere, roomStatus } from '../ui/coauthor.js';
+import { mapLine, mapGap } from '../collab/ops.js';
+import { openShortcuts } from '../ui/shortcuts.js';
+import { session } from '../lib/session.js';
+import * as P from '../lib/puter.js';
+import { trackEvent } from '../lib/analytics.js';
+import { viewOnlyText, CANCELLED, THEIRS_NOT_KEPT, autoSaveEnabled } from '../lib/doc.js';
+import { cellName, colName, normalizeRange, rangeName, parseRange, parseCellRef, parseKey } from '../core/cell.js';
+import { parseRefText, selectionName, MAX_ROW, MAX_COL } from '../core/refs.js';
+import { formatValue, todaySerial, formatDate, fontStack, indentWidth, parseInput, MAX_DECIMAL_PLACES, AUTOMATIC_FORMAT, cellCurrency, currencyDecimals, localeInfo, editText, hasDecimalPlaces } from '../core/format.js';
+import { stepCodeDecimals } from '../core/numfmt.js';
+import { maxLineWidth, cellLayoutText, tabularDigits, heightForLines } from '../core/textfit.js';
+import { toDelimited, parseClipboard, parseDelimited } from '../core/tsv.js';
+import { detectDelimiter, workbookFromFile, rangeToCsv, CSV_MIME } from '../core/io.js';
+import { cellsToHtml, copyMergeLayout, parseHtmlClipboard, cellsFromHtmlRows, isOwnHtmlClipboard } from '../core/clipboard.js';
+import { eachStoredCell, lineSpan } from '../core/sparse-range.js';
+import { MAX_ROWS, MAX_COLS, MIN_COL_WIDTH, MAX_COL_WIDTH, MIN_ROW_HEIGHT, MAX_ROW_HEIGHT, cellFromInput, safeLinkUrl, objectNoun } from '../core/workbook.js';
+import { isSpreadsheetFile, IMPORT_EXTENSIONS, fileProblem } from '../core/filetypes.js';
+import { FUNCTION_NAMES } from '../core/formula/functions.js';
+import { RULE_TYPES } from '../core/condformat.js';
+// Formulas that reach outside the spreadsheet: pasted from a web page they could send the sheet's
+// contents anywhere, so such a paste asks first, as a file from elsewhere does (the same list serves both).
+import { formulaReachesOut, textReachesOut } from '../core/reaches-out.js';
+import * as S from '../core/selection.js';
+import { formatNativePivotBorders, formatNativePivotStyleAndBorders } from '../core/native-pivot-border-selection.js';
+import { formatNativePivotSelection, clearNativePivotSelection, pasteNativePivotStyles, pasteNativePivotClipboardStyles } from '../core/native-pivot-style-selection.js';
+import { pasteOptions, legacyMode, pasteLabel, composePaste, cellsFromText } from '../core/paste-special.js';
+import { refill, autoFillChoices, defaultAutoFill, justifyLines } from '../core/autofill-options.js';
+import { openPasteSpecialDialog, openInsertPasteDialog, pasteGallery } from '../ui/pastespecialdialog.js';
+import { createOptionButton } from '../ui/option-button.js';
+import { GROUP_BLOCKED_COMMANDS, groupBlockedReason } from '../core/sheet-group.js';
+import { openFillAcrossDialog } from '../ui/fillacross.js';
+import { createAutoCorrector, openAutoCorrectDialog, syncAutoCorrectSettings } from '../ui/autocorrect.js';
+import { appOptions, appOption, setAppOptions, onAppOptions, syncAppOptions, displayUserName } from '../lib/app-options.js';
+import { installAppOptions } from '../lib/apply-options.js';
+import { syncCustomizations, keymapStore, parseCommandId } from '../lib/customize.js';
+import { chordFromEvent } from '../core/keymap.js';
+import { listExtension } from '../core/entry-options.js';
+import { openOptionsDialog } from '../ui/options-dialog.js';
+import { createQuickAccess } from '../ui/quick-access.js';
+import { withCustomShortcuts } from '../ui/custom-shortcuts.js';
+import { syncErrorChecking } from '../ui/error-smarttag.js';
+import { isFormulaText } from '../core/autocorrect.js';
+import { openSpellingDialog } from '../ui/spelling.js';
+import { createLanguagePane } from '../ui/language-pane.js';
+import { translatePrompt } from '../core/formula/functions.js';
+
+const MAX_FORMAT_CELLS = 20000;
+/** Names (sheets, addresses) listed in a sentence: "A, B, C" in English, "A、B、C" in Chinese. */
+const nameList = (items) => formatList(items, { type: 'conjunction', style: 'narrow' });
+// What a protected sheet refuses (refusedByProtection) and what takes one range (oneRange): the callers name the
+// action in English, which picks the whole sentence said in the interface language.
+const PROTECTED_MESSAGES = {
+  'make changes': 'editor.protected.makeChanges',
+  'change the table': 'editor.protected.changeTheTable',
+  'change the filter': 'editor.protected.changeTheFilter',
+  'insert images': 'editor.protected.insertImages',
+  'split the text': 'editor.protected.splitTheText',
+  'sort': 'editor.protected.sort',
+  'delete rows': 'editor.protected.deleteRows',
+  'delete columns': 'editor.protected.deleteColumns',
+  'resize columns': 'editor.protected.resizeColumns',
+  'resize rows': 'editor.protected.resizeRows',
+  'create a table': 'editor.protected.createATable',
+  'insert slicers': 'editor.protected.insertSlicers',
+  'insert a timeline': 'editor.protected.insertATimeline',
+  'insert cells': 'editor.protected.insertCells',
+  'delete cells': 'editor.protected.deleteCells',
+  'change the slicer': 'editor.protected.changeTheSlicer',
+  'change the timeline': 'editor.protected.changeTheTimeline',
+  'change the scroll bar': 'editor.protected.changeTheScrollBar',
+  'change the equation': 'editor.protected.changeTheEquation',
+  'change the text box': 'editor.protected.changeTheTextBox',
+  'change the chart': 'editor.protected.changeTheChart',
+  'use the table': 'editor.protected.useTheTable',
+  'use Goal Seek': 'editor.protected.useGoalSeek',
+  'shuffle rows': 'editor.protected.shuffleRows',
+  'resize the table': 'editor.protected.resizeTheTable',
+  'replace images': 'editor.protected.replaceImages',
+  'replace formulas': 'editor.protected.replaceFormulas',
+  'rename the table': 'editor.protected.renameTheTable',
+  'remove rows': 'editor.protected.removeRows',
+  'remove duplicates': 'editor.protected.removeDuplicates',
+  'outline rows and columns': 'editor.protected.outlineRowsAndColumns',
+  'make a data table': 'editor.protected.makeADataTable',
+  'insert WordArt': 'editor.protected.insertWordArt',
+  'insert sparklines': 'editor.protected.insertSparklines',
+  'insert icons': 'editor.protected.insertIcons',
+  'insert an equation': 'editor.protected.insertAnEquation',
+  'insert a text box': 'editor.protected.insertATextBox',
+  'insert a shape': 'editor.protected.insertAShape',
+  'insert a picture': 'editor.protected.insertAPicture',
+  'insert a dropdown': 'editor.protected.insertADropdown',
+  'hide or show lines': 'editor.protected.hideOrShowLines',
+  'group rows or columns': 'editor.protected.groupRowsOrColumns',
+  'format cells': 'editor.protected.formatCells',
+  'filter the list': 'editor.protected.filterTheList',
+  'fill a series': 'editor.protected.fillASeries',
+  'clear the outline': 'editor.protected.clearTheOutline',
+  'clear conditional formatting': 'editor.protected.clearConditionalFormatting',
+  'change the text': 'editor.protected.changeTheText',
+  'change the outline settings': 'editor.protected.changeTheOutlineSettings',
+  'change the background': 'editor.protected.changeTheBackground',
+  'change sparklines': 'editor.protected.changeSparklines',
+  'change data validation': 'editor.protected.changeDataValidation',
+  'change conditional formatting': 'editor.protected.changeConditionalFormatting',
+  'add totals': 'editor.protected.addTotals',
+  'add or remove subtotals': 'editor.protected.addOrRemoveSubtotals',
+  'add conditional formatting': 'editor.protected.addConditionalFormatting',
+  'add a note': 'editor.protected.addANote',
+  'add a link': 'editor.protected.addALink',
+  'insert a chart': 'editor.protected.insertAChart',
+  'insert SmartArt': 'editor.protected.insertSmartArt',
+  'change the SmartArt graphic': 'editor.protected.changeTheSmartArtGraphic',
+  'draw': 'editor.protected.draw',
+  'add a comment': 'editor.protected.addAComment',
+  'delete comments': 'editor.protected.deleteComments',
+};
+const ONE_RANGE_MESSAGES = {
+  'merge': 'editor.oneRange.merge',
+  'insert rows': 'editor.oneRange.insertRows',
+  'insert columns': 'editor.oneRange.insertColumns',
+  'insert cells': 'editor.oneRange.insertCells',
+  'delete cells': 'editor.oneRange.deleteCells',
+  'sort': 'editor.oneRange.sort',
+  'group rows or columns': 'editor.oneRange.groupRowsOrColumns',
+  'ungroup rows or columns': 'editor.oneRange.ungroupRowsOrColumns',
+  'freeze rows': 'editor.oneRange.freezeRows',
+  'freeze columns': 'editor.oneRange.freezeColumns',
+  'create a filter': 'editor.oneRange.createAFilter',
+  'create a table': 'editor.oneRange.createATable',
+  'add subtotals': 'editor.oneRange.addSubtotals',
+  'shuffle rows': 'editor.oneRange.shuffleRows',
+  'remove empty rows': 'editor.oneRange.removeEmptyRows',
+  'remove duplicates': 'editor.oneRange.removeDuplicates',
+  'resize columns': 'editor.oneRange.resizeColumns',
+  'resize rows': 'editor.oneRange.resizeRows',
+  'export the selection': 'editor.oneRange.exportTheSelection',
+  'create names': 'editor.oneRange.createNames',
+  'add totals': 'editor.oneRange.addTotals',
+  'add conditional formatting': 'editor.oneRange.addConditionalFormatting',
+  'get data from a range': 'editor.oneRange.getDataFromARange',
+  'add alternating colors': 'editor.oneRange.addAlternatingColors',
+  'insert sparklines': 'editor.oneRange.insertSparklines',
+  'paint formatting onto': 'editor.oneRange.paintFormattingOnto',
+  'paste into': 'editor.oneRange.pasteInto',
+  'insert a function': 'editor.oneRange.insertAFunction',
+};
+// formatRange: the note when a range is cut short, by what was done.
+const CAPPED_MESSAGES = { formatting: 'editor.capped.formatting', checkboxes: 'editor.capped.checkboxes' };
+// Clipboard height can exceed JavaScript's argument limit, even when the
+// cells ultimately pasted are clipped to the sheet's supported dimensions.
+const clipboardWidth = (rows) => rows.reduce((width, row) => Math.max(width, row.length), 0);
+export function editorView({ doc, goHome, openPath, newDoc, templateDoc, importFile, openLive = null, initialRange = null, leaveDialog = null }) {
+  let destroyed = false;
+  let palette = null; // the open command palette, closed with the view
+  const { wb } = doc;
+  // Charts without colours of their own draw in the theme's accents once one is chosen. Listening before the grid
+  // does, the palette is in place when a theme change redraws them.
+  const syncChartTheme = () => setThemeSeriesColors(themedSeriesColors(wb));
+  syncChartTheme();
+  wb.addEventListener('change', syncChartTheme);
+  // The app's options (File ▸ Options): applied before anything reads them, AI features among them.
+  installAppOptions();
+  // AI() formulas ask Puter's AI; without the SDK, or with AI features turned off in the options, they show #N/A.
+  // TRANSLATE and DETECTLANGUAGE: the same AI, with the reply tidied to just the answer. Review ▸ Translate asks the same way.
+  const aiTranslate = async (prompt) => String(await P.aiChat(prompt, { feature: 'translate' })).trim().replace(/^["'\u201c\u2018]+|["'\u201d\u2019]+$/g, '');
+  const setAiProviders = () => {
+    wb.setAsyncProvider('AI', P.canAI() ? (text) => P.aiChat(text) : null);
+    wb.setAsyncProvider('TRANSLATE', P.canAI() ? aiTranslate : null);
+    wb.setAsyncProvider('DETECTLANGUAGE', P.canAI() ? async (text) => { const m = /\b([a-z]{2,3})(?:-[A-Za-z]{2,4})?\b/i.exec(String(await P.aiChat(text, { feature: 'detect-language' })).trim()); return m ? m[1].toLowerCase() : { error: '#N/A' }; } : null);
+  };
+  setAiProviders();
+  // A fetch that failed: too much data, or an address off the public internet (this computer, a
+  // private network), is a #VALUE! that says so (the status bar shows the reason); anything else
+  // (offline, a missing page) stays #N/A, with the reason as well. The fetch helpers mark both
+  // refusals with a code, so a server's own wording is never mistaken for them.
+  const explained = (e) => e?.code === 'too-large' || e?.code === 'not-public';
+  const fetchError = (e) => ({ error: explained(e) ? '#VALUE!' : '#N/A', message: e?.message || undefined });
+  // The URL dialogs refuse such an address before fetching, where the helper can tell one apart.
+  const NOT_PUBLIC = t('editor.url.notPublic');
+  const urlProblem = (v) => {
+    const text = String(v).trim();
+    if (!/^https?:\/\/\S+$/i.test(text)) return t('editor.url.enterAddress');
+    return (P.isPublicHttpUrl?.(text) ?? true) ? null : NOT_PUBLIC;
+  };
+  // IMPORTDATA: a CSV or TSV from the web, through Puter's fetch.
+  wb.setAsyncProvider('IMPORTDATA', async (text) => {
+    const [url, delimiter] = JSON.parse(text);
+    let body;
+    try { body = await P.fetchText(url); } catch (e) { return fetchError(e); }
+    return rowsFromDelimited(body, delimiter, { detectDelimiter, parseDelimited, parseInput });
+  });
+  // IMPORTHTML: a table or list from a web page.
+  wb.setAsyncProvider('IMPORTHTML', async (text) => {
+    const [url, kind, index] = JSON.parse(text);
+    let body;
+    try { body = await P.fetchText(url); } catch (e) { return fetchError(e); }
+    return rowsFromHtml(body, kind, index, parseInput);
+  });
+  // IMPORTXML: nodes picked by XPath from a web document.
+  wb.setAsyncProvider('IMPORTXML', async (text) => {
+    const [url, xpath] = JSON.parse(text);
+    let body;
+    try { body = await P.fetchText(url); } catch (e) { return fetchError(e); }
+    return rowsFromXml(body, xpath, parseInput);
+  });
+  // WEBSERVICE: the text a web address answers with; the cell text limit applies.
+  wb.setAsyncProvider('WEBSERVICE', async (url) => {
+    let body;
+    try { body = await P.fetchText(url); } catch (e) { return fetchError(e); }
+    return String(body).length > 32767 ? { error: '#VALUE!' } : String(body);
+  });
+  // IMPORTRANGE: other spreadsheets on the drive, parsed once and kept for a short while.
+  const imported = new Map(); // path → { at, wb: Promise<Workbook> }
+  wb.setAsyncProvider('IMPORTRANGE', async (text) => {
+    const [file, range] = JSON.parse(text);
+    const path = resolveImportPath(file, P.FOLDER, P.ensureXlsx);
+    const spec = parseImportRange(range);
+    if (!path || !spec) return { error: '#REF!' };
+    const now = Date.now();
+    let entry = imported.get(path);
+    if (!entry || now - entry.at > 30000) {
+      entry = { at: now, wb: P.readFile(path).then((bytes) => workbookFromFile(bytes, P.displayName(path))) };
+      imported.set(path, entry);
+    }
+    let other;
+    try { other = await entry.wb; } catch (e) { imported.delete(path); return { error: P.isNotFound(e) ? '#REF!' : '#N/A' }; }
+    return readImportRange(other, spec);
+  });
+  const listeners = new Set();
+  let notifyQueued = false;
+  let clip = null; // { cells, origin, sheetId, text }
+  let painter = null; // format painter: { cells, range } copied from the selection, waiting for a target
+  let tracing = null; // the sheet whose precedents/dependents are highlighted in the grid
+  let circledSheet = null; // the sheet whose invalid cells are circled (Circle Invalid Data)
+
+  // While the listeners refresh the chrome, the command flags are worked out once: the ribbon alone asks
+  // for them from every button it resolves, and each asking looked the selection and the sheet up again.
+  let flagsMemo = null;
+  let dispatching = false;
+  const notify = () => {
+    if (notifyQueued) return;
+    notifyQueued = true;
+    requestAnimationFrame(() => {
+      notifyQueued = false;
+      dispatching = true;
+      flagsMemo = null;
+      try { for (const fn of listeners) fn(); } finally { dispatching = false; flagsMemo = null; }
+    });
+  };
+
+  // Email from this workbook: Send a copy, Send a link, and @mention notes (lib/mail.js).
+  const mailer = createMailer();
+
+  /* ---------- Context shared by the components ---------- */
+
+  // Text was pasted into the entry under way (the in-cell editor or the formula bar). Pasted text is outside
+  // content, as a paste onto the grid is: a formula in it that reaches out is not let out on the strength of
+  // the paste alone, while the same formula typed by hand is consent. Cleared when the entry ends.
+  let entryPasted = false;
+
+  const ctx = {
+    wb,
+    doc,
+    saveSourceForCopy: async () => await flush({ leaving: false }) && doc.status === 'saved' && !!doc.path && !doc.hasPendingWrites,
+    grid: null,
+    sheetId: () => grid.sheetId,
+    range: () => grid.range,
+    ranges: () => grid.ranges,
+    active: () => grid.active,
+    selection: () => grid.selection,
+    activeCell: () => wb.getCell(grid.sheetId, grid.active.r, grid.active.c),
+    // The style a formatting command reads and toggles: the cell being edited while one is (on its own sheet), else the active cell.
+    style: () => styleTarget().style,
+    dataRange: (fallback) => dataRange(fallback),
+    subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+    announce: (text) => statusBar?.announce(text),
+    painting: () => !!painter,
+    // What the menu bar and the palette read (merged, singleCell, ...), for the cell menu to grey its items the same way.
+    flags: () => (dispatching ? (flagsMemo ??= commandFlags()) : commandFlags()),
+    // The formula bar says when text was pasted into the entry under way (see `entryPasted`).
+    notePastedEntry: () => { entryPasted = true; },
+    run,
+  };
+
+  /** A strict validation rule refused an entry: its notice, as the editor shows it for a typed entry. */
+  const invalidEntry = (v, { dialog = false } = {}) => {
+    if (!dialog) toast(v.message || t('editor.validation.notAllowedHere'), { icon: 'alert', duration: 3500 });
+  };
+
+  // AutoCorrect: words fixed as they are typed into a cell or the formula bar (Tools ▸ AutoCorrect Options).
+  const autoCorrector = createAutoCorrector({ announce: (text) => statusBar?.announce(text) });
+  ctx.autocorrect = autoCorrector;
+  if (!session.signedOut) syncAutoCorrectSettings().catch(() => {});
+
+  // The undo steps of formatting applied while the open entry is typed (see ENTRY_FORMAT_COMMANDS).
+  const entryFormatSteps = new Set();
+  let entryOpen = false;
+  const grid = createGrid({
+    wb,
+    sheetId: wb.activeSheetId,
+    autocorrect: autoCorrector,
+    // The entry is written: its last word, corrected, is a step of its own, so Ctrl/Cmd+Z brings back what was typed.
+    // Ctrl+Enter over a selection (`ranges`) corrects every cell it filled: only the active cell's was left as typed.
+    afterCommit: ({ sheetId: sid, r, c, text, ranges = null }) => {
+      if (isFormulaText(text)) return;
+      if (!ranges) queueMicrotask(() => offerFlashFill(sid, r, c)); // after AutoCorrect's own step, if it takes one
+      const fixed = autoCorrector.tail(text);
+      if (fixed === text || editText(wb.getCell(sid, r, c)) !== text) return;
+      if (ranges) {
+        // Only the cells the fill wrote are asked, as the fill asks them: not the rows a filter hides, nor the cells
+        // under a merged block, whose rule kept every filled cell as typed.
+        const hidden = wb.sheet(sid)?.filterHidden;
+        for (const rg of ranges) for (let rr = rg.r1; rr <= rg.r2; rr++) for (let cc = rg.c1; cc <= rg.c2; cc++) {
+          if (hidden?.has(rr) || wb._coveredByMerge(sid, rr, cc)) continue;
+          if (wb.validateInput(sid, rr, cc, fixed).ok === false) return;
+        }
+        // One step, named for what it does (a fill's own step is called Fill).
+        const mark = wb.historyTop;
+        wb.transaction(t('editor.undo.autoCorrect'), () => { for (const rg of ranges) wb.fillInput(sid, rg, fixed, { r, c }, { typed: true }); });
+        wb.squashHistory(mark, t('editor.undo.autoCorrect'));
+      } else {
+        if (wb.validateInput(sid, r, c, fixed).ok === false) return;
+        wb.setInput(sid, r, c, fixed, { label: t('editor.undo.autoCorrect') });
+      }
+      statusBar?.announce(t('editor.autoCorrect.changed', { fixed, mod: MOD_KEY }));
+    },
+    // Editing in cells turned off (the options): F2 and a double-click put the caret in the formula bar.
+    // (Not while the formula bar is hidden: there the cell is the only place to edit.)
+    onEditInBar: () => { if (!appOption('showFormulaBar') || view.focus) return false; formulaBar.focusInput(); return true; },
+    // A row typed at the foot of a list takes on the list's formats and formulas (the options), in the entry's step.
+    extendEntry: ({ sheetId: sid, r, c }) => {
+      if (!appOption('extendLists')) return;
+      const { style, formulas } = listExtension(wb, sid, r, c);
+      if (style) wb.applyStyle(sid, { r1: r, c1: c, r2: r, c2: c }, style);
+      for (const f of formulas) wb.setInput(sid, r, f.c, f.input);
+    },
+    onSelection: notify,
+    onEdit: (e) => {
+      if (e.editing) { endCut(); optionButton?.hide(); } else entryPasted = false; // typing into a cell ends a cut
+      if (e.editing && !entryOpen) entryFormatSteps.clear();
+      entryOpen = !!e.editing;
+      notify();
+    },
+    // An entry given up takes the formatting applied while it was typed with it.
+    onEditCancel: () => { if (entryFormatSteps.size) wb.discardSteps(entryFormatSteps); entryFormatSteps.clear(); },
+    onCommand: (cmd, arg) => run(cmd, arg),
+    onFilled: (info) => offerAutoFill(info),
+    // A chart's own elements (Chart Design, Format and the Format pane) follow the chart selected on the grid.
+    onChartSelection: (id) => { chartUi?.chartSelected(id); ctx.smartArt?.chartSelected(id); notify(); },
+    // A SmartArt diagram draws the shapes picked in it (a click on one, or the Text Pane's cursor) framed.
+    smartArtSelection: (id) => ctx.smartArt?.selected(id),
+    onChartKey: (e, id) => !!chartUi?.onChartKey(e, id),
+    canOpen: P.canPickFiles(), // Ctrl+O only where a file picker exists
+    onContextMenu: (info) => openCellContextMenu(ctx, info),
+    announce: (text) => statusBar?.announce(text),
+    onZoom: () => { try { localStorage.setItem('spreadsheet:zoom', String(grid.zoom)); } catch { /* no storage */ } notify(); },
+    validate: (r, c, text, origin) => {
+      // Run before a committed entry is written. Text pasted into the entry (noted here from the viewport's
+      // paste event and the formula bar, or by the grid on its own editor) that reaches out is put through
+      // the question a paste onto the grid gets, so the formula lands #BLOCKED! with the notice, not live.
+      if ((entryPasted || grid.editState?.pasted) && textReachesOut(text)) doc.distrustExternal();
+      const v = wb.validateInput(grid.sheetId, r, c, text, origin);
+      return { ok: v.ok, message: v.message, rule: v.rule, strict: v.rule ? v.rule.strict !== false : false };
+    },
+    onInvalid: invalidEntry,
+    onListOpen: ({ r, c, rule }) => openListPicker(r, c, rule),
+    onDateOpen: ({ r, c }) => openDatePicker(ctx, r, c),
+    onFilterOpen: ({ r, c }) => openFilterMenu(c, r),
+    // Page Break Preview: a page break or the print area's edge dragged to another line.
+    onPageBreakMove: (info) => run('movePageBreak', info),
+    onPrintAreaEdge: (info) => run('printAreaEdge', info),
+    // Arrange ▸ Align ▸ Snap to Grid and Snap to Shape, for objects dragged on the sheet.
+    snap: () => ({ grid: !!view.snapGrid, shape: !!view.snapShape }),
+    // A header drag reordered rows or columns: the selection the user had before it joins the step, so
+    // undoing the move puts it back, as undoing Insert or Delete rows does.
+    rememberSelection: ({ sel, extras }) => rememberStepSelection({
+      sheetId: grid.sheetId, ranges: [...extras, S.selRange(sel)].map((rg) => ({ ...rg })), active: { ...sel.active },
+    }),
+  });
+  ctx.grid = grid;
+  // SmartArt: the shapes picked in a diagram, and its Text Pane (made below with the other task panes).
+  ctx.notify = notify;
+  ctx.refused = (what) => refusedByProtection(what);
+  ctx.smartArt = createSmartArtUi(ctx);
+  // The Paste Options and Auto Fill Options button, at the corner of what was just pasted or filled.
+  // The Quick Analysis button stands at the same corner: it gives way while this one shows.
+  const optionButton = ctx.optionButton = createOptionButton({ grid, host: grid.el, onToggle: () => ctx.quickAnalysis?.place() });
+  let lastPaste = null; // { text, html, paste, from, mark, external }: what the Paste Options button pastes again
+  let lastFill = null; // { sheetId, source, target, mark, kind }: what the Auto Fill Options button fills again
+  ctx.subscribe(() => optionButton.place());
+  const chartUi = ctx.chartUi = createChartUi({ ...ctx, wb, grid, notify, onPaneToggle: () => notify() });
+  // Draw tab: pens, eraser and lasso over the sheet (ui/ink.js).
+  const ink = ctx.ink = createInk({ wb, grid, notify, subscribe: ctx.subscribe, refused: (what) => refusedByProtection(what), announce: (text) => statusBar?.announce(text) });
+  try {
+    const savedZoom = parseFloat(localStorage.getItem('spreadsheet:zoom'));
+    if (savedZoom && savedZoom !== 1 && wb.sheet(wb.activeSheetId)?.viewZoom == null) grid.setZoom(savedZoom, true);
+  } catch { /* no storage */ }
+  if (wb.sheet(wb.activeSheetId)?.viewZoom != null) grid.setZoom(wb.sheet(wb.activeSheetId).viewZoom, true);
+
+  /* ---------- View options (remembered on this device) ---------- */
+
+  // Sheets shown in print preview this session draw their page breaks in Normal view afterwards, until
+  // View ▸ Page Breaks turns them off; the sheet's own setting (showPageBreaks) is the one saved.
+  const previewedSheets = new Set();
+  const pageBreakLinesOn = (id) => !!wb.sheet(id)?.showPageBreaks || previewedSheets.has(id);
+  let selectionPane = null; // made once the editor's commands exist (see below)
+  /*
+   * The sheet view each person is in is their own: remembered on this device for this file, never saved in
+   * it, and taken up again when the file opens here.
+   */
+  const sheetViewKey = () => (doc.path ? `spreadsheet:sheet-views:${doc.path}` : null);
+  function rememberSheetViews() {
+    const key = sheetViewKey();
+    if (!key) return;
+    const mine = Object.fromEntries(wb.sheets.filter((s) => s.personalView && !s.sheetViews?.find((v) => v.id === s.personalView.id)?.temporary).map((s) => [s.id, s.personalView.id]));
+    try { if (Object.keys(mine).length) localStorage.setItem(key, JSON.stringify(mine)); else localStorage.removeItem(key); } catch { /* no storage */ }
+  }
+  try {
+    const key = sheetViewKey(), mine = key ? JSON.parse(localStorage.getItem(key) || '{}') || {} : {};
+    for (const [sheetId, viewId] of Object.entries(mine)) wb.enterSheetView(sheetId, viewId, { undoable: false });
+  } catch { /* no storage, or nothing remembered */ }
+
+  const view = { focus: false, spell: true };
+  try { Object.assign(view, JSON.parse(localStorage.getItem('spreadsheet:view') || '{}') || {}); } catch { /* no storage */ }
+  // Header visibility now follows the saved worksheet view, not a device-wide override.
+  delete view.headers;
+  // The formula bar's switch moved into the person's options (View ▸ Formula bar is the same switch); a device
+  // that had it off keeps it off.
+  if (view.formulaBar === false && appOption('showFormulaBar')) setAppOptions({ showFormulaBar: false });
+  delete view.formulaBar;
+  // A sheet added here starts the way the options say: in the chosen view, with or without headers.
+  const syncNewSheetDefaults = () => {
+    const o = appOptions();
+    wb.newSheetDefaults = { ...(o.newView !== 'normal' ? { viewMode: o.newView } : {}), ...(o.showHeaders ? {} : { headers: false }) };
+  };
+  syncNewSheetDefaults();
+  function applyView() {
+    const o = appOptions();
+    root.classList.toggle('focus-mode', !!view.focus);
+    // What the window shows around the sheet: View ▸ Formula bar and the options' View page.
+    root.classList.toggle('no-formula-bar', !o.showFormulaBar);
+    root.classList.toggle('no-status-bar', !o.showStatusBar);
+    root.classList.toggle('no-sheet-tabs', !o.showSheetTabs);
+    root.classList.toggle('no-hscroll', !o.showHScroll);
+    root.classList.toggle('no-vscroll', !o.showVScroll);
+    root.classList.toggle('no-objects', !o.showObjects);
+    root.classList.toggle('no-comment-marks', o.commentIndicators === 'none');
+    grid.setSpellcheck(view.spell !== false);
+    try { localStorage.setItem('spreadsheet:view', JSON.stringify(view)); } catch { /* no storage */ }
+  }
+  const isFullscreen = () => !!document.fullscreenElement;
+  async function toggleFullscreen() {
+    try {
+      if (isFullscreen()) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {
+      toast(t('editor.fullScreenUnavailable'), { icon: 'info' });
+    }
+  }
+
+  /* ---------- Commands ---------- */
+
+  /** Per-column filter menu: sort, search, and a checklist of values. */
+  function openFilterMenu(c, r = grid.active.r) {
+    const sheetId = grid.sheetId;
+    const sheet = wb.sheet(sheetId);
+    const f = wb.filterAt(sheetId, r, c) || sheet?.filter;
+    if (!f) return;
+    wb.activateFilter(sheetId, f);
+    if (refusedByProtection('change the filter')) return;
+    const header = wb.getDisplay(sheetId, f.range.r1, c) || t('editor.filter.columnHeader', { column: cellName(0, c).replace(/\d+$/, '') });
+    const all = wb.filterValues(sheetId, c);
+    const current = f.criteria[c];
+    // Values the criteria still name but the column no longer holds are left out: counted, they would
+    // inflate the summary, and "Select all" could never reach a state that means no filter. An entry is
+    // chosen by its text, or by the number behind it: after a regional-format change the text differs
+    // (1.5 reads 1,5) while the keys the filter also judges by still match, so the rows it keeps stay checked.
+    const listed = new Set(all.map((v) => v.value));
+    const identity = text => filterValueIdentity(text, current);
+    const named = new Set((current?.values || []).map(identity));
+    const chosenKeys = new Set(current?.keys || []);
+    const selectedByKey = new Set();
+    if (chosenKeys.size) for (const [text, keys] of wb.filterKeysByText(sheetId, c)) {
+      if ([...keys].some(key => chosenKeys.has(key))) selectedByKey.add(identity(text));
+    }
+    const chosen = (text) => named.has(identity(text)) || selectedByKey.has(identity(text));
+    const selected = new Set(current?.values ? [...listed].filter(chosen) : listed);
+    let valuesChanged = false; // a checkbox, Select all or Clear was used, so the value list is what Apply stores
+    // A box used since the search last changed. Until one is, a search narrows the choice to the values it finds, as
+    // Excel's does: typing "pen" and pressing Enter keeps the pens, where every value stayed ticked and Apply cleared the filter.
+    let touchedSinceSearch = false;
+    const dataRange = { r1: f.range.r1 + 1, c1: f.range.c1, r2: f.range.r2, c2: f.range.c2 };
+
+    const search = el('input.input', { type: 'search', placeholder: t('editor.filter.searchValues'), 'aria-label': t('editor.filter.searchValues'), autocomplete: 'off' });
+    const listEl = el('div.filter-values', { role: 'group', 'aria-label': t('editor.filter.values') });
+    const summary = el('div.filter-summary');
+    // Filter by condition: any comparison the conditional-formatting rules know.
+    const CONDITIONS = RULE_TYPES.filter((tx) => !tx.scale && !tx.rangeWide && !tx.date && !tx.databar && !tx.bands && !tx.icons);
+    const condSelect = el('select.select.filter-cond', { 'aria-label': t('editor.filter.condition') },
+      el('option', { value: '' }, t('editor.filter.noCondition')),
+      ...CONDITIONS.map((tx) => el('option', { value: tx.value }, tx.label)));
+    const condValue = el('input.input', { type: 'text', 'aria-label': t('editor.filter.conditionValue'), placeholder: t('common.value'), autocomplete: 'off' });
+    const condValue2 = el('input.input', { type: 'text', 'aria-label': t('editor.filter.secondValue'), placeholder: t('editor.filter.and'), autocomplete: 'off' });
+    // A refused condition names its field, marked invalid and described by the message, as the dialogs' fields are.
+    const { alert: condError, refuse: refuseCond, clear: clearCond } = fieldAlert('filter-cond');
+    if (current?.op) { condSelect.value = current.op; condValue.value = current.value ?? ''; condValue2.value = current.value2 ?? ''; }
+    if (current?.formula) { condSelect.value = 'formula'; condValue.value = current.formula; }
+    const syncCond = () => {
+      const tx = CONDITIONS.find((x) => x.value === condSelect.value);
+      condValue.hidden = !tx || tx.args < 1;
+      condValue2.hidden = !tx || tx.args < 2;
+      condValue.placeholder = tx?.formula ? `=${colName(c)}${f.range.r1 + 2}>100` : tx?.numeric ? t('editor.filter.number') : t('common.value');
+      clearCond();
+      listEl.classList.toggle('dimmed', !!tx);
+    };
+    condSelect.addEventListener('change', syncCond);
+    /**
+     * The keyboard inside the menu. The menu's own arrow keys know only its items (the sort
+     * entries) and Tab leaves it; here Down, Up and Tab move through every control of this menu
+     * (the sort items, swatches, condition fields, search, value checkboxes and buttons) in reading
+     * order and wrap, and Home and End go to the ends except in a text field, where they move the
+     * caret. The condition select keeps Up and Down for picking a condition. True when handled.
+     */
+    const controls = () => [...menu.menu.querySelectorAll('button, input, select')].filter((n) => !n.disabled && !n.closest('[hidden]'));
+    const navigate = (e) => {
+      if (isComposing(e)) return false;
+      const tx = e.target;
+      if (tx === condSelect && e.key !== 'Tab') return false;
+      const inText = tx instanceof HTMLInputElement && tx.type !== 'checkbox';
+      const step = e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey) ? 1 : e.key === 'ArrowUp' || e.key === 'Tab' ? -1 : 0;
+      const ends = !inText && (e.key === 'Home' || e.key === 'End');
+      if (!step && !ends) return false;
+      const list = controls();
+      const next = ends ? list[e.key === 'Home' ? 0 : list.length - 1] : list[(list.indexOf(tx) + step + list.length) % list.length];
+      if (!next) return false;
+      e.preventDefault();
+      e.stopPropagation();
+      next.focus();
+      return true;
+    };
+    // The menu closes on Tab before any listener on its content runs (it listens on the document in
+    // the capture phase, and leaves a key whose default is already prevented alone), so Tab is caught
+    // earlier still, on the window, for as long as the menu is open.
+    const onTab = (e) => { if (e.key === 'Tab' && menu.owns(e.target)) navigate(e); };
+    window.addEventListener('keydown', onTab, true);
+    for (const input of [condSelect, condValue, condValue2]) input.addEventListener('keydown', (e) => { if (isComposing(e) || navigate(e)) return; e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); apply(); } if (e.key === 'Escape') menu.close(); });
+    syncCond();
+    /**
+     * What is wrong with the typed condition, or null: the same checks the
+     * conditional formatting dialog makes. A comparison with nothing to
+     * compare against would quietly hide every row.
+     */
+    // A typed value is read as the grid reads a typed entry, in the regional format (1,5 in de-DE; 1,000; 10%;
+    // a date), as the conditional-formatting dialog reads its values; the number read is what is stored and
+    // compared, so 12.5% meets a cell showing 12.50% and 1,5 is not refused as "not a number".
+    const numberOf = (text) => { const { v } = parseInput(text.trim()); return typeof v === 'number' ? v : null; };
+    const conditionProblem = (tx) => {
+      const v1 = condValue.value.trim();
+      const v2 = condValue2.value.trim();
+      if (tx.formula) return v1.startsWith('=') ? null : t('editor.filter.formulaStartsWithEquals');
+      if (tx.args >= 1 && v1 === '') return t('editor.filter.enterValue');
+      if (tx.args >= 2 && v2 === '') return t('editor.filter.enterBothValues');
+      if (tx.numeric && (numberOf(v1) == null || (tx.args === 2 && numberOf(v2) == null))) return t('editor.filter.needsNumbers');
+      return null;
+    };
+    // The values the search box finds (all of them while it is empty): Select all and Clear act on these, as the
+    // list shows them, so "pen" then Clear unticks the pens rather than every value of the column.
+    const found = () => { const q = search.value.trim().toLowerCase(); return all.filter((v) => !q || v.value.toLowerCase().includes(q)); };
+    /** The values Apply keeps: the ticked ones, less those a search left out while no box has been used since (a search finding nothing narrows nothing). */
+    const kept = () => {
+      const matches = touchedSinceSearch || !search.value.trim() ? [] : found();
+      if (!matches.length) return selected;
+      const shown = new Set(matches.map((v) => v.value));
+      return new Set([...selected].filter((v) => shown.has(v)));
+    };
+    const blanks = t('editor.filter.blanks');
+    const render = () => {
+      const matches = found();
+      const shown = matches.slice(0, 300);
+      // A note under the list: no matches, or a list cut short, so the values past the cap are known to exist.
+      const note = !shown.length ? t('editor.filter.noMatches') : shown.length < matches.length ? t('editor.filter.showingSome', { shown: shown.length, total: matches.length }) : null;
+      listEl.replaceChildren(...shown.map(({ value, count }) => {
+        const id = `fv-${Math.random().toString(36).slice(2, 8)}`;
+        const input = el('input', { type: 'checkbox', id, checked: selected.has(value), onchange: () => { valuesChanged = touchedSinceSearch = true; if (input.checked) selected.add(value); else selected.delete(value); updateSummary(); } });
+        // The blank cells are listed as (Blanks); a cell whose text is exactly that is quoted to tell it apart.
+        return el('label.filter-value', { for: id }, input, el('span.filter-value-text', {}, value === '' ? blanks : value === blanks ? `"${blanks}"` : value), el('span.filter-count', {}, String(count)));
+      }), ...(note ? [el('div.menu-header', {}, note)] : [])); // replaceChildren would print a bare `false`
+      updateSummary();
+    };
+    const updateSummary = () => { summary.textContent = t('editor.filter.selectedCount', { selected: kept().size, total: all.length }); };
+    search.addEventListener('input', () => { touchedSinceSearch = false; render(); });
+    search.addEventListener('keydown', (e) => { if (isComposing(e) || navigate(e)) return; e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); apply(); } if (e.key === 'Escape') menu.close(); });
+    listEl.addEventListener('keydown', (e) => { if (navigate(e)) return; if (e.key !== 'Escape' && e.key !== 'Tab') e.stopPropagation(); });
+
+    const apply = () => {
+      const tx = CONDITIONS.find((x) => x.value === condSelect.value);
+      const problem = tx ? conditionProblem(tx) : null;
+      if (problem) {
+        refuseCond(problem === t('editor.filter.enterBothValues') ? condValue2 : condValue, problem);
+        return;
+      }
+      menu.close();
+      if (tx?.formula) {
+        wb.setFilterCriteria(sheetId, c, { formula: condValue.value.trim() });
+      } else if (tx) {
+        // Equal to and Not equal to take the number when the text reads as one, and the text itself otherwise.
+        const raw = (v) => { const n = tx.numeric || tx.value === 'eq' || tx.value === 'neq' ? numberOf(v) : null; return n != null ? n : v; };
+        wb.setFilterCriteria(sheetId, c, { op: tx.value, value: tx.args >= 1 ? raw(condValue.value) : undefined, value2: tx.args >= 2 ? raw(condValue2.value) : undefined });
+      // Apply with the values untouched keeps a colour filter as it is, and a condition kept from a file (a Top 10).
+      } else if ((!current?.color && current?.native == null) || valuesChanged || kept() !== selected) {
+        const keep = kept();
+        if (all.every((v) => keep.has(v.value))) wb.setFilterCriteria(sheetId, c, null);
+        else wb.setFilterCriteria(sheetId, c, { values: [...keep], ...(current?.caseSensitive === false ? { caseSensitive: false } : {}) });
+      }
+      grid.focus();
+    };
+    const actions = el('div.filter-actions', {},
+      el('button.btn.btn-ghost.btn-sm', { type: 'button', onclick: () => { valuesChanged = touchedSinceSearch = true; for (const v of found()) selected.add(v.value); render(); } }, t('editor.filter.selectAll')),
+      el('button.btn.btn-ghost.btn-sm', { type: 'button', onclick: () => { valuesChanged = touchedSinceSearch = true; for (const v of found()) selected.delete(v.value); render(); } }, t('common.clear')),
+      el('div.grow'),
+      el('button.btn.btn-primary.btn-sm', { type: 'button', onclick: apply }, t('common.apply')));
+
+    // Filter by fill color: the fills used in the column (style or conditional), plus "no fill".
+    const fills = wb.filterColors(sheetId, c);
+    const colorRow = fills.filter((x) => x.color).length ? el('div.filter-colors', { role: 'group', 'aria-label': t('editor.filter.byColor') },
+      // One fill at a time, so the swatches are radios and the chosen one carries aria-checked, as every
+      // other swatch grid in the app does: a class and an outline said which was in force to the eye only,
+      // and a screen reader read a row of plain buttons with nothing to tell them apart.
+      ...fills.map(({ color, count }) => el('button.swatch', {
+        type: 'button', role: 'menuitemradio', 'aria-checked': String(current?.color === color),
+        className: `swatch${color ? '' : ' none'}`,
+        style: color ? { background: color } : null, 'aria-label': color ? t('editor.filter.fillSwatch', { color, count }) : t('editor.filter.noFillSwatch', { count }), title: color ? t('editor.filter.fillSwatchTitle', { color, count }) : t('editor.filter.noFillSwatchTitle', { count }),
+        onclick: () => { menu.close(); wb.setFilterCriteria(sheetId, c, { color }); grid.focus(); },
+      }))) : null;
+    // The workbook declines to sort over merged cells, an array result, protected cells or part of a table: that is said rather than nothing happening.
+    const sortBy = (ascending) => {
+      if (!wb.sortRangeBy(sheetId, dataRange, [{ col: c, ascending }])) { toast(rearrangeProblem(wb, sheetId, dataRange, 'row') || t('editor.nothingToSort'), { icon: 'info' }); return; }
+      wb.reapplyFilter(sheetId);
+    };
+    const rect = grid.cellRect(f.range.r1, c);
+    const anchor = { getBoundingClientRect: () => ({ left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height }), setAttribute() {} };
+    const menu = openMenu({
+      anchor, label: t('editor.filter.menuLabel', { header }), minWidth: 260,
+      items: [
+        { header },
+        { label: t('editor.filter.sortAToZ'), icon: 'sortAsc', onSelect: () => sortBy(true) },
+        { label: t('editor.filter.sortZToA'), icon: 'sortDesc', onSelect: () => sortBy(false) },
+        current && { label: t('editor.filter.clearColumn'), icon: 'x', onSelect: () => wb.setFilterCriteria(sheetId, c, null) },
+        { separator: true },
+        colorRow && { header: t('editor.filter.byFillColor') },
+        colorRow && { custom: colorRow },
+        { header: t('editor.filter.byCondition') },
+        { custom: el('div.filter-cond-row', {}, condSelect, condValue, condValue2, condError) },
+        { header: t('editor.filter.byValues') },
+        { custom: el('div.fn-search', {}, search) },
+        { custom: listEl },
+        { custom: summary },
+        { custom: actions },
+      ],
+      onClose: () => { window.removeEventListener('keydown', onTab, true); grid.focus(); },
+    });
+    menu.menu.addEventListener('keydown', navigate); // the sort items, swatches and buttons: before the menu's own arrow handling on the document
+    render();
+    setTimeout(() => search.focus(), 0);
+  }
+
+  function openListPicker(r, c, rule) {
+    const sheetId = grid.sheetId;
+    const typed = Array.isArray(rule.source) || isRangeSource(rule.source);
+    const entries = wb.listOptionsFor(sheetId, rule, { typed, r, c, labels: true });
+    const values = entries.map((entry) => entry.value);
+    // An option reads as its source cell shows it, so a list of dates shows dates rather than serials and
+    // an amount keeps its symbol; one with no cell behind it reads in this cell's own format. The chosen
+    // value is still inserted typed. A format that hides the value (;;;) must not hide the option.
+    // "This cell's own format" is what the cell shows, the format its column or row carries included,
+    // so a list of amounts in a Currency column reads the way the cells under it do.
+    const style = wb.styleAt(sheetId, r, c);
+    const numberLabel = (v) => { const label = formatValue(v, style); return label.trim() ? label : String(v); };
+    const options = entries.map(({ value: v, text }) => text ?? (typeof v === 'boolean' ? (v ? 'TRUE' : 'FALSE') : typeof v === 'number' ? numberLabel(v) : String(v)));
+    const seen = new Set();
+    const ambiguous = new Set();
+    for (const label of options) {
+      if (seen.has(label)) ambiguous.add(label);
+      seen.add(label);
+    }
+    if (!options.length) { toast(t('editor.listPicker.noOptions'), { icon: 'info' }); return; }
+    const currentValue = wb.getValue(sheetId, r, c);
+    const hasValue = currentValue != null && currentValue !== '';
+    const currentText = typeof currentValue === 'boolean' ? (currentValue ? 'TRUE' : 'FALSE') : String(currentValue ?? '');
+    let selected = typed ? values.findIndex((value) => value === currentValue) : options.indexOf(currentText);
+    // Match manual numeric aliases (such as 42.0 for 42) using the same
+    // equivalence as validation, after preferring an exact unformatted label.
+    if (!typed && selected < 0 && hasValue && typeof currentValue !== 'object') {
+      selected = options.findIndex((label) => checkValue({ type: 'list', source: [label] }, currentValue).ok);
+    }
+    const rect = grid.cellRect(r, c);
+    const anchor = { getBoundingClientRect: () => ({ left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height }), setAttribute() {} };
+    openValuePicker({
+      anchor, labels: options, minWidth: Math.max(160, rect.width),
+      current: selected, // the index of the cell's option, so the picker opens on it without scanning the items itself
+      itemAt: (i) => {
+        const type = ambiguous.has(options[i]) ? { string: t('editor.listPicker.text'), number: t('editor.listPicker.number'), boolean: t('editor.listPicker.boolean') }[typeof values[i]] : null;
+        return {
+          label: options[i], shortcut: type, ariaLabel: type ? t('editor.listPicker.optionWithType', { option: options[i], type }) : null,
+          checked: i === selected,
+          swatch: rule.chips ? chipFor(rule, options[i], options)?.bg : null,
+          onSelect: () => {
+            // Source cells already have types. Do not reparse their labels as
+            // dates, numbers, or formulas when inserting the chosen value.
+            // For manually listed options, retain ordinary numeric/boolean
+            // input only when it still matches the particular label selected.
+            const literal = typed || /^[=']/.test(options[i])
+              || !checkValue({ type: 'list', source: [options[i]] }, parseInput(options[i]).v).ok;
+            // A number reads in the cell as the list showed it: a cell of no number format of its own takes the
+            // source cell's, so a date picked as 2024-01-15 does not land as the serial 45306.
+            const format = typed ? wb.listOptionFormat(sheetId, rule, values[i], r, c) : null;
+            wb.setInput(sheetId, r, c, values[i], { literal, ...(format ? { style: format } : {}) });
+            grid.focus();
+          },
+        };
+      },
+      clearItem: hasValue ? { label: t('common.clear'), icon: 'x', onSelect: () => { wb.setInput(sheetId, r, c, ''); grid.focus(); } } : null,
+      onClose: () => grid.focus(),
+    });
+  }
+
+  function selectLocation(sheetId, range, lines = null) {
+    // `lines` instead of a range: whole columns or rows (B:C, $3:$5), which the grid selects by their text.
+    if (!lines && (!range || !wb.canEnsureSize(sheetId, range.r2 + 1, range.c2 + 1))) {
+      toast(t('editor.goTo.beyondSheet'), { icon: 'alert' }); return false;
+    }
+    // Navigating is not an edit. A target on a hidden sheet is refused, rather than the
+    // sheet revealed: unhiding dirtied the document, pushed a "Show sheet" step and let the autosave write
+    // the reveal into the file, so merely opening a shared ?range= link or a #Sheet!A1 link exposed the sheet.
+    const sheet = wb.sheet(sheetId);
+    if (sheet?.hidden) {
+      toast(t('editor.goTo.sheetHidden', { name: sheet.name }), { icon: 'info', duration: 3500 });
+      return null;
+    }
+    if (sheetId !== wb.activeSheetId) wb.setActiveSheet(sheetId);
+    return grid.selectByName(lines || rangeName(range));
+  }
+
+  /** Jump to a "#Sheet!A1" / "#Name" link target, switching sheets when needed. */
+  function followInternalLink(url) {
+    const target = wb.resolveLink(url, grid.sheetId, grid.active);
+    if (!target) { toast(t('editor.goTo.linkGone'), { icon: 'alert' }); return false; }
+    if (!selectLocation(target.sheetId, target.range)) return false;
+    grid.focus();
+    return true;
+  }
+  ctx.followInternalLink = followInternalLink;
+
+  function openLinkDialog() {
+    if (grid.editing && !grid.commitEdit()) return;
+    const { r, c } = grid.active;
+    const sheetId = grid.sheetId;
+    if (wb.lockedAt(sheetId, r, c)) return; // a protected cell: the workbook says so, and would refuse the link
+    const existing = wb.linkAt(sheetId, r, c);
+    // A table's header holds its column's name, so the workbook declines a HYPERLINK formula there: said before the dialog opens.
+    const table = wb.tableAt(sheetId, r, c);
+    if (table && r === table.range.r1) { toast(t('editor.link.tableHeader'), { icon: 'info', duration: 3000 }); return; }
+    const cell = wb.getCell(sheetId, r, c);
+    const labelNow = existing ? existing.label : cell && cell.f == null && cell.v != null ? wb.getDisplay(sheetId, r, c) : '';
+    // A number or boolean keeps its type through the link: the dialog shows it as the cell formats it,
+    // but unless that text is changed the value itself goes to the workbook, so a SUM over the cell
+    // still counts it and removing the link gives the number back rather than "$1,000.00" as text.
+    // An existing link's label is what its HYPERLINK computes (1000, not the "$1,000.00" shown) or a
+    // typed address's own text; an error result has no value to hand back and the text stands in.
+    const linkValue = existing ? (cell.f != null ? wb.getValue(sheetId, r, c) : cell.v) : null;
+    const typedValue = existing
+      ? (linkValue != null && typeof linkValue !== 'object' ? linkValue : null)
+      : cell?.f == null && (typeof cell?.v === 'number' || typeof cell?.v === 'boolean') ? cell.v : null;
+    const textInput = el('input.input', { type: 'text', 'aria-label': t('editor.link.text'), placeholder: t('editor.link.textToShow'), value: labelNow, autocomplete: 'off' });
+    const urlInput = el('input.input', { type: 'text', inputmode: 'url', 'aria-label': t('editor.link.link'), placeholder: t('editor.link.urlPlaceholder'), value: existing?.url || '', autocomplete: 'off', spellcheck: false });
+    // A refusal names its field (the link, or the cell or range): marked invalid, described by the message
+    // and focused, as the dialogs' shared fieldAlert does; the mark goes when that field's value next changes.
+    const error = el('p.field-error', { id: `link-error-${Math.random().toString(36).slice(2, 8)}`, hidden: true, role: 'alert' });
+    let blamed = null;
+    const clearError = () => { error.hidden = true; if (blamed) { blamed.removeAttribute('aria-invalid'); blamed.removeAttribute('aria-describedby'); blamed = null; } };
+    const refuse = (field, message) => {
+      clearError();
+      error.textContent = message;
+      error.hidden = false;
+      blamed = field;
+      field.setAttribute('aria-invalid', 'true');
+      field.setAttribute('aria-describedby', error.id);
+      field.focus();
+      return false;
+    };
+    const unmark = (e) => { if (e.target === blamed) clearError(); };
+    // Where the link goes: a web address, a place on a sheet, or a named range.
+    const hasSheets = (ref) => ref && wb.sheetByName(ref.sheet) && (!ref.sheetEnd || wb.sheetByName(ref.sheetEnd));
+    // The names the Name Manager shows: not the hidden ones that keep a pivot table's or Solver's workings.
+    const namedRanges = wb.names.filter((n) => !n.hidden && hasSheets(wb.parseNamedRef(n.ref)));
+    const internal = existing && existing.url.startsWith('#') ? existing.url.slice(1) : null;
+    const parsedInternal = internal ? wb.parseNamedRef(internal) : null;
+    // A sheet picker cannot represent both endpoints of a span. Keep its
+    // complete address in the link field instead of reducing it to one sheet.
+    const internalRef = hasSheets(parsedInternal) && !parsedInternal.sheetEnd ? parsedInternal : null;
+    const internalName = internal && !internalRef ? namedRanges.find((n) => wb.nameLabel(n).toLowerCase() === internal.toLowerCase()) : null;
+    const kindSelect = el('select.select', { 'aria-label': t('editor.link.linkTo') },
+      el('option', { value: 'web' }, t('editor.link.webOrEmail')),
+      el('optgroup', { label: t('editor.link.sheets') }, ...wb.sheets.map((sh) => el('option', { value: `sheet:${sh.id}` }, sh.name))),
+      namedRanges.length ? el('optgroup', { label: t('editor.link.namedRanges') }, ...namedRanges.map((n) => el('option', { value: `name:${wb.nameLabel(n)}` }, wb.nameLabel(n)))) : null);
+    const rangeInput = el('input.input', { type: 'text', 'aria-label': t('editor.link.cellOrRange'), placeholder: t('editor.link.rangePlaceholder'), value: 'A1', autocomplete: 'off', spellcheck: false });
+    if (internalRef) {
+      const target = wb.sheetByName(internalRef.sheet);
+      if (target) { kindSelect.value = `sheet:${target.id}`; rangeInput.value = rangeName(internalRef).replace(/\$/g, '') + (internalRef.spill ? '#' : ''); }
+    } else if (internalName) kindSelect.value = `name:${wb.nameLabel(internalName)}`;
+    const initialKind = kindSelect.value, initialRange = rangeInput.value;
+    const webField = el('label.field', {}, el('span.field-label', {}, t('editor.link.link')), urlInput);
+    const rangeField = el('label.field', {}, el('span.field-label', {}, t('editor.link.cellOrRange')), rangeInput);
+    const syncKind = () => {
+      const kind = kindSelect.value;
+      webField.hidden = kind !== 'web';
+      rangeField.hidden = !kind.startsWith('sheet:');
+      clearError();
+    };
+    kindSelect.addEventListener('change', syncKind);
+    syncKind();
+    const targetUrl = () => {
+      const kind = kindSelect.value;
+      if (kind === 'web') return urlInput.value.trim();
+      if (kind.startsWith('name:')) return `#${kind.slice(5)}`;
+      if (existing && kind === initialKind && rangeInput.value.trim() === initialRange) return existing.url;
+      const targetId = kind.slice(6);
+      const text = rangeInput.value.trim(), spill = text.endsWith('#');
+      const range = spill ? parseRefText(text.slice(0, -1)) : parseRange(text);
+      if (!range || (spill && range.kind !== 'cell')) return null;
+      const address = wb.internalLinkFor(targetId, range);
+      return address && spill ? `${address}#` : address;
+    };
+    const submit = (e) => {
+      e?.preventDefault();
+      const url = targetUrl();
+      if (url == null) return refuse(rangeInput, t('editor.link.enterRange'));
+      if (!url) return refuse(urlInput, t('editor.link.enterLink'));
+      if (!safeLinkUrl(url)) return refuse(urlInput, t('editor.link.enterValid'));
+      // Saved as it was: nothing is written, so the cell keeps its kind (a typed address stays typed text,
+      // a numeric label a number) and there is nothing to undo.
+      if (existing && url === existing.url && textInput.value === labelNow) { modal.close(); grid.focus(); return; }
+      // A place link with no text shows the place, not the raw address.
+      const label = textInput.value.trim() || (url.startsWith('#') ? url.slice(1).replace(/'/g, '') : '');
+      // False from the workbook means nothing was recorded (a protected cell, which it reports itself); nothing is announced as done either way, so the dialog simply closes.
+      wb.setLink(sheetId, r, c, url, typedValue != null && textInput.value === labelNow ? typedValue : label);
+      modal.close();
+      grid.focus();
+    };
+    const content = el('form', { onsubmit: submit, oninput: unmark, onchange: unmark },
+      el('label.field', {}, el('span.field-label', {}, t('editor.link.text')), textInput),
+      el('label.field', {}, el('span.field-label', {}, t('editor.link.linkTo')), el('div.select-wrap', {}, kindSelect)),
+      webField,
+      rangeField,
+      error, // below whichever of the two fields is shown, so a refusal of either is in view
+      el('div.row.row-end', {},
+        existing && el('button.btn.btn-danger', { type: 'button', onclick: () => { wb.removeLink(sheetId, r, c); modal.close(); grid.focus(); } }, t('editor.link.remove')),
+        el('div.grow'),
+        el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, t('common.cancel')),
+        el('button.btn.btn-primary', { type: 'submit' }, existing ? t('common.save') : t('common.insert'))));
+    // Starts on the address for an existing link or a cell with text, else on the text; through openModal, whose screen-size guard keeps a phone's keyboard down.
+    // Cancelled, it gives the keyboard back to the sheet, as when it is saved, not to the ribbon button it was opened from.
+    const modal = openModal({ title: existing ? t('editor.link.editTitle') : t('editor.link.insertTitle'), content, initialFocus: existing || labelNow ? urlInput : textInput, onClose: () => keepFocus() });
+  }
+
+  function openNoteDialog() {
+    if (grid.editing && !grid.commitEdit()) return;
+    const { r, c } = grid.active;
+    const sheetId = grid.sheetId;
+    if (wb.lockedAt(sheetId, r, c)) return; // a protected cell: the workbook says so, and would refuse the note
+    const existing = wb.getNote(sheetId, r, c) || '';
+    const area = el('textarea.input.note-area', { rows: 4, 'aria-label': t('editor.note.note'), placeholder: t('editor.note.placeholder'), value: existing, maxlength: 4000 });
+    const submit = (e) => {
+      e?.preventDefault();
+      wb.setNote(sheetId, r, c, area.value);
+      modal.close();
+      grid.focus();
+    };
+    const content = el('form', { onsubmit: submit },
+      el('label.field', {}, el('span.field-label', {}, t('editor.note.on', { cell: cellName(r, c) })), area),
+      el('div.row.row-end', {},
+        existing && el('button.btn.btn-danger', { type: 'button', onclick: () => { wb.setNote(sheetId, r, c, null); modal.close(); grid.focus(); } }, t('common.delete')),
+        el('div.grow'),
+        el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, t('common.cancel')),
+        el('button.btn.btn-primary', { type: 'submit' }, existing ? t('common.save') : t('editor.note.add'))));
+    area.addEventListener('keydown', (e) => { if (isComposing(e)) return; if (e.key === 'Enter' && isMod(e)) submit(e); });
+    const modal = openModal({ title: existing ? t('editor.note.editTitle') : t('editor.note.add'), content, initialFocus: area, onClose: () => keepFocus() });
+    area.setSelectionRange(area.value.length, area.value.length); // the caret after the note, where the field took the focus
+  }
+
+  /**
+   * Select a named range, switching sheets if needed. Synchronous; true when
+   * found, false when the name means nothing here, null when it was refused
+   * with an explanation of its own (a missing sheet, a formula name).
+   */
+  function goToName(name, scopeSheet = wb.activeSheetId) {
+    // Menu entries identify their exact scope, including workbook scope
+    // when the current sheet has an override with the same spelling.
+    const entry = name && typeof name === 'object' ? name : null;
+    if (entry) name = entry.name;
+    const directRange = !entry && parseRange(String(name).trim());
+    if (directRange) return selectLocation(scopeSheet, directRange);
+    // Sheet!A1, 'My sheet'!A1:B5, Sheet!MyTable: switch to that sheet, then find the rest there.
+    const qualified = /^(?:'((?:[^']|'')+)'|([^'!\[\]]+))!(.+)$/.exec(String(name).trim());
+    if (qualified) {
+      const sheetName = qualified[1] != null ? qualified[1].replace(/''/g, "'") : qualified[2].trim();
+      const target = wb.sheetByName(sheetName);
+      if (!target) { toast(t('editor.goTo.noSheet', { name: sheetName }), { icon: 'info' }); return null; }
+      const rest = qualified[3].trim();
+      const range = parseRange(rest);
+      if (range) {
+        return selectLocation(target.id, range);
+      }
+      // Whole columns or rows (Sheet2!B:C, Sheet2!$3:$5), which no cell range reads, as the box takes them on its own sheet.
+      if (/^\$?[A-Za-z]{1,3}\$?:\$?[A-Za-z]{1,3}$|^\$?\d+:\$?\d+$/.test(rest)) return selectLocation(target.id, null, rest);
+      return goToName(rest, target.id);
+    }
+    const scopeName = entry ? entry.sheet || null : wb.sheet(scopeSheet)?.name;
+    let ref = wb.namedLocation(name, scopeName, grid.active);
+    if (!ref && !entry && String(name).trim().endsWith('#')) {
+      const location = wb.resolveLink(`#${name}`, scopeSheet, grid.active);
+      if (location) ref = { sheet: wb.sheet(location.sheetId).name, ...location.range };
+    }
+    if (!ref) {
+      // A table name selects the table (its header and data); Table[Column] selects that part.
+      const m = /^([A-Za-z_][A-Za-z0-9_.]*)(?:\[(.*)\])?$/.exec(String(name).trim());
+      const found = m ? wb.tableByName(m[1]) : null;
+      if (found) {
+        const rect = m[2] != null ? resolveTableSpec(found.table, wb.tableColumns(found.sheet.id, found.table), m[2], null) : null;
+        if (rect?.error) { toast(t('editor.goTo.notInTable', { name, table: found.table.name }), { icon: 'info' }); return null; }
+        ref = rect ? { sheet: found.sheet.name, ...rect } : { sheet: found.sheet.name, ...found.table.range };
+      }
+    }
+    if (!ref) {
+      if (wb.isNamedFormula(name, scopeName)) { toast(t('editor.goTo.nameIsFormula', { name }), { icon: 'info', duration: 3000 }); return null; }
+      return false;
+    }
+    const target = wb.sheetByName(ref.sheet);
+    if (!target) { toast(t('editor.goTo.nameSheetGone'), { icon: 'alert' }); return null; }
+    return selectLocation(target.id, wb.navigationRange(target.id, ref));
+  }
+  ctx.goToName = goToName;
+  ctx.canAI = () => P.canAI();
+
+  /** Formatting a whole column must not create a million styled cells. */
+  /**
+   * The range a data command works on: the selection, or, for a single
+   * cell, the block of data around it (not the whole sheet, whose title
+   * rows would otherwise become the header). An empty, isolated cell
+   * falls back to the sheet's used range.
+   */
+  function dataRange(fallback = wb.usedRange(grid.sheetId)) {
+    if (!S.isSingle(grid.selection)) return toUsedExtent(grid.range);
+    return wb.dataRegion(grid.sheetId, grid.active.r, grid.active.c) || fallback;
+  }
+
+  /**
+   * Whether the list at a cell shows a filter, as Data ▸ Filter reads it: a table's filter whose buttons are hidden
+   * (Table Design ▸ Filter Button off, or the one a slicer added) is shown as off, since the command shows them.
+   */
+  function filterShownAt(sheetId, r, c) {
+    const filter = wb.filterAt(sheetId, r, c);
+    const table = filter && filterTable(wb.sheet(sheetId), filter);
+    return !!filter && (!table || tableFilterButtonOn(wb, sheetId, table));
+  }
+  ctx.filterShownAt = filterShownAt;
+
+  /**
+   * The rows a sort from one cell takes: the table or the filtered list the cell is in, whole, as Excel sorts
+   * them, and otherwise the block of data around it (see dataRange). Read as a block, a list with a blank row
+   * inside it was sorted only down to that row, while its filter menu's Sort A to Z sorted all of it.
+   */
+  function sortBlock() {
+    if (!S.isSingle(grid.selection)) return dataRange();
+    const { r, c } = grid.active;
+    const table = wb.tableAt(grid.sheetId, r, c);
+    if (table) return table.range;
+    const filter = wb.filterAt(grid.sheetId, r, c);
+    return filter ? toUsedExtent(filter.range) : dataRange();
+  }
+
+  /**
+   * Whole columns or rows (a range reaching row 1,048,576 or column XFD) as far as the sheet's content goes,
+   * as the data commands take them: a sort, a subtotal or a duplicate check over column A works on its
+   * data, not on a million blank rows. Other ranges are left as they are.
+   */
+  function toUsedExtent(range, sheetId = grid.sheetId) {
+    if (range.r2 < MAX_ROW && range.c2 < MAX_COL) return range;
+    const used = wb.usedRange(sheetId);
+    const r2 = range.r2 >= MAX_ROW ? Math.max(range.r1, Math.min(range.r2, used?.r2 ?? range.r1)) : range.r2;
+    const c2 = range.c2 >= MAX_COL ? Math.max(range.c1, Math.min(range.c2, used?.c2 ?? range.c1)) : range.c2;
+    return { ...range, r2, c2 };
+  }
+
+  /** `what` names the command in the note when the range is cut short ("Checkboxes inserted through row 200"): a key of CAPPED_MESSAGES. */
+  function formatRange(range = grid.range, what = 'formatting') {
+    const sheet = wb.sheet(grid.sheetId);
+    const used = wb.usedRange(grid.sheetId) || { r2: -1, c2: -1 };
+    let { r1, c1, r2, c2 } = range;
+    const total = (r2 - r1 + 1) * (c2 - c1 + 1);
+    if (total <= MAX_FORMAT_CELLS) return range;
+    r2 = Math.min(r2, Math.max(used.r2, r1 + 199, grid.active.r));
+    c2 = Math.min(c2, Math.max(used.c2, c1 + 25, grid.active.c));
+    if ((r2 - r1 + 1) * (c2 - c1 + 1) > MAX_FORMAT_CELLS) r2 = r1 + Math.floor(MAX_FORMAT_CELLS / (c2 - c1 + 1)) - 1;
+    toast(t(CAPPED_MESSAGES[what] || CAPPED_MESSAGES.formatting, { row: r2 + 1 }), { icon: 'info' });
+    return normalizeRange({ r1, c1, r2: Math.min(r2, sheet.rows - 1), c2: Math.min(c2, sheet.cols - 1) });
+  }
+
+  /**
+   * A range without the rows a filter is hiding: one range per run of shown
+   * rows, or the range itself when nothing in it is filtered out. Clearing
+   * and formatting a filtered list touch what is on screen.
+   */
+  function shownRuns(rg, sheetId = grid.sheetId) {
+    const hidden = wb.sheet(sheetId)?.filterHidden;
+    if (!hidden?.size) return [rg];
+    const out = [];
+    let start = null;
+    for (let r = rg.r1; r <= rg.r2 + 1; r++) {
+      const shown = r <= rg.r2 && !hidden.has(r);
+      if (shown && start == null) start = r;
+      if (!shown && start != null) { out.push({ ...rg, r1: start, r2: r - 1, scope: rg.scope === 'sheet' || rg.scope === 'rows' ? 'rows' : undefined }); start = null; }
+    }
+    return out;
+  }
+
+  /**
+   * What a formatting command formats, and the cell whose style it reads: the selection on the
+   * sheet shown, or, while a cell is being edited, that cell on its own sheet. Formatting does not
+   * commit an entry (the cell is styled mid-edit), and a formula may be showing another
+   * sheet to pick references on, whose selection is not what the user means to format.
+   */
+  function styleTarget() {
+    const edit = grid.editing ? grid.editState : null;
+    // Include row/column defaults and a spilled result's inherited number format,
+    // so every control fed by it reports the format the cell is really in rather than only the one it stores.
+    const { sheetId, r, c } = edit ? { sheetId: edit.sheetId, r: edit.r, c: edit.c } : { sheetId: grid.sheetId, r: grid.active.r, c: grid.active.c };
+    const ranges = edit ? [{ r1: r, c1: c, r2: r, c2: c }] : grid.formatRanges;
+    return { sheetId, ranges, style: wb.displayStyleAt(sheetId, r, c) || {} };
+  }
+
+  /**
+   * Run an edit over every selected range (Ctrl/Cmd+click adds ranges) as one undo step,
+   * leaving out the rows a filter hides: as one call per run of shown rows, or, for an edit
+   * the workbook makes in one call over a range (`skipRows`), as `fn(range, skipRow)` with
+   * the rows to pass over. A filtered list cut into thousands of runs then costs one call
+   * and one history entry rather than one apiece, which took a minute over 20,000 rows.
+   * `fn` also receives the sheet the ranges are on: the cell being edited (see `styleTarget`)
+   * may be on another sheet than the one shown. A protected cell among the shown rows of any
+   * range refuses every range up front, as the workbook refuses one range holding such a cell:
+   * all or nothing, rather than the other ranges done and that one not.
+   * The workbook's notice has named the cell then, and null says so.
+   */
+  function eachRange(label, fn, { cap = true, skipRows = false, what = undefined, nativeScope = false, contents = false } = {}) {
+    const { sheetId, ranges: selected } = styleTarget();
+    const ranges = selected.map((rg) => (cap ? formatRange(rg, what) : rg));
+    const runs = ranges.flatMap((rg) => shownRuns(rg, sheetId));
+    const hidden = wb.sheet(sheetId)?.filterHidden;
+    const skipRow = hidden?.size ? (r) => hidden.has(r) : null;
+    // Emptying cells (contents) is refused only by the cells it would change: on a protected sheet the unlocked ones may be emptied.
+    if (runs.some((rg) => (contents ? wb.contentsLockedIn(sheetId, rg, skipRow) : wb.lockedIn(sheetId, nativeScope ? { ...rg,
+      ...(['columns', 'sheet'].includes(rg.scope) ? { r1: 0, r2: MAX_ROW } : {}),
+      ...(['rows', 'sheet'].includes(rg.scope) ? { c1: 0, c2: MAX_COL } : {}),
+    } : rg)))) return null;
+    const calls = skipRows ? ranges.map((rg) => () => fn(rg, skipRow, sheetId)) : runs.map((rg) => () => fn(rg, null, sheetId));
+    if (!calls.length) return undefined;
+    if (calls.length === 1) return calls[0]();
+    return wb.transaction(label, () => { for (const call of calls) call(); });
+  }
+
+  /** A reference typed in a dialog (Sheet2!A1:C9, A1:C9 on this sheet, or a defined name) as { sheetId, range }, or null. */
+  function resolveRangeText(text) {
+    const here = wb.sheet(grid.sheetId)?.name;
+    const body = String(text).trim().replace(/^=/, '');
+    const bang = body.lastIndexOf('!');
+    const sheetName = bang > 0 ? body.slice(0, bang).replace(/^'(.*)'$/s, '$1').replace(/''/g, "'") : null;
+    const ref = parseRefText(bang > 0 ? body.slice(bang + 1) : body, sheetName) || wb.namedRef?.(body, here);
+    if (!ref || ref.r1 == null || ref.c1 == null) return null;
+    const target = ref.sheet ? wb.sheetByName(ref.sheet) : wb.sheet(grid.sheetId);
+    if (!target || target.kind === 'chart') return null;
+    return { sheetId: target.id, range: { r1: ref.r1, c1: ref.c1, r2: ref.r2 ?? ref.r1, c2: ref.c2 ?? ref.c1 } };
+  }
+  ctx.resolveRange = resolveRangeText;
+
+  /**
+   * Conditional formats and merged blocks are formats too: Clear Formats and Clear All take them off the
+   * selection's shown cells with the rest, as Excel's do, rather than leaving the cells highlighted or merged.
+   */
+  function clearRulesAndMerges() {
+    const { sheetId: sid, ranges } = styleTarget();
+    const runs = ranges.flatMap((rg) => shownRuns(rg, sid));
+    // Each grouped sheet loses its own rules there, as the clearing takes each one's formatting (unmerging already
+    // reaches the group): the active sheet's alone went, the others' highlights staying on their cleared cells.
+    for (const id of wb.sheetGroup?.includes(sid) ? wb.sheetGroup : [sid]) if (wb.sheet(id)?.kind !== 'chart') clearRules(wb, id, runs);
+    for (const rg of runs) wb.unmergeCells(sid, rg);
+  }
+
+  /**
+   * Remove the notes, or the links, of the selected cells shown: only cells that have one are visited. Grouped sheets each
+   * lose their own, as Clear takes each one's contents: the active sheet's alone were cleared, the others' left.
+   */
+  function clearInSelection(kind) {
+    // The rows a filter hides are left alone, as clearing their contents leaves them: a hidden row lost its note.
+    const hidden = wb.sheet(grid.sheetId)?.filterHidden;
+    const inside = (r, c) => !hidden?.has(r) && grid.ranges.some((rg) => r >= rg.r1 && r <= rg.r2 && c >= rg.c1 && c <= rg.c2);
+    for (const id of wb.sheetGroup || [grid.sheetId]) {
+      const sheet = wb.sheet(id);
+      if (!sheet || sheet.kind === 'chart') continue;
+      if (kind === 'notes') {
+        for (const key of [...sheet.notes.keys()]) {
+          const { r, c } = parseKey(key);
+          if (inside(r, c)) wb.setNote(sheet.id, r, c, null);
+        }
+        comments.clearIn(sheet.id, inside);
+        continue;
+      }
+      for (const key of [...sheet.cells.keys()]) {
+        const { r, c } = parseKey(key);
+        if (inside(r, c) && wb.linkAt(sheet.id, r, c)) wb.removeLink(sheet.id, r, c);
+      }
+    }
+  }
+
+  /** Handle native selections atomically; false means the ordinary path should run. */
+  function nativeFormatRanges(apply, { onApplied = null, cap = true } = {}) {
+    const { sheetId, ranges: selected } = styleTarget();
+    // Prepare all visible ranges together when a native report is affected.
+    // Sequential applyStyle calls cannot keep cell edits and semantic rules in
+    // sync, or undo an earlier range if a later native selection is unsupported.
+    if (selected.some(rg => wb.nativePivotOverlap(sheetId, rg))) {
+      const ranges = selected.map(rg => cap ? formatRange(rg) : rg).flatMap(rg => shownRuns(rg, sheetId));
+      if (ranges.some(rg => wb.lockedIn(sheetId, rg))) return true;
+      let changed;
+      try {
+        changed = apply(sheetId, ranges);
+      } catch {
+        toast(t('editor.pivotFormatRefused'), { icon: 'info', duration: 5000 });
+        return true;
+      }
+      // Callers adding layout edits wrap both operations in one transaction.
+      if (changed) onApplied?.(sheetId, ranges);
+      return true;
+    }
+    return false;
+  }
+
+  function nativeStyleRanges(patch, onApplied = null) {
+    return nativeFormatRanges((sid, ranges) => formatNativePivotSelection(wb, new Map([[sid, ranges]]), patch,
+      { maxCells: MAX_FORMAT_CELLS, defaultSize: 13 }), { onApplied });
+  }
+
+  /** Merge a style patch into every selected range, the rows a filter hides left out. */
+  function styleRanges(label, patch) {
+    if (nativeStyleRanges(patch)) return;
+    // Uncapped, as Format Cells applies a patch: the workbook formats whole columns and rows as their default
+    // and visits only the cells it stores, so a column chosen by its header is formatted all the way down.
+    return eachRange(label, (rg, skipRow, sheetId) => wb.applyStyle(sheetId, rg, patch, { skipRow }), { skipRows: true, cap: false });
+  }
+
+  function fittedStyleRanges(label, patch, fit = true) {
+    const fitRanges = (sid, ranges) => {
+      if (fit && sid === grid.sheetId) for (const rg of ranges) grid.autoFitRows(rg.r1, Math.min(rg.r2, rg.r1 + 500));
+    };
+    wb.transaction(label, () => {
+      if (nativeStyleRanges(patch, fitRanges)) return;
+      eachRange(label, (rg, _, sid) => {
+        wb.applyStyle(sid, rg, patch);
+        fitRanges(sid, [rg]);
+      }, { cap: false });
+    });
+  }
+
+  function growFontRows(sid, tallest) {
+    // Rows that can no longer show the text grow; a hidden row is never unhidden. A row someone sized keeps its
+    // height as theirs and is only grown. A row nobody sized (at the default height, or fitted automatically)
+    // stays automatic and is fitted to its text, so it shrinks again when the font is made smaller, as Excel's
+    // rows do: marked as sized by hand, a row grown for 28 point text kept that height back at 11 point.
+    const sheet = wb.sheet(sid);
+    const automatic = [];
+    // A row at the default height is someone's size where the default is: Row Height... over the whole sheet sets
+    // the default (30px, say) rather than every row's height, and fitted as automatic a row given 12 point text
+    // shrank from 30px to 21. The default a sheet starts with is a line of its Normal font, or a few pixels more.
+    const spare = sheet.defaultRowHeight - heightForLines(1, wb.normalStyle?.size || 13);
+    const byDefault = spare >= 0 && spare <= 4;
+    for (const [r, px] of tallest) {
+      if (wb.isHidden(sid, 'row', r)) continue;
+      const mode = sheet.rowHeightModes.get(r);
+      if (sid === grid.sheetId && (mode === 'auto' || (byDefault && mode == null && !sheet.rowHeights.has(r)))) { automatic.push(r); continue; }
+      const needed = heightForLines(1, px);
+      if (wb.rowHeight(sid, r) < needed) wb.setRowHeight(sid, r, needed, { auto: mode === 'auto' });
+    }
+    automatic.sort((a, b) => a - b);
+    for (let i = 0; i < automatic.length;) {
+      let j = i;
+      while (j + 1 < automatic.length && automatic[j + 1] === automatic[j] + 1) j++;
+      grid.autoFitRows(automatic[i], automatic[j], { force: true });
+      i = j + 1;
+    }
+  }
+
+
+  function nativeFontSizeRanges(sizeAt) {
+    const tallest = new Map();
+    return nativeStyleRanges((sid, r, c) => {
+      const px = sizeAt(sid, r, c);
+      if (!px) return null;
+      tallest.set(r, Math.max(tallest.get(r) || 0, px));
+      return { size: px === 13 ? null : px };
+    }, sid => growFontRows(sid, tallest));
+  }
+
+  /**
+   * A command that takes one range, given a Ctrl/Cmd+click selection of several: refused with a word
+   * rather than run on the last range
+   * added, the one holding the active cell, while the others sit selected and nothing is said.
+   */
+  function oneRange(what) {
+    if (grid.ranges.length <= 1) return true;
+    const key = ONE_RANGE_MESSAGES[what];
+    toast(key ? t(key) : t('editor.oneRange.other', { action: what }), { icon: 'info', duration: 3000 });
+    keepFocus();
+    return false;
+  }
+
+  /**
+   * Would splitting the first column of the selected ranges (in the rows on show) write a piece over a cell
+   * that holds something? Mirrors how the workbook splits: the delimiter given, or the one most rows contain
+   * (space last), quoted fields kept whole. Split text asks before replacing data.
+   */
+  function splitWouldOverwrite(delimiter) {
+    const sheetId = grid.sheetId;
+    if (delimiter && typeof delimiter === 'object') {
+      // The Text to Columns choices: whatever the split writes, other than over the text itself.
+      const ranges = delimiter.dest ? [grid.range] : grid.ranges.flatMap((rg) => shownRuns(rg, sheetId));
+      return ranges.some((rg) => (wb.splitTextPlan(sheetId, { ...rg, c2: rg.c1 }, delimiter).entries || []).some(({ r, c }) => {
+        if (c === rg.c1 && r >= rg.r1 && r <= rg.r2) return false;
+        const cell = wb.getCell(sheetId, r, c);
+        return !!cell && (cell.v != null || cell.f != null);
+      }));
+    }
+    for (const rg of grid.ranges) for (const run of shownRuns(rg, sheetId)) {
+      const texts = [];
+      for (let r = run.r1; r <= run.r2; r++) {
+        const cell = wb.getCell(sheetId, r, rg.c1);
+        const v = splitSourceText(cell, typeof cell?.v === 'number' ? wb.styleAt(sheetId, r, rg.c1) : cell?.s);
+        if (v != null) texts.push({ r, v });
+      }
+      if (!texts.length) continue;
+      let delim = delimiter;
+      if (!delim) {
+        let best = 0;
+        for (const d of ['\t', ',', ';', '|', ' ']) { const n = texts.filter((tx) => tx.v.includes(d)).length; if (n > best) { best = n; delim = d; } }
+        if (!delim) continue;
+      }
+      for (const { r, v } of texts) {
+        const parts = delim === ' ' ? v.trim().split(/\s+/) : (parseDelimited(v, delim)[0] || []);
+        for (let i = 1; i < parts.length; i++) {
+          const cell = wb.getCell(sheetId, r, rg.c1 + i);
+          if (cell && (cell.v != null || cell.f != null)) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * A protected sheet refuses every edit. Commands that would only report
+   * "nothing to do" (or a change that did not happen) say so instead.
+   *
+   * `what` says what was refused, as one of:
+   * - an action named in English, a key of PROTECTED_MESSAGES ('insert a chart'), which picks the whole sentence;
+   * - a catalog key of a whole sentence with a {name} argument for the sheet's name
+   *   ('charts.protectedInsert': "{name} is protected. Unprotect it from the sheet tab menu to insert a chart");
+   * - a function of the sheet's name returning the whole sentence, translated.
+   * Any other text is put into the general sentence as it is (English words then stay English).
+   */
+  function refusedByProtection(what = 'make changes') {
+    if (!wb.isProtected(grid.sheetId)) return false;
+    const name = wb.sheet(grid.sheetId)?.name || t('editor.protected.thisSheet');
+    lastProtectedToast = Date.now();
+    lastProtectedKey = String(grid.sheetId);
+    const key = typeof what === 'string' ? PROTECTED_MESSAGES[what] || (hasMessage(what) ? what : null) : null;
+    toast(typeof what === 'function' ? what(name) : key ? t(key, { name }) : t('editor.protected.other', { name, action: what }), { icon: 'lock', duration: 3500 });
+    statusBar?.announce(t('editor.protected.announce', { name }));
+    return true;
+  }
+
+  /**
+   * A shortcut is about to write into a cell without the editor (today's date, the time, the cell above,
+   * a sum): a strict validation rule refuses it as the editor refuses the same entry typed, with the
+   * rule's notice; a rule that only marks invalid entries lets it through. Paste stays the accepted way
+   * past a rule.
+   *
+   * These chords put their text into the cell's entry, so the rule's Stop alert refuses them
+   * as it refuses a typed entry, and Retry goes back to that entry. `retryText` is that text, when
+   * the chord has one an entry can hold.
+   */
+  function allowedByRule(verdict, retryText = null) {
+    if (verdict.ok !== false || !verdict.rule || verdict.rule.strict === false) return true;
+    statusBar?.announce(verdict.message || t('editor.validation.invalidValue'));
+    const dialog = validationAlertStyle(verdict.rule) === 'stop';
+    invalidEntry(verdict, { dialog });
+    if (dialog) {
+      const at = grid.active, sheet = grid.sheetId, version = wb.version;
+      confirmValidation(verdict).then(choice => {
+        const unchanged = grid.sheetId === sheet && grid.active.r === at.r && grid.active.c === at.c && wb.version === version && !grid.editing;
+        if (choice === 'retry' && retryText != null && unchanged) grid.beginEdit({ text: retryText, mode: 'inplace' });
+        else keepFocus();
+      });
+    }
+    return false;
+  }
+
+  function keepFocus() {
+    if (!grid.editing) grid.focus();
+    else grid.focusEditor();
+  }
+
+  /** What the menu bar and the command palette need to know right now: the host, the active cell, the view toggles. */
+  function commandFlags() {
+    const sheetId = grid.sheetId;
+    const { r, c } = grid.active;
+    const cell = wb.getCell(sheetId, r, c);
+    const sheet = wb.sheet(sheetId);
+    return {
+      templates: !!templateDoc, pick: P.canPickFiles(), share: P.canShare(), mail: mailer.available(), ai: P.canAI(), aiPanel: !!aiPanel?.isOpen, saving: P.isApp() && P.canSaveFiles(),
+      fullscreen: !!document.fullscreenEnabled, isFullscreen: isFullscreen(), filter: filterShownAt(sheetId, grid.active.r, grid.active.c),
+      hasFormula: cell?.f != null, hasTable: !!wb.tableAt(sheetId, r, c), table: wb.tableAt(sheetId, r, c),
+      tableFilterButton: tableFilterButtonOn(wb, sheetId, wb.tableAt(sheetId, r, c)), pivotReport: !!nativePivotAt(wb, sheetId, r, c), hasNote: !!wb.getNote(sheetId, r, c), hasLink: !!wb.linkAt(sheetId, r, c),
+      languagePane: languagePane?.open ? languagePane.mode : null,
+      hasComment: !!sheet?.comments?.has(`${r},${c}`), hasComments: !!sheet?.comments?.size, commentsPane: !!ctx.comments?.paneOpen, queriesPane: !!queriesPane?.open, changesPane: !!changesPane?.open, hasQueries: !!wb.queries?.length, pivotRefreshable: hasPivotDefinition(wb, sheetId),
+      // Automate: the Code Editor is open, actions are being recorded, a script is running.
+      scriptsPane: !!automate?.paneOpen, recording: !!automate?.recording, scriptRunning: !!automate?.running,
+      chartSheet: sheet?.kind === 'chart',
+      // The sheet holds native sparklines, so the commands that edit, regroup or clear them have something to act on.
+      sparklines: !!sheet?.sparklineGroups?.length,
+      chart: grid.selectedChart || (sheet?.kind === 'chart' ? sheet.charts[0]?.id : null), chartIsImage: wb.chartById(sheetId, grid.selectedChart)?.type === 'image',
+      // A picture placed in the active cell (not an IMAGE result): Place over Cells and Alt Text act on it.
+      cellPicture: isCellPicture(cell?.v) && cell?.f == null,
+      showFormulas: !!grid.showFormulas, gridlines: sheet?.gridlines !== false, zeros: sheet?.zeros !== false, viewMode: sheet?.viewMode || 'normal',
+      showPageBreaks: pageBreakLinesOn(sheetId), background: !!sheet?.background,
+      // Arrange: the Selection Pane, and snapping for objects dragged on the sheet.
+      selectionPane: !!selectionPane?.open, snapGrid: !!view.snapGrid, snapShape: !!view.snapShape,
+      // View ▸ Sheet View: the view this person is in, if any, and whether it is the temporary one.
+      sheetView: sheet?.personalView ? (sheet.sheetViews || []).find((v) => v.id === sheet.personalView.id) || null : null,
+      headers: sheet?.headers !== false, focus: !!view.focus, spell: view.spell !== false,
+      split: !!sheet?.split && !sheet.frozenRows && !sheet.frozenCols, formulaBar: appOption('showFormulaBar'),
+      // While a cell is being edited the sheet behind it is off limits: undo, paste, fill and the like wait.
+      editing: !!grid.editing,
+      // Cells copied here wait on the clipboard: Insert Copied Cells has something to insert.
+      copiedCells: !!clip && !clip.cut,
+      // Only single unmerged cells selected (Ctrl/Cmd+click adds ranges): nothing to merge, as the toolbar and the cell menu grey it out.
+      singleCell: grid.ranges.every((rg) => rg.r1 === rg.r2 && rg.c1 === rg.c2 && !wb.mergeAt(sheetId, rg.r1, rg.c1)),
+      // Merged cells under any selected range: the merge command unmerges them all, and the menus say so.
+      merged: grid.ranges.some((rg) => wb.mergesIn(sheetId, rg).length > 0),
+      // One row (or one column): nothing to merge vertically (or horizontally).
+      oneRow: grid.range.r1 === grid.range.r2, oneCol: grid.range.c1 === grid.range.c2,
+      // The formula being typed is showing another sheet to pick references on: the items that act on "the
+      // active sheet" or "the active cell" have two candidates, and wait until the entry is home again.
+      away: !!grid.editing && grid.editState.sheetId !== sheetId,
+      canUndo: wb.canUndo(), canRedo: wb.canRedo(), style: styleTarget().style,
+      // Several sheets are grouped: edits reach each of them, and the commands for one sheet's objects wait.
+      grouped: !!wb.sheetGroup,
+      // The workbook's own cell styles, for the Format menu's Cell styles list.
+      customCellStyles: wb.cellStyles.filter((d) => !d.builtin).map((d) => d.name),
+      // The active sheet among those on show, for the Sheet commands: the last one showing cannot be hidden or
+      // deleted, an end one not moved past the end, and one holding work is asked about before it goes.
+      sheet: sheetFlags(sheetId),
+      fns: { shortcuts: openShortcuts, locale: openLocaleDialog, about: openAbout },
+    };
+  }
+
+  function sheetFlags(sheetId) {
+    const sheet = wb.sheet(sheetId);
+    const visible = wb.visibleSheets;
+    const at = visible.findIndex((s) => s.id === sheetId);
+    return { only: visible.length <= 1, first: at <= 0, last: at < 0 || at >= visible.length - 1, protected: !!sheet?.protected, holdsWork: !!sheet && sheetHoldsWork(sheet), locked: !!wb.structureProtected };
+  }
+
+  /**
+   * How far a sheet's cells may reach: MAX_ROWS/MAX_COLS are the caps on growing a sheet by hand, not the
+   * grid's limits, and a file may have brought a larger sheet, which keeps its own size (the workbook's
+   * `gridLimits`). Cutting and pasting read these, so the lower half of an imported 50,000-row sheet takes
+   * a moved or pasted block as typing there already does.
+   */
+  const sheetLimits = (sid) => {
+    const sheet = wb.sheet(sid);
+    return { rows: Math.max(sheet?.rows || 0, MAX_ROWS), cols: Math.max(sheet?.cols || 0, MAX_COLS) };
+  };
+  /**
+   * Does a range take whole columns (axis 'col') or whole rows, as the grid judges them: running the grid's whole
+   * height or width. A block that merely ends on the last line laid out so far (row 100 of a new sheet) does not.
+   */
+  const wholeLines = (rg, axis, sid = grid.sheetId) => {
+    const b = sheetLimits(sid);
+    return axis === 'col' ? rg.r1 === 0 && rg.r2 >= b.rows - 1 : rg.c1 === 0 && rg.c2 >= b.cols - 1;
+  };
+
+  /**
+   * Why the workbook would not shift a block of cells aside, so the notice names what happened instead of
+   * listing everything it might have been. Asked in the order the workbook checks: a table it would tear or
+   * behead, then a merged block or a protected range only half inside the band being shifted. Null when the
+   * refusal was none of those, which leaves content pushed past the edge of the sheet.
+   */
+  function shiftProblem(sheetId, range, axis, remove) {
+    const sheet = wb.sheet(sheetId);
+    if (!sheet) return null;
+    const rg = normalizeRange(range);
+    const [lo, hi, olo, ohi] = axis === 'row' ? ['r1', 'r2', 'c1', 'c2'] : ['c1', 'c2', 'r1', 'r2'];
+    const at = rg[lo];
+    const n = rg[hi] - rg[lo] + 1;
+    const b1 = rg[olo];
+    const b2 = rg[ohi];
+    const inside = (m) => m[olo] >= b1 && m[ohi] <= b2;
+    const touches = (m) => !(m[ohi] < b1 || m[olo] > b2) && m[hi] >= at;
+    // The band runs along the other axis: cells shifted down move within columns, and vice versa.
+    for (const tx of sheet.tables) {
+      if (!touches(tx.range)) continue;
+      if (!inside(tx.range)) return t('editor.shift.tableRagged', { table: tx.name, axis });
+      if (remove && axis === 'row' && at <= tx.range.r1 && at + n > tx.range.r1 && at + n <= tx.range.r2) return t('editor.shift.tableHeader', { table: tx.name });
+    }
+    for (const m of sheet.merges) {
+      if (touches(m) && !inside(m)) return t('editor.shift.merged', { range: rangeName(m) });
+    }
+    for (const p of sheet.protectedRanges) {
+      if (touches(p.range) && !inside(p.range)) return t('editor.shift.protectedRange', { range: rangeName(p.range) });
+    }
+    return null;
+  }
+
+  /** The number-format keys a spilled cell carries from its array's anchor, with the empty ones dropped. */
+  function formatOnly(style) {
+    const out = {};
+    for (const [key, value] of Object.entries(style || {})) if (value != null) out[key] = value;
+    return Object.keys(out).length ? out : undefined;
+  }
+
+  /**
+   * Decimal places an Automatic cell is showing right now, which More and Fewer decimal places step from:
+   * the digits after the locale's decimal mark in what the cell prints, as a General
+   * cell steps (7 shows none, so More gives 7.0 and Fewer leaves it at 7; 1.5 shows one, so More gives 1.50).
+   * Anything that is not a plain number shows none.
+   */
+  function generalDecimals(sheetId, r, c) {
+    const value = wb.getValue(sheetId, r, c);
+    if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+    const fraction = String(wb.getDisplay(sheetId, r, c)).split(localeInfo().decimal)[1];
+    return fraction ? fraction.replace(/\D.*$/, '').length : 0;
+  }
+
+  /** The commands F4 can repeat: the formatting and structural ones, which act on whatever is selected. */
+  const REPEATABLE = new Set(['bold', 'italic', 'underline', 'strike', 'fmt', 'align', 'valign', 'wrap', 'wrapMode', 'merge', 'indent', 'dec',
+    'borders', 'bg', 'color', 'font', 'fontSize', 'fontStep', 'rotate', 'insertRows', 'insertCols', 'deleteRows', 'deleteCols', 'insertCells',
+    'deleteCells', 'clear', 'clearFormat', 'clearAll', 'hide', 'cellStyle']);
+  let lastRepeatable = null;
+  /**
+   * The formatting commands that can act while a cell is typed into (Ctrl/Cmd+B, the ribbon), and the undo steps
+   * they recorded during the entry now open: Escape gives up the entry and takes those back with it.
+   */
+  const ENTRY_FORMAT_COMMANDS = new Set(['bold', 'italic', 'underline', 'strike', 'fmt', 'align', 'valign', 'wrap', 'wrapMode', 'indent', 'dec',
+    'borders', 'bg', 'color', 'font', 'fontSize', 'fontStep', 'rotate', 'cellStyle']);
+  /** The Power Query Editor, on a query of the workbook or a new one not yet saved. */
+  function editQuery(_, opts = {}) {
+    if (destroyed) return;
+    openQueryEditor(ctx, opts);
+  }
+  /** A query that reads the web may run only once the file's outside content is allowed, as IMPORT formulas wait. */
+  async function allowQuerySources(queries) {
+    if (wb.externalAllowed !== false) return true;
+    const web = queries.filter((q) => q.source?.kind === 'web').map((q) => q.source.url);
+    if (!web.length) return true;
+    const ok = await confirmDialog({ title: t('common.refresh'), message: t('editor.external.queriesReadWeb', { urls: nameList(web.slice(0, 3)), more: String(web.length > 3) }), confirmLabel: t('editor.external.allow'), danger: false });
+    if (ok) doc.allowExternal();
+    return ok;
+  }
+  /** What Edit Links needs from the editor: this book's path, and reading, picking and opening other files on the drive. */
+  function linkHost() {
+    return {
+      docPath: () => doc.path || null,
+      read: async (path) => workbookFromFile(await P.readFile(path), P.displayName(path)),
+      open: (path) => run('openFile', path),
+      pick: P.canPickFiles() ? () => P.pickFile() : null,
+      // A book from elsewhere reads no other file until allowed, as its IMPORTRANGE formulas wait.
+      allow: async () => {
+        if (wb.externalAllowed !== false) return true;
+        const ok = await confirmDialog({ title: t('editor.external.readLinkedTitle'), message: t('editor.external.readLinkedMessage'), confirmLabel: t('editor.external.allow'), danger: false });
+        if (ok) doc.allowExternal();
+        return ok;
+      },
+    };
+  }
+  /** Commands that may touch every selected cell, which the long-operation alert counts first. */
+  const LONG_COMMANDS = new Set(['clear', 'clearAll', 'clearFormat', 'fillDown', 'fillRight', 'toValues', 'textCase', 'sort']);
+  /**
+   * How many cells `cmd` would change: the selected cells that hold something (the used range), or every
+   * selected cell for a fill, which writes them all.
+   */
+  function affectedCells(cmd) {
+    const used = wb.usedRange(grid.sheetId);
+    let n = 0;
+    for (const rg of grid.ranges) {
+      const box = cmd === 'fillDown' || cmd === 'fillRight' ? toUsedExtent(rg) : !used ? rg
+        : { r1: Math.max(rg.r1, used.r1), c1: Math.max(rg.c1, used.c1), r2: Math.min(rg.r2, used.r2), c2: Math.min(rg.c2, used.c2) };
+      if (box.r2 >= box.r1 && box.c2 >= box.c1) n += (box.r2 - box.r1 + 1) * (box.c2 - box.c1 + 1);
+    }
+    return n;
+  }
+
+  /** File ▸ Options…, on `section`. */
+  function openOptions(section) {
+    return openOptionsDialog({
+      wb, run, flags: commandFlags, ribbon: toolbar, docName: () => doc.name,
+      accountName: () => session.user?.username || '',
+      openLocale: openLocaleDialog,
+      setAutoSave: (on) => { doc.setAutoSave?.(on); autoSaveSwitch.setAttribute('aria-checked', String(on)); },
+      afterCalcChange: () => { grid.refresh(); notify(); },
+      afterErrorChecking: () => { grid.redraw(); errorTag.sync(); },
+      onOptionsClosed: () => keepFocus(),
+    }, { section });
+  }
+
+  function run(cmd, arg) {
+    if (!ENTRY_FORMAT_COMMANDS.has(cmd) || !grid?.editing) return runCommand(cmd, arg);
+    const mark = wb.historyTop;
+    const result = runCommand(cmd, arg);
+    // A formatting command acts at once; with the entry still open, the steps it recorded belong to that entry.
+    // One that asks first (Custom font size) acts once answered, so its steps are gathered again then.
+    const gather = () => { if (grid.editing) for (const step of wb.historySince(mark) || []) entryFormatSteps.add(step); };
+    gather();
+    return Promise.resolve(result).then((value) => { gather(); return value; });
+  }
+
+  async function runCommand(cmd, arg) {
+    // While a script runs the workbook is its alone; one Undo takes back everything it did once it ends.
+    if (automate?.running && !AUTOMATE_COMMANDS.has(cmd)) { toast(t('editor.scriptRunning'), { icon: 'info' }); return; }
+    // F4 (and Ctrl+Y with nothing to redo) repeats the last formatting or structural command on the selection now.
+    // Ctrl/Cmd+Shift+Z and the Redo buttons only redo: pressed once more than there are steps to redo, they
+    // deleted another row or cleared other cells.
+    if (cmd === 'repeat') { if (lastRepeatable && !grid.editing) return run(lastRepeatable.cmd, lastRepeatable.arg); return; }
+    if (cmd === 'redo' && arg === 'orRepeat' && !grid.editing && !wb.canRedo() && lastRepeatable) return run('repeat');
+    if (REPEATABLE.has(cmd) && !(arg instanceof Event) && !(arg instanceof HTMLElement)) lastRepeatable = { cmd, arg };
+    const chartSheet = wb.sheet(grid.sheetId)?.kind === 'chart';
+    if (chartSheet && !chartSheetCommand(cmd) && !AUTOMATE_COMMANDS.has(cmd)) return;
+    // A command for one sheet's objects (a table, a chart, a rule, a sort) has no meaning across a group of sheets.
+    if (wb.sheetGroup && GROUP_BLOCKED_COMMANDS.has(cmd)) {
+      toast(groupBlockedReason(), { icon: 'layers', duration: 4000 });
+      statusBar?.announce(groupBlockedReason());
+      return;
+    }
+    if (COMMENT_COMMANDS.has(cmd)) { comments.run(cmd, arg); return; }
+    // Pictures in cells, Picture Format and pictures of cells (ui/pictures.js).
+    if (PICTURE_COMMANDS.has(cmd)) { if (grid.editing && !grid.commitEdit()) return; return pictures.run(cmd, arg); }
+    if (cmd === 'copy' && (chartSheet || grid.selectedChart)) { return run('copyChart', { id: grid.selectedChart || wb.sheet(grid.sheetId).charts[0]?.id }); }
+    if (cmd === 'cut' && grid.selectedChart) return; // Drawing cut is unsupported; never cut the cells behind it.
+    if (chartSheet && ['editChart', 'deleteChart', 'duplicateChart'].includes(cmd) && !arg) arg = grid.selectedChart || wb.sheet(grid.sheetId).charts[0]?.id;
+    if (chartSheet && cmd === 'deleteChart' && !['image', 'text'].includes(wb.chartById(grid.sheetId, arg?.id || arg)?.type)) return run('deleteSheet', grid.sheetId);
+    if (chartSheet && cmd === 'zoomFit') { wb.setSheetView(grid.sheetId, { zoomToFit: true }); grid.refresh(); notify(); return; }
+    // The sheet a command acts on. A command that commits an open edit before acting reads it again after
+    // the commit (`committed`): a formula may have been showing another sheet to pick references on, and
+    // the commit brings the grid home, so the rows selected there must not be applied to the sheet left.
+    let sheetId = grid.sheetId;
+    const committed = () => {
+      if (grid.editing && !grid.commitEdit()) return false;
+      sheetId = grid.sheetId;
+      return true;
+    };
+    // The sheets a sheet's own setting goes to: every grouped worksheet, as Excel's Page Setup and View ▸ Gridlines
+    // and Headings change each sheet of a group.
+    const settingSheets = () => (wb.sheetGroup || [sheetId]).filter((id) => id === sheetId || wb.sheet(id)?.kind !== 'chart');
+    // A command that would change a great many cells asks first, when the options say to (Editing ▸ Long operations).
+    if (LONG_COMMANDS.has(cmd) && !grid.editing && appOption('longOperationAlert')) {
+      const cells = affectedCells(cmd);
+      if (cells > appOption('longOperationCells') * 1000) {
+        const ok = await confirmDialog({
+          title: t('editor.longOperation.title'),
+          message: t('editor.longOperation.message', { cells }),
+          confirmLabel: t('editor.continue'), danger: false,
+        });
+        if (!ok || destroyed) { keepFocus(); return; }
+      }
+    }
+    switch (cmd) {
+      case 'options':
+        if (grid.editing && !grid.commitEdit()) return;
+        openOptions(typeof arg === 'string' ? arg : 'general');
+        return;
+      case 'bold': case 'italic': case 'underline': case 'strike': {
+        // Decide once from the active cell, so every range (and every run of shown rows) gets the same state.
+        const on = !ctx.style()[cmd];
+        styleRanges(t('editor.undo.format'), { [cmd]: on ? true : null });
+        keepFocus();
+        return;
+      }
+      case 'wrap': {
+        const on = !ctx.style().wrap;
+        fittedStyleRanges(t('editor.undo.wrapText'), { wrap: on ? true : null });
+        keepFocus();
+        return;
+      }
+      case 'fitRows': {
+        // The rows of every selected range (Ctrl/Cmd+click adds ranges), as one undo step, as Fit columns to content does.
+        // The entry goes in first, as for the other commands on lines: a formula picking references on another sheet
+        // fitted the rows picked there.
+        if (!committed()) return;
+        // Whole columns stop at the last row holding anything or a height of its own, not at row 1,048,576.
+        const sheet = wb.sheet(sheetId);
+        let last = wb.usedRange(sheetId)?.r2 ?? -1;
+        for (const r of sheet.rowHeights.keys()) if (r > last) last = r;
+        wb.transaction(t('editor.undo.fitRows'), () => {
+          for (const { from, to } of lineRuns(grid.ranges, 'row')) {
+            const end = to >= MAX_ROW ? Math.min(to, Math.max(from, last)) : to;
+            grid.autoFitRows(from, end, { force: true });
+          }
+        });
+        keepFocus();
+        return;
+      }
+      case 'align': {
+        const current = ctx.style().align;
+        styleRanges(t('editor.undo.align'), { align: current === arg ? null : arg });
+        keepFocus();
+        return;
+      }
+      case 'fmt': {
+        // The toolbar's Percent and Currency buttons press on and off ({ fmt, toggle: true }). Every other
+        // caller (the Ctrl/Cmd+Shift+% and $ chords, the Format menu's radio items, the palette) applies its
+        // format and leaves it applied: over cells already in it, nothing changes.
+        const toggle = !!(arg && typeof arg === 'object' && arg.toggle);
+        let patch;
+        if (arg && typeof arg === 'object' && !toggle) {
+          patch = { ...arg };
+          if (patch.fmt === 'percent' && ctx.style().dec == null && ctx.style().fmt !== 'percent') patch.dec = 0;
+          if (patch.fmt === 'number' && ctx.style().fmt !== 'number' && ctx.style().dec == null) patch.dec = 2;
+        } else {
+          const asked = toggle ? arg.fmt : arg;
+          const current = ctx.style().fmt || 'general';
+          const next = toggle && asked === current ? 'general' : asked;
+          // F4 repeats what the press did, as Excel's repeat does: pressed again it took the format off a cell
+          // already in it.
+          if (toggle) lastRepeatable = { cmd, arg: next };
+          patch = { fmt: next === 'general' ? null : next };
+          if (next === 'percent' && ctx.style().dec == null) patch.dec = 0;
+          // Back to Automatic (the chord, the palette, a button pressed off) clears the format's details with it,
+          // as the Format menu's entry and Format cells do, so none shapes the next entry.
+          if (next === 'general') Object.assign(patch, AUTOMATIC_FORMAT);
+          else if (next === 'date' || next === 'text') patch.dec = null;
+        }
+        // The Currency format takes the regional format's own currency on a cell in none (pounds in British
+        // English, euros in German); a currency style without
+        // `cur` is in US dollars already, so that one is left unstamped and a file keeps its dollars everywhere.
+        if (patch.fmt === 'currency' && patch.cur === undefined && ctx.style().fmt !== 'currency') {
+          const cur = cellCurrency(ctx.style());
+          if (cur !== 'USD') patch.cur = cur;
+        }
+        // The Accounting preset takes the same currency, quoted into its code, and keeps it in the style so the
+        // picker shows it and a later Currency format keeps it; a cell already in Accounting keeps its own.
+        if (patch.fmt === 'custom' && patch.code === ACCOUNTING_CODE) {
+          const current = ctx.style();
+          if (current.fmt === 'custom' && isAccountingCode(current.code)) patch.code = current.code;
+          else {
+            const cur = cellCurrency(current);
+            if (cur !== 'USD') { patch.code = accountingCode(cur); patch.cur = cur; }
+          }
+        }
+        styleRanges(t('editor.undo.numberFormat'), patch);
+        keepFocus();
+        return;
+      }
+      case 'dec': {
+        // Each cell steps its own decimal places and keeps its own format: a General
+        // cell becomes Number, a custom code (Accounting, #,##0.00_);(#,##0.00)) gains or loses a place in each
+        // section that shows a number, and a date, time or text has none to step and is left alone,
+        // rather than every cell taking the active cell's format. The active cell says whether there is
+        // anything to step at all, as the menus and toolbar grey the command out by it.
+        const step = Number(arg) || 0;
+        if (!step || !hasDecimalPlaces(ctx.style())) return;
+        const decimalPatch = (sid, r, c) => {
+          // Use displayed formatting, including inherited spill formats. General
+          // starts at the places shown; currencies start at their currency's count.
+          const s = wb.displayStyleAt(sid, r, c) || {};
+          if (!hasDecimalPlaces(s)) return null;
+          if (s.fmt === 'custom') { const code = stepCodeDecimals(s.code, step); return code ? { fmt: 'custom', code } : null; }
+          const fmt = s.fmt && s.fmt !== 'general' ? s.fmt : 'number';
+          const shown = s.dec ?? (s.fmt === 'currency' ? currencyDecimals(s.cur)
+            : !s.fmt || s.fmt === 'general' ? generalDecimals(sid, r, c) : 2);
+          const dec = Math.max(0, Math.min(MAX_DECIMAL_PLACES, shown + step));
+          if (fmt === s.fmt && dec === s.dec) return null;
+          // An Automatic cell takes plain places (1234 → 1234.0, as Excel's 0.0), not the grouped Number format.
+          return fmt === s.fmt ? { fmt, dec } : { fmt, dec, group: false };
+        };
+        if (!nativeStyleRanges(decimalPatch)) eachRange(t('editor.undo.decimals'), (rg, skipRow, sid) => {
+          const entries = [];
+          for (let r = rg.r1; r <= rg.r2; r++) {
+            if (skipRow?.(r)) continue;
+            for (let c = rg.c1; c <= rg.c2; c++) {
+              const patch = decimalPatch(sid, r, c);
+              if (!patch) continue;
+              const cell = wb.getCell(sid, r, c), s = wb.displayStyleAt(sid, r, c) || {};
+              entries.push({ r, c, cell: { ...cell, v: cell?.v ?? null, f: cell?.f ?? null, s: { ...s, ...patch } } });
+            }
+          }
+          if (entries.length) wb.setCellsWithTableHeaders(sid, entries, t('editor.undo.format'), rg);
+        }, { skipRows: true });
+        keepFocus();
+        return;
+      }
+      case 'font':
+        styleRanges(t('editor.undo.font'), { font: !arg || arg === 'default' ? null : arg });
+        keepFocus();
+        return;
+      case 'fontStep': {
+        // The next size up or down the toolbar's list, stepped for each cell from its own size:
+        // 13px beside 24px becomes 14 and 28, not 14 and 14 with the larger
+        // cell shrunk by a command named "Larger font".
+        const up = Number(arg) > 0;
+        const stepSize = (size) => (up ? FONT_SIZES.find((s) => s > size) : [...FONT_SIZES].reverse().find((s) => s < size));
+        wb.transaction(t('editor.undo.fontSize'), () => {
+          if (nativeFontSizeRanges((sid, r, c) => stepSize(wb.styleAt(sid, r, c)?.size || 13))) return;
+          eachRange(t('editor.undo.fontSize'), (rg, _, sid) => {
+            const entries = [];
+            const tallest = new Map(); // row → the largest size it gained, for the row height
+            for (let r = rg.r1; r <= rg.r2; r++) {
+              for (let c = rg.c1; c <= rg.c2; c++) {
+                const cell = wb.getCell(sid, r, c);
+                const s = wb.styleAt(sid, r, c) || {};
+                const px = stepSize(s.size || 13);
+                if (!px) continue; // already at the end of the list
+                entries.push({ r, c, cell: { ...cell, v: cell?.v ?? null, f: cell?.f ?? null, s: wb.patchedCellStyle(sid, r, c, { size: px === 13 ? null : px }) } });
+                tallest.set(r, Math.max(tallest.get(r) || 0, px));
+              }
+            }
+            if (!entries.length) return;
+            wb.setCellsWithTableHeaders(sid, entries, t('editor.undo.fontSize'), rg);
+            growFontRows(sid, tallest);
+          });
+        });
+        keepFocus();
+        return;
+      }
+      case 'fontSize': {
+        let px = Number(arg);
+        if (arg == null) {
+          // The size is written and read with the regional format's decimal mark (10,5 in German), as a cell's number is.
+          const { decimal } = localeInfo();
+          const points = (value) => { const tx = String(value).trim().replace(decimal, '.'); return /^\d+(?:\.\d+)?$/.test(tx) ? Number(tx) : NaN; };
+          const text = await promptDialog({
+            title: t('editor.fontSize.customTitle'), label: t('editor.fontSize.label'), value: String(pxToPt(ctx.style().size || 13)).replace('.', decimal), confirmLabel: t('common.ok'), inputMode: 'decimal',
+            hint: t('editor.fontSize.hint'),
+            validate: (value) => points(value) >= 1 && points(value) <= 409 ? null : t('editor.fontSize.invalid'),
+          });
+          if (text == null) { keepFocus(); return; }
+          px = ptToPx(points(text));
+        }
+        if (!Number.isFinite(px) || px <= 0) return;
+        wb.transaction(t('editor.undo.fontSize'), () => {
+          if (nativeFontSizeRanges(() => px)) return;
+          eachRange(t('editor.undo.fontSize'), (range, _, sid) => {
+            wb.applyStyle(sid, range, { size: px === 13 ? null : px });
+            const tallest = new Map();
+            for (let r = range.r1; r <= range.r2; r++) tallest.set(r, px);
+            growFontRows(sid, tallest);
+          });
+        });
+        keepFocus();
+        return;
+      }
+      case 'merge': {
+        if (grid.editing) return;
+        const a = grid.active;
+        // Every selected range (Ctrl/Cmd+click adds ranges) becomes a merged block of its own; when any of
+        // them holds merged cells already, they are all unmerged instead. One undo step either way.
+        const ranges = grid.ranges;
+        const existing = ranges.flatMap((range) => wb.mergesIn(sheetId, range));
+        if ([...ranges, ...existing].some((g) => wb.lockedIn(sheetId, g))) return;
+        const blocks = ranges.filter((range) => range.r1 !== range.r2 || range.c1 !== range.c2);
+        // Merge Cells ('plain') merges without centring and leaves merged cells merged; Unmerge Cells only unmerges.
+        if (arg === 'unmerge' && !existing.length) { keepFocus(); return; }
+        if (arg === 'plain' && existing.length) { keepFocus(); return; }
+        if (existing.length) {
+          wb.transaction(t('editor.undo.unmergeCells'), () => { for (const range of ranges) wb.unmergeCells(sheetId, range); });
+        } else if (blocks.length) {
+          let cleared = 0;
+          for (const range of blocks) eachStoredCell(wb.sheet(sheetId), range, (r, c, cell) => {
+            if ((r !== range.r1 || c !== range.c1) && (cell.v != null || cell.f != null)) cleared++;
+          });
+          const refused = [];
+          wb.transaction(t('editor.undo.mergeCells'), () => {
+            for (const range of blocks) {
+              if (wb.mergeCells(sheetId, range) === false) { refused.push(range); continue; }
+              if (arg !== 'plain' && !wb.styleAt(sheetId, range.r1, range.c1)?.align) wb.applyStyle(sheetId, { r1: range.r1, c1: range.c1, r2: range.r1, c2: range.c1 }, { align: 'center' });
+            }
+          });
+          // The workbook declines a block past its size limit or over a table's header and data cells (a protected sheet it reports itself).
+          if (refused.length === blocks.length) { if (!(wb.sheetGroup || [sheetId]).some((id) => wb.isProtected(id))) toast(mergeRefusal(refused[0]), { icon: 'info', duration: 3500 }); }
+          else if (cleared) toast(blocks.length > 1 ? t('editor.merge.keptTopLeftEach', { cleared }) : t('editor.merge.keptTopLeft', { cleared }), { icon: 'merge', duration: 4000 });
+        }
+        grid.setSelection(S.single(a.r, a.c), { scroll: false });
+        keepFocus();
+        return;
+      }
+      case 'mergeAcross': case 'mergeDown': {
+        // Merge each row (or each column) of the selection on its own.
+        if (grid.editing) return;
+        if (!oneRange('merge')) return;
+        const a = grid.active;
+        // Whole columns or rows are merged line by line as far as the sheet's data reaches, not a million blocks.
+        const used = wb.usedRange(sheetId);
+        const range = { ...grid.range };
+        if (range.r2 >= MAX_ROW) range.r2 = Math.max(range.r1, Math.min(range.r2, used?.r2 ?? range.r1));
+        if (range.c2 >= MAX_COL) range.c2 = Math.max(range.c1, Math.min(range.c2, used?.c2 ?? range.c1));
+        if (range.r1 === range.r2 && range.c1 === range.c2) return;
+        const blocks = [];
+        if (cmd === 'mergeAcross') { for (let r = range.r1; r <= range.r2; r++) if (range.c1 !== range.c2) blocks.push({ r1: r, r2: r, c1: range.c1, c2: range.c2 }); }
+        else for (let c = range.c1; c <= range.c2; c++) if (range.r1 !== range.r2) blocks.push({ r1: range.r1, r2: range.r2, c1: c, c2: c });
+        if (!blocks.length) return;
+        if ([range, ...wb.mergesIn(sheetId, range)].some((g) => wb.lockedIn(sheetId, g))) return;
+        let cleared = 0;
+        eachStoredCell(wb.sheet(sheetId), range, (r, c, cell) => {
+          const first = cmd === 'mergeAcross' ? c === range.c1 : r === range.r1;
+          if (!first && (cell.v != null || cell.f != null)) cleared++;
+        });
+        let refused = 0;
+        wb.transaction(cmd === 'mergeAcross' ? t('editor.undo.mergeHorizontally') : t('editor.undo.mergeVertically'), () => {
+          wb.unmergeCells(sheetId, range);
+          refused = wb.mergeBlocks(sheetId, blocks).filter((done) => !done).length;
+        });
+        if (refused === blocks.length) { if (!(wb.sheetGroup || [sheetId]).some((id) => wb.isProtected(id))) toast(mergeRefusal(range), { icon: 'info', duration: 3500 }); }
+        else if (cleared) toast(cmd === 'mergeAcross' ? t('editor.merge.keptFirstOfRow', { cleared }) : t('editor.merge.keptFirstOfColumn', { cleared }), { icon: 'merge', duration: 4000 });
+        grid.setSelection(S.fromRange(range, a), { scroll: false });
+        keepFocus();
+        return;
+      }
+      case 'indent': {
+        // Each cell steps from its own indent, rather than every
+        // cell taking the active cell's level: Increase indent over a cell at 0 and one at 5 gives 1 and 6,
+        // not 1 and 1 with four levels lost.
+        const by = Number(arg) || 0;
+        if (!by) return;
+        const indentPatch = (sid, r, c) => {
+          const current = wb.styleAt(sid, r, c)?.indent || 0;
+          const indent = Math.max(0, Math.min(10, current + by));
+          return indent === current ? null : { indent: indent || null };
+        };
+        if (!nativeStyleRanges(indentPatch)) eachRange(t('editor.undo.indent'), (rg, skipRow, sid) => {
+          const entries = [];
+          for (let r = rg.r1; r <= rg.r2; r++) {
+            if (skipRow?.(r)) continue;
+            for (let c = rg.c1; c <= rg.c2; c++) {
+              const patch = indentPatch(sid, r, c);
+              if (!patch) continue;
+              const cell = wb.getCell(sid, r, c);
+              entries.push({ r, c, cell: { ...cell, v: cell?.v ?? null, f: cell?.f ?? null, s: wb.patchedCellStyle(sid, r, c, patch) } });
+            }
+          }
+          if (entries.length) wb.setCellsWithTableHeaders(sid, entries, t('editor.undo.indent'), rg);
+        }, { skipRows: true });
+        keepFocus();
+        return;
+      }
+      case 'valign':
+        styleRanges(t('editor.undo.align'), { valign: arg === 'middle' ? null : arg });
+        keepFocus();
+        return;
+      case 'wrapMode': {
+        // Text wrapping: overflow into empty neighbours (default), wrap onto lines, or clip at the cell edge.
+        const patch = arg === 'wrap' ? { wrap: true, clip: null } : arg === 'clip' ? { wrap: null, clip: true } : { wrap: null, clip: null };
+        fittedStyleRanges(t('editor.undo.textWrapping'), patch, arg === 'wrap');
+        keepFocus();
+        return;
+      }
+      case 'rotate': {
+        // Text rotation in degrees, -90..90; positive tilts the text up. Rows grow to fit.
+        if (!committed()) return;
+        let deg = arg;
+        if (arg === 'custom') {
+          const text = await promptDialog({
+            title: t('editor.rotation.title'), label: t('editor.rotation.label'),
+            value: String(ctx.style().rot || 0), confirmLabel: t('editor.rotation.rotate'),
+            validate: (v) => (/^-?\d{1,2}$/.test(v.trim()) && Math.abs(Number(v)) <= 90 ? null : t('editor.rotation.invalid')),
+          });
+          if (text == null) { keepFocus(); return; }
+          deg = Number(text);
+        }
+        deg = Math.max(-90, Math.min(90, Math.round(Number(deg) || 0)));
+        fittedStyleRanges(t('editor.undo.textRotation'), { rot: deg || null }, !!deg);
+        keepFocus();
+        return;
+      }
+      case 'color': case 'bg':
+        styleRanges(t('editor.undo.color'), { [cmd]: arg || null });
+        keepFocus();
+        return;
+      case 'borders': {
+        const kind = arg && typeof arg === 'object' ? arg.kind : arg;
+        // A pen draws only the sides it names, as Excel's do: Thick outside borders around a gridded block, or a
+        // double bottom under a cell with a top line, leaves the other lines in their own style and colour.
+        const options = arg && typeof arg === 'object' ? kind === 'restyle'
+          // A restyle changes what it names, a colour or a line, and leaves the other as each side has it.
+          ? { ...(Object.hasOwn(arg, 'color') ? { color: arg.color ?? null } : {}), ...(Object.hasOwn(arg, 'style') ? { style: arg.style ?? 'thin' } : {}) }
+          : { color: arg.color ?? null, style: arg.style ?? 'thin', perSide: true } : {};
+        // Never truncate border geometry: a clipped range would move its edges.
+        if (!nativeFormatRanges((sid, ranges) => formatNativePivotBorders(wb, new Map([[sid, ranges]]), kind,
+          { ...options, maxCells: MAX_FORMAT_CELLS }), { cap: false })) {
+          eachRange(t('editor.undo.borders'), (rg, _, sid) => wb.applyBorders(sid, rg, kind, options), { cap: false, nativeScope: true });
+        }
+        keepFocus();
+        return;
+      }
+      case 'cellStylesMenu':
+        // The gallery: built-in, custom and themed styles, with New Cell Style… and Merge Styles… (ui/cellstyles-ui.js).
+        openCellStylesGallery(ctx, arg);
+        return;
+      case 'cellStyle': {
+        // A custom style, or a built-in this workbook modified, applies its own definition's parts; a built-in as
+        // it comes applies its preset. Either way the cells keep the style's name, to follow it when it changes.
+        const own = definitionFor(wb, arg);
+        const builtIn = own ? null : themedPreset(cellStyle(arg), wb) || themedCellStylePatch(arg, wb);
+        // Normal resets every part (number, alignment, font, border, fill, protection), as Excel's does and as a
+        // modified Normal already did: the preset's own patch named only some keys, leaving a cell's font family,
+        // number format and alignment behind.
+        const preset = own ? { label: own.name, ...stylePatch(own) }
+          : arg === 'normal' && builtIn ? (({ patch, borders }) => ({ ...builtIn, patch: { ...patch, cellStyle: null }, borders }))(stylePatch(styleFromPreset(builtIn)))
+            // A style is each cell's format, so its edges go round every cell of the range, as a modified built-in's
+            // and Excel's do: Input boxes each input cell and Heading underlines each heading row, not the block.
+            : builtIn && { ...builtIn, patch: { ...builtIn.patch, cellStyle: builtIn.label }, borders: builtIn.borders?.length ? stylePatch(styleFromPreset(builtIn)).borders : [] };
+        if (!preset) return;
+        // What Normal resets takes the sheet's default look (its font, size and vertical alignment) rather than
+        // none: a bare null masks the default, so the cell drew in the grid's fallback font, vertically centred.
+        const normal = own ? own.builtin === 'normal' : arg === 'normal';
+        const patchFor = (sid) => {
+          if (!normal) return preset.patch;
+          const base = wb.defaultStyle(wb.sheet(sid)) || {};
+          return Object.fromEntries(Object.entries(preset.patch).map(([k, v]) => [k, v == null && k !== 'cellStyle' && base[k] != null ? base[k] : v]));
+        };
+        // Each edge keeps its own pen: Total's thin top line stays thin under its double bottom one.
+        const borders = (preset.borders || []).map(b => ({ ...b, color: b.color ?? null, style: b.style ?? 'thin', perSide: true }));
+        // A pivot table's cells keep the preset's own reset, which its report formats can carry.
+        const pivotPatch = !own && arg === 'normal' && builtIn ? { ...builtIn.patch, cellStyle: null } : preset.patch;
+        const pivotBorders = !own && arg === 'normal' && builtIn ? (builtIn.borders || []).map(b => ({ ...b, color: b.color ?? null, style: b.style ?? 'thin' })) : borders;
+        if (!nativeFormatRanges((sid, ranges) => formatNativePivotStyleAndBorders(wb, new Map([[sid, ranges]]), pivotPatch, pivotBorders,
+          { maxCells: MAX_FORMAT_CELLS, defaultSize: 13 }), { cap: false })) {
+          wb.transaction(t('editor.undo.cellStyleNamed', { name: cellStyleLabel(preset) }), () => eachRange(t('editor.undo.cellStyle'), (rg, _, sid) => {
+            const patch = patchFor(sid);
+            wb.applyStyle(sid, rg, patch);
+            for (const b of borders) wb.applyBorders(sid, rg, b.kind, b);
+            // A style that sets a larger size (Title, Heading) grows the rows it would no longer fit, as the font
+            // size commands do; past the sheet's last used row there is no text to make room for.
+            if (patch.size > 0) {
+              const tallest = new Map();
+              for (let r = rg.r1, last = Math.min(rg.r2, wb.usedRange(sid)?.r2 ?? -1); r <= last; r++) tallest.set(r, patch.size);
+              growFontRows(sid, tallest);
+            }
+          }, { cap: false, nativeScope: true }));
+        }
+        keepFocus();
+        return;
+      }
+      case 'clearFormat':
+        if (!nativeFormatRanges((sid, ranges) => clearNativePivotSelection(wb, new Map([[sid, ranges]]),
+          { maxCells: MAX_FORMAT_CELLS, defaultSize: 13 }), { cap: false })) {
+          wb.transaction(t('editor.undo.clearFormatting'), () => {
+            if (eachRange(t('editor.undo.clearFormatting'), (rg, skipRow, sid) => wb.clearRange(sid, rg, { contents: false, styles: true, skipRow }), { cap: false, skipRows: true }) !== null) clearRulesAndMerges();
+          });
+        }
+        keepFocus();
+        return;
+      case 'formatCells':
+        if (!committed()) return;
+        // A protected sheet keeps the formatting of every cell, unlocked ones too: said before the dialog is filled in.
+        if (refusedByProtection('format cells')) { keepFocus(); return; }
+        openFormatCellsDialog(ctx, { panel: typeof arg === 'string' ? arg : 'number' });
+        return;
+      case 'applyFormat': {
+        // From the Format cells dialog: a style patch and ordered border actions, as one undo step.
+        const { patch = {}, border = null, borders: edgeBorders = null } = arg || {};
+        const borders = (Array.isArray(edgeBorders) ? edgeBorders : border ? [border] : [])
+          .map(b => ({ ...b, color: b.color ?? null, style: b.style ?? 'thin' }));
+        wb.transaction(t('editor.undo.formatCells'), () => {
+          const fit = (sid, ranges) => {
+            if (sid === grid.sheetId && (patch.wrap || patch.rot || patch.size)) for (const rg of ranges) grid.autoFitRows(rg.r1, Math.min(rg.r2, rg.r1 + 500));
+          };
+          if (nativeFormatRanges((sid, ranges) => formatNativePivotStyleAndBorders(wb, new Map([[sid, ranges]]), patch, borders,
+            { maxCells: MAX_FORMAT_CELLS, defaultSize: 13 }), { cap: false, onApplied: fit })) return;
+          eachRange(t('editor.undo.formatCells'), (rg, _, sid) => {
+            if (Object.keys(patch).length) wb.applyStyle(sid, rg, patch);
+            for (const b of borders) wb.applyBorders(sid, rg, b.kind, b);
+            fit(sid, [rg]);
+          }, { cap: false, nativeScope: true });
+        });
+        keepFocus();
+        return;
+      }
+      case 'paintFormat': {
+        // Copy the selection's formatting; the next selection receives it: one made with the
+        // pointer, or one moved to with the keyboard and confirmed by Enter or this command again.
+        // A double-click on Paint format ('sticky') keeps painting every selection until Escape.
+        if (!committed()) return;
+        const sticky = arg === 'sticky';
+        if (painter && sticky && onPainterSource()) {
+          painter.sticky = true;
+          toast(t('editor.painter.copiedSticky'), { icon: 'paint', duration: 3000 });
+          notify(); keepFocus();
+          return;
+        }
+        if (painter) {
+          // Run again while still on the source, the painter is put away.
+          if (onPainterSource()) stopPainting(); else applyPainter();
+          keepFocus();
+          return;
+        }
+        const range = grid.range;
+        if ((range.r2 - range.r1 + 1) * (range.c2 - range.c1 + 1) > 10000) { toast(t('editor.painter.tooLarge'), { icon: 'info' }); return; }
+        // Merged blocks and conditional formatting are formatting too, and come along as Excel's painter brings them.
+        const lines = (a, b) => Array.from({ length: b - a + 1 }, (_, k) => a + k);
+        const rows = lines(range.r1, range.r2), cols = lines(range.c1, range.c2);
+        painter = { cells: wb.copyRange(sheetId, range), range, sheetId, sticky,
+          merges: copyMergeLayout(wb.sheet(sheetId).merges, rows, cols).ranges, conditionalFormats: wb.copyConditionalFormats(sheetId, rows, cols) };
+        grid.el.classList.add('painting');
+        toast(sticky ? t('editor.painter.copiedSticky') : t('editor.painter.copied'), { icon: 'paint', duration: 3000 });
+        notify();
+        keepFocus();
+        return;
+      }
+      // The Clear menu: everything, notes, or links in the selection, each one undo step.
+      case 'calcMode':
+        wb.setCalcMode(arg);
+        toast(arg === 'manual' ? t('editor.calc.manual') : arg === 'autoNoTable' ? t('editor.calc.autoNoTable') : t('editor.calc.automatic'), { icon: 'calculator', duration: 2200 });
+        notify(); keepFocus();
+        return;
+      case 'insertDialog': case 'deleteDialog':
+        if (!committed()) return;
+        // A protected sheet refuses every choice the dialog offers: it says so now, as Delete rows does, rather
+        // than once a choice has been made and OK pressed.
+        if (refusedByProtection(cmd === 'insertDialog' ? 'insert cells' : 'delete cells')) { keepFocus(); return; }
+        openInsertDeleteDialog(ctx, cmd === 'insertDialog' ? 'insert' : 'delete');
+        return;
+      case 'clearAll':
+        if (grid.editing) return;
+        wb.transaction(t('editor.undo.clearAll'), () => {
+          if (eachRange(t('editor.undo.clearAll'), (rg, skipRow, sid) => wb.clearRange(sid, rg, { contents: true, styles: true, skipRow }), { cap: false, skipRows: true }) !== null) clearRulesAndMerges();
+          clearInSelection('notes');
+          clearInSelection('links');
+        });
+        keepFocus();
+        return;
+      case 'clearNotes':
+        if (!committed()) return;
+        wb.transaction(t('editor.undo.clearCommentsAndNotes'), () => clearInSelection('notes'));
+        keepFocus();
+        return;
+      case 'clearLinks':
+        if (!committed()) return;
+        wb.transaction(t('editor.undo.clearHyperlinks'), () => clearInSelection('links'));
+        keepFocus();
+        return;
+      case 'clear':
+        if (grid.editing) return;
+        eachRange(t('editor.undo.clear'), (rg, skipRow) => wb.clearRange(sheetId, rg, { contents: true, skipRow }), { cap: false, skipRows: true, contents: true });
+        keepFocus();
+        return;
+      case 'insertRows': {
+        if (!committed()) return;
+        if (!oneRange('insert rows')) return;
+        const r = grid.range;
+        // Whole columns selected: one row goes in at the active cell, not a sheet's worth.
+        const wholeCols = wholeLines(r, 'col', sheetId);
+        const n = wholeCols ? 1 : r.r2 - r.r1 + 1;
+        const at = wholeCols ? grid.active.r + (arg === 'above' ? 0 : 1) : arg === 'above' ? r.r1 : r.r2 + 1;
+        const before = selectionSnapshot();
+        if (wb.pivotLineEditBlocked(sheetId, 'row', at, n)) { keepFocus(); return; }
+        const [inserted, said] = refusalSaid(sheetId, () => wb.insertRows(sheetId, at, n));
+        if (!inserted) {
+          // A protected range or an array formula in the way has said so already; anything else is the sheet's edge.
+          if (!said && !wb.isProtected(sheetId)) toast(t('editor.insert.rowsOffSheet', { count: n }), { icon: 'alert', duration: 3500 });
+          keepFocus();
+          return;
+        }
+        // The lines inserted are selected whole, as the grid selects a row or column (to the grid's edge, not the sheet's
+        // filled size): cut at column Z, Ctrl+- then asked how to shift cells instead of deleting the row.
+        grid.setSelection(S.selectRows(at, at + n - 1, sheetLimits(sheetId)), { scroll: false });
+        rememberStepSelection(before);
+        keepFocus();
+        return;
+      }
+      case 'insertCols': {
+        if (!committed()) return;
+        if (!oneRange('insert columns')) return;
+        const r = grid.range;
+        const wholeRows = wholeLines(r, 'row', sheetId);
+        const n = wholeRows ? 1 : r.c2 - r.c1 + 1;
+        const at = wholeRows ? grid.active.c + (arg === 'left' ? 0 : 1) : arg === 'left' ? r.c1 : r.c2 + 1;
+        const before = selectionSnapshot();
+        if (wb.pivotLineEditBlocked(sheetId, 'col', at, n)) { keepFocus(); return; }
+        const [inserted, said] = refusalSaid(sheetId, () => wb.insertCols(sheetId, at, n));
+        if (!inserted) {
+          if (!said && !wb.isProtected(sheetId)) toast(t('editor.insert.columnsOffSheet', { count: n }), { icon: 'alert', duration: 3500 });
+          keepFocus();
+          return;
+        }
+        grid.setSelection(S.selectCols(at, at + n - 1, sheetLimits(sheetId)), { scroll: false });
+        rememberStepSelection(before);
+        keepFocus();
+        return;
+      }
+      case 'insertCells': {
+        // Insert blank cells here, pushing the cells below (or to the right) out of the way.
+        if (!committed()) return;
+        if (!oneRange('insert cells')) return;
+        const range = grid.range;
+        const sideways = arg === 'right';
+        if (wb.pivotBlockEditBlocked(sheetId, range, sideways ? 'col' : 'row', false)) { keepFocus(); return; }
+        const [ok, said] = refusalSaid(sheetId, () => wb.insertCells(sheetId, range, sideways ? 'right' : 'down'));
+        if (!ok) {
+          if (!said && !wb.isProtected(sheetId)) toast(shiftProblem(sheetId, range, sideways ? 'col' : 'row', false)
+            || t('editor.shift.pastEdge', { side: sideways ? 'right' : 'down' }), { icon: 'info', duration: 4000 });
+          return;
+        }
+        grid.setSelection(S.fromRange(range, grid.active), { scroll: false });
+        keepFocus();
+        return;
+      }
+      case 'deleteCells': {
+        if (!committed()) return;
+        if (!oneRange('delete cells')) return;
+        const range = grid.range;
+        if (wb.pivotBlockEditBlocked(sheetId, range, arg === 'left' ? 'col' : 'row', true)) { keepFocus(); return; }
+        if (!wb.deleteCells(sheetId, range, arg === 'left' ? 'left' : 'up')) {
+          // Name what stood in the way, as Insert cells does; a protected cell or an array formula among those
+          // deleted has said so already.
+          const problem = wb.isProtected(sheetId) ? null : shiftProblem(sheetId, range, arg === 'left' ? 'col' : 'row', true);
+          if (problem) toast(problem, { icon: 'info', duration: 4000 });
+          return;
+        }
+        grid.setSelection(S.fromRange(range, grid.active), { scroll: false });
+        keepFocus();
+        return;
+      }
+      case 'deleteRows': case 'deleteCols': {
+        // Several ranges (Ctrl/Cmd+click) delete every line they touch, bottom-up, in one undo step.
+        if (!committed()) return;
+        const isRow = cmd === 'deleteRows';
+        if (refusedByProtection(isRow ? 'delete rows' : 'delete columns')) return;
+        let runs = lineRuns(grid.ranges, isRow ? 'row' : 'col');
+        // Rows a filter hides are not part of what the user sees selected; only the shown rows go.
+        const hidden = isRow ? wb.sheet(sheetId)?.filterHidden : null;
+        if (hidden?.size) {
+          runs = runs.flatMap(({ from, to }) => {
+            const parts = [];
+            let end = null;
+            for (let i = to; i >= from - 1; i--) {
+              const shown = i >= from && !hidden.has(i);
+              if (shown && end == null) end = i;
+              if (!shown && end != null) { parts.push({ from: i + 1, to: end }); end = null; }
+            }
+            return parts;
+          });
+        }
+        const r = grid.range;
+        const before = selectionSnapshot();
+        // Whole rows (or columns) selected stay selected, as in Excel: the lines that moved up into their place, so
+        // Ctrl+- again takes the next ones. Lines deleted from a selection of cells leave the active cell selected.
+        const limits = sheetLimits(sheetId);
+        const whole = grid.ranges.length === 1 && (isRow ? r.c1 === 0 && r.c2 >= limits.cols - 1 : r.r1 === 0 && r.r2 >= limits.rows - 1);
+        // One deletion for every run: the workbook renumbers cells and formulas once, however many runs a filter made.
+        if (!wb.deleteLines(sheetId, isRow ? 'row' : 'col', runs)) { keepFocus(); return; }
+        const sheet = wb.sheet(sheetId);
+        if (whole) {
+          const last = (isRow ? sheet.rows : sheet.cols) - 1;
+          const from = Math.min(isRow ? r.r1 : r.c1, last), to = Math.min(from + (isRow ? r.r2 - r.r1 : r.c2 - r.c1), last);
+          grid.setSelection(isRow ? S.selectRows(from, to, sheetLimits(sheetId)) : S.selectCols(from, to, sheetLimits(sheetId)), { scroll: false });
+        } else grid.setSelection(isRow ? S.single(Math.min(r.r1, sheet.rows - 1), grid.active.c) : S.single(grid.active.r, Math.min(r.c1, sheet.cols - 1)));
+        // Undoing brings the lines back: the selection goes back to the lines the user had, as it does for an
+        // insert, rather than staying on the single cell the deletion left behind.
+        rememberStepSelection(before);
+        keepFocus();
+        return;
+      }
+      case 'sort': {
+        if (!committed()) return;
+        if (refusedByProtection('sort')) return;
+        if (!oneRange('sort')) return;
+        // In a sheet view the filters are one's own, but sorting moves the rows themselves, for everyone.
+        if (wb.sheet(sheetId)?.personalView) toast(t('editor.sort.sheetView'), { icon: 'info', duration: 3500 });
+        let range = grid.range;
+        const single = S.isSingle(grid.selection);
+        const sheet = wb.sheet(sheetId);
+        // A single cell sorts the block of data around it; whole columns (the
+        // column header's menu) sort the sheet's rows by that column, each row
+        // kept together. A header row is left in place: the block around a cell
+        // and whole columns are read for one as the sort dialog reads them; an
+        // explicit selection keeps its first row only when that text row sits
+        // over typed values, so a plain list of names sorts whole.
+        const wholeCols = wholeLines(range, 'col', sheetId);
+        // A toolbar click leaves the focus on its button: the grid takes it back once the command is done.
+        let widened = false;
+        if (single || wholeCols) {
+          range = single ? sortBlock() : wb.usedRange(sheetId);
+          if (!range) { toast(t('editor.nothingToSort'), { icon: 'info' }); keepFocus(); return; }
+        } else {
+          // Data right beside the selection would stay put while the selection's rows moved: offer the whole block.
+          const block = sortExpansion(wb, sheetId, range);
+          if (block) {
+            const expand = await confirmSortExpansion();
+            if (expand == null) { keepFocus(); return; }
+            if (expand) { range = block; widened = true; }
+          }
+        }
+        const col = grid.active.c;
+        let { r1 } = range;
+        // The sort dialog's default header rule, shared so a quick sort and the dialog keep the same first row.
+        if (r1 < range.r2 && sortHeaderDefault(wb, sheetId, range, { expanded: single || wholeCols || widened })) r1++;
+        const rows = { ...range, r1, r2: Math.min(range.r2, sheet.rows - 1) };
+        if (!wb.sortRange(sheetId, rows, col, arg !== 'desc')) { toast(rearrangeProblem(wb, sheetId, rows, 'row') || t('editor.nothingToSort'), { icon: 'info' }); keepFocus(); return; }
+        toast(arg === 'desc' ? t('editor.sort.sortedZToA') : t('editor.sort.sortedAToZ'));
+        keepFocus();
+        return;
+      }
+      case 'hide': case 'unhide': {
+        if (!committed()) return;
+        if (refusedByProtection('hide or show lines')) return;
+        const r = grid.range;
+        const axis = arg;
+        const from = axis === 'row' ? r.r1 : r.c1;
+        const to = axis === 'row' ? r.r2 : r.c2;
+        const indices = [];
+        for (const run of lineRuns(grid.ranges, axis)) for (let i = run.from; i <= run.to; i++) indices.push(i);
+        if (cmd === 'hide') {
+          const sheet = wb.sheet(sheetId);
+          const total = axis === 'row' ? sheet.rows : sheet.cols;
+          // A row a filter hides is as invisible as one hidden by hand, so the landing skips both.
+          const hiddenAt = (i) => (axis === 'row' ? wb.isRowHidden(sheetId, i) : sheet.hiddenCols.has(i));
+          // The workbook keeps at least one line showing; asking to hide them all is told so rather than ignored (a protected sheet it reports itself).
+          if (wb.setHidden(sheetId, axis, indices, true) === false) { if (!(wb.sheetGroup || [sheetId]).some((id) => wb.isProtected(id))) toast(t('editor.hide.keepOne', { axis: axis === 'row' ? 'row' : 'col' }), { icon: 'info', duration: 3000 }); keepFocus(); return; }
+          // Land on the next visible line so the selection is not invisible.
+          let next = to + 1;
+          while (next < total && hiddenAt(next)) next++;
+          if (next >= total) { next = from - 1; while (next >= 0 && hiddenAt(next)) next--; }
+          if (next >= 0) grid.setSelection(axis === 'row' ? S.single(next, grid.active.c) : S.single(grid.active.r, next), { scroll: false });
+        } else {
+          wb.setHidden(sheetId, axis, indices, false);
+        }
+        keepFocus();
+        return;
+      }
+      case 'group': case 'ungroup': {
+        // Rows by default; columns when whole columns are selected (or asked for).
+        if (!committed()) return;
+        if (refusedByProtection('group rows or columns')) return;
+        // A group is one run of lines: several ranges are refused rather than the last one added grouped.
+        if (!oneRange(cmd === 'group' ? 'group rows or columns' : 'ungroup rows or columns')) return;
+        const r = grid.range;
+        const wholeCols = wholeLines(r, 'col', sheetId) && !wholeLines(r, 'row', sheetId);
+        const axis = arg === 'col' || arg === 'row' ? arg : wholeCols ? 'col' : 'row';
+        const from = axis === 'row' ? r.r1 : r.c1;
+        const to = axis === 'row' ? r.r2 : r.c2;
+        if (cmd === 'group') {
+          const refusal = wb.groupRefusal(sheetId, axis, from, to);
+          const ok = wb.groupLines(sheetId, axis, from, to);
+          const why = refusal === 'depth' ? t('editor.group.tooDeep', { axis })
+            : t('editor.group.across', { axis });
+          toast(ok ? t('editor.group.grouped', { axis, from: axis === 'row' ? String(from + 1) : colName(from), to: axis === 'row' ? String(to + 1) : colName(to) }) : why, { icon: ok ? 'check' : 'info', duration: 3200 });
+        } else {
+          const n = wb.ungroupLines(sheetId, axis, from, to);
+          toast(n ? t('editor.group.ungrouped', { axis }) : t('editor.group.noGroup', { axis }), { icon: n ? 'check' : 'info' });
+        }
+        keepFocus();
+        return;
+      }
+      case 'collapseAll': case 'expandAll':
+        if (!committed()) return;
+        wb.setAllGroups(sheetId, arg === 'col' ? 'col' : 'row', cmd === 'collapseAll');
+        keepFocus();
+        return;
+      case 'toggleGroup':
+        if (arg) wb.toggleGroup(sheetId, arg.axis, arg.from, arg.to, arg.level);
+        keepFocus();
+        return;
+      case 'outlineLevel':
+        // The level buttons in the corner: the lines down to that level shown, the detail below it hidden.
+        if (!committed()) return;
+        if (arg) wb.showOutlineLevel(sheetId, arg.axis === 'col' ? 'col' : 'row', arg.level);
+        keepFocus();
+        return;
+      case 'freeze': {
+        // The entry goes in first, as for the other commands on lines: a formula showing another sheet to pick
+        // references on froze that sheet, at the selection there.
+        if (!committed()) return;
+        const sheet = wb.sheet(sheetId);
+        const a = grid.active;
+        const rg = grid.range;
+        // Whole columns (or rows) selected: freeze up to the active cell, not a sheet's worth.
+        const wholeCols = wholeLines(rg, 'col', sheetId);
+        const wholeRows = wholeLines(rg, 'row', sheetId);
+        let rows = sheet.frozenRows;
+        let cols = sheet.frozenCols;
+        const r0 = rows ? sheet.frozenOrigin?.r || 0 : 0;
+        const c0 = cols ? sheet.frozenOrigin?.c || 0 : 0;
+        if (arg === 'none') { rows = 0; cols = 0; }
+        else if (arg === 'first-row') rows = 1;
+        else if (arg === 'first-col') cols = 1;
+        else if (arg === 'here') { rows = Math.max(0, a.r - r0); cols = Math.max(0, a.c - c0); }
+        // Freezing up to the selection reads its last row (or column): a Ctrl/Cmd+click selection of several
+        // ranges is refused rather than frozen up to the last range added, which may be far down the sheet.
+        else if (arg === 'rows') { if (!oneRange('freeze rows')) return; rows = Math.max(0, (wholeCols ? a.r : rg.r2) + 1 - r0); }
+        else if (arg === 'cols') { if (!oneRange('freeze columns')) return; cols = Math.max(0, (wholeRows ? a.c : rg.c2) + 1 - c0); }
+        else if (arg === 'rows-none') rows = 0;
+        else if (arg === 'cols-none') cols = 0;
+        else if (arg && typeof arg === 'object') { rows = arg.rows ?? rows; cols = arg.cols ?? cols; }
+        wb.setFrozen(sheetId, rows, cols);
+        ({ frozenRows: rows, frozenCols: cols } = sheet); // what was stored, within the workbook's limits
+        // What the grid froze: a pane that would fill most of the window is not drawn, and its lines still scroll.
+        const shown = grid.frozen;
+        // What was frozen, and what was not because it would fill the window: rows, columns or both of each.
+        const said = (r, c, [both, onlyRows, onlyCols]) => (r && c ? t(both, { rows: r, cols: c }) : r ? t(onlyRows, { count: r }) : c ? t(onlyCols, { count: c }) : '');
+        const frozenText = said(shown.rows, shown.cols, ['editor.freeze.frozenBoth', 'editor.freeze.frozenRows', 'editor.freeze.frozenCols']);
+        const droppedText = said(rows && !shown.rows ? rows : 0, cols && !shown.cols ? cols : 0, ['editor.freeze.droppedBoth', 'editor.freeze.droppedRows', 'editor.freeze.droppedCols']);
+        if (frozenText || droppedText) toast(frozenText && droppedText ? t('editor.freeze.frozenAndDropped', { frozen: frozenText, dropped: droppedText }) : frozenText || droppedText, { icon: 'pin', duration: droppedText ? 3200 : 1600 });
+        keepFocus();
+        return;
+      }
+      case 'split':
+        // View ▸ Split: at the active cell, or off again; splitting unfreezes and freezing unsplits.
+        grid.toggleSplit();
+        keepFocus();
+        return;
+      case 'filter': {
+        if (!committed()) return;
+        if (refusedByProtection('change the filter')) return;
+        const sheet = wb.sheet(sheetId);
+        const filter = wb.filterAt(sheetId, grid.active.r, grid.active.c);
+        const table = filter && filterTable(sheet, filter);
+        if (table) {
+          // A table keeps its filter, as Table Design ▸ Filter Button keeps it: Data ▸ Filter shows its buttons again,
+          // or hides them and shows every row. Removed outright, the filter took the table's slicers with it (each
+          // read that its column was unavailable and the workbook could no longer be saved), and buttons hidden from
+          // Table Design could not be brought back from here.
+          const on = tableFilterButtonOn(wb, sheetId, table);
+          wb.transaction(on ? t('editor.undo.removeFilter') : t('editor.undo.filter'), () => {
+            if (on && Object.keys(filter.criteria).length) wb._setFilter(sheet, { ...filter, criteria: {} }, t('editor.undo.removeFilter'), { target: filter });
+            const problem = setTableFilterButton(wb, sheetId, table.id, !on);
+            if (problem) toast(problem, { icon: 'info', duration: 3000 });
+          });
+          if (tableFilterButtonOn(wb, sheetId, table) !== on) toast(on ? t('editor.filter.removed') : t('editor.filter.added'), { icon: 'filter' });
+          keepFocus();
+          return;
+        }
+        if (filter) { wb.activateFilter(sheetId, filter); wb.clearFilter(sheetId); toast(t('editor.filter.removed'), { icon: 'filter' }); keepFocus(); return; }
+        if (!oneRange('create a filter')) return;
+        const range = dataRange();
+        if (!range || range.r1 >= range.r2) { toast(t('editor.filter.needTwoRows'), { icon: 'info' }); keepFocus(); return; }
+        wb.setFilterRange(sheetId, range);
+        toast(t('editor.filter.added'), { icon: 'filter' });
+        keepFocus();
+        return;
+      }
+      case 'filterMenu': openFilterMenu(arg); return;
+      case 'sortDialog': {
+        if (!committed()) return;
+        // A protected sheet refuses the sort the dialog would set up: said now, as the quick sort says it.
+        if (refusedByProtection('sort')) { keepFocus(); return; }
+        if (!oneRange('sort')) return;
+        let range = sortBlock();
+        if (!range) { toast(t('editor.nothingToSort'), { icon: 'info' }); return; }
+        // An explicit selection with data beside it is offered the whole block, as the quick sort offers it.
+        const block = !S.isSingle(grid.selection) && sortExpansion(wb, sheetId, range);
+        let widened = false;
+        if (block) {
+          const expand = await confirmSortExpansion();
+          if (expand == null) return;
+          if (expand) { range = block; widened = true; }
+        }
+        openSortDialog(ctx, range, { expanded: widened });
+        return;
+      }
+      case 'evaluateFormula': if (!committed()) return; openEvaluateDialog(ctx); return;
+      case 'aiFormula': if (!committed()) return; openAiDialog(ctx, { mode: 'write' }); return;
+      case 'aiExplain': if (!committed()) return; openAiDialog(ctx, { mode: 'explain' }); return;
+      case 'aiAsk': if (!committed()) return; openAiDialog(ctx, { mode: 'ask' }); return;
+      case 'aiPanel':
+        if (!aiPanel || !P.canAI()) { toast(appOption('aiFeatures') ? t('editor.ai.unavailable') : t('editor.ai.turnedOff'), { icon: 'info' }); return; }
+        // Opened from the keyboard mid-entry, the panel leaves the focus on the cell being typed into.
+        if (arg === false || (arg == null && aiPanel.isOpen)) aiPanel.close();
+        else aiPanel.open({ focus: !grid.editing, prompt: typeof arg === 'string' ? arg : null });
+        return;
+      case 'insertTable': {
+        if (!committed()) return;
+        const a = grid.active;
+        const existing = wb.tableAt(sheetId, a.r, a.c);
+        const preset = typeof arg?.style === 'string' ? arg.style : null;
+        // Format as Table on a table restyles it; elsewhere the Create Table dialog opens with the style chosen.
+        if (existing && preset) { if (!refusedByProtection('change the table')) wb.updateTable(sheetId, existing.id, { style: preset, customStyle: null }); keepFocus(); return; }
+        // The table dialog makes or changes a table, which a protected sheet refuses: said before it is filled in.
+        if (refusedByProtection(existing ? 'change the table' : 'create a table')) { keepFocus(); return; }
+        if (existing) { openTableDialog(ctx, { table: existing }); return; }
+        if (!oneRange('create a table')) return;
+        const range = dataRange(grid.range);
+        if (range.r1 >= range.r2) { toast(t('editor.table.needData'), { icon: 'info' }); return; }
+        openTableDialog(ctx, { range, style: preset });
+        return;
+      }
+      case 'formatAsTableMenu': {
+        // Home ▸ Format as Table: the table styles as a gallery of samples.
+        const anchor = arg instanceof HTMLElement ? arg : null;
+        const gallery = el('div.table-gallery', { role: 'group', 'aria-label': t('editor.table.styles') }, ...TABLE_STYLES.map(([key, label, look]) => el('button.table-gallery-item', {
+          type: 'button', role: 'menuitem', title: label, 'aria-label': t('editor.table.styleLabel', { label }), onclick: () => { menu.close(); run('insertTable', { style: key }); },
+        }, el('span.ribbon-table-sample', { 'aria-hidden': 'true', style: { '--table-head': look.header, '--table-band': look.band } },
+          ...Array.from({ length: 12 }, (_, i) => el('span', { dataset: { row: Math.floor(i / 3) } }))), el('span.table-gallery-label', {}, label))));
+        const menu = openMenu({ anchor, label: t('editor.table.formatAsTable'), minWidth: 300, items: [{ header: t('editor.table.styles') }, { custom: gallery }, { separator: true }, { label: t('editor.table.newTable'), icon: 'table', onSelect: () => run('insertTable') }] });
+        gallery.querySelector('button')?.focus();
+        return;
+      }
+      case 'editTableById': {
+        // From the names manager: switch to the table's sheet, select it, and open its dialog.
+        // A very hidden sheet is not shown from the user interface, as in Excel; a hidden one the protected
+        // structure keeps hidden is not switched to, and the dialog must not open over the sheet in view.
+        const tx = wb.tableById(arg.sheetId, arg.id);
+        if (!tx) return;
+        const sheet = wb.sheet(arg.sheetId);
+        if (sheet.veryHidden) { toast(t('editor.table.veryHidden', { name: sheet.name }), { icon: 'info', duration: 3500 }); return; }
+        if (arg.sheetId !== wb.activeSheetId) wb.setActiveSheet(arg.sheetId);
+        if (arg.sheetId !== wb.activeSheetId) return;
+        grid.setSelection(S.fromRange(tx.range, { r: tx.range.r1, c: tx.range.c1 }));
+        if (refusedByProtection('change the table')) return;
+        openTableDialog(ctx, { table: tx });
+        return;
+      }
+      case 'editTable': {
+        if (!committed()) return;
+        const tx = wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        if (tx && refusedByProtection('change the table')) { keepFocus(); return; }
+        if (tx) openTableDialog(ctx, { table: tx });
+        return;
+      }
+      case 'tableTotals': {
+        if (grid.editing || refusedByProtection('change the table')) return;
+        const tx = wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        if (tx) wb.setTableTotals(sheetId, tx.id, !tx.totalsRow);
+        keepFocus();
+        return;
+      }
+      case 'tableSource': {
+        if (grid.editing || refusedByProtection('use the table')) return;
+        const tx = wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        if (!tx) return;
+        const range = { ...tx.range, r2: tx.range.r2 - (tx.totalsRow ? 1 : 0) };
+        if (arg === 'pivot') openPivotDialog({ ...ctx, dataRange: () => range });
+        else if (arg === 'dedupe') openDedupeDialog(ctx, range);
+        return;
+      }
+      case 'tableResize': {
+        if (grid.editing || refusedByProtection('resize the table')) return;
+        const tx = wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        if (tx) openTableResizeDialog(ctx, tx);
+        return;
+      }
+      case 'insertSlicer': case 'insertTimeline': {
+        if (!committed() || refusedByProtection(cmd === 'insertSlicer' ? 'insert slicers' : 'insert a timeline')) return;
+        const tx = wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        const pivot = nativePivotAt(wb, sheetId, grid.active.r, grid.active.c);
+        if (cmd === 'insertTimeline') {
+          if (pivot) openInsertTimelineDialog(ctx, pivot);
+          else toast(t('editor.timeline.needDatePivot'), { icon: 'info', duration: 3000 });
+          return;
+        }
+        const problem = tx ? tableSlicerProblem(wb, sheetId, tx) : pivot ? null : tableSlicerProblem(wb, sheetId, null);
+        if (problem) { toast(problem, { icon: 'info', duration: 3000 }); return; }
+        openInsertSlicersDialog(ctx, tx ? { table: tx } : { pivot });
+        return;
+      }
+      case 'tableRename': {
+        if (grid.editing) return t('editor.table.renameFinishEntry');
+        if (refusedByProtection('rename the table')) return t('editor.table.renameUnprotect');
+        const tx = wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        if (!tx || tx.id !== arg?.id) return t('editor.table.renameSelect');
+        const name = String(arg.name ?? '').trim();
+        const problem = wb.validateTableName(name, tx.name);
+        if (problem) return problem;
+        return wb.updateTable(sheetId, tx.id, { name }) ? null : t('editor.table.renameFailed');
+      }
+      case 'tableOption': case 'tableStyle': case 'tableConvert': {
+        // Contextual ribbon and menus share the workbook's existing table transactions.
+        // Never commit a cell entry just to act on the table behind it.
+        if (grid.editing || refusedByProtection('change the table')) return;
+        const tx = wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        if (!tx) return;
+        if (cmd === 'tableConvert') wb.deleteTable(sheetId, tx.id);
+        else if (cmd === 'tableStyle') {
+          if (!TABLE_STYLES.some(([key]) => key === arg)) return;
+          wb.updateTable(sheetId, tx.id, { style: arg, customStyle: null });
+        } else if (arg === 'headerRow' || arg === 'filterButton') {
+          const problem = arg === 'headerRow' ? setTableHeaderRow(wb, sheetId, tx.id, tx.headerRow === false)
+            : setTableFilterButton(wb, sheetId, tx.id, !tableFilterButtonOn(wb, sheetId, tx));
+          if (problem) toast(problem, { icon: 'info', duration: 3000 });
+        } else {
+          if (!['banded', 'bandedColumns', 'firstColumn', 'lastColumn'].includes(arg)) return;
+          const on = arg === 'banded' ? tx.banded !== false : !!tx[arg];
+          wb.updateTable(sheetId, tx.id, { [arg]: !on });
+        }
+        keepFocus();
+        return;
+      }
+      // Data ▸ Form: a record at a time over the list at the selection (see ui/dataform.js, core/data-form.js).
+      case 'dataForm': {
+        if (!committed()) return;
+        openDataForm(ctx);
+        return;
+      }
+      // Data ▸ Queries & Connections ▸ Edit Links: the book's links to other workbooks (see ui/editlinks.js, core/edit-links.js).
+      case 'editLinks': {
+        if (!committed()) return;
+        openEditLinks(ctx, linkHost());
+        return;
+      }
+      case 'subtotal': {
+        if (!committed()) return;
+        // Adding subtotals and removing them both rewrite the rows, which a protected sheet refuses.
+        if (refusedByProtection('add or remove subtotals')) { keepFocus(); return; }
+        if (!oneRange('add subtotals')) return;
+        const range = dataRange();
+        if (!range) { toast(t('editor.nothingToSubtotal'), { icon: 'info' }); return; }
+        openSubtotalDialog(ctx, range);
+        return;
+      }
+      /* ---------- Cell styles management and outline tools ---------- */
+      case 'newCellStyle': if (!committed()) return; openStyleDialog(ctx, { mode: 'new' }); return;
+      case 'modifyCellStyle': case 'duplicateCellStyle': {
+        if (!committed()) return;
+        // From the menus a style comes by its name or preset key; from the gallery as { builtin } or { custom }.
+        const ref = typeof arg === 'string' ? (cellStyle(arg) ? { builtin: arg } : { custom: arg }) : arg;
+        openStyleDialog(ctx, { mode: cmd === 'modifyCellStyle' ? 'modify' : 'duplicate', ref });
+        return;
+      }
+      case 'saveCellStyle': {
+        if (!arg?.def) return;
+        const n = saveCellStyle(wb, arg);
+        toast(arg.oldName ? (n ? t('editor.style.savedUpdated', { name: arg.def.name, count: n }) : t('editor.style.saved', { name: arg.def.name })) : t('editor.style.added', { name: arg.def.name }), { icon: 'paint', duration: 2600 });
+        keepFocus();
+        return;
+      }
+      case 'deleteCellStyle': {
+        if (!committed()) return;
+        const ref = typeof arg === 'string' ? (cellStyle(arg) ? { builtin: arg } : { custom: arg }) : arg;
+        if (ref?.builtin) {
+          if (!builtinOverride(wb, ref.builtin)) { toast(t('editor.style.builtinStays'), { icon: 'info', duration: 3200 }); return; }
+          deleteCellStyle(wb, ref);
+          toast(t('editor.style.restored', { name: cellStyleLabel(ref.builtin) }), { icon: 'check' });
+          keepFocus();
+          return;
+        }
+        if (!customStyleNamed(wb, ref?.custom)) return;
+        const ok = await confirmDialog({ title: t('editor.style.deleteTitle', { name: ref.custom }), message: t('editor.style.deleteMessage'), confirmLabel: t('editor.style.delete') });
+        if (ok) deleteCellStyle(wb, ref);
+        keepFocus();
+        return;
+      }
+      case 'mergeCellStyles':
+        if (!committed()) return;
+        openMergeStylesDialog(ctx, {
+          listFiles: () => P.listFiles(), pickFile: P.canPickFiles() ? () => P.pickFile({ accept: ['.xlsx', '.xlsm', '.ods'] }) : null,
+          readFile: (path) => P.readFile(path), open: (bytes, name) => workbookFromFile(bytes, name), currentPath: doc.path,
+        });
+        return;
+      case 'autoOutline': {
+        if (!committed()) return;
+        if (refusedByProtection('outline rows and columns')) return;
+        // A single cell outlines the whole sheet; a selected block only what lies in it.
+        const rg = grid.range;
+        const n = autoOutline(wb, sheetId, rg.r1 === rg.r2 && rg.c1 === rg.c2 ? null : rg);
+        toast(n ? t('editor.outline.builtFromFormulas', { count: n }) : t('editor.outline.noFormulasExplained'), { icon: n ? 'check' : 'info', duration: 3600 });
+        keepFocus();
+        return;
+      }
+      case 'clearOutline': {
+        if (!committed()) return;
+        if (refusedByProtection('clear the outline')) return;
+        const rg = grid.range;
+        const whole = (rg.r1 === rg.r2 && rg.c1 === rg.c2) || (wholeLines(rg, 'col', sheetId) && wholeLines(rg, 'row', sheetId));
+        toast(clearOutline(wb, sheetId, whole ? null : rg) ? t('editor.outline.cleared') : t('editor.outline.nothingToClear'), { icon: 'info' });
+        keepFocus();
+        return;
+      }
+      case 'outlineSettings': {
+        if (!committed()) return;
+        // The settings are the sheet's, kept while it is protected as its outline is: said before the dialog opens,
+        // and again should the sheet be protected while it was open, rather than written past the protection.
+        if (refusedByProtection('change the outline settings')) { keepFocus(); return; }
+        if (!arg?.settings) { openOutlineSettings(ctx); return; }
+        // From the dialog: keep its settings, then Create or Apply Styles with them, as one step.
+        let made = 0;
+        let styled = true;
+        wb.transaction(arg.then === 'create' ? t('editor.undo.autoOutline') : arg.then === 'styles' ? t('editor.undo.applyOutlineStyles') : t('editor.undo.outlineSettings'), () => {
+          wb.setOutlineSettings(sheetId, arg.settings);
+          if (arg.then === 'create') made = autoOutline(wb, sheetId);
+          if (arg.then === 'styles') styled = applyOutlineStyles(wb, sheetId);
+        });
+        if (arg.then === 'create') toast(made ? t('editor.outline.built', { count: made }) : t('editor.outline.noFormulas'), { icon: made ? 'check' : 'info', duration: 3200 });
+        if (arg.then === 'styles' && !styled) toast(t('editor.outline.noneToStyle'), { icon: 'info' });
+        grid.refresh();
+        keepFocus();
+        return;
+      }
+      case 'textCase': {
+        if (!committed()) return;
+        if (refusedByProtection('change the text')) return;
+        // Every selected range, and only the rows a filter shows, as clearing and formatting cover them; one undo step.
+        let n = 0;
+        let refused = false;
+        const done = eachRange(arg === 'number' ? t('editor.undo.convertToNumbers') : t('editor.undo.changeText'), (rg) => {
+          const changed = wb.transformText(sheetId, rg, arg);
+          if (changed === false) refused = true; else n += changed;
+        }, { cap: false });
+        // A protected cell refused the change; the workbook's notice has named it.
+        if (done === null || (!n && refused)) { keepFocus(); return; }
+        const said = { trim: 'editor.textCase.trimmed', upper: 'editor.textCase.uppercased', lower: 'editor.textCase.lowercased', proper: 'editor.textCase.capitalized', number: 'editor.textCase.converted' }[arg] || 'editor.textCase.changed';
+        toast(n ? t(said, { count: n }) : arg === 'number' ? t('editor.textCase.noNumbers') : t('editor.textCase.noText'), { icon: n ? 'check' : 'info' });
+        keepFocus();
+        return;
+      }
+      case 'textMenu': {
+        const anchor = arg instanceof HTMLElement ? arg : null;
+        openMenu({
+          anchor, x: anchor ? null : (arg?.x ?? null), y: anchor ? null : (arg?.y ?? null), label: t('editor.textCase.menu'),
+          items: [
+            { label: t('editor.textCase.trim'), icon: 'text', onSelect: () => run('textCase', 'trim') },
+            { label: t('editor.textCase.upper'), icon: 'text', onSelect: () => run('textCase', 'upper') },
+            { label: t('editor.textCase.lower'), icon: 'text', onSelect: () => run('textCase', 'lower') },
+            { label: t('editor.textCase.proper'), icon: 'text', onSelect: () => run('textCase', 'proper') },
+            { separator: true },
+            { label: t('editor.textCase.toNumbers'), icon: 'number', onSelect: () => run('textCase', 'number') },
+          ],
+          onClose: () => keepFocus(),
+        });
+        return;
+      }
+      case 'splitTextMenu': {
+        // Which separator: detected, or one of the usual ones, or typed.
+        const anchor = arg instanceof HTMLElement ? arg : null;
+        const options = [['auto', t('editor.split.detect')], [',', t('editor.split.comma')], [';', t('editor.split.semicolon')], ['\t', t('editor.split.tab')], [' ', t('editor.split.space')], ['|', t('editor.split.pipe')], ['/', t('editor.split.slash')], ['-', t('editor.split.dash')]];
+        openMenu({
+          anchor, x: anchor ? null : (arg?.x ?? null), y: anchor ? null : (arg?.y ?? null), label: t('editor.split.menu'), minWidth: 200,
+          items: [
+            { header: t('editor.split.separator') },
+            ...options.map(([d, label]) => ({ label, onSelect: () => run('splitText', d === 'auto' ? null : d) })),
+            { separator: true },
+            { label: t('editor.split.custom'), onSelect: async () => {
+              const d = await promptDialog({ title: t('editor.split.title'), label: t('editor.split.separator'), value: '', confirmLabel: t('editor.split.split'), validate: (v) => (v.length ? null : t('editor.split.enterSeparator')) });
+              if (d != null) run('splitText', d); else keepFocus();
+            } },
+            { label: t('editor.split.textToColumns'), icon: 'textToColumns', onSelect: () => run('splitTextDialog') },
+          ],
+          onClose: () => keepFocus(),
+        });
+        return;
+      }
+      case 'splitTextDialog': {
+        // Text to Columns: separators or fixed widths, a preview, a format per column and a destination.
+        if (!committed()) return;
+        if (refusedByProtection('split the text')) return;
+        openTextToColumnsDialog(ctx, { range: grid.range, allowDest: grid.ranges.length === 1, resolve: resolveRangeText, onSplit: (options) => run('splitText', options) });
+        return;
+      }
+      case 'splitText': {
+        if (!committed()) return;
+        if (refusedByProtection('split the text')) return;
+        // The pieces land right of each text: a cell there that holds something is asked about first,
+        // rather than written over unasked.
+        if (splitWouldOverwrite(arg || null)) {
+          const replace = await confirmDialog({ title: t('editor.split.toColumnsTitle'), message: t('editor.split.overwriteMessage'), confirmLabel: t('editor.split.overwrite'), cancelLabel: t('common.cancel'), danger: true });
+          if (destroyed) return;
+          if (!replace) { keepFocus(); return; }
+        }
+        // The first column of every selected range, in the rows a filter shows, as other edits cover a selection; one undo step.
+        let rows = 0;
+        let cols = 0;
+        let reason = null;
+        const dest = arg && typeof arg === 'object' ? arg.dest : null;
+        const splitOne = (rg) => {
+          const out = wb.splitTextToColumns(sheetId, { ...rg, c2: rg.c1 }, arg || null);
+          rows += out.rows;
+          cols = Math.max(cols, out.cols);
+          reason ??= out.reason;
+        };
+        // Pieces sent elsewhere keep the rows of the text they came from, so the selection is read whole, once.
+        const done = dest ? (wb.lockedIn(sheetId, { ...grid.range, c2: grid.range.c1 }) ? null : splitOne(grid.range)) : eachRange(t('editor.undo.splitText'), splitOne, { cap: false });
+        if (done === null) { keepFocus(); return; } // a protected cell among the selected ranges; the workbook's notice has named it
+        const problem = reason === 'room' ? t('editor.split.noRoom') : reason === 'merged' ? t('editor.split.merged') : undefined;
+        if (!rows) {
+          // A protected cell right of the text refused the split; the workbook's notice has named it.
+          if (reason !== 'protected') toast(problem || (typeof arg === 'string' && arg ? (arg === '\t' ? t('editor.split.noTextWithTab') : t('editor.split.noTextWith', { separator: arg })) : t('editor.split.noTextWithSeparator')), { icon: 'info' });
+          keepFocus();
+          return;
+        }
+        toast(t('editor.split.done', { rows, cols }));
+        // A range the split had to refuse is not passed over in silence.
+        if (problem) toast(problem, { icon: 'info' });
+        const range = grid.range;
+        if (dest) grid.setSelection(S.fromRange({ r1: dest.r, c1: dest.c, r2: dest.r + range.r2 - range.r1, c2: Math.min(dest.c + cols - 1, wb.sheet(sheetId).cols - 1) }, { r: dest.r, c: dest.c }), { scroll: false });
+        else if (grid.ranges.length === 1) grid.setSelection(S.fromRange({ ...range, c2: Math.min(range.c1 + cols - 1, wb.sheet(sheetId).cols - 1) }, grid.active), { scroll: false });
+        keepFocus();
+        return;
+      }
+      case 'shuffle': {
+        // Randomize range: the selected rows in a random order (a header row is left in place).
+        if (!committed()) return;
+        if (refusedByProtection('shuffle rows')) return;
+        if (!oneRange('shuffle rows')) return;
+        let range = dataRange();
+        if (!range || range.r1 >= range.r2) { toast(t('editor.shuffle.needTwoRows'), { icon: 'info' }); keepFocus(); return; }
+        if (looksLikeHeader(wb, sheetId, range)) range = { ...range, r1: range.r1 + 1 };
+        const moved = wb.shuffleRows(sheetId, range);
+        // Protected cells, a table's edge, merges or an array result refuse the shuffle: say which, as the sort does.
+        toast(moved ? t('editor.shuffle.done', { count: range.r2 - range.r1 + 1 }) : rearrangeProblem(wb, sheetId, range, 'row', 'shuffle') || t('editor.shuffle.nothing'), { icon: moved ? 'check' : 'info' });
+        if (moved) grid.setSelection(S.fromRange(range, { r: range.r1, c: range.c1 }), { scroll: false });
+        keepFocus();
+        return;
+      }
+      case 'removeEmptyRows': {
+        if (!committed()) return;
+        if (refusedByProtection('remove rows')) return;
+        if (!oneRange('remove empty rows')) return;
+        const range = dataRange();
+        if (!range) { toast(t('editor.nothingToCheck'), { icon: 'info' }); keepFocus(); return; }
+        // A protected range can keep every empty row: the workbook's notice names it, and "no empty rows" would contradict it.
+        let refused = false;
+        const onProtection = ({ detail }) => { if (detail?.type === 'protected' && detail.sheetId === sheetId) refused = true; };
+        wb.addEventListener('change', onProtection);
+        let removed;
+        try { removed = wb.removeEmptyRows(sheetId, range); } finally { wb.removeEventListener('change', onProtection); }
+        if (!removed && refused) { keepFocus(); return; }
+        toast(removed ? t('editor.emptyRows.removed', { count: removed }) : t('editor.emptyRows.none'), { icon: removed ? 'check' : 'info' });
+        if (removed) {
+          // The selection shrinks to the rows left; an active cell that sat below them moves up into the last one.
+          const r2 = Math.max(range.r1, range.r2 - removed);
+          grid.setSelection(S.fromRange({ ...range, r2 }, { r: Math.min(grid.active.r, r2), c: grid.active.c }), { scroll: false });
+        }
+        keepFocus();
+        return;
+      }
+      case 'dedupe': {
+        if (!committed()) return;
+        if (refusedByProtection('remove duplicates')) return;
+        if (!oneRange('remove duplicates')) return;
+        // From one cell of a table the whole table is checked (less its totals row), as Excel takes it; the block
+        // around the cell stopped at a blank row inside it.
+        const inTable = S.isSingle(grid.selection) && wb.tableAt(sheetId, grid.active.r, grid.active.c);
+        let range = inTable ? { ...inTable.range, r2: inTable.range.r2 - (inTable.totalsRow ? 1 : 0) } : dataRange();
+        if (!range) { toast(t('editor.nothingToCheck'), { icon: 'info' }); return; }
+        // Data beside an explicit selection would stay put while the selection's duplicates went and the rows
+        // below them moved up: the whole block is offered first, as for a sort.
+        const block = !S.isSingle(grid.selection) && sortExpansion(wb, sheetId, range);
+        let widened = false;
+        if (block) {
+          const expand = await confirmSortExpansion({ kind: 'dedupe' });
+          if (expand == null) return;
+          if (expand) { range = block; widened = true; }
+        }
+        if (range.r1 >= range.r2) { toast(t('editor.dedupe.needTwoRows'), { icon: 'info' }); return; }
+        openDedupeDialog(ctx, range, { expanded: widened });
+        return;
+      }
+      /* ---------- Show Changes (Review ▸ Show Changes, the cell menu) ---------- */
+      // With 'selection' (the cell menu) the pane opens on the changes to the selected cells; alone it opens or closes.
+      case 'showChanges':
+        if (arg === 'selection') changesPane.show({ selection: true });
+        else changesPane.toggle();
+        notify();
+        return;
+      case 'resizeCols': case 'resizeRows': {
+        if (!committed()) return;
+        const isCol = cmd === 'resizeCols';
+        if (refusedByProtection(isCol ? 'resize columns' : 'resize rows')) return;
+        // One size goes to one run of lines: a Ctrl/Cmd+click selection of several is refused rather than
+        // the last range added resized while the dialog counts only its lines.
+        if (!oneRange(isCol ? 'resize columns' : 'resize rows')) return;
+        const r = grid.range;
+        const from = isCol ? r.c1 : r.r1;
+        const to = isCol ? r.c2 : r.r2;
+        const current = isCol ? wb.colWidth(sheetId, from) || 100 : wb.rowHeight(sheetId, from) || 26;
+        const n = to - from + 1;
+        const min = isCol ? MIN_COL_WIDTH : MIN_ROW_HEIGHT;
+        const max = isCol ? MAX_COL_WIDTH : MAX_ROW_HEIGHT;
+        const text = await promptDialog({
+          title: isCol ? t('editor.resize.columnWidth') : t('editor.resize.rowHeight'),
+          label: isCol ? (n === 1 ? t('editor.resize.widthOne', { column: colName(from) }) : t('editor.resize.widthMany', { count: n }))
+            : n === 1 ? t('editor.resize.heightOne', { row: from + 1 }) : t('editor.resize.heightMany', { count: n }),
+          value: String(current), confirmLabel: t('editor.resize.resize'),
+          validate: (v) => (/^\d+$/.test(v) && Number(v) >= min && Number(v) <= max ? null : t('editor.resize.invalid', { min, max })),
+        });
+        // Cancelled, the keyboard goes back to the sheet as after a size given, not to the ribbon button that asked.
+        if (text == null) { keepFocus(); return; }
+        const px = Number(text);
+        // Every row (or column) of the sheet: its default size, not a size of their own for a million rows.
+        if (wholeLines(r, isCol ? 'row' : 'col', sheetId)) { wb.setDefaultLineSize(sheetId, isCol ? 'col' : 'row', px); keepFocus(); return; }
+        wb.transaction(isCol ? t('editor.undo.resizeColumns') : t('editor.undo.resizeRows'), () => {
+          for (let i = from; i <= to; i++) {
+            if (isCol) wb.setColWidth(sheetId, i, px);
+            else wb.setRowHeight(sheetId, i, px);
+          }
+        });
+        keepFocus();
+        return;
+      }
+      case 'autofit': {
+        // The columns of every selected range, as one undo step, once the entry has gone in (as for fitRows).
+        if (!committed()) return;
+        let fitted = false;
+        wb.transaction(t('editor.undo.fitColumns'), () => { for (const { from, to } of lineRuns(grid.ranges, 'col')) if (autofitColumns(from, to)) fitted = true; });
+        if (!fitted) toast(t('editor.nothingToFit'), { icon: 'info' });
+        keepFocus();
+        return;
+      }
+      // The series dialog's fill is refused anywhere on a protected sheet: said before the step and stop are given.
+      case 'fillSeries': if (!committed()) return; if (refusedByProtection('fill a series')) { keepFocus(); return; } openSeriesDialog(ctx); return;
+      case 'fillDown': case 'fillRight': case 'fillUp': case 'fillLeft': {
+        if (grid.editing) return;
+        // Every selected range (Ctrl/Cmd+click adds ranges) fills from its own first row or column, as one undo step.
+        // A protected cell in any of them refuses the whole fill up front (the workbook's notice names it), as one
+        // range holding such a cell is refused whole: all or nothing, not the other ranges filled and that one not.
+        // Whole columns (or rows) fill down (or right) as far as the sheet's content goes, as the data commands take
+        // them: a million copies of the first row took a gigabyte for one column, and ran the page out of memory for a
+        // sheet selected whole with Ctrl+A. Up and left fill from the far end of the range, which clipping would move.
+        const ranges = cmd === 'fillDown' || cmd === 'fillRight' ? grid.ranges.map((rg) => toUsedExtent(rg, sheetId)) : grid.ranges;
+        if (ranges.some((rg) => wb.lockedIn(sheetId, rg))) { keepFocus(); return; }
+        const direction = { fillDown: 'down', fillRight: 'right', fillUp: 'up', fillLeft: 'left' }[cmd];
+        wb.transaction(t('editor.undo.fill'), () => { for (const rg of ranges) wb.fillDirection(sheetId, rg, direction); });
+        keepFocus();
+        return;
+      }
+      case 'copy': copyToClipboard(false); return;
+      case 'cut': copyToClipboard(true); return;
+      case 'paste': await pasteFromClipboard(); return;
+      case 'pasteValues': await pasteFromClipboard({ valuesOnly: true }); return;
+      case 'pasteFormats': await pasteFromClipboard({ mode: 'formats' }); return;
+      case 'pasteTranspose': await pasteFromClipboard({ mode: 'transpose' }); return;
+      case 'pasteSpecial': await pasteFromClipboard({ mode: arg }); return;
+      // Paste Special… (Ctrl+Alt+V, the menus' Paste Special…): the dialog, over what the clipboard holds.
+      case 'pasteSpecialMenu': case 'pasteSpecialDialog': await openPasteSpecial(); return;
+      // A choice of the Paste gallery (Home ▸ Paste arrow, the cell menu): Paste Special's options without the dialog.
+      case 'pasteWith': await pasteFromClipboard({ paste: arg }); return;
+      // Insert Copied Cells: the cells copied here go in, the cells already there shifting right or down.
+      case 'insertCopiedCells': {
+        if (!committed()) return;
+        if (arg === 'down' || arg === 'right') { await pasteFromClipboard({ mode: arg === 'down' ? 'insertDown' : 'insertRight' }); return; }
+        if (!clip) { toast(t('editor.insertCopied.copyFirst'), { icon: 'info' }); keepFocus(); return; }
+        openInsertPasteDialog({ range: { r1: 0, c1: 0, r2: (clip.rows?.length || 1) - 1, c2: (clip.cols?.length || 1) - 1 },
+          onInsert: (direction) => run('insertCopiedCells', direction), onClose: () => keepFocus() });
+        return;
+      }
+      case 'fillJustify': if (!committed()) return; fillJustify(); keepFocus(); return;
+      case 'toValues': {
+        // Freeze the selection: formulas become the values they show.
+        if (!committed()) return;
+        if (refusedByProtection('replace formulas')) return;
+        // Every selected range, without the rows a filter hides: what is on screen is what freezes, as when clearing.
+        let n = 0;
+        if (eachRange(t('editor.undo.replaceFormulas'), (rg) => { n += wb.formulasToValues(sheetId, rg); }, { cap: false }) === null) { keepFocus(); return; }
+        toast(n ? t('editor.formulasToValues.done', { count: n }) : t('editor.formulasToValues.none'), { icon: n ? 'check' : 'info', duration: 2500 });
+        keepFocus();
+        return;
+      }
+      // A clicked toolbar button holds the focus a browser gave it; every command that changes the sheet hands it back to the grid.
+      // Undo and redo say which way the history moves, so the selection kept around a structural step can follow (see `historyMove`).
+      // They show what they change too (`revealFrom`).
+      case 'undo': if (!grid.editing) { historyMove = 'undo'; revealFrom = wb.version; try { wb.undo(); } finally { historyMove = 'push'; revealFrom = null; } } keepFocus(); return;
+      case 'redo': if (!grid.editing) { historyMove = 'redo'; revealFrom = wb.version; try { wb.redo(); } finally { historyMove = 'push'; revealFrom = null; } } keepFocus(); return;
+      case 'undoSteps': case 'redoSteps': {
+        // As undo and redo: the sheet behind an open edit waits for the edit, which is neither thrown away nor committed.
+        if (grid.editing) { keepFocus(); return; }
+        historyMove = cmd === 'undoSteps' ? 'undo' : 'redo';
+        revealFrom = wb.version;
+        let n;
+        try { n = wb[cmd](Number(arg) || 1); } finally { historyMove = 'push'; revealFrom = null; }
+        toast(cmd === 'undoSteps' ? t('editor.history.undid', { count: n }) : t('editor.history.redid', { count: n }), { icon: cmd === 'undoSteps' ? 'undo' : 'redo', duration: 1500 });
+        keepFocus();
+        return;
+      }
+      case 'selectAll': {
+        if (!committed()) return;
+        // As Ctrl/Cmd+A steps: the block of data around the active cell first, the whole sheet on a second
+        // press; a grid without the stepping takes the whole sheet at once.
+        if (grid.selectAll) { grid.selectAll(); return; }
+        const sheet = wb.sheet(sheetId);
+        grid.setSelection(S.selectAll({ rows: sheet.rows, cols: sheet.cols }), { scroll: false });
+        return;
+      }
+      case 'escape':
+        optionButton.hide();
+        endCut(); // the cut cells stay; a paste now copies them
+        if (painter) stopPainting();
+        if (tracing) { tracing = null; grid.setHighlights([], -1); }
+        return;
+      case 'save': await saveNow(); return;
+      case 'saveAs': await saveAs(); return;
+      case 'rename': await renameDoc(); return;
+      case 'downloadXlsx': await exportFile('xlsx'); return;
+      case 'downloadCsv': await exportFile('csv'); return;
+      case 'downloadTsv': await exportFile('tsv'); return;
+      case 'downloadHtml': await exportFile('html'); return;
+      case 'downloadOds': await exportFile('ods'); return;
+      case 'docInfo': {
+        if (!committed()) return;
+        const st = doc.path ? await P.statFile(doc.path).catch(() => null) : null;
+        if (destroyed) return; // the editor was left while Puter answered
+        let cells = 0;
+        let formulas = 0;
+        const rows = wb.sheets.map((sh) => {
+          let n = 0;
+          let f = 0;
+          for (const cell of sh.cells.values()) { if (cell.v != null || cell.f != null) { n++; if (cell.f != null) f++; } }
+          cells += n; formulas += f;
+          return el('tr', {}, el('td', {}, sh.hidden ? t('editor.details.hiddenSheet', { name: sh.name }) : sh.name), el('td.num', {}, formatUiNumber(n)), el('td.num', {}, formatUiNumber(f)), el('td.num', {}, String(sh.charts.length)), el('td.num', {}, String(sh.tables.length)));
+        });
+        const fact = (k, v) => el('tr', {}, el('th', {}, k), el('td', {}, v));
+        const size = st?.size != null ? formatBytes(st.size) : t('editor.details.notSaved');
+        const dateTime = (d) => formatUiDate(d, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' });
+        const when = doc.lastSaved ? dateTime(new Date(doc.lastSaved)) : (st?.modified ? dateTime(new Date((st.modified < 1e12 ? st.modified * 1000 : st.modified))) : (doc.path ? t('editor.details.unknown') : t('editor.details.notSaved')));
+        openModal({
+          title: t('editor.details.title'), wide: true,
+          content: el('div', {},
+            el('table.details-table', {}, el('tbody', {},
+              fact(t('common.name'), doc.name), fact(t('editor.details.location'), doc.path || t('editor.details.notSaved')), fact(t('editor.details.size'), size), fact(t('editor.details.lastSaved'), when),
+              fact(t('editor.details.sheets'), String(wb.sheets.length)), fact(t('editor.details.cellsWithContent'), formatUiNumber(cells)), fact(t('editor.details.formulas'), formatUiNumber(formulas)),
+              fact(t('editor.details.namedRanges'), String(wb.names.filter((n) => !n.hidden).length)), fact(t('editor.details.tables'), String(wb.tableNames().length)), fact(t('editor.details.functionsAvailable'), String(FUNCTION_NAMES.length)))),
+            el('table.details-table.details-sheets', {},
+              el('thead', {}, el('tr', {}, el('th', {}, t('editor.details.sheet')), el('th.num', {}, t('editor.details.cells')), el('th.num', {}, t('editor.details.formulas')), el('th.num', {}, t('editor.details.charts')), el('th.num', {}, t('editor.details.tables')))),
+              el('tbody', {}, ...rows))),
+          onClose: () => keepFocus(),
+        });
+        return;
+      }
+      case 'downloadRangeCsv': {
+        // The selection (or the table around the active cell) as CSV.
+        if (!committed()) return;
+        if (!oneRange('export the selection')) return;
+        const a = grid.active;
+        const table = S.isSingle(grid.selection) ? wb.tableAt(sheetId, a.r, a.c) : null;
+        const range = table ? table.range : grid.range;
+        const blob = new Blob([rangeToCsv(wb, sheetId, range)], { type: CSV_MIME });
+        const label = table ? table.name : rangeName(range).replace(':', '-');
+        const name = `${P.sanitizeName(doc.name)} - ${label}.csv`;
+        P.downloadBlob(blob, name);
+        return;
+      }
+      case 'exportPdf':
+        toast(t('editor.pdf.hint'), { icon: 'fileDown', duration: 4200 });
+        openPrintDialog(ctx);
+        return;
+      case 'import': fileInput.click(); return;
+      case 'importSheets': sheetsInput.click(); return;
+      case 'versions': {
+        if (!committed()) return;
+        // A shared workbook's snapshots are kept with its owner's file, which someone it was shared with has none of.
+        if (room && !doc.path) { toast(t('editor.versions.ownerFile'), { icon: 'info', duration: 4500 }); return; }
+        if (session.signedOut && (!await session.signIn() || destroyed)) return;
+        if (!doc.path) await flush({ leaving: false });
+        if (destroyed) return;
+        if (!doc.path) { toast(t('editor.saveFirst'), { icon: 'info' }); return; }
+        openVersionHistory(doc, { onRestored: () => { grid.refresh(); keepFocus(); } });
+        return;
+      }
+      case 'sendCopy': {
+        // Email the workbook as it is now, from the signed-in user (ui/send-mail.js).
+        if (!committed()) return;
+        if (session.signedOut && (!await session.signIn() || destroyed)) return;
+        openSendCopyDialog({ doc, sheetId: grid.sheetId, range: S.isSingle(grid.selection) ? null : { ...grid.range }, mailer, user: session.user, onClose: () => keepFocus() });
+        return;
+      }
+      case 'sendLink': {
+        if (!await savedForSharing()) return;
+        openSendLinkDialog({ doc, mailer, user: session.user, onClose: () => keepFocus() });
+        return;
+      }
+      case 'share': {
+        // Someone a shared workbook was shared with has no file to save first: the dialog shows the live workbook's part.
+        const member = room && !doc.path;
+        if (member ? grid.editing && !grid.commitEdit() : !await savedForSharing()) return;
+        openShareDialog({
+          path: doc.path, name: doc.name, uid: doc.uid, doc: openLive || member ? doc : null,
+          onEmailLink: mailer.available() ? () => run('sendLink') : null,
+          // Editing together started (or stopped): the workbook opens again as the room's (or as the file).
+          onLive: async (room) => {
+            if (destroyed) return;
+            if (room) openLive?.({ ...room, path: doc.path, uid: doc.uid });
+            else openPath(doc.path, { reload: true });
+          },
+        });
+        return;
+      }
+      case 'importUrl': {
+        // A file on the web (a published CSV, an .xlsx on a server) fetched through Puter.
+        if (session.signedOut && (!await session.signIn() || destroyed)) return;
+        const url = await promptDialog({
+          title: t('editor.importUrl.title'), label: t('editor.importUrl.label'), placeholder: 'https://example.com/data.csv', confirmLabel: t('editor.importUrl.import'),
+          validate: urlProblem,
+          hint: t('editor.importUrl.hint'),
+        });
+        if (!url) { keepFocus(); return; }
+        if (!committed()) return;
+        toast(t('editor.importUrl.fetching'), { icon: 'spinner', duration: 1500 });
+        try {
+          const bytes = await P.fetchBytes(url.trim());
+          if (destroyed) return;
+          const name = importNameFor(url.trim(), bytes);
+          const other = await workbookFromFile(bytes, name);
+          if (destroyed) return;
+          if (other.sheets.length === 1 && /\.(csv|tsv|txt)$/i.test(name)) other.renameSheet(other.sheets[0].id, name.replace(/\.[^.]+$/, '').slice(0, 31) || other.sheets[0].name);
+          openImportPlacementDialog(ctx, other, name);
+        } catch (e) {
+          if (destroyed) return;
+          console.error(e);
+          toast(explained(e) ? e.message : t('editor.importUrl.failed'), { icon: 'alert', duration: 5000 });
+        }
+        keepFocus();
+        return;
+      }
+      case 'open': {
+        if (session.signedOut && (!await session.signIn() || destroyed)) return;
+        const picked = await P.pickFile();
+        if (destroyed) return; // the editor was left while the picker was open
+        if (picked && await flush()) openPath(picked.path);
+        return;
+      }
+      // The save flush waits on may finish after the editor was left: nothing opens then.
+      case 'new': if (await flush() && !destroyed) newDoc(); return;
+      case 'newFromTemplate': openTemplatePicker({ onPick: async (id) => { if (await flush() && !destroyed) templateDoc?.(id); } }); return;
+      case 'home': await leave(); return;
+      case 'functionMenu': openFunctionMenu(arg instanceof HTMLElement ? arg : null); return;
+      case 'palette': {
+        // Every menu action by name: Ctrl/Cmd+Shift+P, Alt+/, or the Search button.
+        if (!committed()) return;
+        palette?.close();
+        palette = openCommandPalette({ commands: withCustomShortcuts(paletteCommands(commandFlags())), run, onClose: () => { palette = null; keepFocus(); } });
+        return;
+      }
+      case 'insertFunction': insertFunction(arg); return;
+      case 'insertFunctionDialog':
+        // A locked cell refuses the formula (the workbook's notice says why) before a function is looked for, as Insert
+        // Symbol does: the dialog was searched and its OK pressed for nothing. An unlocked cell takes it.
+        if (!grid.editing && wb.lockedAt(sheetId, grid.active.r, grid.active.c)) { keepFocus(); return; }
+        openInsertFunctionDialog(ctx, { onPick: (name) => run('functionArgs', name) });
+        return;
+      case 'functionArgs': {
+        // Function Arguments for a function picked from a category or Insert Function. Mid-entry the
+        // function goes in at the caret instead, so the formula being typed is not replaced; Ctrl+A after a
+        // function's name in it ({ name, start, end }) opens the dialog, whose call takes that name's place.
+        const at = arg && typeof arg === 'object' ? arg : null;
+        const name = String((at ? at.name : arg) || '').toUpperCase();
+        if (!FUNCTION_NAMES.includes(name)) return;
+        if (grid.editing && at) {
+          rememberFunction(name);
+          openFunctionArgumentsDialog(ctx, name, { initial: at.args || [], apply: (call) => { if (grid.editing) grid.insertText(call, at); } });
+          return;
+        }
+        if (grid.editing) { insertFunction(name); return; }
+        // A locked cell refuses the formula as it refuses one typed (an unlocked one on a protected sheet takes it).
+        if (wb.lockedAt(sheetId, grid.active.r, grid.active.c)) return;
+        rememberFunction(name);
+        openFunctionArgumentsDialog(ctx, name, { apply: (call) => { if (grid.beginEdit({ text: `=${call}`, mode: 'inplace' }) !== false) grid.commitEdit(); keepFocus(); } });
+        return;
+      }
+      case 'autosum': {
+        // With a guessable range the sum is written straight away; otherwise
+        // the editor opens with =SUM( so a range can be picked. Mid-edit the
+        // chord inserts SUM( at the caret, never a formula into the cell behind.
+        if (grid.editing) { insertFunction('SUM'); return; }
+        const { r, c } = grid.active;
+        const isNum = (rr, cc) => typeof wb.getValue(sheetId, rr, cc) === 'number';
+        let rr = r - 1;
+        while (rr >= 0 && isNum(rr, c)) rr--;
+        let cc = c - 1;
+        if (rr === r - 1) while (cc >= 0 && isNum(r, cc)) cc--;
+        const range = rr < r - 1 ? { r1: rr + 1, c1: c, r2: r - 1, c2: c } : cc < c - 1 ? { r1: r, c1: cc + 1, r2: r, c2: c - 1 } : null;
+        if (range && S.isSingle(grid.selection)) {
+          // A protected cell: the workbook says so and would refuse the sum, so the selection stays on it.
+          if (wb.lockedAt(sheetId, r, c)) return;
+          const text = `=SUM(${rangeName(range)})`;
+          if (!allowedByRule(wb.validateInput(sheetId, r, c, text), text)) return;
+          wb.setInput(sheetId, r, c, text);
+          grid.setSelection(S.single(r + (range.c1 === c ? 1 : 0), c + (range.r1 === r ? 1 : 0)));
+        } else insertFunction('SUM');
+        return;
+      }
+      case 'recalc': {
+        // Every formula, not the volatile ones alone: a result written in the regional format (TEXT, DOLLAR)
+        // can be stale though no cell changed.
+        wb.recalculate();
+        imported.clear(); // IMPORTRANGE reads its files afresh too
+        const asked = wb.clearAsyncCache();
+        grid.refresh();
+        toast(asked ? t('editor.recalc.withAi') : t('editor.recalc.done'), { icon: 'reset', duration: 1600 });
+        keepFocus();
+        return;
+      }
+      case 'newSheet': {
+        if (!committed()) return;
+        const sheet = wb.addSheet();
+        if (sheet) wb.setActiveSheet(sheet.id);
+        return;
+      }
+      // The tab strip's other structural actions come through here too, so an
+      // open edit is committed before the sheet changes. Committed inside the
+      // structure event instead, it would sit in the history before the sheet
+      // step, whose snapshot predates it: the first undo would take both away.
+      case 'duplicateSheet':
+        if (!committed()) return;
+        wb.duplicateSheet(arg || sheetId);
+        return;
+      case 'moveOrCopySheet':
+        if (!committed()) return;
+        openMoveSheetDialog(ctx, arg || sheetId);
+        return;
+      case 'placeSheet':
+        if (!committed() || !arg?.id) return false;
+        return !!placeSheet(wb, arg.id, arg);
+      case 'showSheet': case 'hideSheet': {
+        if (!committed()) return;
+        // Hiding a grouped sheet hides the whole group, as long as a sheet outside it stays on show.
+        const group = cmd === 'hideSheet' && wb.sheetGroup;
+        if (group && (!arg || group.includes(arg))) {
+          if (group.length >= wb.visibleSheets.length) { toast(t('editor.sheets.keepOneVisible'), { icon: 'eyeOff', duration: 3500 }); return; }
+          wb.transaction(t('editor.undo.hideSheets'), () => { for (const id of group) wb.setSheetHidden(id, true); });
+          return;
+        }
+        wb.setSheetHidden(arg || sheetId, cmd === 'hideSheet');
+        return;
+      }
+      case 'selectAllSheets':
+        if (!committed()) return;
+        wb.groupSheets(wb.visibleSheets.filter((s) => s.kind !== 'chart' || s.id === wb.activeSheetId).map((s) => s.id));
+        return;
+      case 'ungroupSheets':
+        // The entry goes in first, on every grouped sheet it was typed for.
+        if (!committed()) return;
+        wb.ungroupSheets();
+        keepFocus();
+        return;
+      case 'fillAcrossSheets':
+        if (!committed() || !wb.sheetGroup) return;
+        openFillAcrossDialog(ctx);
+        return;
+      case 'deleteSheet': {
+        // From the tab menu, the Insert menu or the palette alike: the last sheet showing stays, and one
+        // holding work is asked about first, through the tab strip's own question.
+        if (!committed()) return;
+        const group = wb.sheetGroup;
+        if (group && (!arg || group.includes(arg))) {
+          // A grouped sheet goes with the rest of its group, in one step that one undo brings back.
+          if (group.length >= wb.visibleSheets.length) { toast(t('editor.sheets.keepOne'), { icon: 'trash', duration: 3500 }); return; }
+          const ok = await confirmDialog({ title: t('editor.sheets.deleteTitle', { count: group.length }), message: t('editor.sheets.deleteMessage', { names: nameList(group.map((id) => wb.sheet(id)?.name ?? '')) }), confirmLabel: t('editor.sheets.delete') });
+          if (!ok || destroyed) return;
+          wb.transaction(t('editor.undo.deleteSheets'), () => { for (const id of group) wb.deleteSheet(id); });
+          return;
+        }
+        const sheet = wb.sheet(arg || sheetId);
+        if (!sheet || wb.visibleSheets.length <= 1) return;
+        if (sheetHoldsWork(sheet) && !await sheetTabs.confirmDelete(sheet)) return;
+        if (destroyed) return;
+        wb.deleteSheet(sheet.id);
+        return;
+      }
+      case 'renameSheet': {
+        if (!committed()) return;
+        const sheet = wb.sheet(arg || sheetId);
+        if (sheet) await sheetTabs.rename(sheet);
+        return;
+      }
+      case 'moveSheet': {
+        // Among the tabs on show, as the tab menu moves them: past a hidden sheet would not move the tab visibly.
+        if (!committed()) return;
+        const id = arg?.id || sheetId;
+        const visible = wb.visibleSheets;
+        const at = visible.findIndex((s) => s.id === id);
+        const neighbour = visible[at + ((arg?.dir || arg) === 'left' ? -1 : 1)];
+        if (at < 0 || !neighbour) return;
+        wb.moveSheet(id, wb.sheets.indexOf(neighbour));
+        return;
+      }
+      case 'protectSheet': {
+        // The entry goes in first: protected under it, a cell being typed into could not take its entry.
+        if (!committed()) return;
+        const sheet = wb.sheet(arg || sheetId);
+        if (sheet) wb.setSheetProtected(sheet.id, !sheet.protected);
+        keepFocus();
+        return;
+      }
+      case 'sheetColor': {
+        // The tab strip's swatches, beside the active tab's options button (or the element asked from), for the
+        // sheet of an open entry, which goes in first as for the tab strip's other actions.
+        if (!committed()) return;
+        const sheet = wb.sheet(sheetId);
+        if (sheet) sheetTabs.colorMenu(sheet, arg instanceof HTMLElement ? arg : sheetTabs.el.querySelector('.tab-menu-btn'));
+        return;
+      }
+      case 'copySheetTo': {
+        // Copying reads and writes other files on Puter; the document itself stays open, so this is not a leave.
+        if (session.signedOut && (!await session.signIn() || destroyed)) return;
+        if (!committed()) return;
+        openCopySheetDialog(ctx, arg || grid.sheetId);
+        return;
+      }
+      case 'openFile': { if (arg && await flush() && !destroyed) openPath(arg); return; }
+      case 'copyAbove': {
+        // Ctrl+' brings the formula (or text) of the cell above down as written, its references unshifted
+        // (Ctrl+D is the one that shifts them); Ctrl+Shift+" brings its value. Mid-entry it is the cell above the one
+        // being typed in, on its own sheet, whatever sheet is showing to pick references on.
+        const entry = grid.editing ? grid.editState : null;
+        if (entry) sheetId = entry.sheetId;
+        const { r, c } = entry || grid.active;
+        if (r === 0) return;
+        const stored = wb.getCell(sheetId, r - 1, c);
+        const above = stored && (stored.v != null || stored.f != null) ? stored : null;
+        // The cell above may show part of a spilled array result (=SEQUENCE(3)) and hold nothing of its own.
+        // Both chords copy the value it plainly shows, with the array's number format, rather
+        // than returning without a word from a documented key.
+        const spill = above ? null : wb.spillAt(sheetId, r - 1, c);
+        const spilled = spill && spill.value != null && typeof spill.value !== 'object' ? spill.value : null;
+        if (!above && spilled == null) return;
+        const aboveStyle = above ? above.s : formatOnly(spill.style);
+        if (arg === 'value') {
+          // The value itself, not its displayed text, so nothing is rounded or re-typed on the
+          // way; a cell with no format of its own takes the one above, so a date stays a date.
+          const value = wb.getValue(sheetId, r - 1, c);
+          if (grid.editing) grid.insertText(wb.getDisplay(sheetId, r - 1, c));
+          else if (allowedByRule(wb.validateValue(sheetId, r, c, value))) wb.setCells(sheetId, [{ r, c, cell: { v: value, f: null, s: wb.getCell(sheetId, r, c)?.s ?? aboveStyle } }], t('editor.undo.copyValueAbove'));
+        } else if (grid.editing) {
+          grid.insertText(above ? (above.f != null ? `=${above.f}` : String(above.v)) : String(spilled));
+        } else if (above?.f != null) {
+          // The same text the chord inserts mid-edit, entered as if typed: a formula is checked by its result, as a typed one is.
+          const text = `=${above.f}`;
+          if (allowedByRule(wb.validateInput(sheetId, r, c, text), text)) wb.setInput(sheetId, r, c, text, { label: t('editor.undo.copyFormulaAbove') });
+        } else if (!above) {
+          // A spilled cell holds no formula of its own to bring down, so its value comes instead.
+          if (allowedByRule(wb.validateValue(sheetId, r, c, spilled))) wb.setCells(sheetId, [{ r, c, cell: { v: spilled, f: null, s: wb.getCell(sheetId, r, c)?.s ?? aboveStyle } }], t('editor.undo.copyValueAbove'));
+        } else if (allowedByRule(wb.validateValue(sheetId, r, c, above.v))) {
+          // A value comes down with its formatting, as a copy would bring it.
+          wb.pasteCells(sheetId, wb.copyRange(sheetId, { r1: r - 1, c1: c, r2: r - 1, c2: c }, { sameBook: true }), r, c, { r: r - 1, c });
+        }
+        keepFocus();
+        return;
+      }
+      case 'insertDate': case 'insertTime': {
+        const now = new Date();
+        const text = cmd === 'insertDate' ? formatDate(todaySerial(), 'iso') : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const { r, c } = grid.active;
+        if (grid.editing) grid.insertText(text);
+        else if (allowedByRule(wb.validateInput(sheetId, r, c, text), text)) {
+          // Today's date (or the time) goes in as if typed: a column at its default width widens to show it, in the
+          // same step, rather than leaving ### where the date is, as Excel's Ctrl+; does.
+          wb.transaction(cmd === 'insertDate' ? t('editor.undo.insertDate') : t('editor.undo.insertTime'), () => {
+            wb.setInput(sheetId, r, c, text);
+            grid.widenForEntry(r, c);
+          });
+        }
+        keepFocus();
+        return;
+      }
+      case 'gridlines': {
+        // The entry goes in first, as for Freeze Panes: a formula showing another sheet changed that sheet.
+        if (!committed()) return;
+        const on = wb.sheet(sheetId).gridlines === false;
+        wb.transaction(t('editor.undo.gridlines'), () => { for (const id of settingSheets()) wb.setGridlines(id, on); });
+        grid.refresh();
+        keepFocus();
+        return;
+      }
+      case 'zeros':
+        if (!committed()) return;
+        wb.setZeros(sheetId, wb.sheet(sheetId).zeros === false);
+        grid.refresh();
+        toast(wb.sheet(sheetId).zeros === false ? t('editor.view.zerosHidden') : t('editor.view.zerosShown'), { icon: 'eye', duration: 1600 });
+        keepFocus();
+        return;
+      case 'showFormulas':
+        grid.setShowFormulas(!grid.showFormulas);
+        toast(grid.showFormulas ? t('editor.view.showingFormulas') : t('editor.view.showingValues'), { icon: 'fx', duration: 1400 });
+        notify();
+        return;
+      case 'focusMode':
+        view.focus = !view.focus;
+        applyView();
+        toast(view.focus ? t('editor.view.focusOn') : t('editor.view.focusOff'), { icon: 'eye', duration: 2600 });
+        keepFocus();
+        return;
+      case 'formulaBar':
+        // View ▸ Show ▸ Formula Bar, remembered on this device.
+        setAppOptions({ showFormulaBar: !appOption('showFormulaBar') }); // the options' listener applies it
+        notify();
+        keepFocus();
+        return;
+      case 'toggleHeaders': {
+        // The entry goes in first, as for Gridlines: a formula showing another sheet hid that sheet's headings.
+        if (!committed()) return;
+        const on = wb.sheet(sheetId).headers === false;
+        wb.transaction(t('editor.undo.headers'), () => { for (const id of settingSheets()) wb.setHeaders(id, on); });
+        keepFocus();
+        return;
+      }
+      case 'spelling':
+        if (!committed()) return;
+        await openSpellingDialog(ctx);
+        return;
+      case 'thesaurus': case 'translatePane': {
+        const tool = cmd === 'thesaurus' ? 'thesaurus' : 'translate';
+        if (!languagePane) return;
+        if (languagePane.open && languagePane.mode === tool) { languagePane.hide(); return; }
+        languagePane.show(tool, { fromCell: true });
+        return;
+      }
+      case 'autoCorrectOptions':
+        if (!committed()) return;
+        openAutoCorrectDialog({ onClose: () => keepFocus() });
+        return;
+      case 'toggleSpellcheck':
+        view.spell = view.spell === false;
+        applyView();
+        toast(view.spell ? t('editor.view.spellOn') : t('editor.view.spellOff'), { icon: 'text', duration: 1800 });
+        keepFocus();
+        return;
+      case 'fullscreen':
+        await toggleFullscreen();
+        keepFocus();
+        return;
+      case 'sheet': {
+        if (grid.editing && !grid.acceptsRef() && !grid.commitEdit()) return; // mid-formula, the other sheet is for picking references
+        const visible = wb.visibleSheets;
+        const i = visible.findIndex((s) => s.id === wb.activeSheetId);
+        // At the first or last sheet it stays, as Excel does: held down, the keys go to the end, not round again.
+        const next = visible[i + (arg === 'prev' ? -1 : 1)];
+        if (next && next.id !== wb.activeSheetId) wb.setActiveSheet(next.id);
+        return;
+      }
+      case 'zoomCustom': {
+        // View ▸ Zoom: the presets, Fit selection (a chart sheet fits its window), or a percentage of one's own.
+        const chartSheet = wb.sheet(sheetId)?.kind === 'chart';
+        openZoomDialog({ zoom: grid.zoom, apply: (z) => run('zoomTo', z), fit: () => run(chartSheet ? 'zoomFit' : 'zoomSelection'), onClose: () => keepFocus() });
+        return;
+      }
+      case 'zoomTo':
+        grid.setZoom(Number(arg) || 1);
+        try { localStorage.setItem('spreadsheet:zoom', String(grid.zoom)); } catch { /* no storage */ }
+        notify();
+        keepFocus();
+        return;
+      case 'zoom': {
+        const next = arg === 'reset' ? 1 : grid.zoom + Number(arg);
+        grid.setZoom(next);
+        try { localStorage.setItem('spreadsheet:zoom', String(grid.zoom)); } catch { /* no storage */ }
+        notify();
+        keepFocus();
+        return;
+      }
+      case 'names': if (!committed()) return; openNamesManager(ctx); return;
+      case 'defineName': if (!committed()) return; openNamesManager(ctx, { define: true }); return;
+      case 'createNames': {
+        if (!committed() || !oneRange('create names')) return;
+        const range = dataRange(null);
+        if (!range) { toast(t('editor.names.selectLabels'), { icon: 'info' }); keepFocus(); return; }
+        openCreateNamesDialog(ctx, range);
+        return;
+      }
+      case 'viewMode':
+        // Normal, Page Layout or Page Break Preview, for the sheet in view (each sheet keeps its own and saves it), and
+        // for every grouped worksheet, as Excel switches the group.
+        if (wb.sheet(grid.sheetId)?.kind === 'chart' || !committed()) return;
+        for (const id of settingSheets()) wb.setSheetViewMode(id, arg === 'pageBreak' || arg === 'pageLayout' ? arg : 'normal');
+        refreshPageView(true);
+        notify(); keepFocus();
+        return;
+      case 'consolidate': {
+        // Data ▸ Consolidate: the dialog, then the combined table written at the active cell as one undo step.
+        if (!committed()) return;
+        // The table goes in from the active cell: a locked one refuses it (the workbook's notice says why), which is
+        // said before the references are gathered. Unlocked cells of a protected sheet take it.
+        if (!arg?.refs && wb.lockedAt(sheetId, grid.active.r, grid.active.c)) { keepFocus(); return; }
+        if (!arg?.refs) { openConsolidateDialog(ctx); return; }
+        const sources = arg.refs.map((text) => {
+          const at = resolveRangeText(text);
+          return at ? consolidationSource(wb, at.sheetId, at.range) : null;
+        }).filter(Boolean);
+        const table = consolidate(sources, arg);
+        if (!table) { toast(t('editor.consolidate.nothing'), { icon: 'info', duration: 3000 }); return; }
+        const { r: r0, c: c0 } = grid.active;
+        // The result written over a source would destroy the data it was worked out from: refused, as Excel refuses it.
+        const box = { r1: r0, c1: c0, r2: r0 + table.length - 1, c2: c0 + table[0].length - 1 };
+        const overlaps = arg.refs.some((text) => {
+          const at = resolveRangeText(text);
+          return at?.sheetId === sheetId && at.range.r1 <= box.r2 && at.range.r2 >= box.r1 && at.range.c1 <= box.c2 && at.range.c2 >= box.c1;
+        });
+        if (overlaps) { toast(t('editor.consolidate.overlap'), { icon: 'info', duration: 4000 }); keepFocus(); return; }
+        const entries = [];
+        table.forEach((row, i) => row.forEach((v, j) => entries.push({ r: r0 + i, c: c0 + j, cell: v == null ? null : { v, f: null, s: wb.getCell(sheetId, r0 + i, c0 + j)?.s } })));
+        if (wb.setCells(sheetId, entries, t('editor.undo.consolidate'))) grid.setSelection(S.fromRange({ r1: r0, c1: c0, r2: r0 + table.length - 1, c2: c0 + table[0].length - 1 }, { r: r0, c: c0 }));
+        keepFocus();
+        return;
+      }
+      case 'watchWindow':
+        watchWindow.toggle();
+        // At the foot of the grid, where a phone's assistant sheet covers it (see the task panes below).
+        if (watchWindow.open && aiPanel?.coversGrid) aiPanel.close({ focusGrid: false });
+        return;
+      case 'accessibility': accessibilityPane.toggle(); return;
+      case 'quickTotal': {
+        // Quick Analysis ▸ Totals: formulas in the row below the selection, or the column to its right.
+        if (!committed() || refusedByProtection('add totals') || !oneRange('add totals')) return;
+        const entries = quickTotalEntries(wb, sheetId, grid.range, arg?.kind, arg?.direction);
+        if (!entries?.length) return;
+        if (entries.some((e) => { const cell = wb.getCell(sheetId, e.r, e.c); return cell && (cell.v != null || cell.f != null); })) {
+          toast(t('editor.quickTotals.occupied', { side: arg.direction === 'rows' ? 'below' : 'right' }), { icon: 'info', duration: 3000 });
+          return;
+        }
+        wb.transaction(t('editor.undo.quickTotals'), () => {
+          for (const e of entries) { wb.setInput(sheetId, e.r, e.c, e.input); wb.applyStyle(sheetId, { r1: e.r, c1: e.c, r2: e.r, c2: e.c }, e.style); }
+        });
+        keepFocus();
+        return;
+      }
+      case 'errorCheckingOptions': openErrorCheckingOptions({ ...ctx, refreshErrorTag: () => errorTag.sync() }); return;
+      case 'circleInvalid': {
+        // Red circles around the cells that break their validation rule; they go as each is fixed. The entry goes in
+        // first, as for the other commands on lines, so the sheet circled is its own.
+        if (!committed()) return;
+        const found = invalidCells(wb, sheetId);
+        circledSheet = found.cells.length ? sheetId : null;
+        grid.setHighlights(found.cells.map((cell) => ({ ...cell, kind: 'invalid' })), -1);
+        if (found.more) toast(t('editor.circles.tooMany'), { icon: 'info', duration: 3500 });
+        else statusBar?.announce(found.cells.length ? t('editor.circles.circled', { count: found.cells.length }) : t('editor.circles.none'));
+        keepFocus();
+        return;
+      }
+      case 'clearCircles':
+        if (circledSheet != null) { circledSheet = null; grid.setHighlights([], -1); }
+        keepFocus();
+        return;
+      case 'altText': {
+        const id = arg || grid.selectedChart;
+        if (!id) { toast(t('editor.objects.selectToDescribe'), { icon: 'info', duration: 2500 }); return; }
+        openAltTextDialog(ctx, id);
+        return;
+      }
+      case 'orderObject': {
+        // Bring to Front, Bring Forward, Send Backward, Send to Back: the place in the sheet's drawing order of the
+        // object named, or of every object selected (whole groups).
+        const ids = arrangeTargets(ctx, arg?.id ? [arg.id] : null);
+        if (!ids.length) { toast(t('editor.objects.selectFirst'), { icon: 'info', duration: 2500 }); return; }
+        if (wb.orderObjects(sheetId, ids, arg?.where)) statusBar?.announce(t({ front: 'editor.objects.broughtToFront', forward: 'editor.objects.broughtForward', backward: 'editor.objects.sentBackward', back: 'editor.objects.sentToBack' }[arg?.where] || 'editor.objects.orderChanged'));
+        notify(); keepFocus();
+        return;
+      }
+      case 'alignObjects': {
+        const ids = arrangeTargets(ctx);
+        if (wb.alignObjects(sheetId, ids, arg)) statusBar?.announce(['horizontal', 'vertical'].includes(arg) ? t('editor.objects.distributed', { how: arg }) : t('editor.objects.aligned', { how: String(arg) }));
+        else if (ids.length < 2) toast(t('editor.objects.selectToAlign'), { icon: 'info', duration: 2800 });
+        notify(); keepFocus();
+        return;
+      }
+      case 'groupObjects': {
+        // Arrange ▸ Group: Group, Regroup (the group last ungrouped) and Ungroup.
+        if (arg === 'regroup') {
+          const group = wb.regroupObjects(sheetId);
+          if (group) grid.selectCharts(wb.sheet(sheetId).charts.filter((o) => o.group === group).map((o) => o.id));
+        } else if (arg === 'ungroup') {
+          if (wb.ungroupObjects(sheetId, arrangeTargets(ctx))) statusBar?.announce(t('editor.objects.ungrouped'));
+        } else {
+          const group = wb.groupObjects(sheetId, arrangeTargets(ctx));
+          if (group) { grid.selectCharts(wb.sheet(sheetId).charts.filter((o) => o.group === group).map((o) => o.id)); statusBar?.announce(t('editor.objects.grouped')); }
+          else toast(t('editor.objects.selectToGroup'), { icon: 'info', duration: 2500 });
+        }
+        notify(); keepFocus();
+        return;
+      }
+      case 'rotateObjects':
+        if (!wb.rotateObjects(sheetId, arrangeTargets(ctx), arg)) toast(t('editor.objects.cannotRotate'), { icon: 'info', duration: 3000 });
+        notify(); keepFocus();
+        return;
+      case 'snapObjects': {
+        const key = arg === 'shape' ? 'snapShape' : 'snapGrid';
+        view[key] = !view[key];
+        applyView();
+        statusBar?.announce(arg === 'shape' ? (view[key] ? t('editor.snap.shapeOn') : t('editor.snap.shapeOff')) : view[key] ? t('editor.snap.gridOn') : t('editor.snap.gridOff'));
+        notify(); keepFocus();
+        return;
+      }
+      case 'selectionPane': selectionPane?.toggle(); notify(); return;
+      case 'objectsVisible':
+        if (arg?.ids?.length) wb.setObjectsHidden(sheetId, arg.ids, !!arg.hidden);
+        notify();
+        return;
+      case 'renameObject':
+        if (arg?.id) wb.renameObject(sheetId, arg.id, arg.name);
+        notify();
+        return;
+      case 'moveObjectInOrder':
+        if (arg?.id) wb.moveObjectInOrder(sheetId, arg.id, arg.to);
+        notify();
+        return;
+      case 'deleteObjects':
+        if (Array.isArray(arg) && deleteObjectsWithTimelines(wb, sheetId, arg)) statusBar?.announce(t('editor.objects.deleted', { count: arg.length }));
+        keepFocus();
+        return;
+      case 'addWatch': {
+        // Add Watch: the selected cells, as many as the Watch Window lists for a selection (the first 100). The entry
+        // goes in first: a formula showing another sheet to pick references on watched the cells picked there.
+        if (!committed()) return;
+        const cells = [];
+        for (const rg of grid.ranges) for (let rr = rg.r1; rr <= rg.r2 && cells.length < 100; rr++) for (let cc = rg.c1; cc <= rg.c2 && cells.length < 100; cc++) cells.push({ r: rr, c: cc });
+        const added = wb.addWatches(sheetId, cells);
+        watchWindow.show();
+        if (!added) toast(t('editor.watch.already'), { icon: 'info', duration: 2000 });
+        return;
+      }
+      case 'flashFill': {
+        // Flash Fill (Ctrl+E): the examples typed in the active column teach the pattern; the empty cells of the
+        // column within the data around them are filled the same way, as one undo step.
+        if (!committed()) return;
+        const { r, c } = grid.active;
+        const { entries } = flashFillPlan(sheetId, r, c);
+        if (!entries.length) { toast(t('editor.flashFill.noPattern'), { icon: 'info', duration: 3200 }); keepFocus(); return; }
+        if (wb.setCells(sheetId, entries, t('editor.undo.flashFill'))) toast(t('editor.flashFill.changed', { count: entries.length }), { icon: 'flashFill', duration: 2200 });
+        keepFocus();
+        return;
+      }
+      case 'protectWorkbook':
+        wb.setStructureProtected(!wb.structureProtected);
+        toast(wb.structureProtected ? t('editor.structure.protected') : t('editor.structure.unprotected'), { icon: 'lock', duration: 2600 });
+        notify(); keepFocus();
+        return;
+      // The entry goes in first for these, as for the other inserts: a formula showing another sheet to pick references
+      // on had that sheet asked whether it was protected, and given the equation or text box.
+      case 'wordArtMenu': if (!committed() || refusedByProtection('insert WordArt')) return; openWordArtMenu(ctx, arg instanceof HTMLElement ? arg : null); return;
+      case 'insertEquation': if (!committed() || refusedByProtection('insert an equation')) return; runInsertEquation(ctx, arg); return;
+      case 'themesMenu': case 'themeColorsMenu': case 'themeFontsMenu': case 'themeEffectsMenu': {
+        const open = { themesMenu: openThemesMenu, themeColorsMenu: openThemeColorsMenu, themeFontsMenu: openThemeFontsMenu, themeEffectsMenu: openThemeEffectsMenu }[cmd];
+        open(ctx, arg instanceof HTMLElement ? arg : null);
+        return;
+      }
+      case 'drawTool': case 'drawPenMenu': case 'drawAddPen': case 'drawInkToShape': case 'drawTouch': ink.command(cmd, arg); return;
+      case 'shapesMenu': if (!committed() || refusedByProtection('insert a shape')) return; openShapesMenu(arg instanceof HTMLElement ? arg : null, run); return;
+      case 'iconsDialog': if (!committed() || refusedByProtection('insert icons')) return; openIconsDialog(ctx); return;
+      case 'insertShape': case 'insertIcons': {
+        // Shapes and icons go on the sheet as pictures at the active cell, each beside the last, the newest selected.
+        if (!committed() || refusedByProtection('insert a picture')) return;
+        const pictures = cmd === 'insertShape' ? [shapeSvg(arg)] : (Array.isArray(arg) ? arg : [arg]).map((n) => iconSvg(n));
+        // Each is anchored to the cell its own corner lies in, so it moves with that cell's column as the columns
+        // before it come and go, rather than with the active cell's, several columns to its left.
+        let dx = 4, id = null;
+        const placed = pictures.filter(Boolean).map((p) => {
+          const col = placeAlong((c) => wb.colWidth(sheetId, c), MAX_COL + 1, grid.active.c, dx, 1);
+          dx += p.w + 8;
+          return { p, c: col.index, dx: col.offset };
+        });
+        const sheet = wb.sheet(sheetId), last = Math.max(grid.active.c, ...placed.map((at) => at.c));
+        if (last >= sheet.cols) wb.ensureSize(sheetId, sheet.rows, last + 1);
+        wb.transaction(cmd === 'insertShape' ? t('editor.undo.insertShape') : t('editor.undo.insertIcons'), () => {
+          for (const { p, c, dx: offset } of placed) {
+            // A shape stretches to any proportions as it is resized, as Excel's do; an icon keeps its own.
+            id = wb.addChart(sheetId, { type: 'image', src: svgDataUrl(p.svg), title: p.label || 'Icon', anchor: { r: grid.active.r, c }, dx: offset, dy: 4, w: p.w, h: p.h,
+              ...(cmd === 'insertShape' ? { lockAspect: false } : {}) }) || id;
+          }
+        });
+        if (id) grid.selectChart(id);
+        return;
+      }
+      case 'symbolDialog':
+        // Mid-entry the symbol goes in at the caret, on the entry's own sheet, whatever sheet is showing.
+        if (!grid.editing && wb.lockedAt(sheetId, grid.active.r, grid.active.c)) return;
+        openSymbolDialog(ctx);
+        return;
+      case 'insertSymbol': {
+        // Insert ▸ Symbol: at the caret of the entry being typed, or at the end of the active cell's contents in a new edit.
+        if (!arg) return;
+        if (grid.editing) { grid.insertText(String(arg)); grid.focusEditor(); return; }
+        const cell = wb.getCell(sheetId, grid.active.r, grid.active.c);
+        const current = cell?.f != null ? `=${cell.f}` : cell?.v != null ? wb.getDisplay(sheetId, grid.active.r, grid.active.c) : '';
+        grid.beginEdit({ text: `${current}${arg}`, mode: 'inplace' });
+        return;
+      }
+      case 'useName': {
+        // Use in Formula: mid-entry the name goes in at the caret; otherwise an entry starts with it. An entry with
+        // nothing typed yet starts a formula with it, as a function picked there does.
+        if (!arg) return;
+        if (grid.editing) { grid.insertText(`${grid.editState?.text ? '' : '='}${arg}`); grid.focusEditor(); return; }
+        grid.beginEdit({ text: `=${arg}`, mode: 'inplace' });
+        return;
+      }
+      case 'pasteNameMenu': {
+        // F3: Paste Name. The workbook's names (and this sheet's own), then its tables, at the active cell. Mid-entry
+        // the sheet is the entry's own, whatever sheet is showing to pick references on.
+        const sheetName = wb.sheet(grid.editing ? grid.editState.sheetId : sheetId)?.name;
+        const names = [...new Set([
+          ...wb.names.filter((n) => !n.hidden && (!n.sheet || n.sheet === sheetName)).map((n) => n.name),
+          ...wb.sheets.flatMap((sh) => sh.tables || []).map((tx) => tx.name).filter(Boolean),
+        ])].sort((a, b) => a.localeCompare(b));
+        if (!names.length) { toast(t('editor.pasteName.none'), { icon: 'info', duration: 3000 }); keepFocus(); return; }
+        const rect = grid.cellRect(grid.active.r, grid.active.c);
+        openMenu({
+          x: rect.left, y: rect.bottom + 2, label: t('editor.pasteName.menu'), minWidth: 200,
+          items: [{ header: t('editor.pasteName.header') }, ...names.slice(0, 200).map((name) => ({ label: name, icon: 'tag', onSelect: () => run('useName', name) }))],
+          onClose: (reason) => { if (reason !== 'select') keepFocus(); },
+        });
+        return;
+      }
+      case 'toggleRibbon': toolbar.toggleCollapsed(); keepFocus(); return;
+      case 'pickFromList': {
+        // Pick From Drop-down List: the distinct text entries in the column's block of data above and below the cell.
+        if (!committed()) return;
+        const { r, c } = grid.active;
+        const found = new Set();
+        const take = (rr) => { const v = wb.getValue(sheetId, rr, c); if (typeof v === 'string' && v.trim()) found.add(v); return v != null && v !== ''; };
+        for (let rr = r - 1; rr >= 0 && take(rr); rr--);
+        for (let rr = r + 1, end = wb.sheet(sheetId).rows; rr < end && take(rr); rr++);
+        const values = [...found].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+        if (!values.length) { toast(t('editor.pickFromList.none'), { icon: 'info' }); keepFocus(); return; }
+        const rect = grid.cellRect(r, c);
+        openMenu({
+          x: rect.left, y: rect.bottom + 2, label: t('editor.pickFromList.menu'), minWidth: Math.max(160, rect.width), search: values.length >= 12 ? t('editor.pickFromList.search') : null,
+          items: values.slice(0, 500).map((v) => ({ label: v, onSelect: () => { if (grid.beginEdit({ text: v, mode: 'inplace' }) !== false) grid.commitEdit(); keepFocus(); } })),
+          onClose: (reason) => { if (reason !== 'select') keepFocus(); },
+        });
+        return;
+      }
+      case 'toggleFormulaBar': formulaBar.setExpanded(!formulaBar.expanded); keepFocus(); return;
+      case 'clearTrace':
+        tracing = null;
+        grid.setHighlights([], -1);
+        keepFocus();
+        return;
+      case 'pageSetup': {
+        // Page Layout choices are stored with the sheet and saved in the file's page setup.
+        // Each grouped sheet takes the choice over its own page setup, as in Excel.
+        if (!committed() || !arg || typeof arg !== 'object') return;
+        wb.transaction(t('editor.undo.pageSetup'), () => {
+          for (const id of settingSheets()) {
+            const current = effectivePrintSettings(wb.sheet(id));
+            wb.setPrintSettings(id, { ...current, ...arg, margins: { ...current.margins, ...(arg.margins || {}) } });
+          }
+        });
+        notify();
+        keepFocus();
+        return;
+      }
+      case 'pageBreak': {
+        // Page Layout ▸ Breaks: insert or remove a manual page break at the selection, or reset them all.
+        if (!committed()) return;
+        const sheet = wb.sheet(sheetId);
+        if (sheet.kind === 'chart') return;
+        const settings = sheet.printSettings || {};
+        const at = { active: grid.active, wholeRows: grid.range.c1 === 0 && grid.range.c2 >= MAX_COL, wholeCols: grid.range.r1 === 0 && grid.range.r2 >= MAX_ROW };
+        if (arg === 'reset') {
+          if (!settings.rowBreaks?.length && !settings.colBreaks?.length) { toast(t('editor.pageBreaks.noneManual'), { icon: 'info' }); keepFocus(); return; }
+          wb.setPageBreaks(sheetId, { rows: [], cols: [] }, t('editor.undo.resetPageBreaks'));
+          statusBar?.announce(t('editor.pageBreaks.allRemoved'));
+        } else if (arg === 'remove') {
+          if (!hasBreakAt(settings, at)) { toast(t('editor.pageBreaks.noneBeside'), { icon: 'info' }); keepFocus(); return; }
+          wb.setPageBreaks(sheetId, removeBreaks(settings, at), t('editor.undo.removePageBreak'));
+          statusBar?.announce(t('editor.pageBreaks.removed'));
+        } else {
+          const next = insertBreaks(settings, at);
+          // A sheet without a page setup of its own takes the one it prints with, the break added.
+          const placed = sheet.printSettings ? wb.setPageBreaks(sheetId, next, t('editor.undo.insertPageBreak'))
+            : wb.setPrintSettings(sheetId, { ...effectivePrintSettings(sheet), rowBreaks: next.rows, colBreaks: next.cols }, t('editor.undo.insertPageBreak'));
+          if (!placed) { toast(t('editor.pageBreaks.alreadyStarts'), { icon: 'info' }); keepFocus(); return; }
+          statusBar?.announce(t('editor.pageBreaks.inserted'));
+        }
+        refreshPageView(true);
+        notify(); keepFocus();
+        return;
+      }
+      case 'movePageBreak': {
+        if (!arg) return;
+        const sheet = wb.sheet(grid.sheetId), area = pageBreaks(wb, grid.sheetId)?.area;
+        if (!sheet || !area) return;
+        const list = moveBreak(sheet.printSettings, area, arg);
+        wb.setPageBreaks(grid.sheetId, arg.axis === 'row' ? { rows: list } : { cols: list }, t('editor.undo.movePageBreak'));
+        refreshPageView(true);
+        notify(); keepFocus();
+        return;
+      }
+      case 'printAreaEdge': {
+        // The print area's edge dragged in Page Break Preview: the area grows or shrinks to that line.
+        if (!arg) return;
+        const sheet = wb.sheet(grid.sheetId), area = pageBreaks(wb, grid.sheetId)?.area;
+        if (!sheet || !area) return;
+        const current = effectivePrintSettings(sheet);
+        const next = moveAreaEdge(area, arg.edge, arg.to);
+        wb.setPrintSettings(grid.sheetId, { ...current, areas: [next, ...current.areas.slice(1)] }, t('editor.undo.printArea'));
+        statusBar?.announce(t('editor.printArea.setTo', { ranges: selectionName(next) }));
+        refreshPageView(true);
+        notify(); keepFocus();
+        return;
+      }
+      case 'showPageBreaks': {
+        // View ▸ Page Breaks: Normal view's dashed lines where the pages break, kept with the sheet.
+        if (!committed()) return;
+        const sheet = wb.sheet(grid.sheetId);
+        if (!sheet || sheet.kind === 'chart') return;
+        const on = arg == null ? !pageBreakLinesOn(grid.sheetId) : !!arg;
+        if (!on) previewedSheets.delete(grid.sheetId);
+        wb.setShowPageBreaks(grid.sheetId, on);
+        refreshPageView(true);
+        notify(); keepFocus();
+        return;
+      }
+      case 'printArea': {
+        if (!committed()) return;
+        const sheet = wb.sheet(sheetId);
+        if (sheet.kind === 'chart') return;
+        const current = effectivePrintSettings(sheet);
+        if (arg === 'clear') {
+          if (!current.areas.length) { toast(t('editor.printArea.noneToClear'), { icon: 'info' }); keepFocus(); return; }
+          wb.setPrintSettings(sheetId, { ...current, areas: [] });
+          toast(t('editor.printArea.cleared'), { icon: 'printer', duration: 1800 });
+        } else {
+          const areas = arg === 'add' ? [...current.areas, ...grid.ranges] : [...grid.ranges];
+          wb.setPrintSettings(sheetId, { ...current, areas });
+          toast(t(arg === 'add' ? 'editor.printArea.extendedTo' : 'editor.printArea.setTo', { ranges: nameList(areas.map(selectionName)) }), { icon: 'printer', duration: 2400 });
+        }
+        notify();
+        keepFocus();
+        return;
+      }
+      case 'zoomSelection': {
+        // Zoom to Selection: the largest zoom at which the selected range fits the visible grid. The entry goes in
+        // first: a formula showing another sheet to pick references on fitted the range picked there.
+        if (!committed()) return;
+        const rg = grid.range;
+        const zs = wb.sheet(sheetId);
+        const w = lineSpan(zs, 'col', rg.c1, rg.c2, zs.defaultColWidth ?? wb.colWidth(sheetId, -1));
+        const h = lineSpan(zs, 'row', rg.r1, rg.r2, zs.defaultRowHeight ?? wb.rowHeight(sheetId, -1));
+        const vp = grid.viewport;
+        const availW = Math.max(40, (vp?.clientWidth || 0) - 52), availH = Math.max(40, (vp?.clientHeight || 0) - 30);
+        if (!w || !h) return;
+        run('zoomTo', Math.max(0.1, Math.min(4, Math.floor(Math.min(availW / w, availH / h) * 100) / 100)));
+        grid.scrollToActive();
+        return;
+      }
+      // Rules are the sheet's to keep while it is protected: said before the rule is filled in, not at Add rule.
+      case 'validation': if (!committed()) return; if (refusedByProtection('change data validation')) { keepFocus(); return; } openValidationManager(ctx); return;
+      case 'insertCheckbox': {
+        // Checkboxes: a checkbox rule over every selected range (the rows a filter hides left out,
+        // as when formatting); blank cells start unchecked. One undo step for all of them.
+        if (!committed()) return;
+        // A protected cell anywhere in the selection refuses the whole insertion up front, as a protected sheet
+        // does (the workbook's notice names it): no rule goes over cells whose FALSE it would then decline to write.
+        if (grid.ranges.some((rg) => wb.lockedIn(sheetId, rg))) return;
+        let total = 0;
+        let refused = false;
+        wb.transaction(t('editor.undo.insertCheckboxes'), () => eachRange(t('editor.undo.insertCheckboxes'), (range) => {
+          if (refused) return;
+          if (!wb.addValidation(sheetId, { range, type: 'checkbox', strict: true, allowBlank: true })) { refused = true; return; }
+          const entries = [];
+          let cells = 0;
+          for (let r = range.r1; r <= range.r2; r++) for (let c = range.c1; c <= range.c2; c++) {
+            // A merged block is one cell: its top-left takes the checkbox and the cells hidden under it stay
+            // empty, as a paste leaves them, rather than holding a FALSE apiece that unmerging would show.
+            if (coveredByMerge(sheetId, r, c)) continue;
+            cells++;
+            const cell = wb.getCell(sheetId, r, c);
+            if (!cell || (cell.v == null && cell.f == null)) entries.push({ r, c, cell: { v: false, f: null, s: cell?.s } });
+          }
+          if (entries.length) wb.setCells(sheetId, entries, t('editor.undo.insertCheckboxes'));
+          total += cells;
+        }, { what: 'checkboxes' }));
+        if (refused || !total) return;
+        toast(total === 1 ? t('editor.checkbox.insertedOne') : t('editor.checkbox.inserted', { count: total }), { icon: 'check', duration: 2200 });
+        keepFocus();
+        return;
+      }
+      case 'insertDropdown': if (!committed()) return; if (refusedByProtection('insert a dropdown')) { keepFocus(); return; } openValidationManager(ctx, { type: 'list' }); return;
+      case 'condFormat': if (!committed()) return; if (refusedByProtection('change conditional formatting')) { keepFocus(); return; } openConditionalFormatting(ctx); return;
+      case 'condFormatMenu':
+        if (!committed()) return;
+        openMenu({ anchor: arg instanceof HTMLElement ? arg : null, label: t('editor.condFormat.menu'), minWidth: 240,
+          items: conditionalFormattingItems(run), onClose: (reason) => { if (reason !== 'select') keepFocus(); } });
+        return;
+      case 'quickRule': {
+        if (!committed() || refusedByProtection('add conditional formatting') || !oneRange('add conditional formatting')) return;
+        if (typeof arg === 'string') { openQuickRuleDialog(ctx, arg, grid.range); return; }
+        const rule = presetRule(grid.range, arg || {});
+        if (rule && wb.addRule(sheetId, rule)) toast(t('editor.condFormat.added', { kind: String(arg.kind), range: selectionName(grid.range) }), { icon: 'highlighter', duration: 1800 });
+        keepFocus();
+        return;
+      }
+      case 'clearRules': {
+        if (!committed() || refusedByProtection('clear conditional formatting')) return;
+        const cleared = clearRules(wb, sheetId, arg === 'sheet' ? null : grid.ranges);
+        toast(cleared ? (arg === 'sheet' ? t('editor.condFormat.clearedSheet', { count: cleared }) : t('editor.condFormat.clearedSelection', { count: cleared })) : arg === 'sheet' ? t('editor.condFormat.noneOnSheet') : t('editor.condFormat.noneInSelection'), { icon: cleared ? 'eraser' : 'info', duration: 2000 });
+        keepFocus();
+        return;
+      }
+      case 'pivot': openPivotDialog(ctx); return;
+      case 'recommendedPivots': openRecommendedPivots(ctx); return;
+      // Goal Seek and Data Table write on this sheet, which refuses them while protected: said before they are filled in.
+      case 'goalSeek': if (!committed()) return; if (refusedByProtection('use Goal Seek')) { keepFocus(); return; } openGoalSeek(ctx); return;
+      case 'dataTable': if (!committed()) return; if (refusedByProtection('make a data table')) { keepFocus(); return; } openDataTable(ctx); return;
+      case 'forecastSheet': if (!committed()) return; openForecastSheet(ctx); return;
+      case 'scenarioManager': if (!committed()) return; openScenarioManager(ctx); return;
+      case 'solver': if (!committed()) return; openSolver(ctx); return;
+      case 'dataAnalysis': if (!committed()) return; openDataAnalysis(ctx); return;
+      case 'customViews': if (!committed()) return; openCustomViews(ctx); return;
+      case 'sheetView': {
+        // View ▸ Sheet View: New, Keep, Exit, switching views, and Options (rename, duplicate, delete).
+        if (!committed()) return;
+        const sheet = wb.sheet(sheetId);
+        if (!sheet || sheet.kind === 'chart') return;
+        const action = typeof arg === 'string' ? arg : arg?.action;
+        const views = sheet.sheetViews || [];
+        if (action === 'new') {
+          if (wb.newSheetView(sheetId)) toast(t('editor.sheetView.temporary'), { icon: 'sheetView', duration: 4000 });
+        } else if (action === 'keep') {
+          const at = views.find((v) => v.id === sheet.personalView?.id);
+          if (!at) { toast(t('editor.sheetView.newFirst'), { icon: 'info', duration: 3000 }); return; }
+          const name = await askViewName(views, { title: t('editor.sheetView.keepTitle'), value: at.temporary ? nextViewName(views) : at.name, except: at.id, confirmLabel: t('editor.sheetView.keep') });
+          if (name != null && wb.keepSheetView(sheetId, name)) statusBar?.announce(t('editor.sheetView.kept', { name: name.trim() }));
+        } else if (action === 'exit') {
+          if (wb.exitSheetView(sheetId)) statusBar?.announce(t('editor.sheetView.backToDefault'));
+        } else if (action === 'switch') {
+          if (arg?.id) wb.enterSheetView(sheetId, arg.id); else wb.exitSheetView(sheetId);
+        } else if (action === 'rename') wb.renameSheetView(sheetId, arg.id, arg.name);
+        else if (action === 'duplicate') wb.duplicateSheetView(sheetId, arg.id);
+        else if (action === 'delete') wb.deleteSheetView(sheetId, arg.id);
+        else if (action === 'options') { openSheetViewOptions(ctx); return; }
+        rememberSheetViews();
+        notify(); keepFocus();
+        return;
+      }
+      case 'addCustomView': {
+        // The zoom in force may be this device's, not yet the sheet's own: the view keeps what is on screen.
+        if (!committed() || !arg?.name) return;
+        if (wb.sheet(grid.sheetId)?.viewZoom == null && grid.zoom !== 1) wb.setSheetView(grid.sheetId, { viewZoom: grid.zoom });
+        if (wb.addCustomView(arg.name, { print: arg.print !== false, hidden: arg.hidden !== false })) {
+          statusBar?.announce(t('editor.customViews.added', { name: arg.name }));
+          toast(t('editor.customViews.addedQuoted', { name: arg.name }), { icon: 'customViews', duration: 1800 });
+        }
+        notify();
+        return;
+      }
+      case 'deleteCustomView':
+        if (wb.deleteCustomView(arg)) statusBar?.announce(t('editor.customViews.deleted'));
+        notify();
+        return;
+      case 'showCustomView': {
+        // Show a view: the grid goes to the view's sheet first, so leaving this one does not record its place over the view's.
+        if (!committed()) return;
+        const view = wb.customViews.find((v) => v.id === arg);
+        if (!view) return;
+        const front = wb.sheet(view.activeSheetId);
+        if (front && !front.hidden && front.id !== wb.activeSheetId) wb.setActiveSheet(front.id);
+        wb.showCustomView(view.id);
+        grid.reloadSheetView();
+        refreshPageView(true);
+        statusBar?.announce(t('editor.customViews.shown', { name: view.name }));
+        notify(); keepFocus();
+        return;
+      }
+      case 'advancedFilter': if (!committed()) return; if (refusedByProtection('filter the list')) return; openAdvancedFilter(ctx); return;
+      // Data ▸ Get & Transform Data and Queries & Connections (see ui/get-data.js, ui/query-editor.js, core/queries.js).
+      case 'getDataText': if (!committed()) return; getDataText(ctx, editQuery); return;
+      case 'getDataWorkbook': if (!committed()) return; getDataWorkbook(ctx, editQuery); return;
+      case 'getDataWeb': if (!committed()) return; if (session.signedOut && (!await session.signIn() || destroyed)) return; getDataWeb(ctx, editQuery); return;
+      case 'getDataTable': {
+        if (!committed()) return;
+        if (!oneRange('get data from a range')) return;
+        getDataTable(ctx, editQuery, { createTable: (then) => {
+          const range = dataRange(grid.range);
+          if (range.r1 >= range.r2) { toast(t('editor.table.needData'), { icon: 'info' }); return; }
+          if (refusedByProtection('create a table')) return;
+          openTableDialog(ctx, { range, onCreated: then });
+        } });
+        return;
+      }
+      case 'blankQuery': if (!committed()) return; blankQuery(ctx, editQuery); return;
+      case 'powerQueryEditor': if (!committed()) return; editQuery(ctx, { queryId: typeof arg === 'string' ? arg : null }); return;
+      case 'queriesPane': queriesPane.toggle(); notify(); return;
+      case 'refreshPivot': {
+        // Refresh on a sheet holding a pivot table built here: built again over its source as it now is (refreshPivot).
+        if (!committed()) return;
+        let res = refreshPivot(wb, sheetId);
+        if (res.changed) {
+          // The block has been cleared, typed over or filled with other data since the table was built: it is
+          // rebuilt there only when asked, as what is there now would be replaced.
+          const replace = await confirmDialog({ title: t('editor.pivotRefresh.title'), message: t('editor.pivotRefresh.changed'), confirmLabel: t('common.replace'), cancelLabel: t('common.cancel'), danger: true });
+          if (destroyed) return;
+          if (!replace) { keepFocus(); return; }
+          res = refreshPivot(wb, sheetId, { replaceChanged: true });
+        }
+        if (res.overwrite) {
+          const replace = await confirmDialog({ title: t('editor.pivotRefresh.title'), message: t('editor.pivotRefresh.larger'), confirmLabel: t('common.replace'), cancelLabel: t('common.cancel'), danger: true });
+          if (destroyed) return;
+          if (!replace) { keepFocus(); return; }
+          res = refreshPivot(wb, sheetId, { force: true, replaceChanged: true });
+        }
+        toast(res.error || t('editor.pivotRefresh.done', { count: res.rows }), { icon: res.error ? 'alert' : 'refresh', duration: res.error ? 4000 : 2000 });
+        keepFocus();
+        return;
+      }
+      case 'refreshQuery': {
+        // Table Design ▸ Refresh, or a query named by id: the query behind the table at the active cell is run again.
+        if (!committed()) return;
+        const a = grid.active;
+        const table = wb.tableAt(sheetId, a.r, a.c);
+        // On a sheet holding a pivot table built here, Refresh builds it again, as PivotTable Analyze ▸ Refresh does.
+        if (typeof arg !== 'string' && !table && hasPivotDefinition(wb, sheetId)) { await run('refreshPivot'); return; }
+        const query = typeof arg === 'string' ? queryById(wb, arg) : table && queryForTable(wb, sheetId, table.id);
+        if (!query) { toast(table ? t('editor.query.notLoaded') : t('editor.query.selectCell'), { icon: 'info' }); return; }
+        if (!await allowQuerySources([query]) || destroyed) return;
+        const res = await refreshOneQuery(wb, query, queryIo(ctx));
+        if (destroyed) return;
+        toast(res.error ? `${query.name}: ${res.error}` : `${query.name} refreshed: ${res.rows.toLocaleString()} row${res.rows === 1 ? '' : 's'}`, { icon: res.error ? 'alert' : 'refresh', duration: res.error ? 5000 : 2000 });
+        if (!res.error) fitQueryTables(ctx, [query]);
+        queriesPane.noteResults(res.error ? [{ name: query.name, error: res.error }] : []);
+        keepFocus();
+        return;
+      }
+      case 'refreshAll': {
+        // Data ▸ Refresh All: every query is run again and its table rewritten, then every pivot table built here is
+        // built again over its source (refreshPivot; one that cannot be is said and left), and every formula is recalculated.
+        const refreshPivots = () => {
+          const failed = [];
+          let refreshed = 0;
+          for (const id of refreshablePivotSheets(wb)) {
+            const out = refreshPivot(wb, id);
+            if (out.error) failed.push({ name: wb.sheet(id).name, error: out.error }); else refreshed++;
+          }
+          return { refreshed, failed };
+        };
+        if (!wb.queries?.length) {
+          if (!refreshablePivotSheets(wb).length) { await run('recalc'); return; }
+          if (!committed()) return;
+          const pivots = refreshPivots();
+          wb.recalculate();
+          grid.refresh();
+          toast(pivots.failed.length ? t('editor.refresh.failedOne', { name: pivots.failed[0].name, error: pivots.failed[0].error }) : t('editor.refresh.pivots', { count: pivots.refreshed }), { icon: pivots.failed.length ? 'alert' : 'reset', duration: pivots.failed.length ? 5000 : 2000 });
+          keepFocus();
+          return;
+        }
+        if (!committed()) return;
+        if (!await allowQuerySources(wb.queries) || destroyed) return;
+        toast(t('editor.refresh.refreshing'), { icon: 'spinner', duration: 1500 });
+        const res = await refreshAllQueries(wb, queryIo(ctx));
+        if (destroyed) return;
+        // The pivot tables after the queries, so a pivot over a query's table takes in what the query loaded.
+        const pivots = refreshPivots();
+        const queriesFailed = res.failed;
+        res.failed = [...queriesFailed, ...pivots.failed];
+        fitQueryTables(ctx, wb.queries.filter((q) => !queriesFailed.some((f) => f.name === q.name)));
+        wb.recalculate();
+        imported.clear();
+        wb.clearAsyncCache();
+        grid.refresh();
+        queriesPane.noteResults(queriesFailed);
+        const total = res.refreshed + pivots.refreshed + res.failed.length;
+        toast(res.failed.length ? t('editor.refresh.someFailed', { failed: res.failed.length, total, name: res.failed[0].name, error: res.failed[0].error })
+          : pivots.refreshed ? t('editor.refresh.queriesAndPivots', { queries: res.refreshed, pivots: pivots.refreshed }) : t('editor.refresh.queries', { count: res.refreshed }), { icon: res.failed.length ? 'alert' : 'reset', duration: res.failed.length ? 6000 : 2000 });
+        keepFocus();
+        return;
+      }
+      case 'clearFilters':
+        if (!committed()) return;
+        if (refusedByProtection('change the filter')) return;
+        // The list at the active cell, as Excel clears the current range; from outside every list, all of them.
+        toast(clearSheetFilters(wb, sheetId, grid.active) ? t('editor.filter.cleared') : sheetHasFiltering(wb, sheetId) ? t('editor.filter.nothingInList') : t('editor.filter.nothingOnSheet'), { icon: 'filter' });
+        keepFocus();
+        return;
+      case 'reapplyFilters':
+        if (!committed()) return;
+        if (refusedByProtection('change the filter')) return;
+        if (!reapplySheetFilters(wb, sheetId)) toast(t('editor.filter.noneToReapply'), { icon: 'info' });
+        keepFocus();
+        return;
+      case 'showDetail': case 'hideDetail': {
+        if (!committed()) return;
+        const rg = grid.range;
+        const wholeColumns = wholeLines(rg, 'col', sheetId) && !wholeLines(rg, 'row', sheetId);
+        if (!toggleDetail(wb, sheetId, { active: grid.active, wholeColumns }, cmd === 'showDetail')) toast(cmd === 'showDetail' ? t('editor.outline.noGroupToShow') : t('editor.outline.noGroupToHide'), { icon: 'info' });
+        keepFocus();
+        return;
+      }
+      case 'datePicker': if (!committed()) return; openDatePicker(ctx, grid.active.r, grid.active.c); return;
+      case 'protectRanges': if (!committed()) return; openProtectedRanges(ctx); return;
+      case 'columnStats':
+        if (!committed()) return;
+        if (!openColumnStats(ctx, grid.active.c)) toast(t('editor.sheetEmpty'), { icon: 'info' });
+        return;
+      case 'bands': {
+        // One click banding: header row plus two gentle colors; the rules dialog edits it.
+        if (!committed()) return;
+        if (!oneRange('add alternating colors')) return;
+        const range = dataRange(grid.range);
+        const header = looksLikeHeader(wb, sheetId, range);
+        if (!wb.addRule(sheetId, { range, type: 'bands', style: {}, header, headerColor: '#e0ecff', color1: '#f2f1ee', color2: '#ffffff' })) return;
+        toast(t('editor.alternatingColors.added'), { icon: 'highlighter', duration: 3000 });
+        keepFocus();
+        return;
+      }
+      // Sparklines are the sheet's objects, which it keeps while protected: said before their dialogs are filled in.
+      case 'editSparkline': if (!committed()) return; if (refusedByProtection('change sparklines')) { keepFocus(); return; } openSparklineDialog(ctx); return;
+      case 'insertSparklines': if (!committed() || !oneRange('insert sparklines')) return; if (refusedByProtection('insert sparklines')) { keepFocus(); return; } openSparklineCreateDialog(ctx, { type: typeof arg === 'string' ? arg : null }); return;
+      case 'groupSparklines': {
+        if (!committed()) return;
+        const hidden = wb.sheet(sheetId).filterHidden, { r, c } = grid.active;
+        const error = wb.regroupNativeSparklines(sheetId, grid.ranges, { ungroup: arg === 'ungroup', templateRef: cellName(r, c), skipRow: row => hidden.has(row) });
+        toast(error || (arg === 'ungroup' ? t('editor.sparklines.ungrouped') : t('editor.sparklines.grouped')), { icon: error ? 'info' : 'check' });
+        keepFocus(); return;
+      }
+      case 'clearSparklines': {
+        if (!committed()) return;
+        const hidden = wb.sheet(sheetId).filterHidden;
+        const count = wb.clearNativeSparklines(sheetId, grid.ranges, { groups: arg === 'groups', skipRow: r => hidden.has(r) });
+        if (count === 0) toast(t('editor.sparklines.none'), { icon: 'info' });
+        else if (count != null) toast(t('editor.sparklines.cleared', { count }), { icon: 'check' });
+        keepFocus(); return;
+      }
+      case 'insertChart': {
+        // Insert ▸ Chart…: the Insert Chart dialog, on Recommended Charts or on the family asked for. Ranges
+        // selected together are charted together, as in Excel (see chartSource).
+        if (!committed()) return;
+        const family = typeof arg === 'string' ? { donut: 'pie', bubble: 'scatter' }[arg] || arg : null;
+        return runChartAction(ctx, family ? { action: 'insertDialog', family } : { action: 'recommended' });
+      }
+      case 'quickChart': {
+        // Alt+F1: the default chart of the selection, on the sheet beside it.
+        if (!committed()) return;
+        insertExcelChart(ctx);
+        return;
+      }
+      case 'insertChartSheet': {
+        // F11: the default chart of the selection on a chart sheet of its own.
+        if (!committed()) return;
+        insertChartSheet(ctx);
+        return;
+      }
+      case 'chart': return runChartAction(ctx, arg);
+      case 'smartArt': { if (!committed()) return; const changed = runSmartArtAction(ctx, arg); if (changed) keepFocusUnlessPane(); notify(); return; }
+      case 'editChart': {
+        const chart = wb.chartById(sheetId, arg || grid.selectedChart);
+        // Each settings dialog below changes its object, which a protected sheet keeps (the chart ribbon greys the
+        // editing out): said before the settings are changed, from Enter, a double-click or a menu alike.
+        const noun = { slicer: 'slicer', timeline: 'timeline', scroll: 'scroll bar', text: chart?.equation ? 'equation' : 'text box' }[chart?.type] || 'chart';
+        if (chart && chart.type !== 'smartart' && chart.type !== 'image' && refusedByProtection(`change the ${noun}`)) return;
+        if (chart?.type === 'slicer') openSlicerDialog(ctx, chart);
+        else if (chart?.type === 'timeline') openTimelineSettingsDialog(ctx, chart);
+        else if (chart?.type === 'scroll') openScrollDialog(ctx, chart);
+        else if (chart?.type === 'text' && chart.equation) openEquationDialog(ctx, { equation: chart });
+        else if (chart?.type === 'text') openTextBoxDialog(ctx, { textbox: chart });
+        else if (chart?.type === 'smartart') { grid.selectChart(chart.id, { focus: false }); smartArtPane.show({ focus: true }); }
+        else if (chart && chart.type !== 'image') openChartDialog(ctx, { chart });
+        return;
+      }
+      case 'insertTextBox': if (!committed() || refusedByProtection('insert a text box')) return; openTextBoxDialog(ctx); return;
+      case 'deleteChart': {
+        const id = arg?.id || arg || grid.selectedChart;
+        if (!id) return;
+        // One of several objects selected, or of a group, deletes them all, as the Delete key does; a dialog's
+        // Delete (`only`: Edit text box, Equation) deletes the one object it edits.
+        const selected = grid.selectedCharts || [];
+        if (!arg?.only && selected.length > 1 && selected.includes(id)) { run('deleteObjects', selected); return; }
+        const obj = wb.chartById(sheetId, id), kind = obj?.type;
+        if (kind === 'timeline') { if (!deleteTimeline(wb, sheetId, id)) return; }
+        else if (!wb.deleteChart(sheetId, id)) return;
+        // Named as the undo step names it: a scroll bar or an equation is not a chart or a text box.
+        const noun = kind === 'timeline' ? 'timeline' : objectNoun(obj);
+        toast(t('editor.objects.objectDeleted', { noun: noun.replace(/ /g, '') }), { icon: 'trash', duration: 1600 });
+        keepFocus();
+        return;
+      }
+      case 'duplicateChart': {
+        // One of several objects selected, or of a group, duplicates them all (whole groups), as in Excel.
+        const id = arg?.id || arg || grid.selectedChart, selected = grid.selectedCharts || [];
+        const copies = id ? wb.duplicateObjects(sheetId, selected.includes(id) ? selected : [id]) : [];
+        if (copies.length) { grid.selectCharts(copies); toast(copies.length > 1 ? t('editor.duplicate.many') : t('editor.duplicate.one'), { icon: 'duplicate', duration: 2200 }); }
+        keepFocus();
+        return;
+      }
+      case 'copyChart': {
+        // A PNG of the chart (or the picture itself) on the clipboard, for documents and chats.
+        const id = arg?.id || grid.selectedChart;
+        const ch = wb.chartById(sheetId, id);
+        if (!ch) return;
+        if (ch.type === 'slicer') {
+          const data = slicerClipboard(document, ch, slicerItems(wb, ch), wb);
+          try { await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([data.text], { type: 'text/plain' }), 'text/html': new Blob([data.html], { type: 'text/html' }) })]); toast(t('editor.copyObject.slicer'), { icon: 'copy' }); }
+          catch { toast(t('editor.copyObject.slicerFailed'), { icon: 'alert' }); }
+          keepFocus(); return;
+        }
+        if (ch.type === 'timeline') { toast(t('editor.copyObject.timeline'), { icon: 'info', duration: 3000 }); keepFocus(); return; }
+        if (ch.type === 'scroll') {
+          const data = copyScroll(ch);
+          try { await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([data.text], { type: 'text/plain' }), 'text/html': new Blob([data.html], { type: 'text/html' }) })]); toast(t('editor.copyObject.scrollBar'), { icon: 'copy' }); }
+          catch { toast(t('editor.copyObject.scrollBarFailed'), { icon: 'alert' }); }
+          keepFocus(); return;
+        }
+        if (ch.type === 'text') {
+          // A box linked to a cell copies the text it shows, the cell's as it reads now.
+          try { await navigator.clipboard.writeText(textBoxText(wb, sheetId, ch)); toast(t('editor.copyObject.text'), { icon: 'copy', duration: 1800 }); } catch { toast(t('editor.copyObject.textFailed'), { icon: 'alert' }); }
+          keepFocus();
+          return;
+        }
+        if (!navigator.clipboard?.write || typeof ClipboardItem === 'undefined') { toast(t('editor.copyObject.noImageClipboard'), { icon: 'info', duration: 3500 }); return; }
+        try {
+          let blob;
+          if (ch.type === 'smartart') blob = await svgToPng(smartArtPicture(ch), ch.w, ch.h);
+          else if (ch.type === 'image') {
+            const shown = linkedPictureNow(ch);
+            const raw = await (await fetch(shown.src)).blob();
+            blob = raw.type === 'image/png' && pictureIsPlain(shown) ? raw : await imageToPng(shown.src, shown);
+          } else {
+            const cs = getComputedStyle(grid.viewport);
+            const svg = standaloneSvg(renderChartSvg(chartData(wb, sheetId, ch), ch, ch.w, ch.h), (n) => cs.getPropertyValue(n));
+            blob = await svgToPng(svg, ch.w, ch.h);
+          }
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          toast(ch.type === 'image' ? t('editor.copyObject.image') : ch.type === 'smartart' ? t('editor.copyObject.smartArt') : t('editor.copyObject.chart'), { icon: 'copy', duration: 1800 });
+        } catch (e) {
+          console.error(e);
+          toast(t('editor.copyObject.pictureFailed'), { icon: 'alert' });
+        }
+        keepFocus();
+        return;
+      }
+      case 'downloadChart': {
+        const id = arg?.id || grid.selectedChart;
+        const ch = wb.chartById(sheetId, id);
+        if (!ch) return;
+        try {
+          let blob;
+          let name;
+          if (ch.type === 'smartart') {
+            const format = arg?.format === 'svg' ? 'svg' : 'png', svg = smartArtPicture(ch);
+            blob = format === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPng(svg, ch.w, ch.h);
+            name = `${P.sanitizeName(ch.name || 'SmartArt') || 'SmartArt'}.${format}`;
+          } else if (ch.type === 'image' && ch.pictureRef) {
+            const shown = linkedPictureNow(ch);
+            blob = await imageToPng(shown.src, shown);
+            name = `${P.sanitizeName(ch.title || 'picture') || 'picture'}.png`;
+          } else if (ch.type === 'image') {
+            if (!pictureIsPlain(ch)) blob = await imageToPng(ch.src, ch);
+            else {
+              const drawing = ch.drawingShape && await (await import('../core/drawingml-raster.js')).drawingRasterSource(ch.src, ch);
+              blob = await (await fetch(drawing?.src || ch.src)).blob();
+            }
+            const ext = (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+            name = `${P.sanitizeName((ch.title || 'image').replace(/\.[^.]+$/, '')) || 'image'}.${ext}`;
+          } else {
+            const format = arg?.format === 'svg' ? 'svg' : 'png';
+            const cs = getComputedStyle(grid.viewport);
+            const svg = standaloneSvg(renderChartSvg(chartData(wb, sheetId, ch), ch, ch.w, ch.h), (n) => cs.getPropertyValue(n));
+            blob = format === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPng(svg, ch.w, ch.h);
+            name = `${P.sanitizeName(ch.title || 'chart') || 'chart'}.${format}`;
+          }
+          P.downloadBlob(blob, name);
+        } catch (e) {
+          console.error(e);
+          toast(t('editor.export.failed'), { icon: 'alert' });
+        }
+        keepFocus();
+        return;
+      }
+      // Insert ▸ Pictures: over the cells, or with 'cell' into the active cell as its value (Place in Cell).
+      // A protected sheet takes no picture, over the cells or in one: said before a file is chosen (see insertImageFile).
+      case 'insertImage': if (!committed() || refusedByProtection('insert images')) return; replaceImageId = null; imageIntoCell = arg === 'cell'; imageInput.click(); return;
+      case 'sheetBackground': {
+        if (!committed()) return;
+        const sheet = wb.sheet(sheetId);
+        if (!sheet || sheet.kind === 'chart') return;
+        if (arg === 'delete') {
+          if (wb.setSheetBackground(sheetId, null)) statusBar?.announce(t('editor.background.deleted'));
+          else toast(t('editor.background.none'), { icon: 'info' });
+          keepFocus();
+          return;
+        }
+        if (refusedByProtection('change the background')) return;
+        backgroundSheet = sheetId;
+        backgroundInput.click();
+        return;
+      }
+      case 'replaceImage': {
+        const id = arg || grid.selectedChart || null;
+        // A linked picture's double-click (or Enter) goes to the cells it shows.
+        const linked = id && wb.chartById(sheetId, id)?.pictureRef;
+        if (linked) {
+          const target = linkedPictureTarget(wb, sheetId, linked);
+          if (target) { grid.selectChart(null); selectLocation(target.sheetId, target.range); }
+          else toast(t('editor.picture.linkedGone', { range: linked }), { icon: 'info', duration: 3000 });
+          return;
+        }
+        if (id && refusedByProtection('replace images')) return;
+        replaceImageId = id; imageIntoCell = false; if (replaceImageId) imageInput.click(); return;
+      }
+      case 'insertImagePuter': {
+        if (!P.canPickFiles() || !committed()) return;
+        if (refusedByProtection('insert images')) return;
+        // The picker and file read may finish after the user has moved to another cell or sheet.
+        const target = { sheetId: grid.sheetId, anchor: { ...grid.active }, inCell: arg === 'cell' };
+        if (session.signedOut && (!await session.signIn() || destroyed)) return;
+        const picked = await P.pickFile({ accept: ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'] });
+        if (destroyed) return;
+        if (!picked) { keepFocus(); return; }
+        if (picked.item?.size > MAX_IMAGE_BYTES) {
+          toast(t('editor.picture.tooLargeForSheet', { name: picked.name, mb: MAX_IMAGE_BYTES / (1024 * 1024) }), { icon: 'info', duration: 3500 });
+          keepFocus(); return;
+        }
+        try {
+          const bytes = await P.readFile(picked.path);
+          if (destroyed || !wb.sheet(target.sheetId)) return;
+          const type = sniffImageType(bytes);
+          if (!type) { toast(t('editor.picture.unsupported'), { icon: 'alert', duration: 4000 }); keepFocus(); return; }
+          await insertImageFile(new File([bytes], picked.name, { type }), target);
+        } catch (e) {
+          if (destroyed) return;
+          toast(t('editor.picture.loadFailed', { error: e?.message || e?.error?.message || t('editor.unknownError') }), { icon: 'alert', duration: 4000 });
+          keepFocus();
+        }
+        return;
+      }
+      case 'insertImageUrl': {
+        // A picture from the web, fetched through Puter so it lands in the file like an uploaded one. A protected
+        // sheet takes none, over the cells or in one: said before the address is typed.
+        if (refusedByProtection('insert images')) { keepFocus(); return; }
+        const url = await promptDialog({
+          title: arg === 'cell' ? t('editor.picture.urlInCellTitle') : t('editor.picture.urlTitle'), label: t('editor.picture.urlLabel'), placeholder: 'https://example.com/logo.png', confirmLabel: arg === 'cell' ? t('editor.picture.placeInCell') : t('common.insert'),
+          validate: urlProblem,
+        });
+        if (!url) { keepFocus(); return; }
+        if (!committed()) return;
+        const target = { sheetId: grid.sheetId, anchor: { ...grid.active }, inCell: arg === 'cell' };
+        try {
+          const bytes = await P.fetchBytes(url.trim());
+          if (destroyed) return;
+          const type = sniffImageType(bytes);
+          if (!type) { toast(t('editor.picture.notAnImage'), { icon: 'alert', duration: 4000 }); keepFocus(); return; }
+          let name = 'image';
+          try { name = decodeURIComponent(new URL(url.trim()).pathname.split('/').filter(Boolean).pop() || 'image'); } catch { /* keep the default */ }
+          await insertImageFile(new File([bytes], name, { type }), target);
+        } catch (e) {
+          if (destroyed) return;
+          console.error(e);
+          toast(explained(e) ? e.message : t('editor.picture.fetchFailed'), { icon: 'alert', duration: 4000 });
+          keepFocus();
+        }
+        return;
+      }
+      // A protected sheet is said before the dialog opens, not when it is submitted.
+      case 'note': if (!committed() || refusedByProtection('add a note')) return; if (ctx.comments?.hasThread()) { run('replyComment'); return; } openNoteDialog(); return;
+      case 'link': if (!committed() || refusedByProtection('add a link')) return; openLinkDialog(); return;
+      case 'unlink':
+        // The link of the cell the entry goes into, as Link… commits and edits that cell's; a formula shown
+        // on another sheet would otherwise unlink that sheet's active cell.
+        if (!committed()) return;
+        wb.removeLink(sheetId, grid.active.r, grid.active.c);
+        keepFocus();
+        return;
+      // Automate (ui/automate.js): scripts, the Code Editor, Record Actions and script buttons.
+      case 'scriptsPane': case 'newScript': case 'openScript': case 'recordActions': case 'stopRecording': case 'scriptGallery':
+      case 'runScript': case 'stopScript': case 'scriptReference': case 'insertScriptButton':
+        return automate?.run(cmd, arg);
+      case 'openDrawingLink': {
+        const url = safeLinkUrl(wb.chartById(sheetId, arg)?.hyperlink);
+        if (!url) return;
+        // A script button (Automate ▸ Script Button) runs its script.
+        if (scriptOfLink(url) != null) { automate?.run('runScript', { name: scriptOfLink(url) }); return; }
+        if (url.startsWith('#')) { followInternalLink(url); return; }
+        window.open(url, '_blank', 'noopener');
+        return;
+      }
+      case 'openLink': {
+        const link = wb.linkAt(sheetId, grid.active.r, grid.active.c);
+        if (!link) return;
+        if (link.url.startsWith('#')) { followInternalLink(link.url); return; }
+        window.open(link.url, '_blank', 'noopener');
+        return;
+      }
+      case 'deleteNote':
+        if (!committed()) return; // the note of the cell the entry goes into, as Edit note commits and edits it
+        wb.setNote(sheetId, grid.active.r, grid.active.c, null);
+        keepFocus();
+        return;
+      case 'goToName': goToName(arg); return;
+      case 'selectSpecialMenu': {
+        const anchor = arg instanceof HTMLElement ? arg : null;
+        const within = S.isSingle(grid.selection) ? t('editor.special.withinData') : t('editor.special.within', { range: rangeName(grid.range) });
+        openMenu({
+          anchor, x: anchor ? null : (arg?.x ?? null), y: anchor ? null : (arg?.y ?? null), label: t('editor.special.menu'), minWidth: 220,
+          items: [
+            { header: within },
+            ...Object.entries(SPECIAL_KINDS).map(([kind, label]) => ({ label, onSelect: () => run('selectSpecial', kind) })),
+          ],
+          onClose: () => keepFocus(),
+        });
+        return;
+      }
+      case 'selectSpecial': {
+        // Go To Special: every cell of a kind becomes part of a multi-range selection. A selection of several
+        // ranges (Ctrl/Cmd+click) is searched range by range, every area of it.
+        if (!committed()) return;
+        // The kinds that start from the active cell look at the whole sheet; the others at the selection, or the sheet when one cell is selected.
+        const whole = ['currentRegion', 'lastCell', 'precedents', 'dependents'].includes(arg);
+        const single = grid.ranges.length === 1 && S.isSingle(grid.selection);
+        // Notes, dropdowns and conditional formats often lie on empty cells (a form to fill in), past the typed
+        // values: from one cell those are looked for over the whole sheet, as Excel does.
+        const sheet = wb.sheet(sheetId);
+        const anywhere = single && !whole && ['notes', 'validation', 'conditionalFormats'].includes(arg) && sheet;
+        const scopes = anywhere ? [{ r1: 0, c1: 0, r2: sheet.rows - 1, c2: sheet.cols - 1 }]
+          : whole || single ? [wb.usedRange(sheetId)].filter(Boolean) : grid.ranges;
+        if (!scopes.length) { toast(t('editor.sheetEmpty'), { icon: 'info' }); return; }
+        let truncated = false;
+        const ranges = scopes.flatMap((scope) => { const found = wb.specialCells(sheetId, scope, arg, 500, grid.active); truncated ||= !!found.truncated; return found; });
+        const label = t('editor.special.kind', { kind: String(arg) });
+        if (!ranges.length) { toast(anywhere ? t('editor.special.noneOnSheet', { label }) : scopes.length === 1 ? t('editor.special.noneIn', { label, range: selectionName(scopes[0]) }) : t('editor.special.noneInSelection', { label }), { icon: 'info' }); return; }
+        grid.setRanges(ranges);
+        const n = ranges.reduce((sum, rg) => sum + (rg.r2 - rg.r1 + 1) * (rg.c2 - rg.c1 + 1), 0);
+        // The workbook stops after a few hundred blocks and marks the list; the count is then a first helping, not the whole.
+        toast(truncated ? t('editor.special.selectedFirst', { count: n, label }) : t('editor.special.selected', { count: n, label }), { icon: 'check', duration: 2200 });
+        keepFocus();
+        return;
+      }
+      case 'trace': {
+        // Formula auditing: light up the cells this formula reads (precedents)
+        // or the formulas that read this cell (dependents). Escape clears.
+        if (!committed()) return;
+        const { r, c } = grid.active;
+        const what = arg === 'dependents' ? 'dependents' : 'precedents';
+        const cells = what === 'dependents' ? wb.dependents(sheetId, r, c) : wb.precedents(sheetId, r, c);
+        const here = cells.filter((x) => x.sheetId === sheetId);
+        const elsewhere = cells.length - here.length;
+        grid.setHighlights(here.map(({ r: rr, c: cc }) => ({ r: rr, c: cc })), -1);
+        tracing = here.length ? sheetId : null;
+        if (!cells.length) {
+          const cell = wb.getCell(sheetId, r, c);
+          toast(what === 'precedents'
+            ? (cell?.f != null ? t('editor.trace.readsNothing') : t('editor.trace.notAFormula', { cell: cellName(r, c) }))
+            : t('editor.trace.noDependents', { cell: cellName(r, c) }), { icon: 'info', duration: 2600 });
+          return;
+        }
+        if (!here.length) {
+          // Every one is on another sheet: nothing was highlighted, so no cell is named and Escape has
+          // nothing to clear, instead of "A1 reads  (2 on other sheets). Escape clears the highlight".
+          toast(what === 'precedents' ? t('editor.trace.readsElsewhere', { cell: cellName(r, c), count: elsewhere }) : t('editor.trace.readByElsewhere', { count: elsewhere }), { icon: 'fx', duration: 5000 });
+          statusBar?.announce(t('editor.trace.noneHere', { count: cells.length, what }));
+          return;
+        }
+        const names = nameList(here.slice(0, 6).map((x) => cellName(x.r, x.c)));
+        const more = Math.max(0, here.length - 6);
+        toast(what === 'precedents' ? t('editor.trace.reads', { cell: cellName(r, c), names, more, elsewhere }) : t('editor.trace.readBy', { names, more, elsewhere }), { icon: 'fx', duration: 5000 });
+        statusBar?.announce(t('editor.trace.highlighted', { count: cells.length, what }));
+        return;
+      }
+      case 'print':
+        // The entry goes in first (the dialog enters it too), so the sheet marked as previewed is the formula's own.
+        if (!committed()) return;
+        openPrintDialog(ctx);
+        if (wb.sheet(sheetId)?.kind !== 'chart') { previewedSheets.add(sheetId); refreshPageView(true); }
+        return;
+      case 'find': if (!committed()) return; findBar.open({ replace: arg === 'replace' }); return;
+      case 'findNext': if (!committed()) return; findBar.findNext(); return;
+      case 'goTo': {
+        if (!committed()) return;
+        // Focus mode (or View ▸ Formula Bar unticked) hides the formula bar and its name box: ask for the address instead.
+        if (root.classList.contains('focus-mode') || root.classList.contains('no-formula-bar')) {
+          const text = await promptDialog({ title: t('editor.goTo.title'), label: t('editor.goTo.label'), placeholder: t('editor.goTo.placeholder'), confirmLabel: t('editor.goTo.go') });
+          if (destroyed) return;
+          // Whatever the name box accepts: a cell or range, a named range, a table, or a place on another sheet.
+          const target = text?.trim();
+          if (target && !grid.selectByName(target) && goToName(target) === false) toast(t('editor.goTo.notFound'), { icon: 'info' });
+          keepFocus();
+          return;
+        }
+        formulaBar.focusNameBox();
+        return;
+      }
+      case 'scrollToActive': grid.scrollToActive(); keepFocus(); return;
+      case 'copyLink': {
+        // An address that opens this file with the selected cells chosen.
+        if (!committed()) return;
+        if (session.signedOut && (!await session.signIn() || destroyed)) return;
+        if (!doc.path) {
+          try { await doc.save(); } catch (e) { toast(e?.message || t('editor.save.couldNotSave'), { icon: 'alert', duration: 4000 }); return; }
+          if (destroyed) return;
+        }
+        if (!doc.path) { toast(t('editor.copyLink.saveFirst'), { icon: 'info', duration: 3500 }); return; }
+        const rg = grid.range;
+        const url = rangeLink(location, doc.path, wb.sheet(grid.sheetId).name, rg);
+        const what = selectionName(rg);
+        try {
+          await navigator.clipboard.writeText(url);
+          toast(t('editor.copyLink.copied', { range: what }), { icon: 'link', duration: 2200 });
+        } catch {
+          await promptDialog({ title: t('editor.copyLink.title', { range: what }), label: t('editor.copyLink.address'), value: url, confirmLabel: t('common.done') });
+        }
+        keepFocus();
+        return;
+      }
+      case 'replace': if (!committed()) return; findBar.open({ replace: true }); return;
+      default:
+        console.warn('Unknown command', cmd);
+    }
+  }
+
+  // Pictures travel in the file as data URLs: one past this would swell the file (and the local draft) beyond what saves.
+  const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
+  /**
+   * An image file as a data URL plus its size. Big bitmaps are scaled down
+   * (longest side 1600px, JPEG for photos) so the file stays reasonable.
+   */
+  async function readImageFile(file) {
+    if (file.size > MAX_IMAGE_BYTES) throw Object.assign(new Error(t('editor.picture.tooLarge', { name: file.name, mb: MAX_IMAGE_BYTES / (1024 * 1024) })), { code: 'too-large' });
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+    const img = await new Promise((resolve, reject) => {
+      const im = new Image();
+      im.onload = () => resolve(im);
+      im.onerror = () => reject(new Error('bad image'));
+      im.src = dataUrl;
+    });
+    const width = img.naturalWidth || img.width || 240;
+    const height = img.naturalHeight || img.height || 160;
+    const longest = Math.max(width, height);
+    if (file.type === 'image/svg+xml' || file.type === 'image/gif' || (longest <= 1600 && file.size <= 1.5 * 1024 * 1024)) return { src: dataUrl, width, height };
+    const scale = Math.min(1, 1600 / longest);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(width * scale);
+    canvas.height = Math.round(height * scale);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    const png = file.type === 'image/png';
+    return { src: canvas.toDataURL(png ? 'image/png' : 'image/jpeg', 0.86), width: canvas.width, height: canvas.height };
+  }
+
+  /** A SmartArt diagram as a picture of its own, in the workbook's theme (one another program drew, as it drew it). */
+  function smartArtPicture(ch) {
+    if (ch.fallback?.src) return decodeURIComponent(escape(atob(ch.fallback.src.split(',')[1])));
+    return smartArtSvg(ch, ch.w, ch.h, { ...smartArtLook(wb), idPrefix: 'sap', label: ch.decorative ? '' : ch.description || smartArtAltText(ch) });
+  }
+  /** After a SmartArt command the keyboard goes back to the sheet, unless the Text Pane has it. */
+  function keepFocusUnlessPane() {
+    if (!ctx.smartArt?.pane?.el.contains(document.activeElement)) keepFocus();
+  }
+
+  function svgToPng(svg, width, height) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+      const img = new Image();
+      img.onload = () => {
+        const scale = 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(width * scale);
+        canvas.height = Math.round(height * scale);
+        const g = canvas.getContext('2d');
+        g.scale(scale, scale);
+        g.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('no image'))), 'image/png');
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad svg')); };
+      img.src = url;
+    });
+  }
+
+  /** The rows (or columns) covered by several ranges, merged into runs and ordered last-first so deleting them keeps indices valid. */
+  function lineRuns(ranges, axis) {
+    const spans = ranges.map((rg) => (axis === 'row' ? [rg.r1, rg.r2] : [rg.c1, rg.c2])).sort((a, b) => a[0] - b[0]);
+    const runs = [];
+    for (const [a, b] of spans) {
+      const last = runs[runs.length - 1];
+      if (last && a <= last.to + 1) last.to = Math.max(last.to, b);
+      else runs.push({ from: a, to: b });
+    }
+    return runs.reverse();
+  }
+
+  function stopPainting() {
+    painter = null;
+    grid.el.classList.remove('painting');
+    notify();
+  }
+
+  /** Is the selection still the cells the painter copied from (nothing picked yet)? */
+  function onPainterSource() {
+    const range = grid.range;
+    const src = painter.range;
+    return grid.sheetId === painter.sheetId && range.r1 === src.r1 && range.c1 === src.c1 && range.r2 === src.r2 && range.c2 === src.c2;
+  }
+
+  function pasteClipboardStyles(sheetId, cells, r, c, target, options) {
+    const actual = wb.stylePasteRange(sheetId, cells, r, c, target);
+    if (!actual || !wb.nativePivotOverlap(sheetId, actual)) return wb.pasteStyles(sheetId, cells, r, c, target, options) !== false;
+    try {
+      return pasteNativePivotClipboardStyles(wb, sheetId, cells, r, c, target,
+        { ...options, maxCells: MAX_FORMAT_CELLS, defaultSize: 13 });
+    } catch {
+      toast(t('editor.pivotFormatRefused'), { icon: 'info', duration: 5000 });
+      return false;
+    }
+  }
+
+  /** Format painter: paint the copied formatting onto the selection and put the painter away. */
+  function applyPainter() {
+    if (!painter || grid.editing) return;
+    // The painter copies one block onto one: a Ctrl/Cmd+click selection of several ranges is refused, with the
+    // painter still armed to pick again, rather than the last range added painted and the others left plain.
+    if (!oneRange('paint formatting onto')) return;
+    const range = grid.range;
+    const target = S.isSingle(grid.selection)
+      ? { r1: range.r1, c1: range.c1, r2: Math.min(range.r1 + painter.cells.length - 1, wb.sheet(grid.sheetId).rows - 1), c2: Math.min(range.c1 + painter.cells[0].length - 1, wb.sheet(grid.sheetId).cols - 1) }
+      : formatRange();
+    // A protected sheet or range refuses the formatting and says so; the painter is put away without claiming a paint.
+    if (wb.lockedIn(grid.sheetId, target)) { stopPainting(); return; }
+    const actual = wb.stylePasteRange(grid.sheetId, painter.cells, target.r1, target.c1, target);
+    if (actual && wb.nativePivotOverlap(grid.sheetId, actual)) {
+      try {
+        pasteNativePivotStyles(wb, grid.sheetId, painter.cells, target.r1, target.c1, target,
+          { maxCells: MAX_FORMAT_CELLS, defaultSize: 13 });
+      } catch {
+        toast(t('editor.pivotFormatRefused'), { icon: 'info', duration: 5000 });
+        stopPainting(); return;
+      }
+    } else if (wb.pasteStyles(grid.sheetId, painter.cells, target.r1, target.c1, target,
+      { merges: painter.merges, conditionalFormats: painter.conditionalFormats }) === false) { stopPainting(); return; }
+    grid.setSelection(S.fromRange(target, { r: target.r1, c: target.c1 }), { scroll: false });
+    if (painter.sticky) { toast(t('editor.painter.paintedSticky'), { icon: 'paint', duration: 1600 }); return; }
+    stopPainting();
+    toast(t('editor.painter.painted'), { icon: 'paint', duration: 1400 });
+  }
+
+  /** Once the pointer has picked a selection, paint it. */
+  function paintOnRelease() {
+    if (!painter) return;
+    setTimeout(() => {
+      if (!painter || grid.editing || onPainterSource()) return; // still on the source: nothing picked yet
+      applyPainter();
+    }, 0);
+  }
+
+  /** Enter on cells reached with the keyboard paints them, as a paste does; on the source it moves down as usual. */
+  function paintOnEnter(e) {
+    if (!painter || grid.editing || e.key !== 'Enter' || e.shiftKey || e.altKey || isMod(e) || isComposing(e)) return;
+    if (e.target !== grid.viewport || onPainterSource()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    applyPainter();
+  }
+
+  /**
+   * Fit the columns c1..c2 to their content: the cells in the rows on show,
+   * a row hidden by hand or by a filter counting for nothing. Columns holding nothing
+   * keep their width; true when any was fitted.
+   */
+  function autofitColumns(c1, c2, sheetId = grid.sheetId, maxWidth = 500) {
+    const sheet = wb.sheet(sheetId);
+    const widths = new Map();
+    const measured = new Set();
+    for (let c = c1; c <= c2; c++) widths.set(c, 40);
+    const canvas = document.createElement('canvas').getContext('2d');
+    const css = getComputedStyle(grid.el);
+    const baseSize = parseFloat(css.getPropertyValue('--grid-font-size')) || 13;
+    const family = css.fontFamily || 'system-ui';
+    const measure = (r, c, value, st) => {
+      const cf = wb.conditionalStyle(sheetId, r, c, value);
+      st = conditionalNumberFormat(conditionalFontStyle(st, cf), cf);
+      const bold = st?.bold;
+      canvas.font = `${st?.italic ? 'italic ' : ''}${bold ? '600 ' : ''}${st?.size || baseSize}px ${fontStack(st?.font) || family}`;
+      // A number is drawn in tabular figures, every digit as wide as a 0, and the grid measures it so to fit.
+      const width = maxLineWidth(cellLayoutText(formatValue(value, st), st?.wrap), (line) => canvas.measureText(typeof value === 'number' ? tabularDigits(line) : line).width);
+      const indent = indentWidth(value, st, grid.indentUnit);
+      widths.set(c, Math.max(widths.get(c), width + (14 + indent)));
+      measured.add(c);
+    };
+    for (const [key, cell] of sheet.cells) {
+      const i = key.indexOf(',');
+      const c = Number(key.slice(i + 1));
+      if (c < c1 || c > c2 || widths.get(c) >= maxWidth || (cell.v == null && cell.f == null)) continue;
+      const r = Number(key.slice(0, i));
+      if (wb.isRowHidden(sheetId, r)) continue;
+      // The cell's own style over the format its column or row carries, so a column formatted as
+      // Currency is fitted to what its cells show rather than to their bare numbers.
+      measure(r, c, wb.getValue(sheetId, r, c), wb.displayStyleAt(sheetId, r, c));
+    }
+    // Array results have no stored value of their own, but their displayed text also needs room.
+    for (const { r, c, value } of wb.spillEntries(sheetId, { r1: 0, c1, r2: sheet.rows - 1, c2 })) {
+      if (value == null || widths.get(c) >= maxWidth || wb.isRowHidden(sheetId, r)) continue;
+      measure(r, c, value, wb.displayStyleAt(sheetId, r, c));
+    }
+    // A whole-sheet or whole-row selection takes in every empty column: those are not shrunk to slivers.
+    if (!measured.size) return false;
+    wb.transaction(t('editor.undo.fitColumns'), () => {
+      for (const c of measured) wb.setColWidth(sheetId, c, Math.min(maxWidth, Math.ceil(widths.get(c))));
+    });
+    return true;
+  }
+
+  /** Delimited text files carry no column widths: their used columns are fitted once on open, without dirtying the document. */
+  function fitColumnsOnOpen() {
+    const ids = wb.fitColumnsOnOpen;
+    wb.fitColumnsOnOpen = null;
+    if (!ids?.length) return;
+    const wasDirty = wb.dirty;
+    for (const sid of ids) {
+      const used = wb.usedRange(sid);
+      if (!used) continue;
+      autofitColumns(used.c1, Math.min(used.c2, used.c1 + 60), sid, 320);
+    }
+    wb.clearHistory();
+    if (!wasDirty) wb.markClean();
+    grid.refresh();
+  }
+
+  /* ---------- Clipboard ---------- */
+
+  function rangeTexts(range) {
+    const rows = [];
+    for (let r = range.r1; r <= range.r2; r++) {
+      const row = [];
+      for (let c = range.c1; c <= range.c2; c++) row.push(wb.getDisplay(grid.sheetId, r, c));
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  /**
+   * Several selected ranges copy as one block when they line up:
+   * the same rows side by side (columns joined) or the same columns one under
+   * another (rows joined). Returns { rows, cols } or null when they do not.
+   */
+  function alignedIndices(ranges) {
+    const sameRows = ranges.every((rg) => rg.r1 === ranges[0].r1 && rg.r2 === ranges[0].r2);
+    const sameCols = ranges.every((rg) => rg.c1 === ranges[0].c1 && rg.c2 === ranges[0].c2);
+    if (!sameRows && !sameCols) return null;
+    const rows = new Set();
+    const cols = new Set();
+    for (const rg of ranges) {
+      for (let r = rg.r1; r <= rg.r2; r++) if (!wb.isRowHidden(grid.sheetId, r)) rows.add(r);
+      for (let c = rg.c1; c <= rg.c2; c++) if (!wb.isHidden(grid.sheetId, 'col', c)) cols.add(c);
+    }
+    return { rows: [...rows].sort((a, b) => a - b), cols: [...cols].sort((a, b) => a - b) };
+  }
+
+  /** Why the workbook declined to merge the range: its size limit, or a table whose header and data cells stay separate. */
+  function mergeRefusal(range) {
+    if ((range.r2 - range.r1 + 1) * (range.c2 - range.c1 + 1) > 20000) return t('editor.merge.tooMany');
+    return t('editor.merge.tableHeader');
+  }
+
+  function snapshotClip(cut) {
+    // Whole columns and rows copy as far as the sheet holds anything: below and right of that every cell is
+    // blank, so a paste of the shorter block leaves what a paste of the whole lines would.
+    let range = toUsedExtent(grid.range);
+    let multi = null;
+    if (grid.ranges.length > 1) {
+      multi = alignedIndices(grid.ranges.map((rg) => toUsedExtent(rg)));
+      if (!multi) { toast(t('editor.clip.lastRangeOnly'), { icon: 'info', duration: 3500 }); }
+      else range = { r1: multi.rows[0], c1: multi.cols[0], r2: multi.rows[multi.rows.length - 1], c2: multi.cols[multi.cols.length - 1] };
+    }
+    const total = multi ? multi.rows.length * multi.cols.length : (range.r2 - range.r1 + 1) * (range.c2 - range.c1 + 1);
+    if (total > 200000) { toast(t('editor.clip.tooLarge'), { icon: 'alert' }); return null; }
+    // Hidden and filtered-out rows (and hidden columns) are skipped:
+    // a copy of a filtered list is what is on screen.
+    const { rows, cols, all } = multi ? { ...multi, all: false } : wb.visibleIndices(grid.sheetId, range);
+    if (!rows.length || !cols.length) { toast(t('editor.clip.onlyHidden'), { icon: 'info' }); return null; }
+    const sheet = wb.sheet(grid.sheetId);
+    // A cut of protected cells is refused before the clipboard is replaced;
+    // hidden protected cells are not being cut.
+    if (cut && lockedCells(grid.sheetId, rows, cols)) return null;
+    const values = rows.map(() => []);
+    // Capture conditional/table looks from the same computed values as the text, including spills.
+    const looks = (sheet.rules.length || sheet.tables.length) && total <= 20000 ? rows.map(() => []) : null;
+    const texts = rows.map((r, i) => cols.map((c) => {
+      const value = wb.getValue(grid.sheetId, r, c);
+      if (looks) looks[i].push(wb.conditionalStyle(grid.sheetId, r, c, value));
+      // Retain scalar results at copy time. In-cell graphics still copy as
+      // blank values, while error constants remain errors rather than text.
+      let copied = value ?? null;
+      if (value && typeof value === 'object') copied = typeof value.error === 'string' ? { error: value.error } : null;
+      else if (typeof value === 'number' && !Number.isFinite(value)) copied = { error: '#NUM!' };
+      values[i].push(copied);
+      return wb.getDisplay(grid.sheetId, r, c, value);
+    }));
+    // Pasted here, the cells carry what they show in this workbook; the HTML for another workbook or app also pins
+    // the complete font a book with its own Normal font implies (bold off, black ink), which pasted here would
+    // turn an error's red ink black and outlive a later change of the book's look.
+    const cells = all ? wb.copyRange(grid.sheetId, range, { sameBook: true }) : wb.copyCells(grid.sheetId, rows, cols, { sameBook: true });
+    const outward = !wb.normalStyle ? cells : all ? wb.copyRange(grid.sheetId, range) : wb.copyCells(grid.sheetId, rows, cols);
+    // When the anchor is copied, spill slots stay empty in the embedded cells so the formula can
+    // spill again. The HTML's number-format hints still need the format those results display.
+    let styles = null;
+    if (total <= 20000) rows.forEach((r, i) => cols.forEach((c, j) => {
+      const cell = cells[i][j];
+      if (wb.hasNativePivotDisplay(grid.sheetId)) {
+        styles ??= rows.map(() => []);
+        styles[i][j] = wb.displayStyleAt(grid.sheetId, r, c);
+        return;
+      }
+      if (values[i][j] == null || cell?.v != null || cell?.f != null) return;
+      const spill = wb.spillAt(grid.sheetId, r, c);
+      if (!spill?.style || !Object.keys(spill.style).length) return;
+      styles ??= rows.map(() => []);
+      styles[i][j] = { ...cell?.s, ...spill.style, ...wb.getCell(grid.sheetId, r, c)?.s };
+    }));
+    // Where each copied line came from: with hidden lines skipped, a pasted
+    // formula shifts by its own cell's move, not by its place in the compacted
+    // block. Another tab cannot be told the lines, so its paste leaves such
+    // formulas as they are rather than shifting them wrongly. The sheet says
+    // which table a pasted formula leaves, to name it (Workbook._leaveTable).
+    const origin = { r: range.r1, c: range.c1, sheetId: grid.sheetId, ...(all ? {} : { rows, cols }) };
+    // Notes travel with their cells (a paste of values or formatting alone leaves them behind).
+    let notes = sheet.notes.size ? rows.map((r) => cols.map((c) => wb.getNote(grid.sheetId, r, c))) : null;
+    if (notes && !notes.some((row) => row.some(Boolean))) notes = null;
+    // The copy's own tag rides on the table: a paste tells this copy by it from one made in
+    // another tab of this app, whose HTML embeds cells the same way and may show the same text.
+    const copyId = Math.random().toString(36).slice(2, 10);
+    // A merged block travels as one cell with its spans, so a report header keeps its layout in Word or
+    // Excel instead of arriving as one plain cell per column. The lines the copy took are named with the
+    // merges, since hidden rows and columns are skipped and a merge's span is its share of what was taken.
+    // Ordinary cells already carry their line formats in `cells`; only anchored spill slots need overrides.
+    const mergeLayout = copyMergeLayout(sheet.merges, rows, cols);
+    const conditionalFormats = wb.copyConditionalFormats(grid.sheetId, rows, cols);
+    const nativeSparklines = wb.copyNativeSparklines(grid.sheetId, rows, cols);
+    const validations = wb.copyValidations(grid.sheetId, rows, cols);
+    const html = cellsToHtml(texts, outward, looks, values, all ? origin : null, { styles, mergeLayout, conditionalFormats, validations, nativeSparklines, externalWorkbooks: wb.externalWorkbooks, sourceWorkbook: workbookPathUri(P.resolvedAbsolutePath?.(doc.path)), colorPalette: wb.colorPalette, normalFill: wb.nativeNormalFill, indentUnit: grid.indentUnit })
+      .replace('<table', `<table data-spreadsheet-copy="${copyId}"`);
+    clip = { cells, values, notes, nativeSparklines, nativePivots: wb.copyNativePivots(grid.sheetId, rows, cols), conditionalFormats, validations, merges: mergeLayout.ranges, sourceMerges: mergeLayout.sources, partialMerge: mergeLayout.partial, origin, sheetId: grid.sheetId, text: toDelimited(texts, '\t'), html, copyId, range, rows, cols, visibleOnly: !all && !multi, multi: !!multi,
+      // A cut moves its cells when it is pasted, once: until then
+      // nothing changes, and Escape, another copy, editing a cell, or any other
+      // change to the workbook (its version moving on) turns it into a copy.
+      cut: cut ? { sheetId: grid.sheetId, range, rows, cols, all, version: wb.version } : null };
+    clip.threads = copyThreads(wb, grid.sheetId, rows, cols); // threaded comments come along with Paste All
+    grid.setCutRange(cut ? range : null);
+    return clip;
+  }
+
+  /** The cut is over (pasted, cancelled, or overtaken by another change): a paste now copies the cells, and their outline goes. */
+  function endCut() {
+    if (!clip?.cut) return;
+    clip.cut = null;
+    grid.setCutRange(null);
+  }
+
+  let pasting = false; // the paste's own changes never cancel the cut it is completing
+  function disarmCutOnChange() {
+    if (clip?.cut && !pasting && wb.version !== clip.cut.version) endCut();
+  }
+
+  /** Does a protected range cover one of the cells at rows × cols? Reports the first, as a refused edit would. */
+  function lockedCells(sheetId, rows, cols) {
+    if (wb.isProtected(sheetId)) { wb.lockedAt(sheetId, rows[0], cols[0]); return true; }
+    for (const { range: locked } of wb.sheet(sheetId).protectedRanges) {
+      const r = rows.find((r) => r >= locked.r1 && r <= locked.r2);
+      if (r === undefined) continue;
+      const c = cols.find((c) => c >= locked.c1 && c <= locked.c2);
+      if (c === undefined) continue;
+      wb.lockedAt(sheetId, r, c);
+      return true;
+    }
+    return false;
+  }
+
+  /** Are two copied blocks the same cells (values, formulas and styles)? */
+  function sameCells(a, b) {
+    const empty = (cell) => !cell || (cell.v == null && cell.f == null && !cell.s);
+    if (a.length !== b.length) return false;
+    return a.every((row, i) => row.length === b[i].length && row.every((x, j) => {
+      const y = b[i][j];
+      return empty(x) ? empty(y) : !empty(y) && JSON.stringify(x) === JSON.stringify(y);
+    }));
+  }
+
+  /**
+   * Paste a cut block: its cells leave their place as they land, in one undo
+   * step. Returns the destination range; null when refused; undefined when the
+   * cut has gone stale (its cells changed since, or their sheet is gone), so
+   * the paste falls back to a copy of what was cut.
+   */
+  function finishCut(sheetId, r, c, cells) {
+    const from = clip.cut;
+    if (!wb.sheet(from.sheetId)) return undefined;
+    const now = from.all ? wb.copyRange(from.sheetId, from.range, { sameBook: true }) : wb.copyCells(from.sheetId, from.rows, from.cols, { sameBook: true });
+    if (!sameCells(now, cells)) return undefined;
+    if (from.all) return wb.placeMoved(sheetId, r, c, cells, from);
+    if (clip.partialMerge) {
+      toast(t('editor.move.wholeMerge'), { icon: 'merge', duration: 4000 });
+      return null;
+    }
+    // A filtered or multi-range cut moves what was on screen as one packed
+    // block; the hidden cells stay where they are.
+    const limit = sheetLimits(sheetId);
+    // A cut cannot discard the source cells whose destination falls off-grid.
+    if (r + cells.length > limit.rows || c + cells[0].length > limit.cols) return null;
+    const dst = { r1: r, c1: c, r2: r + cells.length - 1, c2: c + cells[0].length - 1 };
+    if (wb.lockedIn(sheetId, dst) || lockedCells(from.sheetId, from.rows, from.cols)) return null;
+    // As placeMoved: spilled values whose formula was not cut have no cell of their own to move, so they are copied.
+    if (from.rows.some((rr) => from.cols.some((cc) => { const a = wb.spillAt(from.sheetId, rr, cc)?.anchor; return a && !(from.rows.includes(a.r) && from.cols.includes(a.c)); }))) return false;
+    const arrays = new Map();
+    for (const rr of from.rows) for (const cc of from.cols) {
+      const a = wb.fixedArrayAt(from.sheetId, rr, cc);
+      if (a) arrays.set(a.key, a);
+    }
+    const selectedRows = new Set(from.rows), selectedCols = new Set(from.cols);
+    for (const a of arrays.values()) {
+      for (let rr = a.r1; rr <= a.r2; rr++) if (!selectedRows.has(rr)) return false;
+      for (let cc = a.c1; cc <= a.c2; cc++) if (!selectedCols.has(cc)) return false;
+    }
+    // As a rectangular cut, a packed cut cannot land on part of a merge.
+    // Fully covered merges give way; merges leaving with this cut are exempt.
+    const sourceMerges = sheetId === from.sheetId ? clip.sourceMerges || [] : [];
+    const sameMerge = (a, b) => a.r1 === b.r1 && a.r2 === b.r2 && a.c1 === b.c1 && a.c2 === b.c2;
+    const destinationMerges = wb.mergesIn(sheetId, dst).filter(m => !sourceMerges.some(s => sameMerge(s, m)));
+    if (destinationMerges.some(m => m.r1 < dst.r1 || m.r2 > dst.r2 || m.c1 < dst.c1 || m.c2 > dst.c2)) return null;
+
+    const clearEntries = from.rows.flatMap((rr) => from.cols.map((cc) => ({ r: rr, c: cc, cell: null })));
+    // Preflight the destination before clearing cells or notes. When the
+    // move overlaps itself, account for the source cells that will leave.
+    if (!wb.pasteCells(sheetId, cells, r, c, clip.origin, null,
+      { checkOnly: true, merges: clip.merges, clearEntries: sheetId === from.sheetId ? clearEntries : [],
+        clearMerges: [...sourceMerges, ...destinationMerges] })) return null;
+    // As placeMoved, on these sheets alone: carried to grouped sheets, the clearing would erase their own cells.
+    return wb._withoutGroup(() => wb.transaction(t('editor.undo.moveCells'), () => {
+      const carried = wb.preparePackedMoveCells(from.sheetId, sheetId, from.rows, from.cols, r, c, cells);
+      wb.moveConditionalFormatsFromCells(from.sheetId, sheetId, from.rows, from.cols, r, c);
+      wb.setCells(from.sheetId, clearEntries, t('editor.undo.moveCells'));
+      for (const merge of clip.sourceMerges || []) wb.unmergeCells(from.sheetId, merge);
+      for (const merge of destinationMerges) wb.unmergeCells(sheetId, merge);
+      if (clip.notes) for (const rr of from.rows) for (const cc of from.cols) wb.setNote(from.sheetId, rr, cc, null);
+      wb.pasteCells(sheetId, carried, r, c, null, null, { notes: clip.notes, merges: clip.merges });
+      wb.moveNativeSparklinesFromCells(from.sheetId, sheetId, from.rows, from.cols, r, c);
+      return dst;
+    }));
+  }
+
+  /**
+   * Why a cut could not be placed at (r, c), said rather than the cut dropped in silence: the sheet's edge, or a
+   * merged block the cells would land on part of (both are refused). A protected cell the workbook has named
+   * itself; asking it again here only repeats a notice the throttle folds into the first.
+   */
+  function explainRefusedMove(sheetId, r, c, cells) {
+    const dst = { r1: r, c1: c, r2: r + cells.length - 1, c2: c + cells[0].length - 1 };
+    const limit = sheetLimits(sheetId);
+    if (dst.r2 >= limit.rows || dst.c2 >= limit.cols) { toast(t('editor.move.pastSheet'), { icon: 'info', duration: 3500 }); return; }
+    if (wb.lockedIn(sheetId, dst)) return;
+    const inside = (m) => m.r1 >= dst.r1 && m.r2 <= dst.r2 && m.c1 >= dst.c1 && m.c2 <= dst.c2;
+    if (wb.mergesIn(sheetId, dst).some((m) => !inside(m))) toast(t('editor.move.ontoMerge'), { icon: 'info', duration: 3500 });
+  }
+
+  function copyScroll(ch) {
+    const target = scrollControlTarget(wb, grid.sheetId, ch);
+    const linkRef = target ? `'${wb.sheet(target.sheetId).name.replace(/'/g, "''")}'!$${colName(target.range.c1)}$${target.range.r1 + 1}` : ch.linkRef;
+    return scrollControlClipboard(document, { ...ch, linkRef }, scrollControlValue(wb, grid.sheetId, ch));
+  }
+
+  function onCopyEvent(e, cut) {
+    // Browser Edit > Copy and native accessibility actions can deliver a copy
+    // event without the grid's keydown handler. Respect its drawing selection.
+    if ((grid.selectedChart || wb.sheet(grid.sheetId)?.kind === 'chart') && document.activeElement === grid.viewport) {
+      e.preventDefault();
+      const control = wb.chartById(grid.sheetId, grid.selectedChart);
+      if (control?.type === 'slicer' && !cut) { const data = slicerClipboard(document, control, slicerItems(wb, control), wb); e.clipboardData.setData('text/plain', data.text); e.clipboardData.setData('text/html', data.html); }
+      else if (control?.type === 'scroll' && !cut) { const data = copyScroll(control); e.clipboardData.setData('text/plain', data.text); e.clipboardData.setData('text/html', data.html); }
+      else if (!cut) run('copy');
+      return;
+    }
+    if (grid.editing) return; // the textarea handles its own copy/paste
+    if (document.activeElement !== grid.viewport) return;
+    const c = snapshotClip(cut);
+    if (!c) return;
+    e.preventDefault();
+    e.clipboardData.setData('text/plain', c.text);
+    e.clipboardData.setData('text/html', c.html);
+    statusBar?.announce(c.multi ? t('editor.clip.announceMulti', { cut: String(cut), rows: c.rows.length, cols: c.cols.length, ranges: grid.ranges.length, visible: String(!!c.visibleOnly) })
+      : t('editor.clip.announce', { cut: String(cut), range: selectionName(c.range), visible: String(!!c.visibleOnly) }));
+    if (c.visibleOnly) toast(cut ? t('editor.clip.visibleOnlyCut') : t('editor.clip.visibleOnlyCopied'), { icon: 'info', duration: 2500 });
+  }
+
+  function onPasteEvent(e) {
+    // A paste into the in-cell editor: the browser inserts the text, and the entry is noted as pasted into
+    // for the commit (see `entryPasted`); the cells behind the editor take nothing.
+    if (grid.editing) {
+      const focused = document.activeElement;
+      if (grid.viewport.contains(focused) && focused.classList?.contains('grid-editor')) entryPasted = true;
+      return;
+    }
+    if (document.activeElement !== grid.viewport) return;
+    const text = e.clipboardData?.getData('text/plain') ?? '';
+    const html = e.clipboardData?.getData('text/html') ?? '';
+    // A picture on the clipboard (a screenshot, an image copied from a page)
+    // lands as a floating image. Cells copied from Excel come with a picture
+    // too, but also text, and the text wins. A page's "Copy image" puts an
+    // <img> fragment beside the bitmap: HTML with no table in it is no cells.
+    const image = !text && [...(e.clipboardData?.files || [])].find((f) => f.type.startsWith('image/'));
+    const picture = image && (!html || !parseHtmlClipboard(html)) ? image : null;
+    if (picture) {
+      e.preventDefault();
+      grid.consumePlainPaste();
+      insertPastedImage(picture);
+      return;
+    }
+    e.preventDefault();
+    if (wb.sheet(grid.sheetId)?.kind === 'chart') { statusBar?.announce(t('editor.paste.chooseWorksheet')); return; }
+    if (pasteBehindObject()) { grid.consumePlainPaste(); return; }
+    pasteAndOffer(text, html, grid.consumePlainPaste() ? 'values' : 'all');
+  }
+
+  /** A picture from the clipboard lands as a floating image at the active cell. */
+  /**
+   * A picture pasted while a cell is selected floats over the cells; the Paste Options button then offers
+   * it placed in the cell instead (or back over the cells), each choice the paste done again that way.
+   */
+  async function insertPastedImage(picture, { inCell = false } = {}) {
+    replaceImageId = null;
+    const file = new File([picture], picture.name || `Pasted image.${picture.type.split('/')[1]?.replace('jpeg', 'jpg').replace('svg+xml', 'svg') || 'png'}`, { type: picture.type });
+    const from = { sheetId: grid.sheetId, active: { ...grid.active }, range: { ...grid.range } };
+    const before = wb.historyTop;
+    const made = await insertImageFile(file, { sheetId: from.sheetId, anchor: from.active, inCell });
+    const mark = wb.historyTop;
+    if (!made || !mark || mark === before || destroyed) return;
+    optionButton.show({
+      kind: 'paste', sheetId: from.sheetId, range: { r1: from.active.r, c1: from.active.c, r2: from.active.r, c2: from.active.c }, mark,
+      items: [{ header: t('editor.paste.picture') }, { key: 'floating', label: t('editor.paste.placeOverCells'), icon: 'placeOverCells' }, { key: 'cell', label: t('editor.picture.placeInCell'), icon: 'placeInCell' }],
+      checked: made,
+      onPick: (item) => {
+        if (item.key === made || wb.historyTop !== mark || grid.sheetId !== from.sheetId) { optionButton.hide(); return; }
+        historyMove = 'undo';
+        try { wb.undo(); } finally { historyMove = 'push'; }
+        grid.selectChart(null);
+        grid.setSelection(S.fromRange(from.range, from.active), { scroll: false });
+        insertPastedImage(picture, { inCell: item.key === 'cell' });
+      },
+    });
+  }
+
+  /**
+   * Paste at the selection. The internal clipboard wins when the system text
+   * matches what was last copied here; otherwise an HTML table (from another
+   * spreadsheet app, a web page, or this app in another tab) or plain text.
+   * mode: 'all' | 'values' | 'formats' | 'transpose'
+   */
+  /**
+   * Is the clipboard's text what was copied here? Windows hands text back with
+   * CRLF line ends, and a system may add one at the end; a cut read as
+   * another app's text would copy its cells instead of moving them.
+   */
+  function sameText(text, copied) {
+    if (text === copied) return true;
+    const lines = (s) => s.replace(/\r\n?/g, '\n').replace(/\n$/, '');
+    return lines(text) === lines(copied);
+  }
+
+  /**
+   * Is the pasted content what was last copied here? Text alone can match by
+   * chance ("10" copied from another app when the copied formula showed 10):
+   * HTML from elsewhere lacks the cells this app embeds in its own, and HTML
+   * from another tab of this app carries that tab's copy tag, not this one's.
+   */
+  function isInternal(text, html) {
+    if (!clip) return false;
+    // The browser hands the HTML back wrapped in a document of its own, so the tag is looked for, not the whole.
+    const own = (h) => h === clip.html || isOwnHtmlClipboard(h, clip.copyId);
+    if (text === '') return !html || own(html);
+    if (!sameText(text, clip.text)) return false;
+    if (!html) return true;
+    return own(html);
+  }
+
+  /** Is the clipboard one cell: a copy of one cell here, or another app's text with no tab or line between values? */
+  function pastesOneCell(text, html, internal) {
+    if (internal) return clip.cells.length === 1 && clip.cells[0]?.length === 1;
+    if (html && /<t[dh][\s>][\s\S]*<t[dh][\s>]/i.test(html)) return false;
+    const body = text.replace(/\r?\n$/, '');
+    return body !== '' && !/[\t\r\n]/.test(body);
+  }
+
+  /** The rows and columns a paste of the clipboard writes once (transposed, when it is), or null when its text does not say. */
+  function pastedBlock(text, internal, transpose) {
+    const rows = internal ? clip.cells : text ? parseClipboard(text) : null;
+    const h = rows?.length || 0, w = h ? clipboardWidth(rows) : 0;
+    if (!h || !w) return null;
+    return transpose ? { h: w, w: h } : { h, w };
+  }
+
+  function applyPaste(text, options = {}) {
+    if (wb.sheet(grid.sheetId)?.kind === 'chart') { statusBar?.announce(t('editor.paste.chooseWorksheet')); return; }
+    if (!oneRange('paste into')) return; // a paste lands in one range; several selected would take it in the last alone
+    // Paste Special's options (what, operation, skip blanks, transpose), from an old single mode or the dialog's choices.
+    const special = pasteOptions(options.paste ?? options.mode ?? (options.valuesOnly ? 'values' : 'all'));
+    const mode = legacyMode(special) === 'all' ? 'all' : 'special';
+    const html = options.html ?? '';
+    const control = mode === 'all' && (readSlicerClipboard(document, html, wb) || readScrollControlClipboard(document, html));
+    if (control) {
+      const a = grid.active, id = wb.addChart(grid.sheetId, { ...control, anchor: { r: a.r, c: a.c }, anchorMode: undefined, dx: 0, dy: 0 });
+      if (id) grid.selectChart(id);
+      return;
+    }
+    const internal = isInternal(text, html);
+    // Whole columns, rows or the whole sheet take a copied block tiled as far as the sheet reaches, not to the
+    // grid's last row and column: one cell tiled over every cell of a selected sheet (17 billion) froze the tab.
+    const whole = grid.range;
+    if (whole.r2 >= MAX_ROW || whole.c2 >= MAX_COL) {
+      const extent = wb.sheet(grid.sheetId), used = wb.usedRange(grid.sheetId);
+      const reach = (lo, hi, max, size, usedEnd) => (hi >= max ? Math.max(lo, size - 1, usedEnd ?? lo) : hi);
+      let clipped = { ...whole, r2: reach(whole.r1, whole.r2, MAX_ROW, extent.rows, used?.r2), c2: reach(whole.c1, whole.c2, MAX_COL, extent.cols, used?.c2) };
+      // The block tiles only as it would over the whole lines, whose length is a multiple of it or not (Excel's rule),
+      // never because the part laid out so far is: column A's 50 rows copied onto column C went in twice over a new
+      // sheet's 100 rows. Tiling, the lines cut short take whole repeats; not tiling, the block goes in once.
+      const block = special.insert ? null : pastedBlock(text, internal, special.transpose);
+      if (block) {
+        const { h, w } = block;
+        const th = whole.r2 - whole.r1 + 1, tw = whole.c2 - whole.c1 + 1;
+        const limit = sheetLimits(grid.sheetId);
+        const repeat = (lo, hi, n, end) => Math.min(end - 1, lo + Math.ceil((hi - lo + 1) / n) * n - 1);
+        clipped = th % h === 0 && tw % w === 0 && (th > h || tw > w)
+          ? { ...clipped, r2: repeat(clipped.r1, clipped.r2, h, limit.rows), c2: repeat(clipped.c1, clipped.c2, w, limit.cols) }
+          : { ...clipped, r2: Math.min(limit.rows - 1, clipped.r1 + h - 1), c2: Math.min(limit.cols - 1, clipped.c1 + w - 1) };
+      }
+      grid.setSelection(S.fromRange(clipped, { ...grid.active }), { scroll: false });
+    }
+    const label = internal && clip.cut && mode === 'all' ? t('editor.undo.moveCells') : pasteLabel(special);
+    // The pasted block and any table expansion it triggers are one action.
+    const sheetId = grid.sheetId;
+    let refused = false;
+    const onProtection = ({ detail }) => {
+      if (['protected', 'array-edit', 'pivot-edit', 'merge-paste'].includes(detail?.type) && detail.sheetId === sheetId) refused = true;
+    };
+    // Use the workbook's actual refusal, which accounts for tiled pastes,
+    // clipped bounds, and skipped blanks, rather than guessing from a range.
+    wb.addEventListener('change', onProtection);
+    pasting = true;
+    // One copied cell pasted over a filtered list goes into the rows on show, as Fill Down does and as in Excel,
+    // rather than into the rows the filter hides: each run of shown rows takes it in turn, as one step.
+    const runs = !(internal && clip.cut) && !special.transpose && !special.insert && pastesOneCell(text, html, internal) ? shownRuns(grid.range, sheetId) : null;
+    try {
+      if (runs && (runs.length !== 1 || runs[0].r1 !== grid.range.r1 || runs[0].r2 !== grid.range.r2)) {
+        const whole = { ...grid.range }, active = { ...grid.active };
+        return wb.transaction(label, () => {
+          for (const run of runs) {
+            grid.setSelection(S.fromRange(run, { r: run.r1, c: run.c1 }), { scroll: false });
+            applyPasteContents(text, { html, special }, () => refused, internal);
+            if (refused) break;
+          }
+          grid.setSelection(S.fromRange(whole, active), { scroll: false });
+        });
+      }
+      return wb.transaction(label, () => applyPasteContents(text, { html, special }, () => refused, internal));
+    } finally {
+      pasting = false;
+      wb.removeEventListener('change', onProtection);
+      // A paste special of a cut copies the cells, and ends the cut so a later paste does not move them.
+      if (internal && mode !== 'all') endCut();
+    }
+  }
+
+  /** Is (r, c) hidden under a merge? A merged cell takes one value, at its top-left, so a paste never writes there. */
+  /**
+   * How many of a pasted block's values fell under a merged cell. A merge holds one value, at its top-left,
+   * so the workbook writes nothing to the cells beneath it — deliberate, since e1a0f0c, rather than burying
+   * values where nothing shows them — but the paste said nothing about it, so a 2×2 block dropped on a
+   * merged A1:B2 kept one number and lost three without a word. `filled(i, j)` says whether the source had
+   * anything at that offset in the block, so only real values are counted, and a tiled paste counts each
+   * repeat. Said in the shape Merge cells uses for the values it clears.
+   */
+  function mergeLosses(sheetId, block, h, w, filled) {
+    if (typeof filled === 'number') return filled; // a path that counted them as it wrote
+    if (!filled || !wb.sheet(sheetId)?.merges.length) return 0;
+    let lost = 0;
+    for (let rr = block.r1; rr <= block.r2; rr++) {
+      for (let cc = block.c1; cc <= block.c2; cc++) {
+        if (coveredByMerge(sheetId, rr, cc) && filled((rr - block.r1) % h, (cc - block.c1) % w)) lost++;
+      }
+    }
+    return lost;
+  }
+
+  /** Is there anything in this copied cell to lose? */
+  const cellFilled = (cell) => !!cell && (cell.v != null || cell.f != null);
+
+  function coveredByMerge(sheetId, r, c) {
+    const m = wb.mergeAt(sheetId, r, c);
+    return !!m && (m.r1 !== r || m.c1 !== c);
+  }
+
+  function applyPasteContents(text, { html = '', special = pasteOptions('all') } = {}, wasRefused, internal) {
+    // One of the single modes the paths below carry out, or 'composed' for a combination of options.
+    let mode = legacyMode(special) ?? 'composed';
+    const { r, c } = { r: grid.range.r1, c: grid.range.c1 };
+    const sheetId = grid.sheetId;
+    const limit = sheetLimits(sheetId);
+    const selectBlock = (h, w, allowTile = true, absorb = true, filled = null) => {
+      if (wasRefused()) return;
+      // What ran past the last row or column was dropped: say how much, rather than lose it silently.
+      const rowsOut = Math.max(0, r + h - limit.rows), colsOut = Math.max(0, c + w - limit.cols);
+      if (rowsOut || colsOut) {
+        toast(rowsOut && colsOut ? t('editor.paste.overflowBoth', { rows: rowsOut, cols: colsOut }) : rowsOut ? t('editor.paste.overflowRows', { count: rowsOut }) : t('editor.paste.overflowCols', { count: colsOut }), { icon: 'info', duration: 3500 });
+      }
+      const target = grid.range;
+      const th = target.r2 - target.r1 + 1;
+      const tw = target.c2 - target.c1 + 1;
+      const tiled = allowTile && th % h === 0 && tw % w === 0 && (th > h || tw > w);
+      const block = tiled ? target : { r1: r, c1: c, r2: Math.min(r + h - 1, wb.sheet(sheetId).rows - 1), c2: Math.min(c + w - 1, wb.sheet(sheetId).cols - 1) };
+      // Adjacent rows or columns pasted beside a table join it.
+      if (absorb) wb.extendTableToCover(sheetId, block);
+      // The cells a merge hides took nothing: say how much was left behind rather than drop it in silence.
+      const lost = mergeLosses(sheetId, block, h, w, filled);
+      if (lost) {
+        toast(lost === 1
+          ? t('editor.paste.lostOne')
+          : t('editor.paste.lostMany', { count: lost }), { icon: 'merge', duration: 4500 });
+      }
+      grid.setSelection(S.fromRange(block, { r, c }), { scroll: false });
+    };
+    // Pasted text on several lines wraps, as lines added with Alt+Enter do, so the rows can show them all.
+    const wrapMultiline = (table, target = null) => {
+      if (wasRefused() || !table.some((row) => row.some((tx) => typeof tx === 'string' && tx.includes('\n')))) return;
+      const h = table.length, w = clipboardWidth(table);
+      const reps = wb.pasteReps(h, w, target);
+      let last = -1;
+      for (let ry = 0; ry < reps.rows; ry++) for (let rx = 0; rx < reps.cols; rx++) table.forEach((row, i) => row.forEach((tx, j) => {
+        if (typeof tx !== 'string' || !tx.includes('\n') || /^=./.test(tx)) return;
+        const rr = r + ry * h + i, cc = c + rx * w + j;
+        if (rr >= limit.rows || cc >= limit.cols || coveredByMerge(sheetId, rr, cc) || wb.styleAt(sheetId, rr, cc)?.wrap) return;
+        wb.applyStyle(sheetId, { r1: rr, c1: cc, r2: rr, c2: cc }, { wrap: true });
+        last = Math.max(last, rr);
+      }));
+      if (last >= 0) grid.autoFitRows(r, Math.min(last, r + 500));
+    };
+    const inserting = mode === 'insertDown' || mode === 'insertRight';
+    const insertCopied = (h, w, write) => {
+      const block = { r1: r, c1: c, r2: r + h - 1, c2: c + w - 1 };
+      if (block.r2 >= limit.rows || block.c2 >= limit.cols) {
+        toast(t('editor.paste.exceedsLimit', { rows: limit.rows, cols: limit.cols }), { icon: 'info' });
+        return;
+      }
+      const direction = mode === 'insertRight' ? 'right' : 'down';
+      if (wb.lockedAfterCellInsertion(sheetId, block, direction)) return;
+      let ok = false;
+      wb.transaction(t('editor.undo.insertCopiedCells'), () => {
+        ok = wb.insertCells(sheetId, block, direction, { merges: copiedMerges, cells });
+        if (ok) write();
+      });
+      if (!ok) {
+        if (!wasRefused() && !(wb.sheetGroup || [sheetId]).some((id) => wb.isProtected(id))) toast(shiftProblem(sheetId, block, direction === 'right' ? 'col' : 'row', false)
+          || t('editor.shift.pastEdge', { side: direction === 'right' ? 'right' : 'down' }), { icon: 'info', duration: 4000 });
+        return;
+      }
+      selectBlock(h, w, false);
+    };
+    // Cells from another tab of this app travel inside the HTML.
+    let cells = internal ? clip.cells : null;
+    let origin = internal ? clip.origin : null;
+    let parsed = null;
+    if (!cells && html) {
+      parsed = parseHtmlClipboard(html, text);
+      if (parsed?.error) { toast(parsed.error, { icon: 'alert' }); return; }
+      if (parsed?.cells) {
+        cells = parsed.cells;
+        origin = parsed.origin ?? null;
+        // Any page can carry this app's cell payload: formulas in it are outside content until allowed.
+        if (mode !== 'formats' && cells.some((row) => row.some((cell) => formulaReachesOut(cell?.f)))) doc.distrustExternal();
+      }
+    }
+    const externalWorkbooks = internal ? null : parsed?.externalWorkbooks;
+    // A qualified external name can itself contain a function that reaches out.
+    if (externalWorkbooks?.books.some(book => book.names.some(name => formulaReachesOut(name.ref)))) doc.distrustExternal();
+    const conditionalFormats = internal ? clip.conditionalFormats : parsed?.conditionalFormats;
+    const nativeSparklines = internal ? clip.nativeSparklines : parsed?.nativeSparklines;
+    if (!internal && nativeSparklines?.groups.some(group => formulaReachesOut(group.dateFormula) || group.sparklines.some(spark => formulaReachesOut(spark.formula)))) doc.distrustExternal();
+    const validations = internal ? clip.validations : parsed?.validations;
+    if (!internal && validations?.some(({ rule }) => (rule.type === 'formula' || rule.type === 'list' && isRangeSource(rule.source)) && formulaReachesOut(rule.source))) doc.distrustExternal();
+    if (!internal && conditionalFormats?.some(({ rule }) => conditionalFormulaFields(rule).some(key => formulaReachesOut(rule[key])))) doc.distrustExternal();
+    const copiedValues = internal ? clip.values : parsed?.values;
+    const copiedMerges = internal ? clip.merges || [] : parsed?.merges || [];
+    // Another app's numbers combine on the old arithmetic path, which reads them in the current locale.
+    if (!cells && mode === 'composed') mode = legacyMode(special, { cells: false }) ?? 'composed';
+    // Column widths travel only with cells copied in this spreadsheet, from a sheet that is still there.
+    const pasteWidths = (quiet = false) => {
+      if (!internal || !clip.cols) { if (!quiet) toast(t('editor.paste.widthsOnlyInternal'), { icon: 'info', duration: 3000 }); return false; }
+      if (!wb.sheet(clip.sheetId)) { if (!quiet) toast(t('editor.paste.sheetGone'), { icon: 'info' }); return false; }
+      const n = clip.cols.length;
+      wb.transaction(t('editor.undo.pasteColumnWidths'), () => {
+        for (let j = 0; j < n && c + j < wb.sheet(sheetId).cols; j++) wb.setColWidth(sheetId, c + j, wb.colWidth(clip.sheetId, clip.cols[j]));
+      });
+      return true;
+    };
+    if (mode === 'composed') {
+      // A combination of Paste Special's options: the copied cells (or another app's table or text, read
+      // as cells) written once with every option applied, as one undo step.
+      let data = null;
+      if (cells) data = { cells, values: copiedValues, notes: internal ? clip.notes : null, origin, conditionalFormats, validations, merges: copiedMerges };
+      else if (parsed?.rows) {
+        const rows = parsed.rows, w = clipboardWidth(rows);
+        const grid2 = rows.map(() => Array(w).fill(null));
+        for (const { i, j, cell } of cellsFromHtmlRows(rows, undefined, { values: special.what.startsWith('values') })) grid2[i][j] = cell;
+        data = { cells: grid2, values: grid2.map((row) => row.map((cell) => (cell && cell.f == null ? cell.v : null))), merges: [] };
+        if (!special.what.startsWith('values') && special.what !== 'formats' && rows.some((row) => row.some(({ text, value }) => value === undefined && textReachesOut(text)))) doc.distrustExternal();
+      } else if (text) {
+        const rows = parseClipboard(text);
+        if (!rows.length) return;
+        if (special.what === 'formats') { toast(t('editor.paste.plainNoFormats'), { icon: 'info', duration: 3000 }); return; }
+        if (!special.what.startsWith('values') && rows.some((row) => row.some(textReachesOut))) doc.distrustExternal();
+        data = { ...cellsFromText(rows, (tx) => cellFromInput(tx)), merges: [] };
+      }
+      if (!data) return;
+      const done = composePaste(wb, sheetId, data, r, c, grid.range, special, limit);
+      if (!done || wasRefused()) return;
+      if (special.what === 'allWidths') pasteWidths(true);
+      if (internal && special.what === 'comments' && !special.transpose) pasteThreads(wb, sheetId, clip.threads, r, c);
+      const h = data.cells.length, w = clipboardWidth(data.cells);
+      const filled = (i, j) => cellFilled(data.cells[i]?.[j]);
+      const absorb = !['formats', 'comments', 'validation'].includes(special.what);
+      if (special.transpose) selectBlock(w, h, false, absorb, done.pasted?.mergeLosses ?? ((i, j) => filled(j, i)));
+      else selectBlock(h, w, true, absorb, done.pasted?.mergeLosses ?? filled);
+      return;
+    }
+    if (mode === 'values' && copiedValues) {
+      const h = copiedValues.length, w = clipboardWidth(copiedValues);
+      // A selection that is a multiple of the block takes the values over and over, as a full paste does.
+      const reps = wb.pasteReps(h, w, grid.range);
+      const target = { r1: r, c1: c, r2: Math.min(limit.rows - 1, r + h * reps.rows - 1), c2: Math.min(limit.cols - 1, c + w * reps.cols - 1) };
+      if (target.r2 < r || target.c2 < c || wb.lockedIn(sheetId, target)) return;
+      wb.pasteLiteralValues(sheetId, copiedValues, r, c, grid.range);
+      wrapMultiline(copiedValues, grid.range);
+      selectBlock(h, w, true, true, (i, j) => { const v = copiedValues[i]?.[j]; return v != null && v !== ''; });
+      return;
+    }
+    const OPS = ['add', 'sub', 'mul', 'div'];
+    if (mode === 'widths') {
+      // The widths are read from the copied cells' sheet, which may have been deleted since: a missing sheet
+      // has only default widths to give, so the paste is refused, as the Links paste refuses it. The columns
+      // the copy took skip hidden ones, as the copied cells do: the block's bounds would paste a hidden
+      // column's zero width as a sliver between the others.
+      if (pasteWidths()) selectBlock(1, clip.cols.length, false, false);
+      return;
+    }
+    if (mode === 'link') {
+      // Links: formulas that point back at the copied cells, so they follow later edits.
+      if (!internal || !clip.rows) { toast(t('editor.paste.linksOnlyInternal'), { icon: 'info', duration: 3000 }); return; }
+      if (!wb.sheet(clip.sheetId)) { toast(t('editor.paste.sheetGone'), { icon: 'info' }); return; }
+      const n = wb.pasteLinks(sheetId, r, c, clip.sheetId, clip.rows, clip.cols);
+      if (n) selectBlock(clip.rows.length, clip.cols.length, false);
+      toast(n ? t('editor.paste.linksPasted', { count: n }) : t('editor.paste.noLinks'), { icon: n ? 'link' : 'info' });
+      return;
+    }
+    if (OPS.includes(mode)) {
+      let numbers;
+      if (copiedValues) {
+        numbers = copiedValues.map((row) => row.map((value) => typeof value === 'number' ? value : null));
+      } else {
+        const src = text || (internal ? clip.text : '') || (parsed?.rows ? parsed.rows.map((row) => row.map((x) => x.text).join('\t')).join('\n') : '');
+        if (!src) return;
+        // The text is read as typed input is, in the current locale ("1.234,5" in de-DE, "50 %", "1,5 €").
+        numbers = parseClipboard(src).map((row) => row.map((tx) => {
+          const { v, f } = parseInput(tx);
+          return f == null && typeof v === 'number' ? v : null;
+        }));
+      }
+      const changed = wb.pasteOperation(sheetId, numbers, r, c, mode, grid.range);
+      toast(changed ? t({ add: 'editor.pasteOp.add', sub: 'editor.pasteOp.sub', mul: 'editor.pasteOp.mul', div: 'editor.pasteOp.div' }[mode] || 'editor.pasteOp.changed', { count: changed }) : t('editor.pasteOp.none'), { icon: changed ? 'check' : 'info' });
+      if (changed) selectBlock(numbers.length, clipboardWidth(numbers), false);
+      return;
+    }
+    if (cells) {
+      const h = cells.length;
+      const w = cells[0].length;
+      const notes = internal ? clip.notes : null; // the notes of cells copied here come along, except with formulas only
+      if (inserting) { insertCopied(h, w, () => wb.pasteCells(sheetId, cells, r, c, origin, null, { notes, merges: copiedMerges, conditionalFormats, validations, nativeSparklines, externalWorkbooks })); return; }
+      if (mode === 'formats') { if (pasteClipboardStyles(sheetId, cells, r, c, grid.range, { merges: copiedMerges, conditionalFormats, externalWorkbooks })) selectBlock(h, w, true, false); return; }
+      const fromCells = (i, j) => cellFilled(cells[i]?.[j]);
+      if (mode === 'transpose') { const pasted = wb.pasteCells(sheetId, cells, r, c, origin, null, { transpose: true, notes, merges: copiedMerges, conditionalFormats, validations, nativeSparklines, externalWorkbooks }); selectBlock(w, h, false, true, pasted.mergeLosses ?? ((i, j) => cellFilled(cells[j]?.[i]))); return; }
+      if (mode === 'formulas' || mode === 'skipBlanks') { const pasted = wb.pasteCells(sheetId, cells, r, c, origin, grid.range, { keepStyles: mode === 'formulas', skipBlanks: mode === 'skipBlanks', notes: mode === 'skipBlanks' ? notes : null, merges: mode === 'skipBlanks' ? copiedMerges : [], conditionalFormats, validations, nativeSparklines, externalWorkbooks }); selectBlock(h, w, true, true, pasted.mergeLosses ?? fromCells); return; }
+      if (mode === 'values') {
+        // Values only: what the cells showed, retyped from the plain text.
+        const src = text || (internal ? clip.text : '');
+        const texts = src ? parseClipboard(src) : cells.map((row) => row.map((cell) => (cell && cell.f == null ? formatValue(cell.v, cell.s) : '')));
+        wb.pasteValues(sheetId, texts, r, c, grid.range);
+        wrapMultiline(texts, grid.range);
+        selectBlock(texts.length, clipboardWidth(texts), true, true, (i, j) => (texts[i]?.[j] ?? '') !== '');
+        return;
+      }
+      if (internal && clip.cut && mode === 'all') {
+        // Cut then paste moves the cells: formulas that pointed at them follow, and theirs keep their targets.
+        const moved = finishCut(sheetId, r, c, cells);
+        if (moved === null) { explainRefusedMove(sheetId, r, c, cells); return; }
+        endCut();
+        if (moved) { selectBlock(h, w, false); return; }
+        // The cut went stale, or took part of an array without its formula: what was cut is pasted as a copy.
+        if (moved === false) toast(t('editor.paste.copiedNotMoved'), { icon: 'info', duration: 4000 });
+      }
+      const pasted = wb.pasteCells(sheetId, cells, r, c, origin, grid.range, { notes, merges: copiedMerges, conditionalFormats, validations, nativeSparklines, externalWorkbooks, nativePivots: internal ? clip.nativePivots : null });
+      if (internal && mode === 'all') pasteThreads(wb, sheetId, clip.threads, r, c);
+      // A copied report remains its own object beside a table, rather than
+      // joining that table through the ordinary adjacent-cell expansion.
+      selectBlock(h, w, true, !(internal && clip.nativePivots), pasted.mergeLosses ?? fromCells);
+      return;
+    }
+    if (parsed?.rows) {
+      const rows = parsed.rows;
+      const w = clipboardWidth(rows);
+      // A table cell reading "=IMPORTDATA(...)" becomes that formula: outside content until allowed.
+      if (mode !== 'formats' && mode !== 'values' && rows.some((row) => row.some(({ text, value }) => value === undefined && textReachesOut(text)))) doc.distrustExternal();
+      if (inserting) {
+        insertCopied(rows.length, w, () => wb.pasteEntries(sheetId,
+          cellsFromHtmlRows(rows).map(({ i, j, cell }) => ({ r: r + i, c: c + j, cell })),
+          { merges: copiedMerges, rows: rows.length, cols: w, r, c }));
+        return;
+      }
+      if (mode === 'formats') {
+        const styled = rows.map((row) => row.map(({ style }) => ({ v: null, f: null, s: style })));
+        if (pasteClipboardStyles(sheetId, styled, r, c, grid.range, { merges: copiedMerges, conditionalFormats, externalWorkbooks })) selectBlock(rows.length, w, true, false);
+        return;
+      }
+      const transposed = mode === 'transpose';
+      const keepStyles = mode === 'values' || mode === 'formulas';
+      const withMerges = copiedMerges.length && (mode === 'all' || transposed || mode === 'skipBlanks');
+      // The table repeats across a selection that is a multiple of it, as a block copied here would.
+      const reps = transposed ? { rows: 1, cols: 1 } : wb.pasteReps(rows.length, w, grid.range);
+      // Formulas only keeps the formatting already at the destination: the table's own is left out.
+      const source = mode === 'formulas' ? rows.map((row) => row.map(({ style, ...cell }) => cell)) : rows;
+      const entries = [];
+      let hiddenByMerge = 0; // values a merge left no room for, counted as they are passed over
+      for (let ry = 0; ry < reps.rows; ry++) {
+        for (let rx = 0; rx < reps.cols; rx++) {
+          const r0 = r + ry * rows.length;
+          const c0 = c + rx * w;
+          // Values only writes what the table showed: no HYPERLINK formula for a link and no formula from text that reads as one.
+          // A full HTML paste parses in the source format; destination formats
+          // participate only when the selected paste mode keeps them.
+          const destinationStyle = keepStyles ? (i, j) => wb.styleAt(sheetId, r0 + (transposed ? j : i), c0 + (transposed ? i : j)) : undefined;
+          for (const { i, j, cell } of cellsFromHtmlRows(source, destinationStyle, { values: mode === 'values' })) {
+            const e = transposed ? { r: r0 + j, c: c0 + i, cell } : { r: r0 + i, c: c0 + j, cell };
+            if (e.r >= limit.rows || e.c >= limit.cols || !withMerges && coveredByMerge(sheetId, e.r, e.c)) {
+              if (e.r < limit.rows && e.c < limit.cols && cellFilled(e.cell)) hiddenByMerge++;
+              continue;
+            }
+            if (mode === 'skipBlanks' && e.cell?.v == null && e.cell?.f == null) continue;
+            if (mode === 'values' && e.cell) {
+              const s = wb.styleAt(sheetId, e.r, e.c);
+              e.cell = { v: e.cell.v, f: e.cell.f, s: e.cell.s?.wrap && !s?.wrap ? { ...(s || {}), wrap: true } : s };
+            }
+            entries.push(e);
+          }
+        }
+      }
+      const pasted = wb.pasteEntries(sheetId, entries, { merges: mode === 'all' || mode === 'transpose' || mode === 'skipBlanks' ? copiedMerges : [],
+        rows: rows.length, cols: w, r, c, target: grid.range, transpose: transposed, keepStyles });
+      if (transposed) selectBlock(w, rows.length, false, true, pasted?.mergeLosses ?? hiddenByMerge); else selectBlock(rows.length, w, true, true, pasted?.mergeLosses ?? hiddenByMerge);
+      return;
+    }
+    if (!text) return;
+    const rows = parseClipboard(text);
+    if (!rows.length) return;
+    // Formatting only from another app's plain text: there is none to paste, which is said rather than nothing happening.
+    if (mode === 'formats') { toast(t('editor.paste.plainNoFormats'), { icon: 'info', duration: 3000 }); return; }
+    // Pasted text that reads as a reaching formula is outside content too.
+    if (rows.some((row) => row.some(textReachesOut))) doc.distrustExternal();
+    if (inserting) { insertCopied(rows.length, clipboardWidth(rows), () => wb.pasteValues(sheetId, rows, r, c)); return; }
+    if (mode === 'skipBlanks') {
+      // Plain text: write only the non-empty cells.
+      const entries = [];
+      rows.forEach((row, i) => row.forEach((tx, j) => { if (tx !== '' && r + i < limit.rows && c + j < limit.cols && !coveredByMerge(sheetId, r + i, c + j)) entries.push({ r: r + i, c: c + j, cell: cellFromInput(tx, wb.styleAt(sheetId, r + i, c + j), { typed: false }) }); }));
+      wb.setCellsWithTableHeaders(sheetId, entries, t('editor.undo.paste'));
+      wrapMultiline(rows);
+      selectBlock(rows.length, clipboardWidth(rows), false, true, (i, j) => (rows[i]?.[j] ?? '') !== '');
+      return;
+    }
+    const transposed = mode === 'transpose';
+    const table = transposed ? Array.from({ length: clipboardWidth(rows) }, (_, j) => rows.map((row) => row[j] ?? '')) : rows;
+    // Text from another app fills a selection that is a multiple of it, as cells copied here do.
+    wb.pasteValues(sheetId, table, r, c, transposed ? null : grid.range);
+    wrapMultiline(table, transposed ? null : grid.range);
+    selectBlock(table.length, clipboardWidth(table), !transposed, true, (i, j) => (table[i]?.[j] ?? '') !== '');
+  }
+
+  async function copyToClipboard(cut) {
+    if (grid.editing) { document.execCommand?.(cut ? 'cut' : 'copy'); return; }
+    const c = snapshotClip(cut);
+    if (!c) return;
+    // Return focus before the clipboard permission/write can wait. A late
+    // completion must not interrupt an edit or control focused meanwhile.
+    grid.focus();
+    try {
+      if (navigator.clipboard?.write && typeof ClipboardItem !== 'undefined') {
+        await navigator.clipboard.write([new ClipboardItem({ 'text/plain': new Blob([c.text], { type: 'text/plain' }), 'text/html': new Blob([c.html], { type: 'text/html' }) })]);
+      } else await navigator.clipboard?.writeText(c.text);
+    } catch { /* internal clipboard still works */ }
+    if (destroyed) return;
+    toast(cut ? t('editor.clip.cut') : t('editor.clip.copied'), { icon: cut ? 'cut' : 'copy', duration: cut ? 2200 : 1200 });
+  }
+
+  /** The Paste Special dialog over what the clipboard holds; another app's content greys what it cannot carry. */
+  async function openPasteSpecial() {
+    if (grid.editing) return;
+    if (wb.sheet(grid.sheetId)?.kind === 'chart') { statusBar?.announce(t('editor.paste.chooseWorksheet')); return; }
+    if (!oneRange('paste into')) return;
+    const read = await readClipboard();
+    if (!read) return;
+    if (read.picture) { insertPastedImage(read.picture); return; }
+    if (pasteBehindObject()) return;
+    const external = !isInternal(read.text, read.html);
+    const go = (paste) => { pasteAndOffer(read.text, read.html, paste); grid.focus(); };
+    openPasteSpecialDialog({ external, onPaste: go, onPasteLink: () => go({ link: true }), onClose: () => keepFocus() });
+  }
+
+  /**
+   * What the clipboard holds: { text, html, picture }, or null (after saying so) when the read went stale
+   * because the sheet or selection changed while it waited, or there is nothing to paste.
+   */
+  async function readClipboard() {
+    const target = { sheetId: grid.sheetId, range: { ...grid.range }, version: wb.version };
+    let text = null;
+    let html = '';
+    let picture = null;
+    // A clipboard read that waits on a permission prompt must not stall the
+    // paste: after a moment, fall back to what was last copied here.
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(undefined), 1200));
+    try {
+      if (navigator.clipboard?.read) {
+        const items = await Promise.race([navigator.clipboard.read(), timeout]);
+        let pictureOf = null;
+        for (const item of items || []) {
+          if (item.types.includes('text/html')) html = await (await item.getType('text/html')).text();
+          if (item.types.includes('text/plain')) text = await (await item.getType('text/plain')).text();
+          const image = item.types.find((type) => type.startsWith('image/'));
+          if (image) pictureOf = () => item.getType(image);
+        }
+        if (items && text == null) text = '';
+        // A picture (a screenshot, an image copied from a page) is pasted as one, as the shortcut does:
+        // with no text, and no HTML or HTML that holds no table (a page's "Copy image" brings an <img>
+        // fragment). Cells copied from Excel come with a picture too, which is never read; the text wins.
+        if (pictureOf && !text && (!html || !parseHtmlClipboard(html))) picture = await pictureOf();
+      } else text = (await Promise.race([navigator.clipboard?.readText(), timeout])) ?? null;
+    } catch { text = null; }
+    if (destroyed) return null;
+    // A clipboard permission prompt or slow read can outlive the selection.
+    // Never overwrite cells the user moved to or edited while it was pending.
+    if (grid.editing || grid.sheetId !== target.sheetId || wb.version !== target.version
+      || ['r1', 'c1', 'r2', 'c2'].some((key) => grid.range[key] !== target.range[key])) {
+      toast(t('editor.paste.changed'), { icon: 'info', duration: 3500 });
+      return null;
+    }
+    if (picture) return { text: '', html: '', picture };
+    if (text == null) {
+      if (!clip) { toast(t('editor.paste.nothing'), { icon: 'info' }); return null; }
+      text = '';
+    }
+    return { text, html, picture: null };
+  }
+
+  async function pasteFromClipboard({ valuesOnly = false, mode = null, paste = null } = {}) {
+    if (grid.editing) { document.execCommand?.('paste'); return; }
+    if (!oneRange('paste into')) return; // said before the clipboard is read, which can wait on a permission prompt
+    // Paste Special ▸ Picture and Linked Picture: a picture of the cells copied here.
+    if (paste?.picture) {
+      if (!clip || clip.cut || clip.multi || !wb.sheet(clip.sheetId)) { toast(t('editor.paste.copyRangeFirst'), { icon: 'info', duration: 3000 }); keepFocus(); return; }
+      pictures.run('pastePicture', { linked: paste.picture === 'linked', source: { sheetId: clip.sheetId, range: clip.range } });
+      return;
+    }
+    const read = await readClipboard();
+    if (!read) return;
+    if (read.picture) { insertPastedImage(read.picture); return; }
+    if (pasteBehindObject()) return;
+    pasteAndOffer(read.text, read.html, paste ?? mode ?? (valuesOnly ? 'values' : 'all'));
+    grid.focus();
+  }
+
+  /**
+   * Cells pasted while a chart, picture or other object is selected would land in the cells selected behind it,
+   * out of sight (the chart's own data, just after inserting it): the paste is refused, and said so.
+   */
+  function pasteBehindObject() {
+    if (!grid.selectedChart) return false;
+    toast(t('editor.paste.selectTarget'), { icon: 'info', duration: 2500 });
+    keepFocus();
+    return true;
+  }
+
+  /**
+   * Paste, then offer the Paste Options button at the pasted block's corner, which pastes the same
+   * clipboard again another way (see repasteWith). Nothing is offered after a move (a cut pasted) or a
+   * paste that changed nothing.
+   */
+  function pasteAndOffer(text, html, paste) {
+    const before = wb.historyTop;
+    const from = { sheetId: grid.sheetId, range: { ...grid.range }, active: { ...grid.active } };
+    const internal = isInternal(text, html);
+    const moving = internal && clip.cut && legacyMode(pasteOptions(paste)) === 'all';
+    applyPaste(text, { html, paste });
+    const mark = wb.historyTop;
+    if (moving || !mark || mark === before) { optionButton.hide(); return; }
+    lastPaste = { text, html, paste: pasteOptions(paste), from, mark, external: !internal };
+    if (!appOption('pasteOptionsButton')) { optionButton.hide(); return; } // turned off in the options
+    optionButton.show({
+      kind: 'paste', sheetId: grid.sheetId, range: { ...grid.range }, mark,
+      // The pictures of the cells are pastes of their own, not another way of pasting these cells.
+      items: pasteGallery({ external: !internal }).filter((item) => !item.paste?.picture).map((item) => (item.header ? item : { ...item, key: JSON.stringify(pasteOptions(item.paste)) })),
+      checked: JSON.stringify(lastPaste.paste),
+      onPick: (item) => repasteWith(item.paste),
+    });
+  }
+
+  /** The Paste Options button's choice: the last paste undone and done again with these options, as one step. */
+  function repasteWith(paste) {
+    const last = lastPaste;
+    if (!last || wb.historyTop !== last.mark || grid.editing || grid.sheetId !== last.from.sheetId) { optionButton.hide(); return; }
+    historyMove = 'undo';
+    try { wb.undo(); } finally { historyMove = 'push'; }
+    grid.setSelection(S.fromRange(last.from.range, last.from.active), { scroll: false });
+    pasteAndOffer(last.text, last.html, paste);
+    grid.focus();
+  }
+
+  /**
+   * What Flash Fill would write in column `c` around row `r`: the examples typed in the column teach the pattern
+   * from the cells beside them. { entries, examples, rows }: the cells to fill, how many examples taught it, and
+   * the rows looked at ({ r, target }).
+   */
+  const flashFillShown = (sheetId, r, c) => { const v = wb.getValue(sheetId, r, c); return v == null || (typeof v === 'object') ? null : wb.getDisplay(sheetId, r, c); };
+  const flashFillTarget = (sheetId, r, c) => { const cell = wb.getCell(sheetId, r, c); return cell?.v != null || cell?.f != null ? flashFillShown(sheetId, r, c) : null; };
+  /** Whether a cell is one of Flash Fill's examples: an entry of its own that shows something. */
+  const flashFillExample = (sheetId, r, c) => { const target = flashFillTarget(sheetId, r, c); return target != null && target !== ''; };
+  function flashFillPlan(sheetId, r, c, region = wb.dataRegion(sheetId, r, c)) {
+    region ||= { r1: r, c1: c, r2: r, c2: c };
+    const area = { r1: region.r1, r2: region.r2, c1: Math.min(region.c1, c - 1 >= 0 ? c - 1 : c), c2: Math.max(region.c2, c) };
+    const cols = [];
+    for (let cc = area.c1; cc <= area.c2; cc++) if (cc !== c) cols.push(cc);
+    const rows = [];
+    for (let rr = area.r1; rr <= area.r2; rr++) rows.push({ r: rr, sources: cols.map((cc) => flashFillShown(sheetId, rr, cc)), target: flashFillTarget(sheetId, rr, c) });
+    // A header above the examples fits no pattern: try again without the first row before giving up.
+    let filled = flashFill(rows), from = 0;
+    if (!filled && rows.length > 1) { filled = flashFill(rows.slice(1)); from = 1; }
+    const entries = [];
+    if (filled) filled.forEach((text, i) => { const row = rows[i + from]; if (text != null && text !== '' && row.sources.some((v) => v != null)) entries.push({ r: row.r, c, cell: { v: text, f: null, s: wb.getCell(sheetId, row.r, c)?.s } }); });
+    return { entries, examples: filled ? rows.slice(from).filter((row) => row.target != null && row.target !== '').length : 0, rows: rows.slice(from) };
+  }
+
+  /**
+   * Flash Fill as you type (the options): once a second example in a row follows a pattern from the cells beside
+   * it, and the column below is still empty, a notice offers to fill the rest the same way.
+   */
+  let flashOffer = null;
+  function offerFlashFill(sheetId, r, c) {
+    flashOffer?.dismiss?.();
+    flashOffer = null;
+    if (!appOption('autoFlashFill') || grid.sheetId !== sheetId || r < 1) return;
+    const above = wb.getCell(sheetId, r - 1, c);
+    if (above?.v == null || above.f != null || typeof wb.getValue(sheetId, r, c) !== 'string') return;
+    // Only a cell below the one just typed can be offered, and only while the cell under it is still empty. A row
+    // added at the foot of a list, or an entry changed inside a filled column, is neither: the plan below reads every
+    // cell of the list (200 ms over 20,000 rows) and was worked out after every such entry only to be thrown away.
+    const region = wb.dataRegion(sheetId, r, c);
+    if (!region || region.r2 <= r || flashFillExample(sheetId, r + 1, c)) return;
+    const { entries, examples, rows } = flashFillPlan(sheetId, r, c, region);
+    // The examples must be the column's first entries, the one just typed the last of them, with only blanks below.
+    const typed = rows.filter((row) => row.target != null && row.target !== '').map((row) => row.r);
+    if (examples < 2 || !entries.length || typed.at(-1) !== r || typed.some((rr, i) => i && rr !== typed[i - 1] + 1) || entries.some((e) => e.r < r)) return;
+    const mark = wb.historyTop;
+    flashOffer = toast(t('editor.flashFill.offer', { count: entries.length }), {
+      icon: 'flashFill', duration: 8000,
+      action: { label: t('editor.flashFill.fill'), onClick: () => {
+        // Only while the sheet is as it was when offered: an edit since may have changed the pattern.
+        if (destroyed || wb.historyTop !== mark || grid.editing) return;
+        if (wb.setCells(sheetId, entries, t('editor.undo.flashFill'))) statusBar?.announce(t('editor.flashFill.changedCells', { count: entries.length }));
+        keepFocus();
+      } },
+    });
+  }
+
+  /** After a fill-handle drag: the Auto Fill Options button, to fill the same cells again another way. */
+  function offerAutoFill({ source, target, inverted = false }, kind = null) {
+    const mark = wb.historyTop;
+    if (!mark) return;
+    const sheetId = grid.sheetId;
+    lastFill = { sheetId, source: normalizeRange(source), target: normalizeRange(target), mark, kind: kind || defaultAutoFill(wb, sheetId, source, target, inverted) };
+    if (!appOption('fillOptionsButton')) { optionButton.hide(); return; } // turned off in the options
+    optionButton.show({
+      kind: 'fill', sheetId, range: lastFill.target, mark,
+      items: autoFillChoices(wb, sheetId, source, target).map(([key, label]) => ({ key, label })),
+      checked: lastFill.kind,
+      onPick: (item) => refillWith(item.key),
+    });
+  }
+
+  /** The Auto Fill Options button's choice: the fill undone and done again that way, as one step. */
+  function refillWith(kind) {
+    const last = lastFill;
+    if (!last || wb.historyTop !== last.mark || grid.editing || grid.sheetId !== last.sheetId) { optionButton.hide(); return; }
+    historyMove = 'undo';
+    try { wb.undo(); } finally { historyMove = 'push'; }
+    const { sheetId, source, target } = last;
+    if (kind === 'flash') {
+      // Flash Fill learns from the cells dragged from and fills the rest of their column.
+      const below = target.r2 > source.r2;
+      grid.setSelection(S.fromRange(target, { r: below ? source.r2 + 1 : target.r1, c: source.c1 }), { scroll: false });
+      run('flashFill');
+    } else {
+      refill(wb, sheetId, source, target, kind);
+      grid.setSelection(S.fromRange(target, { r: source.r1, c: source.c1 }), { scroll: false });
+    }
+    if (wb.historyTop && wb.historyTop !== last.mark) offerAutoFill({ source, target }, kind);
+    grid.focus();
+  }
+
+  /**
+   * Run a workbook edit, noting whether the workbook explained a refusal itself (a protected range, an array formula
+   * or a pivot table in the way), so the caller does not follow that notice with a guess of its own. [result, said].
+   */
+  function refusalSaid(sheetId, edit) {
+    let said = false;
+    // A sheet grouped with this one refuses the edit for the whole group, and says so for itself.
+    const onRefusal = ({ detail }) => { if (['protected', 'array-edit', 'pivot-edit'].includes(detail?.type) && (detail.sheetId === sheetId || wb.isSheetGrouped(detail.sheetId))) said = true; };
+    wb.addEventListener('change', onRefusal);
+    try { return [edit(), said]; } finally { wb.removeEventListener('change', onRefusal); }
+  }
+
+  /**
+   * Home ▸ Fill ▸ Justify: the text in the selection's first column, rejoined and broken again into lines
+   * as wide as the selected columns, one line a cell down the column. A blank cell keeps paragraphs apart.
+   */
+  function fillJustify() {
+    const sheetId = grid.sheetId;
+    const range = grid.range;
+    const c = range.c1;
+    let last = range.r2;
+    // One row selected takes the text from there down to the first blank.
+    if (range.r1 === range.r2) while (last + 1 < sheetLimits(sheetId).rows && wb.getCell(sheetId, last + 1, c)?.v != null) last++;
+    const texts = [];
+    for (let r = range.r1; r <= last; r++) {
+      const cell = wb.getCell(sheetId, r, c);
+      if (cell?.f != null || (cell?.v != null && typeof cell.v !== 'string')) {
+        toast(t('editor.justify.textOnly'), { icon: 'info', duration: 3500 });
+        return;
+      }
+      texts.push(cell?.v ?? null);
+    }
+    if (!texts.some((tx) => tx != null && String(tx).trim())) { toast(t('editor.justify.noText'), { icon: 'info' }); return; }
+    let width = 0;
+    for (let cc = range.c1; cc <= range.c2; cc++) width += wb.colWidth(sheetId, cc);
+    const style = wb.styleAt(sheetId, range.r1, c);
+    const canvas = document.createElement('canvas').getContext('2d');
+    const css = getComputedStyle(grid.el);
+    const baseSize = parseFloat(css.getPropertyValue('--grid-font-size')) || 13;
+    canvas.font = `${style?.italic ? 'italic ' : ''}${style?.bold ? '600 ' : ''}${style?.size || baseSize}px ${fontStack(style?.font) || css.fontFamily || 'system-ui'}`;
+    const lines = justifyLines(texts, Math.max(10, width - 8), (tx) => canvas.measureText(tx).width);
+    const end = Math.max(last, range.r1 + lines.length - 1);
+    if (range.r1 !== range.r2 && lines.length > range.r2 - range.r1 + 1) toast(t('editor.justify.runsBelow'), { icon: 'info', duration: 3000 });
+    const entries = [];
+    for (let r = range.r1; r <= end; r++) {
+      const prev = wb.getCell(sheetId, r, c);
+      const text = lines[r - range.r1] ?? '';
+      entries.push({ r, c, cell: { ...(prev || {}), v: text === '' ? null : text, f: null } });
+    }
+    if (wb.lockedIn(sheetId, { r1: range.r1, c1: c, r2: end, c2: c })) return;
+    wb.setCellsWithTableHeaders(sheetId, entries, t('editor.undo.justify'));
+    grid.setSelection(S.fromRange({ r1: range.r1, c1: range.c1, r2: range.r1 + Math.max(0, lines.length - 1), c2: range.c2 }, { r: range.r1, c: range.c1 }), { scroll: false });
+  }
+
+  /* ---------- Functions ---------- */
+
+  const COMMON_FUNCTIONS = ['SUM', 'AVERAGE', 'COUNT', 'MIN', 'MAX', 'IF', 'SUMIF', 'COUNTIF', 'VLOOKUP', 'XLOOKUP', 'ROUND', 'TODAY', 'CONCAT', 'IFERROR'];
+
+  function openFunctionMenu(anchor) {
+    const search = el('input.input', { type: 'search', placeholder: t('editor.functions.search'), 'aria-label': t('editor.functions.search'), autocomplete: 'off' });
+    const listEl = el('div.fn-list', { role: 'group' });
+    const render = () => {
+      const q = search.value.trim().toUpperCase();
+      const names = q ? FUNCTION_NAMES.filter((n) => n.includes(q)) : COMMON_FUNCTIONS;
+      listEl.replaceChildren(...[
+        !q && P.canAI() && el('button.menu-item.fn-item', {
+          type: 'button', role: 'menuitem', tabindex: -1, onclick: () => { menu.close(); run('aiFormula'); },
+        }, el('span.menu-icon', { html: icon('sparkle', 16) }), el('span.menu-label', {}, el('span.fn-name', {}, t('editor.functions.aiFormula')), el('span.fn-desc', {}, t('editor.functions.aiFormulaDescription')))),
+        !q && el('div.menu-header', {}, t('editor.functions.common')),
+        ...names.slice(0, 40).map((n) => el('button.menu-item.fn-item', {
+          type: 'button', role: 'menuitem', tabindex: -1, title: signatureFor(n).params ? `${n}(${signatureFor(n).params})` : n,
+          onclick: () => { menu.close(); insertFunction(n); },
+        }, el('span.menu-icon', { html: icon('fx', 16) }), el('span.menu-label', {}, el('span.fn-name', {}, n), signatureFor(n).description && el('span.fn-desc', {}, signatureFor(n).description)))),
+        !names.length && el('div.menu-header', {}, t('editor.functions.noMatches')),
+        el('div.menu-sep', { role: 'separator' }),
+        el('button.menu-item.fn-item', { type: 'button', role: 'menuitem', tabindex: -1, onclick: () => { menu.close(); run('insertFunctionDialog'); } },
+          el('span.menu-icon', { html: icon('fx', 16) }), el('span.menu-label', {}, el('span.fn-name', {}, t('editor.functions.more')), el('span.fn-desc', {}, t('editor.functions.moreDescription')))),
+      ].filter(Boolean)); // replaceChildren would print a bare `false`
+    };
+    search.addEventListener('input', render);
+    search.addEventListener('keydown', (e) => {
+      if (isComposing(e)) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); listEl.querySelector('button')?.focus(); }
+      if (e.key === 'Enter') { e.preventDefault(); listEl.querySelector('button')?.click(); }
+    });
+    render();
+    const menu = openMenu({
+      anchor: anchor || formulaBar.el.querySelector('.fx-btn'), label: t('editor.functions.insert'), minWidth: 260,
+      items: [{ custom: el('div.fn-search', {}, search) }, { custom: listEl }],
+      onClose: () => keepFocus(),
+    });
+    setTimeout(() => search.focus(), 0);
+  }
+
+  /** Insert =NAME( with a guessed range for the aggregate functions. */
+  function insertFunction(name) {
+    rememberFunction(name);
+    const aggregate = ['SUM', 'AVERAGE', 'COUNT', 'MIN', 'MAX', 'MEDIAN', 'PRODUCT'].includes(name);
+    if (grid.editing) {
+      // An entry with nothing typed yet (F2 or a double-click on an empty cell, the formula bar clicked) starts a
+      // formula with it, as Excel's does: "SUM(" alone went in as text.
+      grid.insertText(`${grid.editState?.text ? '' : '='}${name}(`);
+      return;
+    }
+    // An aggregate over a Ctrl/Cmd+click selection of several ranges has no one range to add up and no one
+    // place for the result: refused with a word, rather than the last range added summed in silence.
+    if (aggregate && !S.isSingle(grid.selection) && !oneRange('insert a function')) return;
+    const { r, c } = grid.active;
+    let guess = '';
+    if (aggregate && !S.isSingle(grid.selection)) {
+      guess = rangeName(grid.range);
+    } else if (aggregate) {
+      const isNum = (rr, cc) => typeof wb.getValue(grid.sheetId, rr, cc) === 'number';
+      let rr = r - 1;
+      while (rr >= 0 && isNum(rr, c)) rr--;
+      if (rr < r - 1) guess = rangeName({ r1: rr + 1, c1: c, r2: r - 1, c2: c });
+      else {
+        let cc = c - 1;
+        while (cc >= 0 && isNum(r, cc)) cc--;
+        if (cc < c - 1) guess = rangeName({ r1: r, c1: cc + 1, r2: r, c2: c - 1 });
+      }
+    }
+    if (!S.isSingle(grid.selection) && aggregate) {
+      // With a range selected, the result goes beside it: right of a single
+      // row, otherwise under the last cell with content in the selected
+      // columns (a whole column would put it past the end of the sheet).
+      const range = grid.range;
+      const acrossRow = range.r1 === range.r2;
+      const last = lastUsedLine(range, acrossRow ? 'col' : 'row');
+      let arg = range;
+      let target;
+      if (acrossRow) {
+        const c = last == null ? range.c2 + 1 : Math.min(last + 1, range.c2 + 1);
+        if (c <= range.c2) arg = { ...range, c2: c - 1 };
+        target = { r: range.r1, c };
+      } else {
+        const r = last == null ? range.r2 + 1 : Math.min(last + 1, range.r2 + 1);
+        if (r <= range.r2) arg = { ...range, r2: r - 1 };
+        target = { r, c: range.c1 };
+      }
+      if (!wb.canEnsureSize(grid.sheetId, target.r + 1, target.c + 1)) { toast(t('editor.functions.noRoom'), { icon: 'info' }); return; }
+      // Several columns each get their own result in the row under them, as Excel's AutoSum gives each column its
+      // total: one =SUM(A1:C5) under the first column added the three columns together.
+      if (!acrossRow && arg.c1 < arg.c2) {
+        const totals = [];
+        for (let cc = arg.c1; cc <= arg.c2; cc++) totals.push({ r: target.r, c: cc, text: `=${name}(${rangeName({ ...arg, c1: cc, c2: cc })})` });
+        const empty = totals.every(({ r: tr, c: tc }) => { const cell = wb.getCell(grid.sheetId, tr, tc); return !cell || (cell.v == null && cell.f == null); });
+        if (empty) {
+          const row = { r1: target.r, c1: arg.c1, r2: target.r, c2: arg.c2 };
+          if (wb.lockedIn(grid.sheetId, row)) return;
+          if (totals.some(({ r: tr, c: tc, text }) => !allowedByRule(wb.validateInput(grid.sheetId, tr, tc, text)))) return;
+          wb.transaction(t('editor.undo.insertFunction', { name }), () => { for (const { r: tr, c: tc, text } of totals) wb.setInput(grid.sheetId, tr, tc, text); });
+          grid.setSelection(S.fromRange(row, { r: target.r, c: arg.c1 }));
+          grid.focus();
+          return;
+        }
+      }
+      guess = rangeName(arg);
+      const existing = wb.getCell(grid.sheetId, target.r, target.c);
+      if (!existing || (existing.v == null && existing.f == null)) {
+        // A protected cell: the workbook says so and would refuse the formula, so the selection stays where it is.
+        if (wb.lockedAt(grid.sheetId, target.r, target.c)) return;
+        const text = `=${name}(${guess})`;
+        if (!allowedByRule(wb.validateInput(grid.sheetId, target.r, target.c, text))) return;
+        wb.setInput(grid.sheetId, target.r, target.c, text);
+        grid.setSelection(S.single(target.r, target.c));
+        grid.focus();
+        return;
+      }
+      // Something is there already: offer the formula for editing instead of writing over it.
+      grid.setSelection(S.single(target.r, target.c));
+    }
+    grid.beginEdit({ text: `=${name}(${guess}${guess ? ')' : ''}`, mode: 'inplace' });
+    if (guess) {
+      // Leave the caret inside the parentheses so the range can be adjusted.
+      const ta = grid.el.querySelector('.grid-editor');
+      const pos = `=${name}(`.length;
+      ta?.setSelectionRange(pos, pos + guess.length);
+    }
+  }
+
+  /** The last row (or column) inside `range` holding a value or formula, or null when the range is empty. */
+  function lastUsedLine(range, axis) {
+    let last = null;
+    for (const [key, cell] of wb.sheet(grid.sheetId).cells) {
+      if (cell.v == null && cell.f == null) continue;
+      const i = key.indexOf(',');
+      const r = Number(key.slice(0, i));
+      const c = Number(key.slice(i + 1));
+      if (r < range.r1 || r > range.r2 || c < range.c1 || c > range.c2) continue;
+      const line = axis === 'row' ? r : c;
+      if (last == null || line > last) last = line;
+    }
+    return last;
+  }
+
+  /* ---------- File ---------- */
+
+  // "Leave without saving" was chosen: the navigation that follows flushes
+  // again (the router does), and must not ask a second time. Any new edit
+  // makes the question worth asking again.
+  let abandoned = false;
+  // The flush under way: a second caller (the router flushes again on the way
+  // out) waits for its answer rather than saving and asking a second time.
+  let flushing = null;
+  // While a flush on the way out saves, a conflict its save raises (the kind, once raised) is answered
+  // in the leave dialog, which can also leave, rather than in the conflict dialog, which cannot.
+  let leavingSave = null;
+  /**
+   * Save before the document is left (or, with leaving false, before an
+   * operation that needs the file). True when it is safe to go on.
+   */
+  function flush(opts) {
+    if (!flushing) flushing = runFlush(opts).finally(() => { flushing = null; });
+    return flushing;
+  }
+
+  async function runFlush({ leaving = true } = {}) {
+    if (grid.editing && !grid.commitEdit()) return false;
+    // Code typed into the Code Editor goes into the workbook after a short pause: what was typed in it goes too.
+    automate?.flush();
+    if (doc.status === 'saved' && !doc.hasPendingWrites) return true;
+    doc.writeDraft();
+    if (session.signedOut && wb.dirty) {
+      if (abandoned) return true;
+      // Nowhere to write without a session: keep editing, leave the edits to
+      // the local draft, or sign in so the save below can go through.
+      const choice = leaveDialog ? await leaveDialog() : 'stay';
+      if (destroyed) return false;
+      // The dialog handed focus back to the button that opened it; editing continues in the grid.
+      if (choice === 'stay') { keepFocus(); return false; }
+      if (choice === 'leave') { abandoned = true; return true; }
+      if (!await session.signIn() || destroyed) return false;
+      if (grid.editing && !grid.commitEdit()) return false;
+    }
+    // A new file is saved where the user puts it, in Puter's Save dialog (see doc.asksWhereToSave). On the way
+    // out leaving is offered beside it, the draft keeping the edits: the dialog alone would be no way out but saving.
+    const asked = wb.dirty && doc.asksWhereToSave;
+    if (asked && leaving) {
+      if (abandoned) return true;
+      const choice = await unsavedLeaveDialog(doc.draftKept !== false);
+      if (destroyed) return false;
+      if (choice === 'leave') { abandoned = true; return true; }
+      if (choice !== 'save') { keepFocus(); return false; }
+      if (grid.editing && !grid.commitEdit()) return false;
+    }
+    // This flush's own marker: "Overwrite with mine" and "Try again" run another flush, which installs
+    // one of its own, and this one must leave that in place on the way out — cleared, the conflict that
+    // flush's save raises lands in the dialog that cannot leave, after the navigation was already refused.
+    const mine = leaving ? { kind: null } : null;
+    // Leaving was chosen while a save hung: the router's flush on the way out neither waits for it again nor
+    // queues another behind it, which would run in the closed document once the first one settled.
+    if (leaving && abandoned && doc.hasPendingWrites) return true;
+    try {
+      if (leaving) leavingSave = mine;
+      // The Save dialog is the user's to take time over: no "Still saving" question is put while it is open.
+      let saved = await (leaving && !asked ? whileSaving(doc.save()) : doc.save());
+      if (saved === LEAVE_NOW) { abandoned = true; return true; }
+      if (saved === STAY) { keepFocus(); return false; }
+      while (saved) {
+        // A save can finish while a new entry is still in the cell editor.
+        // Commit and validate that entry before deciding navigation is safe.
+        if (grid.editing && !grid.commitEdit()) return false;
+        if (!wb.dirty) break;
+        saved = await doc.save();
+      }
+      // The file is not as this document last saw it (changed, moved or deleted elsewhere, or not to be
+      // checked), so the save asked instead of writing. That must not keep the user here: the draft
+      // written above holds the edits on this device, so leaving is offered along with overwriting.
+      const kind = leavingSave?.kind;
+      if (!saved && kind && doc.status === 'conflict') {
+        if (abandoned) return true;
+        const kept = !wb.dirty || doc.writeDraft();
+        const choice = await conflictLeaveDialog(kind, kept);
+        if (destroyed) return false;
+        if (choice === 'leave') { abandoned = true; return true; }
+        if (choice === 'overwrite') { if (await overwriteWithMine() === null) return false; return runFlush({ leaving }); }
+        keepFocus();
+        return false;
+      }
+      return saved;
+    } catch (e) {
+      if (destroyed) return false;
+      if (!leaving) { toast(t('editor.save.failedStillOpen'), { icon: 'alert', duration: 5000 }); return false; }
+      // Puter would not take the save (offline, out of space). The draft
+      // written above keeps the edits on this device, so a save that keeps
+      // failing must not keep the user in the editor for ever.
+      if (abandoned) return true;
+      const kept = !wb.dirty || doc.writeDraft();
+      const choice = await saveFailedDialog(!P.unreachable(e) ? e?.message : navigator.onLine === false ? t('editor.save.offline') : t('editor.save.unreachable'), kept);
+      if (destroyed) return false;
+      if (choice === 'retry') return runFlush({ leaving });
+      if (choice === 'leave') { abandoned = true; return true; }
+      keepFocus();
+      return false;
+    } finally { if (leavingSave === mine) leavingSave = null; }
+  }
+
+  // A save on the way out still going after this long (a slow or stalled connection) offers to leave anyway: left
+  // alone, the editor sat there with nothing said for as long as the request hung, Back pressed again doing nothing.
+  const SLOW_LEAVE_MS = 10_000;
+  const LEAVE_NOW = Symbol('leave');
+  const STAY = Symbol('stay');
+  /** The save on the way out (`saving`), or LEAVE_NOW or STAY when it takes so long that the user is asked and answers. */
+  async function whileSaving(saving) {
+    const settled = saving.then(() => true, () => true);
+    for (;;) {
+      let timer;
+      const done = await Promise.race([settled, new Promise((resolve) => { timer = setTimeout(resolve, SLOW_LEAVE_MS, false); })]);
+      clearTimeout(timer);
+      if (done || destroyed) return saving;
+      // The draft follows the edits made while it waited: leaving now leaves them on this device.
+      const ask = stillSavingDialog(!wb.dirty || doc.writeDraft());
+      const choice = await Promise.race([ask.answer, settled.then(() => 'saved')]);
+      ask.close();
+      if (destroyed || choice === 'saved') return saving;
+      if (choice === 'leave') return LEAVE_NOW;
+      if (choice === 'stay') return STAY;
+      // 'wait': asked again if it still has not finished a while later.
+    }
+  }
+
+  /** The save on the way out is taking long: wait for it, keep editing (it goes on), or leave (the local draft keeps the edits). */
+  function stillSavingDialog(kept) {
+    let resolve;
+    const answer = new Promise((done) => { resolve = done; });
+    const content = el('div', {},
+      el('p.modal-text', {}, kept
+        ? (room ? t('editor.stillSaving.keptShared', { name: doc.name }) : t('editor.stillSaving.kept', { name: doc.name }))
+        : t('editor.stillSaving.notKept', { name: doc.name })),
+      el('div.row.row-end', { style: { flexWrap: 'wrap' } },
+        el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, t('editor.leave.keepEditing')),
+        el(`button.btn${kept ? '' : '.btn-danger'}`, { type: 'button', onclick: () => { resolve('leave'); modal.close(); } }, kept ? t('editor.leave.leave') : t('editor.leave.leaveWithoutSaving')),
+        el('button.btn.btn-primary', { type: 'button', onclick: () => { resolve('wait'); modal.close(); } }, t('editor.stillSaving.wait'))));
+    const modal = openModal({ title: t('editor.stillSaving.title'), content, onClose: () => resolve('stay') });
+    return { answer, close: () => modal.close() };
+  }
+
+  /**
+   * The save on the way out found the file changed elsewhere, moved or deleted, or not to be checked: leave
+   * (the local draft keeps the edits, to be offered again), keep editing, or write this version over what is there.
+   */
+  function conflictLeaveDialog(kind, kept) {
+    return new Promise((resolve) => {
+      const missing = kind === 'missing';
+      const unchecked = kind === 'unchecked';
+      const values = { name: doc.name, path: doc.path };
+      const message = missing ? (kept ? t('editor.conflict.missingKept', values) : t('editor.conflict.missingNotKept', values))
+        : unchecked ? (kept ? t('editor.conflict.uncheckedKept', values) : t('editor.conflict.uncheckedNotKept', values))
+          : kept ? t('editor.conflict.changedKept', values) : t('editor.conflict.changedNotKept', values);
+      const content = el('div', {},
+        el('p.modal-text', {}, message),
+        el('div.row.row-end', { style: { flexWrap: 'wrap' } },
+          el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, t('editor.leave.keepEditing')),
+          el(`button.btn${kept ? '' : '.btn-danger'}`, { type: 'button', onclick: () => { resolve('leave'); modal.close(); } }, kept ? t('editor.leave.leave') : t('editor.leave.leaveWithoutSaving')),
+          el(`button.btn${missing || unchecked ? '.btn-primary' : '.btn-danger'}`, { type: 'button', onclick: () => { resolve('overwrite'); modal.close(); } }, missing ? t('editor.conflict.keepItHere') : unchecked ? t('editor.conflict.saveAnyway') : t('editor.conflict.overwriteWithMine'))));
+      const modal = openModal({ title: missing ? t('editor.conflict.missingTitle') : unchecked ? t('editor.conflict.uncheckedTitle') : t('editor.conflict.changedTitle'), content, onClose: () => resolve('stay') });
+    });
+  }
+
+  /**
+   * A new spreadsheet, never saved, is left: save it (Puter's Save dialog asks where), keep editing, or leave (the local
+   * draft keeps the edits). A file of another kind opened from the drive (a .csv) is on Puter already, and its draft is
+   * kept under its address, offered again when it is opened, not listed under Unsaved spreadsheets.
+   */
+  function unsavedLeaveDialog(kept) {
+    return new Promise((resolve) => {
+      const file = doc.path ? P.displayName(doc.path) : null;
+      const content = el('div', {},
+        el('p.modal-text', {}, file
+          ? (kept ? t('editor.unsaved.fileKept', { file }) : t('editor.unsaved.fileNotKept', { file }))
+          : kept ? t('editor.unsaved.newKept', { name: doc.name }) : t('editor.unsaved.newNotKept', { name: doc.name })),
+        el('div.row.row-end', { style: { flexWrap: 'wrap' } },
+          el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, t('editor.leave.keepEditing')),
+          el(`button.btn${kept ? '' : '.btn-danger'}`, { type: 'button', onclick: () => { resolve('leave'); modal.close(); } }, kept ? t('editor.leave.leave') : t('editor.leave.leaveWithoutSaving')),
+          el('button.btn.btn-primary', { type: 'button', onclick: () => { resolve('save'); modal.close(); } }, t('editor.unsaved.save'))));
+      const modal = openModal({ title: t('editor.unsaved.title'), content, onClose: () => resolve('stay') });
+    });
+  }
+
+  /** The save failed on the way out: leave (the local draft keeps the edits), keep editing, or try again. */
+  function saveFailedDialog(reason, kept) {
+    return new Promise((resolve) => {
+      const values = { hasWhy: String(!!reason), why: reason ? String(reason).replace(/\.$/, '') : '' };
+      const content = el('div', {},
+        el('p.modal-text', {}, kept
+          ? (room ? t('editor.saveFailed.keptShared', values) : t('editor.saveFailed.kept', values))
+          : t('editor.saveFailed.notKept', values)),
+        el('div.row.row-end', { style: { flexWrap: 'wrap' } },
+          el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, t('editor.leave.keepEditing')),
+          el(`button.btn${kept ? '' : '.btn-danger'}`, { type: 'button', onclick: () => { resolve('leave'); modal.close(); } }, kept ? t('editor.leave.leave') : t('editor.leave.leaveWithoutSaving')),
+          el('button.btn.btn-primary', { type: 'button', onclick: () => { resolve('retry'); modal.close(); } }, t('editor.saveFailed.retry'))));
+      const modal = openModal({ title: t('editor.saveFailed.title'), content, onClose: () => resolve('stay') });
+    });
+  }
+
+  /** The open file is not where it was: save the edits as a new file, put the file back at its old address, or keep working (the local draft holds the edits). */
+  function missingFileDialog() {
+    return new Promise((resolve) => {
+      const content = el('div', {},
+        el('p.modal-text', {}, t('editor.missingFile.message', { name: doc.name, path: doc.path })),
+        el('div.row.row-end', { style: { flexWrap: 'wrap' } },
+          el('button.btn.btn-ghost', { type: 'button', onclick: () => modal.close() }, t('editor.leave.keepEditing')),
+          el('button.btn', { type: 'button', onclick: () => { resolve('keep'); modal.close(); } }, t('editor.conflict.keepItHere')),
+          el('button.btn.btn-primary', { type: 'button', onclick: () => { resolve('saveAs'); modal.close(); } }, t('editor.missingFile.saveAsNew'))));
+      const modal = openModal({ title: t('editor.conflict.missingTitle'), content, onClose: () => resolve('stay') });
+    });
+  }
+
+  /**
+   * "Overwrite with mine" (or "Save anyway", "Keep it here"): what the file holds is kept in Version history first, as
+   * the dialogs say (see Doc#forceSave). When it cannot be, nothing is written until the user says to overwrite it all
+   * the same. True once written, false when it was not (the status says why), null when the user chose not to.
+   */
+  async function overwriteWithMine() {
+    try { return await doc.forceSave(); }
+    catch (e) {
+      if (e?.message !== THEIRS_NOT_KEPT || destroyed) return false;
+      const why = P.unreachable(e.cause) ? (navigator.onLine === false ? t('editor.save.offline') : t('editor.save.unreachable')) : (e.cause?.message || e.cause?.error?.message || '');
+      const anyway = await confirmDialog({
+        title: t('editor.overwrite.title'),
+        message: t('editor.overwrite.message', { name: doc.name, hasWhy: String(!!why), why: why ? String(why).replace(/\.$/, '') : '' }),
+        confirmLabel: t('editor.overwrite.confirm'), cancelLabel: t('common.cancel'), danger: true, dismissValue: null,
+      });
+      if (destroyed) return false;
+      if (!anyway) { keepFocus(); return null; }
+      return doc.forceSave({ keepTheirs: false }).catch(() => false);
+    }
+  }
+
+  async function saveNow() {
+    if (grid.editing && !grid.commitEdit()) return;
+    automate?.flush();
+    // Saving needs a session; Puter's own dialog asks for it, then the save goes ahead.
+    if (session.signedOut && (!await session.signIn() || destroyed)) return;
+    try {
+      const saved = await doc.save();
+      if (saved && !wb.dirty) toast(t('editor.save.saved'), { icon: 'cloud', duration: 1200 });
+    } catch (e) {
+      toast(P.unreachable(e) ? P.failureText(e, t('editor.saveFailed.title')) : t('editor.save.failedWith', { error: e?.message || t('editor.unknownError') }), { icon: 'alert', duration: 5000 });
+    }
+  }
+
+  // What the file is named before its .xlsx, as the rename and the copy will write it: ".xlsx" alone names nothing.
+  const fileBaseName = (v) => P.sanitizeName(v).replace(/\.xlsx$/i, '');
+
+  async function renameDoc() {
+    const name = await promptDialog({
+      title: t('editor.rename.title'), label: t('common.name'), value: doc.name, confirmLabel: t('common.rename'),
+      validate: (v) => (fileBaseName(v) ? null : t('editor.rename.enterName')),
+    });
+    if (name == null || name === doc.name) return;
+    const err = await doc.rename(name);
+    if (destroyed) return; // the editor was left while Puter renamed; the next screen keeps its own title
+    if (err) toast(err, { icon: 'alert' });
+    else refreshTitle();
+  }
+
+  /**
+   * Sharing hands out a file: an unsaved spreadsheet is saved first, as for a link to a range. Saved by hand,
+   * not flushed: a flush has nothing to write for a blank book that was never changed. A file that is not an
+   * .xlsx (a .csv opened from the drive) is saved as one first, where its edits go from now on: shared as it
+   * was, it would never see them. Resolves whether there is a file to share now.
+   */
+  async function savedForSharing() {
+    if (grid.editing && !grid.commitEdit()) return false;
+    if (session.signedOut && (!await session.signIn() || destroyed)) return false;
+    if (!doc.path || !doc.isXlsxPath) {
+      try { await doc.save(); } catch (e) { toast(e?.message || t('editor.save.couldNotSave'), { icon: 'alert', duration: 4000 }); return false; }
+      if (destroyed) return false;
+    }
+    // Puter's Save dialog cancelled (see doc.asksWhereToSave), there is no file, or only the .csv the edits never reach.
+    if (!doc.path || !doc.isXlsxPath) { toast(t('editor.share.saveFirst'), { icon: 'info' }); return false; }
+    return true;
+  }
+
+  async function saveAs() {
+    if (grid.editing && !grid.commitEdit()) return;
+    automate?.flush();
+    if (session.signedOut && (!await session.signIn() || destroyed)) return;
+    // Inside Puter its Save dialog asks for the name and the folder; elsewhere the copy goes in the app folder, named here.
+    const name = P.asksWhereToSave() ? t('editor.saveCopy.defaultName', { name: doc.name }) : await promptDialog({
+      title: t('editor.saveCopy.title'), label: t('common.name'), value: t('editor.saveCopy.defaultName', { name: doc.name }), confirmLabel: t('editor.saveCopy.confirm'),
+      hint: t('editor.saveCopy.hint', { folder: P.FOLDER }),
+      validate: (v) => (fileBaseName(v) ? null : t('editor.rename.enterName')),
+    });
+    if (name == null) return;
+    const err = await doc.saveAs(name);
+    if (destroyed || err === CANCELLED) return;
+    if (err) toast(err, { icon: 'alert' });
+    else {
+      toast(t('editor.saveCopy.saved'), { icon: 'cloud' });
+      // A shared workbook's copy is no longer shared: it opens again as the file it is.
+      if (room) openPath(doc.path, { reload: true });
+      else refreshTitle();
+    }
+  }
+
+  async function exportFile(kind) {
+    if (grid.editing && !grid.commitEdit()) return;
+    automate?.flush();
+    try {
+      const sheet = wb.sheet(grid.sheetId);
+      const perSheet = kind === 'csv' || kind === 'tsv' || kind === 'html';
+      const blob = kind === 'csv' ? doc.toCsvBlob(grid.sheetId) : kind === 'tsv' ? doc.toTsvBlob(grid.sheetId) : kind === 'html' ? doc.toHtmlBlob(grid.sheetId) : kind === 'ods' ? await doc.toOdsBlob() : await doc.toXlsxBlob();
+      const name = perSheet ? `${P.sanitizeName(doc.name)}${wb.sheets.length > 1 ? ` - ${sheet.name}` : ''}.${kind}` : `${P.sanitizeName(doc.name)}.${kind === 'ods' ? 'ods' : 'xlsx'}`;
+      // An export goes to this device, as an import comes from it; saving to Puter is Save and Save a copy.
+      P.downloadBlob(blob, name);
+    } catch (e) {
+      toast(t('editor.export.failedWith', { error: e?.message || t('editor.unknownError') }), { icon: 'alert' });
+    }
+  }
+
+  async function leave() {
+    if (await flush()) goHome();
+  }
+
+  const fileInput = el('input', {
+    type: 'file', accept: IMPORT_EXTENSIONS.join(), hidden: true, 'aria-hidden': 'true', tabindex: -1,
+    onchange: async () => { const f = fileInput.files?.[0]; fileInput.value = ''; if (f && await flush() && !destroyed) importFile(f); },
+  });
+  // Images float over the sheet like charts and travel in the file as data URLs.
+  let replaceImageId = null;
+  let imageIntoCell = false; // the picture chosen goes into the active cell (Insert ▸ Pictures ▸ Place in Cell)
+  const imageInput = el('input', {
+    type: 'file', accept: 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml', hidden: true, 'aria-hidden': 'true', tabindex: -1,
+    onchange: async () => {
+      const f = imageInput.files?.[0];
+      imageInput.value = '';
+      const replaceId = replaceImageId, inCell = imageIntoCell;
+      replaceImageId = null; imageIntoCell = false;
+      if (f) await insertImageFile(f, { replaceId, inCell });
+    },
+  });
+  // Page Layout ▸ Background: a picture tiled behind the cells of the sheet in view.
+  let backgroundSheet = null;
+  const backgroundInput = el('input', {
+    type: 'file', accept: 'image/png,image/jpeg,image/gif,image/bmp,image/webp,image/svg+xml', hidden: true, 'aria-hidden': 'true', tabindex: -1,
+    onchange: async () => {
+      const f = backgroundInput.files?.[0], sheetId = backgroundSheet;
+      backgroundInput.value = '';
+      backgroundSheet = null;
+      if (!f || destroyed || !wb.sheet(sheetId)) return;
+      try {
+        let { src, width, height } = await readImageFile(f);
+        // The file keeps a background as a PNG, JPEG, GIF or BMP picture: others are drawn into a PNG.
+        if (!/^data:image\/(png|jpeg|gif|bmp);/i.test(src)) {
+          const img = await new Promise((resolve, reject) => { const im = new Image(); im.onload = () => resolve(im); im.onerror = reject; im.src = src; });
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(width)); canvas.height = Math.max(1, Math.round(height));
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          src = canvas.toDataURL('image/png');
+        }
+        if (destroyed) return;
+        if (wb.isProtected(sheetId)) { toast(t('editor.background.protected'), { icon: 'lock', duration: 3500 }); return; }
+        if (wb.setSheetBackground(sheetId, src)) {
+          toast(t('editor.background.set'), { icon: 'image', duration: 3000 });
+          statusBar?.announce(t('editor.background.setAnnounce'));
+        } else toast(t('editor.background.tooLarge'), { icon: 'info', duration: 3000 });
+      } catch (e) {
+        if (destroyed) return;
+        toast(e?.code === 'too-large' ? t('editor.picture.tooLarge', { name: f.name, mb: MAX_IMAGE_BYTES / (1024 * 1024) }) : t('editor.picture.readFailed'), { icon: 'alert', duration: 3500 });
+      }
+      keepFocus();
+    },
+  });
+  /** A linked picture as it shows now: the picture of its cells, drawn afresh (a static picture as it is). */
+  function linkedPictureNow(ch) {
+    const target = ch.pictureRef && linkedPictureTarget(wb, grid.sheetId, ch.pictureRef);
+    const live = target && rangePicture(wb, target.sheetId, target.range);
+    return live ? { ...ch, src: svgDataUrl(live.svg), srcRect: null, fillRect: null } : ch;
+  }
+
+  /**
+   * Put an image file on the sheet at the active cell, into the image being replaced, or with `inCell`
+   * into the cell itself as its value. Resolves to what was made: 'floating', 'cell', or null.
+   */
+  async function insertImageFile(f, { sheetId = grid.sheetId, anchor = { ...grid.active }, replaceId = null, inCell = false } = {}) {
+    if (destroyed) return null;
+    const atDestination = () => grid.sheetId === sheetId && grid.active.r === anchor.r && grid.active.c === anchor.c && !grid.editing;
+    let made = null;
+    try {
+      const { src, width, height } = await readImageFile(f);
+      if (destroyed || !wb.sheet(sheetId)) return null;
+      if (wb.isProtected(sheetId) && !inCell) {
+        toast(t('editor.picture.protected'), { icon: 'lock', duration: 3500 });
+        return null;
+      }
+      if (inCell) {
+        // The picture is the cell's value: it moves, sorts and copies with the cell. Its file name is a first alt text.
+        const alt = f.name && !/^(?:pasted )?image(?:\.\w+)?$/i.test(f.name) ? f.name.replace(/\.[^.]+$/, '') : '';
+        if (await pictures.placeSourceInCell(src, { sheetId, at: anchor, alt })) {
+          made = 'cell';
+          statusBar?.announce(t('editor.picture.placedIn', { cell: cellName(anchor.r, anchor.c) }));
+        }
+      } else if (replaceId) {
+        const old = wb.chartById(sheetId, replaceId);
+        if (!old) return;
+        // The new picture takes the old one's place and frame, as Change Picture does: whole (the old crop was a part
+        // of the old picture) and in its own proportions, as large as fits in the frame from its top-left corner.
+        const scale = Math.min(old.w / width, old.h / height);
+        wb.updateChart(sheetId, replaceId, { src, title: f.name, srcRect: null, fillRect: null,
+          ...(Number.isFinite(scale) && scale > 0 ? { w: Math.max(1, Math.round(width * scale)), h: Math.max(1, Math.round(height * scale)) } : {}) }, t('editor.undo.replaceImage'));
+        toast(t('editor.picture.replaced'), { icon: 'image', duration: 1600 });
+      } else {
+        // Fit large pictures to a sensible on-sheet size; they keep their proportions.
+        const scale = Math.min(1, 480 / width, 320 / height);
+        const id = wb.addChart(sheetId, { type: 'image', src, title: f.name, anchor, dx: 4, dy: 4, w: Math.round(width * scale), h: Math.round(height * scale) });
+        if (!id) return null;
+        made = 'floating';
+        if (atDestination()) grid.selectChart(id);
+        toast(t('editor.picture.inserted'), { icon: 'image', duration: 2600 });
+      }
+    } catch (e) {
+      if (destroyed) return;
+      // A picture over the size cap is refused by its code, and told apart from one that could not be decoded.
+      if (e?.code === 'too-large') toast(t('editor.picture.tooLargeForSheet', { name: f.name, mb: MAX_IMAGE_BYTES / (1024 * 1024) }), { icon: 'info', duration: 3500 });
+      else { console.error(e); toast(t('editor.picture.readFailed'), { icon: 'alert' }); }
+    }
+    if (atDestination()) keepFocus();
+    return made;
+  }
+  // Where the assistant is on screen, open or collapsed to its strip: a file dropped there goes with the next message.
+  function overAssistant(x, y) {
+    if (!aiPanel || !P.canAI() || x == null) return false;
+    const target = aiPanel.isOpen ? aiPanel.el : aiPanel.rail;
+    if (!target?.isConnected || target.hidden) return false;
+    const r = target.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 && x >= r.left && x < r.right && y >= r.top && y < r.bottom;
+  }
+  function dragOver(x, y) {
+    const over = overAssistant(x, y);
+    aiPanel?.setDropTarget(over);
+    return over;
+  }
+  /**
+   * A file dropped anywhere on the app while this sheet is open: on the
+   * assistant, it and any dropped with it go with the next message; elsewhere
+   * an image lands at the active cell, a spreadsheet opens as a new document.
+   */
+  async function acceptDrop(f, { files, x, y } = {}) {
+    if (overAssistant(x, y)) {
+      aiPanel.setDropTarget(false);
+      aiPanel.open();
+      aiPanel.attach(files?.length ? files : [f]);
+      return;
+    }
+    if (grid.editing && !grid.commitEdit()) return;
+    if (f.type.startsWith('image/')) { replaceImageId = null; await insertImageFile(f); return; }
+    if (isSpreadsheetFile(f.name)) { if (await flush() && !destroyed) importFile(f); return; }
+    toast(t('editor.drop.cannotOpen', { name: f.name }), { icon: 'info', duration: 3200 });
+  }
+  // Import into this spreadsheet: a dialog places the file's sheets (new sheets, the current sheet, appended rows, or at the selected cell).
+  const sheetsInput = el('input', {
+    type: 'file', accept: IMPORT_EXTENSIONS.join(), hidden: true, 'aria-hidden': 'true', tabindex: -1,
+    onchange: async () => {
+      const f = sheetsInput.files?.[0];
+      sheetsInput.value = '';
+      if (!f) return;
+      if (grid.editing && !grid.commitEdit()) return;
+      try {
+        const bytes = await f.arrayBuffer();
+        if (destroyed) return;
+        const other = await workbookFromFile(bytes, f.name);
+        if (destroyed) return;
+        // A lone sheet from a CSV takes the file's name, which is what people look for in the tabs.
+        if (other.sheets.length === 1 && /\.(csv|tsv|txt)$/i.test(f.name)) other.renameSheet(other.sheets[0].id, f.name.replace(/\.[^.]+$/, '').slice(0, 31) || other.sheets[0].name);
+        openImportPlacementDialog(ctx, other, f.name);
+      } catch (e) {
+        if (destroyed) return;
+        console.error(e);
+        toast(fileProblem(e) || t('editor.drop.couldNotRead', { name: f.name }), { icon: 'alert', duration: 6000 });
+      }
+      keepFocus();
+    },
+  });
+
+  /* ---------- Top bar and menu bar ---------- */
+
+  /* ---------- Editing together (a shared workbook; see collab/ and coauthor.js) ---------- */
+
+  const room = doc.collab || null;
+  const FLAG_MS = 4000;
+  /** Show where someone is: their sheet, with their selection. */
+  const jumpTo = (person) => {
+    if (!person.sheet || !wb.sheet(person.sheet)) { toast(t('editor.people.noCell', { name: person.name }), { icon: 'info', duration: 2200 }); return; }
+    if (grid.editing && !grid.commitEdit()) return;
+    if (wb.activeSheetId !== person.sheet) wb.setActiveSheet(person.sheet);
+    const target = person.sel || { r1: person.active.r, c1: person.active.c, r2: person.active.r, c2: person.active.c };
+    grid.setRanges([target], person.active || { r: target.r1, c: target.c1 });
+    statusBar?.announce(t('editor.people.atSelection', { name: person.name }));
+    keepFocus();
+  };
+  const peopleBar = room ? createPeopleBar({ client: room, wb, jump: jumpTo }) : null;
+  let lastPresence = '';
+  const sharePresence = () => {
+    if (!room) return;
+    const state = { sheet: grid.sheetId, sel: grid.range, active: grid.active, editing: grid.editing };
+    const key = JSON.stringify(state);
+    if (key === lastPresence) return;
+    lastPresence = key;
+    room.setPresence(state);
+  };
+  // A person's name flag shows while they move or type, then shrinks to a tab in their colour, so names do not cover the cells.
+  const movedAt = new Map(); // session → { key, at }
+  let flagTimer = null;
+  const showPeople = () => {
+    if (!room || destroyed) return;
+    const now = Date.now();
+    const people = peopleHere(room).map((p) => {
+      const key = JSON.stringify([p.sheet, p.sel, p.active, p.editing]);
+      const seen = movedAt.get(p.id);
+      if (seen?.key !== key) movedAt.set(p.id, { key, at: now });
+      return { ...p, quiet: !p.editing && now - movedAt.get(p.id).at > FLAG_MS };
+    });
+    peopleBar.update();
+    grid.setPeers(people);
+    clearTimeout(flagTimer);
+    const next = Math.min(...people.filter((p) => !p.quiet && !p.editing).map((p) => movedAt.get(p.id).at + FLAG_MS - now + 20));
+    if (Number.isFinite(next)) flagTimer = setTimeout(showPeople, Math.max(50, next));
+    const bySheet = new Map();
+    for (const p of people) if (p.sheet) bySheet.set(p.sheet, [...(bySheet.get(p.sheet) || []), { name: p.name, color: p.color }]);
+    sheetTabs.setPeers(bySheet);
+  };
+  const onRoomRefused = (e) => toast(e.detail?.message || t('editor.room.refused'), { icon: 'alert', duration: 4000 });
+  const onRoomRole = (e) => toast(e.detail?.role === 'viewer' ? t('editor.room.viewer') : t('editor.room.editor'), { icon: 'info', duration: 4000 });
+  const onRoomClosed = (e) => toast(e.detail?.message ? t('editor.room.closedWith', { message: e.detail.message }) : t('editor.room.closed'), { icon: 'alert', duration: 8000 });
+  // Rows or columns someone else inserted, deleted or moved carry this person's selection along with the cells.
+  const onRoomRemote = (e) => {
+    const lines = (e.detail?.ops || []).filter((op) => op.axis);
+    // The cell being typed in goes with its row and column, or the entry would land in whatever moved under it.
+    const editing = grid.editState;
+    if (editing) {
+      const at = { r: editing.r, c: editing.c };
+      for (const op of lines) {
+        if (op.s !== editing.sheetId) continue;
+        const k = op.axis === 'row' ? 'r' : 'c';
+        const i = mapLine(op, op.s, op.axis, at[k]);
+        if (i >= 0) at[k] = i;
+      }
+      grid.moveEdit(at.r, at.c);
+    }
+    const ops = lines.filter((op) => op.s === grid.sheetId);
+    if (!ops.length) return;
+    const map = (range) => {
+      let { r1, c1, r2, c2 } = range;
+      for (const op of ops) {
+        const along = op.axis === 'row' ? ['r1', 'r2'] : ['c1', 'c2'];
+        const box = { r1, c1, r2, c2 };
+        let a = mapLine(op, op.s, op.axis, box[along[0]]), b = mapLine(op, op.s, op.axis, box[along[1]]);
+        if (a < 0 || b < 0) { a = Math.max(0, mapGap(op, op.s, op.axis, box[along[0]])); b = Math.max(a, mapGap(op, op.s, op.axis, box[along[1]] + 1) - 1); }
+        if (op.t === 'insert' && box[along[0]] < op.at && box[along[1]] >= op.at) b = box[along[1]] + op.n;
+        box[along[0]] = a; box[along[1]] = Math.max(a, b);
+        ({ r1, c1, r2, c2 } = box);
+      }
+      return { r1, c1, r2, c2 };
+    };
+    const ranges = grid.ranges.map(map);
+    const act = map({ r1: grid.active.r, c1: grid.active.c, r2: grid.active.r, c2: grid.active.c });
+    grid.setRanges(ranges, { r: act.r1, c: act.c1 });
+  };
+  // A comment being written follows its cell too, before the workbook announces the change and the card is redrawn.
+  const onRoomIncoming = (e) => comments.follow(e.detail?.moved || []);
+  const onRoomOnline = () => room?.resume();
+  const onRoomVisible = () => { if (document.visibilityState === 'visible') room?.resume(); };
+
+  // The tooltip carries the whole name: the title is cut short with an ellipsis when the window is narrow.
+  const titleTip = () => t('editor.title.renameTip', { name: doc.name });
+  // A name in a right-to-left script is laid out that way, its number at its own end, as a cell is.
+  const titleBtn = el('button.doc-title', { type: 'button', dir: 'auto', title: titleTip(), onclick: () => run('rename') }, doc.name);
+  // Beside the name while several sheets are grouped: what is typed lands on all of them.
+  const groupBadge = el('span.doc-group-badge', { hidden: true, title: t('editor.title.groupTip') }, t('editor.title.groupBadge'));
+  // A plain status while signed in; without a session it is the button that starts the sign-in and the save.
+  const status = el('button.save-status', { type: 'button', 'aria-live': 'polite', disabled: true, onclick: () => { if (session.signedOut || doc.asksWhereToSave) run('save'); } });
+  const searchBtn = el('button.icon-btn.desktop-only', { type: 'button', html: icon('search', 20), 'aria-label': t('editor.topbar.searchMenus'), title: t('editor.topbar.searchMenusTip', { mod: MOD_KEY }), onclick: () => run('palette') });
+  const avatar = el('button.icon-btn.user-btn', {
+    type: 'button', 'aria-label': t('editor.topbar.accountMenu'), 'aria-haspopup': 'menu',
+    onclick: (e) => openAppMenu(e.currentTarget, { onOptions: () => run('options') }),
+  });
+  renderAccountButton(avatar);
+
+  // Save, Undo and Redo stand in the title row as a quick access toolbar; the ribbon fills it.
+  // The AutoSave switch leads the row: off, edits wait for Save (they are still kept in this browser's draft).
+  const autoSaveSwitch = el('button.autosave-switch', { type: 'button', role: 'switch', 'aria-label': t('editor.autoSave.label'), 'aria-checked': String(autoSaveEnabled()),
+    title: t('editor.autoSave.tip'), onclick: () => {
+      const on = autoSaveSwitch.getAttribute('aria-checked') !== 'true';
+      doc.setAutoSave?.(on);
+      autoSaveSwitch.setAttribute('aria-checked', String(on));
+      statusBar?.announce(on ? t('editor.autoSave.on') : t('editor.autoSave.off', { mod: MOD_KEY }));
+    } }, el('span.autosave-label', {}, t('editor.autoSave.label')), el('span.autosave-track', { 'aria-hidden': 'true' }, el('span.autosave-knob')));
+  const quickAccess = el('div.quick-access', { role: 'toolbar', 'aria-label': t('editor.topbar.quickAccess') },
+    autoSaveSwitch,
+    el('button.icon-btn.qat-btn.qat-save', { type: 'button', html: icon('save', 18), 'aria-label': t('common.save'), title: t('editor.topbar.saveTip', { mod: MOD_KEY }), onclick: () => run('save') }));
+  ctx.quickAccess = quickAccess;
+  // The menu bar sits in the title row, left of the centred name;
+  // its menus are built from the moment's state when opened. After Escape the menu has put focus back on its title, and
+  // after Tab the browser moves on from there; after a choice or a press elsewhere the grid takes focus back.
+  const menubar = createMenubar({ flags: commandFlags, run, onClose: (reason) => { if (reason !== 'escape' && reason !== 'tab') keepFocus(); } });
+  const topbar = el('div.topbar', {},
+    el('button.icon-btn', { type: 'button', html: icon('back', 20), 'aria-label': t('editor.topbar.back'), title: t('editor.topbar.allSpreadsheets'), onclick: () => run('home') }),
+    el('span.brand-mark.desktop-only', { html: icon('brand', 16, 2.2), 'aria-hidden': 'true' }),
+    quickAccess,
+    el('div.topbar-menus', {}, menubar.el),
+    el('div.topbar-title-wrap', {}, titleBtn, groupBadge, status),
+    el('div.topbar-actions', {}, searchBtn,
+      // The Comments button beside Share: the sheet's comment threads in the Comments pane.
+      el('button.icon-btn.desktop-only.topbar-comments', { type: 'button', html: icon('chat', 20), 'aria-label': t('editor.topbar.comments'), title: t('editor.topbar.comments'), onclick: () => run('toggleComments') }),
+      peopleBar?.el,
+      ...(P.canShare() ? [el('button.btn.share-btn.desktop-only', { type: 'button', title: t('editor.topbar.shareTip'), onclick: () => run('share') },
+      el('span', { html: icon('share', 16) }), el('span', {}, t('editor.topbar.share')))] : []), avatar));
+  const header = el('header.editor-header', {}, topbar);
+
+  function refreshStatus() {
+    if (room) {
+      const [ic, label, title] = roomStatus(room);
+      status.disabled = true;
+      status.className = `save-status shared ${room.status.state}`;
+      status.replaceChildren(el('span', { html: icon(ic, 14, 2), className: ic === 'spinner' ? 'spin' : '' }), el('span.save-label', {}, label));
+      status.title = title;
+      return;
+    }
+    if (session.signedOut) {
+      // Nowhere to write yet: the pill invites the sign-in that saving needs. The edits are normally copied into
+      // this browser's draft meanwhile; when they could not be (the book outgrew local storage), it says so here
+      // too, since a closed tab would then lose them.
+      const noCopy = doc.status === 'unsaved' && doc.draftKept === false;
+      status.className = 'save-status signed-out';
+      status.disabled = false;
+      status.replaceChildren(el('span', { html: icon('cloudOff', 14, 2) }), el('span.save-label', {}, noCopy ? t('editor.status.signInNoCopy') : t('editor.status.signIn')));
+      status.title = noCopy ? t('editor.status.signInNoCopyTip') : t('editor.status.signInTip');
+      status.setAttribute('aria-label', noCopy ? t('editor.status.signInNoCopyLabel') : t('editor.status.signInLabel'));
+      return;
+    }
+    // A new file waits for Save, which asks where it goes (see doc.asksWhereToSave): AutoSave does not write it,
+    // so the pill says it is not saved yet, rather than that changes are on their way, and is the Save.
+    const unplaced = doc.status === 'unsaved' && doc.asksWhereToSave;
+    status.disabled = !unplaced;
+    status.removeAttribute('aria-label');
+    const map = {
+      saved: ['cloud', t('editor.save.saved')],
+      saving: ['spinner', t('editor.status.saving')],
+      unsaved: ['clock', t('editor.status.unsaved')],
+      error: ['alert', t('editor.status.notSaved')],
+      offline: ['cloudOff', t('editor.status.offline')],
+      // A file moved or deleted elsewhere, or one that could not be checked, is a conflict too (see doc.js), but not one that changed: the reason names which.
+      conflict: ['alert', doc.conflictKind === 'missing' ? t('editor.status.movedOrDeleted') : doc.conflictKind === 'unchecked' ? t('editor.status.couldNotCheck') : t('editor.status.changedElsewhere')],
+    };
+    // Shared only to view: said at rest, and in place of a save that was refused (not while offline, which passes).
+    if (doc.viewOnly && (doc.status === 'saved' || doc.status === 'error')) map[doc.status] = ['eye', doc.status === 'saved' ? t('editor.status.viewOnly') : t('editor.status.viewOnlyNotSaved')];
+    if (unplaced) map.unsaved = ['clock', t('editor.details.notSaved')];
+    const [ic, base] = map[doc.status] || map.saved;
+    // Unsaved edits are normally copied into this browser's draft; when they could not be (the book
+    // outgrew local storage), the pill says so, since a closed tab would then lose them.
+    const noCopy = doc.status === 'unsaved' && doc.draftKept === false;
+    const label = noCopy ? t('editor.status.noCopy', { status: base }) : base;
+    status.className = `save-status ${doc.status}`;
+    status.replaceChildren(el('span', { html: icon(ic, 14, 2), className: ic === 'spinner' ? 'spin' : '' }), el('span.save-label', {}, label));
+    status.title = doc.error ? t('editor.status.withDetail', { label, detail: doc.error }) : doc.viewOnly ? t('editor.status.withDetail', { label, detail: viewOnlyText() }) : unplaced ? t('editor.status.unplacedTip', { label, mod: MOD_KEY }) : (doc.path ? t('editor.status.withPath', { label, path: doc.path }) : label);
+  }
+
+  function refreshTitle() {
+    titleBtn.textContent = doc.name;
+    titleBtn.title = titleTip();
+    groupBadge.hidden = !wb.sheetGroup;
+    const name = wb.sheetGroup ? t('editor.title.grouped', { name: doc.name }) : doc.name;
+    document.title = t('editor.title.document', { name, app: t('common.spreadsheet') });
+    P.setWindowTitle(name);
+    refreshStatus();
+  }
+
+  /* ---------- Assemble ---------- */
+
+  let aiPanel = null;
+  let languagePane = null; // Review ▸ Thesaurus and Translate, made below
+  let queriesPane = null; // Data ▸ Queries & Connections, made below
+  let automate = null; // Automate: scripts, the Code Editor and Record Actions, made below
+  // Pictures in cells, Picture Format, and pictures of copied cells (ui/pictures.js).
+  const pictures = createPictures(ctx, { keepFocus: () => keepFocus(), selectLocation: (sid, range) => selectLocation(sid, range) });
+  ctx.pictures = pictures;
+  let changesPane = null; // Review ▸ Show Changes, made below
+  const toolbar = createRibbon(ctx);
+  ctx.ribbon = toolbar;
+  // The Quick Access Toolbar holds what the person keeps there (ui/quick-access.js): in the title row, or in a
+  // row of its own under the ribbon.
+  const qatBar = el('div.quick-access-bar', { hidden: true });
+  const qatHome = { parent: quickAccess.parentNode, next: quickAccess.nextSibling };
+  const qat = createQuickAccess(ctx, { root: quickAccess, place: (below) => {
+    if (below) { qatBar.append(quickAccess); qatBar.hidden = false; }
+    else if (quickAccess.parentNode !== qatHome.parent) { qatHome.parent.insertBefore(quickAccess, qatHome.next); qatBar.hidden = true; }
+  } });
+  ctx.subscribe(() => qat.refresh());
+  const formulaBar = createFormulaBar(ctx, { fixedActions: true });
+  const sheetTabs = createSheetTabs(ctx, { excelLayout: true });
+  const statusBar = createStatusBar(ctx);
+  const watchWindow = createWatchWindow({ ...ctx, run, docName: () => doc.name, goTo: (sid, r, c) => selectLocation(sid, { r1: r, c1: c, r2: r, c2: c }) });
+  // Review ▸ Check Accessibility: a finding goes to its cells, or selects its object.
+  // Review ▸ Thesaurus and Translate, answered by Puter's AI.
+  languagePane = createLanguagePane({ ...ctx, run,
+    ai: P.canAI() ? (prompt) => P.aiChat(prompt, { feature: 'thesaurus' }) : null,
+    translate: P.canAI() ? (text, from, to) => aiTranslate(translatePrompt(text, from || '', to || 'English')) : null });
+  // Page Layout ▸ Arrange ▸ Selection Pane: the sheet's drawing objects, front first.
+  selectionPane = createSelectionPane({ ...ctx, run, notify });
+  // SmartArt Design ▸ Text Pane: the selected diagram's outline to type into.
+  const smartArtPane = ctx.smartArt.pane = createSmartArtPane(ctx);
+  const accessibilityPane = createAccessibilityPane({ ...ctx, run, reveal: (item) => {
+    if (item.target?.range) { selectLocation(item.sheetId, item.target.range); return; }
+    const obj = item.target?.chartId && wb.chartById(item.sheetId, item.target.chartId);
+    if (obj) { selectLocation(item.sheetId, { r1: obj.anchor.r, c1: obj.anchor.c, r2: obj.anchor.r, c2: obj.anchor.c }); grid.selectChart(obj.id); return; }
+    if (wb.sheet(item.sheetId) && !wb.sheet(item.sheetId).hidden) wb.setActiveSheet(item.sheetId);
+  } });
+  // Review ▸ Show Changes: the recent edits, each with who made it; the signed-in user is the author of the edits made here.
+  changesPane = createChangesPane({ ...ctx, run, reveal: (sid, range) => selectLocation(sid, range), currentUser: () => session.user?.username || null });
+  const syncChangeAuthor = () => { wb.changeAuthor = displayUserName(session.user?.username) || null; };
+  syncChangeAuthor();
+  // Data ▸ Queries & Connections: the queries of the workbook, beside the sheet.
+  ctx.autofitColumns = (sid, c1, c2) => autofitColumns(c1, c2, sid);
+  queriesPane = createQueriesPane({ ...ctx, run, edit: (id) => editQuery(ctx, { queryId: id }), allowQuerySources });
+  // Automate: scripts run apart from the app (lib/script-sandbox.js); what they ask of the editor comes through here.
+  automate = ctx.automate = createAutomate(ctx, {
+    notify,
+    keepFocus: () => keepFocus(),
+    // While a script runs, the sheet, the formula bar and the sheet tabs take no input of their own.
+    busy: (on) => { for (const node of [grid.el, formulaBar.el, sheetTabs.el]) node.inert = on; },
+    env: () => ({
+      name: doc.name,
+      selection: () => ({ sheetId: grid.sheetId, range: { ...grid.range } }),
+      select: (sheetId, range) => selectLocation(sheetId, range),
+      autofit: (sheetId, axis, from, to) => {
+        if (axis === 'col') autofitColumns(from, to, sheetId);
+        else if (sheetId === grid.sheetId) grid.autoFitRows(from, Math.min(to, from + 2000), { force: true });
+      },
+      // A formula a script writes that reaches outside the file waits for the user's Allow, as one in a shared file does.
+      distrust: () => doc.distrustExternal(),
+    }),
+  });
+  ctx.onQueriesChanged = () => { queriesPane.render(true); notify(); };
+  const findBar = createFindBar(ctx);
+  // Background error checking's smart tag beside the active cell (Convert to Number, Ignore Error…).
+  // Quick Analysis: the button at the corner of a selected block of data, and Ctrl+Q.
+  const quickAnalysis = ctx.quickAnalysis = createQuickAnalysis({ ...ctx, run });
+  const errorTag = createErrorSmartTag({ ...ctx, run, focusFormulaBar: () => formulaBar.focusInput(), refreshErrorTag: () => errorTag.sync() });
+  // Threaded comments: the card beside a cell and the Comments pane (Review ▸ Comments).
+  // @mentions: the people a comment can name, telling them when it is posted, and telling the user when a
+  // comment names them (ui/mention-notify.js).
+  const mentionNotifier = createMentionNotifier({ doc, wb, mailer, me: () => session.user });
+  const comments = createComments(ctx, { author: () => displayUserName(session.user?.username) || 'You', keepFocus: () => keepFocus(),
+    refused: (what) => refusedByProtection(what), onPaneToggle: () => notify(),
+    mentionPeople: () => mentionNotifier.candidates(),
+    onMentioned: (posted) => { mentionNotifier.notify(posted).catch((e) => console.error(e)); } });
+  const mentionAlerts = createMentionAlerts({
+    // Someone a shared workbook was shared with has no file of it: what they have seen is kept by the room.
+    wb, me: () => session.user, fileKey: () => doc.uid || doc.path || (room ? `room:${room.room}` : null),
+    goTo: (sheetId, r, c) => { if (destroyed) return; if (selectLocation(sheetId, { r1: r, c1: c, r2: r, c2: c })) comments.run('showComment'); },
+  });
+  mentionAlerts.start();
+  // Mails an earlier visit left waiting for a save that never came (the tab was closed first) go once one does.
+  const stopMentionMails = mentionNotifier.resume();
+  comments.attach();
+  ctx.comments = comments;
+  ctx.subscribe(() => comments.sync());
+  // The AI assistant, beside the sheet. Its tools act on the workbook directly; what only the editor knows
+  // (the selection, how wide a column's text is, the document's trust in outside content) comes through here.
+  // Made wherever Puter's AI is, and shown only while AI features are turned on (Options ▸ Privacy), so that turning
+  // them on brings it without opening the workbook again.
+  aiPanel = P.hasAI() ? createAiPanel(ctx, {
+    sheetId: () => grid.sheetId,
+    selection: () => ({ sheetId: grid.sheetId, range: { ...grid.range } }),
+    select: (sheetId, range) => { const ok = selectLocation(sheetId, range); return ok !== false && ok !== null; },
+    showSheet: (sheetId) => { if (!wb.sheet(sheetId)?.hidden) wb.setActiveSheet(sheetId); },
+    autofit: (sheetId, c1, c2) => autofitColumns(c1, c2, sheetId),
+    // Rows are measured as the grid draws them, so only on the sheet in view.
+    autofitRows: (sheetId, r1, r2) => { if (sheetId !== grid.sheetId) return false; grid.autoFitRows(r1, r2, { force: true }); return true; },
+    // A formula the AI writes that reaches outside the file was put together from the sheet's own cells, which
+    // anyone may have written: it waits for the user's Allow, as one pasted from a web page does.
+    distrust: () => doc.distrustExternal(),
+    // A change waits while the user is typing into a cell, until the entry is committed or cancelled.
+    whenIdle: () => (grid.editing ? new Promise((resolve) => {
+      const off = ctx.subscribe(() => { if (!grid.editing) { off(); resolve(); } });
+    }) : null),
+  }, {
+    onToggle: (open) => {
+      root?.classList.toggle('ai-open', open);
+      notify();
+    },
+  }) : null;
+
+  // Content from other files or the web waits for a yes in a file from elsewhere.
+  const externalNotice = el('div.notice-bar', { role: 'status', hidden: true },
+    el('span.notice-icon', { html: icon('alert', 16, 2) }),
+    el('span.notice-text', {}, t('editor.external.notice')),
+    el('span.notice-actions', {},
+      el('button.btn.btn-sm', { type: 'button', onclick: () => { externalNotice.hidden = true; keepFocus(); } }, t('editor.external.keepBlocked')),
+      el('button.btn.btn-sm.btn-primary', { type: 'button', onclick: () => { doc.allowExternal(); externalNotice.hidden = true; grid.refresh(); notify(); keepFocus(); } }, t('editor.external.allow'))));
+  const pivotNoticeText = el('span.notice-text');
+  const pivotNotice = el('div.notice-bar.pivot-display-notice', { role: 'status', hidden: true },
+    el('span.notice-icon', { html: icon('alert', 16, 2) }), pivotNoticeText);
+  function updatePivotDisplayNotice() {
+    const issues = wb.nativePivotDisplayIssues(grid.sheetId);
+    pivotNotice.hidden = !issues.length;
+    pivotNoticeText.textContent = issues.length
+      ? (issues.length > 1 ? t('editor.pivotNotice.withOthers', { name: issues[0].name, count: issues.length - 1 }) : t('editor.pivotNotice.one', { name: issues[0].name })) : '';
+    pivotNotice.title = issues.map(issue => t('editor.refresh.failedOne', { name: issue.name, error: issue.message })).join('\n');
+  }
+  updatePivotDisplayNotice();
+  const root = el('div.editor.view', {},
+    fileInput,
+    sheetsInput,
+    imageInput,
+    backgroundInput,
+    header,
+    // The sheet's column, and the assistant beside it from under the title row down (a thin strip when collapsed).
+    el('div.editor-body', {},
+      el('div.editor-main', {},
+        toolbar.el,
+        qatBar,
+        formulaBar.el,
+        externalNotice,
+        automate.notice,
+        pivotNotice,
+        // The page's main landmark: the grid (the panel the sheet tabs control) and the find bar over it.
+        // The task panes (Accessibility, Thesaurus and Translate, Changes, Selection, Queries) dock at the grid's right
+        // edge, under the ribbon and beside whatever column is open to the right; one at a time (see taskPanes).
+        el('main.editor-grid', {}, grid.el, findBar.el, accessibilityPane.el, languagePane.el, changesPane.el, selectionPane.el, queriesPane.el, smartArtPane.el),
+        sheetTabs.el,
+        statusBar.el,
+        watchWindow.el,
+        errorTag.el,
+        quickAnalysis.el),
+      chartUi.pane,
+      comments.el,
+      automate.pane,
+      aiPanel?.el,
+      aiPanel?.rail));
+  // The task panes over the grid take turns: opening one closes whichever other was open, so none hides another.
+  // On a phone the assistant is a sheet over the grid too, drawn over the panes: it goes down for one, which
+  // otherwise opened unseen beneath it.
+  const taskPanes = [accessibilityPane, languagePane, changesPane, selectionPane, queriesPane, smartArtPane];
+  for (const pane of taskPanes) {
+    const show = pane.show.bind(pane);
+    pane.show = (...args) => {
+      for (const other of taskPanes) if (other !== pane && other.open) other.hide();
+      if (aiPanel?.coversGrid) aiPanel.close({ focusGrid: false });
+      return show(...args);
+    };
+  }
+  // Alt (or F10) shows key tips on the ribbon; they wait while an entry, a menu or a dialog has the keyboard.
+  const keyTips = attachKeyTips({
+    ribbon: toolbar.el, fileButton: () => menubar.el.querySelector('[data-menu="file"]'), openFile: () => menubar.open('file'),
+    blocked: () => destroyed || grid.editing || !root.isConnected || !!document.querySelector('.modal-root, .menu'), onExit: () => keepFocus(),
+  });
+  applyView();
+  aiPanel?.setAvailable(P.canAI());
+  if (aiPanel && loadAiSettings().open) aiPanel.open({ focus: false });
+
+  // The assistant's heading stands level with the ribbon's tab row beside it, whatever height that row has.
+  const tabRow = toolbar.el.querySelector('.ribbon-tab-row');
+  const menubarObserver = aiPanel && tabRow && typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
+    const height = tabRow.getBoundingClientRect().height;
+    if (height) aiPanel.el.style.setProperty('--editor-menubar-h', `${height}px`);
+  }) : null;
+  menubarObserver?.observe(tabRow);
+
+  grid.viewport.addEventListener('pointerup', paintOnRelease);
+  grid.el.addEventListener('keydown', paintOnEnter, true); // before the grid moves the selection down
+  // WebKit can target clipboard events at the body or the DOM selection rather
+  // than the focused grid. Listen on the document; the handlers use focus to
+  // decide which editor owns the operation and leave other fields alone.
+  const onNativeCopy = e => onCopyEvent(e, false);
+  const onNativeCut = e => onCopyEvent(e, true);
+  document.addEventListener('copy', onNativeCopy);
+  document.addEventListener('cut', onNativeCut);
+  document.addEventListener('paste', onPasteEvent);
+  wb.addEventListener('change', disarmCutOnChange);
+  // Page Break Preview follows the sheet: its pages are laid out again as cells, sizes or page setup change.
+  // Page Layout view lays the sheet out as its printed pages; the view is the sheet's own (sheet.viewMode).
+  const sheetViewMode = () => wb.sheet(grid.sheetId)?.viewMode || 'normal';
+  const pageLayout = createPageLayout({
+    wb, fileName: () => doc.name, filePath: () => printFolder(P.resolvedAbsolutePath(doc.path)), redraw: () => grid.redraw(), focusGrid: () => grid.focus(),
+    commit: (id, patch) => { wb.setPrintSettings(id, { ...effectivePrintSettings(wb.sheet(id)), ...patch }); notify(); },
+  });
+  let pageViewKey = null;
+  let pageLayoutKey = null;
+
+  function refreshPageView(force = false) {
+    const mode = sheetViewMode();
+    const on = mode === 'pageBreak';
+    if (mode === 'pageLayout') {
+      // The pages follow the page setup and the sheet's sizes (the grid lays them out again with its
+      // layout), and the used range: Fit to pages and the page count (&N) read it.
+      const sheet = wb.sheet(grid.sheetId);
+      const key = JSON.stringify([grid.sheetId, wb.usedRange(grid.sheetId), sheet.printSettings]);
+      const fresh = !grid.pageLayout;
+      grid.setPageLayout(pageLayout);
+      if (!fresh && key !== pageLayoutKey) grid.refresh();
+      pageLayoutKey = key;
+    } else { grid.setPageLayout(null); pageLayoutKey = null; }
+    // Normal view can show where the pages break (View ▸ Page Breaks, or after a print preview), as dashed lines.
+    const lines = mode === 'normal' && pageBreakLinesOn(grid.sheetId);
+    const key = on || lines ? `${grid.sheetId}|${wb.version}|${on}` : null;
+    if (!force && key === pageViewKey) return;
+    pageViewKey = key;
+    const breaks = on || lines ? pageBreaks(wb, grid.sheetId) : null;
+    if (on) grid.setPageView({ area: breaks?.area || { r1: 0, c1: 0, r2: 0, c2: 0 }, pages: pagesOf(breaks), rowBreaks: breaks?.rowBreaks || [], colBreaks: breaks?.colBreaks || [] });
+    else grid.setPageView(lines && breaks ? { lines: true, area: breaks.area, rowBreaks: breaks.rowBreaks, colBreaks: breaks.colBreaks } : null);
+  }
+  ctx.viewMode = sheetViewMode;
+  const unsubscribePageView = ctx.subscribe(() => refreshPageView());
+  refreshPageView();
+
+  /*
+   * Where the selection was before an Insert rows or columns step, and where the step left it: undoing the
+   * step puts the selection back, and redoing it selects the inserted lines again, rather than
+   * leaving a whole-line selection where the lines were. A step is known by the history's own entry for it,
+   * the editor's undo and redo commands saying which way the history moves (every undo goes through them):
+   * the step an undo takes back is the one that was newest at the last history notice. Counted by notices
+   * instead, a step taken back without them (the formatting of an entry given up with Escape, folded into
+   * one) put the count out, and Undo then put no selection back. What an undo took back waits for its redo
+   * on a stack of its own: a shared workbook's history makes the step it brings again anew.
+   */
+  let historyMove = 'push'; // 'undo' or 'redo' while those commands run; a notice outside them is a new step
+  const stepSelections = new WeakMap(); // the history step → { before, after }
+  let newestStep = wb.historyTop; // the newest step as of the last history notice
+  const redoSelections = []; // what each step taken back held (or null), for its redo, the latest last
+  function selectionSnapshot() {
+    return { sheetId: grid.sheetId, ranges: grid.ranges.map((rg) => ({ ...rg })), active: { ...grid.active } };
+  }
+  function rememberStepSelection(before) {
+    const step = wb.historyTop;
+    if (step) stepSelections.set(step, { before, after: selectionSnapshot() });
+  }
+  function restoreSelection(snap) {
+    if (snap && grid.sheetId === snap.sheetId) grid.setRanges(snap.ranges, snap.active);
+  }
+  /*
+   * Any other step the Undo and Redo commands take back or bring again shows what it changed, as Excel and Sheets
+   * do: its sheet comes into view and the cells it wrote are selected and scrolled to, so a change made out of
+   * sight is not undone unseen. `revealFrom` is the workbook's version before the step, while those commands run.
+   */
+  let revealFrom = null;
+  function revealStep() {
+    if (revealFrom == null) return;
+    const changes = wb.changesSince(revealFrom) || [];
+    revealFrom = wb.version;
+    const writes = changes.filter((ch) => ch.type === 'cells' && ch.box && ch.sheetId != null);
+    if (!writes.length) return;
+    // Grouped sheets take the same write: the sheet in view, when it is one of them.
+    const sheetId = writes.some((ch) => ch.sheetId === grid.sheetId) ? grid.sheetId : writes.at(-1).sheetId;
+    const sheet = wb.sheet(sheetId);
+    if (!sheet || sheet.hidden || sheet.kind === 'chart') return;
+    const boxes = [];
+    for (const { sheetId: sid, box } of writes) {
+      if (sid === sheetId && !boxes.some((b) => b.r1 === box.r1 && b.c1 === box.c1 && b.r2 === box.r2 && b.c2 === box.c2)) boxes.push({ ...box });
+    }
+    if (sheetId !== wb.activeSheetId) wb.setActiveSheet(sheetId);
+    if (grid.sheetId !== sheetId) return;
+    // A step of many separate writes is shown as the box around them.
+    grid.setRanges(boxes.length > 20 ? [boxes.reduce((a, b) => ({ r1: Math.min(a.r1, b.r1), c1: Math.min(a.c1, b.c1), r2: Math.max(a.r2, b.r2), c2: Math.max(a.c2, b.c2) }))] : boxes);
+    grid.scrollToActive();
+  }
+  let lastProtectedToast = 0;
+  let lastProtectedKey = null;
+  let trackedEdit = false;
+  const onWbChange = (e) => {
+    if (e.detail?.type === 'sheet-group') { refreshTitle(); notify(); return; }
+    abandoned = false;
+    // One activation per editor session, including typing, pasting and AI-made data changes.
+    if (!trackedEdit && e.detail?.type === 'cells' && wb.dirty) {
+      trackedEdit = true;
+      trackEvent('Spreadsheet Edited');
+    }
+    if (e.detail?.type === 'merge-paste') {
+      const message = e.detail.reason === 'table' ? t('editor.mergePaste.table')
+        : e.detail.reason === 'invalid' ? t('editor.mergePaste.invalid')
+          : t('editor.mergePaste.cross');
+      toast(message, { icon: 'merge', duration: 4000 });
+      statusBar?.announce(message);
+      return;
+    }
+    if (e.detail?.type === 'pivot-edit') {
+      const name = e.detail.name;
+      const message = e.detail.reason === 'bounds' ? t('editor.pivotEdit.bounds')
+        : e.detail.reason === 'name' ? t('editor.pivotEdit.name', { name })
+        : e.detail.reason === 'table-overlap' ? t('editor.pivotEdit.tableOverlap')
+        : e.detail.reason === 'copy-limit' ? t('editor.pivotEdit.copyLimit')
+        : e.detail.reason === 'copy-layout' ? t('editor.pivotEdit.copyLayout')
+        : e.detail.reason === 'clear-partial' ? t('editor.pivotEdit.clearPartial', { name })
+        : e.detail.reason === 'move-partial' ? t('editor.pivotEdit.movePartial', { name })
+        : e.detail.reason === 'overlap' ? t('editor.pivotEdit.overlap', { name })
+        : t('editor.pivotEdit.split', { name });
+      toast(message, { icon: 'info', duration: 4000 });
+      statusBar?.announce(message);
+      return;
+    }
+    if (e.detail?.type === 'array-edit') {
+      const ref = rangeName(e.detail.range);
+      const message = e.detail.reason === 'overlap' ? t('editor.arrayEdit.overlap', { ref })
+        : e.detail.reason === 'bounds' ? t('editor.arrayEdit.bounds')
+          : e.detail.reason === 'formula' ? t('editor.arrayEdit.formula')
+            : e.detail.reason === 'limits' ? t('editor.arrayEdit.limits')
+              : t('editor.arrayEdit.partial', { ref });
+      toast(message, { icon: 'info', duration: 4000 });
+      statusBar?.announce(message);
+      return;
+    }
+    if (e.detail?.type === 'external-blocked') { externalNotice.hidden = false; return; }
+    // Typed text past what a file can store was cut: the cell keeps the first characters, and says so.
+    if (e.detail?.type === 'truncated') { toast(t('editor.textTruncated', { max: e.detail.max }), { icon: 'info', duration: 3500 }); return; }
+    if (e.detail?.type === 'protected' && e.detail.structure) {
+      const now = Date.now();
+      if (lastProtectedKey !== 'structure' || now - lastProtectedToast > 2500) {
+        lastProtectedToast = now; lastProtectedKey = 'structure';
+        toast(t('editor.structure.refused'), { icon: 'lock', duration: 4000 });
+        statusBar?.announce(t('editor.structure.refusedAnnounce'));
+      }
+      return;
+    }
+    if (e.detail?.type === 'protected') {
+      const now = Date.now();
+      // One notice per protected range (or sheet) at a time: an edit refused cell by cell says it once, while a
+      // refusal on another range a moment later is a new notice, not a repeat of the last one.
+      const key = e.detail.range ? `${e.detail.sheetId}:${rangeName(e.detail.range)}` : String(e.detail.sheetId);
+      if (key !== lastProtectedKey || now - lastProtectedToast > 2500) {
+        lastProtectedToast = now;
+        lastProtectedKey = key;
+        if (e.detail.range) {
+          const range = rangeName(e.detail.range);
+          toast(e.detail.description ? t('editor.protectedRange.describedRefused', { range, description: e.detail.description }) : t('editor.protectedRange.refused', { range }), { icon: 'lock', duration: 3800 });
+          statusBar?.announce(t('editor.protectedRange.announce', { range }));
+        } else {
+          const name = wb.sheet(e.detail.sheetId)?.name || t('editor.protected.thisSheet');
+          toast(t('editor.protected.makeChanges', { name }), { icon: 'lock', duration: 3500 });
+          statusBar?.announce(t('editor.protected.announce', { name }));
+        }
+      }
+      return;
+    }
+    // A restored draft or version replaces every sheet: the grid follows the new active one.
+    if (e.detail?.type === 'active-sheet' || e.detail?.type === 'load' || (e.detail?.type === 'structure' && grid.sheetId !== wb.activeSheetId) || (e.detail?.type === 'history' && grid.sheetId !== wb.activeSheetId)) {
+      grid.setSheet(wb.activeSheetId);
+      if (wb.sheet(wb.activeSheetId)?.viewZoom != null) grid.setZoom(wb.sheet(wb.activeSheetId).viewZoom, true);
+    }
+    // Precedent and dependent highlights mark one sheet's cells as they were:
+    // showing another sheet, or a structural change, leaves them behind.
+    if (tracing && (grid.sheetId !== tracing || e.detail?.type === 'structure')) { tracing = null; grid.setHighlights([], -1); }
+    // A circled cell loses its circle once its value is valid; another sheet clears them.
+    if (circledSheet != null) {
+      if (grid.sheetId !== circledSheet) { circledSheet = null; grid.setHighlights([], -1); }
+      else if (e.detail?.type !== 'active-sheet') grid.setHighlights(invalidCells(wb, circledSheet).cells.map((cell) => ({ ...cell, kind: 'invalid' })), -1);
+    }
+    // The Paste or Auto Fill Options button goes with the next change, or when its sheet is no longer shown.
+    const offered = optionButton.current;
+    if (offered && (wb.historyTop !== offered.mark || grid.sheetId !== offered.sheetId)) optionButton.hide();
+    if (e.detail?.type === 'load') { newestStep = wb.historyTop; redoSelections.length = 0; }
+    else if (e.detail?.type === 'history') {
+      const undone = newestStep;
+      newestStep = wb.historyTop;
+      if (historyMove === 'undo') {
+        const step = stepSelections.get(undone) || null;
+        redoSelections.push(step);
+        if (step) restoreSelection(step.before); else revealStep();
+      } else if (historyMove === 'redo') {
+        const step = redoSelections.pop() || null;
+        if (step && newestStep) stepSelections.set(newestStep, step);
+        if (step) restoreSelection(step.after); else revealStep();
+      } else redoSelections.length = 0; // a new step discards the redo branch
+    }
+    updatePivotDisplayNotice();
+    notify();
+  };
+  wb.addEventListener('change', onWbChange);
+  if (room) {
+    room.addEventListener('people', showPeople);
+    room.addEventListener('remote', onRoomRemote);
+    room.replica.addEventListener('incoming', onRoomIncoming);
+    room.addEventListener('status', refreshStatus);
+    room.addEventListener('refused', onRoomRefused);
+    room.addEventListener('role', onRoomRole);
+    room.addEventListener('closed', onRoomClosed);
+    window.addEventListener('online', onRoomOnline);
+    document.addEventListener('visibilitychange', onRoomVisible);
+    ctx.subscribe(sharePresence);
+    setTimeout(() => { sharePresence(); showPeople(); }, 0);
+    // Changes made here on an earlier visit, never delivered, that this person may no longer make: not in silence.
+    if (room.dropped) toast(t('editor.room.dropped', { count: room.dropped }), { icon: 'alert', duration: 8000 });
+  }
+  doc.addEventListener('status', refreshStatus);
+  doc.addEventListener('draft', refreshStatus); // whether this browser holds a copy of the edits changed
+  doc.addEventListener('path', refreshTitle);
+  const onSession = () => {
+    syncChangeAuthor();
+    renderAccountButton(avatar);
+    refreshStatus();
+    // Edits made before signing in now have a place to go; with AutoSave off they wait for Save, as any edit does
+    // (the session also changes when a preference kept with the account does, choosing a theme, say).
+    if (session.signedIn && wb.dirty && autoSaveEnabled()) doc.save({ auto: true }).catch(() => {});
+  };
+  session.addEventListener?.('change', onSession);
+
+  // NOW() and TODAY() drift from the clock; refresh them each minute.
+  const volatileTimer = setInterval(() => { if (!grid.editing && wb.refreshVolatile()) { grid.refresh(); notify(); } }, 60000);
+
+  const onBeforeUnload = (e) => {
+    if (grid.editing) grid.commitEdit();
+    automate?.flush();
+    if (doc.status === 'saved' && !doc.hasPendingWrites && !grid.editing) return;
+    doc.writeDraft();
+    // A new file waits for Puter's Save dialog, which is not to be opened by a page on its way out: the draft keeps it.
+    if (!doc.asksWhereToSave) doc.save().catch(() => {});
+    e.preventDefault();
+    e.returnValue = '';
+  };
+  window.addEventListener('beforeunload', onBeforeUnload);
+  // A phone may close a tab it put in the background without a beforeunload: unsaved edits are copied into this browser
+  // as the page is hidden, not after the pause the options set for the recovery copy (up to five minutes).
+  const onPageHidden = () => {
+    if (document.visibilityState !== 'hidden') return;
+    automate?.flush();
+    if (wb.dirty) doc.writeDraft();
+  };
+  document.addEventListener('visibilitychange', onPageHidden);
+  // The browser's own Print command (File > Print) prints the sheet the way Ctrl+P does, not the app chrome.
+  const uninstallPrint = installPrintFallback(() => {
+    if (grid.editing) grid.commitEdit();
+    return { wb, sheetId: grid.sheetId, docName: doc.name, opts: { ...currentPrintPrefs(wb.sheet(grid.sheetId)), filePath: printFolder(P.resolvedAbsolutePath(doc.path)) } };
+  });
+  const stopSheetFonts = installSheetFontLoading(wb, () => grid.sheetId);
+  // Signing out with edits that cannot be saved is refused by the account menu; no leave dialog here.
+  const onSignOut = (e) => { e.detail?.waitUntil?.(flush({ leaving: false })); };
+  window.addEventListener('app:before-signout', onSignOut);
+  // The file was written by another copy of the app since we last saved: the user decides whose version wins.
+  let conflictOpen = false;
+  const onConflict = async (e) => {
+    if (conflictOpen) return;
+    // Raised by the save of a flush on the way out: the leave dialog puts the question, with leaving among the answers.
+    if (leavingSave) { leavingSave.kind = e.detail?.kind || 'changed'; return; }
+    conflictOpen = true;
+    try {
+      if (e.detail?.kind === 'missing') {
+        // The file is gone from its address (deleted, or moved where the drive cannot follow it):
+        // there is no "theirs" to reload, so the edits stay and are offered a home instead.
+        const choice = await missingFileDialog();
+        if (destroyed) return;
+        if (choice === 'saveAs') await saveAs();
+        else if (choice === 'keep') await overwriteWithMine();
+        else keepFocus();
+        return;
+      }
+      // With no baseline from the open (the look-up failed) nobody knows whether the file changed: the question says so.
+      const overwrite = await confirmDialog(e.detail?.kind === 'unchecked' ? {
+        title: t('editor.conflict.uncheckedTitle'),
+        message: t('editor.conflict.uncheckedAsk', { name: doc.name }),
+        confirmLabel: t('editor.conflict.saveAnyway'), cancelLabel: t('editor.conflict.reloadFile'), danger: true, dismissValue: null,
+      } : {
+        title: t('editor.conflict.changedTitle'),
+        message: t('editor.conflict.changedAsk', { name: doc.name }),
+        confirmLabel: t('editor.conflict.overwriteWithMine'), cancelLabel: t('editor.conflict.reloadTheirs'), danger: true, dismissValue: null,
+      });
+      if (overwrite) await overwriteWithMine();
+      else if (overwrite === false) { wb.markClean(); openPath(doc.path, { reload: true }); }
+    } finally { conflictOpen = false; }
+  };
+  doc.addEventListener('conflict', onConflict);
+  // Cells follow the regional format as they are drawn; a formula whose result is written in it (TEXT, DOLLAR,
+  // FIXED, VALUE) is computed afresh, since the cache holds its answer in the old one.
+  const onLocale = () => { wb.recalculate(); grid.redraw(); notify(); };
+  window.addEventListener('app:locale', onLocale);
+
+  // Global shortcuts that should work even when focus is in the chrome.
+  const onKey = (e) => {
+    // A menu or dialog that closed during an edit can leave focus on the
+    // button that opened it; the keys pressed next belong to the cell.
+    if (grid.editing && !isComposing(e) && !e.defaultPrevented && !e.target.closest?.('input, textarea, select, [contenteditable="true"]')) {
+      if (e.key === 'Escape') { e.preventDefault(); grid.cancelEdit(); return; }
+      if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Tab') grid.focusEditor();
+    }
+    // Escape on a title of the menu bar or the ribbon, a sheet tab or the status bar, with nothing open there to
+    // close, hands the keyboard back to the sheet, as Escape leaves the ribbon in Excel; a ribbon command's
+    // Escape goes up to its tab first, and a menu's back to its title.
+    if (e.key === 'Escape' && !e.defaultPrevented && !isComposing(e) && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey
+      && e.target.closest?.('.menubar-btn, .ribbon-tab, .ribbon-collapse, .ribbon-scroll, .sheet-tabs button, .sheet-tabs [role="tab"], .status-bar button, .status-bar input')) {
+      e.preventDefault();
+      keepFocus();
+      return;
+    }
+    if (e.key === 'F6' && !e.ctrlKey && !e.metaKey && !e.altKey && !isComposing(e)) {
+      e.preventDefault();
+      const visible = (node) => {
+        for (let n = node; n && n !== root; n = n.parentElement) {
+          if (n.hidden || n.hasAttribute('inert') || getComputedStyle(n).display === 'none' || getComputedStyle(n).visibility === 'hidden') return false;
+        }
+        return true;
+      };
+      // The find bar and any task pane open over the grid's right edge, the Watch Window, and the columns beside the
+      // sheet (Format pane, Comments, Code Editor, assistant) are areas too: a pane left by a click on the sheet
+      // could not be reached again from the keyboard.
+      const regions = [menubar.el, toolbar.el, formulaBar.el, grid.el, findBar.el, accessibilityPane.el, languagePane.el, changesPane.el, selectionPane.el, queriesPane.el, smartArtPane.el,
+        sheetTabs.el, statusBar.el, watchWindow.el, chartUi.pane, comments.el, automate?.paneOpen && automate.pane, aiPanel && (aiPanel.isOpen ? aiPanel.el : aiPanel.rail)].filter(Boolean).filter(visible);
+      const at = regions.findIndex((region) => region.contains(e.target));
+      if (grid.editing && !grid.commitEdit()) return;
+      for (let step = 1; step <= regions.length; step++) {
+        const region = regions[(at + (e.shiftKey ? -step : step) + regions.length) % regions.length];
+        // The assistant is entered at its message box and the find bar at its search field; a pane at its first
+        // control, not at the resize handle that comes first in it.
+        const target = region === grid.el ? grid.viewport : region === sheetTabs.el ? sheetTabs.el.querySelector('[role="tab"][aria-selected="true"]') : region === aiPanel?.el ? aiPanel.el.querySelector('.ai-input') : region === findBar.el ? findBar.el.querySelector('.find-input') : region === aiPanel?.rail ? aiPanel.rail : [...region.querySelectorAll('button, input, select, textarea, [tabindex]')]
+          .find((node) => node.tabIndex >= 0 && !node.matches(':disabled, [role="separator"]') && visible(node));
+        if (target) { target.focus({ preventScroll: true }); break; }
+      }
+      return;
+    }
+    if (isComposing(e) || !isMod(e) || e.defaultPrevented) return; // the grid handled it already
+    const k = e.key.toLowerCase();
+    if (k === 's') { e.preventDefault(); run('save'); }
+    else if (k === 'f' && !e.shiftKey) { e.preventDefault(); run('find'); }
+    else if (k === 'p') { e.preventDefault(); run(e.shiftKey ? 'palette' : 'print'); }
+    else if (k === 'h') { e.preventDefault(); run('replace'); }
+    else if (k === 'o' && P.canPickFiles()) { e.preventDefault(); run('open'); }
+    else if (k === 'g' && !e.shiftKey) { e.preventDefault(); run('goTo'); }
+    else if ((k === 'j' || e.code === 'KeyJ') && !e.shiftKey && !e.altKey && aiPanel) { e.preventDefault(); run('aiPanel'); }
+    // Ctrl/Cmd+, opens the options, as preferences open in desktop apps.
+    else if ((k === ',' || e.code === 'Comma') && !e.shiftKey && !e.altKey) { e.preventDefault(); run('options'); }
+    else if (e.key === 'Backspace' && !grid.editing && !e.target.closest?.('input, textarea')) { e.preventDefault(); run('scrollToActive'); }
+    else if (k === 'z' && !grid.editing && !e.target.closest?.('input, textarea')) { e.preventDefault(); run(e.shiftKey ? 'redo' : 'undo'); }
+    // Bold, italic and underline apply to the cell mid-edit too; the grid takes them when nothing is being edited.
+    else if ((k === 'b' || k === 'i' || k === 'u') && grid.editing && !e.shiftKey && !e.altKey) { e.preventDefault(); run({ b: 'bold', i: 'italic', u: 'underline' }[k]); }
+  };
+  root.addEventListener('keydown', onKey);
+  // Shortcuts of the person's own (Options ▸ Keyboard Shortcuts) come before the built-in ones, on the sheet and in
+  // the window around it; a built-in shortcut turned off there does nothing. Typing into a field keeps its keys.
+  const onCustomKey = (e) => {
+    if (isComposing(e) || e.defaultPrevented || grid.editing) return;
+    const keymap = keymapStore.get();
+    if (!Object.keys(keymap).length || e.target.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+    const chord = chordFromEvent(e, IS_MAC);
+    if (!chord || !Object.hasOwn(keymap, chord)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!keymap[chord]) return;
+    const { cmd, arg } = parseCommandId(keymap[chord]);
+    run(cmd, arg);
+  };
+  root.addEventListener('keydown', onCustomKey, true);
+  // Options changed (here, in another editor, or brought in from the account): the editor follows at once.
+  const offOptions = onAppOptions((options, keys) => {
+    if (destroyed) return;
+    applyView();
+    syncNewSheetDefaults();
+    syncChangeAuthor();
+    if (keys.includes('aiFeatures')) {
+      setAiProviders();
+      aiPanel?.setAvailable(P.canAI());
+    }
+    if (keys.some((k) => ['commentIndicators', 'fillHandle', 'showObjects'].includes(k))) grid.refresh();
+    notify();
+  });
+  const offKeymap = keymapStore.subscribe(() => notify());
+  // The account's copies of the options and customizations, when another device changed them.
+  if (!session.signedOut) {
+    syncAppOptions().catch(() => {});
+    syncCustomizations();
+    syncErrorChecking().then(() => { if (!destroyed) { grid.redraw(); errorTag.sync(); } }).catch(() => {});
+  }
+  // Focus can fall back to the page itself while a cell is being edited (the
+  // button that opened a menu was re-rendered away, say). Those keys are the
+  // cell's too; the page has nothing else to do with them.
+  const onStrayKey = (e) => {
+    if (!grid.editing || isComposing(e) || e.defaultPrevented) return;
+    if (e.target !== document.body && e.target !== document.documentElement) return;
+    if (e.key === 'Escape') { e.preventDefault(); grid.cancelEdit(); return; }
+    grid.focusEditor();
+  };
+  document.addEventListener('keydown', onStrayKey);
+  // Ctrl/Cmd+S and Ctrl/Cmd+P pressed in a dialog, a menu, or the palette (which
+  // live outside the editor's root) would open the browser's own save-page and
+  // print dialogs: the keys are swallowed there, and the commands wait.
+  const onChromeKey = (e) => {
+    if (isComposing(e) || !isMod(e) || e.defaultPrevented || root.contains(e.target)) return;
+    const k = e.key.toLowerCase();
+    if (k === 's' || k === 'p') e.preventDefault();
+  };
+  document.addEventListener('keydown', onChromeKey);
+
+  refreshTitle();
+  requestAnimationFrame(() => { fitColumnsOnOpen(); grid.refresh(); grid.focus(); });
+
+  // Edits made here that never reached Puter (a closed tab while offline, a
+  // save that failed) come back from the local draft, if wanted.
+  let recoveryTimer = null;
+  let keptDraftToast = null; // the offer to restore a draft dismissed without a decision: it goes with the editor
+  if (doc.recoverable) {
+    const when = new Date(doc.recoverable.savedAt);
+    const stamp = when.toDateString() === new Date().toDateString()
+      ? formatUiDate(when, { hour: 'numeric', minute: '2-digit' })
+      : formatUiDate(when, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    recoveryTimer = setTimeout(async () => {
+      if (!doc.recoverable) return;
+      const restore = await confirmDialog({
+        title: t('editor.recovery.title'),
+        message: doc.recoverableMayBeOlder ? t('editor.recovery.older', { stamp }) : t('editor.recovery.message', { stamp }),
+        confirmLabel: t('editor.recovery.restore'), cancelLabel: t('editor.recovery.discard'), danger: false, dismissValue: null,
+      });
+      // The editor was left while the question was up (the router closes the dialog as dismissed after the
+      // view is gone): the draft stays in storage, offered again on the next open, and nothing is said here.
+      if (destroyed) return;
+      if (restore) { doc.restoreDraft(); toast(t('editor.recovery.restored'), { icon: 'check', duration: 2500 }); }
+      else if (restore === false) doc.discardDraft();
+      else {
+        // Dismissed without a decision: the draft is kept, and the offer stays within reach while the editor is.
+        keptDraftToast = toast(t('editor.recovery.kept', { stamp }), {
+          icon: 'info', duration: 8000,
+          action: { label: t('editor.recovery.restore'), onClick: () => { if (!destroyed && doc.restoreDraft()) { toast(t('editor.recovery.restored'), { icon: 'check', duration: 2500 }); grid.refresh(); keepFocus(); } } },
+        });
+      }
+      grid.refresh();
+      keepFocus();
+    }, 250);
+  }
+
+  // Opened from a link with a range: land on those cells once the view is on screen.
+  if (initialRange) setTimeout(() => followInternalLink(`#${initialRange}`), 0);
+
+  /**
+   * Someone else's spreadsheet (its address starts with another user's name, as a shared one's does) may be
+   * shared with this user only to view. Puter says so only in the list of what is shared with them, and a save
+   * would be refused: the status says View only from the start, and a notice says how to keep changes.
+   */
+  async function checkViewOnly() {
+    const me = session.user?.username;
+    const owner = /^\/([^/]+)\//.exec(doc.path || '')?.[1];
+    if (!me || !owner || owner === me || !P.canShare()) return;
+    const mode = await P.sharedModeOf(doc).catch(() => null);
+    if (destroyed || !mode || P.canWriteMode(mode)) return;
+    doc.viewOnly = true;
+    refreshStatus();
+    toast(viewOnlyText(), { icon: 'eye', duration: 7000 });
+  }
+  if (!session.signedOut) checkViewOnly();
+
+  // A saved book with links to other workbooks: its Startup Prompt says whether opening it updates them, offers to, or leaves them.
+  if (doc.path && wb.externalWorkbooks?.books?.some((b) => !b.kind) && wb.linkStartup !== 'none') {
+    setTimeout(() => {
+      if (destroyed) return;
+      const host = linkHost();
+      if (wb.linkStartup === 'update' && wb.externalAllowed !== false) { updateAllLinks(ctx, host); return; }
+      toast(t('editor.links.readsOthers'), { icon: 'link', duration: 9000,
+        action: { label: t('editor.links.update'), onClick: async () => { if (await host.allow()) updateAllLinks(ctx, host); } } });
+    }, 0);
+  }
+
+  return {
+    el: root,
+    doc,
+    flush,
+    acceptDrop,
+    /** A file dragged over the screen at (x, y): true where the assistant would take it (null: the drag is over). */
+    dragOver,
+    /** Select a "Sheet!A1:B2" range (from an address with ?range=), switching sheets if needed. */
+    goTo(range) { return followInternalLink(`#${range}`); },
+    /** Run an editor command, as the menus and the palette do (tests and automation). */
+    run,
+    destroy() {
+      destroyed = true;
+      palette?.close();
+      keptDraftToast?.dismiss();
+      clearInterval(volatileTimer);
+      clearTimeout(recoveryTimer);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      document.removeEventListener('visibilitychange', onPageHidden);
+      uninstallPrint();
+      stopSheetFonts();
+      document.removeEventListener('keydown', onStrayKey);
+      document.removeEventListener('keydown', onChromeKey);
+      offOptions();
+      offKeymap();
+      qat.destroy();
+      flashOffer?.dismiss?.();
+      document.removeEventListener('copy', onNativeCopy);
+      document.removeEventListener('cut', onNativeCut);
+      document.removeEventListener('paste', onPasteEvent);
+      optionButton.destroy();
+      window.removeEventListener('app:before-signout', onSignOut);
+      doc.removeEventListener('conflict', onConflict);
+      window.removeEventListener('app:locale', onLocale);
+      wb.removeEventListener('change', onWbChange);
+      if (room) {
+        clearTimeout(flagTimer);
+        room.removeEventListener('people', showPeople);
+        room.removeEventListener('remote', onRoomRemote);
+        room.replica.removeEventListener('incoming', onRoomIncoming);
+        room.removeEventListener('status', refreshStatus);
+        room.removeEventListener('refused', onRoomRefused);
+        room.removeEventListener('role', onRoomRole);
+        room.removeEventListener('closed', onRoomClosed);
+        window.removeEventListener('online', onRoomOnline);
+        document.removeEventListener('visibilitychange', onRoomVisible);
+      }
+      wb.removeEventListener('change', syncChartTheme);
+      wb.removeEventListener('change', disarmCutOnChange);
+      unsubscribePageView();
+      doc.removeEventListener('status', refreshStatus);
+      doc.removeEventListener('draft', refreshStatus);
+      doc.removeEventListener('path', refreshTitle);
+      toolbar.destroy();
+      ink.destroy();
+      menubarObserver?.disconnect();
+      menubar.destroy();
+      keyTips.destroy();
+      formulaBar.destroy();
+      sheetTabs.destroy();
+      statusBar.destroy();
+      watchWindow.destroy();
+      accessibilityPane.destroy();
+      languagePane.destroy();
+      changesPane.destroy();
+      selectionPane.destroy();
+      smartArtPane.destroy();
+      errorTag.destroy();
+      quickAnalysis.destroy();
+      queriesPane.destroy();
+      automate?.destroy();
+      chartUi.destroy();
+      comments.destroy();
+      mentionAlerts.stop();
+      stopMentionMails();
+      findBar.destroy();
+      aiPanel?.destroy();
+      grid.destroy();
+      session.removeEventListener?.('change', onSession);
+      doc.destroy();
+      document.title = t('common.spreadsheet');
+    },
+  };
+}

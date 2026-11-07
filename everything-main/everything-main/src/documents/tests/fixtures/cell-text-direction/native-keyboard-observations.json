@@ -1,0 +1,14 @@
+{
+  "source": "control.docx",
+  "sourceSha256": "5d788b82f7fa2741a271ce7d0072b99c422f4d5d869c1eedbcf79e767b43240d",
+  "referenceBuild": "16.0.20326",
+  "method": "Native reference window, physical key input through desktop automation key presses; selected text read from the refreshed accessibility tree.",
+  "cases": [
+    { "page": 1, "direction": "btLr", "sourceText": "Alpha beta", "cursor": "before the final a in Alpha", "key": "Shift+Up", "selectedText": "a", "result": "extends one character forward in source order" },
+    { "page": 1, "direction": "tbRl", "sourceText": "Alpha beta", "cursor": "before the final a in Alpha", "key": "Shift+Down", "selectedText": "a", "result": "extends one character forward in source order" },
+    { "page": 4, "direction": "btLr", "cursor": "Home on first wrapped line", "key": "Shift+Right", "selectedText": "One two three four ", "result": "extends to the start of the next local line" },
+    { "page": 4, "direction": "tbRl", "cursor": "Home on first wrapped line", "key": "Shift+Left", "selectedText": "One two three four ", "result": "extends to the start of the next local line" },
+    { "page": 4, "direction": "tbRl", "cursor": "Home on first wrapped line", "keys": ["Shift+Left", "Shift+Left", "Shift+Left", "Shift+Left"], "selectedText": "One two three four five six seven eight nine ten eleven twelve\u0007", "result": "extension past the final line includes the cell-end marker; engine boundary support remains unfinished" }
+  ],
+  "notMeasured": ["cross-line preferred position across differently aligned paragraphs", "remaining cell-boundary transitions", "modified word or paragraph navigation", "bidirectional text"]
+}

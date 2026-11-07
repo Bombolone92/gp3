@@ -1,0 +1,196 @@
+/* Design tokens. Light values on :root; dark values both for an explicit
+   [data-theme='dark'] and for the system preference when no theme is
+   forced. Text and status colors meet WCAG AA on their backgrounds. Dark
+   values are for screens only, so pages always print in light colors. */
+
+:root {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --surface-3: #eceef1;
+  --surface-hover: #f1f3f5;
+  --border: #e1e4e8;
+  --border-strong: #c8cdd4;
+  --text: #15191f;
+  --text-2: #464f5c;
+  --text-3: #5d6674;
+  --text-inverse: #ffffff;
+
+  --accent: #4b45d6;
+  --accent-hover: #3d37b8;
+  --accent-soft: #eeedfd;
+  --accent-soft-2: #dcdafa;
+  --on-accent: #ffffff;
+  --accent-text: #3f39c4;
+
+  --success: #17784c;
+  --success-soft: #e4f4eb;
+  --warning: #8f4b00;
+  --warning-soft: #fdf0dc;
+  --danger: #c02a2f;
+  --danger-hover: #a52227;
+  --danger-soft: #fde8e8;
+  --on-danger: #ffffff;
+  --info: #0b6a90;
+  --info-soft: #e1f1f8;
+  --neutral: #4c5665;
+  --neutral-soft: #eceff2;
+  --purple: #7136b8;
+  --purple-soft: #f2eafc;
+  --teal: #0b6f66;
+  --teal-soft: #e0f3f0;
+
+  /* Navigation sidebar: dark in both themes. */
+  --nav-bg: #161a21;
+  --nav-border: #262b34;
+  --nav-text: #b7bec9;
+  --nav-text-strong: #f2f4f7;
+  --nav-hover: #222731;
+  --nav-active: #2b3140;
+  --nav-accent: #8e89ff;
+  --nav-muted: #8790a0;
+
+  --scrim: rgba(13, 17, 23, 0.45);
+  --focus: #4b45d6;
+  /* Toasts are inverted (--text background), so their red is too. */
+  --toast-danger: #ff9a9a;
+  /* Off switch track: 3:1 or more against the white knob and against
+     the card in both themes. */
+  --switch-off: #5d6674;
+
+  /* Chart series, checked for color vision deficiency on --surface. */
+  --series-1: #4b45d6;
+  --series-2: #e07b1a;
+  --series-3: #1a9a8a;
+  --series-4: #c43c78;
+  --grid: #e7e9ed;
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+
+  --rail-w: 236px;
+  --rail-w-collapsed: 64px;
+  --topbar-h: 56px;
+  --tabbar-h: 60px;
+
+  color-scheme: light;
+}
+
+@media screen {
+  [data-theme='dark'] {
+    --bg: #0e1116;
+    --surface: #161a20;
+    --surface-2: #1b2027;
+    --surface-3: #242a33;
+    --surface-hover: #1f242c;
+    --border: #272d36;
+    --border-strong: #3a414c;
+    --text: #edf0f4;
+    --text-2: #b0b8c4;
+    --text-3: #939cab;
+    --text-inverse: #0e1116;
+
+    --accent: #8e89ff;
+    --accent-hover: #a7a3ff;
+    --accent-soft: #23224a;
+    --accent-soft-2: #2f2d63;
+    --on-accent: #0e0d24;
+    --accent-text: #aaa6ff;
+
+    --success: #4fc58c;
+    --success-soft: #132a1f;
+    --warning: #f2b45e;
+    --warning-soft: #2e2313;
+    --danger: #ff7d7d;
+    --danger-hover: #ff9c9c;
+    --danger-soft: #351819;
+    --on-danger: #1a0b0b;
+    --info: #5cc2e6;
+    --info-soft: #10262f;
+    --neutral: #b0b8c4;
+    --neutral-soft: #232932;
+    --purple: #c9a2ff;
+    --purple-soft: #2a1f3d;
+    --teal: #4fd1c1;
+    --teal-soft: #0f2a27;
+
+    --nav-bg: #0b0d11;
+    --nav-border: #1d2129;
+    --nav-hover: #171b22;
+    --nav-active: #212632;
+
+    --scrim: rgba(0, 0, 0, 0.6);
+    --focus: #a7a3ff;
+    --toast-danger: #c02a2f;
+
+    --series-1: #8e89ff;
+    --series-2: #e8902f;
+    --series-3: #33b8a6;
+    --series-4: #e0619b;
+    --grid: #262c35;
+
+    color-scheme: dark;
+  }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e1116;
+    --surface: #161a20;
+    --surface-2: #1b2027;
+    --surface-3: #242a33;
+    --surface-hover: #1f242c;
+    --border: #272d36;
+    --border-strong: #3a414c;
+    --text: #edf0f4;
+    --text-2: #b0b8c4;
+    --text-3: #939cab;
+    --text-inverse: #0e1116;
+
+    --accent: #8e89ff;
+    --accent-hover: #a7a3ff;
+    --accent-soft: #23224a;
+    --accent-soft-2: #2f2d63;
+    --on-accent: #0e0d24;
+    --accent-text: #aaa6ff;
+
+    --success: #4fc58c;
+    --success-soft: #132a1f;
+    --warning: #f2b45e;
+    --warning-soft: #2e2313;
+    --danger: #ff7d7d;
+    --danger-hover: #ff9c9c;
+    --danger-soft: #351819;
+    --on-danger: #1a0b0b;
+    --info: #5cc2e6;
+    --info-soft: #10262f;
+    --neutral: #b0b8c4;
+    --neutral-soft: #232932;
+    --purple: #c9a2ff;
+    --purple-soft: #2a1f3d;
+    --teal: #4fd1c1;
+    --teal-soft: #0f2a27;
+
+    --nav-bg: #0b0d11;
+    --nav-border: #1d2129;
+    --nav-hover: #171b22;
+    --nav-active: #212632;
+
+    --scrim: rgba(0, 0, 0, 0.6);
+    --focus: #a7a3ff;
+    --toast-danger: #c02a2f;
+
+    --series-1: #8e89ff;
+    --series-2: #e8902f;
+    --series-3: #33b8a6;
+    --series-4: #e0619b;
+    --grid: #262c35;
+
+    color-scheme: dark;
+  }
+}

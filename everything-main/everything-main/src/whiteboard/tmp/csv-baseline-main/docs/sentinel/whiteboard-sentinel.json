@@ -1,0 +1,132 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Creates the WhiteboardAudit_CL table, a data collection endpoint, and a data collection rule so a Whiteboard organization can push audit events to Microsoft Sentinel through the Azure Monitor Logs Ingestion API."
+  },
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace that Microsoft Sentinel uses."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "servicePrincipalObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Object ID of the enterprise application (service principal) whose client ID and secret you enter in Whiteboard Organization settings."
+      }
+    }
+  },
+  "variables": {
+    "tableName": "WhiteboardAudit_CL",
+    "streamName": "Custom-WhiteboardAudit",
+    "dceName": "whiteboard-audit-dce",
+    "dcrName": "whiteboard-audit-dcr",
+    "monitoringMetricsPublisher": "3913510d-42f4-4e42-8a64-420c390055eb",
+    "columns": [
+      { "name": "TimeGenerated", "type": "datetime" },
+      { "name": "EventId", "type": "string" },
+      { "name": "Category", "type": "string" },
+      { "name": "Action", "type": "string" },
+      { "name": "ActorId", "type": "string" },
+      { "name": "ActorName", "type": "string" },
+      { "name": "TargetType", "type": "string" },
+      { "name": "TargetId", "type": "string" },
+      { "name": "TargetName", "type": "string" },
+      { "name": "BoardId", "type": "string" },
+      { "name": "SourceIp", "type": "string" },
+      { "name": "UserAgent", "type": "string" },
+      { "name": "Details", "type": "dynamic" }
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/tables",
+      "apiVersion": "2022-10-01",
+      "name": "[concat(parameters('workspaceName'), '/', variables('tableName'))]",
+      "properties": {
+        "schema": {
+          "name": "[variables('tableName')]",
+          "columns": "[variables('columns')]"
+        },
+        "retentionInDays": 365
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2022-06-01",
+      "name": "[variables('dceName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkAcls": { "publicNetworkAccess": "Enabled" }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2022-06-01",
+      "name": "[variables('dcrName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', variables('dceName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('workspaceName'), variables('tableName'))]"
+      ],
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', variables('dceName'))]",
+        "streamDeclarations": {
+          "[variables('streamName')]": {
+            "columns": "[variables('columns')]"
+          }
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+              "name": "sentinelWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": ["[variables('streamName')]"],
+            "destinations": ["sentinelWorkspace"],
+            "transformKql": "source",
+            "outputStream": "[concat('Custom-', variables('tableName'))]"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[format('Microsoft.Insights/dataCollectionRules/{0}', variables('dcrName'))]",
+      "name": "[guid(resourceGroup().id, variables('dcrName'), parameters('servicePrincipalObjectId'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/dataCollectionRules', variables('dcrName'))]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('monitoringMetricsPublisher'))]",
+        "principalId": "[parameters('servicePrincipalObjectId')]",
+        "principalType": "ServicePrincipal"
+      }
+    }
+  ],
+  "outputs": {
+    "logsIngestionEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', variables('dceName')), '2022-06-01').logsIngestion.endpoint]"
+    },
+    "dataCollectionRuleImmutableId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/dataCollectionRules', variables('dcrName')), '2022-06-01').immutableId]"
+    },
+    "streamName": {
+      "type": "string",
+      "value": "[variables('streamName')]"
+    }
+  }
+}

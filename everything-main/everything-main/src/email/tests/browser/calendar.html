@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Calendar invitation fixture</title></head>
+<body>
+<div id="app"></div>
+<script type="module">
+import '../../src/styles/tokens.css';
+import '../../src/styles/base.css';
+import '../../src/styles/app.css';
+import { renderApp } from '../../src/ui/app.js';
+const params = new URLSearchParams(location.search);
+if (params.has('dark')) document.documentElement.dataset.theme = 'dark';
+const calendar = [
+  'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Puter//Calendar fixture//EN',
+  `METHOD:${params.has('cancel') ? 'CANCEL' : 'REQUEST'}`, 'BEGIN:VEVENT',
+  'UID:review@example.com', 'DTSTAMP:20260918T170000Z', 'SUMMARY:Product design review',
+  'DTSTART;TZID=America/Vancouver:20260921T100000',
+  'DTEND;TZID=America/Vancouver:20260921T110000',
+  'LOCATION:Studio 2\\, Vancouver',
+  'ORGANIZER;CN=Ana Petrova:mailto:ana@example.com',
+  'ATTENDEE;CN=Sam:mailto:sample@puter.com',
+  'ATTENDEE;CN=Mira Chen:mailto:mira@example.com',
+  'DESCRIPTION:Review the latest designs and agree on next steps.\\nBring your feedback.',
+  'X-GOOGLE-CONFERENCE:https://meet.google.com/abc-defg-hij',
+  'END:VEVENT', 'END:VCALENDAR', '',
+].join('\r\n');
+const raw = new TextEncoder().encode([
+  'From: Ana Petrova <ana@example.com>', 'To: sample@puter.com',
+  'Subject: Invitation: Product design review', 'Date: Fri, 18 Sep 2026 17:00:00 +0000',
+  'Message-ID: <review@example.com>', 'MIME-Version: 1.0',
+  'Content-Type: multipart/mixed; boundary=mail', '', '--mail',
+  'Content-Type: multipart/alternative; boundary=alt', '', '--alt',
+  'Content-Type: text/plain; charset=utf-8', '',
+  'Hi Sam,\r\n\r\nLet’s walk through the latest designs together. See you on Monday!\r\n\r\nAna',
+  '--alt', 'Content-Type: text/html; charset=utf-8', '',
+  '<p>Hi Sam,</p><p>Let’s walk through the latest designs together. See you on Monday!</p><p>Ana</p>',
+  '--alt', 'Content-Type: text/calendar; method=REQUEST; charset=utf-8', '', calendar,
+  '--alt--', '--mail', 'Content-Type: application/ics; name=invite.ics',
+  'Content-Disposition: attachment; filename=invite.ics', '', calendar, '--mail--', '',
+].join('\r\n'));
+const mailPath = '/sample/.mail';
+const objectsPath = `${mailPath}/objects`;
+const dayPath = `${objectsPath}/2026-09-18`;
+const name = '01995bc0-0000-7000-8000-000000000001--' + btoa('Invitation: Product design review').replaceAll('=', '');
+const path = `${dayPath}/${name}`;
+renderApp(document.querySelector('#app'), {
+  mailPath, objectsPath, sample: true, account: { username: 'sample' },
+  fs: {
+    async readdir(dir) {
+      if (dir === objectsPath) return [{ name: '2026-09-18', path: dayPath, is_dir: true }];
+      if (dir === dayPath) return [{ name, path, is_dir: false, size: raw.length, modified: 1789750800 }];
+      return [];
+    },
+    async read(at, opts = {}) {
+      if (at !== path) throw new Error('Missing fixture');
+      return new Blob([opts.byte_count ? raw.slice(0, opts.byte_count) : raw]);
+    },
+  },
+});
+</script>
+</body>
+</html>

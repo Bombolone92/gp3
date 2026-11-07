@@ -1,0 +1,60 @@
+{
+  "native": "Native reference UI, 2026-09-29; desktop automation physical keys. First outside key selected BC in accessibility selected_text and did not alter text. Second key saved an empty sdtContent.",
+  "source": "../inline-control-navigation/inline.docx",
+  "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+  "cases": [
+    {
+      "key": "Delete",
+      "result": "native-delete-twice.docx",
+      "sha256": "7eeb1296b0edfee977a32dfca45d3e67ab7f2df4bf7a266764b1a996546140dc",
+      "keys": [
+        "Control+Home",
+        "ArrowRight",
+        "Delete",
+        "Delete"
+      ],
+      "text": "AD",
+      "controlText": ""
+    },
+    {
+      "key": "Backspace",
+      "result": "native-backspace-twice.docx",
+      "sha256": "47a62ed3a4c50de51dbfb2f2738d27cbbae26c78a08a925d9ec7e9af8f9733e3",
+      "keys": [
+        "Control+End",
+        "ArrowLeft",
+        "Backspace",
+        "Backspace"
+      ],
+      "text": "AD",
+      "controlText": ""
+    },
+    {
+      "key": "type",
+      "result": "native-selected-type.docx",
+      "sha256": "a04338c0aa04e5a3af514fa641dbb33f152e3fc6ede9233aac863757de639c9e",
+      "keys": [
+        "Control+End",
+        "ArrowLeft",
+        "Backspace",
+        "Shift+X"
+      ],
+      "text": "AXD",
+      "controlText": "X"
+    }
+  ],
+  "ordinarySelection": {
+    "keys": [
+      "Control+Home",
+      "ArrowRight",
+      "ArrowRight",
+      "Shift+ArrowRight",
+      "Shift+ArrowRight",
+      "Delete"
+    ],
+    "result": "native-shift-selection.docx",
+    "sha256": "27c6084d99af2f04bad59c16ff97ae222326f46c4ff0aa1dfeb2f8d9d4ae894c",
+    "text": "AD",
+    "controlText": ""
+  }
+}

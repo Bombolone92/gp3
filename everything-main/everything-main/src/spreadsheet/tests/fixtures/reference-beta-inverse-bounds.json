@@ -1,0 +1,1799 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "280 Evaluate and worksheet-matrix controls. Stored formulas, wrapped text and raw cell values verified; initially empty ranges cleared with COUNTA zero. Raw numeric results distinguish subnormals from displayed zero. Nine existing native inverse failures and symmetric median arithmetic retain an independent analytic unit-quantile reference and verified affine arithmetic rather than copying numerical failures.",
+  "referenceMethod": "80-digit mpmath evaluation of beta(1/2,2) inverse 4*sin(asin(p)/3)^2, followed by independently verified binary64 affine scaling with product underflow. Final addition is not clamped.",
+  "provenance": {
+    "beta-inverse-bounds-direct-native.js": "507de80c552d41092333348939c5416c95677b0e92bbdbeba7c0dc328526fea7",
+    "beta-inverse-bounds-direct-native.json": "87ff01008e9feb663268b8c276f097798f76b0f657fd3bc4af4ad8ac10143fd3",
+    "beta-inverse-bounds-worksheet.applescript": "efcef480029cc959cdb68950423fa8b28558d4c3a0a66da1e02b0a12a5b8f912",
+    "beta-inverse-bounds-worksheet-native.txt": "fa0bc4c949498d7f43858e0115b8ff2c6802c24d1d4fee9bf4cd8a6a21f3a61d",
+    "beta-inverse-median-native.js": "0b955c905e36bbcc88f18534a94051f56cacaa097a1430caab8994ef3314c317",
+    "beta-inverse-median-native.json": "f7c03c4e55d4e49c0229aef7db30aed10c75496fbe78b74ffc1dd39ad16ed264",
+    "beta-inverse-median-worksheet.applescript": "0ac2e3b729c7908af9d2807a3de011400a80dc3462a01dab3b78bfffbc68e6ec",
+    "beta-inverse-median-worksheet-native.txt": "6b0d7ae164d65269c48bc8dbc245e31fa295e24f3b7612528342d447067fd7fd",
+    "beta-inverse-bounds-reference.py": "36edeb2a3f5e5556c543cd9f50ea5a16550a2b5e113374378201de9224b0b288",
+    "beta-inverse-bounds-reference.json": "6f4359c0406f3bba9f7bea9adbff8007cff19f093d22a3fbfa3062ab14a77916"
+  },
+  "cases": [
+    {
+      "expression": "BETA.INV(0.25,1,1,0,1)",
+      "nativeText": "0.25",
+      "nativeValue": 0.25,
+      "expected": 0.25
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,0,1e-307)",
+      "nativeText": "2.5E-308",
+      "nativeValue": 2.5e-308,
+      "expected": 2.5e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,1e-307,2e-307)",
+      "nativeText": "1.25E-307",
+      "nativeValue": 1.2499999999999998e-307,
+      "expected": 1.2499999999999998e-307
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,-1e-307,1e-307)",
+      "nativeText": "-5E-308",
+      "nativeValue": -5e-308,
+      "expected": -5e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,0,1e100)",
+      "nativeText": "2.5E+99",
+      "nativeValue": 2.5e+99,
+      "expected": 2.5e+99
+    },
+    {
+      "expression": "BETA.INV(0.25,1,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,0,1)",
+      "nativeText": "0.32635182233307",
+      "nativeValue": 0.32635182233306964,
+      "expected": 0.32635182233306964
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,0,1e-307)",
+      "nativeText": "3.2635182233307E-308",
+      "nativeValue": 3.2635182233306963e-308,
+      "expected": 3.2635182233306963e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,1e-307,2e-307)",
+      "nativeText": "1.3263518223331E-307",
+      "nativeValue": 1.3263518223330696e-307,
+      "expected": 1.3263518223330696e-307
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,-1e-307,1e-307)",
+      "nativeText": "-3.4729635533386E-308",
+      "nativeValue": -3.4729635533386065e-308,
+      "expected": -3.4729635533386065e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,0,1e100)",
+      "nativeText": "3.2635182233307E+99",
+      "nativeValue": 3.2635182233306966e+99,
+      "expected": 3.2635182233306966e+99
+    },
+    {
+      "expression": "BETA.INV(0.25,2,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,0,1)",
+      "nativeText": "0.0625",
+      "nativeValue": 0.0625,
+      "expected": 0.0625
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,0,1e100)",
+      "nativeText": "6.25E+98",
+      "nativeValue": 6.25e+98,
+      "expected": 6.25e+98
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,0,1)",
+      "nativeText": "0.0283095437186914",
+      "nativeValue": 0.028309543718691408,
+      "expected": 0.028309543718691408
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,0,1e100)",
+      "nativeText": "2.83095437186914E+98",
+      "nativeValue": 2.830954371869141e+98,
+      "expected": 2.830954371869141e+98
+    },
+    {
+      "expression": "BETA.INV(0.25,0.5,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,0,1e-307)",
+      "nativeText": "5E-308",
+      "nativeValue": 5e-308,
+      "expected": 5e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,1e-307,2e-307)",
+      "nativeText": "1.5E-307",
+      "nativeValue": 1.5e-307,
+      "expected": 1.5e-307
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,0,1e100)",
+      "nativeText": "5E+99",
+      "nativeValue": 5e+99,
+      "expected": 5e+99
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,0,1e-307)",
+      "nativeText": "5E-308",
+      "nativeValue": 5e-308,
+      "expected": 5e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,1e-307,2e-307)",
+      "nativeText": "1.5E-307",
+      "nativeValue": 1.5e-307,
+      "expected": 1.5e-307
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,0,1e100)",
+      "nativeText": "5E+99",
+      "nativeValue": 5e+99,
+      "expected": 5e+99
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,0,1)",
+      "nativeText": "0.25",
+      "nativeValue": 0.25,
+      "expected": 0.25
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,0,1e-307)",
+      "nativeText": "2.5E-308",
+      "nativeValue": 2.5e-308,
+      "expected": 2.5e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,1e-307,2e-307)",
+      "nativeText": "1.25E-307",
+      "nativeValue": 1.2499999999999998e-307,
+      "expected": 1.2499999999999998e-307
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,-1e-307,1e-307)",
+      "nativeText": "-5E-308",
+      "nativeValue": -5e-308,
+      "expected": -5e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,0,1e100)",
+      "nativeText": "2.5E+99",
+      "nativeValue": 2.5e+99,
+      "expected": 2.5e+99
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,0,1)",
+      "nativeText": "0.120614758428183",
+      "nativeValue": 0.1206147584281834,
+      "expected": 0.1206147584281834
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,-1e-307,1e-307)",
+      "nativeText": "-7.5877048314363E-308",
+      "nativeValue": -7.587704831436332e-308,
+      "expected": -7.587704831436332e-308
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,0,1e100)",
+      "nativeText": "1.2061475842818E+99",
+      "nativeValue": 1.206147584281834e+99,
+      "expected": 1.206147584281834e+99
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,0,1)",
+      "nativeText": "0.75",
+      "nativeValue": 0.75,
+      "expected": 0.75
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,0,1e-307)",
+      "nativeText": "7.5E-308",
+      "nativeValue": 7.5e-308,
+      "expected": 7.5e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,1e-307,2e-307)",
+      "nativeText": "1.75E-307",
+      "nativeValue": 1.7499999999999999e-307,
+      "expected": 1.7499999999999999e-307
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,-1e-307,1e-307)",
+      "nativeText": "5E-308",
+      "nativeValue": 5.000000000000001e-308,
+      "expected": 5.000000000000001e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,0,1e100)",
+      "nativeText": "7.5E+99",
+      "nativeValue": 7.500000000000001e+99,
+      "expected": 7.500000000000001e+99
+    },
+    {
+      "expression": "BETA.INV(0.75,1,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,0,1)",
+      "nativeText": "0.67364817766693",
+      "nativeValue": 0.6736481776669303,
+      "expected": 0.6736481776669303
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,0,1e-307)",
+      "nativeText": "6.7364817766693E-308",
+      "nativeValue": 6.736481776669302e-308,
+      "expected": 6.736481776669302e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,1e-307,2e-307)",
+      "nativeText": "1.6736481776669E-307",
+      "nativeValue": 1.6736481776669301e-307,
+      "expected": 1.6736481776669301e-307
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,-1e-307,1e-307)",
+      "nativeText": "3.4729635533386E-308",
+      "nativeValue": 3.4729635533386055e-308,
+      "expected": 3.4729635533386055e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,0,1e100)",
+      "nativeText": "6.7364817766693E+99",
+      "nativeValue": 6.736481776669304e+99,
+      "expected": 6.736481776669304e+99
+    },
+    {
+      "expression": "BETA.INV(0.75,2,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,0,1)",
+      "nativeText": "0.5625",
+      "nativeValue": 0.5625,
+      "expected": 0.5625
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,0,1e-307)",
+      "nativeText": "5.625E-308",
+      "nativeValue": 5.625e-308,
+      "expected": 5.625e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,1e-307,2e-307)",
+      "nativeText": "1.5625E-307",
+      "nativeValue": 1.5624999999999998e-307,
+      "expected": 1.5624999999999998e-307
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 1.2500000000000006e-308,
+      "expected": 1.2500000000000006e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,0,1e100)",
+      "nativeText": "5.625E+99",
+      "nativeValue": 5.625e+99,
+      "expected": 5.625e+99
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,0,1)",
+      "nativeText": "0.311224179038489",
+      "nativeValue": 0.3112241790384894,
+      "expected": 0.3112241790384894
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,0,1e-307)",
+      "nativeText": "3.1122417903849E-308",
+      "nativeValue": 3.112241790384894e-308,
+      "expected": 3.112241790384894e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,1e-307,2e-307)",
+      "nativeText": "1.3112241790385E-307",
+      "nativeValue": 1.3112241790384893e-307,
+      "expected": 1.3112241790384893e-307
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,-1e-307,1e-307)",
+      "nativeText": "-3.7755164192302E-308",
+      "nativeValue": -3.7755164192302114e-308,
+      "expected": -3.7755164192302114e-308
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,0,1e100)",
+      "nativeText": "3.1122417903849E+99",
+      "nativeValue": 3.1122417903848945e+99,
+      "expected": 3.1122417903848945e+99
+    },
+    {
+      "expression": "BETA.INV(0.75,0.5,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,0,1)",
+      "nativeText": "9.9999999999998E-154",
+      "nativeValue": 9.999999999999836e-154,
+      "expected": 9.999999999999836e-154
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,0,1e100)",
+      "nativeText": "9.99999999999984E-54",
+      "nativeValue": 9.999999999999836e-54,
+      "expected": 9.999999999999836e-54
+    },
+    {
+      "expression": "BETA.INV(1e-153,1,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,0,1)",
+      "nativeText": "1.82574185835053E-77",
+      "nativeValue": 1.825741858350533e-77,
+      "expected": 1.825741858350533e-77
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,0,1e100)",
+      "nativeText": "1.82574185835053E+23",
+      "nativeValue": 1.8257418583505332e+23,
+      "expected": 1.8257418583505332e+23
+    },
+    {
+      "expression": "BETA.INV(1e-153,2,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,0,1)",
+      "nativeText": "9.9999999999997E-307",
+      "nativeValue": 9.999999999999673e-307,
+      "expected": 9.999999999999673e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,0,1e100)",
+      "nativeText": "9.9999999999997E-207",
+      "nativeValue": 9.999999999999674e-207,
+      "expected": 9.999999999999674e-207
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,0,1)",
+      "nativeText": "4.4444444444443E-307",
+      "nativeValue": 4.4444444444443364e-307,
+      "expected": 4.4444444444443364e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,0,1e100)",
+      "nativeText": "4.4444444444443E-207",
+      "nativeValue": 4.444444444444337e-207,
+      "expected": 4.444444444444337e-207
+    },
+    {
+      "expression": "BETA.INV(1e-153,0.5,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,0,1)",
+      "nativeText": "9.9999999999999E-155",
+      "nativeValue": 9.999999999999932e-155,
+      "expected": 9.999999999999932e-155
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,0,1e100)",
+      "nativeText": "9.99999999999993E-55",
+      "nativeValue": 9.999999999999932e-55,
+      "expected": 9.999999999999932e-55
+    },
+    {
+      "expression": "BETA.INV(1e-154,1,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,0,1)",
+      "nativeText": "5.77350269189618E-78",
+      "nativeValue": 5.773502691896178e-78,
+      "expected": 5.773502691896178e-78
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,0,1e100)",
+      "nativeText": "5.77350269189618E+22",
+      "nativeValue": 5.773502691896177e+22,
+      "expected": 5.773502691896177e+22
+    },
+    {
+      "expression": "BETA.INV(1e-154,2,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,0,1)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,0,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,0,EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,EXP(-709),EXP(-708))",
+      "nativeText": "0",
+      "nativeValue": 1.216780750623423e-308,
+      "expected": 1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,EXP(-710),EXP(-709))",
+      "nativeText": "0",
+      "nativeValue": 4.47628622567513e-309,
+      "expected": 4.47628622567513e-309
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,1e-307,2e-307)",
+      "nativeText": "1E-307",
+      "nativeValue": 1e-307,
+      "expected": 1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,-1e-307,1e-307)",
+      "nativeText": "-1E-307",
+      "nativeValue": -1e-307,
+      "expected": -1e-307
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,0,1e100)",
+      "nativeText": "9.9999999999999E-209",
+      "nativeValue": 9.999999999999865e-209,
+      "expected": 9.999999999999865e-209
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,1,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,0,1)",
+      "nativeText": "ERR6",
+      "expected": 0,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,0,1e-307)",
+      "nativeText": "ERR6",
+      "expected": 0,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,0,EXP(-709))",
+      "nativeText": "ERR6",
+      "expected": 0,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,EXP(-709),EXP(-708))",
+      "nativeText": "ERR6",
+      "expected": 1.216780750623423e-308,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,EXP(-710),EXP(-709))",
+      "nativeText": "ERR6",
+      "expected": 4.47628622567513e-309,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,-EXP(-709),EXP(-709))",
+      "nativeText": "ERR6",
+      "expected": -1.216780750623423e-308,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,1e-307,2e-307)",
+      "nativeText": "ERR6",
+      "expected": 1e-307,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,-1e-307,1e-307)",
+      "nativeText": "ERR6",
+      "expected": -1e-307,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,1e307*10,-1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,0,1e100)",
+      "nativeText": "ERR6",
+      "expected": 4.444444444444445e-209,
+      "unitReference": "4.4444444444444444444444444444444444444444444444444444444444444444e-309"
+    },
+    {
+      "expression": "BETA.INV(1e-154,0.5,2,2,-2)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.25,0.25,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.25,0.25,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.25,0.25,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.25,0.25,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.25,0.25,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,0.5,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.49999999999999994,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,0.5,-1e-307,1e-307)",
+      "nativeText": "-0",
+      "nativeValue": -2e-323,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,0.5,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,0.5,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,0.5,0.5,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1,1,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,2,2,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,3,3,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,3,3,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,3,3,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,3,3,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,3,3,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,10,10,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,10,10,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,10,10,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,10,10,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,10,10,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,100,100,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,100,100,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,100,100,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,100,100,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,100,100,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "BETA.INV(0.5,1000000,1000000,0,1)",
+      "nativeText": "0.5",
+      "nativeValue": 0.5,
+      "expected": 0.5,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1000000,1000000,-1e-307,1e-307)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "expected": 0,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1000000,1000000,-EXP(-709),EXP(-709))",
+      "nativeText": "-0",
+      "nativeValue": -1.216780750623423e-308,
+      "expected": -1.216780750623423e-308,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1000000,1000000,10,20)",
+      "nativeText": "15",
+      "nativeValue": 15,
+      "expected": 15,
+      "unitReference": "0.5 (equal-shape symmetry; independently evaluated native affine expression)"
+    },
+    {
+      "expression": "BETA.INV(0.5,1000000,1000000,-1e307*10,1e307*10)",
+      "nativeText": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    }
+  ]
+}

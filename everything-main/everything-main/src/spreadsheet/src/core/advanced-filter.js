@@ -1,0 +1,204 @@
+/**
+ * Data ▸ Sort & Filter: Advanced (filter a list by a criteria range, in place or copied elsewhere,
+ * optionally unique records only), Clear and Reapply.
+ *
+ * Criteria range: a header row naming list columns, then rows of conditions; the conditions of a
+ * row must all hold, and any row may match. A condition is a comparison (">10", "<>West", "=Apple"
+ * for an exact match) or text, which matches entries that begin with it (wildcards * and ? allowed).
+ * A computed condition is a formula under a header that names no list column (or no header): it
+ * is written for the first record and judged for each record as if copied down.
+ */
+import { criteriaMatcher } from './formula/functions.js';
+import { sheetFilters } from './sheet-filters.js';
+import { t } from '../i18n/index.js';
+
+const headerKey = (v) => String(v ?? '').trim().toLowerCase();
+const isError = (v) => v != null && typeof v === 'object' && 'error' in v;
+
+/** A predicate for one criteria cell, judged as an advanced filter judges it. */
+export function advancedMatcher(criterion) {
+  if (criterion == null || criterion === '') return () => true;
+  if (typeof criterion !== 'string') return criteriaMatcher(criterion);
+  if (/^(<>|<=|>=|<|>|=)/.test(criterion)) return criteriaMatcher(criterion);
+  // Plain text matches entries that begin with it.
+  const starts = criteriaMatcher(`${criterion}*`);
+  const exactNumber = criteriaMatcher(criterion);
+  return (v) => (typeof v === 'string' ? starts(v) : exactNumber(v));
+}
+
+/** Rows (sheet row numbers) of the list's records that meet the criteria; or { error }. */
+export function matchingRows(wb, sheetId, list, criteria) {
+  const values = wb.rangeValues(sheetId, list);
+  const headers = values[0].map(headerKey);
+  const records = values.slice(1);
+  if (!criteria) return records.map((_, i) => list.r1 + 1 + i);
+  const crit = wb.rangeValues(criteria.sheetId ?? sheetId, criteria.range);
+  if (crit.length < 2) return { error: t('coreAdvancedFilter.criteriaTooShort') };
+  const critSheet = criteria.sheetId ?? sheetId;
+  const tests = [];
+  for (let i = 1; i < crit.length; i++) {
+    const row = [];
+    for (let j = 0; j < crit[0].length; j++) {
+      const r = criteria.range.r1 + i, c = criteria.range.c1 + j;
+      const cell = wb.getCell(critSheet, r, c);
+      const at = headers.indexOf(headerKey(crit[0][j]));
+      if (cell?.f != null && at < 0) {
+        // Computed criteria: the formula as written judges the first record; others shift with it.
+        const formula = `=${cell.f}`;
+        row.push({ computed: (sheetRow) => {
+          const v = wb.evalRuleFormula(sheetId, formula, { r1: list.r1 + 1, c1: list.c1, r2: list.r1 + 1, c2: list.c1 }, sheetRow, list.c1);
+          return v === true || (typeof v === 'number' && v !== 0);
+        } });
+        continue;
+      }
+      const v = crit[i][j];
+      if (v == null || v === '') continue;
+      if (at < 0) return { error: t('coreAdvancedFilter.unknownHeader', { header: String(crit[0][j] ?? '') }) };
+      row.push({ at, match: advancedMatcher(v) });
+    }
+    tests.push(row);
+  }
+  // A criteria row left wholly blank matches every record.
+  const out = [];
+  records.forEach((rec, i) => {
+    const sheetRow = list.r1 + 1 + i;
+    if (tests.some((row) => row.every((test) => (test.computed ? test.computed(sheetRow) : test.match(isError(rec[test.at]) ? rec[test.at] : rec[test.at] ?? null))))) out.push(sheetRow);
+  });
+  return out;
+}
+
+/** Keep the first of rows whose `columns` (sheet column numbers) hold the same values. */
+function uniqueRows(wb, sheetId, rows, columns) {
+  const seen = new Set();
+  return rows.filter((r) => {
+    const key = JSON.stringify(columns.map((c) => {
+      const v = wb.getValue(sheetId, r, c);
+      return typeof v === 'string' ? v.toLowerCase() : v && typeof v === 'object' ? v.error : v;
+    }));
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * Run an advanced filter. options: { list, criteria: { sheetId, range } | null, copyTo: { sheetId, range } | null, unique }.
+ * In place it hides the records that do not match (one undo step); copying writes the header and the
+ * matching records at copyTo (only the columns its headers name, when it has headers). Returns
+ * { shown, hidden } or { copied } or { error }.
+ */
+export function advancedFilter(wb, sheetId, { list, criteria = null, copyTo = null, unique = false }) {
+  if (!list || list.r2 <= list.r1) return { error: t('coreAdvancedFilter.listTooShort') };
+  // A list typed as whole columns ($A:$D) holds records only as far down as the sheet's data goes: the blank rows
+  // below it are no records. Judged one by one they took seconds, and in place they were all hidden, the sheet
+  // seeming to end under the data. The list itself is kept as given, so a Reapply takes in rows added since.
+  const used = wb.usedRange(sheetId);
+  const records = { ...list, r2: Math.max(list.r1 + 1, Math.min(list.r2, used ? used.r2 : list.r1 + 1)) };
+  let rows = matchingRows(wb, sheetId, records, criteria);
+  if (rows.error) return rows;
+  const allColumns = []; for (let c = list.c1; c <= list.c2; c++) allColumns.push(c);
+  if (!copyTo) {
+    if (unique) rows = uniqueRows(wb, sheetId, rows, allColumns);
+    const keep = new Set(rows);
+    const hide = [], show = [];
+    for (let r = records.r1 + 1; r <= records.r2; r++) (keep.has(r) ? show : hide).push(r);
+    wb.transaction(t('coreAdvancedFilter.undo'), () => {
+      wb.setHidden(sheetId, 'row', show, false);
+      if (hide.length) wb.setHidden(sheetId, 'row', hide, true);
+      // Kept on the sheet, where its ranges follow inserted, deleted and moved rows, for Clear and Reapply.
+      const own = !criteria || (criteria.sheetId ?? sheetId) === sheetId;
+      wb.setAdvancedFilterState(sheetId, { list, criteria: criteria && { sheetId: own ? null : criteria.sheetId, range: criteria.range }, unique });
+    });
+    return { shown: show.length, hidden: hide.length };
+  }
+  const dest = copyTo.sheetId ?? sheetId;
+  const headers = wb.rangeValues(sheetId, { ...list, r2: list.r1 })[0];
+  // A destination whose first row names list columns takes only those columns, in its order.
+  const destHeaders = wb.rangeValues(dest, { r1: copyTo.range.r1, c1: copyTo.range.c1, r2: copyTo.range.r1, c2: copyTo.range.c2 })[0];
+  const named = destHeaders.map((h) => headers.findIndex((x) => headerKey(x) === headerKey(h) && headerKey(h)));
+  const columns = copyTo.range.c2 > copyTo.range.c1 || named[0] >= 0 ? named.filter((i) => i >= 0).map((i) => list.c1 + i) : allColumns;
+  if (!columns.length) return { error: t('coreAdvancedFilter.copyToColumns') };
+  if (unique) rows = uniqueRows(wb, sheetId, rows, columns);
+  // A one-row destination is filled as far down as the records go; a taller one is the limit.
+  const limit = copyTo.range.r2 > copyTo.range.r1 ? copyTo.range.r2 - copyTo.range.r1 : Infinity;
+  if (rows.length > limit) return { error: t('coreAdvancedFilter.copyToSmall') };
+  const entries = [];
+  const copyCell = (fromRow, c, toRow, toCol) => {
+    const cell = wb.getCell(sheetId, fromRow, c);
+    const v = wb.getValue(sheetId, fromRow, c);
+    // An error stays an error (a cell holds one as { error }), not the text it shows.
+    entries.push({ r: toRow, c: toCol, cell: v == null && !cell?.s ? null : { v: isError(v) ? { error: v.error } : v && typeof v === 'object' ? null : v, f: null, ...(cell?.s ? { s: cell.s } : {}) } });
+  };
+  columns.forEach((c, k) => copyCell(list.r1, c, copyTo.range.r1, copyTo.range.c1 + k));
+  rows.forEach((r, i) => columns.forEach((c, k) => copyCell(r, c, copyTo.range.r1 + 1 + i, copyTo.range.c1 + k)));
+  // Earlier results below (from a previous run) are cleared, as far as the old block went: down to its first blank
+  // row, however long it was (it stopped 2,000 rows on, leaving the rest of a longer earlier result under the new one).
+  const lastRow = Math.min(wb.usedRange(dest)?.r2 ?? -1, wb.sheet(dest).rows - 1);
+  for (let r = copyTo.range.r1 + 1 + rows.length; r <= lastRow; r++) {
+    const row = wb.rangeValues(dest, { r1: r, c1: copyTo.range.c1, r2: r, c2: copyTo.range.c1 + columns.length - 1 })[0];
+    if (!row.some((v) => v != null && v !== '')) break;
+    for (let k = 0; k < columns.length; k++) entries.push({ r, c: copyTo.range.c1 + k, cell: null });
+  }
+  const box = { r1: copyTo.range.r1, c1: copyTo.range.c1, r2: entries.reduce((last, e) => Math.max(last, e.r), copyTo.range.r1), c2: copyTo.range.c1 + columns.length - 1 };
+  // The records are written where they are read from no more than over the conditions: copied over its own list (or
+  // criteria), the list was overwritten by its own extract.
+  const meets = (g) => g.r1 <= box.r2 && g.r2 >= box.r1 && g.c1 <= box.c2 && g.c2 >= box.c1;
+  if (dest === sheetId && meets(records)) return { error: t('coreAdvancedFilter.overlapsList') };
+  if (criteria && (criteria.sheetId ?? sheetId) === dest && meets(criteria.range)) return { error: t('coreAdvancedFilter.overlapsCriteria') };
+  // A protected destination refuses the copy: said so, rather than reporting records copied that were not.
+  if (wb.lockedIn(dest, box)) return { error: t('coreAdvancedFilter.protected') };
+  wb.setCells(dest, entries, t('coreAdvancedFilter.undo'));
+  return { copied: rows.length, columns: columns.length };
+}
+
+/**
+ * Data ▸ Clear: the filters show all their rows again (criteria cleared, buttons kept). With `at`, the cell the
+ * command was given from, only the list around it is cleared, as Excel clears the current range: Clear in one
+ * table no longer wiped the filters of every other table on the sheet. From a cell outside every list, all of them.
+ */
+export function clearSheetFilters(wb, sheetId, at = null) {
+  const sheet = wb.sheet(sheetId);
+  if (!sheet) return false;
+  const inside = (range) => !!at && at.r >= range.r1 && at.r <= range.r2 && at.c >= range.c1 && at.c <= range.c2;
+  const here = sheetFilters(sheet).filter((f) => inside(f.range));
+  const advancedHere = !!sheet.advancedFilter && inside(sheet.advancedFilter.list);
+  const all = !here.length && !advancedHere;
+  let changed = false;
+  const label = t('coreAdvancedFilter.clearUndo');
+  wb.transaction(label, () => {
+    for (const f of all ? sheetFilters(sheet) : here) {
+      if (!Object.keys(f.criteria || {}).length) continue;
+      wb._setFilter(sheet, { ...f, criteria: {} }, label, { target: f });
+      changed = true;
+    }
+    // The advanced filter run in place shows every record of its list again, wherever the list has moved to.
+    const last = sheet.advancedFilter;
+    if (last && (all || advancedHere)) {
+      const hidden = [...sheet.hiddenRows].filter((r) => r > last.list.r1 && r <= last.list.r2);
+      if (hidden.length) wb.setHidden(sheetId, 'row', hidden, false);
+      wb.setAdvancedFilterState(sheetId, null, label);
+      changed = true;
+    }
+  });
+  return changed;
+}
+
+/** Whether Clear has anything to clear on the sheet. */
+export function sheetHasFiltering(wb, sheetId) {
+  const sheet = wb.sheet(sheetId);
+  if (!sheet) return false;
+  return sheetFilters(sheet).some((f) => Object.keys(f.criteria || {}).length) || !!sheet.advancedFilter;
+}
+
+/** Data ▸ Reapply: the filters judge the rows again (after edits), and so does the last advanced filter in place. */
+export function reapplySheetFilters(wb, sheetId) {
+  const sheet = wb.sheet(sheetId);
+  if (!sheet) return false;
+  const last = sheet.advancedFilter;
+  if (sheetFilters(sheet).length) wb.reapplyFilter(sheetId);
+  // Criteria on a sheet since deleted, or in rows since deleted, can no longer be read: that filter is left as it is.
+  const criteria = last?.criteria && { sheetId: last.criteria.sheetId ?? sheetId, range: last.criteria.range };
+  const readable = last && last.criteria !== false && (!criteria || wb.sheet(criteria.sheetId));
+  if (readable) advancedFilter(wb, sheetId, { list: last.list, criteria, unique: last.unique });
+  return !!(sheetFilters(sheet).length || readable);
+}

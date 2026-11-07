@@ -1,0 +1,117 @@
+/**
+ * Print production: color management (Edit > Color Settings, Assign
+ * Profile, color-managed proofs and CMYK conversion), the Separations
+ * Preview and Flattener Preview panels, Effect > Video, and the presets
+ * for transparency flattening, printing and PDF export.
+ */
+import './styles.css';
+import { registerIcons } from '../../ui/icons.js';
+import { viewHooks } from '../../render/canvas-view.js';
+import { PROOFS, proofHooks, applyProof } from '../workspace/view.js';
+import { cmykEngine } from '../../lib/color.js';
+import { rgbToCmyk, cmykToRgb, nearestPrintable } from '../icc/cms.js';
+import { proofBody, documentCmykLabel } from './proof.js';
+import { colorSettingsDialog, assignProfileDialog, proofCustomizeDialog } from './color-dialogs.js';
+import { drawSeparations, separationState } from './separations.js';
+import { drawGpuProof, gpuHandlesProof } from './gpu-proof.js';
+import { SeparationsPanel } from './separations-panel.js';
+import { FlattenerPreviewPanel } from './flattener-preview.js';
+import { videoEffectCommands } from './video-effects.js';
+import { presetsManagerDialog } from './presets.js';
+import { applyOpenPolicy } from './color-policies.js';
+import { flattenTransparencyDialog } from './flattener-presets.js';
+import './print-presets.js';
+import './pdf-presets.js';
+
+const P = (d, extra = {}) => ['path', { d, ...extra }];
+
+registerIcons({
+  // Three overlapping plates.
+  'panel-separations': [['circle', { cx: '9', cy: '9', r: '5' }], ['circle', { cx: '15', cy: '9', r: '5' }], ['circle', { cx: '12', cy: '14.5', r: '5' }]],
+  // A stack flattening into one sheet.
+  'panel-flattener': [P('M4 7l8-4 8 4-8 4z'), P('M4 12l8 4 8-4', { 'stroke-dasharray': '2 2' }), P('M4 17l8 4 8-4')],
+});
+
+export function install(app) {
+  const hasDoc = (a) => Boolean(a.editor);
+  const refreshProof = () => {
+    applyProof(app, { refresh: true });
+    for (const v of app.views?.values?.() || []) v.invalidate?.();
+  };
+
+  // Proofs from the color settings.
+  proofHooks.body = (kind) => proofBody(app, kind);
+  PROOFS.cmyk.label = (a) => documentCmykLabel(a);
+  PROOFS.custom.label = 'Custom';
+
+  // CMYK numbers (Convert to CMYK, the Color panel, imports) come from the ICC transform between the document's profiles.
+  cmykEngine.toCmyk = (rgb) => rgbToCmyk(app, app.editor?.doc, [rgb.r / 255, rgb.g / 255, rgb.b / 255]);
+  cmykEngine.toRgb = (cmyk) => {
+    const v = cmykToRgb(app, app.editor?.doc, cmyk);
+    return { r: v[0] * 255, g: v[1] * 255, b: v[2] * 255 };
+  };
+  cmykEngine.gamut = (rgb) => {
+    const v = nearestPrintable(app, app.editor?.doc, [rgb.r / 255, rgb.g / 255, rgb.b / 255]);
+    return v && { r: v[0] * 255, g: v[1] * 255, b: v[2] * 255 };
+  };
+
+  app.commands.register([
+    { id: 'edit.colorSettings', label: 'Color Settings...', shortcut: 'Shift+Mod+K', run: async (a) => (await colorSettingsDialog(a)) && refreshProof() },
+    { id: 'edit.assignProfile', label: 'Assign Profile...', enabled: hasDoc, run: async (a) => (await assignProfileDialog(a)) && refreshProof() },
+    {
+      id: 'view.proof.customize',
+      label: 'Customize...',
+      enabled: hasDoc,
+      checked: (a) => a.editor?.viewOptions.proof === 'custom',
+      run: async (a) => {
+        if (!(await proofCustomizeDialog(a))) return;
+        const ed = a.editor;
+        ed.viewOptions = { ...ed.viewOptions, proof: 'custom', proofColors: true };
+        ed.emit('view-options');
+        refreshProof();
+      },
+    },
+    ...videoEffectCommands(),
+    { id: 'edit.pdfPresets', label: 'PDF Presets...', run: (a) => presetsManagerDialog(a, 'pdf') },
+    { id: 'edit.printPresets', label: 'Print Presets...', run: (a) => presetsManagerDialog(a, 'print') },
+    { id: 'edit.flattenerPresets', label: 'Transparency Flattener Presets...', run: (a) => presetsManagerDialog(a, 'flattener') },
+    { id: 'object.flatten', label: 'Flatten Transparency...', enabled: (a) => Boolean(a.editor?.selection.size), run: (a) => flattenTransparencyDialog(a) },
+  ]);
+  app.registerPanel(SeparationsPanel);
+  app.registerPanel(FlattenerPreviewPanel);
+
+  // Separations first: while they show, the proof does not apply on top.
+  viewHooks.postArt.push((ctx, editor) => {
+    if (separationState(editor).on) drawSeparations(app, ctx, editor);
+    else drawGpuProof(app, ctx, editor);
+  });
+  proofHooks.canvas = (editor) => separationState(editor).on || gpuHandlesProof(app, editor);
+
+  // Color management policies apply to documents as they open.
+  const addDocument = app.addDocument.bind(app);
+  app.addDocument = (doc, opts = {}) => {
+    const editor = addDocument(doc, opts);
+    if (opts.file) Promise.resolve().then(() => applyOpenPolicy(app, editor)).catch(() => {});
+    return editor;
+  };
+
+  app.prefs.on?.('change', ({ key }) => {
+    if (key === 'colorSettings' || key === 'proofCustom') refreshProof();
+  });
+  // A document's assigned profile changes its proofs and separations.
+  const watched = new WeakSet();
+  app.on('active-editor', (ed) => {
+    applyProof(app, { refresh: true });
+    if (!ed || watched.has(ed)) return;
+    watched.add(ed);
+    let last = ed.doc.root.colorProfile;
+    // Separations replace the proof filter while they show.
+    ed.on('view-options', () => applyProof(app));
+    ed.on('doc-change', () => {
+      const p = ed.doc.root.colorProfile;
+      if (p === last) return;
+      last = p;
+      refreshProof();
+    });
+  });
+}

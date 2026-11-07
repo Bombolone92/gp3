@@ -1,0 +1,895 @@
+// Properties tabs: scene, world, collection, object, data, material.
+import { uvMaps, setActiveUV, renameUV } from '../../mesh/uvmaps';
+import { shapeKeyFrame } from '../../eval/depsgraph';
+import { materialSettingsPanel, ensureMaterialDefaults } from '../../render/realtime/materialprops';
+import { lightInfluencePanel, lightShadowPanel, lightDistancePanel, ensureLightDefaults } from '../../render/realtime/lightprops';
+import { checkNum } from '../../render/final/props/common';
+import { ensureLightColorDefaults } from '../../render/final/lightcolor';
+import { h, type Child } from '../../ui/h';
+import { icon } from '../../ui/icons';
+import { app } from '../../app/app';
+import { registerTab } from './properties';
+import { panel, enumMenu, button, opButton, textField, enumRow, checkbox, numberField } from '../../ui/widgets';
+import { num, bool, enumProp, colorProp, vecProp, splitRow, textProp, boolHeading, oid, objectProp } from '../../ui/props';
+import type { ObjectData, MaterialData, MeshData, WorldData, LightData, CameraData, CurveData } from '../../data/types';
+import { newMaterial, uid } from '../../data/defaults';
+import { uniqueName } from '../../ops/object';
+import { cloneShared } from '../../data/cow';
+import { openMenu } from '../../ui/menu';
+import { idSelectorMenuHooks, idDecoration } from '../../ui/idmenu';
+import { materialSlots } from '../view3d/draw';
+import { uiList } from './uilist';
+import { cameraPanels } from '../../render/final/props/camera';
+import { materialSpecials, shapeKeySpecials, vertexGroupSpecials } from '../../object/listmenus';
+import { propertiesCollection } from '../../object/relations';
+import { objectCollectionsPanel } from '../../object/collections';
+import { customPropsPanelBody } from '../../ui/customprops';
+import { parentInversePanel, boundsRow } from '../../object/parentinverse';
+
+/** Small lock toggle used inside list rows. */
+function lockToggle(on: boolean, tip: string, toggle: () => void): Child {
+  return h('button', { class: { 'ul-lock': true, on }, 'data-tip': tip, onpointerdown: (e: PointerEvent) => e.stopPropagation(), onclick: (e: MouseEvent) => (e.stopPropagation(), toggle()) }, icon(on ? 'locked' : 'unlocked'));
+}
+
+const ob = () => app.activeObject;
+
+/** Extra Object-tab panels contributed by other modules (shown after Instancing, e.g. Motion Paths). */
+export const objectExtraPanels: ((o: ObjectData) => Child)[] = [];
+/** Extra rows of the Scene tab's Scene panel (e.g. Background Scene). */
+export const sceneMainRows: (() => Child)[] = [];
+/** Extra World-tab panels contributed by other modules (shown before Viewport Display). */
+export const worldExtraPanels: ((w: WorldData) => Child)[] = [];
+/** Keying Sets panel of the Scene tab (drawn by the animation module). */
+export const sceneKeyingPanel: { draw: (() => Child) | null } = { draw: null };
+/** Rigid Body World panel of the Scene tab (provided by the physics module). */
+export const sceneRigidBodyPanel: { draw: (() => Child) | null } = { draw: null };
+const changed = (label: string) => {
+  app.pushUndo(label);
+  app.changed('doc');
+};
+
+// ---------------------------------------------------------------------------
+// Tool
+
+registerTab({
+  id: 'TOOL',
+  label: 'Tool',
+  icon: 'tool',
+  group: 0,
+  poll: () => true,
+  draw: () => {
+    const ts = app.doc.scene.tool_settings;
+    return [
+      panel('tool-active', 'Active Tool', () => h('div', { class: 'prop-note' }, 'Tool settings are shown in the 3D Viewport tool header and sidebar.')),
+      panel('tool-options', 'Options', () => [
+        bool(ts, 'use_transform_data_origin', 'Affect Only Origins'),
+        bool(ts, 'use_transform_skip_children', 'Affect Only Parents'),
+        bool(ts, 'use_keyframe_insert_auto', 'Auto Keying'),
+        enumProp(ts, 'keyframe_type', 'Keyframe Type', [['KEYFRAME', 'Keyframe'], ['BREAKDOWN', 'Breakdown'], ['MOVING_HOLD', 'Moving Hold'], ['EXTREME', 'Extreme'], ['JITTER', 'Jitter']]),
+      ]),
+    ];
+  },
+});
+
+// Render, Output and View Layer tabs live in src/render/final/props/.
+
+// ---------------------------------------------------------------------------
+// Scene
+
+registerTab({
+  id: 'SCENE',
+  label: 'Scene',
+  icon: 'scene_data',
+  group: 2,
+  poll: () => true,
+  draw: () => {
+    const s = app.doc.scene;
+    const worlds = Object.values(app.doc.worlds);
+    return [
+      panel('sc-scene', 'Scene', () => [
+        objectProp(s, 'camera', 'Camera', { filter: (c) => c.type === 'CAMERA', undo: 'Scene Camera' }),
+        splitRow('World', enumMenu('sc-world', [{ value: '', label: '—' }, ...worlds.map((w) => ({ value: w.id, label: w.name, icon: 'world' }))], s.world ?? '', (v) => ((s.world = v || null), changed('Scene World')))),
+        ...sceneMainRows.map((f) => f()),
+      ]),
+      panel('sc-units', 'Units', () => [
+        enumProp(s.unit_settings, 'system', 'Unit System', [['NONE', 'None'], ['METRIC', 'Metric'], ['IMPERIAL', 'Imperial']]),
+        num(s.unit_settings, 'scale_length', 'Unit Scale', { min: 1e-5, max: 1e5 }),
+        enumProp(s.unit_settings, 'system_rotation', 'Rotation', [['DEGREES', 'Degrees'], ['RADIANS', 'Radians']]),
+        enumProp(s.unit_settings, 'length_unit', 'Length', [['ADAPTIVE', 'Adaptive'], ['KILOMETERS', 'Kilometers'], ['METERS', 'Meters'], ['CENTIMETERS', 'Centimeters'], ['MILLIMETERS', 'Millimeters'], ['MICROMETERS', 'Micrometers']]),
+      ]),
+      panel('sc-gravity', 'Gravity', () => [vecProp(s, 'gravity', 'Gravity', { unit: 'none' })], { header: checkbox('sc-grav-on', '', s.use_gravity, (v) => ((s.use_gravity = v), changed('Gravity'))) }),
+      sceneRigidBodyPanel.draw ? sceneRigidBodyPanel.draw() : panel('sc-rb', 'Rigid Body World', () =>
+        s.rigidbody_world
+          ? [
+              num(s.rigidbody_world, 'time_scale', 'Speed', { min: 0, max: 100 }),
+              num(s.rigidbody_world, 'substeps_per_frame', 'Substeps Per Frame', { int: true, min: 1, max: 100 }),
+              num(s.rigidbody_world, 'solver_iterations', 'Solver Iterations', { int: true, min: 1, max: 1000 }),
+              num(s.rigidbody_world, 'frame_start', 'Simulation Start', { int: true }),
+              num(s.rigidbody_world, 'frame_end', 'End', { int: true }),
+              opButton('rigidbody.world_remove', 'Remove Rigid Body World'),
+            ]
+          : opButton('rigidbody.world_add', 'Add Rigid Body World'),
+      ),
+      sceneKeyingPanel.draw
+        ? sceneKeyingPanel.draw()
+        : panel('sc-keying', 'Keying Sets', () => [
+            enumProp(s as never, 'keying_set' as never, 'Active Keying Set', [['LocRotScale', 'Location, Rotation & Scale'], ['Location', 'Location'], ['Rotation', 'Rotation'], ['Scale', 'Scale'], ['Available', 'Available'], ['WholeCharacter', 'Whole Character']]),
+          ], { closed: true }),
+    ];
+  },
+});
+
+// ---------------------------------------------------------------------------
+// World
+
+function worldBackground(w: WorldData) {
+  return w.tree.nodes.find((n) => n.type === 'ShaderNodeBackground');
+}
+
+registerTab({
+  id: 'WORLD',
+  label: 'World',
+  icon: 'world',
+  group: 2,
+  poll: () => true,
+  draw: () => {
+    const s = app.doc.scene;
+    const w = s.world ? app.doc.worlds[s.world] : undefined;
+    const selector = dataBlockSelector(
+      'world',
+      'world',
+      Object.values(app.doc.worlds),
+      w?.id ?? null,
+      (id) => ((s.world = id), changed('Assign World')),
+      () => app.run('world.new'),
+    );
+    if (!w) return [selector];
+    const bg = worldBackground(w);
+    const linked = bg ? w.tree.links.find((l) => l.to_node === bg.id && l.to_socket === 'Color') : undefined;
+    const src = linked ? w.tree.nodes.find((n) => n.id === linked.from_node) : undefined;
+    return [
+      selector,
+      panel('wo-surface', 'Surface', () =>
+        worldSurfacePanel.draw
+          ? worldSurfacePanel.draw(w)
+          : bg
+          ? [
+              splitRow('Surface', h('span', { class: 'node-link-label' }, icon('node_material'), 'Background')),
+              src
+                ? splitRow('Color', h('span', { class: 'node-link-label' }, icon('texture'), src.name), null)
+                : colorProp(bg.inputs as Record<string, unknown>, 'Color' as never, 'Color'),
+              src?.type === 'ShaderNodeTexEnvironment' ? imageSlot(src.props as Record<string, unknown>, 'image', 'Image') : null,
+              src?.type === 'ShaderNodeTexSky' ? num(src.props as Record<string, unknown>, 'sun_elevation' as never, 'Sun Elevation', { unit: 'angle' }) : null,
+              num(bg.inputs as Record<string, unknown>, 'Strength' as never, 'Strength', { min: 0, softMax: 10 }),
+              h(
+                'div',
+                { class: 'btn-row' },
+                button('wo-sky', 'Use Sky Texture', () => setWorldSource(w, 'ShaderNodeTexSky')),
+                button('wo-env', 'Use Environment Texture', () => setWorldSource(w, 'ShaderNodeTexEnvironment')),
+                src ? button('wo-plain', 'Use Color', () => setWorldSource(w, null)) : null,
+              ),
+            ]
+          : h('div', { class: 'prop-note' }, 'The world node tree has no Background node. Edit it in the Shader Editor (World).'),
+      ),
+      panel('wo-mist', 'Mist Pass', () => [num(w as never, 'mist_start' as never, 'Start', { unit: 'distance' }), num(w as never, 'mist_depth' as never, 'Depth', { unit: 'distance' }), enumProp(w as never, 'mist_falloff' as never, 'Falloff', [['QUADRATIC', 'Quadratic'], ['LINEAR', 'Linear'], ['INVERSE_QUADRATIC', 'Inverse Quadratic']])], { closed: true }),
+      panel('wo-visibility', 'Ray Visibility', () => [bool((w.visible_camera ??= true, w), 'visible_camera', 'Camera', { tip: 'Show the world in the background (off: the world only lights the scene)' })], { closed: true }),
+      worldExtraPanels.map((p) => p(w)),
+      panel('wo-display', 'Viewport Display', () => [colorProp(w, 'color', 'Color')], { closed: true }),
+    ];
+  },
+});
+
+function setWorldSource(w: WorldData, type: string | null) {
+  const bg = worldBackground(w);
+  if (!bg) return;
+  w.tree.links = w.tree.links.filter((l) => !(l.to_node === bg.id && l.to_socket === 'Color'));
+  if (type) {
+    const n = { id: uid('node'), type, name: type === 'ShaderNodeTexSky' ? 'Sky Texture' : 'Environment Texture', location: [bg.location[0] - 260, bg.location[1]] as [number, number], inputs: {}, props: (type === 'ShaderNodeTexSky' ? { sky_type: 'NISHITA', sun_elevation: 0.26, sun_rotation: 0 } : { image: null }) as Record<string, string | number | null> };
+    w.tree.nodes.push(n);
+    w.tree.links.push({ id: uid('link'), from_node: n.id, from_socket: 'Color', to_node: bg.id, to_socket: 'Color' });
+  }
+  changed('World Surface');
+}
+
+export function imageSlot(owner: Record<string, unknown>, key: string, label: string) {
+  const images = Object.values(app.doc.images);
+  return splitRow(
+    label,
+    h(
+      'div',
+      { class: 'row-aligned' },
+      enumMenu(`img-${oid(owner)}`, [{ value: '', label: '—' }, ...images.map((i) => ({ value: i.id, label: i.name, icon: 'image' }))], String(owner[key] ?? ''), (v) => ((owner[key] = v || null), changed('Assign Image'))),
+      button(`img-open-${oid(owner)}`, icon('file_folder'), () => app.run('image.open', { target_owner: true }, { invoke: true }) && void 0, { tip: 'Open Image', className: 'ra-icon' }),
+    ),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Collection
+
+registerTab({
+  id: 'COLLECTION',
+  label: 'Collection',
+  icon: 'collection',
+  group: 2,
+  poll: () => {
+    const id = (window as unknown as { __activeCollection?: string }).__activeCollection;
+    void id;
+    return Object.keys(app.doc.collections).length > 1;
+  },
+  draw: () => {
+    const doc = app.doc;
+    const c = propertiesCollection();
+    if (!c) return h('div', { class: 'prop-note' }, 'No collection');
+    return [
+      h('div', { class: 'id-row' }, icon(idDecoration(c.id)?.icon ?? 'collection'), idDecoration(c.id)?.readonly ? h('span', { class: 'text-field ids-name-ro', 'data-tip': idDecoration(c.id)!.tip }, c.name) : textField('col-name', c.name, (v) => ((c.name = uniqueName(doc, v, 'collections')), changed('Rename Collection')))),
+      panel('col-restrict', 'Restrictions', () => [boolHeading(c, 'hide_select', 'Selectable', '', {}), bool(c, 'hide_render', 'Disable in Renders'), bool(c, 'holdout' as never, 'Holdout'), bool(c, 'indirect_only' as never, 'Indirect Only')]),
+      panel(
+        'col-instancing',
+        'Instancing',
+        () => [
+          vecProp(c, 'instance_offset', 'Offset', { unit: 'distance' }),
+          h('div', { class: 'btn-row btn-stack' }, opButton('object.instance_offset_from_cursor'), opButton('object.instance_offset_from_object'), opButton('object.instance_offset_to_cursor')),
+        ],
+        { closed: true },
+      ),
+      ...collectionExtraPanels.map((f) => f(c)),
+    ];
+  },
+});
+
+/** Extra Collection tab panels (registered by feature modules). */
+export const collectionExtraPanels: ((c: import('../../data/types').CollectionData) => Child)[] = [];
+
+// ---------------------------------------------------------------------------
+// Object
+
+registerTab({
+  id: 'OBJECT',
+  label: 'Object',
+  icon: 'object',
+  group: 3,
+  poll: () => !!ob(),
+  draw: () => {
+    const o = ob()!;
+    const doc = app.doc;
+    const rotPath = o.rotation_mode === 'QUATERNION' ? 'rotation_quaternion' : o.rotation_mode === 'AXIS_ANGLE' ? 'rotation_axis_angle' : 'rotation_euler';
+    const parents = Object.values(doc.objects).filter((x) => x.id !== o.id);
+    return [
+      h('div', { class: 'id-row' }, icon(idDecoration(o.id)?.icon ?? 'object'), idDecoration(o.id)?.readonly ? h('span', { class: 'text-field ids-name-ro', 'data-tip': idDecoration(o.id)!.tip }, o.name) : textField('ob-name', o.name, (v) => ((o.name = uniqueName(doc, v)), changed('Rename Object')))),
+      panel('ob-transform', 'Transform', () => [
+        vecProp(o, 'location', 'Location', { unit: 'distance', anim: { ob: o, path: 'location' }, lock: { owner: o, key: 'lock_location' } }),
+        o.rotation_mode === 'QUATERNION'
+          ? vecProp(o, 'rotation_quaternion', 'Rotation', { names: ['W', 'X', 'Y', 'Z'], anim: { ob: o, path: rotPath }, lock: { owner: o, key: 'lock_rotation', offset: 1 } })
+          : o.rotation_mode === 'AXIS_ANGLE'
+            ? vecProp(o, 'rotation_axis_angle', 'Rotation', { names: ['W', 'X', 'Y', 'Z'], anim: { ob: o, path: rotPath }, lock: { owner: o, key: 'lock_rotation', offset: 1 } })
+            : vecProp(o, 'rotation_euler', 'Rotation', { unit: 'angle', anim: { ob: o, path: rotPath }, lock: { owner: o, key: 'lock_rotation' } }),
+        splitRow(
+          'Mode',
+          enumMenu('ob-rotmode', [['QUATERNION', 'Quaternion (WXYZ)'], ['XYZ', 'XYZ Euler'], ['XZY', 'XZY Euler'], ['YXZ', 'YXZ Euler'], ['YZX', 'YZX Euler'], ['ZXY', 'ZXY Euler'], ['ZYX', 'ZYX Euler'], ['AXIS_ANGLE', 'Axis Angle']].map(([value, label]) => ({ value, label })), o.rotation_mode, (m) => app.run('object.rotation_mode_set', { mode: m })),
+        ),
+        vecProp(o, 'scale', 'Scale', { anim: { ob: o, path: 'scale' }, lock: { owner: o, key: 'lock_scale' } }),
+        panel('ob-delta', 'Delta Transform', () => [vecProp(o, 'delta_location', 'Delta Location', { unit: 'distance' }), vecProp(o, 'delta_rotation_euler', 'Delta Rotation', { unit: 'angle' }), vecProp(o, 'delta_scale', 'Delta Scale')], { sub: true, closed: true }),
+        parentInversePanel(o),
+      ]),
+      panel('ob-relations', 'Relations', () => [
+        splitRow('Parent', enumMenu('ob-parent', [{ value: '', label: '—' }, ...parents.map((p) => ({ value: p.id, label: p.name, icon: 'object' }))], o.parent ?? '', (v) => {
+          o.parent = v || null;
+          if (!v) o.parent_type = 'OBJECT';
+          changed('Set Parent');
+        })),
+        o.parent ? enumProp(o, 'parent_type', 'Parent Type', [['OBJECT', 'Object'], ['BONE', 'Bone'], ['VERTEX', 'Vertex'], ['VERTEX_3', '3 Vertices']]) : null,
+        o.parent && o.parent_type === 'BONE' ? textProp(o, 'parent_bone', 'Parent Bone') : null,
+        o.parent && o.type === 'CAMERA' ? bool(o as never, 'use_camera_lock_parent' as never, 'Camera Parent Lock', { tip: 'Camera Parent Lock\nWith Lock Camera to View, navigating moves the parent instead of the camera' }) : null,
+        num(o as never, 'pass_index' as never, 'Pass Index', { int: true, min: 0 }),
+      ], { closed: true }),
+      panel('ob-collections', 'Collections', () => objectCollectionsPanel(o), { closed: true }),
+      panel('ob-instancing', 'Instancing', () => [
+        enumProp(o, 'instance_type', 'Instancing', [['NONE', 'None'], ['COLLECTION', 'Collection'], ['VERTS', 'Vertices'], ['FACES', 'Faces']]),
+        o.instance_type === 'COLLECTION' ? splitRow('Collection', enumMenu('ob-inst-col', Object.values(doc.collections).filter((c) => c.id !== doc.scene.collection).map((c) => ({ value: c.id, label: c.name })), o.instance_collection ?? '', (v) => ((o.instance_collection = v), changed('Instance Collection')))) : null,
+        o.instance_type === 'VERTS' ? bool(o as never, 'use_instance_vertices_rotation' as never, 'Align to Vertex Normal') : null,
+        o.instance_type === 'FACES' ? [bool(o as never, 'use_instance_faces_scale' as never, 'Scale by Face Size'), o.use_instance_faces_scale && o.instance_faces_scale !== undefined ? num(o as never, 'instance_faces_scale' as never, 'Factor', { min: 0.001, max: 10000 }) : null] : null,
+      ], { closed: true }),
+      objectExtraPanels.map((p) => p(o)),
+      panel('ob-visibility', 'Visibility', () => [
+        boolHeading({ get v() { return !o.hide_select; }, set v(x: boolean) { o.hide_select = !x; } } as { v: boolean }, 'v', 'Selectable'),
+        h('div', { class: 'sub-label' }, 'Show In'),
+        bool({ get v() { return !o.hide_viewport; }, set v(x: boolean) { o.hide_viewport = !x; } } as { v: boolean }, 'v', 'Viewports'),
+        bool({ get v() { return !o.hide_render; }, set v(x: boolean) { o.hide_render = !x; } } as { v: boolean }, 'v', 'Renders'),
+        h('div', { class: 'sub-label' }, 'Mask'),
+        bool(o as never, 'is_shadow_catcher' as never, 'Shadow Catcher'),
+        bool(o as never, 'is_holdout' as never, 'Holdout'),
+      ], { closed: true }),
+      panel('ob-display', 'Viewport Display', () => [
+        bool(o, 'show_name', 'Name'),
+        bool(o, 'show_axis', 'Axes'),
+        o.type === 'MESH' ? bool(o, 'show_wire', 'Wireframe') : null,
+        o.type === 'MESH' ? bool(o as never, 'show_all_edges' as never, 'All Edges', { tip: 'All Edges\nThe wireframe shows every edge, whatever the wireframe threshold' }) : null,
+        o.type === 'MESH' || o.type === 'CURVE' || o.type === 'FONT' ? bool(o as never, 'show_texture_space' as never, 'Texture Space', { tip: 'Texture Space\nDraw the box generated texture coordinates are mapped to' }) : null,
+        bool({ get v() { return (o as { display_show_shadows?: boolean }).display_show_shadows !== false; }, set v(x: boolean) { (o as { display_show_shadows?: boolean }).display_show_shadows = x; } } as { v: boolean }, 'v', 'Shadow', { tip: 'Shadow\nThe object casts a shadow in Solid shading' }),
+        bool(o, 'show_in_front', 'In Front'),
+        enumProp(o, 'display_type', 'Display As', [['BOUNDS', 'Bounds'], ['WIRE', 'Wire'], ['SOLID', 'Solid'], ['TEXTURED', 'Textured']]),
+        colorProp(o, 'color', 'Color', { alpha: true }),
+        boundsRow(o),
+        o.type === 'EMPTY' ? [enumProp(o, 'empty_display_type', 'Display As', [['PLAIN_AXES', 'Plain Axes'], ['ARROWS', 'Arrows'], ['SINGLE_ARROW', 'Single Arrow'], ['CIRCLE', 'Circle'], ['CUBE', 'Cube'], ['SPHERE', 'Sphere'], ['CONE', 'Cone'], ['IMAGE', 'Image']]), num(o, 'empty_display_size', 'Size', { unit: 'distance', min: 0 })] : null,
+      ], { closed: true }),
+      panel('ob-custom', 'Custom Properties', () => customPropsPanelBody(o as never, 'object'), { closed: true }),
+    ];
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Data-block selector (browse / name / new / unlink)
+
+export function dataBlockSelector<T extends { id: string; name: string; use_fake_user?: boolean }>(id: string, iconName: string, items: T[], current: string | null, set: (id: string | null) => void, create: () => void, opts: { duplicate?: () => void; users?: number; noUnlink?: boolean } = {}): Child {
+  const cur = items.find((i) => i.id === current);
+  return h(
+    'div',
+    {
+      class: 'id-selector',
+      oncontextmenu: (e: MouseEvent) => {
+        const extra = cur ? idSelectorMenuHooks.flatMap((f) => f(cur.id)) : [];
+        if (!extra.length) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openMenu(extra, { x: e.clientX, y: e.clientY });
+      },
+    },
+    h(
+      'button',
+      {
+        class: 'ids-browse',
+        'data-tip': 'Browse',
+        onpointerdown: (e: PointerEvent) => {
+          e.preventDefault();
+          openMenu(items.map((i) => ({ label: i.name, icon: idDecoration(i.id)?.icon ?? iconName, description: idDecoration(i.id)?.note, active: i.id === current, action: () => set(i.id) })), e.currentTarget as HTMLElement);
+        },
+      },
+      icon(iconName),
+      icon('down_arrow_hlt', 'tiny'),
+    ),
+    cur
+      ? [
+          idDecoration(cur.id) ? h('span', { class: 'ids-lib', 'data-tip': idDecoration(cur.id)!.tip }, icon(idDecoration(cur.id)!.icon)) : null,
+          idDecoration(cur.id)?.readonly ? h('span', { class: 'text-field ids-name-ro', 'data-tip': idDecoration(cur.id)!.tip }, cur.name) : textField(`${id}-name`, cur.name, (v) => ((cur.name = v), changed('Rename'))),
+          opts.users && opts.users > 1 ? h('button', { class: 'ids-users', 'data-tip': 'Display number of users of this data (click to make a single-user copy)', onclick: () => opts.duplicate?.() }, String(opts.users)) : null,
+          h('button', { class: { 'ids-btn': true, on: !!cur.use_fake_user }, 'data-tip': 'Fake User\nSave this data-block even if it has no users', disabled: !!idDecoration(cur.id)?.readonly, onclick: () => app.run('ed.lib_id_fake_user_toggle', { id: cur.id }, { invoke: false }) }, icon(cur.use_fake_user ? 'fake_user_on' : 'fake_user_off')),
+          opts.duplicate ? h('button', { class: 'ids-btn', 'data-tip': 'New (duplicate)', onclick: () => opts.duplicate!() }, icon('duplicate')) : null,
+          opts.noUnlink ? null : h('button', { class: 'ids-btn', 'data-tip': 'Unlink Data-Block', onclick: () => set(null) }, icon('x')),
+        ]
+      : h('button', { class: 'btn ids-new', onclick: create }, icon('add'), 'New'),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Object data
+
+function meshData(o: ObjectData, me: MeshData): Child {
+  const doc = app.doc;
+  const users = Object.values(doc.objects).filter((x) => x.data === me.id).length;
+  return [
+    dataBlockSelector('me', 'mesh_data', Object.values(doc.meshes), me.id, (id) => id && ((o.data = id), changed('Assign Mesh')), () => {}, {
+      noUnlink: true,
+      users,
+      duplicate: () => {
+        const d = cloneShared(me);
+        d.id = uid('me');
+        d.name = uniqueName(doc, me.name, 'meshes');
+        doc.meshes[d.id] = d;
+        o.data = d.id;
+        changed('Make Single User');
+      },
+    }),
+    panel('me-vgroups', 'Vertex Groups', () => [
+      uiList(
+        'vg',
+        me.vertex_groups.map((g, i) => ({ key: g.name, label: g.name, icon: 'group_vertex', rightSize: 'compact' as const, right: lockToggle(!!g.lock_weight, 'Lock weights', () => ((me.vertex_groups[i] = { ...g, lock_weight: !g.lock_weight }), changed('Lock Vertex Group'))) })),
+        o.vertex_group_active_index ?? 0,
+        (i) => ((o.vertex_group_active_index = i), app.changed('doc')),
+        {
+          add: () => app.run('object.vertex_group_add'),
+          remove: () => app.run('object.vertex_group_remove'),
+          specials: vertexGroupSpecials,
+          up: me.vertex_groups.length > 1 ? () => app.run('object.vertex_group_move', { direction: 'UP' }) : undefined,
+          down: me.vertex_groups.length > 1 ? () => app.run('object.vertex_group_move', { direction: 'DOWN' }) : undefined,
+          rename: (i, name) => {
+            me.vertex_groups[i].name = name;
+            changed('Rename Vertex Group');
+          },
+        },
+      ),
+      app.doc.mode === 'EDIT' && me.vertex_groups.length
+        ? h('div', { class: 'btn-row' }, opButton('object.vertex_group_assign', 'Assign'), opButton('object.vertex_group_remove_from', 'Remove'), opButton('object.vertex_group_select', 'Select'), opButton('object.vertex_group_deselect', 'Deselect'))
+        : null,
+      app.doc.mode === 'EDIT' ? num(doc.scene.tool_settings as never, 'vertex_group_weight' as never, 'Weight', { min: 0, max: 1, slider: true }) : null,
+    ]),
+    panel('me-shapekeys', 'Shape Keys', () => [
+      uiList(
+        'sk',
+        me.shape_keys.map((k, i) => ({
+          key: k.name,
+          label: k.name,
+          icon: 'shapekey_data',
+          rightSize: 'wide' as const,
+          right: me.use_relative === false ? [h('span', { class: 'ul-meta' }, shapeKeyFrame(me, i).toFixed(3))] : [
+            i > 0 ? numberField({ id: `sk.${me.id}.${i}`, value: k.value, min: k.slider_min, max: k.slider_max, slider: true, set: (v, f) => ((k.value = v), app.changed('doc'), f && app.pushUndo('Shape Key Value')) }) : null,
+            i > 0 ? checkbox(`sk-mute.${me.id}.${i}`, '', !k.mute, (v) => ((k.mute = !v), changed('Shape Key Mute'))) : null,
+            lockToggle(!!k.lock_shape, 'Lock shape against edits', () => ((me.shape_keys[i] = { ...k, lock_shape: !k.lock_shape }), changed('Lock Shape Key'))),
+          ],
+        })),
+        me.active_shape_key_index,
+        (i) => ((me.active_shape_key_index = i), app.changed('doc')),
+        {
+          add: () => app.run('object.shape_key_add', { from_mix: false }),
+          remove: () => app.run('object.shape_key_remove'),
+          specials: shapeKeySpecials,
+          up: me.shape_keys.length > 2 ? () => app.run('object.shape_key_move', { type: 'UP' }) : undefined,
+          down: me.shape_keys.length > 2 ? () => app.run('object.shape_key_move', { type: 'DOWN' }) : undefined,
+          rename: (i, name) => {
+            me.shape_keys[i].name = name;
+            changed('Rename Shape Key');
+          },
+        },
+      ),
+      me.shape_keys.length && me.use_relative === false
+        ? [
+            num(me as never, 'eval_time' as never, 'Evaluation Time', { min: 0, softMax: Math.max(10, shapeKeyFrame(me, me.shape_keys.length - 1)), anim: { ob: o, path: 'data.shape_keys.eval_time' } }),
+            me.shape_keys[me.active_shape_key_index]
+              ? splitRow('Interpolation', enumMenu('sk-interp', [['KEY_LINEAR', 'Linear'], ['KEY_CARDINAL', 'Cardinal'], ['KEY_CATMULL_ROM', 'Catmull-Rom'], ['KEY_BSPLINE', 'BSpline']].map(([value, label]) => ({ value, label })), me.shape_keys[me.active_shape_key_index].interpolation ?? 'KEY_LINEAR', (v) => ((me.shape_keys[me.active_shape_key_index] = { ...me.shape_keys[me.active_shape_key_index], interpolation: v as 'KEY_LINEAR' }), changed('Shape Key Interpolation'))))
+              : null,
+          ]
+        : me.shape_keys[me.active_shape_key_index] && me.active_shape_key_index > 0
+        ? (() => {
+            const k = me.shape_keys[me.active_shape_key_index];
+            return [
+              num(k, 'value', 'Value', { min: k.slider_min, max: k.slider_max, slider: true, anim: { ob: o, path: `data.shape_keys.key_blocks["${k.name}"].value` } }),
+              num(k, 'slider_min', 'Range Min'),
+              num(k, 'slider_max', 'Max'),
+              splitRow('Vertex Group', enumMenu('sk-vg', [{ value: '', label: '—' }, ...me.vertex_groups.map((g) => ({ value: g.name, label: g.name }))], k.vertex_group ?? '', (v) => ((k.vertex_group = v || undefined), changed('Shape Key Group')))),
+              splitRow('Relative To', enumMenu('sk-rel', me.shape_keys.map((x) => ({ value: x.name, label: x.name })), k.relative_key, (v) => ((k.relative_key = v), changed('Relative Key')))),
+              bool(k, 'mute', 'Mute'),
+            ];
+          })()
+        : me.shape_keys.length
+          ? h('div', { class: 'prop-note' }, 'The Basis key is the rest shape.')
+          : null,
+      me.shape_keys.length
+        ? [
+            splitRow('', checkbox('sk-relative', 'Relative', me.use_relative !== false, (v) => ((me.use_relative = v ? undefined : false), changed('Relative Shape Keys')), { tip: 'Keys blend over their reference key; off: the keys are reached one after another by the evaluation time' })),
+            bool(o as never, 'show_only_shape_key' as never, 'Pin Active Shape Key'),
+            bool(me as never, 'use_shape_key_edit_mode' as never, 'Shape Key Edit Mode'),
+          ]
+        : null,
+    ]),
+    panel('me-uvmaps', 'UV Maps', () => {
+      const rows = uvMaps(me);
+      return [
+        uiList(
+          'uv',
+          rows.map((r) => ({
+            key: r.name,
+            label: r.name,
+            icon: 'uv',
+            rightSize: 'compact' as const,
+            right: h(
+              'button',
+              {
+                class: { 'icon-btn': true, on: r.render },
+                'data-tip': 'Use this UV map for rendering',
+                onclick: (e: MouseEvent) => {
+                  e.stopPropagation();
+                  me.uv_render_name = r.name;
+                  changed('Set Render UV Map');
+                },
+              },
+              icon(r.render ? 'restrict_render_off' : 'restrict_render_on'),
+            ),
+          })),
+          rows.findIndex((r) => r.active),
+          (i) => setActiveUV(me, i) && changed('Set Active UV Map'),
+          {
+            add: () => app.run('mesh.uv_texture_add'),
+            remove: () => app.run('mesh.uv_texture_remove'),
+            rename: (i, name) => renameUV(me, i, name) && changed('Rename UV Map'),
+          },
+        ),
+      ];
+    }, { closed: true }),
+    panel('me-colors', 'Color Attributes', () => [
+      uiList(
+        'ca',
+        me.color_attributes.map((c) => ({ key: c.name, label: c.name, icon: 'group_vcol', right: h('span', { class: 'ul-meta' }, c.domain === 'POINT' ? 'Vertex' : 'Face Corner') })),
+        me.active_color_index,
+        (i) => ((me.active_color_index = i), app.changed('doc')),
+        {
+          add: () => app.run('geometry.color_attribute_add'),
+          remove: () => app.run('geometry.color_attribute_remove'),
+          specials: () => [
+            { label: 'Duplicate Color Attribute', op: 'geometry.color_attribute_duplicate' },
+            { label: 'Convert Color Attribute', op: 'geometry.color_attribute_convert' },
+            { label: 'Set Render Color', op: 'geometry.color_attribute_render_set', props: { name: me.color_attributes[me.active_color_index]?.name ?? '' } },
+          ],
+          rename: (i, name) => {
+            name = name.trim();
+            if (!name || me.color_attributes.some((c, j) => j !== i && c.name === name)) return;
+            me.color_attributes[i].name = name;
+            changed('Rename Color Attribute');
+          },
+        },
+      ),
+    ], { closed: true }),
+    panel('me-remesh', 'Remesh', () => [
+      splitRow('Mode', enumRow('me-remesh-mode', [{ value: 'VOXEL', label: 'Voxel' }, { value: 'QUAD', label: 'Quad' }], me.remesh_mode ?? 'VOXEL', (v) => ((me.remesh_mode = v as 'VOXEL'), changed('Remesh Mode')))),
+      (me.remesh_mode ?? 'VOXEL') === 'VOXEL'
+        ? [
+            splitRow('Voxel Size', numberField({ id: `me-voxel-${me.id}`, value: me.remesh_voxel_size ?? 0.1, min: 0.0001, max: 10, unit: 'distance', precision: 4, set: (x, final) => ((me.remesh_voxel_size = x), app.changed('ui'), final && app.pushUndo('Voxel Size')) })),
+            h('div', { class: 'btn-row' }, opButton('object.voxel_remesh', 'Voxel Remesh')),
+          ]
+        : h('div', { class: 'btn-row' }, opButton('object.quadriflow_remesh', 'QuadriFlow Remesh')),
+    ], { closed: true }),
+    panel(
+      'me-geodata',
+      'Geometry Data',
+      () => [
+        h(
+          'div',
+          { class: 'btn-row btn-stack' },
+          opButton('mesh.customdata_mask_clear', 'Clear Sculpt Mask Data', {}, { icon: 'x' }),
+          opButton('mesh.customdata_face_sets_clear', 'Clear Sculpt Face Sets', {}, { icon: 'x' }),
+          me.skin_vertices ? opButton('mesh.customdata_skin_clear', 'Clear Skin Data', {}, { icon: 'x' }) : opButton('mesh.customdata_skin_add', 'Add Skin Data', {}, { icon: 'add' }),
+          opButton('mesh.reorder_vertices_spatial', 'Reorder Mesh Spatially'),
+          me.custom_normals ? opButton('mesh.customdata_custom_splitnormals_clear', 'Clear Custom Split Normals Data', {}, { icon: 'x' }) : opButton('mesh.customdata_custom_splitnormals_add', 'Add Custom Split Normals Data', {}, { icon: 'add' }),
+        ),
+      ],
+      { closed: true },
+    ),
+    panel('me-normals', 'Normals', () => [
+      splitRow('Auto Smooth', checkbox('me-autosmooth', '', me.auto_smooth_angle !== undefined, (v) => ((me.auto_smooth_angle = v ? (30 * Math.PI) / 180 : undefined), changed('Auto Smooth')))),
+      me.auto_smooth_angle !== undefined ? num(me as never, 'auto_smooth_angle' as never, 'Angle', { unit: 'angle', min: 0, max: Math.PI }) : null,
+    ], { closed: true }),
+  ];
+}
+
+function lightData(o: ObjectData, la: LightData): Child {
+  const anim = (path: string) => ({ ob: o, path: `data.${path}` });
+  return [
+    dataBlockSelector('la', 'light_data', Object.values(app.doc.lights), la.id, (id) => id && ((o.data = id), changed('Assign Light')), () => {}, { noUnlink: true }),
+    panel('la-light', 'Light', () => [
+      h('div', { class: 'enum-tabs' }, enumRow('la-type', [['POINT', 'Point', 'light_point'], ['SUN', 'Sun', 'light_sun'], ['SPOT', 'Spot', 'light_spot'], ['AREA', 'Area', 'light_area']].map(([v, l, i]) => ({ value: v, label: l, icon: i })), la.type, (v) => ((la.type = v as LightData['type']), la.type === 'SUN' && la.energy > 100 && (la.energy = 1), changed('Light Type')))),
+      (ensureLightColorDefaults(la), checkNum(la, 'use_temperature', 'temperature', 'Temperature', { min: 800, max: 20000, precision: 0, step: 100, tip: 'Colour of the light from the temperature of a glowing black body (kelvin); it tints the colour below' })),
+      colorProp(la, 'color', 'Color', { anim: anim('color') }),
+      la.type === 'SUN' ? num(la, 'energy', 'Strength', { min: 0, softMax: 10, anim: anim('energy') }) : num(la, 'energy', 'Power', { unit: 'power', min: 0, softMax: 10000, anim: anim('energy') }),
+      num(la, 'exposure', 'Exposure', { min: -32, max: 32, softMin: -10, softMax: 10, tip: 'Brightness scale in stops: each step doubles or halves the light' }),
+      la.type === 'AREA' ? bool(la, 'normalize', 'Normalize', { tip: 'Keep the light’s total power when its size changes (off: the power is per square metre, so larger lights are brighter)' }) : null,
+      la.type === 'SUN' ? num(la, 'angle', 'Angle', { unit: 'angle', min: 0, max: Math.PI }) : la.type !== 'AREA' ? num(la, 'shadow_soft_size', 'Radius', { unit: 'distance', min: 0 }) : null,
+      la.type === 'AREA'
+        ? [
+            enumProp(la, 'shape', 'Shape', [['SQUARE', 'Square'], ['RECTANGLE', 'Rectangle'], ['DISK', 'Disk'], ['ELLIPSE', 'Ellipse']]),
+            num(la, 'size', la.shape === 'RECTANGLE' || la.shape === 'ELLIPSE' ? 'Size X' : 'Size', { unit: 'distance', min: 0 }),
+            la.shape === 'RECTANGLE' || la.shape === 'ELLIPSE' ? num(la, 'size_y', 'Y', { unit: 'distance', min: 0 }) : null,
+            app.doc.scene.render.engine === 'PATHTRACE' ? num((la.spread ??= Math.PI, la), 'spread', 'Spread', { unit: 'angle', min: 0, max: Math.PI, tip: 'Angle of the cone the light emits into: smaller values give a focused, directional light (path tracer)' }) : null,
+          ]
+        : null,
+      la.type === 'SPOT' ? panel('la-spot', 'Beam Shape', () => [num(la, 'spot_size', 'Spot Size', { unit: 'angle', min: (1 * Math.PI) / 180, max: Math.PI }), num(la, 'spot_blend', 'Blend', { min: 0, max: 1, slider: true }), bool(la, 'show_cone', 'Show Cone')], { sub: true }) : null,
+      // shadow map options belong to the realtime engine; the path tracer only casts or not
+      (ensureLightDefaults(la), app.doc.scene.render.engine === 'PATHTRACE' ? [lightInfluencePanel(o, la)] : [lightInfluencePanel(o, la), lightShadowPanel(la), lightDistancePanel(la)]),
+    ]),
+    app.doc.scene.render.engine === 'PATHTRACE'
+      ? panel('la-pt-settings', 'Settings', () => [bool(la, 'use_shadow', 'Cast Shadow', { tip: 'Surfaces block this light (off: it shines through everything)' })])
+      : null,
+  ];
+}
+
+function cameraData(o: ObjectData, ca: CameraData): Child {
+  const doc = app.doc;
+  return [dataBlockSelector('ca', 'camera_data', Object.values(doc.cameras), ca.id, (id) => id && ((o.data = id), changed('Assign Camera')), () => {}, { noUnlink: true }), cameraPanels(o, ca)];
+}
+
+/** Fill in the curve settings documents from before they existed (so the panels show values). */
+function curveDefaults(cu: CurveData) {
+  cu.render_resolution_u ??= 0;
+  cu.twist_mode ??= 'MINIMUM';
+  cu.twist_smooth ??= 0;
+  cu.bevel_factor_start ??= 0;
+  cu.bevel_factor_end ??= 1;
+  cu.bevel_factor_mapping_start ??= 'RESOLUTION';
+  cu.bevel_factor_mapping_end ??= 'RESOLUTION';
+  cu.taper_radius_mode ??= 'OVERRIDE';
+  cu.use_map_taper ??= false;
+  cu.path_duration ??= 100;
+  cu.eval_time ??= 0;
+}
+
+function curveData(o: ObjectData, cu: CurveData): Child {
+  const isText = o.type === 'FONT';
+  curveDefaults(cu);
+  const is3D = cu.dimensions === '3D' && !isText;
+  const fillItems: [string, string][] = is3D
+    ? [
+        ['FULL', 'Full'],
+        ['BACK', 'Back'],
+        ['FRONT', 'Front'],
+        ['HALF', 'Half'],
+      ]
+    : [
+        ['NONE', 'None'],
+        ['BACK', 'Back'],
+        ['FRONT', 'Front'],
+        ['BOTH', 'Both'],
+      ];
+  const mapping: [string, string][] = [
+    ['RESOLUTION', 'Resolution'],
+    ['SEGMENTS', 'Segments'],
+    ['SPLINE', 'Spline'],
+  ];
+  return [
+    dataBlockSelector('cu', 'curve_data', Object.values(app.doc.curves), cu.id, (id) => id && ((o.data = id), changed('Assign Curve')), () => {}, { noUnlink: true }),
+    isText
+      ? [
+          panel(
+            'cu-text-shape',
+            'Shape',
+            () => [
+              num(cu, 'resolution_u', 'Resolution Preview U', { int: true, min: 1, max: 1024 }),
+              num(cu as never, 'render_resolution_u' as never, 'Render U', { int: true, min: 0, max: 1024, tip: 'Resolution used for rendering (0: the preview resolution)' }),
+              enumProp(cu, 'fill_mode', 'Fill Mode', fillItems),
+            ],
+            { closed: true },
+          ),
+          fontDataPanels.map((f) => f(o, cu)),
+        ]
+      : panel('cu-shape', 'Shape', () => [
+          enumRow('cu-dims', [{ value: '2D', label: '2D' }, { value: '3D', label: '3D' }], cu.dimensions, (v) => {
+            cu.dimensions = v as '2D';
+            // the fill modes differ between flat and 3D curves
+            if (v === '3D' && !['FULL', 'BACK', 'FRONT', 'HALF'].includes(cu.fill_mode)) cu.fill_mode = 'FULL';
+            if (v === '2D' && !['NONE', 'BACK', 'FRONT', 'BOTH'].includes(cu.fill_mode)) cu.fill_mode = 'BOTH';
+            changed('Dimensions');
+          }),
+          num(cu, 'resolution_u', 'Resolution Preview U', { int: true, min: 1, max: 1024 }),
+          num(cu as never, 'render_resolution_u' as never, 'Render U', { int: true, min: 0, max: 1024, tip: 'Resolution used for rendering (0: the preview resolution)' }),
+          is3D
+            ? [
+                enumProp(cu as never, 'twist_mode' as never, 'Twist Method', [
+                  ['Z_UP', 'Z-Up'],
+                  ['MINIMUM', 'Minimum'],
+                  ['TANGENT', 'Tangent'],
+                ]),
+                num(cu as never, 'twist_smooth' as never, 'Smooth', { min: 0, softMax: 20 }),
+              ]
+            : null,
+          enumProp(cu, 'fill_mode', 'Fill Mode', fillItems),
+          h('div', { class: 'sub-label' }, 'Curve Deform'),
+          splitRow('', checkbox('cu-def-radius', 'Radius', cu.use_radius !== false, (v) => ((cu.use_radius = v), changed('Curve Deform Radius')), { tip: 'Scale objects deformed by this curve with its radius' })),
+          splitRow('', checkbox('cu-def-stretch', 'Stretch', !!cu.use_stretch, (v) => ((cu.use_stretch = v), changed('Curve Deform Stretch')), { tip: 'Stretch deformed objects over the whole curve' })),
+          splitRow('', checkbox('cu-def-bounds', 'Bounds Clamp', !!cu.use_deform_bounds, (v) => ((cu.use_deform_bounds = v), changed('Curve Deform Bounds')), { tip: 'Measure deformed objects from their bounds and keep them on the curve' })),
+        ]),
+    panel(
+      'cu-geometry',
+      'Geometry',
+      () => [
+        num(cu, 'offset', 'Offset', { min: -10, max: 10 }),
+        num(cu, 'extrude', 'Extrude', { unit: 'distance', min: 0 }),
+        ...curveGeometryRows.map((f) => f(o, cu)),
+        cu.taper_object
+          ? [
+              enumProp(cu as never, 'taper_radius_mode' as never, 'Taper Radius', [
+                ['OVERRIDE', 'Override'],
+                ['MULTIPLY', 'Multiply'],
+                ['ADD', 'Add'],
+              ]),
+              bool(cu as never, 'use_map_taper' as never, 'Map Taper'),
+            ]
+          : null,
+        panel(
+          'cu-bevel',
+          'Bevel',
+          () => [
+            ...curveBevelRows.map((f) => f(o, cu)),
+            cu.bevel_mode !== 'OBJECT' ? [num(cu, 'bevel_depth', 'Depth', { unit: 'distance', min: 0 }), num(cu, 'bevel_resolution', 'Resolution', { int: true, min: 0, max: 32 })] : null,
+            bool(cu, 'use_fill_caps', 'Fill Caps'),
+          ],
+          { sub: true },
+        ),
+        panel(
+          'cu-bevel-factor',
+          'Start & End Mapping',
+          () => [
+            num(cu as never, 'bevel_factor_start' as never, 'Factor Start', { min: 0, max: 1, slider: true }),
+            num(cu as never, 'bevel_factor_end' as never, 'End', { min: 0, max: 1, slider: true }),
+            enumProp(cu as never, 'bevel_factor_mapping_start' as never, 'Mapping Start', mapping),
+            enumProp(cu as never, 'bevel_factor_mapping_end' as never, 'End', mapping),
+          ],
+          { sub: true, closed: true },
+        ),
+      ],
+      { closed: true },
+    ),
+    isText
+      ? null
+      : panel(
+          'cu-path',
+          'Path Animation',
+          () => [
+            num(cu as never, 'path_duration' as never, 'Frames', { int: true, min: 1, max: 1048574 }),
+            num(cu as never, 'eval_time' as never, 'Evaluation Time', { anim: { ob: o, path: 'data.eval_time' } }),
+          ],
+          { closed: true },
+        ),
+    ...curveDataPanels.map((f) => f(o, cu)),
+  ];
+}
+
+/** Object Data tab contents for object types defined by feature modules (e.g. speakers). */
+export const dataTabDrawers: Record<string, (o: ObjectData) => Child> = {};
+
+/** Extra panels at the end of the curve / text Object Data tab (e.g. Active Spline). */
+export const curveDataPanels: ((ob: ObjectData, cu: CurveData) => Child)[] = [];
+
+/** Extra rows at the top of the Bevel sub-panel of curves (bevel mode and object). */
+export const curveBevelRows: ((ob: ObjectData, cu: CurveData) => Child)[] = [];
+
+/** Extra rows at the end of the curve Geometry panel (bevel / taper objects). */
+export const curveGeometryRows: ((ob: ObjectData, cu: CurveData) => Child)[] = [];
+
+/** Panels of the text (FONT) Object Data tab, before Geometry. */
+export const fontDataPanels: ((ob: ObjectData, cu: CurveData) => Child)[] = [];
+
+/** Extra panels of the armature Object Data tab, after Skeleton (e.g. Bone Collections, Selection Sets). */
+export const armatureDataPanels: ((ob: ObjectData, arm: import('../../data/types').ArmatureData) => Child)[] = [];
+
+registerTab({
+  id: 'DATA',
+  label: 'Data',
+  icon: 'mesh_data',
+  group: 3,
+  poll: () => {
+    const o = ob();
+    return !!o && (o.type !== 'EMPTY' || o.empty_display_type === 'IMAGE');
+  },
+  draw: () => {
+    const o = ob()!;
+    const doc = app.doc;
+    const extra = dataTabDrawers[o.type];
+    if (extra) return extra(o);
+    if (o.type === 'MESH' && o.data) return meshData(o, doc.meshes[o.data]);
+    if (o.type === 'LIGHT' && o.data) return lightData(o, doc.lights[o.data]);
+    if (o.type === 'CAMERA' && o.data) return cameraData(o, doc.cameras[o.data]);
+    if ((o.type === 'CURVE' || o.type === 'FONT') && o.data) return curveData(o, doc.curves[o.data]);
+    if (o.type === 'ARMATURE' && o.data) {
+      const arm = doc.armatures[o.data];
+      return [
+        dataBlockSelector('ar', 'armature_data', Object.values(doc.armatures), arm.id, (id) => id && ((o.data = id), changed('Assign Armature')), () => {}, { noUnlink: true }),
+        panel('ar-skeleton', 'Skeleton', () => [enumRow('ar-pose', [{ value: 'POSE', label: 'Pose Position' }, { value: 'REST', label: 'Rest Position' }], arm.pose_position, (v) => ((arm.pose_position = v as 'POSE'), changed('Pose Position')))]),
+        ...armatureDataPanels.map((f) => f(o, arm)),
+        panel('ar-display', 'Viewport Display', () => {
+          arm.show_bone_custom_shapes ??= true;
+          arm.show_bone_colors ??= true;
+          return [enumProp(arm, 'display_type', 'Display As', [['OCTAHEDRAL', 'Octahedral'], ['STICK', 'Stick'], ['BBONE', 'B-Bone'], ['ENVELOPE', 'Envelope'], ['WIRE', 'Wire']]), bool(arm, 'show_names', 'Names'), bool(arm, 'show_bone_custom_shapes', 'Shapes'), bool(arm, 'show_bone_colors', 'Bone Colors'), bool(arm, 'show_axes', 'Axes'), bool(arm as never, 'show_in_front' as never, 'In Front')];
+        }),
+        panel('ar-bones', 'Bones', () => arm.bones.map((b) => h('div', { key: b.name, class: { 'chip-row': true, on: arm.active_bone === b.name }, onclick: () => ((arm.active_bone = b.name), app.changed('doc')) }, icon('bone_data'), b.name))),
+      ];
+    }
+    if (o.type === 'LATTICE' && o.data) {
+      const lt = doc.lattices[o.data];
+      return [panel('lt', 'Lattice', () => [num(lt, 'points_u', 'Resolution U', { int: true, min: 1, max: 64, onChange: () => app.run('lattice.resize', {}, { invoke: false }) }), num(lt, 'points_v', 'V', { int: true, min: 1, max: 64, onChange: () => app.run('lattice.resize', {}, { invoke: false }) }), num(lt, 'points_w', 'W', { int: true, min: 1, max: 64, onChange: () => app.run('lattice.resize', {}, { invoke: false }) }), enumProp(lt, 'interpolation', 'Interpolation', [['KEY_LINEAR', 'Linear'], ['KEY_BSPLINE', 'B-Spline']])])];
+    }
+    return h('div', { class: 'prop-note' }, 'No data');
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Material
+
+export function activeMaterial(o: ObjectData | null): MaterialData | null {
+  if (!o) return null;
+  const slots = materialSlots(app.doc, o);
+  const id = slots[o.active_material_index];
+  return id ? app.doc.materials[id] ?? null : null;
+}
+
+function slotOwner(o: ObjectData): { materials: (string | null)[] } | null {
+  const doc = app.doc;
+  if (!o.data) return null;
+  return (doc.meshes[o.data] ?? doc.curves[o.data] ?? doc.metaballs?.[o.data] ?? doc.hair_curves?.[o.data] ?? doc.volumes?.[o.data] ?? doc.pointclouds?.[o.data]) ?? null;
+}
+
+registerTab({
+  id: 'MATERIAL',
+  label: 'Material',
+  icon: 'material',
+  group: 3,
+  poll: () => {
+    const o = ob();
+    return !!o && (o.type === 'MESH' || o.type === 'CURVE' || o.type === 'FONT');
+  },
+  draw: () => {
+    const o = ob()!;
+    const doc = app.doc;
+    const owner = slotOwner(o);
+    if (!owner) return null;
+    const slots = materialSlots(doc, o);
+    const ma = activeMaterial(o);
+    const users = ma ? Object.values(doc.objects).filter((x) => x.data && slotOwner(x)?.materials.includes(ma.id)).length : 0;
+    return [
+      uiList(
+        'mat-slots',
+        slots.map((s, i) => ({ key: `${i}`, label: s ? doc.materials[s]?.name ?? '' : '', icon: 'material' })),
+        o.active_material_index,
+        (i) => ((o.active_material_index = i), app.changed('doc')),
+        {
+          add: () => app.run('object.material_slot_add'),
+          remove: () => app.run('object.material_slot_remove'),
+          specials: materialSpecials,
+          up: slots.length > 1 ? () => app.run('object.material_slot_move', { direction: 'UP' }) : undefined,
+          down: slots.length > 1 ? () => app.run('object.material_slot_move', { direction: 'DOWN' }) : undefined,
+          // renaming a slot renames its material
+          rename: (i, name) => {
+            const m = slots[i] ? doc.materials[slots[i]!] : undefined;
+            name = name.trim();
+            if (!m || !name || name === m.name) return;
+            m.name = uniqueName(doc, name, 'materials');
+            changed('Rename Material');
+          },
+          extra: app.doc.mode === 'EDIT' ? h('div', { class: 'btn-row' }, opButton('object.material_slot_assign', 'Assign'), opButton('object.material_slot_select', 'Select'), opButton('object.material_slot_deselect', 'Deselect')) : null,
+        },
+      ),
+      dataBlockSelector(
+        'ma',
+        'material',
+        Object.values(doc.materials),
+        ma?.id ?? null,
+        (id) => {
+          if (!owner.materials.length) owner.materials.push(null);
+          owner.materials[o.active_material_index] = id;
+          changed('Assign Material');
+        },
+        () => app.run('material.new'),
+        {
+          users,
+          duplicate: () => {
+            if (!ma) return;
+            const d = cloneShared(ma);
+            d.id = uid('ma');
+            d.name = uniqueName(doc, ma.name, 'materials');
+            doc.materials[d.id] = d;
+            owner.materials[o.active_material_index] = d.id;
+            changed('Copy Material');
+          },
+        },
+      ),
+      ma ? materialPanels(ma) : null,
+    ];
+  },
+});
+
+export const materialSurfacePanel: { draw: ((ma: MaterialData) => Child) | null; after?: (ma: MaterialData) => Child; preview?: (ma: MaterialData) => Child } = { draw: null };
+/** Hook for the World ▸ Surface panel (set by the nodes module). */
+export const worldSurfacePanel: { draw: ((w: WorldData) => Child) | null } = { draw: null };
+
+/** Extra Material tab panels shown above Viewport Display (registered by feature modules). */
+export const materialExtraPanels: ((ma: MaterialData) => Child)[] = [];
+
+function materialPanels(ma: MaterialData): Child {
+  return [
+    panel(
+      'ma-preview',
+      'Preview',
+      () => materialSurfacePanel.preview?.(ma) ?? h('div', { class: 'mat-preview', style: { background: `radial-gradient(circle at 35% 35%, #ffffff88 0, transparent 30%), radial-gradient(circle, ${swatchCss(ma)} 0 60%, transparent 61%)` } }),
+      { closed: true },
+    ),
+    panel('ma-surface', 'Surface', () => (materialSurfacePanel.draw ? materialSurfacePanel.draw(ma) : h('div', { class: 'prop-note' }, 'Edit the node tree in the Shader Editor.'))),
+    // node inputs drawn as panels of their own (Volume, Displacement, Thickness)
+    materialSurfacePanel.after?.(ma) ?? null,
+    (ensureMaterialDefaults(ma), materialSettingsPanel(ma)),
+    ...materialExtraPanels.map((f) => f(ma)),
+    panel('ma-display', 'Viewport Display', () => [colorProp(ma, 'diffuse_color', 'Color', { alpha: true }), num(ma, 'metallic', 'Metallic', { min: 0, max: 1, slider: true }), num(ma, 'roughness', 'Roughness', { min: 0, max: 1, slider: true })], { closed: true }),
+  ];
+}
+
+function swatchCss(ma: MaterialData) {
+  const c = ma.diffuse_color.map((x) => Math.round(Math.pow(Math.max(0, Math.min(1, x)), 1 / 2.2) * 255));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+
+export { newMaterial };

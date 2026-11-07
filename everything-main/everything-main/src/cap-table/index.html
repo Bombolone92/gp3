@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- site-analytics -->
+  <title>Free Cap Table Software for Startups | Cap Table by Puter</title>
+  <meta name="description" content="Free cap table software for startups. Manage ownership, track stock options and vesting, and model fundraising dilution online with Cap Table by Puter." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://captable.puter.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://captable.puter.com/" />
+  <meta property="og:title" content="Free Cap Table Software for Startups | Cap Table by Puter" />
+  <meta property="og:description" content="Manage your cap table, track equity and stock options, and model fundraising dilution. Free online cap table software with your own Puter cloud storage." />
+  <meta property="og:site_name" content="Cap Table" />
+  <meta property="og:image" content="https://captable.puter.com/social/cap-table-og-v1.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Cap Table by Puter. Every share accounted for. Free cap table software, illustrated with a teal ownership pie chart." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Free Cap Table Software for Startups | Cap Table by Puter" />
+  <meta name="twitter:description" content="Manage ownership, track stock options and vesting, and model funding rounds with free cap table software by Puter." />
+  <meta name="twitter:image" content="https://captable.puter.com/social/cap-table-og-v1.jpg" />
+  <meta name="twitter:image:alt" content="Cap Table by Puter. Every share accounted for. Free cap table software, illustrated with a teal ownership pie chart." />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "@id": "https://captable.puter.com/#software",
+      "url": "https://captable.puter.com/",
+      "image": "https://captable.puter.com/icon-512.png",
+      "name": "Cap Table",
+      "alternateName": "Cap Table by Puter",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Cap table management software",
+      "operatingSystem": "Web",
+      "description": "Free cap table software for startups to manage ownership, track equity and vesting, and model fundraising dilution.",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": { "@type": "Organization", "name": "Puter Technologies Inc.", "url": "https://puter.com" },
+      "featureList": ["Cap table management", "Shareholder ownership tracking", "Stock options and RSU management", "Vesting schedules", "SAFE and convertible note modeling", "Funding round dilution modeling", "Exit waterfall scenarios", "CSV import and export"]
+    }
+  </script>
+  <meta name="theme-color" content="#f7f7f8" media="(prefers-color-scheme: light)" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://captable.puter.com/#website",
+      "url": "https://captable.puter.com/",
+      "name": "Cap Table",
+      "alternateName": "Cap Table by Puter",
+      "inLanguage": "en"
+    }
+  </script>
+  <meta name="theme-color" content="#0e0f11" media="(prefers-color-scheme: dark)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Cap Table" />
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="/src/styles/index.css" />
+  <style>
+    html:not(.js) [data-sign-in] { display: none; }
+  </style>
+  <script>
+    document.documentElement.classList.add('js');
+    // Apply the saved theme before first paint to avoid a flash.
+    (() => {
+      try {
+        const t = localStorage.getItem('captable:theme');
+        if (t !== 'light' && t !== 'dark') return;
+        document.documentElement.dataset.theme = t;
+        // The browser chrome follows the saved theme too, not the OS one:
+        // applyTheme() only runs after sign-in and the first load, and the
+        // sign-in and error screens sat under a title bar of the other color.
+        for (const m of document.querySelectorAll('meta[name="theme-color"]')) {
+          m.setAttribute('content', t === 'dark' ? '#0e0f11' : '#f7f7f8');
+        }
+      } catch {}
+    })();
+  </script>
+  <!-- Navigation and public content work while the independent SDK loads.
+       main.js waits for its load/error event before checking the session. -->
+  <script src="https://js.puter.com/v2/" async data-puter-sdk onload="this.dataset.loaded = 'true'" onerror="this.dataset.failed = 'true'"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <noscript>Enable JavaScript to sign in with Puter and use this free cap table software.</noscript>
+  <div id="app" class="app">
+    <!-- public-landing -->
+  </div>
+</body>
+</html>

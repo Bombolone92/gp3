@@ -1,0 +1,31 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { DocxPackage } from '../src/engine/docx.js';
+import { paragraph, TextDocument } from '../src/engine/model.js';
+import { layoutDocument, caretRect, hitTest } from '../src/engine/layout.js';
+import { cellIntrinsicWidths } from '../src/engine/intrinsic-widths.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>{dom.window.close();delete globalThis.DOMParser;delete globalThis.XMLSerializer;});
+const measure=text=>({width:[...text].length*8,ascent:12,descent:4});
+it.each(['-','\u2010','\u2011','\u2212'])('shares paragraph wrapping and intrinsic minimum for %s',hyphen=>{
+ const p=paragraph(`x aa${hyphen}bbbb`),page={width:56,height:500,left:0,right:0,top:0,bottom:0};
+ const result=layoutDocument([p],measure,page);
+ const lines=result.lines.map(l=>l.fragments.map(f=>f.text).join(''));
+ expect(lines).toEqual(hyphen==='-'?['x aa-','bbbb']:['x ',`aa${hyphen}bbbb`]);
+ const metrics=cellIntrinsicWidths({margins:{left:0,right:0},content:[{paragraph:p,index:0}]},measure,page,undefined,[]);
+ expect(metrics.min).toBe(hyphen==='-'?32:56);expect(metrics.max).toBe(72);
+});
+it('wraps across source runs and restores line/caret geometry after editing and undo',async()=>{
+ const pkg=await DocxPackage.open(readFileSync('public/fixtures/hyphen-wrap.docx'));
+ const doc=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables);
+ const render=()=>layoutDocument(doc.paragraphs,measure,pageGeometry(doc.pageSettings),doc.numbering,doc.tables);
+ const first=render(),p=doc.paragraphs.at(-1),lines=first.lines.filter(l=>l.paragraphId===p.id);
+ expect(lines.map(l=>l.fragments.map(f=>f.text).join('')).join('')).toBe('We favor forward-thinking plans.');
+ expect(lines.some(l=>l.fragments.map(f=>f.text).join('').endsWith('-'))).toBe(true);
+ const at=doc.text.lastIndexOf('-');doc.select(at,at+1);doc.replace('\u2011');
+ expect(render()).not.toEqual(first);doc.undo();expect(render()).toEqual(first);
+ const caret=caretRect(first,at);expect(hitTest(first,caret.page,caret.x,caret.y+caret.height/2)).toBe(at);
+});

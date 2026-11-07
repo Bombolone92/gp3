@@ -1,0 +1,52 @@
+{
+  "referenceBuild": "16.0.20326",
+  "records": [
+    {
+      "fixture": "public/fixtures/ellipses.docx",
+      "documentXmlSha256": "7a7989425c3ca708ddcc967b0dcbabda951ef148cff70454dae8038c146ae9d3",
+      "capturedSourceSha256": "f8b524f046a7e8ccd36a7dd371377872899661256c625819852dd14dc6124f72",
+      "pdf": "ellipses-native.pdf",
+      "pdfSha256": "6c33ae7f505414df306d7025a7ac8aaa2d88dcea0f0de5c074cbac9f8d39f588"
+    },
+    {
+      "fixture": "public/fixtures/shape-spacing-0.docx",
+      "documentXmlSha256": "d54f76b116295c962d25660d64b9f128745402e84af82e7831de2950cbe9d37d",
+      "capturedSourceSha256": "a3eedd0b92c2720ebd8c667f7fe11c679cab061845e45908c808fa1a93075a42",
+      "pdf": "shape-spacing-0-native.pdf",
+      "pdfSha256": "c412edbeb6cffb0980e8afe5a43638e5ce8ecb70185f64c0b1299303b0306ae3"
+    },
+    {
+      "fixture": "public/fixtures/shape-spacing-1.docx",
+      "documentXmlSha256": "b34c171fd92462ebdb3ce8f0c3d3994c8b218057924235883ff14413329ad06b",
+      "capturedSourceSha256": "7a34cc84c39ce38a2d033d846bb5370caef59dca9cf9350b01eae68caa4fad8f",
+      "pdf": "shape-spacing-1-native.pdf",
+      "pdfSha256": "926c774bf51532a12d638c1e3ee62ef8c5ec80c6ec7b6b1d041880bf6d593643"
+    },
+    {
+      "fixture": "public/fixtures/shape-text-overflow.docx",
+      "documentXmlSha256": "dcc8a8eafd0e0424cebf5decbb871cdbfdf76b1e41bdc377dd134e2846aad071",
+      "capturedSourceSha256": "4b1a95148c96971d5731b9f2605c2a8e6a3288ceff7b08636a3b2022488a7f79",
+      "pdf": "shape-text-overflow-native.pdf",
+      "pdfSha256": "7ee8337be5acc7f438e620f7c10c5d49ee4a75a6e4726ba4eb50055bf8e21486"
+    },
+    {
+      "fixture": "public/fixtures/shape-text-overflow-zero.docx",
+      "documentXmlSha256": "f99a7fc6979dcf82fd9c7defccf352bc4f9a80911f9b4fe9f22641c3ed2f69b1",
+      "capturedSourceSha256": "fbc45a2bbf66bd0c6763930fd751c62986715afdb9b7dbdb76b9660c977ad04f",
+      "pdf": "shape-text-overflow-zero-native.pdf",
+      "pdfSha256": "1e15c294163586a327ecdece46be7af27cd3c34f701447ea479d2e3bf4791e46"
+    },
+    {
+      "fixture": "public/fixtures/shape-text-overflow-rect.docx",
+      "documentXmlSha256": "3281cc5fbf13eea45b584834713c2562f6d9a6372e0c008649be4711a0ffe181",
+      "capturedSourceSha256": "154865811203326aa1693075c209a6315431dfa3fed107b6dcb69e3455d2a920",
+      "pdf": "shape-text-overflow-rect-native.pdf",
+      "pdfSha256": "38ae3a82c507a8b4bd500b6a8fc913f534915046273ed519403ea5df00222a02"
+    }
+  ],
+  "observations": {
+    "spacing": "Identical extracted text and baselines for compatLnSpc=0 and 1 in four transformed WordprocessingML shape text frames.",
+    "overflow": "Both flags clip overflowing text and retain top position even for center/bottom anchors. Rectangle and ellipse probes agree.",
+    "ellipseTextRect": "Inscribed 45-degree rectangle plus half of the outline width; horizontal clip excludes side insets, vertical clip includes top/bottom insets."
+  }
+}

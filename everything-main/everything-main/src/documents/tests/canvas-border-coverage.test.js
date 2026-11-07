@@ -1,0 +1,33 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+import { fontMetrics } from '../src/engine/font-metrics.js';
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => dom.window.close());
+const source = readFileSync('public/fixtures/border-coverage.docx');
+const model = p => new TextDocument(p.paragraphs, p.pageSettings, p.numbering, p.styles, p.tables, p.assets);
+const layout = d => layoutDocument(d.paragraphs, (text, style) => ({ ...fontMetrics(style), width: [...text].length * style.fontSize * 2 / 3 }), pageGeometry(d.pageSettings), d.numbering, d.tables);
+const save = async (p, d) => new Uint8Array(await p.export(d.paragraphs, d.pageSettings, d.numbering, d.styles, d.tables, d.assets).arrayBuffer());
+const sameParts = (bytes, parts) => { const out = unzipSync(bytes); expect(Object.keys(out).sort()).toEqual(Object.keys(parts).sort()); for (const [name, bytes] of Object.entries(parts)) expect(Buffer.from(out[name]).equals(Buffer.from(bytes)), name).toBe(true); };
+it('imports independent thin paragraph/cell patterns at their declared widths without changing package bytes', async () => {
+ const p = await DocxPackage.open(source), d = model(p), result = layout(d);
+ expect(d.tables[0].rows.slice(0, 8).map(r => r.cells[0].borders.left.style)).toEqual(['single', 'double', 'triple', 'dotted', 'dashed', 'dashSmallGap', 'dotDash', 'dotDotDash']);
+ expect(d.tables[0].rows[0].cells.map(c => c.borders.left.size)).toEqual([2, 4]);
+ expect(result.paragraphBorders.some(b => b.height === 1 / 3)).toBe(true);
+ expect(result.paragraphBorders.some(b => b.cellClip)).toBe(true);
+ sameParts(await save(p, d), p.parts);
+});
+it('edits border width/color and text, exports/reopens, and restores source geometry and all part bytes with undo', async () => {
+ const p = await DocxPackage.open(source), d = model(p), before = layout(d), cell = d.tables[0].rows[0].cells[0];
+ d.selectCell(cell.id); d.setCellBorders({ left: { style: 'single', size: 6, color: 'CC3300' } });
+ const at = d.text.indexOf('Thin borders'); d.select(at, at + 12); d.replace('Edited thin borders');
+ const again = model(await DocxPackage.open(await save(p, d)));
+ expect(again.tables[0].rows[0].cells[0].borders.left).toMatchObject({ size: 6, color: 'CC3300' }); expect(again.text).toBe(d.text);
+ d.undo(); d.undo(); expect(layout(d)).toEqual(before); sameParts(await save(p, d), p.parts);
+});

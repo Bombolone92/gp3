@@ -1,0 +1,57 @@
+"""Original mixed-content WPS controls; no renderer or corpus data used."""
+from pathlib import Path
+from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+from copy import deepcopy
+from lxml import etree as E
+from canvas_first_section_fixture import parts as base, CT, REL, R
+from canvas_group_fixture import NS, tag, add, shape, transform
+
+folder = Path(__file__).resolve().parents[1] / 'tests/fixtures/shape-autofit-recovery'
+folder.mkdir(parents=True, exist_ok=True)
+root = E.Element(tag('w:document'), nsmap=NS)
+body = add(root, 'w:body')
+def paragraph(parent, text):
+    p=add(parent,'w:p'); r=add(p,'w:r'); add(add(r,'w:rPr'),'w:b'); add(r,'w:t',text=text)
+    return p
+def drawing(parent, ident, grouped=False, field=None):
+    frame=add(add(add(add(parent,'w:p'),'w:r'),'w:drawing'),'wp:inline',distT=0,distB=0,distL=0,distR=0)
+    width,height=240*12700,(40 if grouped else 28)*12700
+    add(frame,'wp:extent',cx=width,cy=height);add(frame,'wp:docPr',id=ident,name=f'Recovery {ident}');add(frame,'wp:cNvGraphicFramePr')
+    data=add(add(frame,'a:graphic'),'a:graphicData',uri=NS['wpg' if grouped else 'wps'])
+    host=data
+    if grouped:
+        host=add(data,'wpg:wgp');add(host,'wpg:cNvGrpSpPr');transform(add(host,'wpg:grpSpPr'),width,height,group=True)
+        t=host.find('.//'+tag('a:xfrm'));t.find(tag('a:chOff')).attrib.update({'x':'0','y':'0'});t.find(tag('a:chExt')).attrib.update({'cx':str(width),'cy':str(height)})
+    for i in range(2 if grouped else 1):
+        value=field if i==0 else None
+        s=shape(host,ident*10+i,(110 if grouped else 240)*12700,(40 if value else 10)*12700,i*125*12700,0,'DDEEFF' if value else 'DDEECC','Page ' if value else 'Healthy text grows onto several lines in its saved small frame. More text stays visible.')
+        fit=s.find(tag('wps:bodyPr'));fit.remove(fit[0]);add(fit,'a:spAutoFit')
+        if value:
+            p=s.find('.//'+tag('w:p'));f=add(p,'w:fldSimple',**{'w:instr':f' {value} '});add(add(f,'w:r'),'w:t',text='99')
+paragraph(body,'Healthy heading before drawings')
+drawing(body,1,True,'PAGE')
+paragraph(body,'Healthy content between drawings')
+drawing(body,2)
+table=add(body,'w:tbl');pr=add(table,'w:tblPr');add(pr,'w:tblW',**{'w:w':'4800','w:type':'dxa'});add(add(table,'w:tblGrid'),'w:gridCol',**{'w:w':'4800'})
+cell=add(add(table,'w:tr'),'w:tc');add(add(cell,'w:tcPr'),'w:tcW',**{'w:w':'4800','w:type':'dxa'});paragraph(cell,'Healthy table retained')
+drawing(body,3,True,'SECTIONPAGES')
+paragraph(body,'Healthy ending after drawings')
+section=add(body,'w:sectPr');add(section,'w:headerReference',**{'w:type':'default','r:id':'header'})
+add(section,'w:pgSz',**{'w:w':'12240','w:h':'15840'});add(section,'w:pgMar',**{'w:top':'1440','w:right':'1440','w:bottom':'1440','w:left':'1440','w:header':'360','w:footer':'360','w:gutter':'0'})
+header=E.Element(tag('w:hdr'),nsmap=NS);drawing(header,4,field='NUMPAGES')
+for name in ['unsupported','matched']:
+    document,story=deepcopy(root),deepcopy(header)
+    if name=='matched':
+        for tree in [document,story]:
+            for s in tree.iter(tag('wps:wsp')):
+                if s.find('.//'+tag('w:fldSimple')) is not None:
+                    fit=s.find(tag('wps:bodyPr'));fit.remove(fit[0]);add(fit,'a:noAutofit')
+    parts=dict(base)
+    parts['word/document.xml']=E.tostring(document)
+    parts['word/header.xml']=E.tostring(story)
+    parts['[Content_Types].xml']=parts['[Content_Types].xml'].replace('</Types>',f'<Override PartName="/word/header.xml" ContentType="{CT}header+xml"/></Types>')
+    parts['word/_rels/document.xml.rels']=parts['word/_rels/document.xml.rels'].replace('</Relationships>',f'<Relationship Id="header" Type="{R}/header" Target="header.xml"/></Relationships>')
+    with ZipFile(folder/f'{name}.docx','w') as z:
+        for path,data in parts.items():
+            info=ZipInfo(path,date_time=(2026,1,1,0,0,0));info.compress_type=ZIP_DEFLATED;z.writestr(info,data)
+print('Created unsupported and matched controls.')

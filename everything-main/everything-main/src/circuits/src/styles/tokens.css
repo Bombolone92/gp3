@@ -1,0 +1,102 @@
+/* Design tokens. Light values apply by default; dark values when the resolved
+   theme is dark (set on <html> by the pre-paint script and theme.js). */
+
+:root {
+  --font-ui: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, 'Liberation Mono', monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 15px;
+  --fs-xl: 18px;
+  --radius-sm: 3px;
+  --radius: 5px;
+  --radius-lg: 8px;
+  --titlebar-h: 36px;
+  --menubar-h: 28px;
+  --tabs-h: 30px;
+  --status-h: 26px;
+  --panel-head-h: 30px;
+  --dock-left-w: 264px;
+  --dock-right-w: 300px;
+  --dock-bottom-h: 200px;
+  --strip-w: 26px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur: 120ms;
+  color-scheme: light dark;
+}
+
+:root,
+:root[data-theme-resolved='light'] {
+  --bg-app: #e4e4e2;
+  --bg-chrome: #f2f2f0;
+  --bg-chrome-2: #e9e9e7;
+  --bg-panel: #f7f7f5;
+  --bg-panel-2: #ffffff;
+  --bg-input: #ffffff;
+  --bg-hover: #e6e6e3;
+  --bg-active: #d9d9d5;
+  --bg-selected: #fbe3c9;
+  --bg-selected-strong: #f5cf9f;
+  --bg-overlay: rgba(20, 20, 20, 0.32);
+  --bg-menu: #ffffff;
+  --bg-tooltip: #2a2a2a;
+  --text-tooltip: #f2f2f2;
+  --border: #d3d3cf;
+  --border-strong: #b9b9b4;
+  --text: #1d1d1c;
+  --text-2: #464644;
+  --text-3: #6b6b68;
+  --text-disabled: #a3a3a0;
+  --accent: #b85c0e;
+  --accent-hover: #a05009;
+  --accent-soft: #fbe3c9;
+  --on-accent: #ffffff;
+  --focus: #1a66d6;
+  --danger: #c62f2f;
+  --warning: #9a6700;
+  --success: #1f7a3d;
+  --info: #1f5fbf;
+  --canvas-bg: #d9d9d6;
+  --hud-bg: rgba(255, 255, 255, 0.86);
+  --hud-text: #1d1d1c;
+  --activebar-bg: #fbfbfa;
+  --scrollbar: #c4c4c0;
+}
+
+:root[data-theme-resolved='dark'] {
+  --bg-app: #252525;
+  --bg-chrome: #2f2f2f;
+  --bg-chrome-2: #2a2a2a;
+  --bg-panel: #333333;
+  --bg-panel-2: #2b2b2b;
+  --bg-input: #242424;
+  --bg-hover: #424242;
+  --bg-active: #4c4c4c;
+  --bg-selected: #5a4430;
+  --bg-selected-strong: #74532f;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-menu: #353535;
+  --bg-tooltip: #f0f0f0;
+  --text-tooltip: #1a1a1a;
+  --border: #222222;
+  --border-strong: #4a4a4a;
+  --text: #e8e8e8;
+  --text-2: #bdbdbd;
+  --text-3: #959595;
+  --text-disabled: #6a6a6a;
+  --accent: #f0a24e;
+  --accent-hover: #f6b46c;
+  --accent-soft: #4b3a28;
+  --on-accent: #1b1b1b;
+  --focus: #6fa8ff;
+  --danger: #ff6b6b;
+  --warning: #f2c14e;
+  --success: #5fcf86;
+  --info: #7fb2ff;
+  --canvas-bg: #232323;
+  --hud-bg: rgba(30, 30, 30, 0.82);
+  --hud-text: #e8e8e8;
+  --activebar-bg: #3a3a3a;
+  --scrollbar: #555555;
+}

@@ -1,0 +1,124 @@
+{
+  "description": "Native reference 2026-09-19 scoped reference and declared-unit controls. Each case has three semantic children. Matching means the authored layout generated a/ b shapes; mismatching reference descriptors caused the native reference application to substitute its default layout, not a zero reference value. Unit cases use text algorithms so font constraints are available. Inputs retain authored literals; heights come from the saved native drawing in millimetres.",
+  "references": [
+    {
+      "name": "same scope ch all all",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"all\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"all\" fact=\"0.5\"/>",
+      "matched": true,
+      "heights": [10, 10, 10]
+    },
+    {
+      "name": "same scope ch all node",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"all\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    },
+    {
+      "name": "same scope ch node all",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"all\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    },
+    {
+      "name": "same scope ch node node",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"node\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\" fact=\"0.5\"/>",
+      "matched": true,
+      "heights": [10, 10, 10]
+    },
+    {
+      "name": "same scope ch norm all",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"all\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    },
+    {
+      "name": "same scope ch norm node",
+      "constraints": "<dgm:constr type=\"h\" for=\"ch\" forName=\"a\" ptType=\"norm\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\" refPtType=\"node\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    },
+    {
+      "name": "same scope des all all",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" ptType=\"all\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"des\" refForName=\"a\" refPtType=\"all\" fact=\"0.5\"/>",
+      "matched": true,
+      "heights": [10, 10, 10]
+    },
+    {
+      "name": "same scope des all node",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" ptType=\"all\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"des\" refForName=\"a\" refPtType=\"node\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    },
+    {
+      "name": "same scope des node all",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" ptType=\"node\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"des\" refForName=\"a\" refPtType=\"all\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    },
+    {
+      "name": "same scope des node node",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" ptType=\"node\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"des\" refForName=\"a\" refPtType=\"node\" fact=\"0.5\"/>",
+      "matched": true,
+      "heights": [10, 10, 10]
+    },
+    {
+      "name": "same scope des norm all",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" ptType=\"norm\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"des\" refForName=\"a\" refPtType=\"all\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    },
+    {
+      "name": "same scope des norm node",
+      "constraints": "<dgm:constr type=\"h\" for=\"des\" forName=\"a\" ptType=\"norm\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"des\" refForName=\"a\" refPtType=\"node\" fact=\"0.5\"/>",
+      "matched": false,
+      "heights": []
+    }
+  ],
+  "units": [
+    {
+      "name": "text units primFontSz factor 0.5",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"primFontSz\" val=\"18\"/><dgm:constr type=\"h\" refType=\"primFontSz\" fact=\"0.5\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [9, 9, 9]
+    },
+    {
+      "name": "text units primFontSz factor 1",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"primFontSz\" val=\"18\"/><dgm:constr type=\"h\" refType=\"primFontSz\" fact=\"1\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [18, 18, 18]
+    },
+    {
+      "name": "text units primFontSz factor 3",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"primFontSz\" val=\"18\"/><dgm:constr type=\"h\" refType=\"primFontSz\" fact=\"3\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [54, 54, 54]
+    },
+    {
+      "name": "text units secFontSz factor 0.5",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"h\" refType=\"secFontSz\" fact=\"0.5\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [9, 9, 9]
+    },
+    {
+      "name": "text units secFontSz factor 1",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"h\" refType=\"secFontSz\" fact=\"1\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [18, 18, 18]
+    },
+    {
+      "name": "text units secFontSz factor 3",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"secFontSz\" val=\"18\"/><dgm:constr type=\"h\" refType=\"secFontSz\" fact=\"3\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [54, 54, 54]
+    },
+    {
+      "name": "text units userA factor 0.5",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"userA\" val=\"18\"/><dgm:constr type=\"h\" refType=\"userA\" fact=\"0.5\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [9, 9, 9]
+    },
+    {
+      "name": "text units userA factor 1",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"userA\" val=\"18\"/><dgm:constr type=\"h\" refType=\"userA\" fact=\"1\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [18, 18, 18]
+    },
+    {
+      "name": "text units userA factor 3",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"50\"/><dgm:constr type=\"userA\" val=\"18\"/><dgm:constr type=\"h\" refType=\"userA\" fact=\"3\"/></dgm:constrLst></dgm:layoutNode></dgm:forEach>",
+      "heights": [54, 54, 54]
+    }
+  ]
+}

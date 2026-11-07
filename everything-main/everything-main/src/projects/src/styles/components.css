@@ -1,0 +1,1374 @@
+/* ---- Buttons ----------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  white-space: nowrap;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.btn:disabled { opacity: 0.55; cursor: default; }
+
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-strong); }
+
+.btn-ghost { border-color: var(--hairline-strong); color: var(--ink); }
+.btn-ghost:hover:not(:disabled) { background: var(--surface-2); }
+
+.btn-danger { background: var(--danger); color: var(--danger-ink); }
+.btn-danger-ghost { color: var(--danger); border-color: transparent; }
+.btn-danger-ghost:hover:not(:disabled) { background: var(--danger-wash); }
+
+.btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 9px; }
+.btn-block { width: 100%; }
+.btn-tall { padding: 13px; }
+.btn-dashed { border: 1px dashed var(--hairline-strong); margin-top: 10px; }
+.btn-block + .btn-block { margin-top: 10px; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+.icon-btn.small { width: 28px; height: 28px; }
+
+/* Icon-only controls are the one kind with no label to widen them, so on a
+   touch primary they grow to a thumb-sized box. The box itself grows rather
+   than an invisible overlay, so neighbours keep their gaps instead of ending
+   up with hit areas that overlap each other. */
+@media (pointer: coarse) {
+  .icon-btn { width: 44px; height: 44px; }
+  .icon-btn.small { width: 38px; height: 38px; }
+  /* These two pull their button back into the padding of the row above; the
+     offset has to follow the box. */
+  .card-menu { margin: -11px -11px -11px 0; }
+  .milestone-row .icon-btn { margin-top: 7px; }
+}
+
+/* ---- Forms ------------------------------------------------------------- */
+
+.field { margin-bottom: 16px; }
+
+.label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.input:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+.input::placeholder { color: var(--ink-3); }
+
+textarea.input { resize: vertical; min-height: 38px; }
+
+.form-hint { font-size: 12.5px; color: var(--ink-3); margin: 4px 0 10px; }
+
+.row { display: flex; align-items: center; gap: 8px; }
+/* Buttons never shrink (they are white-space: nowrap), and a right-aligned row
+   that will not wrap pushes its overflow off the *left* edge, where a phone
+   clips it: the conflict dialog's three actions lost the start of the first
+   one. Wrap instead; a footer whose buttons fit is untouched. */
+.row-end { justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
+.row-between { justify-content: space-between; }
+
+/* A field label stacked above its control needs the gap under it; one sharing
+   a centred row with a control does not, and keeping it there centres the
+   label's margin box instead of its text, lifting the words off the line. */
+.row > .label { margin-bottom: 0; }
+
+/* Color swatches */
+.swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.swatch {
+  width: 30px; height: 30px;
+  border-radius: var(--r-full);
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.swatch.selected { border-color: var(--ink); }
+
+/* Segmented control */
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+}
+
+.seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.seg-btn.active { background: var(--surface); color: var(--ink); border-color: var(--hairline); }
+
+/* Checkbox rows in the export dialogs: the box and its words on one line. */
+.export-check {
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.export-check input { accent-color: var(--accent); width: 16px; height: 16px; }
+.export-scope { margin-top: 4px; }
+
+/* ---- Import: what came across, and how a CSV maps --------------------- */
+
+.import-notes {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.import-notes li { margin-bottom: 3px; }
+
+.csv-import .csv-map {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(38dvh, 320px);
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.csv-map-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.csv-map-head { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+
+.csv-map-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A value from the file, so a wrong guess is visible without importing. */
+.csv-map-sample {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .csv-map-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+
+/* ---- Saved views: chips above the filter bar --------------------------- */
+
+.views-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.views-chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.view-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.view-chip:hover { border-color: var(--hairline-strong); color: var(--ink); }
+
+.view-chip.on {
+  background: var(--accent-wash);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+}
+
+.view-chip-ic { display: inline-flex; opacity: 0.7; }
+
+/* Why a view is showing less than it was saved with. */
+.views-note { font-size: 12px; color: var(--warn); font-weight: 600; }
+
+.views-manage .views-row { align-items: center; gap: 6px; }
+/* The grip is borrowed from the checklist, whose reveal-on-hover rule keys off
+   its own row class — so this list says when its handles are visible. */
+.views-row .drag-handle { opacity: 0.55; }
+.views-row:hover .drag-handle,
+.views-row .drag-handle:focus-visible { opacity: 1; }
+
+/* ---- Modal ------------------------------------------------------------- */
+
+.modal-root { position: fixed; inset: 0; z-index: 100; }
+/* On the way out the scrim still covers the viewport for the length of the
+   fade. It must not be what a click lands on: the app behind it is live
+   again the moment close() runs (see ui/modal.js). */
+.modal-root.closing { pointer-events: none; }
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade-in 0.18s ease;
+}
+
+.modal-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(480px, calc(100vw - 32px));
+  max-height: min(86dvh, 720px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 18px 20px 20px;
+  box-shadow: var(--pop-shadow);
+  animation: modal-in 0.18s ease;
+}
+
+/* The panel is a tabindex="-1" container that openModal() focuses when it has
+   no control of its own to hand the caret to (the shortcut sheet), or on a
+   phone, where focusing a field would raise the keyboard over the sheet. A
+   ring is a pointer at the one thing focus is on; drawn around the whole
+   dialog it points at nothing and reads as a stray coloured border — and the
+   panel's own overflow clips it to three sides. Focus still lands there, so
+   Escape and Tab behave; the controls inside keep their own rings. */
+.modal-panel:focus, .modal-panel:focus-visible { outline: none; }
+
+.modal-panel.wide { width: min(640px, calc(100vw - 32px)); }
+
+/* Navigation drawer: the same dialog machinery, anchored to the edge. */
+.modal-panel.drawer {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  transform: none;
+  width: min(288px, 84vw);
+  max-height: none;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+  padding: 14px 12px;
+  animation: drawer-in 0.2s ease;
+}
+
+.modal-root.closing .modal-panel.drawer { animation: drawer-out 0.18s ease forwards; }
+.modal-panel.drawer .modal-head { margin-bottom: 8px; padding: 0 4px; }
+.modal-panel.drawer .sheet-handle { display: none; }
+
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* The hamburger only exists where the sidebar does not. */
+.menu-btn { display: none; flex-shrink: 0; }
+
+@media (max-width: 899px) {
+  .menu-btn { display: inline-flex; }
+}
+
+.modal-root.closing .modal-panel { animation: modal-out 0.18s ease forwards; }
+.modal-root.closing .modal-scrim { animation: fade-out 0.18s ease forwards; }
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.modal-title { font-size: 17px; font-weight: 700; }
+.sheet-handle { display: none; }
+
+.confirm-message { color: var(--ink-2); margin-bottom: 18px; font-size: 14px; }
+
+@media (max-width: 639px) {
+  .modal-panel:not(.drawer), .modal-panel.wide {
+    left: 0; top: auto; bottom: 0;
+    transform: none;
+    width: 100vw;
+    max-height: 92dvh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-bottom: none;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    animation: sheet-in 0.22s ease;
+  }
+  .modal-root.closing .modal-panel { animation: sheet-out 0.2s ease forwards; }
+  .sheet-handle {
+    display: block;
+    width: 36px; height: 4px;
+    border-radius: var(--r-full);
+    background: var(--hairline-strong);
+    margin: 0 auto 12px;
+  }
+}
+
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes modal-in { from { opacity: 0; transform: translate(-50%, -48%); } }
+@keyframes modal-out { to { opacity: 0; transform: translate(-50%, -48%); } }
+@keyframes drawer-in { from { transform: translateX(-100%); } }
+@keyframes drawer-out { to { transform: translateX(-100%); } }
+@keyframes sheet-in { from { transform: translateY(40px); opacity: 0.6; } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+
+/* ---- Menu -------------------------------------------------------------- */
+
+.menu {
+  position: fixed;
+  z-index: 200;
+  min-width: 200px;
+  padding: 5px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  box-shadow: var(--pop-shadow);
+  animation: fade-in 0.12s ease;
+  /* A long menu (the project one, or a facet with many labels) is taller than
+     a landscape phone. Cap it and scroll instead of running off the bottom,
+     where the last item — usually the destructive one — cannot be reached.
+     openMenu() measures the menu after this applies, so it positions the
+     capped height. */
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.menu-item svg { color: var(--ink-2); flex-shrink: 0; }
+.menu-item:hover:not(:disabled), .menu-item:focus-visible { background: var(--surface-2); }
+.menu-item:disabled { opacity: 0.5; cursor: default; }
+.menu-item.danger, .menu-item.danger svg { color: var(--danger); }
+.menu-item.danger:hover:not(:disabled) { background: var(--danger-wash); }
+
+.menu-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-item .avatar { flex-shrink: 0; }
+
+/* Checkable rows keep the check's space reserved, so toggling never shifts
+   the labels around. */
+.menu-check { display: inline-flex; visibility: hidden; }
+.menu-check svg { color: var(--accent); }
+.menu-item.checked .menu-check { visibility: visible; }
+.menu-item.checked { color: var(--ink); font-weight: 600; }
+
+.menu-sep { height: 1px; background: var(--hairline); margin: 5px 6px; }
+
+/* ---- Toast ------------------------------------------------------------- */
+
+.toast-root {
+  position: fixed;
+  /* The list's bulk bar owns the bottom of the screen while a selection is
+     live; a toast landing on top of it would hide the actions it reports on. */
+  bottom: max(18px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 40px));
+  padding: 10px 16px;
+  background: var(--ink);
+  color: var(--page);
+  border-radius: var(--r-full);
+  font-size: 13.5px;
+  font-weight: 500;
+  pointer-events: auto;
+  animation: toast-in 0.2s ease;
+}
+
+.toast svg { flex-shrink: 0; }
+.toast.leaving { animation: toast-out 0.2s ease forwards; }
+
+.toast-action {
+  border: none;
+  background: none;
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 4px;
+  text-decoration: underline;
+}
+
+body.bulk-open .toast-root { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 58px); }
+
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+
+/* ---- Chips, avatars, badges -------------------------------------------- */
+
+.dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: var(--r-full);
+  flex-shrink: 0;
+}
+
+.dot-lg { width: 14px; height: 14px; }
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-full);
+  color: #fff;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Members carry their own colour; the accent variant is for everyone else,
+   and its ink flips with the theme so the initials survive the pale purple
+   the dark theme uses. */
+.avatar-accent { background: var(--accent); color: var(--accent-ink); }
+
+.avatar-stack { display: inline-flex; }
+.avatar-stack .avatar { border: 2px solid var(--surface); }
+.avatar-stack .avatar:not(:first-child) { margin-left: -7px; }
+.avatar-extra { background: var(--surface-3); color: var(--ink-2); }
+
+/* The pill carries the label's colour; the name has to be readable on it.
+   Every palette entry lands between 2.4:1 and 4:1 as plain text on its own
+   16% wash — in both themes — so the text is pulled toward the page ink,
+   which darkens it in light mode and lightens it in dark. The hue survives;
+   the worst case goes to 4.8:1. */
+.label-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--chip) 16%, transparent);
+  color: color-mix(in srgb, var(--chip) 60%, var(--ink));
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.label-chip.small {
+  padding: 0;
+  width: 26px; height: 7px;
+  background: var(--chip);
+  opacity: 0.75;
+}
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 6px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-full);
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.chip-toggle .dot { margin-left: 5px; }
+.chip-toggle.on {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+
+.prio {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 5px;
+  padding: 2px;
+}
+
+.prio-urgent { color: var(--danger); background: var(--danger-wash); }
+.prio-high { color: var(--warn); background: var(--warn-wash); }
+.prio-medium { color: var(--accent); background: var(--accent-wash); }
+.prio-low { color: var(--ink-3); background: var(--surface-2); }
+
+.due {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  border-radius: 5px;
+  padding: 2px 5px;
+}
+
+.due-soon { color: var(--warn); background: var(--warn-wash); }
+.due-overdue { color: var(--danger); background: var(--danger-wash); }
+
+.card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* ---- Progress ----------------------------------------------------------- */
+
+.progress {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+/* ---- Empty states & misc ------------------------------------------------ */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 48px 20px;
+  color: var(--ink-2);
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px; height: 56px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.empty h3 { font-size: 17px; color: var(--ink); }
+.empty p { font-size: 14px; max-width: 340px; }
+.empty .btn { margin-top: 12px; }
+
+.onboard-hero { padding: 10px 8px 18px; }
+.onboard-hero h3 { font-size: 19px; }
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 20px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skeleton {
+  display: inline-block;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--surface-3);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.sample-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  margin-bottom: 14px;
+  border-radius: var(--r-md);
+  background: var(--warn-wash);
+  color: var(--warn);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Every other icon slot in the app is a flex box for the same reason: left
+   inline, the svg sits on the text baseline and rides 2px above the centre of
+   the row it shares. */
+.sample-banner-ic { display: inline-flex; flex-shrink: 0; }
+
+.sample-banner button {
+  border: 1px solid currentColor;
+  background: none;
+  color: inherit;
+  border-radius: var(--r-full);
+  padding: 3px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---- Settings ------------------------------------------------------------ */
+
+.settings-view { overflow-y: auto; padding-bottom: 32px; }
+.settings-section { max-width: 640px; }
+
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 16px;
+  flex-wrap: wrap;
+}
+
+.settings-row + .settings-row { border-top: 1px solid var(--hairline); }
+.settings-ic { color: var(--ink-2); display: inline-flex; }
+.settings-row .title { font-size: 14.5px; font-weight: 600; }
+.settings-row .sub { font-size: 12.5px; color: var(--ink-3); }
+
+/* The text is the only thing in the row allowed to shrink, so a wide control
+   (the three-way theme control is 260px) could squeeze it to nothing: the row
+   wraps, but flex sizes the line from a zero basis and never counts the text
+   in. Below this floor the control goes to its own line instead. */
+.settings-row > .grow { min-width: 170px; }
+
+/* ---- Filter bar ---------------------------------------------------------- */
+
+.filterbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 10px;
+  min-width: 0;
+}
+
+.filter-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 240px;
+  min-width: 140px;
+}
+
+.filter-search-ic {
+  position: absolute;
+  left: 9px;
+  display: inline-flex;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 7px 10px 7px 30px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13.5px;
+}
+
+.filter-input::placeholder { color: var(--ink-3); }
+.filter-input:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+.filter-input::-webkit-search-cancel-button { cursor: pointer; }
+
+/* The chip row scrolls instead of wrapping, so the bar stays one line even
+   on a phone. */
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0;
+}
+
+.filter-chips::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px 6px 12px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filter-chip:hover:not(:disabled) { color: var(--ink); border-color: var(--ink-3); }
+.filter-chip:disabled { opacity: 0.5; cursor: default; }
+.filter-chip.on { border-color: var(--accent); background: var(--accent-wash); color: var(--accent); }
+.filter-chip-caret { display: inline-flex; opacity: 0.65; }
+
+.filter-chip-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px; height: 17px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.filter-prio { display: inline-flex; color: var(--ink-3); }
+.filter-summary { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
+.filterbar.active .filter-summary { color: var(--accent); font-weight: 600; }
+
+.col-empty-hint {
+  padding: 10px 4px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+@media (max-width: 639px) {
+  .filter-summary { display: none; }
+  .filterbar.active .filter-summary { display: inline; }
+
+  /* Turning a filter on adds the count and the Clear button to the row, and
+     on a phone they came out of the chip strip's width: it collapsed to about
+     50px of window over 350px of facets, which is a scroller nobody can aim.
+     Give the chips their own full-width line once the bar is carrying that
+     extra text, where all four facets fit without scrolling at all. */
+  .filterbar.active { flex-wrap: wrap; }
+  /* The field shares that first line with the count and the Clear button, so
+     its resting 140px floor has to come down or the button wraps again on a
+     320px screen. It still takes every pixel the other two leave. */
+  .filterbar.active .filter-search { flex: 1 1 120px; min-width: 100px; }
+  .filterbar.active > .grow { flex-grow: 0; }
+  .filterbar.active .filter-chips { order: 1; flex-basis: 100%; }
+}
+
+/* ---- Cross-project search ------------------------------------------------ */
+
+.search-field { flex: 1; }
+/* The left padding is what keeps the placeholder clear of .filter-search-ic,
+   which is absolutely positioned over the field. */
+.search-input { padding: 10px 12px 10px 34px; font-size: 14.5px; }
+.search-hint { margin: 0; text-align: right; }
+
+/* Scope on the left, the count on the right, both above the results. */
+.search-tools { align-items: center; gap: 10px; margin: 10px 0 6px; }
+.search-scope { flex-shrink: 0; }
+.search-scope .seg-btn { padding: 4px 10px; font-size: 12.5px; }
+
+.search-results {
+  display: flex;
+  flex-direction: column;
+  max-height: min(52dvh, 420px);
+  overflow-y: auto;
+  margin: 0 -6px;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.search-row:hover, .search-row:focus-visible { background: var(--surface-2); }
+.search-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.search-title {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --accent-wash is a 10% tint: right behind a whole selected row, invisible
+   behind seven characters. This mark is the answer to "why did this row come
+   back", scanned down a list of up to forty, so ink and weight carry it —
+   both survive the row's hover tint, which the wash alone did not. */
+.search-title mark {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  font-weight: 700;
+  border-radius: 3px;
+}
+
+/* Why a row is here when its title does not say so: where the match was, and
+   the line it sits in. One line, ellipsized — a result is a pointer to a task,
+   not a reading view. */
+.search-snippet {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.search-where {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.search-excerpt {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-excerpt mark {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent);
+  font-weight: 700;
+  border-radius: 3px;
+}
+
+/* Same shape as the agenda row's meta line, and the same reason it has to
+   stay on one line: a wrapped project name left the column name floating
+   beside its middle, joined by a "·" that no longer sat between anything. */
+.search-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-3);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.search-project, .search-column {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The column name is the short half and the one that reads as a whole word,
+   so the project name is what gives way — up to the point where a column
+   named at length would leave nothing of it, and then that ellipsizes too. */
+.search-column { flex-shrink: 0; max-width: 45%; }
+
+.search-project { font-weight: 600; }
+.search-column::before { content: "·"; margin-right: 6px; }
+.search-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+/* ---- Checkbox rows and template picker ----------------------------------- */
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.check-row input[type="checkbox"] {
+  width: 16px; height: 16px;
+  margin: 2px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.check-title { display: block; font-size: 14px; font-weight: 600; }
+.check-sub { display: block; font-size: 12.5px; color: var(--ink-3); }
+
+.template-list { display: flex; flex-direction: column; gap: 6px; }
+
+.template-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  padding-right: 6px;
+}
+
+.template-row.selected { border-color: var(--accent); background: var(--accent-wash); }
+
+.template-pick {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 9px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink);
+  border-radius: var(--r-md);
+}
+
+.template-name { font-size: 14px; font-weight: 600; }
+.template-sub { font-size: 12px; color: var(--ink-3); }
+
+.sheet-foot { flex-wrap: wrap; }
+.sheet-more-caret { display: inline-flex; opacity: 0.7; }
+
+/* ---- Trash and archive lists --------------------------------------------- */
+
+.trash-head { margin-bottom: 6px; gap: 12px; }
+.trash-head .form-hint { margin: 0; }
+
+.recover-list {
+  display: flex;
+  flex-direction: column;
+  max-height: min(52dvh, 420px);
+  overflow-y: auto;
+}
+
+.recover-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.recover-main { flex: 1; min-width: 0; }
+.recover-title { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recover-sub { font-size: 12px; color: var(--ink-3); }
+.recover-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+/* ---- Manage lists (members & labels) ------------------------------------- */
+
+.manage-list { display: flex; flex-direction: column; }
+
+.manage-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 2px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.manage-name { font-size: 14px; font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.manage-sub { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.manage-add { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ---- Quick add: parse chips and the global composer --------------------- */
+
+.qa-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.qa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 4px 3px 8px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface-2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  max-width: 100%;
+}
+
+.qa-chip-ic { display: inline-flex; color: var(--ink-3); }
+.qa-chip-due { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.qa-chip-due .qa-chip-ic { color: var(--accent); }
+.qa-chip-priority { text-transform: capitalize; }
+.qa-chip-new-label { border-style: dashed; }
+
+.qa-chip-x {
+  display: inline-grid;
+  place-items: center;
+  width: 18px; height: 18px;
+  border: none;
+  border-radius: var(--r-full);
+  background: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.qa-chip-x:hover { background: var(--surface-3); color: var(--ink); }
+
+.qa-hint { margin-top: 8px; line-height: 1.8; }
+
+.qa-token {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.qa-token + .qa-token { margin-left: 2px; }
+
+.qa-body { display: flex; flex-direction: column; gap: 12px; }
+.qa-row { display: flex; gap: 10px; }
+.qa-row .field { flex: 1; min-width: 0; }
+.qa-input { font-size: 15px; padding: 11px 12px; }
+.qa-body .qa-chips { margin-top: -4px; }
+.qa-body .qa-hint { margin-top: -6px; }
+
+.qa-recent { display: flex; flex-direction: column; gap: 4px; }
+
+.qa-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.qa-recent-row:hover { border-color: var(--hairline-strong); color: var(--ink); }
+.qa-recent-ic { display: inline-flex; color: var(--ok); flex-shrink: 0; }
+
+.qa-recent-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qa-recent-open { font-size: 12px; font-weight: 700; color: var(--accent); }
+
+/* ---- Keyboard: hints, the palette, and the shortcut sheet --------------- */
+
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  padding: 2px 6px;
+  border: 1px solid var(--hairline-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.nav-kbd {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  flex-shrink: 0;
+}
+
+.nav-item:hover .nav-kbd,
+.nav-item:focus-visible .nav-kbd { opacity: 1; }
+
+.palette { display: flex; flex-direction: column; gap: 10px; }
+
+/* .filter-search sizes itself for a toolbar row; in a column it would take
+   its flex-basis as a height. */
+.palette-field {
+  flex: none;
+  width: 100%;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 10px;
+}
+
+.palette-input {
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 4px 4px 4px 28px;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.palette-input::placeholder { color: var(--ink-3); }
+.palette-input:focus { outline: none; }
+.palette-field .filter-search-ic { left: 2px; }
+
+.palette-list {
+  max-height: min(52vh, 420px);
+  overflow-y: auto;
+  margin: 0 -6px;
+  padding: 0 6px;
+  scrollbar-width: thin;
+}
+
+.palette-group {
+  padding: 10px 8px 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.palette-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.palette-row.active { background: var(--accent-wash); }
+.palette-ic { display: inline-flex; color: var(--ink-3); flex-shrink: 0; }
+.palette-row.active .palette-ic { color: var(--accent); }
+
+.palette-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette-sub { font-size: 12px; color: var(--ink-3); flex-shrink: 0; }
+.palette-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.palette-hint { margin: 0; }
+
+.shortcut-doc { display: flex; flex-direction: column; gap: 18px; }
+.shortcut-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
+.shortcut-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 14px;
+  margin: 0;
+  align-items: center;
+}
+
+.shortcut-keys { display: flex; align-items: center; gap: 4px; }
+.shortcut-plus { font-size: 11px; color: var(--ink-3); }
+.shortcut-what { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+
+.settings-state { font-size: 13px; font-weight: 700; color: var(--ok); }
+.settings-state.muted { color: var(--ink-3); font-weight: 600; }
+.remind-note { margin: 6px 0 0; }
+
+/* ---- Changed-somewhere-else dialog -------------------------------------- */
+
+.conflict { display: flex; flex-direction: column; gap: 14px; }
+.conflict-lead { display: flex; gap: 12px; align-items: flex-start; }
+.conflict-ic { color: var(--warn); flex-shrink: 0; margin-top: 2px; }
+.conflict-lead p { font-size: 14px; color: var(--ink-2); }
+
+.conflict-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.conflict-list strong { color: var(--ink); }
+
+/* ---- Restore points ------------------------------------------------------ */
+
+.restore-list { display: flex; flex-direction: column; gap: 6px; }
+
+.restore-project { border-bottom: 1px solid var(--hairline); padding-bottom: 6px; }
+.restore-project:last-child { border-bottom: none; }
+
+.restore-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 2px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  list-style: none;
+}
+
+.restore-summary::-webkit-details-marker { display: none; }
+.restore-project[open] .archived-chevron { transform: rotate(180deg); }
+
+.restore-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+
+.restore-rows { display: flex; flex-direction: column; gap: 4px; padding: 2px 0 6px; }
+
+.restore-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.restore-row:hover { border-color: var(--hairline-strong); }
+.restore-ic { color: var(--ink-3); display: inline-flex; flex-shrink: 0; }
+.restore-date { font-size: 13.5px; font-weight: 600; }
+.restore-meta { font-size: 12px; color: var(--ink-3); }
+
+/* A linked attachment lives in Drive; a broken one says so. */
+.attach-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: var(--r-full);
+  flex-shrink: 0;
+}
+
+.attach-row.broken { border-color: var(--danger); }
+.attach-row.broken .attach-ic { color: var(--danger); }
+.attach-row.broken .attach-name { color: var(--ink-3); text-decoration: line-through; cursor: default; }
+.attach-row.broken .attach-tag { color: var(--danger); background: var(--danger-wash); }
+
+/* ---- Offline ------------------------------------------------------------- */
+
+.offline-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--warn);
+  border-radius: var(--r-md);
+  background: var(--warn-wash);
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.offline-ic { color: var(--warn); display: inline-flex; flex-shrink: 0; }

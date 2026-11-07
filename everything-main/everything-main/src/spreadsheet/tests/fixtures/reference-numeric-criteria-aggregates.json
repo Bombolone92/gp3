@@ -1,0 +1,2172 @@
+[
+  {
+    "value": null,
+    "formulas": [
+      "COUNTIFS(A1,\"=1\")",
+      "SUMIF(A1,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A1,\"=1\")",
+      "AVERAGEIF(A1,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A1,\"=1\")",
+      "MAXIFS($CS$1,A1,\"=1\")",
+      "MINIFS($CS$1,A1,\"=1\")",
+      "COUNTIFS(A1,\"<>1\")",
+      "SUMIF(A1,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A1,\"<>1\")",
+      "AVERAGEIF(A1,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A1,\"<>1\")",
+      "MAXIFS($CS$1,A1,\"<>1\")",
+      "MINIFS($CS$1,A1,\"<>1\")",
+      "COUNTIFS(A1,\"<1\")",
+      "SUMIF(A1,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A1,\"<1\")",
+      "AVERAGEIF(A1,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A1,\"<1\")",
+      "MAXIFS($CS$1,A1,\"<1\")",
+      "MINIFS($CS$1,A1,\"<1\")",
+      "COUNTIFS(A1,\"<=1\")",
+      "SUMIF(A1,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A1,\"<=1\")",
+      "AVERAGEIF(A1,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A1,\"<=1\")",
+      "MAXIFS($CS$1,A1,\"<=1\")",
+      "MINIFS($CS$1,A1,\"<=1\")",
+      "COUNTIFS(A1,\">1\")",
+      "SUMIF(A1,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A1,\">1\")",
+      "AVERAGEIF(A1,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A1,\">1\")",
+      "MAXIFS($CS$1,A1,\">1\")",
+      "MINIFS($CS$1,A1,\">1\")",
+      "COUNTIFS(A1,\">=1\")",
+      "SUMIF(A1,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A1,\">=1\")",
+      "AVERAGEIF(A1,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A1,\">=1\")",
+      "MAXIFS($CS$1,A1,\">=1\")",
+      "MINIFS($CS$1,A1,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "",
+    "formulas": [
+      "COUNTIFS(A2,\"=1\")",
+      "SUMIF(A2,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A2,\"=1\")",
+      "AVERAGEIF(A2,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A2,\"=1\")",
+      "MAXIFS($CS$1,A2,\"=1\")",
+      "MINIFS($CS$1,A2,\"=1\")",
+      "COUNTIFS(A2,\"<>1\")",
+      "SUMIF(A2,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A2,\"<>1\")",
+      "AVERAGEIF(A2,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A2,\"<>1\")",
+      "MAXIFS($CS$1,A2,\"<>1\")",
+      "MINIFS($CS$1,A2,\"<>1\")",
+      "COUNTIFS(A2,\"<1\")",
+      "SUMIF(A2,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A2,\"<1\")",
+      "AVERAGEIF(A2,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A2,\"<1\")",
+      "MAXIFS($CS$1,A2,\"<1\")",
+      "MINIFS($CS$1,A2,\"<1\")",
+      "COUNTIFS(A2,\"<=1\")",
+      "SUMIF(A2,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A2,\"<=1\")",
+      "AVERAGEIF(A2,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A2,\"<=1\")",
+      "MAXIFS($CS$1,A2,\"<=1\")",
+      "MINIFS($CS$1,A2,\"<=1\")",
+      "COUNTIFS(A2,\">1\")",
+      "SUMIF(A2,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A2,\">1\")",
+      "AVERAGEIF(A2,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A2,\">1\")",
+      "MAXIFS($CS$1,A2,\">1\")",
+      "MINIFS($CS$1,A2,\">1\")",
+      "COUNTIFS(A2,\">=1\")",
+      "SUMIF(A2,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A2,\">=1\")",
+      "AVERAGEIF(A2,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A2,\">=1\")",
+      "MAXIFS($CS$1,A2,\">=1\")",
+      "MINIFS($CS$1,A2,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": 0,
+    "formulas": [
+      "COUNTIFS(A3,\"=1\")",
+      "SUMIF(A3,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A3,\"=1\")",
+      "AVERAGEIF(A3,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A3,\"=1\")",
+      "MAXIFS($CS$1,A3,\"=1\")",
+      "MINIFS($CS$1,A3,\"=1\")",
+      "COUNTIFS(A3,\"<>1\")",
+      "SUMIF(A3,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A3,\"<>1\")",
+      "AVERAGEIF(A3,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A3,\"<>1\")",
+      "MAXIFS($CS$1,A3,\"<>1\")",
+      "MINIFS($CS$1,A3,\"<>1\")",
+      "COUNTIFS(A3,\"<1\")",
+      "SUMIF(A3,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A3,\"<1\")",
+      "AVERAGEIF(A3,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A3,\"<1\")",
+      "MAXIFS($CS$1,A3,\"<1\")",
+      "MINIFS($CS$1,A3,\"<1\")",
+      "COUNTIFS(A3,\"<=1\")",
+      "SUMIF(A3,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A3,\"<=1\")",
+      "AVERAGEIF(A3,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A3,\"<=1\")",
+      "MAXIFS($CS$1,A3,\"<=1\")",
+      "MINIFS($CS$1,A3,\"<=1\")",
+      "COUNTIFS(A3,\">1\")",
+      "SUMIF(A3,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A3,\">1\")",
+      "AVERAGEIF(A3,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A3,\">1\")",
+      "MAXIFS($CS$1,A3,\">1\")",
+      "MINIFS($CS$1,A3,\">1\")",
+      "COUNTIFS(A3,\">=1\")",
+      "SUMIF(A3,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A3,\">=1\")",
+      "AVERAGEIF(A3,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A3,\">=1\")",
+      "MAXIFS($CS$1,A3,\">=1\")",
+      "MINIFS($CS$1,A3,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": 1,
+    "formulas": [
+      "COUNTIFS(A4,\"=1\")",
+      "SUMIF(A4,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A4,\"=1\")",
+      "AVERAGEIF(A4,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A4,\"=1\")",
+      "MAXIFS($CS$1,A4,\"=1\")",
+      "MINIFS($CS$1,A4,\"=1\")",
+      "COUNTIFS(A4,\"<>1\")",
+      "SUMIF(A4,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A4,\"<>1\")",
+      "AVERAGEIF(A4,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A4,\"<>1\")",
+      "MAXIFS($CS$1,A4,\"<>1\")",
+      "MINIFS($CS$1,A4,\"<>1\")",
+      "COUNTIFS(A4,\"<1\")",
+      "SUMIF(A4,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A4,\"<1\")",
+      "AVERAGEIF(A4,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A4,\"<1\")",
+      "MAXIFS($CS$1,A4,\"<1\")",
+      "MINIFS($CS$1,A4,\"<1\")",
+      "COUNTIFS(A4,\"<=1\")",
+      "SUMIF(A4,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A4,\"<=1\")",
+      "AVERAGEIF(A4,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A4,\"<=1\")",
+      "MAXIFS($CS$1,A4,\"<=1\")",
+      "MINIFS($CS$1,A4,\"<=1\")",
+      "COUNTIFS(A4,\">1\")",
+      "SUMIF(A4,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A4,\">1\")",
+      "AVERAGEIF(A4,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A4,\">1\")",
+      "MAXIFS($CS$1,A4,\">1\")",
+      "MINIFS($CS$1,A4,\">1\")",
+      "COUNTIFS(A4,\">=1\")",
+      "SUMIF(A4,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A4,\">=1\")",
+      "AVERAGEIF(A4,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A4,\">=1\")",
+      "MAXIFS($CS$1,A4,\">=1\")",
+      "MINIFS($CS$1,A4,\">=1\")"
+    ],
+    "expected": [
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+    ]
+  },
+  {
+    "value": 2,
+    "formulas": [
+      "COUNTIFS(A5,\"=1\")",
+      "SUMIF(A5,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A5,\"=1\")",
+      "AVERAGEIF(A5,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A5,\"=1\")",
+      "MAXIFS($CS$1,A5,\"=1\")",
+      "MINIFS($CS$1,A5,\"=1\")",
+      "COUNTIFS(A5,\"<>1\")",
+      "SUMIF(A5,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A5,\"<>1\")",
+      "AVERAGEIF(A5,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A5,\"<>1\")",
+      "MAXIFS($CS$1,A5,\"<>1\")",
+      "MINIFS($CS$1,A5,\"<>1\")",
+      "COUNTIFS(A5,\"<1\")",
+      "SUMIF(A5,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A5,\"<1\")",
+      "AVERAGEIF(A5,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A5,\"<1\")",
+      "MAXIFS($CS$1,A5,\"<1\")",
+      "MINIFS($CS$1,A5,\"<1\")",
+      "COUNTIFS(A5,\"<=1\")",
+      "SUMIF(A5,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A5,\"<=1\")",
+      "AVERAGEIF(A5,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A5,\"<=1\")",
+      "MAXIFS($CS$1,A5,\"<=1\")",
+      "MINIFS($CS$1,A5,\"<=1\")",
+      "COUNTIFS(A5,\">1\")",
+      "SUMIF(A5,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A5,\">1\")",
+      "AVERAGEIF(A5,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A5,\">1\")",
+      "MAXIFS($CS$1,A5,\">1\")",
+      "MINIFS($CS$1,A5,\">1\")",
+      "COUNTIFS(A5,\">=1\")",
+      "SUMIF(A5,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A5,\">=1\")",
+      "AVERAGEIF(A5,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A5,\">=1\")",
+      "MAXIFS($CS$1,A5,\">=1\")",
+      "MINIFS($CS$1,A5,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+    ]
+  },
+  {
+    "value": -1,
+    "formulas": [
+      "COUNTIFS(A6,\"=1\")",
+      "SUMIF(A6,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A6,\"=1\")",
+      "AVERAGEIF(A6,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A6,\"=1\")",
+      "MAXIFS($CS$1,A6,\"=1\")",
+      "MINIFS($CS$1,A6,\"=1\")",
+      "COUNTIFS(A6,\"<>1\")",
+      "SUMIF(A6,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A6,\"<>1\")",
+      "AVERAGEIF(A6,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A6,\"<>1\")",
+      "MAXIFS($CS$1,A6,\"<>1\")",
+      "MINIFS($CS$1,A6,\"<>1\")",
+      "COUNTIFS(A6,\"<1\")",
+      "SUMIF(A6,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A6,\"<1\")",
+      "AVERAGEIF(A6,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A6,\"<1\")",
+      "MAXIFS($CS$1,A6,\"<1\")",
+      "MINIFS($CS$1,A6,\"<1\")",
+      "COUNTIFS(A6,\"<=1\")",
+      "SUMIF(A6,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A6,\"<=1\")",
+      "AVERAGEIF(A6,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A6,\"<=1\")",
+      "MAXIFS($CS$1,A6,\"<=1\")",
+      "MINIFS($CS$1,A6,\"<=1\")",
+      "COUNTIFS(A6,\">1\")",
+      "SUMIF(A6,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A6,\">1\")",
+      "AVERAGEIF(A6,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A6,\">1\")",
+      "MAXIFS($CS$1,A6,\">1\")",
+      "MINIFS($CS$1,A6,\">1\")",
+      "COUNTIFS(A6,\">=1\")",
+      "SUMIF(A6,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A6,\">=1\")",
+      "AVERAGEIF(A6,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A6,\">=1\")",
+      "MAXIFS($CS$1,A6,\">=1\")",
+      "MINIFS($CS$1,A6,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "0",
+    "formulas": [
+      "COUNTIFS(A7,\"=1\")",
+      "SUMIF(A7,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A7,\"=1\")",
+      "AVERAGEIF(A7,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A7,\"=1\")",
+      "MAXIFS($CS$1,A7,\"=1\")",
+      "MINIFS($CS$1,A7,\"=1\")",
+      "COUNTIFS(A7,\"<>1\")",
+      "SUMIF(A7,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A7,\"<>1\")",
+      "AVERAGEIF(A7,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A7,\"<>1\")",
+      "MAXIFS($CS$1,A7,\"<>1\")",
+      "MINIFS($CS$1,A7,\"<>1\")",
+      "COUNTIFS(A7,\"<1\")",
+      "SUMIF(A7,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A7,\"<1\")",
+      "AVERAGEIF(A7,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A7,\"<1\")",
+      "MAXIFS($CS$1,A7,\"<1\")",
+      "MINIFS($CS$1,A7,\"<1\")",
+      "COUNTIFS(A7,\"<=1\")",
+      "SUMIF(A7,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A7,\"<=1\")",
+      "AVERAGEIF(A7,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A7,\"<=1\")",
+      "MAXIFS($CS$1,A7,\"<=1\")",
+      "MINIFS($CS$1,A7,\"<=1\")",
+      "COUNTIFS(A7,\">1\")",
+      "SUMIF(A7,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A7,\">1\")",
+      "AVERAGEIF(A7,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A7,\">1\")",
+      "MAXIFS($CS$1,A7,\">1\")",
+      "MINIFS($CS$1,A7,\">1\")",
+      "COUNTIFS(A7,\">=1\")",
+      "SUMIF(A7,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A7,\">=1\")",
+      "AVERAGEIF(A7,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A7,\">=1\")",
+      "MAXIFS($CS$1,A7,\">=1\")",
+      "MINIFS($CS$1,A7,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "1",
+    "formulas": [
+      "COUNTIFS(A8,\"=1\")",
+      "SUMIF(A8,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A8,\"=1\")",
+      "AVERAGEIF(A8,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A8,\"=1\")",
+      "MAXIFS($CS$1,A8,\"=1\")",
+      "MINIFS($CS$1,A8,\"=1\")",
+      "COUNTIFS(A8,\"<>1\")",
+      "SUMIF(A8,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A8,\"<>1\")",
+      "AVERAGEIF(A8,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A8,\"<>1\")",
+      "MAXIFS($CS$1,A8,\"<>1\")",
+      "MINIFS($CS$1,A8,\"<>1\")",
+      "COUNTIFS(A8,\"<1\")",
+      "SUMIF(A8,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A8,\"<1\")",
+      "AVERAGEIF(A8,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A8,\"<1\")",
+      "MAXIFS($CS$1,A8,\"<1\")",
+      "MINIFS($CS$1,A8,\"<1\")",
+      "COUNTIFS(A8,\"<=1\")",
+      "SUMIF(A8,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A8,\"<=1\")",
+      "AVERAGEIF(A8,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A8,\"<=1\")",
+      "MAXIFS($CS$1,A8,\"<=1\")",
+      "MINIFS($CS$1,A8,\"<=1\")",
+      "COUNTIFS(A8,\">1\")",
+      "SUMIF(A8,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A8,\">1\")",
+      "AVERAGEIF(A8,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A8,\">1\")",
+      "MAXIFS($CS$1,A8,\">1\")",
+      "MINIFS($CS$1,A8,\">1\")",
+      "COUNTIFS(A8,\">=1\")",
+      "SUMIF(A8,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A8,\">=1\")",
+      "AVERAGEIF(A8,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A8,\">=1\")",
+      "MAXIFS($CS$1,A8,\">=1\")",
+      "MINIFS($CS$1,A8,\">=1\")"
+    ],
+    "expected": [
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "2",
+    "formulas": [
+      "COUNTIFS(A9,\"=1\")",
+      "SUMIF(A9,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A9,\"=1\")",
+      "AVERAGEIF(A9,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A9,\"=1\")",
+      "MAXIFS($CS$1,A9,\"=1\")",
+      "MINIFS($CS$1,A9,\"=1\")",
+      "COUNTIFS(A9,\"<>1\")",
+      "SUMIF(A9,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A9,\"<>1\")",
+      "AVERAGEIF(A9,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A9,\"<>1\")",
+      "MAXIFS($CS$1,A9,\"<>1\")",
+      "MINIFS($CS$1,A9,\"<>1\")",
+      "COUNTIFS(A9,\"<1\")",
+      "SUMIF(A9,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A9,\"<1\")",
+      "AVERAGEIF(A9,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A9,\"<1\")",
+      "MAXIFS($CS$1,A9,\"<1\")",
+      "MINIFS($CS$1,A9,\"<1\")",
+      "COUNTIFS(A9,\"<=1\")",
+      "SUMIF(A9,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A9,\"<=1\")",
+      "AVERAGEIF(A9,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A9,\"<=1\")",
+      "MAXIFS($CS$1,A9,\"<=1\")",
+      "MINIFS($CS$1,A9,\"<=1\")",
+      "COUNTIFS(A9,\">1\")",
+      "SUMIF(A9,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A9,\">1\")",
+      "AVERAGEIF(A9,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A9,\">1\")",
+      "MAXIFS($CS$1,A9,\">1\")",
+      "MINIFS($CS$1,A9,\">1\")",
+      "COUNTIFS(A9,\">=1\")",
+      "SUMIF(A9,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A9,\">=1\")",
+      "AVERAGEIF(A9,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A9,\">=1\")",
+      "MAXIFS($CS$1,A9,\">=1\")",
+      "MINIFS($CS$1,A9,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "01",
+    "formulas": [
+      "COUNTIFS(A10,\"=1\")",
+      "SUMIF(A10,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A10,\"=1\")",
+      "AVERAGEIF(A10,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A10,\"=1\")",
+      "MAXIFS($CS$1,A10,\"=1\")",
+      "MINIFS($CS$1,A10,\"=1\")",
+      "COUNTIFS(A10,\"<>1\")",
+      "SUMIF(A10,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A10,\"<>1\")",
+      "AVERAGEIF(A10,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A10,\"<>1\")",
+      "MAXIFS($CS$1,A10,\"<>1\")",
+      "MINIFS($CS$1,A10,\"<>1\")",
+      "COUNTIFS(A10,\"<1\")",
+      "SUMIF(A10,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A10,\"<1\")",
+      "AVERAGEIF(A10,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A10,\"<1\")",
+      "MAXIFS($CS$1,A10,\"<1\")",
+      "MINIFS($CS$1,A10,\"<1\")",
+      "COUNTIFS(A10,\"<=1\")",
+      "SUMIF(A10,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A10,\"<=1\")",
+      "AVERAGEIF(A10,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A10,\"<=1\")",
+      "MAXIFS($CS$1,A10,\"<=1\")",
+      "MINIFS($CS$1,A10,\"<=1\")",
+      "COUNTIFS(A10,\">1\")",
+      "SUMIF(A10,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A10,\">1\")",
+      "AVERAGEIF(A10,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A10,\">1\")",
+      "MAXIFS($CS$1,A10,\">1\")",
+      "MINIFS($CS$1,A10,\">1\")",
+      "COUNTIFS(A10,\">=1\")",
+      "SUMIF(A10,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A10,\">=1\")",
+      "AVERAGEIF(A10,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A10,\">=1\")",
+      "MAXIFS($CS$1,A10,\">=1\")",
+      "MINIFS($CS$1,A10,\">=1\")"
+    ],
+    "expected": [
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "+1",
+    "formulas": [
+      "COUNTIFS(A11,\"=1\")",
+      "SUMIF(A11,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A11,\"=1\")",
+      "AVERAGEIF(A11,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A11,\"=1\")",
+      "MAXIFS($CS$1,A11,\"=1\")",
+      "MINIFS($CS$1,A11,\"=1\")",
+      "COUNTIFS(A11,\"<>1\")",
+      "SUMIF(A11,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A11,\"<>1\")",
+      "AVERAGEIF(A11,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A11,\"<>1\")",
+      "MAXIFS($CS$1,A11,\"<>1\")",
+      "MINIFS($CS$1,A11,\"<>1\")",
+      "COUNTIFS(A11,\"<1\")",
+      "SUMIF(A11,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A11,\"<1\")",
+      "AVERAGEIF(A11,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A11,\"<1\")",
+      "MAXIFS($CS$1,A11,\"<1\")",
+      "MINIFS($CS$1,A11,\"<1\")",
+      "COUNTIFS(A11,\"<=1\")",
+      "SUMIF(A11,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A11,\"<=1\")",
+      "AVERAGEIF(A11,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A11,\"<=1\")",
+      "MAXIFS($CS$1,A11,\"<=1\")",
+      "MINIFS($CS$1,A11,\"<=1\")",
+      "COUNTIFS(A11,\">1\")",
+      "SUMIF(A11,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A11,\">1\")",
+      "AVERAGEIF(A11,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A11,\">1\")",
+      "MAXIFS($CS$1,A11,\">1\")",
+      "MINIFS($CS$1,A11,\">1\")",
+      "COUNTIFS(A11,\">=1\")",
+      "SUMIF(A11,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A11,\">=1\")",
+      "AVERAGEIF(A11,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A11,\">=1\")",
+      "MAXIFS($CS$1,A11,\">=1\")",
+      "MINIFS($CS$1,A11,\">=1\")"
+    ],
+    "expected": [
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": " 1 ",
+    "formulas": [
+      "COUNTIFS(A12,\"=1\")",
+      "SUMIF(A12,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A12,\"=1\")",
+      "AVERAGEIF(A12,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A12,\"=1\")",
+      "MAXIFS($CS$1,A12,\"=1\")",
+      "MINIFS($CS$1,A12,\"=1\")",
+      "COUNTIFS(A12,\"<>1\")",
+      "SUMIF(A12,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A12,\"<>1\")",
+      "AVERAGEIF(A12,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A12,\"<>1\")",
+      "MAXIFS($CS$1,A12,\"<>1\")",
+      "MINIFS($CS$1,A12,\"<>1\")",
+      "COUNTIFS(A12,\"<1\")",
+      "SUMIF(A12,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A12,\"<1\")",
+      "AVERAGEIF(A12,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A12,\"<1\")",
+      "MAXIFS($CS$1,A12,\"<1\")",
+      "MINIFS($CS$1,A12,\"<1\")",
+      "COUNTIFS(A12,\"<=1\")",
+      "SUMIF(A12,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A12,\"<=1\")",
+      "AVERAGEIF(A12,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A12,\"<=1\")",
+      "MAXIFS($CS$1,A12,\"<=1\")",
+      "MINIFS($CS$1,A12,\"<=1\")",
+      "COUNTIFS(A12,\">1\")",
+      "SUMIF(A12,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A12,\">1\")",
+      "AVERAGEIF(A12,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A12,\">1\")",
+      "MAXIFS($CS$1,A12,\">1\")",
+      "MINIFS($CS$1,A12,\">1\")",
+      "COUNTIFS(A12,\">=1\")",
+      "SUMIF(A12,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A12,\">=1\")",
+      "AVERAGEIF(A12,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A12,\">=1\")",
+      "MAXIFS($CS$1,A12,\">=1\")",
+      "MINIFS($CS$1,A12,\">=1\")"
+    ],
+    "expected": [
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "١",
+    "formulas": [
+      "COUNTIFS(A13,\"=1\")",
+      "SUMIF(A13,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A13,\"=1\")",
+      "AVERAGEIF(A13,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A13,\"=1\")",
+      "MAXIFS($CS$1,A13,\"=1\")",
+      "MINIFS($CS$1,A13,\"=1\")",
+      "COUNTIFS(A13,\"<>1\")",
+      "SUMIF(A13,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A13,\"<>1\")",
+      "AVERAGEIF(A13,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A13,\"<>1\")",
+      "MAXIFS($CS$1,A13,\"<>1\")",
+      "MINIFS($CS$1,A13,\"<>1\")",
+      "COUNTIFS(A13,\"<1\")",
+      "SUMIF(A13,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A13,\"<1\")",
+      "AVERAGEIF(A13,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A13,\"<1\")",
+      "MAXIFS($CS$1,A13,\"<1\")",
+      "MINIFS($CS$1,A13,\"<1\")",
+      "COUNTIFS(A13,\"<=1\")",
+      "SUMIF(A13,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A13,\"<=1\")",
+      "AVERAGEIF(A13,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A13,\"<=1\")",
+      "MAXIFS($CS$1,A13,\"<=1\")",
+      "MINIFS($CS$1,A13,\"<=1\")",
+      "COUNTIFS(A13,\">1\")",
+      "SUMIF(A13,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A13,\">1\")",
+      "AVERAGEIF(A13,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A13,\">1\")",
+      "MAXIFS($CS$1,A13,\">1\")",
+      "MINIFS($CS$1,A13,\">1\")",
+      "COUNTIFS(A13,\">=1\")",
+      "SUMIF(A13,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A13,\">=1\")",
+      "AVERAGEIF(A13,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A13,\">=1\")",
+      "MAXIFS($CS$1,A13,\">=1\")",
+      "MINIFS($CS$1,A13,\">=1\")"
+    ],
+    "expected": [
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": " 1 ",
+    "formulas": [
+      "COUNTIFS(A14,\"=1\")",
+      "SUMIF(A14,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A14,\"=1\")",
+      "AVERAGEIF(A14,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A14,\"=1\")",
+      "MAXIFS($CS$1,A14,\"=1\")",
+      "MINIFS($CS$1,A14,\"=1\")",
+      "COUNTIFS(A14,\"<>1\")",
+      "SUMIF(A14,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A14,\"<>1\")",
+      "AVERAGEIF(A14,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A14,\"<>1\")",
+      "MAXIFS($CS$1,A14,\"<>1\")",
+      "MINIFS($CS$1,A14,\"<>1\")",
+      "COUNTIFS(A14,\"<1\")",
+      "SUMIF(A14,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A14,\"<1\")",
+      "AVERAGEIF(A14,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A14,\"<1\")",
+      "MAXIFS($CS$1,A14,\"<1\")",
+      "MINIFS($CS$1,A14,\"<1\")",
+      "COUNTIFS(A14,\"<=1\")",
+      "SUMIF(A14,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A14,\"<=1\")",
+      "AVERAGEIF(A14,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A14,\"<=1\")",
+      "MAXIFS($CS$1,A14,\"<=1\")",
+      "MINIFS($CS$1,A14,\"<=1\")",
+      "COUNTIFS(A14,\">1\")",
+      "SUMIF(A14,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A14,\">1\")",
+      "AVERAGEIF(A14,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A14,\">1\")",
+      "MAXIFS($CS$1,A14,\">1\")",
+      "MINIFS($CS$1,A14,\">1\")",
+      "COUNTIFS(A14,\">=1\")",
+      "SUMIF(A14,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A14,\">=1\")",
+      "AVERAGEIF(A14,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A14,\">=1\")",
+      "MAXIFS($CS$1,A14,\">=1\")",
+      "MINIFS($CS$1,A14,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "1x",
+    "formulas": [
+      "COUNTIFS(A15,\"=1\")",
+      "SUMIF(A15,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A15,\"=1\")",
+      "AVERAGEIF(A15,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A15,\"=1\")",
+      "MAXIFS($CS$1,A15,\"=1\")",
+      "MINIFS($CS$1,A15,\"=1\")",
+      "COUNTIFS(A15,\"<>1\")",
+      "SUMIF(A15,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A15,\"<>1\")",
+      "AVERAGEIF(A15,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A15,\"<>1\")",
+      "MAXIFS($CS$1,A15,\"<>1\")",
+      "MINIFS($CS$1,A15,\"<>1\")",
+      "COUNTIFS(A15,\"<1\")",
+      "SUMIF(A15,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A15,\"<1\")",
+      "AVERAGEIF(A15,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A15,\"<1\")",
+      "MAXIFS($CS$1,A15,\"<1\")",
+      "MINIFS($CS$1,A15,\"<1\")",
+      "COUNTIFS(A15,\"<=1\")",
+      "SUMIF(A15,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A15,\"<=1\")",
+      "AVERAGEIF(A15,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A15,\"<=1\")",
+      "MAXIFS($CS$1,A15,\"<=1\")",
+      "MINIFS($CS$1,A15,\"<=1\")",
+      "COUNTIFS(A15,\">1\")",
+      "SUMIF(A15,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A15,\">1\")",
+      "AVERAGEIF(A15,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A15,\">1\")",
+      "MAXIFS($CS$1,A15,\">1\")",
+      "MINIFS($CS$1,A15,\">1\")",
+      "COUNTIFS(A15,\">=1\")",
+      "SUMIF(A15,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A15,\">=1\")",
+      "AVERAGEIF(A15,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A15,\">=1\")",
+      "MAXIFS($CS$1,A15,\">=1\")",
+      "MINIFS($CS$1,A15,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "x",
+    "formulas": [
+      "COUNTIFS(A16,\"=1\")",
+      "SUMIF(A16,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A16,\"=1\")",
+      "AVERAGEIF(A16,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A16,\"=1\")",
+      "MAXIFS($CS$1,A16,\"=1\")",
+      "MINIFS($CS$1,A16,\"=1\")",
+      "COUNTIFS(A16,\"<>1\")",
+      "SUMIF(A16,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A16,\"<>1\")",
+      "AVERAGEIF(A16,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A16,\"<>1\")",
+      "MAXIFS($CS$1,A16,\"<>1\")",
+      "MINIFS($CS$1,A16,\"<>1\")",
+      "COUNTIFS(A16,\"<1\")",
+      "SUMIF(A16,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A16,\"<1\")",
+      "AVERAGEIF(A16,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A16,\"<1\")",
+      "MAXIFS($CS$1,A16,\"<1\")",
+      "MINIFS($CS$1,A16,\"<1\")",
+      "COUNTIFS(A16,\"<=1\")",
+      "SUMIF(A16,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A16,\"<=1\")",
+      "AVERAGEIF(A16,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A16,\"<=1\")",
+      "MAXIFS($CS$1,A16,\"<=1\")",
+      "MINIFS($CS$1,A16,\"<=1\")",
+      "COUNTIFS(A16,\">1\")",
+      "SUMIF(A16,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A16,\">1\")",
+      "AVERAGEIF(A16,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A16,\">1\")",
+      "MAXIFS($CS$1,A16,\">1\")",
+      "MINIFS($CS$1,A16,\">1\")",
+      "COUNTIFS(A16,\">=1\")",
+      "SUMIF(A16,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A16,\">=1\")",
+      "AVERAGEIF(A16,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A16,\">=1\")",
+      "MAXIFS($CS$1,A16,\">=1\")",
+      "MINIFS($CS$1,A16,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": true,
+    "formulas": [
+      "COUNTIFS(A17,\"=1\")",
+      "SUMIF(A17,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A17,\"=1\")",
+      "AVERAGEIF(A17,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A17,\"=1\")",
+      "MAXIFS($CS$1,A17,\"=1\")",
+      "MINIFS($CS$1,A17,\"=1\")",
+      "COUNTIFS(A17,\"<>1\")",
+      "SUMIF(A17,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A17,\"<>1\")",
+      "AVERAGEIF(A17,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A17,\"<>1\")",
+      "MAXIFS($CS$1,A17,\"<>1\")",
+      "MINIFS($CS$1,A17,\"<>1\")",
+      "COUNTIFS(A17,\"<1\")",
+      "SUMIF(A17,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A17,\"<1\")",
+      "AVERAGEIF(A17,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A17,\"<1\")",
+      "MAXIFS($CS$1,A17,\"<1\")",
+      "MINIFS($CS$1,A17,\"<1\")",
+      "COUNTIFS(A17,\"<=1\")",
+      "SUMIF(A17,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A17,\"<=1\")",
+      "AVERAGEIF(A17,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A17,\"<=1\")",
+      "MAXIFS($CS$1,A17,\"<=1\")",
+      "MINIFS($CS$1,A17,\"<=1\")",
+      "COUNTIFS(A17,\">1\")",
+      "SUMIF(A17,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A17,\">1\")",
+      "AVERAGEIF(A17,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A17,\">1\")",
+      "MAXIFS($CS$1,A17,\">1\")",
+      "MINIFS($CS$1,A17,\">1\")",
+      "COUNTIFS(A17,\">=1\")",
+      "SUMIF(A17,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A17,\">=1\")",
+      "AVERAGEIF(A17,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A17,\">=1\")",
+      "MAXIFS($CS$1,A17,\">=1\")",
+      "MINIFS($CS$1,A17,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": false,
+    "formulas": [
+      "COUNTIFS(A18,\"=1\")",
+      "SUMIF(A18,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A18,\"=1\")",
+      "AVERAGEIF(A18,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A18,\"=1\")",
+      "MAXIFS($CS$1,A18,\"=1\")",
+      "MINIFS($CS$1,A18,\"=1\")",
+      "COUNTIFS(A18,\"<>1\")",
+      "SUMIF(A18,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A18,\"<>1\")",
+      "AVERAGEIF(A18,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A18,\"<>1\")",
+      "MAXIFS($CS$1,A18,\"<>1\")",
+      "MINIFS($CS$1,A18,\"<>1\")",
+      "COUNTIFS(A18,\"<1\")",
+      "SUMIF(A18,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A18,\"<1\")",
+      "AVERAGEIF(A18,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A18,\"<1\")",
+      "MAXIFS($CS$1,A18,\"<1\")",
+      "MINIFS($CS$1,A18,\"<1\")",
+      "COUNTIFS(A18,\"<=1\")",
+      "SUMIF(A18,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A18,\"<=1\")",
+      "AVERAGEIF(A18,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A18,\"<=1\")",
+      "MAXIFS($CS$1,A18,\"<=1\")",
+      "MINIFS($CS$1,A18,\"<=1\")",
+      "COUNTIFS(A18,\">1\")",
+      "SUMIF(A18,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A18,\">1\")",
+      "AVERAGEIF(A18,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A18,\">1\")",
+      "MAXIFS($CS$1,A18,\">1\")",
+      "MINIFS($CS$1,A18,\">1\")",
+      "COUNTIFS(A18,\">=1\")",
+      "SUMIF(A18,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A18,\">=1\")",
+      "AVERAGEIF(A18,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A18,\">=1\")",
+      "MAXIFS($CS$1,A18,\">=1\")",
+      "MINIFS($CS$1,A18,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": {
+      "error": "#N/A"
+    },
+    "formulas": [
+      "COUNTIFS(A19,\"=1\")",
+      "SUMIF(A19,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A19,\"=1\")",
+      "AVERAGEIF(A19,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A19,\"=1\")",
+      "MAXIFS($CS$1,A19,\"=1\")",
+      "MINIFS($CS$1,A19,\"=1\")",
+      "COUNTIFS(A19,\"<>1\")",
+      "SUMIF(A19,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A19,\"<>1\")",
+      "AVERAGEIF(A19,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A19,\"<>1\")",
+      "MAXIFS($CS$1,A19,\"<>1\")",
+      "MINIFS($CS$1,A19,\"<>1\")",
+      "COUNTIFS(A19,\"<1\")",
+      "SUMIF(A19,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A19,\"<1\")",
+      "AVERAGEIF(A19,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A19,\"<1\")",
+      "MAXIFS($CS$1,A19,\"<1\")",
+      "MINIFS($CS$1,A19,\"<1\")",
+      "COUNTIFS(A19,\"<=1\")",
+      "SUMIF(A19,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A19,\"<=1\")",
+      "AVERAGEIF(A19,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A19,\"<=1\")",
+      "MAXIFS($CS$1,A19,\"<=1\")",
+      "MINIFS($CS$1,A19,\"<=1\")",
+      "COUNTIFS(A19,\">1\")",
+      "SUMIF(A19,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A19,\">1\")",
+      "AVERAGEIF(A19,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A19,\">1\")",
+      "MAXIFS($CS$1,A19,\">1\")",
+      "MINIFS($CS$1,A19,\">1\")",
+      "COUNTIFS(A19,\">=1\")",
+      "SUMIF(A19,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A19,\">=1\")",
+      "AVERAGEIF(A19,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A19,\">=1\")",
+      "MAXIFS($CS$1,A19,\">=1\")",
+      "MINIFS($CS$1,A19,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  },
+  {
+    "value": "#N/A",
+    "formulas": [
+      "COUNTIFS(A20,\"=1\")",
+      "SUMIF(A20,\"=1\",$CS$1)",
+      "SUMIFS($CS$1,A20,\"=1\")",
+      "AVERAGEIF(A20,\"=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A20,\"=1\")",
+      "MAXIFS($CS$1,A20,\"=1\")",
+      "MINIFS($CS$1,A20,\"=1\")",
+      "COUNTIFS(A20,\"<>1\")",
+      "SUMIF(A20,\"<>1\",$CS$1)",
+      "SUMIFS($CS$1,A20,\"<>1\")",
+      "AVERAGEIF(A20,\"<>1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A20,\"<>1\")",
+      "MAXIFS($CS$1,A20,\"<>1\")",
+      "MINIFS($CS$1,A20,\"<>1\")",
+      "COUNTIFS(A20,\"<1\")",
+      "SUMIF(A20,\"<1\",$CS$1)",
+      "SUMIFS($CS$1,A20,\"<1\")",
+      "AVERAGEIF(A20,\"<1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A20,\"<1\")",
+      "MAXIFS($CS$1,A20,\"<1\")",
+      "MINIFS($CS$1,A20,\"<1\")",
+      "COUNTIFS(A20,\"<=1\")",
+      "SUMIF(A20,\"<=1\",$CS$1)",
+      "SUMIFS($CS$1,A20,\"<=1\")",
+      "AVERAGEIF(A20,\"<=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A20,\"<=1\")",
+      "MAXIFS($CS$1,A20,\"<=1\")",
+      "MINIFS($CS$1,A20,\"<=1\")",
+      "COUNTIFS(A20,\">1\")",
+      "SUMIF(A20,\">1\",$CS$1)",
+      "SUMIFS($CS$1,A20,\">1\")",
+      "AVERAGEIF(A20,\">1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A20,\">1\")",
+      "MAXIFS($CS$1,A20,\">1\")",
+      "MINIFS($CS$1,A20,\">1\")",
+      "COUNTIFS(A20,\">=1\")",
+      "SUMIF(A20,\">=1\",$CS$1)",
+      "SUMIFS($CS$1,A20,\">=1\")",
+      "AVERAGEIF(A20,\">=1\",$CS$1)",
+      "AVERAGEIFS($CS$1,A20,\">=1\")",
+      "MAXIFS($CS$1,A20,\">=1\")",
+      "MINIFS($CS$1,A20,\">=1\")"
+    ],
+    "expected": [
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      1,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0,
+      0,
+      0,
+      0,
+      {
+        "error": "#DIV/0!"
+      },
+      {
+        "error": "#DIV/0!"
+      },
+      0,
+      0
+    ]
+  }
+]

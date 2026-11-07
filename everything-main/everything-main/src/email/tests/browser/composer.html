@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Composer test fixture</title></head>
+<body>
+<div id="app"><button id="compose">Compose</button><button id="resume">Resume draft</button></div>
+<script type="module">
+import '../../src/styles/tokens.css';
+import '../../src/styles/base.css';
+import '../../src/styles/app.css';
+import { openCompose } from '../../src/ui/compose.js';
+import { createDraftStore } from '../../src/lib/drafts.js';
+// Isolated test account: no SDK, auth session, network delivery or real mailbox.
+window.puter = { ui: {}, APIOrigin: location.origin + '/test-api', authToken: 'fixture', fs: { write: async () => {} } };
+const drafts = createDraftStore('browser-test');
+const open = (draft) => openCompose({ username: 'browser-test', mailPath: '/browser-test/.mail', drafts, draft });
+document.querySelector('#compose').onclick = () => open();
+document.querySelector('#resume').onclick = () => open(drafts.list()[0]);
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "whiteboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build:worker && vite --host 0.0.0.0",
+    "build": "npm run build:worker && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test tests/*.test.js",
+    "format:check": "prettier --check src tests index.html package.json README.md THIRD_PARTY_NOTICES.md .github scripts public/manifest.json worker docs vite.config.js vite.worker.config.js",
+    "icons": "node scripts/generate-icons.mjs",
+    "build:worker": "vite build --config vite.worker.config.js"
+  },
+  "dependencies": {
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/eb-garamond": "^5.3.0",
+    "@fontsource/noto-sans": "^5.3.0",
+    "@fontsource/roboto-mono": "^5.3.0",
+    "lucide": "^0.577.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.3.289",
+    "yjs": "^13.6.33"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.0.9",
+    "axe-core": "^4.13.0",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.9.9",
+    "vite": "^7.3.1"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

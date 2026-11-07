@@ -1,0 +1,1822 @@
+/*
+ * The desktop PDF editor shell: a title bar with the menus and the open document, a bar of
+ * tool sets and file commands, the tools pane on the left, the document with floating quick
+ * tools and page controls, and navigation panels beside a rail on the right.
+ * Loaded after style.css; its rules refine the older single-toolbar layout.
+ */
+:root {
+  --chrome: #f3f3f3;
+  --chrome-line: #e1e1e1;
+  --doc-bg: #eaeaea;
+  --select: #1473e6;
+  --select-ink: #fff;
+  --select-wash: #e5f0fd;
+  --rail-active: #2c2c2c;
+  --rail-active-ink: #fff;
+  --float-shadow: 0 1px 4px #0000001f, 0 0 0 1px #00000014;
+  --menu-shadow: 0 8px 24px #00000024, 0 2px 6px #00000014;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --chrome: #1d1d1d;
+    --chrome-line: #3a3a3a;
+    --doc-bg: #2f2f2f;
+    --select: #4b9cf5;
+    --select-ink: #0b0b0b;
+    --select-wash: #1d3047;
+    --rail-active: #e8e8e8;
+    --rail-active-ink: #111;
+    --float-shadow: 0 1px 4px #0008, 0 0 0 1px #ffffff1c;
+    --menu-shadow: 0 8px 24px #000a, 0 2px 6px #0006;
+  }
+}
+:root[data-theme='dark'] {
+  --chrome: #1d1d1d;
+  --chrome-line: #3a3a3a;
+  --doc-bg: #2f2f2f;
+  --select: #4b9cf5;
+  --select-ink: #0b0b0b;
+  --select-wash: #1d3047;
+  --rail-active: #e8e8e8;
+  --rail-active-ink: #111;
+  --float-shadow: 0 1px 4px #0008, 0 0 0 1px #ffffff1c;
+  --menu-shadow: 0 8px 24px #000a, 0 2px 6px #0006;
+}
+
+/* Menus float over the document as the quick tools do, lifted clear of what lies beneath. */
+.menu {
+  box-shadow: var(--menu-shadow);
+}
+
+/* Title bar */
+.editor .editor-topbar {
+  background: var(--chrome);
+  border-bottom: 1px solid var(--chrome-line);
+  padding: 0 max(8px, var(--safe-right)) 0 max(8px, var(--safe-left));
+}
+.editor .topbar-row {
+  height: 40px;
+  gap: 6px;
+}
+.editor .home-btn {
+  width: 32px;
+  min-width: 32px;
+  min-height: 30px;
+}
+.editor .menubar {
+  margin: 0;
+  height: 30px;
+}
+.editor .menu-btn {
+  height: 26px;
+  font-weight: 400;
+  padding: 0 8px;
+}
+.document-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: min(420px, 40vw);
+  height: 32px;
+  margin: 4px 0 0 8px;
+  padding: 0 12px 0 10px;
+  align-self: flex-end;
+  background: var(--surface);
+  border: 1px solid var(--chrome-line);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+.document-tab .editor-brand {
+  margin: 0;
+  display: inline-flex;
+}
+.document-tab .app-icon {
+  border-radius: 4px;
+}
+.document-tab .document-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.document-tab .document-name {
+  font-weight: 500;
+  font-size: 12px;
+  max-width: 220px;
+  min-height: 0;
+}
+.document-tab .status-row {
+  margin: 0;
+}
+.document-tab .save-status {
+  font-size: 11px;
+}
+.editor .editor-topbar .header-right {
+  margin-left: auto;
+  gap: 4px;
+}
+
+/* Tool sets and file commands */
+.appbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  padding: 0 max(12px, var(--safe-right)) 0 max(12px, var(--safe-left));
+  background: var(--surface);
+  border-bottom: 1px solid var(--chrome-line);
+  flex-shrink: 0;
+}
+.top-tabs {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+/* A fade over the side the tabs scroll towards, where not every tool set fits. */
+.top-tabs.more-start {
+  mask-image: linear-gradient(to right, transparent, #000 24px);
+}
+.top-tabs.more-end {
+  mask-image: linear-gradient(to left, transparent, #000 24px);
+}
+.top-tabs.more-start.more-end {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent
+  );
+}
+.top-tab {
+  position: relative;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+@media (hover: hover) {
+  .top-tab:hover {
+    background: var(--surface-2);
+  }
+}
+.top-tab:active {
+  background: var(--surface-2);
+}
+.top-tab[aria-pressed='true'] {
+  font-weight: 600;
+}
+.top-tab[aria-pressed='true']::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+.top-tab:focus-visible {
+  outline-offset: -3px;
+}
+.appbar-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.appbar-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--chrome-line);
+}
+.appbar .icon-btn {
+  width: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  color: var(--ink);
+}
+.find-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ink);
+}
+@media (hover: hover) {
+  .find-tools:hover {
+    background: var(--surface-2);
+  }
+}
+.find-tools:active {
+  background: var(--surface-2);
+}
+.appbar .btn.primary {
+  margin-left: 6px;
+  min-height: 32px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.appbar .btn.primary svg {
+  display: none;
+}
+
+/* The work area: tools pane, document, navigation panel, rail. */
+.editor .editor-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  background: var(--doc-bg);
+}
+.tools-pane {
+  grid-column: 1;
+  grid-row: 1;
+  width: 268px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--chrome-line);
+}
+.editor.hide-tools .tools-pane {
+  display: none;
+}
+.editor .properties-sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  width: 268px;
+  max-height: min(48dvh, 420px);
+  border-left: 0;
+  border-right: 1px solid var(--chrome-line);
+  border-top: 1px solid var(--chrome-line);
+}
+.editor .properties-sidebar.is-empty:not(.is-switching) {
+  display: none;
+}
+/* Without the tools pane, selection settings float over the document instead of taking a
+   column, so selecting something never changes the page's width. */
+.editor.hide-tools .properties-sidebar {
+  position: absolute;
+  z-index: 8;
+  top: 12px;
+  left: 64px;
+  max-height: calc(100% - 24px);
+  border: 0;
+  border-radius: 10px;
+  box-shadow: var(--float-shadow);
+  overflow: hidden;
+}
+.document-area {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.editor .page-sidebar {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  width: 260px;
+  min-width: 0;
+  border-right: 0;
+  border-left: 1px solid var(--chrome-line);
+}
+.editor .sidebar-head {
+  height: 48px;
+  padding: 8px 10px 8px 16px;
+}
+.editor .sidebar-head h2 {
+  font-size: 14px;
+  font-weight: 600;
+}
+.right-rail {
+  grid-column: 4;
+  grid-row: 1 / -1;
+  width: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  background: var(--surface);
+  border-left: 1px solid var(--chrome-line);
+}
+.right-rail .sidebar-tabs {
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+.right-rail .sidebar-tab {
+  width: 34px;
+  min-height: 34px;
+  border-radius: 7px;
+  color: var(--ink);
+}
+.right-rail .sidebar-tab:hover {
+  background: var(--surface-2);
+}
+.right-rail .sidebar-tab[aria-selected='true'] {
+  color: var(--ink);
+  background: transparent;
+}
+.editor:not(.hide-pages) .right-rail .sidebar-tab[aria-selected='true'] {
+  background: var(--rail-active);
+  color: var(--rail-active-ink);
+}
+.right-rail .tab-count {
+  top: -3px;
+  right: -5px;
+}
+.right-rail > .icon-btn {
+  margin-top: auto;
+  width: 34px;
+  min-width: 34px;
+  min-height: 34px;
+}
+
+/* Tools pane */
+.tools-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+.tools-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 52px;
+  padding: 10px 10px 8px 18px;
+}
+.tools-panel[data-tool]:not([data-tool='all']) .tools-panel-head {
+  padding-left: 8px;
+}
+.tools-panel-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tools-head-icon {
+  display: inline-flex;
+}
+.tools-panel .icon-btn {
+  width: 30px;
+  min-width: 30px;
+  min-height: 30px;
+}
+.tools-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 8px 20px;
+}
+.tool-list {
+  display: flex;
+  flex-direction: column;
+}
+.tool-row,
+.tool-command {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--ink);
+}
+.tool-row:hover:not(:disabled),
+.tool-command:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.tool-row .tool-icon,
+.tool-command .tool-icon {
+  flex: none;
+}
+.tool-row-label,
+.tool-command-text {
+  flex: 1;
+  min-width: 0;
+}
+.tool-command-text {
+  display: flex;
+  flex-direction: column;
+}
+.tool-command-hint {
+  font-size: 11px;
+  color: var(--muted);
+}
+.tool-command-key {
+  font: inherit;
+  font-size: 11px;
+  color: var(--muted);
+}
+.tool-command[aria-pressed='true'] {
+  background: var(--select-wash);
+  box-shadow: inset 3px 0 0 var(--select);
+}
+.tool-command.danger {
+  color: var(--danger);
+}
+.tool-command > svg:not(.tool-icon, .ico) {
+  margin: 0 1px;
+  color: var(--muted);
+}
+.tools-more {
+  margin: 6px 10px;
+  padding: 2px 0;
+  font-size: 13px;
+  color: var(--select);
+}
+.tools-more:hover {
+  text-decoration: underline;
+}
+.tool-group-title,
+.tool-section-title {
+  margin: 16px 10px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tool-group-block:first-child .tool-group-title {
+  margin-top: 4px;
+}
+.tool-description {
+  margin: 0 10px 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.tool-section + .tool-section {
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+/* Document area */
+.editor .workspace {
+  background: var(--doc-bg);
+}
+.editor .paper {
+  outline: 0;
+  box-shadow:
+    0 0 0 1px #0000000f,
+    0 2px 6px #00000024;
+}
+.editor .paper-wrap {
+  padding: 24px 60px 64px;
+}
+/* The page's position lives in the floating page controls; the caption stays for screen
+   readers and for anything reading the page state from the document. */
+.editor .page-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.editor .contextbar {
+  justify-content: center;
+  /* Its own width decides how much room the options leave the hint (see below). */
+  container-type: inline-size;
+  /* One line of fixed height: the page below never moves as hints and options change. */
+  flex-wrap: nowrap;
+  gap: 12px;
+  height: 42px;
+  min-height: 42px;
+  padding: 4px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--surface);
+  border-bottom: 1px solid var(--chrome-line);
+}
+.editor .tool-hint {
+  font-size: 12px;
+  min-width: 0;
+  flex: 0 1 auto;
+  /* Two lines fit the bar's height, so a long hint beside a tool's options wraps once before
+     it is shortened. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-height: 1.3;
+  overflow: hidden;
+}
+.editor .contextbar .tool-options {
+  flex: none;
+}
+/* The measuring scale is a short number, not a full-width field. */
+.editor .contextbar .measure-ratio {
+  width: 72px;
+  min-height: 27px;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+/* Where the panels beside the page leave the bar little room, option buttons with an icon show
+   just the icon (keeping their names for assistive technology and as tooltips), so the options
+   and the hint both stay in view, as they do on narrow screens. */
+@container (max-width: 720px) {
+  .editor .contextbar .tool-options .text-btn:has(> svg) > span {
+    display: none;
+  }
+}
+.editor .find-bar {
+  /* A row of its own under the tool options, so it covers neither them nor the page. */
+  position: relative;
+  z-index: 10;
+  min-height: 44px;
+  padding: 4px 8px 4px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--chrome-line);
+  background: var(--surface);
+}
+.editor .find-bar[hidden] {
+  display: none;
+}
+
+/* Quick tools: a floating column at the left edge of the document. */
+.editor .quick-tools {
+  position: absolute;
+  z-index: 9;
+  top: 12px;
+  left: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  min-height: 0;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--float-shadow);
+  /* A window too short for the column (a phone turned sideways) scrolls it in place; left to
+     overflow, it ran under the page's edge and reaching a tool there shifted the whole editor. */
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.editor .quick-tools .tool-btn:focus-visible {
+  /* Inside the column's padding, which now clips. */
+  outline-offset: 1px;
+}
+.editor .quick-tools .tool-group {
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+}
+.editor .quick-tools .tool-group + .tool-group {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--chrome-line);
+}
+.editor .quick-tools .tool-btn {
+  width: 36px;
+  min-width: 36px;
+  min-height: 34px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 7px;
+}
+.editor .quick-tools .tool-btn span {
+  display: none;
+}
+.editor .quick-tools .tool-btn[aria-pressed='true'] {
+  background: var(--select);
+  color: var(--select-ink);
+}
+
+/* Page controls float at the bottom right of the document. */
+.editor .page-controls {
+  position: absolute;
+  z-index: 9;
+  right: 22px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  min-height: 0;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--float-shadow);
+  font-size: 12px;
+  color: var(--ink);
+}
+.editor .page-controls .page-navigation {
+  padding-right: 6px;
+  border-right: 1px solid var(--chrome-line);
+}
+.editor .page-controls .page-input {
+  width: 42px;
+  min-height: 28px;
+  font-size: 12px;
+}
+.editor .page-controls .icon-btn {
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  color: var(--ink);
+}
+.editor .page-controls .zoom-select {
+  min-width: 84px;
+  font-size: 12px;
+}
+
+/* Narrower windows: the tools pane overlays the document and selection settings dock below. */
+@media (max-width: 1000px) {
+  .editor .editor-main {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .document-area {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .editor .page-sidebar {
+    grid-column: 2;
+    grid-row: 1;
+    width: 190px;
+  }
+  .right-rail {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .tools-pane {
+    position: absolute;
+    z-index: 12;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    box-shadow: 4px 0 16px #0000002e;
+  }
+  .editor .properties-sidebar,
+  .editor.hide-tools .properties-sidebar {
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: auto;
+    max-height: min(32dvh, 260px);
+    border-radius: 0;
+    box-shadow: none;
+    border-right: 0;
+    border-top: 1px solid var(--chrome-line);
+  }
+  .document-tab .save-status {
+    display: none;
+  }
+  .find-tools span {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .editor .editor-topbar {
+    height: auto;
+    min-height: 0;
+  }
+  .editor .topbar-row {
+    height: 44px;
+  }
+  .document-tab {
+    margin: 0;
+    align-self: center;
+    border-radius: 7px;
+    border-bottom: 1px solid var(--chrome-line);
+    max-width: 52vw;
+  }
+  .appbar {
+    height: 42px;
+    gap: 4px;
+    padding-inline: max(4px, var(--safe-left)) max(6px, var(--safe-right));
+  }
+  .top-tab {
+    padding: 0 7px;
+    font-size: 12px;
+  }
+  /* Print stays in the File menu; the tool sets need the room. */
+  .appbar-sep,
+  .appbar .print-btn {
+    display: none;
+  }
+  .appbar .btn.primary {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  /* The panel overlays the right of the page (not the tool rows above it), above the docked
+     selection settings. */
+  .editor .page-sidebar {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    margin-top: var(--document-bars, 0px);
+    z-index: 11;
+    width: 170px;
+    box-shadow: -4px 0 16px #0000002e;
+  }
+  .right-rail {
+    width: 40px;
+    gap: 4px;
+  }
+  .right-rail .sidebar-tab,
+  .right-rail > .icon-btn {
+    width: 32px;
+    min-width: 32px;
+  }
+  .editor .quick-tools {
+    position: static;
+    flex-direction: row;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid var(--chrome-line);
+    padding: 3px 6px;
+    overflow-x: auto;
+  }
+  .editor .quick-tools .tool-group {
+    flex-direction: row;
+  }
+  .editor .quick-tools .tool-group + .tool-group {
+    margin: 0 0 0 4px;
+    padding: 0 0 0 6px;
+    border-top: 0;
+    border-left: 1px solid var(--chrome-line);
+  }
+  .editor .contextbar {
+    position: static;
+    transform: none;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid var(--chrome-line);
+    /* One line, as on wider screens, so a click that brings up options never moves the page
+       under the next click: the hint gives way to the options. Only options too wide for a
+       line (highlighting on a small phone) wrap onto a second. */
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
+    gap: 6px;
+    padding: 4px max(8px, var(--safe-right)) 4px max(8px, var(--safe-left));
+  }
+  .editor .tool-hint {
+    flex: 1 1 0;
+    max-width: none;
+  }
+  .editor .contextbar .tool-options {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  /* Option buttons with an icon show just the icon here, keeping their names for assistive
+     technology and as tooltips, so a tool's options fit on one line. */
+  .editor .contextbar .tool-options .text-btn:has(> svg) > span {
+    display: none;
+  }
+  .editor .paper-wrap {
+    padding: 14px 12px;
+  }
+  /* A slim bar under the tools rather than a pill over the page's foot: the selection settings
+     dock below the page, and opening or closing them must not move these controls. */
+  .editor .page-controls {
+    position: static;
+    order: -1;
+    justify-content: center;
+    height: 40px;
+    flex: none;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid var(--chrome-line);
+  }
+  .editor .document-view > .quick-tools {
+    order: -2;
+  }
+  .editor .quick-tools .tool-btn {
+    width: 32px;
+    min-width: 32px;
+  }
+  .editor .page-controls .zoom-select {
+    min-width: 92px;
+  }
+}
+/* The smallest phones (and a desktop window zoomed to 400%): the controls close up to stay on
+   one line, and when a long page count still does not fit, the zoom wraps onto a second line
+   instead of the row spilling off both edges. */
+@media (max-width: 360px) {
+  .editor .page-controls {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 40px;
+    gap: 0 2px;
+    padding: 0 2px;
+  }
+  .editor .page-controls .page-navigation {
+    gap: 2px;
+    padding-right: 2px;
+  }
+  .editor .page-controls .page-input {
+    width: 36px;
+  }
+  .editor .page-controls .page-navigation > span {
+    margin-right: 2px;
+  }
+}
+@media (forced-colors: active) {
+  .editor .quick-tools .tool-btn[aria-pressed='true'],
+  .top-tab[aria-pressed='true'],
+  .tool-command[aria-pressed='true'] {
+    border: 2px solid Highlight;
+  }
+  /* Forced colors drop the shadow that marks a page's edge, and a white page on a light
+     high-contrast background would have none. */
+  .page-slot,
+  .organize-thumb canvas {
+    outline: 1px solid CanvasText;
+  }
+}
+@media print {
+  .tools-pane,
+  .right-rail,
+  .appbar {
+    display: none !important;
+  }
+}
+
+/* Continuous pages */
+.editor .page-stack {
+  gap: var(--page-gap, 12px);
+}
+.page-slot {
+  position: relative;
+  flex-shrink: 0;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px #0000000f,
+    0 2px 6px #00000024;
+}
+.page-slot[hidden] {
+  display: none;
+}
+.page-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.page-slot > .paper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-shadow: none;
+}
+.editor.dark-pages .page-slot {
+  background: #111;
+}
+.editor.dark-pages .page-image {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Page thumbnails: the current page is outlined in the selection color. */
+.editor .thumbnails {
+  padding: 4px 16px 18px;
+  gap: 6px;
+}
+.editor .thumbnail {
+  padding: 8px 6px 6px;
+  border: 0;
+  border-radius: 6px;
+  gap: 6px;
+}
+.editor .thumbnail:hover {
+  background: var(--surface-2);
+}
+.editor .thumbnail[aria-current='page'] {
+  background: transparent;
+  color: var(--ink);
+  font-weight: 600;
+}
+.editor .thumbnail[aria-current='page'] .thumb-paper canvas {
+  outline: 2px solid var(--select);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+.editor .thumb-paper canvas {
+  border-color: var(--chrome-line);
+}
+.editor .thumbnail > span {
+  font-size: 11px;
+}
+
+/* Hand tool and Space-drag panning */
+.editor[data-tool='hand'] .workspace,
+.editor.space-pan .workspace {
+  cursor: grab;
+}
+.editor.panning .workspace {
+  cursor: grabbing;
+}
+.editor[data-tool='hand'] .page-slot *,
+.editor.space-pan .page-slot * {
+  pointer-events: none !important;
+}
+.editor[data-tool='hand'] .page-slot,
+.editor.space-pan .page-slot {
+  user-select: none;
+}
+
+/* Read mode and full screen keep only the pages and their controls. */
+.editor.read-mode .tools-pane,
+.editor.read-mode .properties-sidebar,
+.editor.read-mode .page-sidebar,
+.editor.read-mode .right-rail,
+.editor.read-mode .quick-tools,
+.editor.read-mode .contextbar,
+.editor.read-mode .appbar {
+  display: none !important;
+}
+.editor.full-screen .document-area .quick-tools,
+.editor.full-screen .document-area .contextbar {
+  display: none;
+}
+.document-area:fullscreen {
+  background: var(--doc-bg);
+}
+
+/* Tools offered while typing in the find box */
+.find-tool-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 8px;
+  width: min(440px, calc(100% - 16px));
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--float-shadow);
+}
+.find-tool-suggestions[hidden] {
+  display: none;
+}
+.find-tool-heading {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.find-tool-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: left;
+  color: var(--ink);
+}
+.find-tool-item:hover,
+.find-tool-item:focus-visible,
+.find-tool-item.active {
+  background: var(--surface-2);
+}
+
+/* Organize pages */
+.organize-view {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+  background: var(--doc-bg);
+}
+.organize-view[hidden] {
+  display: none;
+}
+.editor.organizing .quick-tools,
+.editor.organizing .contextbar,
+.editor.organizing .page-controls,
+.editor.organizing .find-bar {
+  display: none;
+}
+.organize-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  padding: 6px 12px 6px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--chrome-line);
+  flex-wrap: wrap;
+}
+.organize-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-right: 8px;
+}
+.organize-status {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 130px;
+}
+.organize-sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 6px;
+  background: var(--chrome-line);
+}
+.organize-toolbar .icon-btn {
+  width: 34px;
+  min-width: 34px;
+  min-height: 34px;
+}
+.organize-btn,
+.organize-close {
+  min-height: 32px;
+  font-size: 13px;
+}
+.organize-close {
+  margin-left: auto;
+}
+.organize-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+.organize-size input {
+  width: 110px;
+}
+.organize-grid {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--tile) + 28px), 1fr));
+  align-content: start;
+  gap: 18px 8px;
+  padding: 24px;
+}
+.organize-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 6px 8px;
+  border-radius: 8px;
+  outline: none;
+  cursor: default;
+  user-select: none;
+}
+.organize-tile:hover {
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+.organize-tile:focus-visible {
+  box-shadow: 0 0 0 2px var(--select);
+}
+.organize-thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--tile);
+  height: calc(var(--tile) * 1.3);
+}
+.organize-thumb canvas {
+  max-width: 100%;
+  max-height: 100%;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px #00000014,
+    0 1px 4px #0000002a;
+}
+.organize-tile[aria-selected='true'] .organize-thumb canvas {
+  outline: 3px solid var(--select);
+  outline-offset: 3px;
+}
+.organize-tile.is-current .organize-label {
+  font-weight: 700;
+}
+.organize-label {
+  font-size: 12px;
+}
+.organize-tile-actions {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--float-shadow);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.organize-tile:hover .organize-tile-actions,
+.organize-tile:focus-within .organize-tile-actions {
+  opacity: 1;
+}
+@media (pointer: coarse) {
+  .organize-tile-actions {
+    opacity: 1;
+  }
+}
+.organize-tile-actions .icon-btn {
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+}
+.organize-tile.drop-before::before,
+.organize-tile.drop-after::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 28px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--select);
+}
+.organize-tile.drop-before::before {
+  left: -5px;
+}
+.organize-tile.drop-after::after {
+  right: -5px;
+}
+.editor.dark-pages .organize-thumb canvas {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Attachments and Layers panels */
+.attachments-panel,
+.layers-panel {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 12px 16px;
+  font-size: 12px;
+}
+.attachments-panel[hidden],
+.layers-panel[hidden] {
+  display: none;
+}
+.panel-action {
+  width: 100%;
+  justify-content: center;
+  margin: 4px 0 10px;
+  font-size: 12px;
+}
+.panel-empty,
+.panel-note {
+  margin: 8px 4px;
+  line-height: 1.5;
+}
+.attachment-list,
+.layer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.attachment-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px;
+  border-radius: 6px;
+}
+.attachment-row:hover {
+  background: var(--surface-2);
+}
+.attachment-icon {
+  color: var(--muted);
+  display: inline-flex;
+}
+.attachment-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachment-meta {
+  font-size: 11px;
+}
+.attachment-row .icon-btn {
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+}
+.layer-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px 6px calc(4px + var(--depth, 0) * 16px);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.layer-row label:hover {
+  background: var(--surface-2);
+}
+.layer-heading {
+  padding: 8px 4px 4px calc(4px + var(--depth, 0) * 16px);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* The browser's own print command prints the current page alone, as before the page stack. */
+@media print {
+  .tools-pane,
+  .right-rail,
+  .appbar,
+  .quick-tools,
+  .page-controls,
+  .organize-view,
+  .page-slot:not(:has(.paper)) {
+    display: none !important;
+  }
+  .editor .editor-main,
+  .document-area {
+    display: block;
+  }
+  .editor .page-stack {
+    display: block;
+    padding: 0;
+  }
+  .page-slot:has(.paper) {
+    width: 100% !important;
+    height: auto !important;
+    box-shadow: none;
+    background: none;
+  }
+  .page-slot > .paper {
+    position: static;
+    left: 0 !important;
+  }
+  .page-slot .page-image {
+    display: none;
+  }
+}
+
+/* Touch screens scroll with a finger, so the Hand tool is left out there. */
+@media (pointer: coarse) {
+  .editor .quick-tools .tool-btn[data-tool='hand'] {
+    display: none;
+  }
+}
+
+/* Signatures panel and the message bar for signed PDFs */
+.signatures-panel {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 12px 16px;
+  font-size: 12px;
+}
+.signatures-panel[hidden] {
+  display: none;
+}
+.signature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.signature-item {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--chrome-line);
+}
+.signature-head {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.signature-status {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #fff;
+  background: #6b7280;
+}
+.tone-good .signature-status {
+  background: #2d9d5c;
+}
+.tone-bad .signature-status {
+  background: #c62f2f;
+}
+.tone-unknown .signature-status {
+  background: #c98a06;
+}
+.signature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.signature-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.signature-state {
+  color: var(--muted);
+  line-height: 1.4;
+}
+.signature-go {
+  margin: 6px 0 0 28px;
+  font-size: 12px;
+}
+.signature-details {
+  margin: 6px 0 0 28px;
+}
+.signature-details summary {
+  cursor: pointer;
+  color: var(--select);
+}
+.signature-details dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  margin: 6px 0;
+}
+.signature-details dt {
+  color: var(--muted);
+}
+.signature-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.signature-subhead {
+  margin: 6px 0 2px;
+  font-weight: 600;
+}
+.signature-changes,
+.signature-problems {
+  margin: 0;
+  padding-left: 16px;
+}
+.signature-changes .bad,
+.signature-problems {
+  color: var(--danger);
+}
+.signature-bar,
+.standards-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--chrome-line);
+  background: #e9f5ee;
+  color: #154a2c;
+}
+.signature-bar[hidden],
+.standards-bar[hidden] {
+  display: none;
+}
+.signature-bar.tone-unknown,
+.standards-bar.tone-unknown {
+  background: #fdf3dc;
+  color: #5c4200;
+}
+.signature-bar.tone-bad {
+  background: #fbe7e7;
+  color: #7a1616;
+}
+.signature-bar-icon {
+  display: inline-flex;
+}
+.signature-bar-text {
+  flex: 1;
+  min-width: 0;
+}
+.signature-bar .text-btn,
+.standards-bar .text-btn {
+  color: inherit;
+  text-decoration: underline;
+  font-size: 13px;
+}
+
+/* Combine files */
+.combine-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.combine-list:empty {
+  display: none;
+}
+.combine-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.combine-row:last-child {
+  border-bottom: 0;
+}
+.combine-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.combine-kind {
+  font-size: 12px;
+}
+.combine-row .icon-btn {
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+/* Find text and redact */
+.redact-patterns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 16px;
+}
+.redact-results {
+  list-style: none;
+  margin: 0;
+  padding: 4px 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.redact-results:empty {
+  display: none;
+}
+
+/* Batch process */
+.batch-heading {
+  margin-top: 6px;
+  font-size: 13px;
+}
+.batch-step {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.batch-option {
+  padding-left: 12px;
+}
+.batch-option .input {
+  max-width: 260px;
+}
+
+/* Editing on the page uses the selection blue of desktop editors; the app's red stays its
+   brand color elsewhere. */
+.editor .workspace,
+.editor .organize-view {
+  --brand: var(--select);
+}
+/* While editing text, every editable block shows a faint outline, as in a desktop editor's
+   Edit mode; hovering one turns it blue. */
+.editor[data-tool='text'] .text-target {
+  border-color: color-mix(in srgb, var(--muted) 45%, transparent);
+}
+.editor[data-tool='text'] .text-target:hover,
+.editor[data-tool='text'] .text-target:focus-visible {
+  border-color: var(--select);
+}
+
+/* The page area below the tool options and message bars; floating controls sit inside it. */
+.document-view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.editor .thumbnail[aria-current='page'] .thumb-paper {
+  overflow: visible;
+}
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 2px;
+  cursor: pointer;
+}
+/* The same boxes as every other dialog's: full size, in the app's color. */
+.result-row input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+/* Prepare a form: fields as labelled boxes over the page */
+.form-designer {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+.form-designer[hidden] {
+  display: none;
+}
+.designer-field {
+  position: absolute;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--select) 70%, transparent);
+  background: color-mix(in srgb, var(--select) 12%, transparent);
+  pointer-events: auto;
+  cursor: move;
+  touch-action: none;
+  overflow: visible;
+}
+.designer-field:hover,
+.designer-field.is-selected {
+  border: 2px solid var(--select);
+  background: color-mix(in srgb, var(--select) 18%, transparent);
+}
+.designer-field:focus-visible {
+  outline: 2px solid var(--select);
+  outline-offset: 2px;
+}
+.designer-name {
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: calc(100% - 4px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 1;
+  color: #0b3a75;
+  pointer-events: none;
+}
+.designer-field.type-checkbox .designer-name,
+.designer-field.type-radio .designer-name {
+  left: calc(100% + 4px);
+  max-width: none;
+}
+.designer-resize {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--select);
+  background: #fff;
+  cursor: nwse-resize;
+  display: none;
+}
+.designer-field.is-selected .designer-resize {
+  display: block;
+}
+/* A finger needs a bigger corner to take, as the handles of pictures and shapes have. */
+@media (pointer: coarse) {
+  .designer-resize {
+    right: -12px;
+    bottom: -12px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Two-page view: pages in pairs, side by side */
+.editor .page-stack.two-up {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: center;
+  align-items: start;
+}
+.editor .page-stack.two-up > .page-caption {
+  grid-column: 1 / -1;
+}
+
+/* Document details: initial view and fonts */
+.detail-section {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.detail-section > summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.detail-fonts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+.detail-fonts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Compare files fills the page area, like Organize pages */
+.editor.comparing .quick-tools,
+.editor.comparing .contextbar,
+.editor.comparing .page-controls,
+.editor.comparing .find-bar {
+  display: none;
+}
+
+/* Comments drawn as annotations: select, move, and edit them in Select */
+.annotation-targets {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.annotation-targets[hidden] {
+  display: none;
+}
+.annotation-target {
+  position: absolute;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  pointer-events: auto;
+  cursor: move;
+  touch-action: none;
+}
+.annotation-target:hover {
+  border-color: color-mix(in srgb, var(--select) 60%, transparent);
+}
+/* A line, drawing, or callout takes the pointer only on what it draws (.annotation-hit). */
+.annotation-target.is-outline {
+  pointer-events: none;
+}
+.annotation-hit {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+}
+.annotation-hit path {
+  fill: none;
+  stroke: transparent;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: stroke;
+}
+.annotation-hit rect {
+  fill: transparent;
+  pointer-events: all;
+}
+.annotation-target.is-selected {
+  border: 1.5px solid var(--select);
+  background: color-mix(in srgb, var(--select) 8%, transparent);
+}
+.annotation-target:focus-visible {
+  outline: 2px solid var(--select);
+  outline-offset: 2px;
+}
+.annotation-props {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+}
+.annotation-meta {
+  margin: 0;
+  font-size: 11px;
+}
+.annotation-style {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.annotation-style label,
+.annotation-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.annotation-style .annotation-check {
+  justify-content: flex-start;
+}
+.annotation-style input[type='color'] {
+  width: 28px;
+  height: 24px;
+  padding: 1px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.annotation-style input[type='range'] {
+  width: 70px;
+}
+.annotation-style input[type='number'] {
+  width: 56px;
+}
+.annotation-replies {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 8px;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.annotation-replies li {
+  display: flex;
+  flex-direction: column;
+}
+.reply-meta {
+  font-size: 11px;
+}
+.annotation-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* A long file name shrinks inside its tab instead of running under the buttons beside it. */
+.document-tab {
+  flex: 0 1 auto;
+  overflow: hidden;
+}
+.document-tab .document-info,
+.document-tab .document-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+.document-tab .document-name {
+  max-width: min(220px, 100%);
+}
+.document-tab .status-row {
+  flex: none;
+}
+
+/* PDF/A reports */
+.pdfa-issues {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+.pdfa-issues li {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.pdfa-issues .pdfa-error > span:last-child {
+  color: var(--danger);
+}
+
+.editor .page-controls .page-navigation > span {
+  white-space: nowrap;
+}

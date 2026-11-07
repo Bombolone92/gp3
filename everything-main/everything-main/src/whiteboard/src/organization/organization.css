@@ -1,0 +1,1076 @@
+/* Organization library, administration, notifications, and board access. */
+.field select,
+.admin-console select,
+.org-filters select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--field-line);
+  border-radius: 7px;
+}
+/* Table selects, such as a person's role, stay compact. */
+.admin-table select {
+  min-height: 0;
+}
+.nav-badge {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 11px;
+  text-align: center;
+}
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  vertical-align: middle;
+}
+/* A badge beside a field's label, such as Configured, stays a pill rather
+   than stretching across the field's column. */
+.field > .badge {
+  align-self: flex-start;
+}
+.check-field {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0;
+  font-size: 13px;
+}
+.check-field input {
+  margin-top: 3px;
+}
+/* In organization settings, a setting that cannot take effect under the
+   ones above it reads as unavailable. Board settings explain their
+   unavailable choices in text that stays at full contrast. */
+.admin-panel .policy-form .check-field:has(input:disabled),
+.admin-panel .policy-form .field:has(> input:disabled) {
+  opacity: 0.6;
+}
+.check-field small,
+.field small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+.check-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 13px;
+}
+.admin-dialog {
+  width: min(1120px, calc(100vw - 28px));
+  height: min(820px, calc(100dvh - 40px));
+  padding-top: 0;
+  /* The sticky title's height: 24px above, a 32px close button (44px on
+     touch screens), 15px below. */
+  --admin-header: 71px;
+  /* Controls reached by keyboard scroll clear of the sticky title. */
+  scroll-padding-top: calc(var(--admin-header) + 9px);
+}
+@media (pointer: coarse) {
+  .admin-dialog {
+    --admin-header: 83px;
+  }
+}
+/* Long panels, such as fifty people or hundreds of boards, scroll under
+   the title, its close button and the tabs, which stay in reach. */
+.admin-dialog > .dialog-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: 0;
+  padding: 24px 0 15px;
+  background: var(--surface);
+}
+.admin-console {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 20px;
+  min-height: 0;
+}
+.admin-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: var(--admin-header);
+  align-self: start;
+}
+.admin-tabs [role="tab"] {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.admin-tabs [role="tab"]:hover {
+  background: var(--hover);
+}
+.admin-tabs [role="tab"][aria-selected="true"] {
+  background: var(--soft);
+  font-weight: 600;
+}
+.admin-tabs svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+.admin-panel {
+  min-width: 0;
+}
+/* A failed action's explanation stays in view while the console scrolls. */
+/* A failed action's explanation stays in view at the foot of the console
+   and reads as the same error panel dialogs use, not as a line of red
+   text over the rows behind it. */
+.admin-error {
+  grid-column: 1 / -1;
+  position: sticky;
+  bottom: 0;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, #ad514b 40%, var(--line));
+  border-radius: 8px;
+  background: color-mix(in srgb, #ad514b 9%, var(--surface));
+  color: #8a2f2a;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 -6px 18px rgba(15, 23, 42, 0.08);
+}
+:root[data-theme="dark"] .admin-error {
+  color: #ffb3ad;
+}
+/* Controls reached by keyboard scroll clear of it. */
+.admin-dialog:has(.admin-error:not([hidden])) {
+  scroll-padding-bottom: 64px;
+}
+/* Beside a settings form's Save button while it holds changes. */
+.unsaved-note {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 13px;
+}
+.admin-panel h3 {
+  font-size: 15px;
+  margin: 22px 0 8px;
+}
+/* A heading within a section, such as each set of possible duplicates. */
+.admin-panel h4 {
+  font-size: 13px;
+  margin: 16px 0 4px;
+}
+.admin-toolbar,
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+.admin-toolbar .field,
+.admin-filters .field {
+  margin: 0;
+  min-width: 140px;
+  flex: 1 1 140px;
+}
+.admin-toolbar .search {
+  flex: 1 1 220px;
+  min-height: 42px;
+}
+/* A results row: the count or range on the left, exports on the right, so
+   the filters above keep to their own row. */
+.admin-results {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 12px 0;
+}
+.admin-results > p {
+  margin: 0;
+}
+.admin-results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+/* The actions for the boards chosen in the directory, after how many
+   are chosen. */
+.bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.bulk-actions > p {
+  margin: 0 8px 0 0;
+}
+.admin-table .row-select {
+  width: 1px;
+  padding-right: 0;
+}
+.admin-table .row-select input {
+  margin: 2px 0 0;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.stat-value {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.stat-detail {
+  font-size: 12px;
+  color: var(--muted);
+}
+.admin-chart {
+  margin: 14px 0;
+}
+.admin-chart figcaption {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.admin-chart {
+  /* On a narrow screen the chart keeps a readable size and scrolls. */
+  overflow-x: auto;
+}
+.admin-chart svg {
+  width: 100%;
+  min-width: 480px;
+  max-width: 720px;
+  height: auto;
+  display: block;
+}
+.chart-mark {
+  fill: var(--accent);
+}
+.chart-hit {
+  fill: transparent;
+  vector-effect: non-scaling-stroke;
+}
+.chart-bar:hover .chart-mark,
+.chart-bar:focus .chart-mark {
+  fill: var(--accent-hover);
+}
+.chart-bar:focus {
+  outline: none;
+}
+.chart-bar:focus .chart-hit {
+  stroke: var(--accent);
+  stroke-width: 2px;
+}
+.chart-axis {
+  stroke: var(--line);
+}
+.chart-tick {
+  fill: var(--muted);
+  font-size: 11px;
+}
+.admin-chart details {
+  font-size: 12px;
+  margin-top: 4px;
+}
+/* Positioned, so the hidden column headings for screen readers scroll with
+   the table instead of widening the dialog. */
+.table-scroll {
+  position: relative;
+  overflow-x: auto;
+}
+/* On a phone or a narrow tablet the table scrolls sideways rather than
+   squeezing its columns until names and emails break letter by letter. */
+.table-scroll > .admin-table {
+  min-width: 640px;
+}
+/* Names in such a table keep whole words when sizing the columns; a word
+   longer than its column still breaks rather than overflowing. Addresses,
+   such as a webhook's URL in code or an audit event's target, still break
+   anywhere, so one long URL does not widen the table; the target column
+   keeps room for a name instead. */
+.table-scroll [data-user-content]:not(code) {
+  overflow-wrap: break-word;
+}
+.table-scroll .audit-target [data-user-content] {
+  overflow-wrap: anywhere;
+}
+.admin-table .audit-target {
+  min-width: 9em;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.admin-table th {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 12px;
+}
+/* A row's name heads its row for screen readers, and reads as the
+   row's other cells do. */
+.admin-table th[scope="row"] {
+  font-weight: inherit;
+  color: inherit;
+  font-size: inherit;
+}
+.admin-table code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+/* An action name such as board.created stays on one line; the details
+   column wraps instead. */
+.admin-table .audit-action {
+  white-space: nowrap;
+}
+/* An event's details: each value after its name, in the table's own
+   type rather than code, wrapping where the row needs. */
+.admin-table .audit-details {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.audit-detail-name {
+  color: var(--muted);
+}
+.audit-detail-name::after {
+  content: ":";
+}
+/* A date is read as one piece: "Oct 6, 2026" never breaks after the
+   comma, in a table cell or in a library item's details. */
+.admin-table .date-cell,
+.revision-row .nowrap {
+  white-space: nowrap;
+}
+.admin-table select {
+  padding: 6px;
+  min-width: 120px;
+}
+/* A note under a table control, such as the second choice deactivating
+   takes. */
+.admin-table .row-note {
+  display: block;
+  max-width: 180px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.row-actions {
+  white-space: nowrap;
+}
+.row-actions .text-btn,
+.team-row .text-btn {
+  margin-right: 8px;
+}
+/* Row actions sit on the row's first line, like the text beside them. */
+.admin-table .row-actions .text-btn {
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: inherit;
+}
+.admin-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.team-row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.inline-form {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 10px 0;
+  background: var(--bg);
+}
+.policy-form fieldset {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px 16px 10px;
+  margin: 0 0 16px;
+}
+.policy-form fieldset.nested {
+  border-style: dashed;
+}
+.policy-form legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+.admin-facts dt {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.admin-facts dd {
+  margin: 2px 0 0;
+  word-break: break-all;
+}
+/* style.css loads later, so this must outrank its plain .board-grid, or the
+   filters and results would share a three-column grid. */
+.board-grid.org-board-grid {
+  display: block;
+}
+.org-filters {
+  margin: 24px 0 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.org-filter-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.org-filters .field {
+  margin: 0;
+  min-width: 0;
+}
+.org-query {
+  flex: 3 1 260px;
+}
+.org-scope {
+  flex: 1 1 210px;
+}
+.org-filters .field select,
+.org-filters .field input {
+  height: 40px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.org-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--field-line);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--muted);
+}
+.org-search-box:focus-within {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.org-search-box svg {
+  width: 16px;
+  height: 16px;
+}
+.org-filters .org-search-box input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.org-filters .org-search-box input:focus-visible {
+  outline: none;
+}
+.org-filter-main .primary {
+  min-height: 40px;
+  height: 40px;
+}
+.org-more {
+  margin-top: 12px;
+}
+.org-more summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: -8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  list-style: none;
+}
+.org-more summary::-webkit-details-marker {
+  display: none;
+}
+.org-more summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.15s;
+}
+.org-more[open] summary::after {
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
+.org-more summary:hover,
+.org-more[open] summary {
+  color: var(--text);
+}
+.org-more summary:hover {
+  background: var(--hover);
+}
+.org-more summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.org-more summary svg {
+  width: 16px;
+  height: 16px;
+}
+.org-more summary .badge {
+  background: var(--accent);
+  color: var(--surface);
+}
+.org-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.text-btn.org-clear {
+  margin: 10px 0 0 -8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--accent);
+}
+.org-clear svg {
+  width: 14px;
+  height: 14px;
+}
+.org-results-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  margin-bottom: 14px;
+}
+.org-results-bar > button {
+  flex: none;
+}
+.org-count {
+  font-size: 12px;
+  color: var(--muted);
+}
+/* The next page of the directory follows the cards it adds to. */
+.org-more {
+  display: block;
+  margin: 20px auto 4px;
+}
+.org-results-bar .secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  background: var(--surface);
+}
+.org-results-bar .secondary:hover {
+  background: var(--hover);
+}
+.org-results-bar .secondary svg {
+  width: 16px;
+  height: 16px;
+}
+.org-status {
+  grid-column: 1/-1;
+  padding: 24px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.board-preview.org-preview {
+  flex-direction: column;
+  gap: 10px;
+  height: 150px;
+  background-color: var(--canvas);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 16px 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.org-preview-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+}
+.org-preview svg {
+  width: 22px;
+  height: 22px;
+}
+.org-card .board-info h3 {
+  padding-right: 0;
+}
+.org-card .board-info p span {
+  padding: 0;
+}
+.org-card .org-meta {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.card-role {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.org-card .card-role:empty {
+  display: none;
+}
+.org-card .card-role .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+}
+.card-role .badge svg {
+  width: 12px;
+  height: 12px;
+}
+.notification-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.notification-tools > button {
+  flex: none;
+}
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+.notification-list li {
+  border-bottom: 1px solid var(--line);
+}
+.notification {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 10px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+/* Long links and names wrap inside the dialog instead of widening it. */
+.notification > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+button.notification:hover {
+  background: var(--hover);
+}
+div.notification {
+  cursor: default;
+}
+.unread .notification {
+  font-weight: 600;
+}
+.notification-kind {
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.notification-board {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.notification time {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+}
+@media (max-width: 760px) {
+  .org-filter-main .primary {
+    flex: 1 1 100%;
+  }
+  .admin-columns {
+    grid-template-columns: 1fr;
+  }
+}
+/* The console's tables need about 700px; below a window that leaves them
+   that beside the tab list, the tabs become a row above the panel. */
+@media (max-width: 980px) {
+  .admin-console {
+    grid-template-columns: 1fr;
+  }
+  .admin-tabs {
+    flex-direction: row;
+    overflow-x: auto;
+    z-index: 2;
+    background: var(--surface);
+  }
+  .admin-dialog {
+    scroll-padding-top: calc(var(--admin-header) + 59px);
+  }
+  /* The scrolling row would clip focus rings drawn outside the tabs. */
+  .admin-tabs [role="tab"]:focus-visible {
+    outline-offset: -3px;
+  }
+  .admin-tabs [role="tab"] span {
+    white-space: nowrap;
+  }
+}
+@media (forced-colors: active) {
+  .chart-mark {
+    fill: CanvasText;
+  }
+  .admin-tabs [role="tab"][aria-selected="true"] {
+    outline: 2px solid Highlight;
+  }
+}
+.revision-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.revision-options {
+  padding: 10px 12px;
+  margin: 4px 0 10px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.revision-options .dialog-footer {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.tour-bubble.panel {
+  display: block;
+  position: fixed;
+  z-index: 60;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px #0f172933;
+}
+.tour-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.tour-head h2 {
+  font-size: 16px;
+  margin: 0;
+}
+.tour-count {
+  font-size: 12px;
+  color: var(--muted);
+}
+.tour-bubble p {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.tour-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+.tour-actions .text-btn {
+  margin-right: auto;
+}
+.tour-target {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+/* Also a .panel, whose shared rule loads later. */
+.tour-offer.panel {
+  position: absolute;
+  left: 50%;
+  bottom: 72px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  /* Centered absolutely, it would otherwise wrap at half the canvas width. */
+  width: max-content;
+  max-width: calc(100% - 24px);
+  z-index: 6;
+}
+.tour-offer > span {
+  white-space: nowrap;
+}
+/* The offer's action reads as a link, not as more of its label. */
+.tour-offer .text-btn {
+  color: var(--accent);
+  font-size: inherit;
+  font-weight: 600;
+  text-align: start;
+  padding: 9px 6px;
+  border-radius: 6px;
+}
+/* On phones the drawing tools sit at the bottom, so the offer moves under
+   the canvas controls instead of covering them. */
+@media (max-width: 760px) {
+  .tour-offer.panel {
+    top: 68px;
+    bottom: auto;
+  }
+  /* Active editing, outline navigation and a workshop need this space. */
+  #selection-tools:not([hidden]) ~ .tour-offer,
+  .canvas-wrap:has(#board-outline:focus-within) .tour-offer,
+  .canvas-wrap:has(.workshop-banner:not([hidden])) .tour-offer {
+    display: none;
+  }
+}
+.help-dialog,
+.ai-dialog {
+  width: min(680px, calc(100vw - 28px));
+}
+.help-top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.help-top .search {
+  flex: 1 1 240px;
+}
+.help-top .field {
+  margin: 0;
+  flex: 0 1 200px;
+}
+.help-actions {
+  justify-content: flex-start;
+}
+.help-guide {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+.help-guide summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.help-guide p {
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+.ai-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.ai-actions button {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 12px;
+}
+/* Icons and names start at the left, in a column, rather than centred
+   with each name's length as other secondary buttons are. */
+.ai-actions button.secondary {
+  justify-content: flex-start;
+}
+.ai-actions button span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ai-actions small {
+  color: var(--muted);
+  font-weight: 400;
+}
+.ai-themes {
+  padding-left: 20px;
+}
+.ai-themes .field {
+  margin: 6px 0 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-bubble {
+    transition: none;
+  }
+}
+.mention-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  max-height: 180px;
+  overflow: auto;
+}
+.mention-list li {
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.mention-list li[aria-selected="true"],
+.mention-list li:hover {
+  background: var(--soft);
+}
+/* The suggestion the arrow keys are on has a ring as well as a tint, which
+   alone is faint and disappears with forced colors. */
+.mention-list li[aria-selected="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.rating {
+  display: flex;
+  gap: 14px;
+  margin: 6px 0;
+}
+.feedback-comments {
+  padding-left: 18px;
+  font-size: 13px;
+}
+.help-dialog .help-actions {
+  justify-content: flex-start;
+}
+.help-actions button,
+.ai-actions button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+/* On phones, a library without an organization keeps its header compact:
+   Join an organization shares the row of the language and theme controls,
+   and its dialog offers setting one up. */
+@media (max-width: 760px) {
+  .sidebar .org-start [data-org-action="setup"] {
+    display: none;
+  }
+  .sidebar nav.org-start {
+    order: 1;
+    margin-left: 0;
+  }
+  .sidebar:has(nav.org-start) .sidebar-bottom {
+    order: 2;
+    flex: 1;
+    width: auto;
+  }
+}
+
+/* Organization library: rows like the version list, whose actions wrap
+   below the name on narrow screens. */
+.org-library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 55dvh;
+  overflow: auto;
+}
+.org-library-list .revision-row {
+  flex-wrap: wrap;
+}
+.org-library-list .revision-row > div {
+  flex-basis: 12rem;
+}
+.org-library-list .badge {
+  vertical-align: baseline;
+}
+
+.admin-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 12px 0;
+}
+.admin-pagination p {
+  margin: 0;
+}
+.admin-pagination > div {
+  display: flex;
+  gap: 8px;
+}
+
+.team-member-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.team-member-list label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.team-member-list input {
+  flex: none;
+  margin-top: 3px;
+}
+.team-member-list small {
+  display: block;
+  color: var(--muted);
+}

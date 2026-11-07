@@ -1,0 +1,175 @@
+#print-root {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  :root {
+    color-scheme: light;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  /* Printing a page (a report, a list): only the page content. */
+  .rail,
+  .topbar,
+  .panel,
+  .tabbar,
+  .toast-region,
+  .page-actions,
+  .toolbar,
+  .report-controls,
+  .no-print,
+  .skip-link {
+    display: none !important;
+  }
+  .app,
+  .frame,
+  .main {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    border: 0 !important;
+    margin: 0 !important;
+  }
+  .page {
+    padding: 0 !important;
+  }
+  /* Printing a document: only the paper. */
+  body.print-doc > *:not(#print-root) {
+    display: none !important;
+  }
+  body.print-doc #print-root {
+    display: block;
+  }
+  .form-overlay {
+    display: none !important;
+  }
+  body:not(.print-doc).has-form .app {
+    display: none !important;
+  }
+  body:not(.print-doc).has-form .form-overlay {
+    display: block !important;
+    position: static !important;
+  }
+}
+
+.paper {
+  font-family: var(--font);
+  color: #111;
+  font-size: 12.5px;
+}
+
+.paper h1 {
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: #12694f;
+}
+
+.p-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.p-company-name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.p-title {
+  text-align: right;
+}
+
+.p-meta {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 14px;
+  margin: 10px 0 0;
+  justify-content: end;
+}
+
+.p-meta dt {
+  color: #555;
+}
+
+.p-meta dd {
+  margin: 0;
+}
+
+.p-parties h2 {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.p-address {
+  font: inherit;
+  margin: 0 0 20px;
+  white-space: pre-wrap;
+}
+
+.p-lines {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.p-lines th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid #111;
+  padding: 6px 6px;
+}
+
+.p-lines td {
+  border-bottom: 1px solid #ddd;
+  padding: 7px 6px;
+  vertical-align: top;
+}
+
+.p-lines .num {
+  text-align: right;
+}
+
+.p-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+.p-message {
+  white-space: pre-wrap;
+  max-width: 55%;
+}
+
+.p-totals {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 24px;
+  margin: 0;
+  min-width: 240px;
+}
+
+.p-totals dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.p-totals .p-total {
+  font-weight: 700;
+  font-size: 14px;
+  border-top: 1px solid #111;
+  padding-top: 4px;
+}

@@ -1,0 +1,30 @@
+{
+  "name": "teamchat",
+  "version": "1.0.0",
+  "description": "Team messaging on Puter: workspaces, channels, threads, and direct messages",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "npm run build:worker && vite",
+    "build": "npm run build:worker && vite build",
+    "build:app": "vite build",
+    "build:icons": "node scripts/build-icons.mjs",
+    "build:worker": "vite build --config vite.worker.config.js",
+    "preview": "vite preview",
+    "deploy:email-worker": "puter worker deploy worker/email.js teamchat-email",
+    "publish:handlers": "node scripts/publish-handlers.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HeyPuter/teamchat.git"
+  },
+  "devDependencies": {
+    "vite": "^8.2.0",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "lucide": "^1.28.0"
+  }
+}

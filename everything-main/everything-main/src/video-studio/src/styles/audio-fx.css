@@ -1,0 +1,155 @@
+/* Sound sections (Basic tab) and the Voice tab of the details panel. */
+
+.fx-section .section-actions {
+  gap: 6px;
+}
+
+.switch.small {
+  width: 26px;
+  height: 16px;
+}
+
+.switch.small::after {
+  width: 12px;
+  height: 12px;
+}
+
+.switch.small[aria-checked='true']::after {
+  transform: translateX(10px);
+}
+
+.switch:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.fx-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Settings stay adjustable while off (changing one turns the section on). */
+.fx-body.fx-off .field,
+.fx-body.fx-off .segmented,
+.fx-body.fx-off .fx-readout {
+  opacity: 0.6;
+}
+
+.fx-desc,
+.fx-readout {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+
+.fx-readout {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.fx-status {
+  margin: 0;
+  font-size: 12px;
+  color: var(--accent-text);
+}
+
+.fx-body > .btn,
+.fx-buttons .btn {
+  align-self: flex-start;
+}
+
+.fx-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.fx-pan-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -6px;
+  padding-right: 64px;
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.fx-channels {
+  flex-wrap: wrap;
+}
+
+.fx-channels button {
+  flex: 1 1 auto;
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+.fx-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+/* Voice tab --------------------------------------------------------------- */
+.voice-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.voice-grid {
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+}
+
+.voice-grid .choice-preview {
+  aspect-ratio: 4 / 3;
+  background:
+    linear-gradient(140deg, hsl(var(--voice-hue, 220) 40% 40% / 0.35), hsl(calc(var(--voice-hue, 220) + 50) 40% 30% / 0.15)),
+    var(--bg-input);
+}
+
+.voice-grid .choice-label {
+  white-space: normal;
+  min-height: 2.5em;
+}
+
+.voice-glyph {
+  width: 70%;
+  height: auto;
+  overflow: visible;
+}
+
+.voice-glyph polyline {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.choice:hover .voice-glyph polyline {
+  stroke: var(--text);
+}
+
+.choice[aria-checked='true'] .voice-glyph polyline {
+  stroke: var(--accent-text);
+}
+
+.voice-params:empty {
+  display: none;
+}
+
+.voice-apply {
+  padding: 10px 12px 16px;
+}
+
+.voice-apply .btn {
+  width: 100%;
+  justify-content: center;
+}

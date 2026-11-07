@@ -1,0 +1,631 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync, mkdirSync, copyFileSync } from 'node:fs';
+import { unzipSync, strFromU8 } from 'fflate';
+import { reopenDocx } from './helpers/reopen-docx.js';
+import { menuBarMenu, onTab } from './helpers/editor-tools.js';
+
+test.use({ viewport: { width: 1440, height: 900 } });
+const ribbon = page => page.locator('.ribbon-card');
+const viewTab = async page => { await page.locator('#ribbon-tab-view').click(); return ribbon(page); };
+const caret = (input, at) => input.evaluate((el, at) => { const n = at < 0 ? el.value.length : at; el.focus(); el.setSelectionRange(n, n); el.dispatchEvent(new Event('select')); }, at);
+const caretAt = (input, text) => input.evaluate((el, text) => { const n = el.value.indexOf(text); el.focus(); el.setSelectionRange(n, n); el.dispatchEvent(new Event('select')); }, text);
+async function download(page, info, name) {
+  const event = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+  const path = info.outputPath(`${name}.docx`);
+  await (await event).saveAs(path);
+  mkdirSync('test-results/document-views', { recursive: true });
+  copyFileSync(path, `test-results/document-views/${name}.docx`);
+  return path;
+}
+const parts = path => unzipSync(readFileSync(path));
+const settingsXml = path => { const all = parts(path); const name = Object.keys(all).find(n => /^word\/settings\d*\.xml$/.test(n)); return name ? strFromU8(all[name]) : ''; };
+
+async function headings(page) {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await input.fill(`Introduction\nThe plan in brief. ${'Words to read and enjoy. '.repeat(30)}\nBackground\nWhy the plan matters.\nResults\nThe final plan.`);
+  for (const [text, level] of [['Introduction', 1], ['Background', 2], ['Results', 1]]) { await caretAt(input, text); await input.press(`Control+Alt+${level}`); }
+  return input;
+}
+
+test('Web Layout reflows to the window, edits, saves w:view and reopens in the same view', async ({ page }, info) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  const input = await headings(page);
+  const tab = await viewTab(page);
+  await tab.getByRole('button', { name: 'Web Layout', exact: true }).click();
+  const host = page.locator('.canvas-host');
+  await expect(host).toHaveClass(/view-web/);
+  await expect(tab.getByRole('button', { name: 'Web Layout', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  // One continuous strip as wide as the window, no page gap.
+  const [hostWidth, canvasWidth, count] = await page.evaluate(() => { const h = document.querySelector('.canvas-host'), c = h.querySelectorAll('canvas.canvas-page'); return [h.clientWidth, c[0].getBoundingClientRect().width, c.length]; });
+  expect(count).toBe(1);
+  expect(Math.abs(hostWidth - canvasWidth)).toBeLessThan(4);
+  await caret(input, -1);
+  await input.pressSequentially(' Typed in web layout.');
+  await expect(input).toHaveValue(/Typed in web layout\.$/);
+  const saved = await download(page, info, 'web-layout');
+  expect(settingsXml(saved)).toContain('<w:view w:val="web"/>');
+  expect(strFromU8(parts(saved)['word/document.xml'])).toContain('Typed in web layout.');
+  await reopenDocx(page, input, saved, await input.inputValue());
+  await expect(page.locator('.canvas-host')).toHaveClass(/view-web/);
+  await (await viewTab(page)).getByRole('button', { name: 'Print Layout', exact: true }).click();
+  await expect(page.locator('.canvas-host')).not.toHaveClass(/view-web/);
+  expect(errors).toEqual([]);
+});
+
+test('Draft shows breaks as continuous strips, a style area, and saves as normal view', async ({ page }, info) => {
+  const input = await headings(page);
+  await caretAt(input, 'Background');
+  await input.press('ControlOrMeta+Enter');
+  const tab = await viewTab(page);
+  await tab.getByRole('button', { name: 'Draft', exact: true }).click();
+  await expect(page.locator('.canvas-host')).toHaveClass(/view-draft/);
+  // The page break starts a new strip; strips are trimmed to their text.
+  const heights = await page.evaluate(() => [...document.querySelectorAll('.canvas-host canvas.canvas-page')].map(c => c.getBoundingClientRect().height));
+  expect(heights).toHaveLength(2);
+  expect(heights[1]).toBeLessThan(300);
+  await tab.getByRole('button', { name: 'Style Area', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: '1 inch' }).click();
+  await expect(page.locator('.view-style-name').first()).toHaveText('Heading 1');
+  await expect(page.locator('.view-style-name')).toContainText(['Heading 1', 'Normal', 'Heading 2']);
+  await caret(input, -1);
+  await input.pressSequentially(' Drafted.');
+  const saved = await download(page, info, 'draft');
+  expect(settingsXml(saved)).toContain('<w:view w:val="normal"/>');
+  expect(strFromU8(parts(saved)['word/document.xml'])).toContain('Drafted.');
+});
+
+test('Outline view edits text, levels and order through the Outlining tab, with undo', async ({ page }, info) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await headings(page);
+  // The text box of the page view stays in the document while the outline is shown in its place.
+  const input = page.locator('textarea.canvas-input');
+  await (await viewTab(page)).getByRole('button', { name: 'Outline', exact: true }).click();
+  const outline = page.getByRole('tree', { name: 'Document outline' });
+  await expect(outline).toBeVisible();
+  await expect(page.locator('#ribbon-tab-outlining')).toHaveAttribute('aria-selected', 'true');
+  const rows = outline.getByRole('treeitem');
+  await expect(rows).toHaveCount(6);
+  await expect(rows.nth(2)).toHaveAttribute('aria-level', '2');
+  // Show Level 1: only the top headings.
+  await ribbon(page).getByRole('button', { name: 'Show Level', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'Level 1', exact: true }).click();
+  await expect(rows).toHaveCount(2);
+  await ribbon(page).getByRole('button', { name: 'Show Level', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'All Levels' }).click();
+  await expect(rows).toHaveCount(6);
+  // Promote Background to Heading 1 from the tab.
+  const background = page.locator('.outline-row', { hasText: 'Background' }).locator('.outline-text');
+  await background.click();
+  await ribbon(page).getByRole('button', { name: 'Promote', exact: true }).click();
+  await expect(page.locator('.outline-row', { hasText: 'Background' })).toHaveAttribute('aria-level', '1');
+  // Move Results (with its text) above Background.
+  await page.locator('.outline-row', { hasText: 'Results' }).locator('.outline-symbol').click();
+  await ribbon(page).getByRole('button', { name: 'Move Up', exact: true }).click();
+  expect(await input.inputValue()).toMatch(/Results\nThe final plan\.\nBackground\nWhy the plan matters\./);
+  // Typing edits the document.
+  const final = page.locator('.outline-row', { hasText: 'The final plan.' }).locator('.outline-text');
+  await final.click();
+  await page.keyboard.press('End');
+  await page.keyboard.type(' Really.');
+  await expect(input).toHaveValue(/The final plan\. Really\./);
+  // Undo takes back typing a word at a time, as in the page views, not a character at a time.
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(input).toHaveValue(/The final plan\. \n/);
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await expect(input).toHaveValue(/The final plan\. Really\./);
+  await page.keyboard.press('End');
+  // Tab demotes, Shift+Tab promotes; Enter splits the paragraph.
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Next step');
+  await expect(input).toHaveValue(/Really\.\nNext step/);
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.locator('.outline-row', { hasText: 'Next step' })).toHaveAttribute('aria-level', '1');
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(page.locator('.outline-row', { hasText: 'Next step' })).not.toHaveAttribute('aria-level', '1');
+  await ribbon(page).getByRole('button', { name: 'Close Outline View', exact: true }).click();
+  await expect(outline).toBeHidden();
+  await expect(page.locator('.canvas-host')).toBeVisible();
+  const saved = await download(page, info, 'outline');
+  const xml = strFromU8(parts(saved)['word/document.xml']);
+  expect(xml.indexOf('Results')).toBeLessThan(xml.indexOf('Background'));
+  expect(xml).toMatch(/<w:pStyle w:val="Heading1"\/><\/w:pPr><w:r>(<w:rPr>.*?<\/w:rPr>)?<w:t[^>]*>Background/);
+  expect(errors).toEqual([]);
+});
+
+test('Outline view moves a section selected by its symbol as a whole, with the keyboard or the tab', async ({ page }) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await headings(page);
+  // The page view's text box stays in the document, out of the accessibility tree, while the outline is shown.
+  const input = page.locator('textarea.canvas-input');
+  await (await viewTab(page)).getByRole('button', { name: 'Outline', exact: true }).click();
+  await expect(page.getByRole('tree', { name: 'Document outline' })).toBeVisible();
+  // Introduction's symbol selects it with Background and their text; Move Down takes all of it past Results.
+  await page.locator('.outline-row', { hasText: 'Introduction' }).locator('.outline-symbol').click();
+  await expect(page.locator('.outline-row.is-selected')).toHaveCount(4);
+  await ribbon(page).getByRole('button', { name: 'Move Down', exact: true }).click();
+  await expect(input).toHaveValue(/^Results\nThe final plan\.\nIntroduction\nThe plan in brief\.[^\n]*\nBackground\nWhy the plan matters\.$/);
+  await page.locator('.outline-row', { hasText: 'Introduction' }).locator('.outline-symbol').click();
+  await page.keyboard.press('Shift+Alt+ArrowUp');
+  await expect(input).toHaveValue(/^Introduction\nThe plan in brief\.[^\n]*\nBackground\nWhy the plan matters\.\nResults\nThe final plan\.$/);
+  // Pressing Alt before Shift keeps the selection: Alt on its own is not an edit.
+  await page.locator('.outline-row', { hasText: 'Introduction' }).locator('.outline-symbol').click();
+  await page.keyboard.press('Alt+Shift+ArrowDown');
+  await expect(input).toHaveValue(/^Results\nThe final plan\.\nIntroduction\nThe plan in brief\.[^\n]*\nBackground\nWhy the plan matters\.$/);
+  expect(errors).toEqual([]);
+});
+
+test('Read Mode turns pages, blocks typing, changes page colour and returns with Escape', async ({ page }) => {
+  await page.setViewportSize({ width: 1000, height: 640 });
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/Every page/);
+  const before = await input.inputValue();
+  await (await viewTab(page)).getByRole('button', { name: 'Read Mode', exact: true }).click();
+  const toolbar = page.getByRole('toolbar', { name: 'Read Mode' });
+  await expect(toolbar).toBeVisible();
+  await expect(page.locator('.ed-ribbon')).toBeHidden();
+  const counter = page.locator('.read-counter');
+  await expect(counter).toHaveText(/of \d+/);
+  await page.keyboard.press('Home');
+  const first = await counter.textContent();
+  await page.keyboard.press('ArrowRight');
+  await expect(counter).not.toHaveText(first);
+  await page.keyboard.press('ArrowLeft');
+  await expect(counter).toHaveText(first);
+  await page.keyboard.type('zz');
+  expect(await input.inputValue()).toBe(before);
+  await toolbar.getByRole('button', { name: 'View' }).click();
+  await page.getByRole('menuitem', { name: 'Page Color' }).click();
+  await page.getByRole('menuitemradio', { name: 'Sepia' }).click();
+  await expect(page.locator('.canvas-host')).toHaveClass(/read-sepia/);
+  await toolbar.getByRole('button', { name: 'View' }).click();
+  await page.getByRole('menuitem', { name: 'Line Focus' }).click();
+  await page.getByRole('menuitemradio', { name: 'Three Lines' }).click();
+  await expect(page.locator('.ed-workspace')).toHaveClass(/read-line-focus/);
+  await page.keyboard.press('Escape');
+  await expect(toolbar).toBeHidden();
+  await expect(page.locator('.ed-ribbon')).toBeVisible();
+  await expect(page.locator('.canvas-host')).not.toHaveClass(/is-reading/);
+});
+
+test('Tab reaches the Read Mode tools and page buttons from the pages, and Shift+Tab comes back', async ({ page }) => {
+  await page.setViewportSize({ width: 1000, height: 640 });
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/Every page/);
+  const before = await input.inputValue();
+  await (await viewTab(page)).getByRole('button', { name: 'Read Mode', exact: true }).click();
+  const toolbar = page.getByRole('toolbar', { name: 'Read Mode' });
+  await expect(page.locator('.canvas-host')).toBeFocused();
+  const reached = [];
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press('Tab');
+    reached.push(await page.evaluate(() => document.activeElement.getAttribute('aria-label') || document.activeElement.textContent.trim()));
+  }
+  for (const name of ['Tools', 'View', 'Edit Document', 'Next screen']) expect(reached, name).toContain(name);
+  // Back from the toolbar to the pages, where the arrows still turn them.
+  await toolbar.getByRole('button', { name: 'Tools' }).focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.locator('.canvas-host')).toBeFocused();
+  await page.keyboard.type('zz');
+  expect(await input.inputValue()).toBe(before);
+  await page.keyboard.press('Escape');
+  await expect(toolbar).toBeHidden();
+  // Editing again, Tab is the document's own key once more.
+  await expect(input).toBeFocused();
+});
+
+test('views without a horizontal ruler hide its tab-type button too', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Document text' }).fill('Some text');
+  const selector = page.locator('.canvas-tab-selector');
+  await expect(selector).toBeVisible();
+  const status = page.locator('.ed-statusbar');
+  await status.getByRole('button', { name: 'Outline', exact: true }).click();
+  await expect(page.locator('.canvas-ruler-top')).toBeHidden();
+  await expect(selector).toBeHidden();
+  await status.getByRole('button', { name: 'Read Mode', exact: true }).click();
+  await expect(page.getByRole('toolbar', { name: 'Read Mode' })).toBeVisible();
+  await expect(selector).toBeHidden();
+  await page.keyboard.press('Escape');
+  await status.getByRole('button', { name: 'Print Layout', exact: true }).click();
+  await expect(selector).toBeVisible();
+});
+
+test('Read Mode stays read-only after going to a heading from the Navigation pane', async ({ page }) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  const input = await headings(page);
+  const before = await input.inputValue();
+  await (await viewTab(page)).getByRole('button', { name: 'Read Mode', exact: true }).click();
+  const toolbar = page.getByRole('toolbar', { name: 'Read Mode' });
+  await toolbar.getByRole('button', { name: 'Tools' }).click();
+  await page.getByRole('menuitem', { name: 'Navigation Pane' }).click();
+  await page.getByRole('complementary', { name: 'Navigation' }).getByRole('treeitem', { name: /Background/ }).click();
+  await expect(page.locator('.canvas-host')).toBeFocused();
+  // The text input's own editing keys must not reach the document while reading.
+  for (const key of ['End', 'Backspace', 'Alt+Shift+ArrowUp', 'ControlOrMeta+Backspace']) await page.keyboard.press(key);
+  await page.keyboard.type('zz');
+  expect(await input.inputValue()).toBe(before);
+  await expect(toolbar).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('switching through every view leaves the saved document unchanged', async ({ page }, info) => {
+  const input = await headings(page);
+  const before = await download(page, info, 'before-views');
+  for (const name of ['Web Layout', 'Draft', 'Outline', 'Read Mode', 'Print Layout']) {
+    if (name === 'Print Layout') { await page.keyboard.press('Escape'); await (await viewTab(page)).getByRole('button', { name, exact: true }).click(); }
+    else await (await viewTab(page)).getByRole('button', { name, exact: true }).click();
+    await page.waitForTimeout(150);
+  }
+  await expect(page.locator('.canvas-host')).not.toHaveClass(/view-(web|draft|outline|read)|is-reading/);
+  await caret(input, 0);
+  const after = await download(page, info, 'after-views');
+  expect(parts(after)).toEqual(parts(before));
+});
+
+test('Navigation pane headings drag to reorder sections and promote from their menu', async ({ page }) => {
+  const input = await headings(page);
+  await (await viewTab(page)).getByRole('button', { name: 'Navigation Pane' }).click();
+  const tree = page.getByRole('tree', { name: 'Headings' });
+  await expect(tree.getByRole('treeitem')).toHaveText(['Introduction', 'Background', 'Results']);
+  await tree.getByRole('treeitem', { name: /Results/ }).dragTo(tree.getByRole('treeitem', { name: /Introduction/ }), { targetPosition: { x: 10, y: 2 } });
+  await expect(tree.getByRole('treeitem')).toHaveText(['Results', 'Introduction', 'Background']);
+  expect(await input.inputValue()).toMatch(/^Results\nThe final plan\.\nIntroduction/);
+  await tree.getByRole('treeitem', { name: /Background/ }).click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Promote' }).click();
+  await expect(tree.getByRole('treeitem', { name: /Background/ })).toHaveAttribute('aria-level', '1');
+  await tree.getByRole('treeitem', { name: /Results/ }).click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'New Heading After' }).click();
+  await page.keyboard.type('Appendix');
+  await expect(tree.getByRole('treeitem')).toHaveText(['Results', 'Appendix', 'Introduction', 'Background']);
+  await input.press('ControlOrMeta+z');
+  await input.press('ControlOrMeta+z');
+  await expect(tree.getByRole('treeitem')).toHaveText(['Results', 'Introduction', 'Background']);
+});
+
+test('zoom: dialog presets, many pages, text width and Ctrl + wheel', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Document text' })).toHaveValue(/Every page/);
+  const slider = page.getByRole('slider', { name: 'Zoom slider' });
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  // A closing dialog lingers for its exit animation; use the open one.
+  const dialog = page.locator('.modal-root:not(.closing)').getByRole('dialog', { name: 'Zoom' });
+  // The preset the zoom is at starts chosen.
+  await expect(dialog.getByRole('radio', { name: '100%' })).toBeChecked();
+  await expect(dialog.getByRole('radio', { checked: true })).toHaveCount(1);
+  await dialog.getByText('75%').click();
+  await expect(slider).toHaveValue('75');
+  await dialog.getByRole('gridcell', { name: '2 by 1 pages' }).click();
+  await dialog.getByRole('button', { name: 'OK' }).click();
+  await expect(page.locator('.canvas-pages')).toHaveClass(/is-multipage/);
+  const tops = await page.evaluate(() => [...document.querySelectorAll('canvas.canvas-page')].map(c => Math.round(c.getBoundingClientRect().top)));
+  expect(tops[0]).toBe(tops[1]);
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  await dialog.getByText('Text width').click();
+  await dialog.getByRole('button', { name: 'OK' }).click();
+  expect(Number(await slider.inputValue())).toBeGreaterThan(110);
+  await page.getByRole('button', { name: '100%', exact: true }).click();
+  await expect(slider).toHaveValue('100');
+  await page.locator('.canvas-host').hover();
+  await page.keyboard.down('Control');
+  await page.mouse.wheel(0, 200);
+  await page.keyboard.up('Control');
+  await expect.poll(async () => Number(await slider.inputValue())).toBeLessThan(100);
+  // Cancel restores the zoom it opened with.
+  const now = await slider.inputValue();
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  await dialog.getByText('200%').click();
+  await expect(slider).toHaveValue('200');
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  await expect(slider).toHaveValue(now);
+});
+
+test('clearing the Zoom dialog\'s percent to type another leaves the zoom alone until a number is there', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Document text' })).toHaveValue(/Every page/);
+  const slider = page.getByRole('slider', { name: 'Zoom slider' });
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  const dialog = page.locator('.modal-root:not(.closing)').getByRole('dialog', { name: 'Zoom' });
+  const percent = dialog.getByRole('spinbutton', { name: 'Percent' });
+  await expect(percent).toBeFocused();
+  await page.keyboard.press('Backspace');
+  await expect(percent).toHaveValue('');
+  await expect(slider).toHaveValue('100');
+  // OK with nothing there asks for a number rather than zooming to the smallest size.
+  await page.keyboard.press('Enter');
+  await expect(dialog).toBeVisible();
+  await expect(slider).toHaveValue('100');
+  await page.keyboard.type('150');
+  await expect(slider).toHaveValue('150');
+  await page.keyboard.press('Enter');
+  await expect(dialog).toBeHidden();
+  await expect(slider).toHaveValue('150');
+});
+
+test('One Page keeps the whole page in view as the window changes size, until another zoom is chosen', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Document text' })).toHaveValue(/Every page/);
+  const slider = page.getByRole('slider', { name: 'Zoom slider' });
+  const pageFits = () => page.evaluate(() => {
+    const host = document.querySelector('.canvas-host').getBoundingClientRect(), first = document.querySelector('canvas.canvas-page').getBoundingClientRect();
+    return first.height <= host.height && first.width <= host.width;
+  });
+  await (await viewTab(page)).getByRole('button', { name: 'One Page', exact: true }).click();
+  const tall = Number(await slider.inputValue());
+  expect(await pageFits()).toBe(true);
+  await page.setViewportSize({ width: 1100, height: 640 });
+  await expect.poll(async () => Number(await slider.inputValue())).toBeLessThan(tall);
+  expect(await pageFits()).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(slider).toHaveValue(String(tall));
+  // The Zoom dialog opens on Whole page, and Cancel keeps it.
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  const dialog = page.locator('.modal-root:not(.closing)').getByRole('dialog', { name: 'Zoom' });
+  await expect(dialog.getByRole('radio', { name: 'Whole page' })).toBeChecked();
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  await page.setViewportSize({ width: 1100, height: 640 });
+  await expect.poll(async () => Number(await slider.inputValue())).toBeLessThan(tall);
+  // A zoom step leaves the mode: the zoom then stays as it is.
+  await page.getByRole('button', { name: 'Zoom In', exact: true }).click();
+  const stepped = await slider.inputValue();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(300);
+  await expect(slider).toHaveValue(stepped);
+});
+
+test('the Zoom dialog\'s Many pages grid is one Tab stop that the arrow keys move over', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Document text' })).toHaveValue(/Every page/);
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  const dialog = page.locator('.modal-root:not(.closing)').getByRole('dialog', { name: 'Zoom' });
+  const grid = dialog.getByRole('grid', { name: 'Many pages' });
+  expect(await grid.getByRole('gridcell').evaluateAll(cells => cells.filter(c => c.tabIndex >= 0).length)).toBe(1);
+  await grid.getByRole('gridcell').first().focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(grid.getByRole('gridcell', { name: '2 by 1 pages' })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(grid.getByRole('gridcell', { name: '2 by 2 pages' })).toBeFocused();
+  await expect(dialog.getByText('2 × 2 pages')).toBeVisible();
+  await page.keyboard.press('End');
+  await expect(grid.getByRole('gridcell', { name: '4 by 2 pages' })).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(grid.getByRole('gridcell', { name: '1 by 2 pages' })).toBeFocused();
+  expect(await grid.getByRole('gridcell').evaluateAll(cells => cells.filter(c => c.tabIndex >= 0).length)).toBe(1);
+  // Tab leaves the grid, and comes back to the cell it left.
+  await page.keyboard.press('Tab');
+  expect(await grid.evaluate(g => g.contains(document.activeElement))).toBe(false);
+  await page.keyboard.press('Shift+Tab');
+  await expect(grid.getByRole('gridcell', { name: '1 by 2 pages' })).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Enter');
+  await dialog.getByRole('button', { name: 'OK' }).click();
+  await expect(page.locator('.canvas-pages')).toHaveClass(/is-multipage/);
+});
+
+test('the Zoom dialog fits its fields inside the dialog', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  const dialog = page.locator('.modal-root:not(.closing)').getByRole('dialog', { name: 'Zoom' });
+  await expect(dialog).toBeVisible();
+  // The form was wider than the dialog's content box: the Percent field ran into the right edge and the dialog scrolled sideways.
+  const fit = await dialog.evaluate(panel => {
+    const box = panel.getBoundingClientRect(), padding = parseFloat(getComputedStyle(panel).paddingRight);
+    const field = panel.querySelector('input[aria-label="Percent"]').getBoundingClientRect();
+    return { scrolls: panel.scrollWidth > panel.clientWidth, gap: Math.round(box.right - padding - field.right) };
+  });
+  expect(fit.scrolls).toBe(false);
+  expect(fit.gap).toBeGreaterThanOrEqual(0);
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+});
+
+test('cancelling the Zoom dialog keeps the page following the window width', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  await (await viewTab(page)).getByRole('button', { name: 'Page Width', exact: true }).click();
+  const zoom = page.getByRole('combobox', { name: 'Zoom', exact: true });
+  await expect(zoom).toHaveValue('fit');
+  const pageWidth = () => page.locator('canvas.canvas-page').first().evaluate(c => c.getBoundingClientRect().width);
+  const fitted = await pageWidth();
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  const dialog = page.locator('.modal-root:not(.closing)').getByRole('dialog', { name: 'Zoom' });
+  await expect(dialog.getByRole('radio', { name: 'Page width' })).toBeChecked();
+  await dialog.getByText('200%').click();
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  await expect(zoom).toHaveValue('fit');
+  // OK with Page width still chosen keeps the page following the window, rather than fixing its scale.
+  await (await viewTab(page)).getByRole('button', { name: 'Zoom', exact: true }).click();
+  await expect(dialog.getByRole('radio', { name: 'Page width' })).toBeChecked();
+  await dialog.getByRole('button', { name: 'OK' }).click();
+  await expect(zoom).toHaveValue('fit');
+  // Still Page Width, the page follows a narrower window.
+  await page.setViewportSize({ width: 1000, height: 900 });
+  await expect.poll(pageWidth).toBeLessThan(fitted - 100);
+});
+
+test('side-to-side page movement, gridlines and split', async ({ page }) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/Every page/);
+  const tab = await viewTab(page);
+  await tab.getByRole('button', { name: 'Side to Side', exact: true }).click();
+  await expect(page.locator('.canvas-pages')).toHaveClass(/is-side-to-side/);
+  const tops = await page.evaluate(() => [...document.querySelectorAll('.canvas-host canvas.canvas-page')].map(c => Math.round(c.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBe(1);
+  await tab.getByRole('button', { name: 'Thumbnails', exact: true }).click();
+  await expect(page.getByRole('list', { name: 'Page thumbnails' }).getByRole('listitem')).toHaveCount(tops.length);
+  await tab.getByRole('button', { name: 'Vertical', exact: true }).click();
+  await expect(page.locator('.canvas-pages')).not.toHaveClass(/is-side-to-side/);
+  await tab.getByRole('checkbox', { name: 'Gridlines', exact: true }).check();
+  await expect(tab.getByRole('checkbox', { name: 'Gridlines', exact: true })).toBeChecked();
+  await tab.getByRole('button', { name: 'Split', exact: true }).click();
+  const pane = page.locator('.view-split-pane');
+  await expect(pane.locator('canvas')).toHaveCount(tops.length);
+  // A click in the second pane puts the caret there in the document.
+  await caret(input, 0);
+  const box = await pane.locator('canvas').first().boundingBox();
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height * 0.2);
+  expect(await input.evaluate(el => el.selectionStart)).toBeGreaterThan(0);
+  await (await viewTab(page)).getByRole('button', { name: 'Split', exact: true }).click();
+  await expect(pane).toHaveCount(0);
+});
+
+test('with reduced motion, page thumbnails and Table properties jump instead of scrolling smoothly', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addInitScript(() => {
+    window.scrolls = [];
+    for (const name of ['scrollTo', 'scrollIntoView']) {
+      const original = Element.prototype[name];
+      Element.prototype[name] = function (options, ...rest) { window.scrolls.push(options?.behavior ?? null); return original.call(this, options, ...rest); };
+    }
+  });
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/Every page/);
+  const tab = await viewTab(page);
+  await tab.getByRole('button', { name: 'Side to Side', exact: true }).click();
+  await tab.getByRole('button', { name: 'Thumbnails', exact: true }).click();
+  const thumbs = page.getByRole('list', { name: 'Page thumbnails' }).getByRole('listitem');
+  await page.evaluate(() => { window.scrolls = []; });
+  await thumbs.last().getByRole('button').click();
+  expect(await page.evaluate(() => window.scrolls)).toContain('auto');
+  expect(await page.evaluate(() => window.scrolls)).not.toContain('smooth');
+  await tab.getByRole('button', { name: 'Vertical', exact: true }).click();
+  await caret(input, 0);
+  await (await onTab(page, 'insert')).locator('.ribbon-card').getByRole('button', { name: 'Insert table', exact: true }).click();
+  await page.getByRole('button', { name: 'Insert', exact: true }).click();
+  await (await onTab(page, 'tableLayout')).locator('.ribbon-card').getByRole('button', { name: 'Table properties', exact: true }).click();
+  const properties = page.getByRole('dialog', { name: 'Table properties' });
+  await page.evaluate(() => { window.scrolls = []; });
+  await properties.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: 'Alt Text' }).click();
+  expect(await page.evaluate(() => window.scrolls)).toEqual(['auto']);
+});
+
+test('New Window shows a live copy that follows edits', async ({ page, context }) => {
+  const input = await headings(page);
+  const opened = context.waitForEvent('page');
+  await (await viewTab(page)).getByRole('button', { name: 'New Window', exact: true }).click();
+  const second = await opened;
+  await second.waitForLoadState();
+  await expect(second.locator('canvas.canvas-page').first()).toBeVisible();
+  await expect(second.locator('.mirror-status')).toHaveText(/Updated/);
+  const textOf = () => second.locator('textarea.canvas-input').inputValue();
+  expect(await textOf()).toContain('Introduction');
+  await caret(input, -1);
+  await input.pressSequentially(' Seen in the other window.');
+  await expect.poll(textOf, { timeout: 8000 }).toContain('Seen in the other window.');
+});
+
+test('a document saved in Outline view opens there and its direct level promotes', async ({ page }, info) => {
+  await page.goto('/playground.html');
+  await page.getByRole('button', { name: 'New', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Document text' })).toBeVisible();
+  await page.getByLabel('Open DOCX file').setInputFiles('tests/fixtures/document-views/outline.docx');
+  const outline = page.getByRole('tree', { name: 'Document outline' });
+  await expect(outline).toBeVisible();
+  await expect(outline.getByRole('treeitem')).toHaveCount(10);
+  const note = page.locator('.outline-row', { hasText: 'A direct level three note' });
+  await expect(note).toHaveAttribute('aria-level', '3');
+  await note.locator('.outline-text').click();
+  await page.keyboard.press('Shift+Tab');
+  await expect(note).toHaveAttribute('aria-level', '2');
+  // Collapse Plan: its subtree hides; Show First Line Only keeps headings whole.
+  await page.locator('.outline-row', { hasText: 'Plan' }).first().locator('.outline-symbol').dblclick();
+  await expect(outline.getByRole('treeitem')).toHaveCount(4);
+  const saved = await download(page, info, 'outline-fixture');
+  expect(settingsXml(saved)).toContain('<w:view w:val="outline"/>');
+  expect(strFromU8(parts(saved)['word/document.xml'])).toMatch(/<w:pStyle w:val="Heading2"\/><\/w:pPr><w:r>(<w:rPr>.*?<\/w:rPr>)?<w:t[^>]*>A direct level three note/);
+});
+
+test('the status bar view buttons and the View and Window menus switch views and windows', async ({ page }) => {
+  await headings(page);
+  const views = page.getByLabel('Status bar').getByRole('group', { name: 'Views' });
+  await expect(views.getByRole('button')).toHaveCount(5);
+  await views.getByRole('button', { name: 'Draft' }).click();
+  await expect(page.locator('.canvas-host')).toHaveClass(/view-draft/);
+  await expect(views.getByRole('button', { name: 'Draft' })).toHaveAttribute('aria-pressed', 'true');
+  const view = await menuBarMenu(page, 'View');
+  await expect(view.getByRole('menuitemradio', { name: 'Draft' })).toHaveAttribute('aria-checked', 'true');
+  await view.getByRole('menuitemcheckbox', { name: 'Gridlines' }).click();
+  await expect((await viewTab(page)).getByRole('checkbox', { name: 'Gridlines', exact: true })).toBeChecked();
+  await views.getByRole('button', { name: 'Print Layout' }).click();
+  await expect(page.locator('.canvas-host')).not.toHaveClass(/view-draft/);
+  const windows = await menuBarMenu(page, 'Window');
+  await windows.getByRole('menuitemcheckbox', { name: 'Split' }).click();
+  await expect(page.locator('.view-split-pane')).toBeVisible();
+  await (await menuBarMenu(page, 'Window')).getByRole('menuitemcheckbox', { name: 'Remove Split' }).click();
+  await expect(page.locator('.view-split-pane')).toHaveCount(0);
+});
+
+test('side-to-side pages stay whole above the page thumbnails', async ({ page }) => {
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  await page.getByRole('textbox', { name: 'Document text' }).fill(('A paragraph that helps fill three pages. '.repeat(20) + '\n').repeat(12));
+  const tab = await viewTab(page);
+  await tab.getByRole('button', { name: 'Side to Side', exact: true }).click();
+  await tab.getByRole('button', { name: 'Thumbnails', exact: true }).click();
+  const strip = page.getByRole('list', { name: 'Page thumbnails' });
+  await expect(strip).toBeVisible();
+  // The host shows the pages without scrolling up or down: none may run under the strip.
+  const overlap = () => page.evaluate(() => {
+    const strip = document.querySelector('.view-thumbnails').getBoundingClientRect();
+    const host = document.querySelector('.canvas-host').getBoundingClientRect();
+    return Math.max(0, ...[...document.querySelectorAll('.canvas-host canvas.canvas-page')].map(c => Math.min(c.getBoundingClientRect().bottom, host.bottom) - strip.top));
+  });
+  await expect.poll(overlap).toBe(0);
+  // The Assistant's button rises above the strip too.
+  await expect(page.getByRole('button', { name: 'Assistant', exact: true }).last()).toBeVisible();
+  expect(await page.evaluate(() => document.querySelector('.as-fab').getBoundingClientRect().bottom <= document.querySelector('.view-thumbnails').getBoundingClientRect().top)).toBe(true);
+  // Without the strip the pages fill the height again.
+  const height = () => page.evaluate(() => document.querySelector('.canvas-host canvas.canvas-page').getBoundingClientRect().height);
+  const withStrip = await height();
+  await tab.getByRole('button', { name: 'Thumbnails', exact: true }).click();
+  await expect(strip).toBeHidden();
+  await expect.poll(height).toBeGreaterThan(withStrip + 40);
+});
+
+test('Demote to Body Text offers Ctrl+Shift+N where the browser leaves it to the page, and it works', async ({ page }) => {
+  await headings(page);
+  await (await viewTab(page)).getByRole('button', { name: 'Outline', exact: true }).click();
+  const button = ribbon(page).getByRole('button', { name: 'Demote to Body Text', exact: true });
+  // Cmd+Shift+N opens a private window in Mac browsers, so the page never sees it: Ctrl+Shift+N is the chord there.
+  // On Windows and Linux Ctrl+Shift+N is the browser's own (a private window), so the button promises no chord.
+  if (process.platform === 'darwin') await expect(button).toHaveAttribute('title', /\(Ctrl\+Shift\+N\)/);
+  else await expect(button).toHaveAttribute('title', 'Demote to Body Text');
+  const background = page.locator('.outline-row', { hasText: 'Background' });
+  await background.locator('.outline-text').click();
+  await page.keyboard.press('Control+Shift+N');
+  await expect(page.locator('.outline-row', { hasText: 'Background' })).not.toHaveClass(/is-heading/);
+});
+
+test('Focus shows the page alone, without the rulers, and Escape brings them back', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/mock.html#/new');
+  await expect(page.getByRole('button', { name: 'Bold', exact: true })).toBeEnabled();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await input.fill('Words to write without distraction.');
+  const ruler = page.locator('.canvas-ruler-top');
+  await expect(ruler).toBeVisible();
+  await page.getByLabel('Status bar').getByRole('button', { name: 'Focus', exact: true }).click();
+  await expect(page.locator('.ed-workspace')).toHaveClass(/ed-focus/);
+  // The light rulers would stand out on Focus's dark surround: they go with the rest of the window.
+  await expect(ruler).toBeHidden();
+  await expect(page.locator('.canvas-ruler-side')).toBeHidden();
+  await expect(page.locator('.canvas-tab-selector')).toBeHidden();
+  await input.press('Escape');
+  await expect(page.locator('.ed-workspace')).not.toHaveClass(/ed-focus/);
+  await expect(ruler).toBeVisible();
+});

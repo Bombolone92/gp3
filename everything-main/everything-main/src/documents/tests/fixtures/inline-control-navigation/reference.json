@@ -1,0 +1,110 @@
+{
+  "native": "Installed native reference UI, desktop automation press_key Shift_L+x; saved with Ctrl+S. Each case starts with ABCD; intervening markers were undone. Exit-right/placeholder-exit resume the entry caret restored by Undo.",
+  "cases": [
+    {
+      "name": "right1",
+      "source": "inline.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "keys": [
+        "Control+Home",
+        "ArrowRight"
+      ],
+      "result": "native-right1.docx",
+      "resultSha256": "d3dba5f9b78665c323c8efdf659a27d9fe0da61bfe87838256b89d16cacb703d",
+      "text": "AXBCD",
+      "controlText": "BC",
+      "placeholder": false
+    },
+    {
+      "name": "right2",
+      "source": "inline.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "keys": [
+        "Control+Home",
+        "ArrowRight",
+        "ArrowRight"
+      ],
+      "result": "native-right2.docx",
+      "resultSha256": "57032629db3105d883bf78c67f00bcdf50791fdba1347be508ce4a6624651643",
+      "text": "AXBCD",
+      "controlText": "XBC",
+      "placeholder": false
+    },
+    {
+      "name": "left1",
+      "source": "inline.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "keys": [
+        "Control+End",
+        "ArrowLeft"
+      ],
+      "result": "native-left1.docx",
+      "resultSha256": "43f262922709f530f1f0f00fa8513a72f247e98b2661c1530c64291aa4953fde",
+      "text": "ABCXD",
+      "controlText": "BC",
+      "placeholder": false
+    },
+    {
+      "name": "left2",
+      "source": "inline.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "keys": [
+        "Control+End",
+        "ArrowLeft",
+        "ArrowLeft"
+      ],
+      "result": "native-left2.docx",
+      "resultSha256": "b798167d31bbc5777495735d6d1ad9d9d2b0aeb306c763fecb61c426ea9a8a7d",
+      "text": "ABCXD",
+      "controlText": "BCX",
+      "placeholder": false
+    },
+    {
+      "name": "exit-right",
+      "source": "inline.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "keys": [
+        "Control+End",
+        "ArrowLeft",
+        "ArrowLeft",
+        "ArrowRight"
+      ],
+      "result": "native-exit-right.docx",
+      "resultSha256": "3a804e36cfa54b5b5d6c61e6d5700a27337c724b2fe6e581bd8b42e024541a99",
+      "text": "ABCXD",
+      "controlText": "BC",
+      "placeholder": false
+    },
+    {
+      "name": "placeholder-enter",
+      "source": "placeholder.docx",
+      "sourceSha256": "3d078939abc01b76e0a851ec36ba51f9a6d973988eef54fe1d53f280de2f8623",
+      "keys": [
+        "Control+Home",
+        "ArrowRight",
+        "ArrowRight"
+      ],
+      "result": "native-placeholder-enter.docx",
+      "resultSha256": "e1cea8a83e92902a0b8f63e19f2419d980d4e1b84ce2aca315ac265471f71267",
+      "text": "AXD",
+      "controlText": "X",
+      "placeholder": false
+    },
+    {
+      "name": "placeholder-exit",
+      "source": "placeholder.docx",
+      "sourceSha256": "3d078939abc01b76e0a851ec36ba51f9a6d973988eef54fe1d53f280de2f8623",
+      "keys": [
+        "Control+Home",
+        "ArrowRight",
+        "ArrowRight",
+        "ArrowRight"
+      ],
+      "result": "native-placeholder-exit.docx",
+      "resultSha256": "44106d0de3a37b20a3afe8dce8a0f3d018602d04c764e0189575330965dfe671",
+      "text": "ABCXD",
+      "controlText": "BC",
+      "placeholder": true
+    }
+  ]
+}

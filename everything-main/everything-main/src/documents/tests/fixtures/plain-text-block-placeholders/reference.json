@@ -1,0 +1,459 @@
+{
+  "referenceVersion": "16.0.20326",
+  "cases": [
+    {
+      "name": "body-placeholder",
+      "temporary": true,
+      "placeholder": true,
+      "multiLine": true,
+      "cell": false,
+      "mixed": false,
+      "observations": [
+        {
+          "case": "body-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "inspect",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside body-placeholder\rcell-placeholder\rCell tail\u0007\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\u0007\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "body-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "format",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside body-placeholder\rcell-placeholder\rCell tail\u0007\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\u0007\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "body-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "replace",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rReplacement\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 0
+        }
+      ],
+      "sourceSha256": "ab88c317d56baf727695b2ccb607abe0c2805a542c15422eee8ecc18fb24f8b3",
+      "nativeFiles": {
+        "body-placeholder-format-native.docx": {
+          "sha256": "8ef22759f8d3977ab459ef7d6a1d3905e2d08fddb9205a462c20f90ea5a40edd",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 3
+            }
+          ]
+        },
+        "body-placeholder-inspect-native.docx": {
+          "sha256": "13af18048d647931367d4a0a9355a82279bfd30d132bad7a518c4a7466036205",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 0
+            }
+          ]
+        },
+        "body-placeholder-replace-native.docx": {
+          "sha256": "9f06d0ef39429ac7b9b26d0d02874f4e200aeba937bf9f5ad0aaf8f866cc9ff4",
+          "controlCount": 0,
+          "controls": []
+        }
+      },
+      "pdfSha256": "9243488c1e871bed46518747f4ee32bcc3fc35b94eb0f3ddc7216bac5ea4834b"
+    },
+    {
+      "name": "cell-placeholder",
+      "temporary": true,
+      "placeholder": true,
+      "multiLine": true,
+      "cell": true,
+      "mixed": false,
+      "observations": [
+        {
+          "case": "cell-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "inspect",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rAlpha Bravo\rSecond line\rThird line\rCell tail\u0007\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\u0007\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "cell-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "format",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rAlpha Bravo\rSecond line\rThird line\rCell tail\u0007\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\u0007\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "cell-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "replace",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rReplacement\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 0
+        }
+      ],
+      "sourceSha256": "134a2a138925b9062f0fd9976ea46a1ff833798cb7450c389ba1ead201193946",
+      "nativeFiles": {
+        "cell-placeholder-format-native.docx": {
+          "sha256": "e0295f8efc03d8cf60c35dfee58205fe44cb9d5ac83341d0e2141b139269bdcf",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 3
+            }
+          ]
+        },
+        "cell-placeholder-inspect-native.docx": {
+          "sha256": "f1ad550ee9908b139de88b9d243b288267481f4e13f84b2d280d084dbac4a1aa",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 0
+            }
+          ]
+        },
+        "cell-placeholder-replace-native.docx": {
+          "sha256": "61aad8108c92280eec44d884c8314a17a776dcbf9639c92c1a57f33219b3b83c",
+          "controlCount": 0,
+          "controls": []
+        }
+      },
+      "pdfSha256": "09f52bc1d35971d81085316a7a995fabe4f30e4f956d8c08c31d3326950a0feb"
+    },
+    {
+      "name": "body-existing",
+      "temporary": true,
+      "placeholder": false,
+      "multiLine": true,
+      "cell": false,
+      "mixed": false,
+      "observations": [
+        {
+          "operation": "inspect",
+          "error": "The file appears to be corrupted.",
+          "case": "body-existing"
+        }
+      ],
+      "sourceSha256": "3bf62769df901d2160441d2e8bbadd40cd42ed2b781958415757ff87c761a26a",
+      "nativeFiles": {}
+    },
+    {
+      "name": "cell-existing",
+      "temporary": true,
+      "placeholder": false,
+      "multiLine": true,
+      "cell": true,
+      "mixed": false,
+      "observations": [
+        {
+          "operation": "inspect",
+          "error": "The file appears to be corrupted.",
+          "case": "cell-existing"
+        }
+      ],
+      "sourceSha256": "035d4624e3c7a03fbb89b1077ac96edf7b26478a48bd8fdf15e2198fbeedfc68",
+      "nativeFiles": {}
+    },
+    {
+      "name": "singleline-placeholder",
+      "temporary": true,
+      "placeholder": true,
+      "multiLine": false,
+      "cell": false,
+      "mixed": false,
+      "observations": [
+        {
+          "case": "singleline-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "inspect",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "singleline-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "format",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "singleline-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "replace",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rReplacement\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 0
+        }
+      ],
+      "sourceSha256": "cebb79bd241f8145a4920fb12c8140e08b82058dd625f7eacf46dbbbeccec604",
+      "nativeFiles": {
+        "singleline-placeholder-format-native.docx": {
+          "sha256": "a16b60cd3f1dc80d46ab4fd43c99e9f40fad7b8b363f5ef0da0c535134e292f8",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 3
+            }
+          ]
+        },
+        "singleline-placeholder-inspect-native.docx": {
+          "sha256": "e08e9b106de8150c667f65cf5249b1630bb25e6a6ff26c1d8883d8aea79c8481",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 0
+            }
+          ]
+        },
+        "singleline-placeholder-replace-native.docx": {
+          "sha256": "df310e8b7ff9e72f9a94b2096b3f2d1e4752c45604c8a3288ce94a53b88d4a60",
+          "controlCount": 0,
+          "controls": []
+        }
+      },
+      "pdfSha256": "88e7ac1ea4c06df51a4f2f442c71c91705ad13074230dec9538c2c8627ff790b"
+    },
+    {
+      "name": "mixed-placeholder",
+      "temporary": true,
+      "placeholder": true,
+      "multiLine": true,
+      "cell": false,
+      "mixed": true,
+      "observations": [
+        {
+          "case": "mixed-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "inspect",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "mixed-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "format",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "mixed-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "replace",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rReplacement\rOutside mixed-placeholder\rpersistent-placeholder\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 0
+        }
+      ],
+      "sourceSha256": "895f6a2faef3fbaaeacb6e1c82f36023c99aa8f97f5f77815c93c0a0fa758bb9",
+      "nativeFiles": {
+        "mixed-placeholder-format-native.docx": {
+          "sha256": "badf5a84afe41321dd14ca7dce5d2ea42bd176b30cb4a0f8b91e973b3010b904",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 3
+            }
+          ]
+        },
+        "mixed-placeholder-inspect-native.docx": {
+          "sha256": "c4223fced80aaeafa5880e9f5d1f4710bf9ef25d287ca9c4da3118159ad049f2",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 1
+            }
+          ]
+        },
+        "mixed-placeholder-replace-native.docx": {
+          "sha256": "9c528930b27314637e86201aeb82920e6c2719567f0d71dc161aee81bede6371",
+          "controlCount": 0,
+          "controls": []
+        }
+      },
+      "pdfSha256": "778071c09303fcc54df272ba5a48c448f466dbe18d1357750534861d74ef7c72"
+    },
+    {
+      "name": "persistent-placeholder",
+      "temporary": false,
+      "placeholder": true,
+      "multiLine": true,
+      "cell": false,
+      "mixed": false,
+      "observations": [
+        {
+          "case": "persistent-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "inspect",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "persistent-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "format",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rAlpha Bravo\rSecond line\rThird line\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        },
+        {
+          "case": "persistent-placeholder",
+          "text": "Alpha Bravo\rSecond line\rThird line",
+          "operation": "replace",
+          "type": 1,
+          "paragraphs": 3,
+          "placeholder": true,
+          "afterText": "body-placeholder\rOutside body-placeholder\rcell-placeholder\rCell tail\r\u0007\r\u0007Outside cell-placeholder\rbody-existing\rOutside body-existing\rcell-existing\rCell tail\r\u0007\r\u0007Outside cell-existing\rsingleline-placeholder\rOutside singleline-placeholder\rmixed-placeholder\rOutside mixed-placeholder\rpersistent-placeholder\rReplacement\rOutside persistent-placeholder\rpersistent-existing\rOutside persistent-existing\r",
+          "afterControls": 1
+        }
+      ],
+      "sourceSha256": "6dd2327b4dc90f66766c35857f0dd4caaf2673f9bc9a1bc9738b9881c51ac698",
+      "nativeFiles": {
+        "persistent-placeholder-format-native.docx": {
+          "sha256": "2933626a53fe79f2111d21f4b891f863153a07c095e2bda98a5f1de2edde4449",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 3
+            }
+          ]
+        },
+        "persistent-placeholder-inspect-native.docx": {
+          "sha256": "975c3b96a77183aa96df73142c7078d37910deef2d952f2ce134277c07915a53",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 3,
+              "text": [
+                "Alpha Bravo",
+                "Second line",
+                "Third line"
+              ],
+              "boldRuns": 0
+            }
+          ]
+        },
+        "persistent-placeholder-replace-native.docx": {
+          "sha256": "9d0a8ca7c7e2e3026fde928b3f7773f4a7c52d38171ef7a3583a9cbeab955ba7",
+          "controlCount": 1,
+          "controls": [
+            {
+              "paragraphs": 1,
+              "text": [
+                "Replacement"
+              ],
+              "boldRuns": 0
+            }
+          ]
+        }
+      },
+      "pdfSha256": "73d12b3e1932d2596b6dd0db59f5fe24862754269aa39b5a99225f7622fe0d2b"
+    },
+    {
+      "name": "persistent-existing",
+      "temporary": false,
+      "placeholder": false,
+      "multiLine": true,
+      "cell": false,
+      "mixed": false,
+      "observations": [
+        {
+          "operation": "inspect",
+          "error": "The file appears to be corrupted.",
+          "case": "persistent-existing"
+        }
+      ],
+      "sourceSha256": "0e93484cf8474ade7f25da97209d343704854401f5ff08420ca3a91bc0f2b7fe",
+      "nativeFiles": {}
+    }
+  ]
+}

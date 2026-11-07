@@ -1,0 +1,172 @@
+/*
+ * Copyright (C) 2024-present Puter Technologies Inc.
+ *
+ * This file is part of Puter.
+ *
+ * Puter is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { AppOriginBlocklistService } from './abuse/AppOriginBlocklistService';
+import { ACLService } from './acl/ACLService';
+import { AppIconService } from './appIcon/AppIconService';
+import { AppPermissionService } from './apps/AppPermissionService';
+import { AppService } from './apps/AppService';
+import { RecommendedAppsService } from './apps/RecommendedAppsService';
+import { SuggestedAppsService } from './apps/SuggestedAppsService';
+import { AuthService } from './auth/AuthService';
+import { OIDCService } from './auth/OIDCService';
+import { TokenService } from './auth/TokenService';
+import { BroadcastService } from './broadcast/BroadcastService';
+import { CacheReplicationService } from './cache/CacheReplicationService';
+import { EventForwardService } from './events/EventForwardService';
+import { EventsService } from './events/EventsService';
+import { AppFeedbackService } from './feedback/AppFeedbackService';
+import { FSService } from './fs/FSService';
+import { KvShareService } from './kvShare/KvShareService';
+import { ServerHealthService } from './health/ServerHealthService';
+import { PuterHomepageService } from './homepage/PuterHomepageService';
+import { JobScheduler } from './jobs/JobScheduler';
+import { LocalWorkerService } from './localworker/LocalWorkerService';
+import { MeteringService } from './metering/MeteringService';
+import { NotificationService } from './notification/NotificationService';
+import { PermissionService } from './permission/PermissionService';
+import { ProfileService } from './profile/ProfileService';
+import { OpenAIRealtimeRelayService } from './realtime/OpenAIRealtimeRelayService';
+import { DefaultUserService } from './selfhosted/DefaultUserService';
+import { ShareNotificationService } from './share/ShareNotificationService';
+import { ShareService } from './share/ShareService';
+import { SocketService } from './socket/SocketService';
+import { SubdomainPermissionService } from './subdomain/SubdomainPermissionService';
+import type { IPuterServiceRegistry } from './types';
+import { SignupService } from './user/SignupService';
+import { UserAccountService } from './user/UserAccountService';
+
+/**
+ * Populate `IPuterServiceInstances` (declared in `./types`) with the concrete
+ * types of built-in services. Done via declaration merging instead of
+ * `LayerInstances<typeof puterServices>` because every concrete service extends
+ * `PuterService`, whose `protected services` field references this type — a
+ * direct `typeof puterServices` lookup would self-cycle.
+ */
+declare module './types' {
+    interface IPuterServiceInstances {
+        jobs: JobScheduler;
+        metering: MeteringService;
+        appOriginBlocklist: AppOriginBlocklistService;
+        permission: PermissionService;
+        acl: ACLService;
+        share: ShareService;
+        shareNotification: ShareNotificationService;
+        profile: ProfileService;
+        token: TokenService;
+        auth: AuthService;
+        fs: FSService;
+        appPermission: AppPermissionService;
+        subdomainPermission: SubdomainPermissionService;
+        recommendedApps: RecommendedAppsService;
+        suggestedApps: SuggestedAppsService;
+        app: AppService;
+        socket: SocketService;
+        kvShare: KvShareService;
+        events: EventsService;
+        eventForward: EventForwardService;
+        notification: NotificationService;
+        appFeedback: AppFeedbackService;
+        broadcast: BroadcastService;
+        cacheReplication: CacheReplicationService;
+        oidc: OIDCService;
+        appIcon: AppIconService;
+        defaultUser: DefaultUserService;
+        homepage: PuterHomepageService;
+        health: ServerHealthService;
+        userAccount: UserAccountService;
+        signup: SignupService;
+        openaiRealtime: OpenAIRealtimeRelayService;
+    }
+}
+
+// Ordering matters: services declared later see earlier ones as peers.
+// ACLService depends on PermissionService (for scan + grant/revoke), so
+// PermissionService must be constructed first.
+// AuthService depends on TokenService (JWT verify).
+// FSService constructs its own internal repo + S3 provider in onServerStart.
+// SocketService depends on AuthService (for handshake auth).
+// NotificationService depends on notification store (for DB) + event client (for socket push).
+// BroadcastService is independent — only needs the event client.
+export const puterServices = {
+    // First, so every later service can register jobs with it. Reaches
+    // `broadcast` at call time only.
+    jobs: JobScheduler,
+    metering: MeteringService,
+    // Declared before `auth` so AuthService sees it as a prior peer — it
+    // queries the blocklist on app-token acquisition and per-request app
+    // token validation.
+    appOriginBlocklist: AppOriginBlocklistService,
+    permission: PermissionService,
+    acl: ACLService,
+    token: TokenService,
+    auth: AuthService,
+    fs: FSService,
+    // Needs acl (setUserUser), permission (canManagePermission) and fs
+    // (ancestor chains), so it follows all three.
+    share: ShareService,
+    // Delivery only; it reaches `notification` at call time, so its position
+    // relative to that service does not matter.
+    shareNotification: ShareNotificationService,
+    // Reads and writes profile files through `fs` and asks `metering` about
+    // the owner's plan, so it follows both.
+    profile: ProfileService,
+    // Declared after `fs` — account teardown tears the user's filesystem down
+    // first.
+    userAccount: UserAccountService,
+    // Reaches `team` and `socket` at call time only.
+    signup: SignupService,
+    // AppPermissionService + SubdomainPermissionService register permission
+    // rewriters/implicators only; no runtime state. Placed after fsEntry so
+    // the FS rewriter runs first for `fs:/path` → `fs:<uuid>` before any
+    // downstream check that might chain app-root-dir → fs.
+    appPermission: AppPermissionService,
+    subdomainPermission: SubdomainPermissionService,
+    recommendedApps: RecommendedAppsService,
+    suggestedApps: SuggestedAppsService,
+    // Reaches `auth` and `permission` at call time only.
+    app: AppService,
+    socket: SocketService,
+    // Registers the share-grant implicators with `permission`, and reaches
+    // `permission`, `metering` and `notification` at call time only.
+    kvShare: KvShareService,
+    // Delivers through `socket` and resolves paths through `fs`, so it follows
+    // both; `fs` reaches back for dispatch at call time only.
+    events: EventsService,
+    notification: NotificationService,
+    // Declared after `auth` (origin → app uid resolution happens through
+    // AuthService.appUidFromOrigin).
+    appFeedback: AppFeedbackService,
+    broadcast: BroadcastService,
+    // Forwards through `broadcast` and puts deliveries down through `socket`,
+    // so it follows both; `events` reaches it at call time only.
+    eventForward: EventForwardService,
+    // Independent — only needs the event client and redis.
+    cacheReplication: CacheReplicationService,
+    oidc: OIDCService,
+    appIcon: AppIconService,
+    defaultUser: DefaultUserService,
+    homepage: PuterHomepageService,
+    // Health comes after socket so its default `socket-initialized`
+    // check can reference the peer.
+    health: ServerHealthService,
+    localworkerservice: LocalWorkerService,
+    // Authenticates through `auth` and meters through `metering`.
+    openaiRealtime: OpenAIRealtimeRelayService,
+} satisfies IPuterServiceRegistry;

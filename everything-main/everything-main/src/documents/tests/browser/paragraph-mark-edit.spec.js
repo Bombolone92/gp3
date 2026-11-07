@@ -1,0 +1,23 @@
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { reopenDocx } from './helpers/reopen-docx.js';
+import { showAllTools } from './helpers/editor-tools.js';
+test('Enter and Delete preserve the surviving paragraph mark through download, reopen and undo',async({page},info)=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/playground.html');await showAllTools(page);
+ const source='tests/fixtures/paragraph-mark-edit/control.docx';
+ await page.getByLabel('Open DOCX file').setInputFiles(source);
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^AB\nCD/);
+ const original=await input.inputValue();
+ const select=async(a,b=a)=>input.evaluate((el,[a,b])=>{el.focus();el.setSelectionRange(a,b);el.dispatchEvent(new Event('select',{bubbles:true}));},[a,b]);
+ const download=async name=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(name);await(await pending).saveAs(path);return path;};
+ const marks=async path=>page.evaluate(async bytes=>{const{DocxPackage}=await import('/src/engine/docx.js');const pkg=await DocxPackage.open(new Uint8Array(bytes));return pkg.paragraphs.slice(0,3).map(p=>[p.runs.map(r=>r.text).join(''),p.markFormat.fontSize,p.markFormat.color]);},[...readFileSync(path)]);
+ await select(1);await input.press('Enter');await expect(input).toHaveValue('A\nB'+original.slice(2));
+ const split=await download('split.docx');expect(await marks(split)).toEqual([['A',24,'auto'],['B',12,'0000FF'],['CD',18,'FF0000']]);
+ await page.getByRole('button',{name:'Undo',exact:true}).click();const undo=await download('undo.docx');expect(unzipSync(readFileSync(undo))).toEqual(unzipSync(readFileSync(source)));
+ await select(2,3);await input.press('Delete');await expect(input).toHaveValue('ABCD'+original.slice(5));
+ const merge=await download('merge.docx');expect((await marks(merge))[0]).toEqual(['ABCD',18,'FF0000']);
+ await reopenDocx(page,input,split,'A\nB'+original.slice(2));await select(1);await input.press('Delete');
+ expect((await marks(await download('rejoined.docx')))[0]).toEqual(['AB',12,'0000FF']);expect(errors).toEqual([]);
+});

@@ -1,0 +1,243 @@
+from __future__ import annotations
+
+import keyring
+from keyring.errors import KeyringError
+import pytest
+
+from tests.conftest import ConfigBuilder, build_test_vibe_config
+from vibe.core.config import MissingAPIKeyError, ProviderConfig
+from vibe.core.types import Backend
+from vibe.utils.api_keys import ApiKeySource, active_api_key, resolve_api_key
+import vibe.utils.keyring as keyring_utils
+from vibe.utils.keyring import clear_api_key_keyring_cache
+
+
+def test_resolve_returns_env_value_without_consulting_keyring(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("CUSTOM_API_KEY", "env-key")
+
+    def _fail(service: str, username: str) -> str | None:
+        raise AssertionError("keyring must not be consulted when env is set")
+
+    monkeypatch.setattr(keyring, "get_password", _fail)
+
+    assert resolve_api_key("CUSTOM_API_KEY") == "env-key"
+
+
+def test_resolve_falls_back_to_keyring_when_env_unset(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("CUSTOM_API_KEY", raising=False)
+    monkeypatch.setattr(
+        keyring, "get_password", lambda service, username: "keyring-key"
+    )
+
+    assert resolve_api_key("CUSTOM_API_KEY") == "keyring-key"
+
+
+def test_resolve_caches_keyring_lookup_for_env_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str]] = []
+    monkeypatch.delenv("CUSTOM_API_KEY", raising=False)
+
+    def _get_password(service: str, username: str) -> str:
+        calls.append((service, username))
+        return "keyring-key"
+
+    monkeypatch.setattr(keyring, "get_password", _get_password)
+
+    assert resolve_api_key("CUSTOM_API_KEY") == "keyring-key"
+    assert resolve_api_key("CUSTOM_API_KEY") == "keyring-key"
+    assert calls == [("ai.mistral.vibe", "CUSTOM_API_KEY")]
+
+
+def test_resolve_caches_empty_keyring_lookup_for_env_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str]] = []
+    monkeypatch.delenv("CUSTOM_API_KEY", raising=False)
+
+    def _get_password(service: str, username: str) -> None:
+        calls.append((service, username))
+        return None
+
+    monkeypatch.setattr(keyring, "get_password", _get_password)
+
+    assert resolve_api_key("CUSTOM_API_KEY") is None
+    assert resolve_api_key("CUSTOM_API_KEY") is None
+    assert calls == [("ai.mistral.vibe", "CUSTOM_API_KEY"), ("vibe", "CUSTOM_API_KEY")]
+
+
+def test_resolve_returns_none_when_env_unset_and_keyring_empty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("CUSTOM_API_KEY", raising=False)
+    monkeypatch.setattr(keyring, "get_password", lambda service, username: None)
+
+    assert resolve_api_key("CUSTOM_API_KEY") is None
+
+
+def test_resolve_returns_none_when_keyring_raises(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("CUSTOM_API_KEY", raising=False)
+
+    def _unavailable(service: str, username: str) -> str | None:
+        raise KeyringError("no keyring")
+
+    monkeypatch.setattr(keyring, "get_password", _unavailable)
+
+    assert resolve_api_key("CUSTOM_API_KEY") is None
+
+
+def test_resolve_shares_a_keyring_error_briefly_then_retries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = 0
+    elapsed = [0.0]
+    real_monotonic = keyring_utils.time.monotonic
+    monkeypatch.setattr(
+        keyring_utils.time, "monotonic", lambda: real_monotonic() + elapsed[0]
+    )
+    monkeypatch.delenv("CUSTOM_API_KEY", raising=False)
+
+    def _sometimes_unavailable(service: str, username: str) -> str:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise KeyringError("temporary failure")
+        return "keyring-key"
+
+    monkeypatch.setattr(keyring, "get_password", _sometimes_unavailable)
+
+    assert resolve_api_key("CUSTOM_API_KEY") is None
+    assert resolve_api_key("CUSTOM_API_KEY") is None
+    assert calls == 1
+    elapsed[0] = keyring_utils.READ_FAILURE_TTL_SECONDS
+    assert resolve_api_key("CUSTOM_API_KEY") == "keyring-key"
+    assert calls == 2
+
+
+def test_resolve_returns_none_for_empty_env_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _fail(service: str, username: str) -> str | None:
+        raise AssertionError("keyring must not be consulted for an empty env key")
+
+    monkeypatch.setattr(keyring, "get_password", _fail)
+
+    assert resolve_api_key("") is None
+
+
+def test_check_api_key_accepts_keyring_only_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    monkeypatch.setattr(
+        keyring, "get_password", lambda service, username: "keyring-key"
+    )
+
+    # Should not raise MissingAPIKeyError despite the env var being unset.
+    config = build_test_vibe_config()
+
+    assert config.get_active_provider().api_key_env_var == "MISTRAL_API_KEY"
+
+
+def test_check_api_key_raises_when_neither_env_nor_keyring(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    monkeypatch.setattr(keyring, "get_password", lambda service, username: None)
+
+    config = build_test_vibe_config()
+
+    with pytest.raises(MissingAPIKeyError):
+        config.require_active_provider_api_key()
+
+
+def test_mistral_api_key_resolves_from_keyring(
+    monkeypatch: pytest.MonkeyPatch, build_config: ConfigBuilder
+) -> None:
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    monkeypatch.setattr(
+        keyring, "get_password", lambda service, username: "keyring-key"
+    )
+
+    config = build_config()
+
+    assert config.resolve_mistral_api_key() == "keyring-key"
+
+
+def test_mistral_api_key_uses_configured_mistral_provider_env_var(
+    monkeypatch: pytest.MonkeyPatch, build_config: ConfigBuilder
+) -> None:
+    monkeypatch.setenv("CUSTOM_API_KEY", "custom-key")
+    config = build_config(
+        providers=[
+            ProviderConfig(
+                name="custom-mistral",
+                api_base="https://api.example.com/v1",
+                api_key_env_var="CUSTOM_API_KEY",
+                backend=Backend.MISTRAL,
+            )
+        ]
+    )
+
+    assert config.resolve_mistral_api_key() == "custom-key"
+
+
+def test_mistral_api_key_reuses_cached_keyring_value(
+    monkeypatch: pytest.MonkeyPatch, build_config: ConfigBuilder
+) -> None:
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    monkeypatch.setattr(
+        keyring, "get_password", lambda service, username: "keyring-key"
+    )
+    config = build_config()
+    config.require_active_provider_api_key()
+
+    monkeypatch.setattr(keyring, "get_password", lambda service, username: None)
+
+    assert config.resolve_mistral_api_key() == "keyring-key"
+
+
+def test_mistral_api_key_empty_when_cache_cleared_and_unresolved(
+    monkeypatch: pytest.MonkeyPatch, build_config: ConfigBuilder
+) -> None:
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    monkeypatch.setattr(
+        keyring, "get_password", lambda service, username: "keyring-key"
+    )
+    config = build_config()
+
+    clear_api_key_keyring_cache()
+    monkeypatch.setattr(keyring, "get_password", lambda service, username: None)
+
+    assert config.resolve_mistral_api_key() == ""
+
+
+class TestActiveApiKey:
+    """The one statement of precedence, directly."""
+
+    def test_environment_wins(self) -> None:
+        assert active_api_key(env_value="env-key", keyring_value="ring-key") == (
+            ApiKeySource.ENVIRONMENT,
+            "env-key",
+        )
+
+    def test_keyring_decides_only_when_environment_is_empty(self) -> None:
+        assert active_api_key(env_value="", keyring_value="ring-key") == (
+            ApiKeySource.KEYRING,
+            "ring-key",
+        )
+        assert active_api_key(env_value=None, keyring_value="ring-key") == (
+            ApiKeySource.KEYRING,
+            "ring-key",
+        )
+
+    def test_nothing_is_active_when_both_hold_no_value(self) -> None:
+        assert active_api_key(env_value="", keyring_value=None) is None
+        assert active_api_key(env_value=None, keyring_value="") is None
+        assert active_api_key(env_value=None, keyring_value=None) is None

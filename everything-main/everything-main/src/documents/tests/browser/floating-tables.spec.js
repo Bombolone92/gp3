@@ -1,0 +1,52 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {unzipSync} from 'fflate';
+import { expectBodyEditParts } from './helpers/expect-body-edit-parts.js';
+const folder='tests/fixtures/floating-tables';
+const reference=JSON.parse(readFileSync(`${folder}/reference.json`,'utf8'));
+test('positions floating tables independently of body flow against native controls',async({page},info)=>{
+ test.setTimeout(120000);
+ expect(createHash('sha256').update(readFileSync(`${folder}/floating-tables.docx`)).digest('hex')).toBe(reference.sourceSha256);
+ expect(createHash('sha256').update(readFileSync(`${folder}/native.pdf`)).digest('hex')).toBe(reference.pdfSha256);
+ await page.goto('/playground.html');
+ const actual=await page.evaluate(async bytes=>{
+  const {DocxPackage}=await import('/src/engine/docx.js'),{layoutDocument}=await import('/src/engine/layout.js'),{pageGeometry}=await import('/src/engine/page-settings.js'),{loadCanvasFonts,measureCanvasText}=await import('/src/engine/canvas-text.js');
+  const p=await DocxPackage.open(Uint8Array.from(atob(bytes),c=>c.charCodeAt(0)));await loadCanvasFonts(p);const ctx=document.createElement('canvas').getContext('2d');
+  const l=layoutDocument(p.paragraphs,(t,s)=>measureCanvasText(ctx,t,s),pageGeometry(p.pageSettings),p.numbering,p.tables);
+  return {pages:l.pageCount,cells:l.cells.map(c=>({page:c.page,bounds:[c.x,c.y,c.x+c.width,c.y+c.height].map(v=>v*.75)})),anchors:l.lines.filter(l=>l.fragments.map(f=>f.text).join('').startsWith('Anchor paragraph.')).map(l=>({page:l.page,x:l.stops[0].x*.75,y:l.y*.75}))};
+ },readFileSync(`${folder}/floating-tables.docx`).toString('base64'));
+ writeFileSync(info.outputPath('geometry.json'),JSON.stringify(actual,null,2));
+ expect(actual.pages).toBe(reference.cases.length);expect(actual.cells).toHaveLength(reference.cases.length);
+ for(const c of actual.cells)for(let i=0;i<4;i++)expect(Math.abs(c.bounds[i]-reference.cases[c.page].tableInkBounds[i]),`page ${c.page+1} edge ${i}`).toBeLessThan(.4);
+ expect(actual.anchors).toHaveLength(reference.cases.length);
+ for(const a of actual.anchors) {
+  const expected=reference.cases[a.page].paragraphInkBounds['Anchor paragraph.'];
+  expect(Math.abs(a.x-expected[0]),`page ${a.page+1} wrap origin`).toBeLessThan(.12);
+  if(a.page!==18) expect(Math.abs(a.y+3.428-expected[1]),`page ${a.page+1} anchor line`).toBeLessThan(.12);
+ }
+ await page.getByLabel('Open DOCX file').setInputFiles(`${folder}/floating-tables.docx`);
+ const input=page.getByRole('textbox',{name:'Document text'});
+ await expect(input).toHaveValue(/^Inline baseline/);await expect(input).toHaveJSProperty('readOnly',false);
+ await expect(page.locator('canvas.canvas-page')).toHaveCount(reference.cases.length);
+ const original=await input.inputValue(),parts=unzipSync(readFileSync(`${folder}/floating-tables.docx`));
+ const save=async name=>{const next=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(`${name}.docx`);await(await next).saveAs(path);return path;};
+ expect(unzipSync(readFileSync(await save('noedit')))).toEqual(parts);
+ const canvas=page.locator('canvas.canvas-page').nth(1);await canvas.scrollIntoViewIfNeeded();
+ const box=await canvas.boundingBox(),scale=box.width/816;
+ await canvas.click({position:{x:155*4/3*scale,y:150*4/3*scale}});
+ const cellStart=original.indexOf('Table control',original.indexOf('Table control')+1);
+ const selected=await input.evaluate(e=>e.selectionStart);expect(selected).toBeGreaterThanOrEqual(cellStart);expect(selected).toBeLessThanOrEqual(cellStart+13);
+ await page.keyboard.insertText('EDIT ');
+ await expect(input).toHaveValue(/EDIT/);
+ const editedText=await input.inputValue(),edited=await save('edited'),changed=unzipSync(readFileSync(edited));
+ expectBodyEditParts(changed,parts);
+ const positions=bytes=>new TextDecoder().decode(bytes).match(/<w:tblpPr\b[^>]*\/>/g);
+ expect(positions(changed['word/document.xml'])).toEqual(positions(parts['word/document.xml']));
+ await input.press('ControlOrMeta+z');await expect(input).toHaveValue(original);expect(unzipSync(readFileSync(await save('undo')))).toEqual(parts);
+ const previous=await input.elementHandle();page.once('dialog',dialog=>dialog.accept());
+ await page.getByLabel('Open DOCX file').setInputFiles(edited);
+ await page.waitForFunction(el=>!el.isConnected,previous,{timeout:60000});await previous.dispose();
+ await expect(input).toHaveValue(editedText);await expect(page.locator('canvas.canvas-page')).toHaveCount(reference.cases.length);
+ await expect(page.locator('#playground-error')).toBeEmpty();
+});

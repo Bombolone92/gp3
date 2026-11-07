@@ -1,0 +1,126 @@
+﻿{
+    "xmlSha256":  "a895a954da99c3b77988fde592ab2f31805e1203ea61d7a9d89a88dc0fdb2a71",
+    "build":  "16.0.20326",
+    "sourceSha256":  "a06513f8dd66f68c9983305f278d3d71730b9af01b2f90e513bd0c23492b5fbb",
+    "cases":  [
+                  {
+                      "controls":  [
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "outer",
+                                           "count":  1,
+                                           "text":  "Leading paragraph\rAlNEW pha beta\rTrailing paragraph"
+                                       },
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "inner",
+                                           "count":  1,
+                                           "text":  "AlNEW pha beta"
+                                       }
+                                   ],
+                      "name":  "insert"
+                  },
+                  {
+                      "controls":  [
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "outer",
+                                           "count":  1,
+                                           "text":  "Leading paragraph\r     \rTrailing paragraph"
+                                       },
+                                       {
+                                           "placeholder":  true,
+                                           "part":  "inner",
+                                           "count":  1,
+                                           "text":  "     "
+                                       }
+                                   ],
+                      "name":  "delete-inner"
+                  },
+                  {
+                      "controls":  [
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "outer",
+                                           "count":  1,
+                                           "text":  "Leading paragraph\rAlpha\r beta\rTrailing paragraph"
+                                       },
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "inner",
+                                           "count":  1,
+                                           "text":  "Alpha\r beta"
+                                       }
+                                   ],
+                      "name":  "split"
+                  },
+                  {
+                      "controls":  [
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "outer",
+                                           "count":  1,
+                                           "text":  "Edited value"
+                                       },
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "inner",
+                                           "count":  0,
+                                           "text":  ""
+                                       }
+                                   ],
+                      "name":  "replace-outer"
+                  },
+                  {
+                      "controls":  [
+                                       {
+                                           "placeholder":  true,
+                                           "part":  "outer",
+                                           "count":  1,
+                                           "text":  "     "
+                                       },
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "inner",
+                                           "count":  0,
+                                           "text":  ""
+                                       }
+                                   ],
+                      "name":  "delete-outer"
+                  },
+                  {
+                      "controls":  [
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "outer",
+                                           "count":  1,
+                                           "text":  "Leading paragraph\rEdited value\rTrailing paragraph"
+                                       },
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "inner",
+                                           "count":  0,
+                                           "text":  ""
+                                       }
+                                   ],
+                      "name":  "temporary-inner"
+                  },
+                  {
+                      "controls":  [
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "outer",
+                                           "count":  1,
+                                           "text":  "Leading paragraph\rEdited value\rTrailing paragraph"
+                                       },
+                                       {
+                                           "placeholder":  false,
+                                           "part":  "inner",
+                                           "count":  1,
+                                           "text":  "Edited value"
+                                       }
+                                   ],
+                      "name":  "temporary-outer"
+                  }
+              ]
+}

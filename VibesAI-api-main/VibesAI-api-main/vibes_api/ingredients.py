@@ -1,0 +1,206 @@
+"""
+Ingredient helpers — build the payload objects that the Vibes generation
+endpoints expect for applying (or inline-creating) characters, styles,
+and scenes.
+
+There are three ingredient types in Vibes:
+
+  - CHARACTER  (UI label: "Character")  → attaches via ``orefImageHandle``
+  - STYLE      (UI label: "Style")      → attaches via ``srefImageHandle``
+  - SETTING    (UI label: "Scene")      → attaches via ``settingImageHandles``
+
+For each, there are three ways to reference the ingredient in a generation:
+
+  1. By existing ingredient ID (use ``IngredientRef.by_id()``).
+     → goes in the ``ingredients`` array on the request body.
+
+  2. By image entity ID of an uploaded image (use ``CreateIngredient.by_image_ent_id()``).
+     → goes in the ``createIngredients`` array. The server creates a new
+       ingredient record on the fly and attaches it.
+
+  3. By name only (use ``CreateIngredient.by_name()``).
+     → also goes in ``createIngredients``. The server uses the prompt-
+       generated image as the ingredient image.
+
+These helpers build the correct dict shape so you don't have to remember
+the snake_case / camelCase quirks of the API.
+
+Example
+-------
+    from vibes_api import VibesClient, IngredientType
+    from vibes_api.ingredients import IngredientRef, CreateIngredient
+
+    client = VibesClient(meta_session="...")
+
+    # Use an existing character from your library
+    character = IngredientRef.by_id(
+        ingredient_id="800957099700717",
+        ingredient_type=IngredientType.CHARACTER,
+        name="Valdrin",
+        image_url="https://...",
+    )
+
+    # Create a new style on-the-fly from an uploaded image
+    style = CreateIngredient.by_image_ent_id(
+        image_ent_id="1177...",
+        ingredient_type=IngredientType.STYLE,
+        name="Cyberpunk neon",
+        image_url="https://...",
+    )
+
+    batch = client.generate_video(
+        project_id=project["id"],
+        prompt="...",
+        ingredients=[character],
+        create_ingredients=[style],
+    )
+"""
+
+from __future__ import annotations
+
+from typing import Optional, Union
+
+from .models import IngredientType
+
+
+def _coerce_type(t: Union[str, IngredientType]) -> str:
+    """Coerce IngredientType enum to its string value."""
+    if hasattr(t, "value"):
+        return t.value
+    return str(t)
+
+
+class IngredientRef:
+    """Builder for an EXISTING ingredient reference (by ingredientId).
+
+    Use this when you've already saved an ingredient in your library
+    (via the Vibes UI or via ``client.create_ingredient()``).
+    """
+
+    @staticmethod
+    def by_id(
+        *,
+        ingredient_id: str,
+        ingredient_type: Union[str, IngredientType],
+        name: str,
+        image_url: str,
+    ) -> dict:
+        """Reference an existing ingredient by its ID.
+
+        Parameters
+        ----------
+        ingredient_id : str
+            The ``ingredientId`` from ``client.list_ingredients()``.
+        ingredient_type : str | IngredientType
+            One of CHARACTER, STYLE, SETTING.
+        name : str
+            Display name (matches the ingredient's name in the library).
+        image_url : str
+            URL of the ingredient's image. Used as a thumbnail.
+        """
+        return {
+            "ingredientId": ingredient_id,
+            "ingredientType": _coerce_type(ingredient_type),
+            "name": name,
+            "imageUrl": image_url,
+        }
+
+
+class CreateIngredient:
+    """Builder for an INLINE ingredient creation (no pre-existing ingredient).
+
+    Use this when you want the server to create a new ingredient on-the-fly
+    during generation. There are two flavors:
+
+    - ``by_image_ent_id()`` — create from an already-uploaded image
+      (you've called ``client.upload_image()`` first).
+    - ``by_name()`` — create by name only; the server uses the prompt-
+      generated image as the ingredient image.
+    """
+
+    @staticmethod
+    def by_image_ent_id(
+        *,
+        image_ent_id: str,
+        ingredient_type: Union[str, IngredientType],
+        name: str,
+        image_url: str,
+    ) -> dict:
+        """Create a new ingredient from an uploaded image.
+
+        Parameters
+        ----------
+        image_ent_id : str
+            The ``imageEntId`` from ``client.upload_image()`` or
+            ``client.upload_image_file()``.
+        ingredient_type : str | IngredientType
+            CHARACTER, STYLE, or SETTING.
+        name : str
+            Display name for the new ingredient.
+        image_url : str
+            URL of the uploaded image (returned alongside imageEntId).
+        """
+        return {
+            "sourceImageEntId": image_ent_id,
+            "ingredientType": _coerce_type(ingredient_type),
+            "name": name,
+            "imageUrl": image_url,
+        }
+
+    @staticmethod
+    def by_name(
+        *,
+        ingredient_type: Union[str, IngredientType],
+        name: str,
+    ) -> dict:
+        """Create a new ingredient by name only.
+
+        The server will use the image generated by the prompt as the
+        ingredient image. This is the simplest form — useful for the
+        timeline chat assistant.
+        """
+        return {
+            "ingredientType": _coerce_type(ingredient_type),
+            "name": name,
+        }
+
+
+def build_ingredient_payload(
+    *,
+    ingredients: Optional[list] = None,
+    create_ingredients: Optional[list] = None,
+    character: Optional[dict] = None,
+    style: Optional[dict] = None,
+    scene: Optional[dict] = None,
+) -> dict:
+    """Convenience builder: combine character/style/scene refs into a payload.
+
+    Pass either ``ingredients=[...]`` and ``create_ingredients=[...]``
+    (already-built payload dicts), or the convenience parameters
+    ``character=...``, ``style=...``, ``scene=...`` (each can be either
+    an ``IngredientRef`` or ``CreateIngredient`` dict — this function
+    will route it to the correct array based on its keys).
+
+    Returns
+    -------
+    dict
+        ``{"ingredients": [...], "createIngredients": [...]}`` —
+        ready to spread into a generation request body.
+    """
+    final_ingredients = list(ingredients or [])
+    final_create = list(create_ingredients or [])
+
+    for ing in (character, style, scene):
+        if ing is None:
+            continue
+        if "ingredientId" in ing:
+            final_ingredients.append(ing)
+        else:
+            final_create.append(ing)
+
+    payload: dict = {}
+    if final_ingredients:
+        payload["ingredients"] = final_ingredients
+    if final_create:
+        payload["createIngredients"] = final_create
+    return payload

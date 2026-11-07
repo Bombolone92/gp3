@@ -1,0 +1,794 @@
+/* Facilitation: console panel, workshop banner, canvas badges, reactions. */
+.canvas-navigation .facilitation-access {
+  flex-shrink: 0;
+}
+.facilitation-panel.panel {
+  position: absolute;
+  z-index: 26;
+  right: 16px;
+  top: 76px;
+  bottom: 76px;
+  width: 380px;
+  max-width: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 16px;
+  gap: 12px;
+  box-shadow: 0 8px 28px #0002;
+  overscroll-behavior: contain;
+}
+/* The minimap moves beside the panel, as it does for comments; on phones
+   the panel covers it, so it is hidden with its controls. */
+@media (min-width: 761px) {
+  .canvas-wrap:has(#facilitation-panel) .minimap {
+    right: 408px;
+  }
+  /* A toolbar docked under the header moves left of the panel, as for
+     comments; one beside the selection is placed from the script. */
+  .canvas-wrap:has(#facilitation-panel) .selection-tools:not(.is-floating) {
+    left: 88px;
+    transform: none;
+    max-width: calc(100% - 506px);
+  }
+  /* So does the workshop banner, which the panel would otherwise cover. */
+  .canvas-wrap:has(#facilitation-panel) .workshop-banner.panel,
+  .canvas-wrap:has(#comments-panel) .workshop-banner.panel {
+    left: 88px;
+    transform: none;
+    max-width: calc(100% - 506px);
+  }
+}
+@media (min-width: 761px) and (max-height: 810px) {
+  .canvas-wrap:has(#facilitation-panel) .selection-tools:not(.is-floating) {
+    left: 130px;
+    max-width: calc(100% - 548px);
+  }
+}
+@media (max-width: 760px) {
+  .canvas-wrap:has(#facilitation-panel) .minimap {
+    display: none;
+  }
+}
+.facilitation-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.facilitation-panel h2 {
+  font-size: 18px;
+}
+.facilitation-panel h3 {
+  font-size: 15px;
+  margin: 18px 0 6px;
+}
+.facilitation-panel h4 {
+  font-size: 13px;
+  margin: 16px 0 6px;
+}
+.facilitation-panel [role="tablist"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.facilitation-panel [role="tab"] {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.facilitation-panel [role="tab"][aria-selected="true"] {
+  background: var(--soft);
+  color: var(--text);
+  font-weight: 600;
+}
+#fac-tabpanel {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  /* Room for focus rings, which the scrolling box would otherwise clip. */
+  padding: 6px 8px 10px;
+  margin: -6px -8px -10px;
+}
+#fac-tabpanel > h3:first-child {
+  margin-top: 4px;
+}
+#fac-tabpanel .dialog-copy {
+  margin-bottom: 10px;
+}
+#fac-tabpanel .field {
+  margin: 10px 0;
+}
+#fac-tabpanel .field input,
+#fac-tabpanel .field textarea,
+#fac-tabpanel select {
+  padding: 9px;
+}
+.facilitation-panel select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--field-line);
+  border-radius: 7px;
+}
+.fac-fieldset {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 12px;
+  margin: 10px 0;
+}
+.fac-fieldset legend {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 4px;
+}
+.fac-fieldset .check-field {
+  margin: 8px 0;
+}
+.fac-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+.fac-actions button {
+  min-height: 40px;
+}
+.fac-actions .text-btn {
+  min-height: 32px;
+}
+.field.fac-inline {
+  flex-direction: row;
+  align-items: center;
+  margin: 0;
+}
+.fac-inline input {
+  width: 72px;
+}
+.fac-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 160px;
+  overflow: auto;
+  /* Room for focus rings, which the scrolling box would otherwise clip. */
+  padding: 4px 6px;
+  margin: 2px -6px 4px;
+  font-size: 13px;
+}
+.fac-choices label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.fac-remaining {
+  font-weight: 600;
+  margin: 8px 0;
+}
+.fac-status-list,
+.fac-people,
+.fac-history,
+.fac-vote-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+.fac-people li,
+.fac-vote-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.fac-person,
+.fac-vote-list li > span:first-child {
+  flex: 1 1 140px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#fac-people-heading {
+  margin-top: 4px;
+}
+.fac-people-controls {
+  position: sticky;
+  top: -6px;
+  z-index: 1;
+  background: var(--surface);
+  padding: 1px 0 8px;
+  border-bottom: 1px solid var(--line);
+}
+.fac-people-pages,
+.fac-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.fac-pages {
+  align-items: center;
+  margin-top: 8px;
+}
+.fac-pages p {
+  flex-basis: 100%;
+  margin: 0;
+}
+.fac-people-pages[hidden] {
+  display: none;
+}
+.fac-vote-mine {
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 24px;
+}
+.fac-history li {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.fac-history summary,
+.fac-details summary {
+  cursor: pointer;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.fac-results,
+.fac-rank {
+  padding: 0;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.fac-results {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fac-rank {
+  padding-left: 20px;
+}
+.fac-rank li {
+  margin: 4px 0;
+}
+.fac-result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fac-result-label,
+.fac-result-name {
+  overflow-wrap: anywhere;
+}
+/* A result's place; tied results share one. */
+.fac-place {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.fac-result-count {
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.fac-results small {
+  color: var(--muted);
+}
+.fac-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--soft);
+  margin-top: 4px;
+  overflow: hidden;
+}
+.fac-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+}
+.fac-agenda {
+  padding-left: 22px;
+  font-size: 13px;
+}
+.fac-agenda li {
+  margin: 8px 0;
+  padding: 6px 8px;
+  border-radius: 7px;
+}
+.fac-agenda li.current {
+  background: var(--soft);
+}
+.fac-agenda li.current p {
+  color: color-mix(in srgb, var(--muted) 80%, var(--text));
+}
+/* Under the step, not run into its title or duration. */
+.fac-agenda [data-fac="agenda-go"] {
+  display: block;
+  margin-top: 4px;
+}
+.fac-agenda p {
+  color: var(--muted);
+  margin: 4px 0;
+  white-space: pre-wrap;
+}
+.fac-step {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 12px;
+  margin: 10px 0;
+}
+.fac-step legend {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 4px;
+}
+.fac-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+  margin: 8px 0;
+}
+.fac-totals div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+}
+.fac-totals dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.fac-totals dd {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.fac-table-wrap {
+  overflow-x: auto;
+}
+.fac-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.fac-table th,
+.fac-table td {
+  text-align: left;
+  padding: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.fac-table td {
+  font-variant-numeric: tabular-nums;
+}
+.fac-error {
+  color: #b34242;
+  font-size: 12px;
+}
+:root[data-theme="dark"] .fac-error {
+  color: #ffaaaa;
+}
+
+/* Banner: agenda step and session status, above the canvas. */
+.workshop-banner.panel {
+  position: absolute;
+  z-index: 6;
+  top: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Centred from the middle, it would otherwise wrap at half the width. */
+  width: max-content;
+  max-width: calc(100% - 32px);
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  box-shadow: 0 4px 16px #0002;
+}
+.workshop-banner[hidden] {
+  display: none;
+}
+.workshop-banner-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.workshop-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 550;
+  background: var(--soft);
+  text-align: left;
+}
+.workshop-chip small {
+  font-weight: 400;
+  /* Muted text on the soft background, dark enough to read (5.3:1). */
+  color: color-mix(in srgb, var(--muted) 80%, var(--text));
+  max-width: 360px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Canvas badges. */
+.facilitation-badges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+.fac-item {
+  position: absolute;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 320px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.fac-item > * {
+  pointer-events: auto;
+}
+.fac-reaction,
+.fac-vote-count,
+.fac-vote-add,
+.fac-vote-remove,
+.fac-react-add,
+.fac-private,
+.fac-staged {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 6px #0002;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fac-item .lucide {
+  width: 15px;
+  height: 15px;
+}
+.fac-reaction[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--soft);
+  font-weight: 600;
+}
+.fac-vote-add {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.fac-vote-add.is-compact {
+  justify-content: center;
+  padding: 2px;
+}
+.fac-vote-remove,
+.fac-vote-count {
+  background: var(--soft);
+  font-weight: 600;
+}
+.fac-private,
+.fac-staged {
+  background: var(--sidebar);
+  color: var(--muted);
+}
+.fac-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.fac-reactions .fac-reaction,
+.fac-reactions .fac-react-add {
+  box-shadow: none;
+}
+.fac-reactions .lucide {
+  width: 15px;
+  height: 15px;
+}
+.fac-picker.panel {
+  position: fixed;
+  z-index: 60;
+  padding: 6px;
+  box-shadow: 0 8px 28px #0003;
+  /* Narrow phones, such as a folded phone's cover screen, fit every
+     reaction on two rows instead of cutting off the last ones. */
+  max-width: calc(100vw - 16px);
+}
+.fac-picker [role="group"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.fac-picker button {
+  width: 36px;
+  height: 36px;
+  border-radius: 7px;
+  font-size: 18px;
+}
+/* Drawn inside the button, so the focus ring stays the app's usual one. */
+.fac-picker button[aria-pressed="true"] {
+  background: var(--soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+@media (max-width: 760px) {
+  .facilitation-panel.panel {
+    left: 12px;
+    right: 12px;
+    top: 64px;
+    bottom: 12px;
+    width: auto;
+    max-width: none;
+  }
+  .workshop-banner.panel {
+    top: 60px;
+  }
+  .workshop-chip small {
+    max-width: 220px;
+  }
+  .canvas-wrap:has(#facilitation-panel) .workshop-timer.panel {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .facilitation-panel,
+  .workshop-banner,
+  .fac-item,
+  .fac-picker {
+    transition: none;
+    animation: none;
+  }
+}
+/* Live reactions: a popover under the control in the navigation row, and
+   reactions floating up from the bottom of the board, under the toolbars
+   and never in the way of a click. */
+.live-popover.panel {
+  position: absolute;
+  z-index: 25;
+  display: grid;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100% - 16px);
+  padding: 8px;
+  box-shadow: 0 8px 28px #0002;
+}
+.live-reaction-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 44px);
+  gap: 4px;
+}
+.live-reaction-choice {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+.live-reaction-choice:hover:not(:disabled) {
+  background: var(--hover);
+}
+.live-reaction-choice:active:not(:disabled) {
+  background: var(--soft);
+}
+.live-reaction-choice:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+/* The raise hand toggle spans the popover under the reactions; pressed, it
+   takes the accent, and the control in the navigation row shows a small
+   raised hand so the state is seen with the popover shut. */
+.live-popover .live-hand {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+}
+.live-popover .live-hand svg {
+  width: 18px;
+  height: 18px;
+}
+.live-popover .live-hand[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--accent);
+}
+.live-popover .live-hand:disabled {
+  opacity: 0.55;
+}
+.canvas-navigation .icon-btn.live-access {
+  position: relative;
+}
+.canvas-navigation .icon-btn.live-access.is-raised::after {
+  content: "✋";
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--soft);
+  box-shadow: 0 0 0 1.5px var(--surface);
+  font-size: 10px;
+  line-height: 1;
+}
+/* Raised hands, in Participants and the People tab, in the order they went
+   up. */
+.raised-hands {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sidebar);
+}
+.raised-hands-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.raised-hands-head h4 {
+  margin: 0;
+  font-size: 13px;
+}
+.raised-hands-head button.secondary {
+  min-height: 36px;
+  padding: 6px 12px;
+}
+.raised-hands-list {
+  margin: 6px 0 0;
+  padding-left: 22px;
+  font-size: 13px;
+}
+.raised-hands-list li {
+  padding: 2px 0;
+}
+.raised-hands-list li::marker {
+  color: var(--muted);
+}
+.raised-hands-list .text-btn {
+  float: right;
+  min-height: 32px;
+  margin-left: 8px;
+  padding: 0 4px;
+  color: var(--accent);
+  font-weight: 550;
+}
+.raised-hands-list li::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+.raised-hand-name {
+  display: inline-block;
+  padding: 7px 0;
+  overflow-wrap: anywhere;
+}
+.participants .hand-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px 2px 5px;
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--accent);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.participants .hand-count svg {
+  width: 14px;
+  height: 14px;
+}
+.live-popover .live-offline {
+  max-width: 188px;
+  margin: 0;
+  font-size: 12px;
+}
+.live-reactions {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.live-reaction {
+  position: absolute;
+  bottom: calc(84px + var(--row, 0) * 60px);
+  left: var(--x, 50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transform: translateX(-50%);
+  animation: live-reaction-float 2.6s ease-out forwards;
+}
+.live-reaction-emoji {
+  font-size: 34px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px #0003);
+}
+.live-reaction-name {
+  max-width: 104px;
+  overflow: hidden;
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 11px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@keyframes live-reaction-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 16px) scale(0.6);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--drift, 0px)), max(-320px, -40vh));
+  }
+}
+/* With less motion a reaction appears where it is and fades away. */
+.live-reaction.is-still {
+  animation: live-reaction-fade 1.6s ease-in-out forwards;
+}
+@keyframes live-reaction-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20%,
+  70% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-reaction {
+    animation: live-reaction-fade 1.6s ease-in-out forwards;
+  }
+}
+@media (max-width: 760px) {
+  .live-reaction {
+    bottom: calc(140px + var(--row, 0) * 60px);
+  }
+  .live-reaction-name {
+    max-width: 96px;
+  }
+}

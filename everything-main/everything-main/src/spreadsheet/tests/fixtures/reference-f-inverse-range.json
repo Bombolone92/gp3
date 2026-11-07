@@ -1,0 +1,1509 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "183 read-only Evaluate controls corroborated by worksheet matrices with stored formulas, wrapped classifications and raw numeric values checked individually. Scratch range cleared with COUNTA zero. Independent references retain correct values for 42 native failures or inaccurate finite results.",
+  "referenceMethod": "mpmath 1.3.0 at 80 digits; 260-step bisection in log F coordinates using regularized incomplete beta and reciprocal degree symmetry. Probabilities use input binary64 values. Apply output underflow and finite binary64 capacity only after inversion.",
+  "quadratureReferenceMethod": "80-digit mpmath quadrature of the beta integral after t=x*exp(-z/s), s=a-(b-1)*x/(1-x); logarithmic root search then F scaling. Native result seeds search only; the integral defines the root.",
+  "provenance": {
+    "f-inverse-range-native.js": "7cb46219e699121bbed3f28d262caa4239c9f318e3039e88da77a20e8d1d3262",
+    "f-inverse-range-native.json": "d8c69a6002b856e91e1f5a1d91e5b9ef7a75de62cf6c15c0ac20414be773ce0f",
+    "f-inverse-range-worksheet-raw.applescript": "f3e2f4a76e624e7647191b7de55d71159a94d275b52723f84341ae6d97db6adf",
+    "f-inverse-range-worksheet-raw.json": "39f16b55f1fea659c4c081bdd5b14c1d901ee47dce1f98ada81065ec2263c05c",
+    "f-inverse-range-raw-capture.mjs": "39e9493b492b8db7a9217e64611e8c68abb4fc8f0fa15c442b22c208fd5e628f",
+    "f-inverse-range-reference.py": "4a07005a8b1d6c8e689d02f1f4d54be7448554f0692cb2518c3d5b14a39d2266",
+    "f-inverse-range-reference.json": "e0d9f31f1bb224e280e2d488a05d48e7393d2029760aed87bbd1d132b2f99ef1",
+    "f-inverse-range-quadrature-reference.py": "75a5b54649e77b3b28157c81d814e73bd6341835a99aaa653b7eb7b737194672",
+    "f-inverse-range-quadrature-reference.json": "b3637357c442c5306fabd7bdd1b5c6cd46e7a973c9e844fa69e2d5527ad98014"
+  },
+  "cases": [
+    {
+      "expression": "F.INV(0.05,1,1)",
+      "nativeFormula": "=F.INV(0.05,1,1)",
+      "nativeText": "0.00619395865710819",
+      "nativeValue": 0.006193958657108192,
+      "reference": "0.0061939586571081946937210921148054804328724934087901648658126051214",
+      "expected": 0.0061939586571081945
+    },
+    {
+      "expression": "F.INV.RT(0.05,1,1)",
+      "nativeFormula": "=F.INV.RT(0.05,1,1)",
+      "nativeText": "161.447638797589",
+      "nativeValue": 161.44763879758855,
+      "reference": "161.4476387975884776991822608195518702294938382547688202241377942",
+      "expected": 161.44763879758847
+    },
+    {
+      "expression": "F.INV(0.05,1,2)",
+      "nativeFormula": "=F.INV(0.05,1,2)",
+      "nativeText": "0.0050125313283208",
+      "nativeValue": 0.005012531328320803,
+      "reference": "0.0050125313283208025629100443465337888819451496526494621979922800142",
+      "expected": 0.005012531328320803
+    },
+    {
+      "expression": "F.INV.RT(0.05,1,2)",
+      "nativeFormula": "=F.INV.RT(0.05,1,2)",
+      "nativeText": "18.5128205128205",
+      "nativeValue": 18.51282051282051,
+      "reference": "18.512820512820511711019725555399179682131734338113498904787650726",
+      "expected": 18.51282051282051
+    },
+    {
+      "expression": "F.INV(0.05,2,1)",
+      "nativeFormula": "=F.INV(0.05,2,1)",
+      "nativeText": "0.054016620498615",
+      "nativeValue": 0.05401662049861497,
+      "reference": "0.054016620498614961686027189459561292576582289011426745391275078044",
+      "expected": 0.05401662049861496
+    },
+    {
+      "expression": "F.INV.RT(0.05,2,1)",
+      "nativeFormula": "=F.INV.RT(0.05,2,1)",
+      "nativeText": "199.5",
+      "nativeValue": 199.49999999999994,
+      "reference": "199.49999999999997779553950749687104042011324992987583818566816112",
+      "expected": 199.49999999999997
+    },
+    {
+      "expression": "F.INV(0.05,2,2)",
+      "nativeFormula": "=F.INV(0.05,2,2)",
+      "nativeText": "0.0526315789473684",
+      "nativeValue": 0.05263157894736843,
+      "reference": "0.052631578947368424128041619460267433981449178322952823349064371894",
+      "expected": 0.052631578947368425
+    },
+    {
+      "expression": "F.INV.RT(0.05,2,2)",
+      "nativeFormula": "=F.INV.RT(0.05,2,2)",
+      "nativeText": "19",
+      "nativeValue": 18.999999999999996,
+      "reference": "18.999999999999998889776975374843521206126552300723564152465244707",
+      "expected": 19
+    },
+    {
+      "expression": "F.INV(0.05,3,4)",
+      "nativeFormula": "=F.INV(0.05,3,4)",
+      "nativeText": "0.109683010849533",
+      "nativeValue": 0.1096830108495333,
+      "reference": "0.10968301084953331634093706688823709384840140717826905278135098234",
+      "expected": 0.10968301084953332
+    },
+    {
+      "expression": "F.INV.RT(0.05,3,4)",
+      "nativeFormula": "=F.INV.RT(0.05,3,4)",
+      "nativeText": "6.59138211642558",
+      "nativeValue": 6.591382116425579,
+      "reference": "6.5913821164255810537985021246363109484726255901857534375161598282",
+      "expected": 6.5913821164255815
+    },
+    {
+      "expression": "F.INV(0.05,10,1)",
+      "nativeFormula": "=F.INV(0.05,10,1)",
+      "nativeText": "0.20142598544522",
+      "nativeValue": 0.2014259854452196,
+      "reference": "0.20142598544521957274216347833613091690969703200405097439575189499",
+      "expected": 0.20142598544521959
+    },
+    {
+      "expression": "F.INV.RT(0.05,10,1)",
+      "nativeFormula": "=F.INV.RT(0.05,10,1)",
+      "nativeText": "241.881747250833",
+      "nativeValue": 241.8817472508333,
+      "reference": "241.881747250833432787826935962995884014489583667274075906149703",
+      "expected": 241.88174725083343
+    },
+    {
+      "expression": "F.INV(0.05,1,10)",
+      "nativeFormula": "=F.INV(0.05,1,10)",
+      "nativeText": "0.00413425159759158",
+      "nativeValue": 0.004134251597591578,
+      "reference": "0.0041342515975915763489485099571094275559389708423427531862606068707",
+      "expected": 0.004134251597591576
+    },
+    {
+      "expression": "F.INV.RT(0.05,1,10)",
+      "nativeFormula": "=F.INV.RT(0.05,1,10)",
+      "nativeText": "4.96460274373071",
+      "nativeValue": 4.964602743730713,
+      "reference": "4.9646027437307142253847679507467521649253746443334889715473516302",
+      "expected": 4.9646027437307145
+    },
+    {
+      "expression": "F.INV(0.05,1000,2)",
+      "nativeFormula": "=F.INV(0.05,1000,2)",
+      "nativeText": "0.332809199272159",
+      "nativeValue": 0.3328091992721593,
+      "reference": "0.3328091992721611347520886836392675969007340897746415815569771478",
+      "expected": 0.3328091992721611
+    },
+    {
+      "expression": "F.INV.RT(0.05,1000,2)",
+      "nativeFormula": "=F.INV.RT(0.05,1000,2)",
+      "nativeText": "19.4947257633214",
+      "nativeValue": 19.49472576332144,
+      "reference": "19.494725763321453030941388435344291586859828588399151861071642787",
+      "expected": 19.494725763321455
+    },
+    {
+      "expression": "F.INV(0.5,1,1)",
+      "nativeFormula": "=F.INV(0.5,1,1)",
+      "nativeText": "1",
+      "nativeValue": 0.9999999999999999,
+      "reference": "1.0",
+      "expected": 1
+    },
+    {
+      "expression": "F.INV.RT(0.5,1,1)",
+      "nativeFormula": "=F.INV.RT(0.5,1,1)",
+      "nativeText": "1",
+      "nativeValue": 1,
+      "reference": "1.0",
+      "expected": 1
+    },
+    {
+      "expression": "F.INV(0.5,1,2)",
+      "nativeFormula": "=F.INV(0.5,1,2)",
+      "nativeText": "0.666666666666667",
+      "nativeValue": 0.6666666666666666,
+      "reference": "0.66666666666666666666666666666666666666666666666666666666666666667",
+      "expected": 0.6666666666666666
+    },
+    {
+      "expression": "F.INV.RT(0.5,1,2)",
+      "nativeFormula": "=F.INV.RT(0.5,1,2)",
+      "nativeText": "0.666666666666667",
+      "nativeValue": 0.6666666666666666,
+      "reference": "0.66666666666666666666666666666666666666666666666666666666666666667",
+      "expected": 0.6666666666666666
+    },
+    {
+      "expression": "F.INV(0.5,2,1)",
+      "nativeFormula": "=F.INV(0.5,2,1)",
+      "nativeText": "1.5",
+      "nativeValue": 1.5,
+      "reference": "1.5",
+      "expected": 1.5
+    },
+    {
+      "expression": "F.INV.RT(0.5,2,1)",
+      "nativeFormula": "=F.INV.RT(0.5,2,1)",
+      "nativeText": "1.5",
+      "nativeValue": 1.5,
+      "reference": "1.5",
+      "expected": 1.5
+    },
+    {
+      "expression": "F.INV(0.5,2,2)",
+      "nativeFormula": "=F.INV(0.5,2,2)",
+      "nativeText": "1",
+      "nativeValue": 1,
+      "reference": "1.0",
+      "expected": 1
+    },
+    {
+      "expression": "F.INV.RT(0.5,2,2)",
+      "nativeFormula": "=F.INV.RT(0.5,2,2)",
+      "nativeText": "1",
+      "nativeValue": 1,
+      "reference": "1.0",
+      "expected": 1
+    },
+    {
+      "expression": "F.INV(0.5,3,4)",
+      "nativeFormula": "=F.INV(0.5,3,4)",
+      "nativeText": "0.940534076367755",
+      "nativeValue": 0.9405340763677548,
+      "reference": "0.9405340763677548940047518245145122124555313309747103554369806144",
+      "expected": 0.9405340763677549
+    },
+    {
+      "expression": "F.INV.RT(0.5,3,4)",
+      "nativeFormula": "=F.INV.RT(0.5,3,4)",
+      "nativeText": "0.940534076367755",
+      "nativeValue": 0.9405340763677548,
+      "reference": "0.9405340763677548940047518245145122124555313309747103554369806144",
+      "expected": 0.9405340763677549
+    },
+    {
+      "expression": "F.INV(0.5,10,1)",
+      "nativeFormula": "=F.INV(0.5,10,1)",
+      "nativeText": "2.04191262042229",
+      "nativeValue": 2.041912620422292,
+      "reference": "2.0419126204222895804339728717538589899042096420372390505120784215",
+      "expected": 2.0419126204222895
+    },
+    {
+      "expression": "F.INV.RT(0.5,10,1)",
+      "nativeFormula": "=F.INV.RT(0.5,10,1)",
+      "nativeText": "2.04191262042229",
+      "nativeValue": 2.0419126204222886,
+      "reference": "2.0419126204222895804339728717538589899042096420372390505120784215",
+      "expected": 2.0419126204222895
+    },
+    {
+      "expression": "F.INV(0.5,1,10)",
+      "nativeFormula": "=F.INV(0.5,1,10)",
+      "nativeText": "0.489736921158355",
+      "nativeValue": 0.4897369211583549,
+      "reference": "0.48973692115835456320408696035899827441864709483052323897655078988",
+      "expected": 0.48973692115835454
+    },
+    {
+      "expression": "F.INV.RT(0.5,1,10)",
+      "nativeFormula": "=F.INV.RT(0.5,1,10)",
+      "nativeText": "0.489736921158354",
+      "nativeValue": 0.489736921158354,
+      "reference": "0.48973692115835456320408696035899827441864709483052323897655078988",
+      "expected": 0.48973692115835454
+    },
+    {
+      "expression": "F.INV(0.5,1000,2)",
+      "nativeFormula": "=F.INV(0.5,1000,2)",
+      "nativeText": "1.44169527193798",
+      "nativeValue": 1.4416952719379834,
+      "reference": "1.4416952719380161934608778072338325513041061319341214539342913768",
+      "expected": 1.4416952719380163
+    },
+    {
+      "expression": "F.INV.RT(0.5,1000,2)",
+      "nativeFormula": "=F.INV.RT(0.5,1000,2)",
+      "nativeText": "1.44169527193802",
+      "nativeValue": 1.4416952719380167,
+      "reference": "1.4416952719380161934608778072338325513041061319341214539342913768",
+      "expected": 1.4416952719380163
+    },
+    {
+      "expression": "F.INV(0.9999999999,1,1)",
+      "nativeFormula": "=F.INV(0.9999999999,1,1)",
+      "nativeText": "40528466750254200000",
+      "nativeValue": 40528466750254220000,
+      "reference": "40528466750254081239.615891073170281685540213336050317470429728293",
+      "expected": 40528466750254080000
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,1,1)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,1,1)",
+      "nativeText": "2.46740150857971E-20",
+      "nativeValue": 2.4674015085797128e-20,
+      "reference": "0.000000000000000000024674015085797214266949771714857521942124421510738993627442070717",
+      "expected": 2.4674015085797216e-20
+    },
+    {
+      "expression": "F.INV(0.9999999999,1,2)",
+      "nativeFormula": "=F.INV(0.9999999999,1,2)",
+      "nativeText": "9999999171.09635",
+      "nativeValue": 9999999171.096352,
+      "reference": "9999999171.0963584688055311327207940029575096600194913937787061129",
+      "expected": 9999999171.09636
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,1,2)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,1,2)",
+      "nativeText": "2.0000003309615E-20",
+      "nativeValue": 2.0000003309614953e-20,
+      "reference": "0.000000000000000000020000003309614976883194802051809541876479267100081647172315844298",
+      "expected": 2.0000003309614977e-20
+    },
+    {
+      "expression": "F.INV(0.9999999999,2,1)",
+      "nativeFormula": "=F.INV(0.9999999999,2,1)",
+      "nativeText": "49999991725964000000",
+      "nativeValue": 49999991725963980000,
+      "reference": "49999991725963926985.698320867873700960282587599971635721985615266",
+      "expected": 49999991725963930000
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,2,1)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,2,1)",
+      "nativeText": "1.00000008289037E-10",
+      "nativeValue": 1.0000000828903715e-10,
+      "reference": "0.0000000001000000082890371023932485847672147358298406413022075381635361319",
+      "expected": 1.000000082890371e-10
+    },
+    {
+      "expression": "F.INV(0.9999999999,2,2)",
+      "nativeFormula": "=F.INV(0.9999999999,2,2)",
+      "nativeText": "9999999171.59636",
+      "nativeValue": 9999999171.596363,
+      "reference": "9999999171.596358468780531130651034727773336886046718181010746958",
+      "expected": 9999999171.59636
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,2,2)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,2,2)",
+      "nativeText": "1.00000008284037E-10",
+      "nativeValue": 1.0000000828403704e-10,
+      "reference": "0.00000000010000000828403710156484484029809490174859343712998528194054962883",
+      "expected": 1.000000082840371e-10
+    },
+    {
+      "expression": "F.INV(0.9999999999,3,4)",
+      "nativeFormula": "=F.INV(0.9999999999,3,4)",
+      "nativeText": "182572.622725662",
+      "nativeValue": 182572.62272566234,
+      "reference": "182572.62272566233444418365593817416896636453498658140505740052337",
+      "expected": 182572.62272566234
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,3,4)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,3,4)",
+      "nativeText": "1.55947646842443E-07",
+      "nativeValue": 1.559476468424432e-7,
+      "reference": "0.00000015594764684244318808708851958607854211600228025887488016826902006",
+      "expected": 1.559476468424432e-7
+    },
+    {
+      "expression": "F.INV(0.9999999999,10,1)",
+      "nativeFormula": "=F.INV(0.9999999999,10,1)",
+      "nativeText": "60562123767197100000",
+      "nativeValue": 60562123767197100000,
+      "reference": "60562123767196907411.810193539812434624641928017931426249062264012",
+      "expected": 60562123767196910000
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,10,1)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,10,1)",
+      "nativeText": "0.00133992089136475",
+      "nativeValue": 0.0013399208913647527,
+      "reference": "0.0013399208913647534269581671987908619342228469206059117727617436715",
+      "expected": 0.0013399208913647534
+    },
+    {
+      "expression": "F.INV(0.9999999999,1,10)",
+      "nativeFormula": "=F.INV(0.9999999999,1,10)",
+      "nativeText": "746.312716254068",
+      "nativeValue": 746.3127162540676,
+      "reference": "746.31271625406718071975395795448469725608389289036586115323787205",
+      "expected": 746.3127162540671
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,1,10)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,1,10)",
+      "nativeText": "1.65119704824757E-20",
+      "nativeValue": 1.6511970482475726e-20,
+      "reference": "0.000000000000000000016511970482475776329199835641528827454787784278798704598707159667",
+      "expected": 1.6511970482475777e-20
+    },
+    {
+      "expression": "F.INV(0.9999999999,1000,2)",
+      "nativeFormula": "=F.INV(0.9999999999,1000,2)",
+      "nativeText": "9999999172.09537",
+      "nativeValue": 9999999172.095366,
+      "reference": "9999999172.0953584687721978299611177290576406514236681077205433483",
+      "expected": 9999999172.095358
+    },
+    {
+      "expression": "F.INV.RT(0.9999999999,1000,2)",
+      "nativeFormula": "=F.INV.RT(0.9999999999,1000,2)",
+      "nativeText": "0.0424371233370116",
+      "nativeValue": 0.04243712333701158,
+      "reference": "0.042437123358722149927573212430940248929776937503644785684675085487",
+      "expected": 0.04243712335872215
+    },
+    {
+      "expression": "F.INV(1e-150,1,1)",
+      "nativeFormula": "=F.INV(1E-150,1,1)",
+      "nativeText": "2.4674011002725E-300",
+      "nativeValue": 2.4674011002724624e-300,
+      "reference": "2.4674011002723396857749704073132427700065012904087153077458140875e-300",
+      "expected": 2.4674011002723397e-300
+    },
+    {
+      "expression": "F.INV.RT(1e-150,1,1)",
+      "nativeFormula": "=F.INV.RT(1E-150,1,1)",
+      "nativeText": "4.0528473456933E+299",
+      "nativeValue": 4.052847345693309e+299,
+      "reference": "4.052847345693510806726926725485126029341845932132693729457493276e+299",
+      "expected": 4.052847345693511e+299
+    },
+    {
+      "expression": "F.INV(1e-150,1,2)",
+      "nativeFormula": "=F.INV(1E-150,1,2)",
+      "nativeText": "2.0000000000001E-300",
+      "nativeValue": 2.0000000000000475e-300,
+      "reference": "2.000000000000000025181432928691856068106587888325324464644254358e-300",
+      "expected": 2e-300
+    },
+    {
+      "expression": "F.INV.RT(1e-150,1,2)",
+      "nativeFormula": "=F.INV.RT(1E-150,1,2)",
+      "nativeText": "9.9999999999999E+149",
+      "nativeValue": 9.999999999999864e+149,
+      "reference": "9.9999999999999999370464176782703604242065593500052834143250221346e+149",
+      "expected": 1e+150
+    },
+    {
+      "expression": "F.INV(1e-150,2,1)",
+      "nativeFormula": "=F.INV(1E-150,2,1)",
+      "nativeText": "1E-150",
+      "nativeValue": 1.0000000000000138e-150,
+      "reference": "1.0000000000000000062953582321729639972108793363873778804649710471e-150",
+      "expected": 1e-150
+    },
+    {
+      "expression": "F.INV.RT(1e-150,2,1)",
+      "nativeFormula": "=F.INV.RT(1E-150,2,1)",
+      "nativeText": "4.9999999999999E+299",
+      "nativeValue": 4.999999999999881e+299,
+      "reference": "4.9999999999999999370464176782703606223642357069448132763388293153e+299",
+      "expected": 5e+299
+    },
+    {
+      "expression": "F.INV(1e-150,2,2)",
+      "nativeFormula": "=F.INV(1E-150,2,2)",
+      "nativeText": "1E-150",
+      "nativeValue": 1.0000000000000118e-150,
+      "reference": "1.0000000000000000062953582321729639972108793363873778804649710471e-150",
+      "expected": 1e-150
+    },
+    {
+      "expression": "F.INV.RT(1e-150,2,2)",
+      "nativeFormula": "=F.INV.RT(1E-150,2,2)",
+      "nativeText": "9.9999999999999E+149",
+      "nativeValue": 9.999999999999882e+149,
+      "reference": "9.9999999999999999370464176782703604242065593500052834143250221346e+149",
+      "expected": 1e+150
+    },
+    {
+      "expression": "F.INV(1e-150,3,4)",
+      "nativeFormula": "=F.INV(1E-150,3,4)",
+      "nativeText": "7.2384469775865E-101",
+      "nativeValue": 7.238446977586469e-101,
+      "reference": "7.2384469775864175544273164314760803637714189712303171131120804031e-101",
+      "expected": 7.238446977586417e-101
+    },
+    {
+      "expression": "F.INV.RT(1e-150,3,4)",
+      "nativeFormula": "=F.INV.RT(1E-150,3,4)",
+      "nativeText": "1.82574185835058E+75",
+      "nativeValue": 1.825741858350577e+75,
+      "reference": "1.8257418583505537057763830904410452106639397233461852463534812272e+75",
+      "expected": 1.8257418583505536e+75
+    },
+    {
+      "expression": "F.INV(1e-150,10,1)",
+      "nativeFormula": "=F.INV(1E-150,10,1)",
+      "nativeText": "1.32367047901296E-31",
+      "nativeValue": 1.3236704790129619e-31,
+      "reference": "1.3236704790129712086159420151754843998937350280334510660130373572e-31",
+      "expected": 1.3236704790129713e-31
+    },
+    {
+      "expression": "F.INV.RT(1e-150,10,1)",
+      "nativeFormula": "=F.INV.RT(1E-150,10,1)",
+      "nativeText": "6.0562133789062E+299",
+      "nativeValue": 6.056213378906205e+299,
+      "reference": "6.0562133789062499237479344986129947845958409182324108562587931983e+299",
+      "expected": 6.05621337890625e+299
+    },
+    {
+      "expression": "F.INV(1e-150,1,10)",
+      "nativeFormula": "=F.INV(1E-150,1,10)",
+      "nativeText": "1.6511967750063E-300",
+      "nativeValue": 1.651196775006311e-300,
+      "reference": "1.651196775006298836612375767381575702688754646627468683735523477e-300",
+      "expected": 1.6511967750062987e-300
+    },
+    {
+      "expression": "F.INV.RT(1e-150,1,10)",
+      "nativeFormula": "=F.INV.RT(1E-150,1,10)",
+      "nativeText": "7.55475033896414E+30",
+      "nativeValue": 7.554750338964141e+30,
+      "reference": "7554750338964087267607588740061.7148236997396869653396106375030634",
+      "expected": 7.554750338964087e+30
+    },
+    {
+      "expression": "F.INV(1e-150,1000,2)",
+      "nativeFormula": "=F.INV(1E-150,1000,2)",
+      "nativeText": "0.00013150274231438",
+      "nativeValue": 0.00013150274231437986,
+      "reference": "0.0020095204750744903652111092883568875568087521776392380127934469605",
+      "expected": 0.0020095204750744905
+    },
+    {
+      "expression": "F.INV.RT(1e-150,1000,2)",
+      "nativeFormula": "=F.INV.RT(1E-150,1000,2)",
+      "nativeText": "1E+150",
+      "nativeValue": 1.0000000000000149e+150,
+      "reference": "9.9999999999999999370464176782703604242065593500052834143250221346e+149",
+      "expected": 1e+150
+    },
+    {
+      "expression": "F.INV(1e-153,1,1)",
+      "nativeFormula": "=F.INV(1E-153,1,1)",
+      "nativeText": "2.4674011002723E-306",
+      "nativeValue": 2.4674011002723232e-306,
+      "reference": "2.4674011002723398479163496756761967447409887836416760593682354045e-306",
+      "expected": 2.46740110027234e-306
+    },
+    {
+      "expression": "F.INV.RT(1e-153,1,1)",
+      "nativeFormula": "=F.INV.RT(1E-153,1,1)",
+      "nativeText": "4.0528473456935E+305",
+      "nativeValue": 4.052847345693538e+305,
+      "reference": "4.0528473456935105404004431544360877431697462419076502414640134373e+305",
+      "expected": 4.0528473456935105e+305
+    },
+    {
+      "expression": "F.INV(1e-153,1,2)",
+      "nativeFormula": "=F.INV(1E-153,1,2)",
+      "nativeText": "1.9999999999999E-306",
+      "nativeValue": 1.9999999999999346e-306,
+      "reference": "2.0000000000000001566082846476657855734805835086886735304551336284e-306",
+      "expected": 2e-306
+    },
+    {
+      "expression": "F.INV.RT(1e-153,1,2)",
+      "nativeFormula": "=F.INV.RT(1E-153,1,2)",
+      "nativeText": "1E+153",
+      "nativeValue": 1.0000000000000145e+153,
+      "reference": "9.9999999999999996084792883808355590595686852448183668653045695137e+152",
+      "expected": 1e+153
+    },
+    {
+      "expression": "F.INV(1e-153,2,1)",
+      "nativeFormula": "=F.INV(1E-153,2,1)",
+      "nativeText": "9.9999999999999E-154",
+      "nativeValue": 9.999999999999856e-154,
+      "reference": "1.0000000000000000391520711619164456269278077432874800210290605386e-153",
+      "expected": 1e-153
+    },
+    {
+      "expression": "F.INV.RT(1e-153,2,1)",
+      "nativeFormula": "=F.INV.RT(1E-153,2,1)",
+      "nativeText": "5.0000000000002E+305",
+      "nativeValue": 5.000000000000164e+305,
+      "reference": "4.9999999999999996084792883808355667239920665836646503250525157289e+305",
+      "expected": 4.999999999999999e+305
+    },
+    {
+      "expression": "F.INV(1e-153,2,2)",
+      "nativeFormula": "=F.INV(1E-153,2,2)",
+      "nativeText": "9.9999999999998E-154",
+      "nativeValue": 9.999999999999836e-154,
+      "reference": "1.0000000000000000391520711619164456269278077432874800210290605386e-153",
+      "expected": 1e-153
+    },
+    {
+      "expression": "F.INV.RT(1e-153,2,2)",
+      "nativeFormula": "=F.INV.RT(1E-153,2,2)",
+      "nativeText": "1E+153",
+      "nativeValue": 1.0000000000000164e+153,
+      "reference": "9.9999999999999996084792883808355590595686852448183668653045695137e+152",
+      "expected": 1e+153
+    },
+    {
+      "expression": "F.INV(1e-153,3,4)",
+      "nativeFormula": "=F.INV(1E-153,3,4)",
+      "nativeText": "7.2384469775864E-103",
+      "nativeValue": 7.238446977586402e-103,
+      "reference": "7.2384469775864177129816993646269259845922007990991958793258476773e-103",
+      "expected": 7.238446977586418e-103
+    },
+    {
+      "expression": "F.INV.RT(1e-153,3,4)",
+      "nativeFormula": "=F.INV.RT(1E-153,3,4)",
+      "nativeText": "5.77350269189625E+76",
+      "nativeValue": 5.773502691896248e+76,
+      "reference": "5.7735026918962575320691936817003585531404621293670450525665886913e+76",
+      "expected": 5.773502691896258e+76
+    },
+    {
+      "expression": "F.INV(1e-153,10,1)",
+      "nativeFormula": "=F.INV(1E-153,10,1)",
+      "nativeText": "3.32490991602246E-32",
+      "nativeValue": 3.324909916022464e-32,
+      "reference": "3.3249099160224688235005846406423418720165430988290687476076482336e-32",
+      "expected": 3.3249099160224686e-32
+    },
+    {
+      "expression": "F.INV.RT(1e-153,10,1)",
+      "nativeFormula": "=F.INV.RT(1E-153,10,1)",
+      "nativeText": "6.0562133789066E+305",
+      "nativeValue": 6.0562133789065464e+305,
+      "reference": "6.0562133789062495257734056346241346214369239106948843811442367335e+305",
+      "expected": 6.0562133789062494e+305
+    },
+    {
+      "expression": "F.INV(1e-153,1,10)",
+      "nativeFormula": "=F.INV(1E-153,1,10)",
+      "nativeText": "1.6511967750062E-306",
+      "nativeValue": 1.651196775006218e-306,
+      "reference": "1.6511967750062989451181726211819718234268521142028333143349412632e-306",
+      "expected": 1.651196775006299e-306
+    },
+    {
+      "expression": "F.INV.RT(1e-153,1,10)",
+      "nativeFormula": "=F.INV.RT(1E-153,1,10)",
+      "nativeText": "3.00760028168307E+31",
+      "nativeValue": 3.007600281683071e+31,
+      "reference": "30076002816830670368485720256277.134743890386533519830906956837914",
+      "expected": 3.007600281683067e+31
+    },
+    {
+      "expression": "F.INV(1e-153,1000,2)",
+      "nativeFormula": "=F.INV(1E-153,1000,2)",
+      "nativeText": "0.000101081958820634",
+      "nativeValue": 0.00010108195882063417,
+      "reference": "0.0019549975618091302701771505622720220224631822271724277635529886478",
+      "expected": 0.0019549975618091305
+    },
+    {
+      "expression": "F.INV.RT(1e-153,1000,2)",
+      "nativeFormula": "=F.INV.RT(1E-153,1000,2)",
+      "nativeText": "1E+153",
+      "nativeValue": 1.000000000000043e+153,
+      "reference": "9.9999999999999996084792883808355590595686852448183668653045695137e+152",
+      "expected": 1e+153
+    },
+    {
+      "expression": "F.INV(1e-154,1,1)",
+      "nativeFormula": "=F.INV(1E-154,1,1)",
+      "nativeText": "2.4674011002724E-308",
+      "nativeValue": 2.46740110027237e-308,
+      "reference": "2.4674011002723395210184076023637949946302149802249810171398877642e-308",
+      "expected": 2.4674011002723396e-308
+    },
+    {
+      "expression": "F.INV.RT(1e-154,1,1)",
+      "nativeFormula": "=F.INV.RT(1E-154,1,1)",
+      "nativeText": "4.0528473456935E+307",
+      "nativeValue": 4.0528473456934605e+307,
+      "reference": "4.0528473456935110773489987412285305330884936223435880750487274022e+307",
+      "expected": 4.052847345693511e+307
+    },
+    {
+      "expression": "F.INV(1e-154,1,2)",
+      "nativeFormula": "=F.INV(1E-154,1,2)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "reference": "1.9999999999999998916347932787667385746455134167143414871769826324e-308",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-154,1,2)",
+      "nativeFormula": "=F.INV.RT(1E-154,1,2)",
+      "nativeText": "1E+154",
+      "nativeValue": 1.0000000000000048e+154,
+      "reference": "1.0000000000000000270913016803083164572465617460356909301691187768e+154",
+      "expected": 1e+154
+    },
+    {
+      "expression": "F.INV(1e-154,2,1)",
+      "nativeFormula": "=F.INV(1E-154,2,1)",
+      "nativeText": "1E-154",
+      "nativeValue": 9.999999999999952e-155,
+      "reference": "9.999999999999999729086983196916842766920649874404998989240414024e-155",
+      "expected": 1e-154
+    },
+    {
+      "expression": "F.INV.RT(1e-154,2,1)",
+      "nativeFormula": "=F.INV.RT(1E-154,2,1)",
+      "nativeText": "5.0000000000001E+307",
+      "nativeValue": 5.000000000000068e+307,
+      "reference": "5.0000000000000002709130168030831682421587511277379628639207470031e+307",
+      "expected": 5e+307
+    },
+    {
+      "expression": "F.INV(1e-154,2,2)",
+      "nativeFormula": "=F.INV(1E-154,2,2)",
+      "nativeText": "9.9999999999999E-155",
+      "nativeValue": 9.999999999999932e-155,
+      "reference": "9.999999999999999729086983196916842766920649874404998989240414024e-155",
+      "expected": 1e-154
+    },
+    {
+      "expression": "F.INV.RT(1e-154,2,2)",
+      "nativeFormula": "=F.INV.RT(1E-154,2,2)",
+      "nativeText": "1E+154",
+      "nativeValue": 1.0000000000000067e+154,
+      "reference": "1.0000000000000000270913016803083164572465617460356909301691187768e+154",
+      "expected": 1e+154
+    },
+    {
+      "expression": "F.INV(1e-154,3,4)",
+      "nativeFormula": "=F.INV(1E-154,3,4)",
+      "nativeText": "1.5594761270469E-103",
+      "nativeValue": 1.5594761270468832e-103,
+      "reference": "1.5594761270468618734381277780299891655535894408303192355433581507e-103",
+      "expected": 1.559476127046862e-103
+    },
+    {
+      "expression": "F.INV.RT(1e-154,3,4)",
+      "nativeFormula": "=F.INV.RT(1E-154,3,4)",
+      "nativeText": "1.82574185835054E+77",
+      "nativeValue": 1.825741858350542e+77,
+      "reference": "1.8257418583505537362540943468067989734444984305723780955395798605e+77",
+      "expected": 1.8257418583505537e+77
+    },
+    {
+      "expression": "F.INV(1e-154,10,1)",
+      "nativeFormula": "=F.INV(1E-154,10,1)",
+      "nativeText": "2.0978763312494E-32",
+      "nativeValue": 2.0978763312494004e-32,
+      "reference": "2.0978763312493992420560076564785949765746228391030932075435215973e-32",
+      "expected": 2.0978763312493993e-32
+    },
+    {
+      "expression": "F.INV.RT(1e-154,10,1)",
+      "nativeFormula": "=F.INV.RT(1E-154,10,1)",
+      "nativeText": "ERR6",
+      "reference": "6.0562133789062503281414073765371993265161386798071211568913100755e+307",
+      "expected": 6.056213378906251e+307
+    },
+    {
+      "expression": "F.INV(1e-154,1,10)",
+      "nativeFormula": "=F.INV(1E-154,1,10)",
+      "nativeText": "ERR6",
+      "reference": "1.6511967750062987263564854159392413608965528757595248639913168783e-308",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-154,1,10)",
+      "nativeFormula": "=F.INV.RT(1E-154,1,10)",
+      "nativeText": "4.76672521208362E+31",
+      "nativeValue": 4.766725212083617e+31,
+      "reference": "47667252120836203595154068848278.801816832098937335987696509064012",
+      "expected": 4.766725212083621e+31
+    },
+    {
+      "expression": "F.INV(1e-154,1000,2)",
+      "nativeFormula": "=F.INV(1E-154,1000,2)",
+      "nativeText": "9.12491865685855E-05",
+      "nativeValue": 0.0000912491865685855,
+      "reference": "0.0019373143000077505112729682964864925954372546759349616266198946914",
+      "expected": 0.0019373143000077505
+    },
+    {
+      "expression": "F.INV.RT(1e-154,1000,2)",
+      "nativeFormula": "=F.INV.RT(1E-154,1000,2)",
+      "nativeText": "1E+154",
+      "nativeValue": 1.0000000000000334e+154,
+      "reference": "1.0000000000000000270913016803083164572465617460356909301691187768e+154",
+      "expected": 1e+154
+    },
+    {
+      "expression": "F.INV(1e-155,1,1)",
+      "nativeFormula": "=F.INV(1E-155,1,1)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "reference": "2.4674011002723397253296213981840435507749652341073897148777327956e-310",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-155,1,1)",
+      "nativeFormula": "=F.INV.RT(1E-155,1,1)",
+      "nativeText": "ERR6",
+      "reference": "4.0528473456935107417561514994832412845630935615458541228031543407e+309",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-155,1,2)",
+      "nativeFormula": "=F.INV(1E-155,1,2)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "reference": "2.0000000000000000572432253843286408919559733895103036334480981274e-310",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-155,1,2)",
+      "nativeFormula": "=F.INV.RT(1E-155,1,2)",
+      "nativeText": "1E+155",
+      "nativeValue": 9.999999999999954e+154,
+      "reference": "9.9999999999999998568919365391784008420977406522056146016363384487e+154",
+      "expected": 1e+155
+    },
+    {
+      "expression": "F.INV(1e-155,2,1)",
+      "nativeFormula": "=F.INV(1E-155,2,1)",
+      "nativeText": "1E-155",
+      "nativeValue": 1.0000000000000048e-155,
+      "reference": "1.0000000000000000143108063460821601205894042098448624752396783625e-155",
+      "expected": 1e-155
+    },
+    {
+      "expression": "F.INV.RT(1e-155,2,1)",
+      "nativeFormula": "=F.INV.RT(1E-155,2,1)",
+      "nativeText": "ERR6",
+      "reference": "4.9999999999999998568919365391784018660936320275327196244459988297e+309",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-155,2,2)",
+      "nativeFormula": "=F.INV(1E-155,2,2)",
+      "nativeText": "1E-155",
+      "nativeValue": 1.0000000000000027e-155,
+      "reference": "1.0000000000000000143108063460821601205894042098448624752396783625e-155",
+      "expected": 1e-155
+    },
+    {
+      "expression": "F.INV.RT(1e-155,2,2)",
+      "nativeFormula": "=F.INV.RT(1E-155,2,2)",
+      "nativeText": "1E+155",
+      "nativeValue": 9.999999999999973e+154,
+      "reference": "9.9999999999999998568919365391784008420977406522056146016363384487e+154",
+      "expected": 1e+155
+    },
+    {
+      "expression": "F.INV(1e-155,3,4)",
+      "nativeFormula": "=F.INV(1E-155,3,4)",
+      "nativeText": "3.3597894663863E-104",
+      "nativeValue": 3.359789466386332e-104,
+      "reference": "3.3597894663863284714334258974495844754816662890115710451494148743e-104",
+      "expected": 3.3597894663863283e-104
+    },
+    {
+      "expression": "F.INV.RT(1e-155,3,4)",
+      "nativeFormula": "=F.INV.RT(1E-155,3,4)",
+      "nativeText": "5.77350269189619E+77",
+      "nativeValue": 5.773502691896193e+77,
+      "reference": "5.7735026918962576037797483238638758206713822744223557720981749011e+77",
+      "expected": 5.773502691896258e+77
+    },
+    {
+      "expression": "F.INV(1e-155,10,1)",
+      "nativeFormula": "=F.INV(1E-155,10,1)",
+      "nativeText": "1.32367047901297E-32",
+      "nativeValue": 1.3236704790129742e-32,
+      "reference": "1.3236704790129712107379044240623993432684301214732700565118543685e-32",
+      "expected": 1.3236704790129712e-32
+    },
+    {
+      "expression": "F.INV.RT(1e-155,10,1)",
+      "nativeFormula": "=F.INV.RT(1E-155,10,1)",
+      "nativeText": "ERR6",
+      "reference": "6.0562133789062498266614062878415151997453691153800549894489042221e+309",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-155,1,10)",
+      "nativeFormula": "=F.INV(1E-155,1,10)",
+      "nativeText": "ERR6",
+      "reference": "1.6511967750062988630825399192159462017539263297423439017593166903e-310",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-155,1,10)",
+      "nativeFormula": "=F.INV.RT(1E-155,1,10)",
+      "nativeText": "7.55475033896407E+31",
+      "nativeValue": 7.554750338964069e+31,
+      "reference": "75547503389640872554966468689690.542811489693841799294398629431972",
+      "expected": 7.554750338964088e+31
+    },
+    {
+      "expression": "F.INV(1e-155,1000,2)",
+      "nativeFormula": "=F.INV(1E-155,1000,2)",
+      "nativeText": "8.15646914319527E-05",
+      "nativeValue": 0.00008156469143195272,
+      "reference": "0.0019198686293744059304666632499160903965018413329231778537510954362",
+      "expected": 0.001919868629374406
+    },
+    {
+      "expression": "F.INV.RT(1e-155,1000,2)",
+      "nativeFormula": "=F.INV.RT(1E-155,1000,2)",
+      "nativeText": "1E+155",
+      "nativeValue": 1.000000000000024e+155,
+      "reference": "9.9999999999999998568919365391784008420977406522056146016363384487e+154",
+      "expected": 1e+155
+    },
+    {
+      "expression": "F.INV(1e-200,1,1)",
+      "nativeFormula": "=F.INV(1E-200,1,1)",
+      "nativeText": "2.7055792171145E-151",
+      "nativeValue": 2.7055792171144783e-151,
+      "reference": "2.467401100272339566376958247790301895848150456467824117319745218e-400",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-200,1,1)",
+      "nativeFormula": "=F.INV.RT(1E-200,1,1)",
+      "nativeText": "3.6960662385133E+150",
+      "nativeValue": 3.696066238513274e+150,
+      "reference": "4.0528473456935110028449865773646488779032731187934639727962384531e+399",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-200,1,2)",
+      "nativeFormula": "=F.INV(1E-200,1,2)",
+      "nativeText": "5.4111530230742E-151",
+      "nativeValue": 5.4111530230741644e-151,
+      "reference": "1.9999999999999999284010495963310390250188595205399585871190089077e-400",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-200,1,2)",
+      "nativeFormula": "=F.INV.RT(1E-200,1,2)",
+      "nativeText": "1E+200",
+      "nativeValue": 1.0000000000000202e+200,
+      "reference": "1.0000000000000000178997376009172407243461943924007437298011214862e+200",
+      "expected": 1e+200
+    },
+    {
+      "expression": "F.INV(1e-200,2,1)",
+      "nativeFormula": "=F.INV(1E-200,2,1)",
+      "nativeText": "9.9999999999998E-201",
+      "nativeValue": 9.9999999999998e-201,
+      "reference": "9.9999999999999998210026239908275959605441178928974709961505359825e-201",
+      "expected": 1e-200
+    },
+    {
+      "expression": "F.INV.RT(1e-200,2,1)",
+      "nativeFormula": "=F.INV.RT(1E-200,2,1)",
+      "nativeText": "1.8480349672904E+150",
+      "nativeValue": 1.848034967290361e+150,
+      "reference": "5.0000000000000001789973760091724088454649748324599201205259794196e+399",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-200,2,2)",
+      "nativeFormula": "=F.INV(1E-200,2,2)",
+      "nativeText": "9.9999999999998E-201",
+      "nativeValue": 9.99999999999978e-201,
+      "reference": "9.9999999999999998210026239908275959605441178928974709961505359825e-201",
+      "expected": 1e-200
+    },
+    {
+      "expression": "F.INV.RT(1e-200,2,2)",
+      "nativeFormula": "=F.INV.RT(1E-200,2,2)",
+      "nativeText": "1E+200",
+      "nativeValue": 1.000000000000022e+200,
+      "reference": "1.0000000000000000178997376009172407243461943924007437298011214862e+200",
+      "expected": 1e+200
+    },
+    {
+      "expression": "F.INV(1e-200,3,4)",
+      "nativeFormula": "=F.INV(1E-200,3,4)",
+      "nativeText": "3.3597894663862E-134",
+      "nativeValue": 3.3597894663862446e-134,
+      "reference": "3.3597894663863283992863283909812528554945916938297035036025865037e-134",
+      "expected": 3.3597894663863286e-134
+    },
+    {
+      "expression": "F.INV.RT(1e-200,3,4)",
+      "nativeFormula": "=F.INV.RT(1E-200,3,4)",
+      "nativeText": "1.8257418583506E+100",
+      "nativeValue": 1.825741858350556e+100,
+      "reference": "1.8257418583505537278633827050789695578520103498271234852669351203e+100",
+      "expected": 1.8257418583505538e+100
+    },
+    {
+      "expression": "F.INV(1e-200,10,1)",
+      "nativeFormula": "=F.INV(1E-200,10,1)",
+      "nativeText": "1.32367047901298E-41",
+      "nativeValue": 1.3236704790129755e-41,
+      "reference": "1.3236704790129712022106751969436273742339184110672408122628771657e-41",
+      "expected": 1.323670479012971e-41
+    },
+    {
+      "expression": "F.INV.RT(1e-200,10,1)",
+      "nativeFormula": "=F.INV.RT(1E-200,10,1)",
+      "nativeText": "3.6960995033097E+149",
+      "nativeValue": 3.6960995033096613e+149,
+      "reference": "6.0562133789062502168092606751725130333406021453959420649315223134e+399",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-200,1,10)",
+      "nativeFormula": "=F.INV(1E-200,1,10)",
+      "nativeText": "2.7055548669741E-150",
+      "nativeValue": 2.705554866974098e-150,
+      "reference": "1.6511967750062987567106473462478076788061977518028058196703372106e-400",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-200,1,10)",
+      "nativeFormula": "=F.INV.RT(1E-200,1,10)",
+      "nativeText": "7.55475033896406E+40",
+      "nativeValue": 7.554750338964063e+40,
+      "reference": "75547503389640873041651704293322412140016.526719647329960548376528",
+      "expected": 7.554750338964087e+40
+    },
+    {
+      "expression": "F.INV(1e-200,1000,2)",
+      "nativeFormula": "=F.INV(1E-200,1000,2)",
+      "nativeText": "0.0013228506839651",
+      "nativeValue": 0.001322850683965099,
+      "reference": "0.0013228506839650984349612158002621978819729837540227600042401453285",
+      "expected": 0.0013228506839650985
+    },
+    {
+      "expression": "F.INV.RT(1e-200,1000,2)",
+      "nativeFormula": "=F.INV.RT(1E-200,1000,2)",
+      "nativeText": "1.0000000000001E+200",
+      "nativeValue": 1.0000000000000487e+200,
+      "reference": "1.0000000000000000178997376009172407243461943924007437298011214862e+200",
+      "expected": 1e+200
+    },
+    {
+      "expression": "F.INV(1e-300,1,1)",
+      "nativeFormula": "=F.INV(1E-300,1,1)",
+      "nativeText": "2.7055792171145E-151",
+      "nativeValue": 2.7055792171144783e-151,
+      "reference": "2.4674011002723397783702842820084329249223874600560444245011474255e-600",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-300,1,1)",
+      "nativeFormula": "=F.INV.RT(1E-300,1,1)",
+      "nativeText": "3.6960662385133E+150",
+      "nativeValue": 3.696066238513274e+150,
+      "reference": "4.0528473456935106546338308687576102189929462985036140324683404957e+599",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-300,1,2)",
+      "nativeFormula": "=F.INV(1E-300,1,2)",
+      "nativeText": "5.4111530230742E-151",
+      "nativeValue": 5.4111530230741644e-151,
+      "reference": "2.0000000000000001002363673408350399987007544416674679910104455319e-600",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-300,1,2)",
+      "nativeFormula": "=F.INV.RT(1E-300,1,2)",
+      "nativeText": "1E+300",
+      "nativeValue": 1.0000000000000313e+300,
+      "reference": "9.9999999999999997494090816479124094226193679772260250966991007617e+299",
+      "expected": 9.999999999999999e+299
+    },
+    {
+      "expression": "F.INV(1e-300,2,1)",
+      "nativeFormula": "=F.INV(1E-300,2,1)",
+      "nativeText": "9.9999999999997E-301",
+      "nativeValue": 9.999999999999689e-301,
+      "reference": "1.0000000000000000250590918352087596856961468077037052499253423199e-300",
+      "expected": 1e-300
+    },
+    {
+      "expression": "F.INV.RT(1e-300,2,1)",
+      "nativeFormula": "=F.INV.RT(1E-300,2,1)",
+      "nativeText": "1.8480349672904E+150",
+      "nativeValue": 1.848034967290361e+150,
+      "reference": "4.9999999999999997494090816479124125624097860043574852143789340917e+599",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-300,2,2)",
+      "nativeFormula": "=F.INV(1E-300,2,2)",
+      "nativeText": "1E-300",
+      "nativeValue": 1.0000000000000237e-300,
+      "reference": "1.0000000000000000250590918352087596856961468077037052499253423199e-300",
+      "expected": 1e-300
+    },
+    {
+      "expression": "F.INV.RT(1e-300,2,2)",
+      "nativeFormula": "=F.INV.RT(1E-300,2,2)",
+      "nativeText": "9.9999999999998E+299",
+      "nativeValue": 9.999999999999763e+299,
+      "reference": "9.9999999999999997494090816479124094226193679772260250966991007617e+299",
+      "expected": 9.999999999999999e+299
+    },
+    {
+      "expression": "F.INV(1e-300,3,4)",
+      "nativeFormula": "=F.INV(1E-300,3,4)",
+      "nativeText": "1.7860486465341E-237",
+      "nativeValue": 1.7860486465340577e-237,
+      "reference": "7.2384469775864176449741769562301835742627855918740288612792506015e-201",
+      "expected": 7.238446977586418e-201
+    },
+    {
+      "expression": "F.INV.RT(1e-300,3,4)",
+      "nativeFormula": "=F.INV.RT(1E-300,3,4)",
+      "nativeText": "3.1821741947432E+170",
+      "nativeValue": 3.18217419474316e+170,
+      "reference": "1.8257418583505536886475161614403933547731529619057454398660510797e+150",
+      "expected": 1.8257418583505536e+150
+    },
+    {
+      "expression": "F.INV(1e-300,10,1)",
+      "nativeFormula": "=F.INV(1E-300,10,1)",
+      "nativeText": "1.323670479013E-61",
+      "nativeValue": 1.3236704790130025e-61,
+      "reference": "1.3236704790129712135833420644543134036509309999045694724114920657e-61",
+      "expected": 1.3236704790129712e-61
+    },
+    {
+      "expression": "F.INV.RT(1e-300,10,1)",
+      "nativeFormula": "=F.INV.RT(1E-300,10,1)",
+      "nativeText": "3.6960995033097E+149",
+      "nativeValue": 3.6960995033096613e+149,
+      "reference": "6.0562133789062496964735855287366837952284059604781673632415739166e+599",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(1e-300,1,10)",
+      "nativeFormula": "=F.INV(1E-300,1,10)",
+      "nativeText": "2.7055548669741E-150",
+      "nativeValue": 2.705554866974098e-150,
+      "reference": "1.6511967750062988985776085922016273791238680157359433391138896243e-600",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(1e-300,1,10)",
+      "nativeFormula": "=F.INV.RT(1E-300,1,10)",
+      "nativeText": "7.55475033896391E+60",
+      "nativeValue": 7.554750338963908e+60,
+      "reference": "7554750338964087239256524180517579595399508961374820031179036.0185",
+      "expected": 7.554750338964087e+60
+    },
+    {
+      "expression": "F.INV(1e-300,1000,2)",
+      "nativeFormula": "=F.INV(1E-300,1000,2)",
+      "nativeText": "0.000670899662120367",
+      "nativeValue": 0.0006708996621203674,
+      "reference": "0.00067089966212036725412230644638834350358867771666193144044340857392",
+      "expected": 0.0006708996621203673
+    },
+    {
+      "expression": "F.INV.RT(1e-300,1000,2)",
+      "nativeFormula": "=F.INV.RT(1E-300,1000,2)",
+      "nativeText": "1E+300",
+      "nativeValue": 1.0000000000000029e+300,
+      "reference": "9.9999999999999997494090816479124094226193679772260250966991007617e+299",
+      "expected": 9.999999999999999e+299
+    },
+    {
+      "expression": "F.INV(2.3e-308,1,1)",
+      "nativeFormula": "=F.INV(2.3E-308,1,1)",
+      "nativeText": "2.7055792171145E-151",
+      "nativeValue": 2.7055792171144783e-151,
+      "reference": "1.3052551820440675527904240010761342645248062239140219401129516909e-615",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,1,1)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,1,1)",
+      "nativeText": "3.6960662385133E+150",
+      "nativeValue": 3.696066238513274e+150,
+      "reference": "7.6613371374168454527167295809182559691642863972791715724516886933e+614",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(2.3e-308,1,2)",
+      "nativeFormula": "=F.INV(2.3E-308,1,2)",
+      "nativeText": "5.4111530230742E-151",
+      "nativeValue": 5.4111530230741644e-151,
+      "reference": "1.0579999999999998990432180484071121192860225455316389524810951806e-615",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,1,2)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,1,2)",
+      "nativeText": "4.3478260869568E+307",
+      "nativeValue": 4.347826086956748e+307,
+      "reference": "4.34782608695652194657019386782463858358553658290844930776134181e+307",
+      "expected": 4.347826086956522e+307
+    },
+    {
+      "expression": "F.INV(2.3e-308,2,1)",
+      "nativeFormula": "=F.INV(2.3E-308,2,1)",
+      "nativeText": "2.2999999999999E-308",
+      "nativeValue": 2.299999999999881e-308,
+      "reference": "2.2999999999999998902643674439207714248958826619179795685385781363e-308",
+      "expected": 2.3e-308
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,2,1)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,2,1)",
+      "nativeText": "1.8480349672904E+150",
+      "nativeValue": 1.848034967290361e+150,
+      "reference": "9.4517958412098307695868542457404161134467379756469894675232386817e+614",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(2.3e-308,2,2)",
+      "nativeFormula": "=F.INV(2.3E-308,2,2)",
+      "nativeText": "2.3E-308",
+      "nativeValue": 2.3000000000000073e-308,
+      "reference": "2.2999999999999998902643674439207714248958826619179795685385781363e-308",
+      "expected": 2.3e-308
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,2,2)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,2,2)",
+      "nativeText": "4.3478260869565E+307",
+      "nativeValue": 4.3478260869565084e+307,
+      "reference": "4.34782608695652194657019386782463858358553658290844930776134181e+307",
+      "expected": 4.347826086956522e+307
+    },
+    {
+      "expression": "F.INV(2.3e-308,3,4)",
+      "nativeFormula": "=F.INV(2.3E-308,3,4)",
+      "nativeText": "1.6229583648676E-243",
+      "nativeValue": 1.6229583648675848e-243,
+      "reference": "5.8541514657333649100851822606953371513083795363926327266482470851e-206",
+      "expected": 5.854151465733365e-206
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,3,4)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,3,4)",
+      "nativeText": "7.0491145955499E+174",
+      "nativeValue": 7.049114595549846e+174,
+      "reference": "1.2038585308576920363396418597766790734543851157761112482151217727e+154",
+      "expected": 1.203858530857692e+154
+    },
+    {
+      "expression": "F.INV(2.3e-308,10,1)",
+      "nativeFormula": "=F.INV(2.3E-308,10,1)",
+      "nativeText": "3.92758371262711E-63",
+      "nativeValue": 3.9275837126271076e-63,
+      "reference": "3.9275837126270974412678376687704705246778681182173012050264297706e-63",
+      "expected": 3.9275837126270973e-63
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,10,1)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,10,1)",
+      "nativeText": "3.6960995033097E+149",
+      "nativeValue": 3.6960995033096613e+149,
+      "reference": "1.1448418485645086158596870270185458848349030464277008421813883767e+615",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(2.3e-308,1,10)",
+      "nativeFormula": "=F.INV(2.3E-308,1,10)",
+      "nativeText": "2.7055548669741E-150",
+      "nativeValue": 2.705554866974098e-150,
+      "reference": "8.7348309397833199022041242152190098071968724545176984618041136002e-616",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,1,10)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,1,10)",
+      "nativeText": "2.54609468102492E+62",
+      "nativeValue": 2.5460946810249233e+62,
+      "reference": "254609468102493000162019591218460508863735120023234255276716238.02",
+      "expected": 2.54609468102493e+62
+    },
+    {
+      "expression": "F.INV(2.3e-308,1000,2)",
+      "nativeFormula": "=F.INV(2.3E-308,1000,2)",
+      "nativeText": "0.00064028682247518",
+      "nativeValue": 0.0006402868224751803,
+      "reference": "0.00064028682247518009891507501013303211325692849738595128384215446108",
+      "expected": 0.0006402868224751801
+    },
+    {
+      "expression": "F.INV.RT(2.3e-308,1000,2)",
+      "nativeFormula": "=F.INV.RT(2.3E-308,1000,2)",
+      "nativeText": "4.3478260869566E+307",
+      "nativeValue": 4.347826086956624e+307,
+      "reference": "4.34782608695652194657019386782463858358553658290844930776134181e+307",
+      "expected": 4.347826086956522e+307
+    },
+    {
+      "expression": "F.INV(EXP(-709),1,1)",
+      "nativeFormula": "=F.INV(EXP(-709),1,1)",
+      "nativeText": "2.7055792171145E-151",
+      "nativeValue": 2.7055792171144783e-151,
+      "reference": "3.6531240108535408423804608386631318381090405380755023455336577122e-616",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),1,1)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),1,1)",
+      "nativeText": "3.6960662385133E+150",
+      "nativeValue": 3.696066238513274e+150,
+      "reference": "2.7373831192945272357286594549291338798222012352738040641620303172e+615",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(EXP(-709),1,2)",
+      "nativeFormula": "=F.INV(EXP(-709),1,2)",
+      "nativeText": "5.4111530230742E-151",
+      "nativeValue": 5.4111530230741644e-151,
+      "reference": "2.9611107901754010706287582830950812765390402626514899277008653465e-616",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),1,2)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),1,2)",
+      "nativeText": "8.2184074615554E+307",
+      "nativeValue": 8.218407461555425e+307,
+      "reference": "8.2184074615549731204790762012556212744092439190364697877357748725e+307",
+      "expected": 8.218407461554973e+307
+    },
+    {
+      "expression": "F.INV(EXP(-709),2,1)",
+      "nativeFormula": "=F.INV(EXP(-709),2,1)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "reference": "1.2167807506234229276415340211613305332012365377134489293793274336e-308",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),2,1)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),2,1)",
+      "nativeText": "1.8480349672904E+150",
+      "nativeValue": 1.848034967290361e+150,
+      "reference": "3.3771110602071228494653689329013877064038595651080235758788905754e+615",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(EXP(-709),2,2)",
+      "nativeFormula": "=F.INV(EXP(-709),2,2)",
+      "nativeText": "0",
+      "nativeValue": 0,
+      "reference": "1.2167807506234229276415340211613305332012365377134489293793274336e-308",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),2,2)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),2,2)",
+      "nativeText": "8.218407461555E+307",
+      "nativeValue": 8.218407461554972e+307,
+      "reference": "8.2184074615549731204790762012556212744092439190364697877357748725e+307",
+      "expected": 8.218407461554973e+307
+    },
+    {
+      "expression": "F.INV(EXP(-709),3,4)",
+      "nativeFormula": "=F.INV(EXP(-709),3,4)",
+      "nativeText": "9.8082611773087E-244",
+      "nativeValue": 9.808261177308702e-244,
+      "reference": "3.8293078721985019096390526715272346846989295272521232776534226702e-206",
+      "expected": 3.829307872198502e-206
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),3,4)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),3,4)",
+      "nativeText": "1.0126178493305E+175",
+      "nativeValue": 1.0126178493304753e+175,
+      "reference": "1.6551341800143146420993353616724420777311190765159940399397097834e+154",
+      "expected": 1.6551341800143148e+154
+    },
+    {
+      "expression": "F.INV(EXP(-709),10,1)",
+      "nativeFormula": "=F.INV(EXP(-709),10,1)",
+      "nativeText": "3.45797898229612E-63",
+      "nativeValue": 3.4579789822961196e-63,
+      "reference": "3.4579789822960932862718711649880340527279547969520004729630783264e-63",
+      "expected": 3.457978982296093e-63
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),10,1)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),10,1)",
+      "nativeText": "3.6960995033097E+149",
+      "nativeValue": 3.6960995033096613e+149,
+      "reference": "4.0905010369757295500268705122941918355459346355937944252512563153e+615",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV(EXP(-709),1,10)",
+      "nativeFormula": "=F.INV(EXP(-709),1,10)",
+      "nativeText": "2.7055548669741E-150",
+      "nativeValue": 2.705554866974098e-150,
+      "reference": "2.4446882935869877118257281788979496918526397411580756349433599313e-616",
+      "expected": 0
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),1,10)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),1,10)",
+      "nativeText": "2.89186257383205E+62",
+      "nativeValue": 2.8918625738320532e+62,
+      "reference": "289186257383207510399709804347378957204690237406456430299513066.71",
+      "expected": 2.891862573832075e+62
+    },
+    {
+      "expression": "F.INV(EXP(-709),1000,2)",
+      "nativeFormula": "=F.INV(EXP(-709),1000,2)",
+      "nativeText": "0.000639211577397381",
+      "nativeValue": 0.0006392115773973811,
+      "reference": "0.00063921157739738081276856861239579879687210169952950076302223816303",
+      "expected": 0.0006392115773973808
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),1000,2)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),1000,2)",
+      "nativeText": "8.2184074615543E+307",
+      "nativeValue": 8.218407461554257e+307,
+      "reference": "8.2184074615549731204790762012556212744092439190364697877357748725e+307",
+      "expected": 8.218407461554973e+307
+    },
+    {
+      "expression": "F.INV(EXP(-709),1000000,1000000)",
+      "nativeFormula": "=F.INV(EXP(-709),1000000,1000000)",
+      "nativeText": "0.92766951502462",
+      "nativeValue": 0.9276695150246199,
+      "reference": "0.92766951426696779459518106236358386339423648526266550959172981286",
+      "expected": 0.9276695142669678
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),1000000,1000000)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),1000000,1000000)",
+      "nativeText": "1.07797010013147",
+      "nativeValue": 1.077970100131468,
+      "reference": "1.0779701010118746874043715281375388198507596009628653529563508861",
+      "expected": 1.0779701010118747
+    },
+    {
+      "expression": "F.INV(EXP(-709),2000,2000000)",
+      "nativeFormula": "=F.INV(EXP(-709),2000,2000000)",
+      "nativeText": "0.228519845129987",
+      "nativeValue": 0.22851984512998683,
+      "reference": "0.22836257283746277510220465953383612356966297215003184127191575045",
+      "expected": 0.22836257283746278
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709),2000,2000000)",
+      "nativeFormula": "=F.INV.RT(EXP(-709),2000,2000000)",
+      "nativeText": "2.69723462231539",
+      "nativeValue": 2.6972346223153907,
+      "reference": "2.6980767237695598914963670972003033036033899921541680005411293782",
+      "expected": 2.6980767237695598
+    },
+    {
+      "expression": "F.INV.RT(EXP(-709.2),2,2)",
+      "nativeFormula": "=F.INV.RT(EXP(-709.2),2,2)",
+      "nativeText": "1.0037985541228E+308",
+      "nativeValue": 1.003798554122782e+308,
+      "reference": "1/p-1 (F with both degrees equal to 2)",
+      "expected": 1.0037985541227817e+308
+    },
+    {
+      "expression": "F.INV.RT(EXP(-710),2,2)",
+      "nativeFormula": "=F.INV.RT(EXP(-710),2,2)",
+      "nativeText": "ERR6",
+      "reference": "1/p-1 exceeds finite binary64 capacity",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "F.INV.RT(1e-308,2,2)",
+      "nativeFormula": "=F.INV.RT(0,2,2)",
+      "nativeText": "ERR6",
+      "reference": "Numeric literal underflows to zero before function evaluation",
+      "expected": {
+        "error": "#NUM!"
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+/* Printing: one sheet (#print-root) on white paper, or the current page without the app around it. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+    background: #fff !important;
+  }
+
+  /* Printing one sheet (a receipt, work order, inspection or report):
+     only that sheet. */
+  body.print-sheet > *:not(#print-root) {
+    display: none !important;
+  }
+
+  /* Printing any other page (Ctrl+P): its content without the app around it. */
+  .rail,
+  .topbar,
+  .tabbar,
+  .demo-banner,
+  .skip-link,
+  .toast-region,
+  .popover {
+    display: none !important;
+  }
+
+  .app,
+  .main-col {
+    display: block !important;
+    height: auto !important;
+  }
+
+  .content {
+    overflow: visible !important;
+  }
+
+  #print-root {
+    display: block !important;
+    color: #111;
+    --text: #111;
+    --text-2: #333;
+    --text-3: #555;
+    --surface: #fff;
+    --surface-2: #f3f4f6;
+    --border: #d4d7dc;
+    --accent-text: #1a4fb8;
+    --neutral-soft: #eef0f2;
+    --neutral: #333;
+  }
+
+  #print-root .doc-sheet {
+    padding: 0;
+  }
+
+  #print-root .table td,
+  #print-root .table th {
+    height: auto;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  #print-root .hide-print,
+  #print-root .pill::before {
+    display: none !important;
+  }
+
+  #print-root tr {
+    break-inside: avoid;
+  }
+
+  #print-root .sheet-parties {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

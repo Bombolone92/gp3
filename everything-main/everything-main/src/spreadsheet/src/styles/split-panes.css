@@ -1,0 +1,62 @@
+/* View ▸ Split: the bars between a split window's panes, each pane scrolling on its own. */
+.split-bar {
+  position: absolute;
+  z-index: 7;
+  background: var(--surface-2);
+  touch-action: none;
+}
+.split-bar[hidden] { display: none; }
+.split-bar.v {
+  top: 0;
+  bottom: 0;
+  left: -3px;
+  width: 6px;
+  border-left: 1px solid var(--hairline-strong);
+  border-right: 1px solid var(--hairline-strong);
+  cursor: col-resize;
+}
+.split-bar.h {
+  left: 0;
+  right: 0;
+  top: -3px;
+  height: 6px;
+  border-top: 1px solid var(--hairline-strong);
+  border-bottom: 1px solid var(--hairline-strong);
+  cursor: row-resize;
+}
+.split-bar.dragging { background: var(--accent); opacity: 0.6; }
+@media (hover: hover) { .split-bar:hover { background: var(--hairline-strong); } }
+
+/* A split window has no frozen boundary or freeze bars: its bars stand there instead. */
+.grid.split-panes .freeze-bar,
+.grid.split-panes .frz-rows::after,
+.grid.split-panes .frz-cols::after,
+.grid.split-panes .frz-corner::after,
+.grid.split-panes .frz-corner::before,
+.grid.split-panes .grid-rowhead-frozen::after,
+.grid.split-panes .grid-colhead-frozen::after { display: none; }
+
+/* The left and top panes' headings scroll with their panes. */
+.grid.split-panes .grid-colhead-frozen,
+.grid.split-panes .grid-rowhead-frozen { overflow: hidden; }
+.grid.split-panes .grid-colhead-frozen > * { translate: var(--pane-sl, 0px) 0; }
+.grid.split-panes .grid-rowhead-frozen > * { translate: 0 var(--pane-st, 0px); }
+
+@media (forced-colors: active) {
+  .split-bar { background: CanvasText; }
+  .split-bar.dragging { background: Highlight; }
+}
+
+/* View ▸ Show ▸ Formula Bar unticked: the formula bar goes, and the grid takes its room. */
+.editor.no-formula-bar .formula-bar { display: none; }
+
+/* The top and left panes' own scrollbars, over the first stretch of the window's. */
+.split-scroll { position: absolute; z-index: 7; background: var(--surface); }
+.split-scroll[hidden] { display: none; }
+.split-scroll.v { overflow-x: hidden; overflow-y: scroll; }
+.split-scroll.h { overflow-x: scroll; overflow-y: hidden; }
+.split-scroll.v .split-scroll-size { width: 1px; }
+.split-scroll.h .split-scroll-size { height: 1px; }
+
+/* The copies of the charts and pictures a split window's top and left panes draw take no presses. */
+.split-objects, .split-objects * { pointer-events: none !important; }

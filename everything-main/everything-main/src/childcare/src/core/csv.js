@@ -1,0 +1,89 @@
+/** RFC 4180 CSV parsing and writing. */
+
+export function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let i = 0;
+  let quoted = false;
+  const s = String(text || '').replace(/^﻿/, '');
+  while (i < s.length) {
+    const ch = s[i];
+    if (quoted) {
+      if (ch === '"') {
+        if (s[i + 1] === '"') {
+          field += '"';
+          i += 2;
+          continue;
+        }
+        quoted = false;
+        i++;
+        continue;
+      }
+      field += ch;
+      i++;
+      continue;
+    }
+    // A quote opens a quoted field only at its start; inside a field, as in
+    // 5" tall or O"Brien from hand-made files, it is a literal character.
+    if (ch === '"' && field === '' && (i === 0 || s[i - 1] === ',' || s[i - 1] === '\n' || s[i - 1] === '\r')) {
+      quoted = true;
+      i++;
+    } else if (ch === ',') {
+      row.push(field);
+      field = '';
+      i++;
+    } else if (ch === '\r' || ch === '\n') {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = '';
+      i += ch === '\r' && s[i + 1] === '\n' ? 2 : 1;
+    } else {
+      field += ch;
+      i++;
+    }
+  }
+  if (field !== '' || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows.filter((r) => r.some((c) => c.trim() !== ''));
+}
+
+/** A negative amount such as "-5", "-12.50" or "-$1,234.50": a number to a spreadsheet, never a formula. */
+const NEGATIVE_NUMBER = /^-[$€£¥₹]?\d[\d,. \u00a0\u202f]*[$€£¥₹%]?$/;
+
+function cell(v) {
+  if (v === null || v === undefined) return '';
+  let s = String(v);
+  // Neutralize spreadsheet formula injection.
+  if (/^[=+\-@\t\r]/.test(s) && !NEGATIVE_NUMBER.test(s)) s = `'${s}`;
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+export function toCSV(rows) {
+  return rows.map((r) => r.map(cell).join(',')).join('\r\n') + '\r\n';
+}
+
+/** Find the column index whose header matches any alias. */
+export function findColumn(headers, aliases) {
+  const norm = headers.map((h) => String(h).toLowerCase().replace(/[^a-z0-9]/g, ''));
+  for (const a of aliases) {
+    const idx = norm.indexOf(a.replace(/[^a-z0-9]/g, ''));
+    if (idx >= 0) return idx;
+  }
+  return -1;
+}
+
+export function downloadText(filename, text, type = 'text/csv;charset=utf-8') {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

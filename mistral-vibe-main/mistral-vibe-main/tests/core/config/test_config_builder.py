@@ -1,0 +1,449 @@
+from __future__ import annotations
+
+from typing import Annotated, Any
+
+from pydantic import BeforeValidator, Field, ValidationError
+import pytest
+
+from tests.stubs.fake_raw_layer import FakeRawLayer
+from vibe.core.config.builder import ConfigBuilder, ConfigMergeError
+from vibe.core.config.models import normalize_model_configs
+from vibe.core.config.schema import (
+    ConfigFragment,
+    ConfigSchema,
+    WithConcatMerge,
+    WithConflictMerge,
+    WithDeepMerge,
+    WithReplaceMerge,
+    WithShallowMerge,
+    WithUnionMerge,
+)
+from vibe.core.utils.merge import MergeConflictError
+
+
+class UntrustedFakeRawLayer(FakeRawLayer):
+    async def _check_trust(self) -> bool:
+        return False
+
+
+class InnerFragment(ConfigFragment):
+    value: Annotated[str, WithReplaceMerge()] = "default"
+    items: Annotated[list[str], WithConcatMerge()] = Field(default_factory=list)
+
+
+class SampleSchema(ConfigSchema):
+    name: Annotated[str, WithReplaceMerge()] = "unnamed"
+    tags: Annotated[list[str], WithConcatMerge()] = Field(default_factory=list)
+    entries: Annotated[list[dict[str, str]], WithUnionMerge(merge_key="id")] = Field(
+        default_factory=list
+    )
+    inner: InnerFragment = Field(default_factory=InnerFragment)
+
+
+@pytest.mark.asyncio
+async def test_replace_strategy_higher_layer_wins() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(FakeRawLayer(name="low", data={"name": "low-name"}))
+    builder.add_layer(FakeRawLayer(name="high", data={"name": "high-name"}))
+    config = await builder.build()
+    assert config.name == "high-name"
+
+
+@pytest.mark.asyncio
+async def test_concat_strategy_appends_lists() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(FakeRawLayer(name="base", data={"tags": ["a", "b"]}))
+    builder.add_layer(FakeRawLayer(name="extra", data={"tags": ["c"]}))
+    config = await builder.build()
+    assert config.tags == ["a", "b", "c"]
+
+
+@pytest.mark.asyncio
+async def test_union_strategy_merges_by_key() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(
+        FakeRawLayer(
+            name="base",
+            data={"entries": [{"id": "1", "v": "old"}, {"id": "2", "v": "keep"}]},
+        )
+    )
+    builder.add_layer(
+        FakeRawLayer(name="override", data={"entries": [{"id": "1", "v": "new"}]})
+    )
+    config = await builder.build()
+    assert config.entries == [{"id": "1", "v": "new"}, {"id": "2", "v": "keep"}]
+
+
+@pytest.mark.asyncio
+async def test_fragment_recursion() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(
+        FakeRawLayer(
+            name="layer1", data={"inner": {"value": "from-layer1", "items": ["x"]}}
+        )
+    )
+    builder.add_layer(FakeRawLayer(name="layer2", data={"inner": {"items": ["y"]}}))
+    config = await builder.build()
+    assert config.inner.value == "from-layer1"
+    assert config.inner.items == ["x", "y"]
+
+
+@pytest.mark.asyncio
+async def test_untrusted_layer_skipped() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(FakeRawLayer(name="trusted", data={"name": "good"}))
+    builder.add_layer(UntrustedFakeRawLayer(name="untrusted", data={"name": "bad"}))
+    config = await builder.build()
+    assert config.name == "good"
+
+
+@pytest.mark.asyncio
+async def test_empty_layers_uses_schema_defaults() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    config = await builder.build()
+    assert config.name == "unnamed"
+    assert config.tags == []
+    assert config.inner.value == "default"
+
+
+@pytest.mark.asyncio
+async def test_single_layer_partial_data() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(FakeRawLayer(name="partial", data={"name": "custom"}))
+    config = await builder.build()
+    assert config.name == "custom"
+    assert config.tags == []
+    assert config.inner.value == "default"
+
+
+# --- MERGE (shallow dict merge) ---
+
+
+class MergeSchema(ConfigSchema):
+    settings: Annotated[dict[str, Any], WithShallowMerge()] = Field(
+        default_factory=dict
+    )
+
+
+@pytest.mark.asyncio
+async def test_shallow_merge_combines_dicts() -> None:
+    builder = ConfigBuilder(MergeSchema)
+    builder.add_layer(FakeRawLayer(name="base", data={"settings": {"a": 1, "b": 2}}))
+    builder.add_layer(
+        FakeRawLayer(name="override", data={"settings": {"b": 99, "c": 3}})
+    )
+    config = await builder.build()
+    assert config.settings == {"a": 1, "b": 99, "c": 3}
+
+
+@pytest.mark.asyncio
+async def test_shallow_merge_single_layer() -> None:
+    builder = ConfigBuilder(MergeSchema)
+    builder.add_layer(FakeRawLayer(name="only", data={"settings": {"x": 1}}))
+    config = await builder.build()
+    assert config.settings == {"x": 1}
+
+
+# --- DEEP_MERGE (recursive dict merge) ---
+
+
+class DeepMergeSchema(ConfigSchema):
+    tools: Annotated[dict[str, dict[str, Any]], WithDeepMerge()] = Field(
+        default_factory=dict
+    )
+
+
+@pytest.mark.asyncio
+async def test_deep_merge_preserves_nested_tool_fields_across_layers() -> None:
+    builder = ConfigBuilder(DeepMergeSchema)
+    builder.add_layer(
+        FakeRawLayer(
+            name="base",
+            data={
+                "tools": {"bash": {"permission": "ask", "allowlist": ["git status"]}}
+            },
+        )
+    )
+    builder.add_layer(
+        FakeRawLayer(
+            name="override", data={"tools": {"bash": {"allowlist": ["git diff"]}}}
+        )
+    )
+    builder.add_layer(
+        FakeRawLayer(
+            name="extra-tool", data={"tools": {"read_file": {"permission": "always"}}}
+        )
+    )
+
+    config = await builder.build()
+
+    assert config.tools == {
+        "bash": {"permission": "ask", "allowlist": ["git diff"]},
+        "read_file": {"permission": "always"},
+    }
+
+
+@pytest.mark.asyncio
+async def test_deep_merge_records_the_entries_each_layer_defines() -> None:
+    builder = ConfigBuilder(DeepMergeSchema)
+    builder.add_layer(
+        FakeRawLayer(
+            name="base", data={"tools": {"grep": {}, "bash": {"permission": "ask"}}}
+        )
+    )
+    builder.add_layer(FakeRawLayer(name="untouched", data={}))
+    builder.add_layer(
+        FakeRawLayer(name="override", data={"tools": {"bash": {"allowlist": []}}})
+    )
+
+    config = await builder.build()
+
+    assert config.defined_entries_by_layer("tools") == {
+        "base": ("grep", "bash"),
+        "override": ("bash",),
+    }
+    assert config.origin_of("tools") == "override"
+
+
+@pytest.mark.asyncio
+async def test_models_before_validator_runs_before_merge() -> None:
+    class ModelMergeSchema(ConfigSchema):
+        models: Annotated[
+            dict[str, dict[str, Any]],
+            WithDeepMerge(),
+            BeforeValidator(normalize_model_configs),
+        ] = Field(default_factory=dict)
+
+    builder = ConfigBuilder(ModelMergeSchema)
+    builder.add_layer(
+        FakeRawLayer(
+            name="base",
+            data={"models": [{"alias": "m1", "name": "model-1", "provider": "p1"}]},
+        )
+    )
+    builder.add_layer(
+        FakeRawLayer(name="override", data={"models": {"m1": {"thinking": "high"}}})
+    )
+
+    config = await builder.build()
+
+    assert config.models == {
+        "m1": {"alias": "m1", "name": "model-1", "provider": "p1", "thinking": "high"}
+    }
+
+
+@pytest.mark.asyncio
+async def test_non_model_before_validators_do_not_run_before_merge() -> None:
+    calls: list[Any] = []
+
+    def record(value: Any) -> Any:
+        calls.append(value)
+        return value
+
+    class BeforeValidatorSchema(ConfigSchema):
+        name: Annotated[str, WithReplaceMerge(), BeforeValidator(record)] = "default"
+
+    builder = ConfigBuilder(BeforeValidatorSchema)
+    builder.add_layer(FakeRawLayer(name="layer", data={"name": "custom"}))
+
+    config = await builder.build()
+
+    assert config.name == "custom"
+    assert calls == ["custom"]
+
+
+# --- CONFLICT ---
+
+
+class ConflictSchema(ConfigSchema):
+    unique_id: Annotated[str, WithConflictMerge()] = ""
+
+
+@pytest.mark.asyncio
+async def test_conflict_single_layer_succeeds() -> None:
+    builder = ConfigBuilder(ConflictSchema)
+    builder.add_layer(FakeRawLayer(name="only", data={"unique_id": "abc"}))
+    config = await builder.build()
+    assert config.unique_id == "abc"
+
+
+@pytest.mark.asyncio
+async def test_conflict_two_layers_raises() -> None:
+    builder = ConfigBuilder(ConflictSchema)
+    builder.add_layer(FakeRawLayer(name="first", data={"unique_id": "abc"}))
+    builder.add_layer(FakeRawLayer(name="second", data={"unique_id": "def"}))
+    with pytest.raises(MergeConflictError):
+        await builder.build()
+
+
+# --- 4-layer merge with mixed strategies ---
+
+
+class FourLayerSchema(ConfigSchema):
+    active_model: Annotated[str, WithReplaceMerge()] = "default"
+    tags: Annotated[list[str], WithConcatMerge()] = Field(default_factory=list)
+    models: Annotated[list[dict[str, str]], WithUnionMerge(merge_key="alias")] = Field(
+        default_factory=list
+    )
+    settings: Annotated[dict[str, Any], WithShallowMerge()] = Field(
+        default_factory=dict
+    )
+
+
+@pytest.mark.asyncio
+async def test_four_layers_with_mixed_strategies() -> None:
+    builder = ConfigBuilder(FourLayerSchema)
+    builder.add_layer(
+        FakeRawLayer(
+            name="defaults",
+            data={
+                "active_model": "model-a",
+                "tags": ["core"],
+                "models": [{"alias": "m1", "provider": "p1"}],
+                "settings": {"timeout": 30},
+            },
+        )
+    )
+    builder.add_layer(
+        FakeRawLayer(
+            name="user",
+            data={
+                "active_model": "model-b",
+                "tags": ["user"],
+                "models": [{"alias": "m2", "provider": "p2"}],
+                "settings": {"timeout": 60, "debug": True},
+            },
+        )
+    )
+    builder.add_layer(
+        FakeRawLayer(
+            name="project",
+            data={
+                "tags": ["project"],
+                "models": [{"alias": "m1", "provider": "p1-override"}],
+            },
+        )
+    )
+    builder.add_layer(FakeRawLayer(name="cli", data={"active_model": "model-d"}))
+
+    config = await builder.build()
+
+    assert config.active_model == "model-d"
+
+    assert config.tags == ["core", "user", "project"]
+
+    assert config.models == [
+        {"alias": "m1", "provider": "p1-override"},
+        {"alias": "m2", "provider": "p2"},
+    ]
+
+    assert config.settings == {"timeout": 60, "debug": True}
+
+
+# --- Validation errors ---
+
+
+class StrictSchema(ConfigSchema):
+    count: Annotated[int, WithReplaceMerge()]
+    name: Annotated[str, WithReplaceMerge()] = "default"
+
+
+@pytest.mark.asyncio
+async def test_validation_error_on_missing_required_field() -> None:
+    builder = ConfigBuilder(StrictSchema)
+    builder.add_layer(FakeRawLayer(name="incomplete", data={"name": "hello"}))
+    with pytest.raises(ValidationError, match="count"):
+        await builder.build()
+
+
+@pytest.mark.asyncio
+async def test_validation_error_on_wrong_type() -> None:
+    builder = ConfigBuilder(StrictSchema)
+    builder.add_layer(
+        FakeRawLayer(name="bad-type", data={"count": "not-a-number", "name": "hello"})
+    )
+    with pytest.raises(ValidationError):
+        await builder.build()
+
+
+@pytest.mark.asyncio
+async def test_invalid_mcp_server_table_reports_actionable_config_error() -> None:
+    class McpSchema(ConfigSchema):
+        mcp_servers: Annotated[
+            list[dict[str, Any]], WithUnionMerge(merge_key="name")
+        ] = Field(default_factory=list)
+
+    builder = ConfigBuilder(McpSchema)
+    builder.add_layer(FakeRawLayer(name="defaults", data={"mcp_servers": []}))
+    builder.add_layer(
+        FakeRawLayer(
+            name="user-toml",
+            data={"mcp_servers": {"growthbook-staging": {"transport": "stdio"}}},
+        )
+    )
+
+    with pytest.raises(ConfigMergeError) as exc_info:
+        await builder.build()
+
+    assert str(exc_info.value) == (
+        "Invalid configuration: mcp_servers from user-toml must be a list, not a "
+        "dictionary. Use [[mcp_servers]] instead of [mcp_servers.<name>]."
+    )
+
+
+# --- Fragment defaults ---
+
+
+@pytest.mark.asyncio
+async def test_fragment_defaults_when_no_layer_provides() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    config = await builder.build()
+
+    assert config.inner.value == "default"
+    assert config.inner.items == []
+
+
+# --- Edge cases ---
+
+
+@pytest.mark.asyncio
+async def test_concat_with_empty_list_from_one_layer() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(FakeRawLayer(name="empty", data={"tags": []}))
+    builder.add_layer(FakeRawLayer(name="full", data={"tags": ["a"]}))
+    config = await builder.build()
+    assert config.tags == ["a"]
+
+
+@pytest.mark.asyncio
+async def test_union_with_empty_list_from_one_layer() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(FakeRawLayer(name="empty", data={"entries": []}))
+    builder.add_layer(
+        FakeRawLayer(name="full", data={"entries": [{"id": "1", "v": "a"}]})
+    )
+    config = await builder.build()
+    assert config.entries == [{"id": "1", "v": "a"}]
+
+
+@pytest.mark.asyncio
+async def test_all_layers_untrusted_uses_defaults() -> None:
+    builder = ConfigBuilder(SampleSchema)
+    builder.add_layer(UntrustedFakeRawLayer(name="u1", data={"name": "bad1"}))
+    builder.add_layer(UntrustedFakeRawLayer(name="u2", data={"name": "bad2"}))
+    config = await builder.build()
+    assert config.name == "unnamed"
+
+
+class NullableSchema(ConfigSchema):
+    value: Annotated[str | None, WithReplaceMerge()] = "default"
+
+
+@pytest.mark.asyncio
+async def test_replace_none_means_absent_so_base_wins() -> None:
+    builder = ConfigBuilder(NullableSchema)
+    builder.add_layer(FakeRawLayer(name="base", data={"value": "hello"}))
+    builder.add_layer(FakeRawLayer(name="nullifier", data={"value": None}))
+    config = await builder.build()
+    # None is treated as "not provided" by MergeStrategy, so base wins
+    assert config.value == "hello"

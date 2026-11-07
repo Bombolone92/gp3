@@ -1,0 +1,180 @@
+/* Compositor editor header extras */
+.nd-header .hdr-toggle.cmp-backdrop {
+  padding: 0 10px;
+  margin: 0 2px;
+  font-size: 12px;
+}
+.nd-header .cmp-errors {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 6px;
+  color: var(--error, #dc5851);
+  font-size: 11px;
+}
+.cmp-rl-body {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+}
+.cmp-rl-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 21px;
+  padding: 0 6px;
+  background: var(--w-menu, #252627);
+  border-radius: 3px;
+  color: var(--t-dd, #dedfe1);
+  font-size: 11px;
+}
+.cmp-rl-row span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmp-rl-render {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 19px;
+  border-radius: 3px;
+  background: var(--g-54, #525354);
+}
+.cmp-rl-render:hover {
+  background: var(--g-66, #646567);
+}
+
+.cmp-sample {
+  position: absolute;
+  z-index: 5;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: rgb(from var(--g-14, #101113) r g b / 0.92);
+  color: var(--t-e6, #e8e9ea);
+  font: 11px var(--mono, monospace);
+  white-space: pre;
+  pointer-events: none;
+}
+
+/* node bodies: rows of small controls (File Output inputs, Cryptomatte buttons, Track Position) */
+.cmp-body-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.cmp-body-row {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  min-width: 0;
+}
+.cmp-body-row > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+.cmp-body-row .btn,
+.cmp-body-row button {
+  height: 20px;
+}
+
+/* asset shelf with the built-in effects */
+.cmp-shelf-host {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+}
+.cmp-shelf-host[hidden] {
+  display: none;
+}
+.cmp-shelf {
+  display: flex;
+  flex-direction: column;
+  background: rgb(from var(--g-24, #1d1d1f) r g b / 0.94);
+  border-top: 1px solid var(--g-16, #121315);
+}
+.cmp-shelf-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.cmp-shelf-tab {
+  height: 20px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: var(--c-text);
+  font: inherit;
+  cursor: pointer;
+}
+.cmp-shelf-tab.on {
+  background: var(--w-regular);
+}
+.cmp-shelf-search {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 3px;
+  background: var(--w-field);
+}
+.cmp-shelf-search input {
+  width: 120px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+.cmp-shelf-tiles {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  overflow-x: auto;
+}
+.cmp-shelf-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 104px;
+  flex: none;
+  padding: 3px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--c-text);
+  font: inherit;
+  cursor: pointer;
+}
+.cmp-shelf-tile:hover {
+  background: var(--w-regular);
+}
+.cmp-shelf-tile img,
+.cmp-shelf-noimg {
+  width: 96px;
+  height: 64px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+}
+.cmp-shelf-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

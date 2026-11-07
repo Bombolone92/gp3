@@ -1,0 +1,212 @@
+{
+  "application": "Microsoft Excel 16.113.26091433 for Mac",
+  "method": "Formula assignments to an existing disposable worksheet; evaluate IFERROR(SUM(result cell),-1000-ERROR.TYPE(result cell)). Negative error codes are -1000 minus ERROR.TYPE, not worksheet values. SUM reduces these single-cell results to a numeric comparison and ignores logical cell values. Boolean/reference identity is also checked independently in the unit tests and read-only evaluator probes.",
+  "scriptSha256": "52b80bda3f55c334370e1062c806184689091836161ee29d8a7a527cad72753e",
+  "captureSha256": "64a822537380f920b54e0642551c94a47d41a2506181f7683d2f60ad372566d1",
+  "data": {
+    "AA101": "1",
+    "AB101": "2",
+    "AC101": "3",
+    "AD101": "4",
+    "AE101": "5",
+    "AA102": "11",
+    "AB102": "12",
+    "AC102": "13",
+    "AD102": "14",
+    "AE102": "15",
+    "AA103": "21",
+    "AB103": "22",
+    "AC103": "23",
+    "AD103": "24",
+    "AE103": "25",
+    "AA104": "31",
+    "AB104": "32",
+    "AC104": "33",
+    "AD104": "34",
+    "AE104": "35",
+    "AA105": "41",
+    "AB105": "42",
+    "AC105": "43",
+    "AD105": "44",
+    "AE105": "45",
+    "AA106": "51",
+    "AB106": "52",
+    "AC106": "53",
+    "AD106": "54",
+    "AE106": "55"
+  },
+  "cases": [
+    {
+      "formula": "AA101 AB102",
+      "sumOrErrorCode": -1001
+    },
+    {
+      "formula": "AA101 AA101",
+      "sumOrErrorCode": 1
+    },
+    {
+      "formula": "SUM(AA101:AC104 AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(AA101:AC104  AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(AA101:AC104\nAB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(AA101:AC104 \n AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(AA:AC 102:103)",
+      "sumOrErrorCode": 102
+    },
+    {
+      "formula": "SUM(102:103 AA:AC)",
+      "sumOrErrorCode": 102
+    },
+    {
+      "formula": "SUM(AA101:AC104 AB102:AD105 AC103:AE106)",
+      "sumOrErrorCode": 56
+    },
+    {
+      "formula": "SUM((AA101:AA103,AC101:AC103) AA102:AC102)",
+      "sumOrErrorCode": 24
+    },
+    {
+      "formula": "AREAS((AA101:AA103,AC101:AC103) AA102:AC102)",
+      "sumOrErrorCode": 2
+    },
+    {
+      "formula": "SUM((AA101:AA103,AA102:AA104) AA102:AA103)",
+      "sumOrErrorCode": 64
+    },
+    {
+      "formula": "AREAS((AA101:AA103,AA102:AA104) AA102:AA103)",
+      "sumOrErrorCode": 2
+    },
+    {
+      "formula": "SUM(AA101:AC104 (AB102:AD105,AC103:AE106))",
+      "sumOrErrorCode": 191
+    },
+    {
+      "formula": "AREAS(AA101:AC104 (AB102:AD105,AC103:AE106))",
+      "sumOrErrorCode": 2
+    },
+    {
+      "formula": "SUM((AA101:AA103,AA102:AA104) (AA102:AA103,AA103:AA105))",
+      "sumOrErrorCode": 137
+    },
+    {
+      "formula": "AREAS((AA101:AA103,AA102:AA104) (AA102:AA103,AA103:AA105))",
+      "sumOrErrorCode": 4
+    },
+    {
+      "formula": "SUM(AA101:INDEX(AA101:AC105,4,3) AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(OFFSET(AA101,0,0,4,3) AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(INDIRECT(\"AA101:AC104\") AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(IF(TRUE,AA101:AC104,AD105) AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(CHOOSE(1,AA101:AC104,AD105) AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(LET(block,AA101:AC104,block AB102:AD105))",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(LAMBDA(block,block AB102:AD105)(AA101:AC104))",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM((AA101:AC104) (AB102:AD105))",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM((AA101:AC104 AB102:AD105,AC103))",
+      "sumOrErrorCode": 158
+    },
+    {
+      "formula": "SUM(#REF! AB102:AD105)",
+      "sumOrErrorCode": -1004
+    },
+    {
+      "formula": "ISREF(AA101:AA103 AA102)",
+      "sumOrErrorCode": 0
+    },
+    {
+      "formula": "ROW(AA101:AC104 AB102:AD102)",
+      "sumOrErrorCode": 102
+    },
+    {
+      "formula": "COLUMN(AA101:AC104 AB102:AB104)",
+      "sumOrErrorCode": 28
+    },
+    {
+      "formula": "ROWS(AA101:AC104 AB102:AD105)",
+      "sumOrErrorCode": 3
+    },
+    {
+      "formula": "COLUMNS(AA101:AC104 AB102:AD105)",
+      "sumOrErrorCode": 2
+    },
+    {
+      "formula": "SUM(AA101:AA104 AB102:AC105)+1",
+      "sumOrErrorCode": -1001
+    },
+    {
+      "formula": "IFERROR(AA101 AB102,99)",
+      "sumOrErrorCode": 99
+    },
+    {
+      "formula": "SUM(AA101 : AC104 AB102:AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(AA101:AC104 AB102 : AD105)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM((AA101:AC104 AB102:AD105):AE106)",
+      "sumOrErrorCode": 670
+    },
+    {
+      "formula": "SUM(AA101:AC104 AB102:AD105:AE106)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(AA101:AC104 (AB102:AD105):AE106)",
+      "sumOrErrorCode": 135
+    },
+    {
+      "formula": "SUM(INDEX(AA101:AC104,0,2) AB102:AD105)",
+      "sumOrErrorCode": 66
+    },
+    {
+      "formula": "SUM((AA101:AA103,AC101:AC103) AB101:AB103)",
+      "sumOrErrorCode": -1001
+    },
+    {
+      "formula": "AREAS((AA101:AA103,AC101:AC103) AB101:AB103)",
+      "sumOrErrorCode": -1001
+    },
+    {
+      "formula": "INDEX((AA101:AA103,AC101:AC103) AA102:AC102,1,1,2)",
+      "sumOrErrorCode": 13
+    }
+  ]
+}

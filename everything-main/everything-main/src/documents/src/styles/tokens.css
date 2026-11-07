@@ -1,0 +1,145 @@
+/* Design tokens. Light is the default; dark applies by OS preference unless
+   the app stamped light, and by an explicit [data-theme="dark"] stamp which
+   wins in both directions. Flat surfaces only: no gradients, no shadows. */
+
+:root {
+  color-scheme: light;
+
+  --page: #f9f9f7;
+  --surface: #ffffff;
+  --surface-2: #f2f1ee;
+  --surface-3: #e7e6e1;
+  --ink: #0b0b0b;
+  --ink-2: #4f4e4b;
+  --ink-3: #6b6964;
+  --hairline: rgba(11, 11, 11, 0.1);
+  --hairline-strong: rgba(11, 11, 11, 0.18);
+  /* Field borders: dark enough to find the field on the panel it sits on (3:1). */
+  --control-border: rgba(11, 11, 11, 0.45);
+  --scrim: rgba(11, 11, 11, 0.44);
+
+  /* The editor canvas behind the paper, and the paper itself. */
+  --canvas: #ecebe7;
+  --paper: #ffffff;
+  --paper-ink: #111111;
+
+  /* Accent fill carries white text, so it needs 4.5:1 with white. */
+  /* Median opaque blue sampled from the project icon. */
+  --brand: #375f91;
+  --accent: var(--brand);
+  --accent-strong: #2c4c74;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(55, 95, 145, 0.12);
+  /* Selected text in the app's own fields: an opaque tint, since a wash of the accent is invisible. */
+  --selection: #c3cfde;
+  /* Toasts invert the theme (dark on light, light on dark), so their action
+     link takes the other theme's accent to stay legible. */
+  --toast-action: #a9c5e5;
+  /* The toolbar selects' chevron, in the theme's --ink-3 (a background image cannot read a color token). */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6964' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+  --pos: #006300;
+  --critical: #c22a2a;
+  --critical-wash: rgba(194, 42, 42, 0.1);
+  --warn: #8a5a00;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-full: 999px;
+
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --topbar-h: 52px;
+  --toolbar-h: 44px;
+  --statusbar-h: 30px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #161616;
+    --surface-2: #1f1f1e;
+    --surface-3: #2a2a29;
+    --ink: #f5f5f2;
+    --ink-2: #c3c2b7;
+    --ink-3: #918f88;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --hairline-strong: rgba(255, 255, 255, 0.2);
+    --control-border: rgba(255, 255, 255, 0.42);
+    --scrim: rgba(0, 0, 0, 0.6);
+
+    --canvas: #0d0d0d;
+    --paper: #f6f6f3;
+    --paper-ink: #111111;
+
+    --accent: #88acd5;
+    --accent-strong: #a9c5e5;
+    --accent-ink: #0d0d0d;
+    --accent-wash: rgba(136, 172, 213, 0.18);
+    --selection: #3e4b59;
+    --toast-action: #2c4c74;
+    --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23918f88' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+    --pos: #3fb950;
+    --critical: #ef6f6f;
+    --critical-wash: rgba(239, 111, 111, 0.14);
+    --warn: #e0a22e;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #161616;
+  --surface-2: #1f1f1e;
+  --surface-3: #2a2a29;
+  --ink: #f5f5f2;
+  --ink-2: #c3c2b7;
+  --ink-3: #918f88;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-strong: rgba(255, 255, 255, 0.2);
+    --control-border: rgba(255, 255, 255, 0.42);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --canvas: #0d0d0d;
+  --paper: #f6f6f3;
+  --paper-ink: #111111;
+
+  --accent: #88acd5;
+  --accent-strong: #a9c5e5;
+  --accent-ink: #0d0d0d;
+  --accent-wash: rgba(136, 172, 213, 0.18);
+  --selection: #3e4b59;
+  --toast-action: #2c4c74;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23918f88' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+  --pos: #3fb950;
+  --critical: #ef6f6f;
+  --critical-wash: rgba(239, 111, 111, 0.14);
+  --warn: #e0a22e;
+}
+
+/* Optional dark page: keeps the paper dark too. Colors authored into the
+   document are shown as-is, so this is a preference rather than the default. */
+@media (prefers-color-scheme: dark) {
+  :root[data-page="dark"]:where(:not([data-theme="light"])) {
+    --paper: #1c1c1b;
+    --paper-ink: #ececea;
+    --paper-link: #8ab4f8;
+  }
+}
+
+:root[data-theme="dark"][data-page="dark"] {
+  --paper: #1c1c1b;
+  --paper-ink: #ececea;
+  --paper-link: #8ab4f8;
+}

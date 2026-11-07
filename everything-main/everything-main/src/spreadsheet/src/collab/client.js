@@ -1,0 +1,566 @@
+/**
+ * One browser's connection to a shared workbook: joining, loading the latest checkpoint and the log after it,
+ * sending this person's changes (kept in the outbox until the room has them, so edits made offline are sent
+ * when the connection returns, even after a reload), fetching everyone else's, writing checkpoints, change
+ * notifications, presence, and live peer links. The workbook model is in replica.js; this module only moves
+ * its changes. Its shape follows Photo Studio's room client (itself from the Whiteboard app).
+ */
+
+import { Workbook } from '../core/workbook.js';
+import { Replica } from './replica.js';
+import { call, CollabError } from './api.js';
+import { canEdit, hash, keyPair, MAX_PEER_CHANGE, packState, unpackState, verify } from './protocol.js';
+import { PeerNetwork } from './peers.js';
+import { MAX_BATCH, MAX_CHANGE } from './ops.js';
+import { outboxKey } from './outbox.js';
+import { t } from '../i18n/index.js';
+import { sanitizeState } from './server/service.js';
+
+/** Revisions between checkpoints written by an editor's browser. */
+const CHECKPOINT_EVERY = 50;
+/** And the longest a revision waits for one while people keep editing. */
+const CHECKPOINT_IDLE = 60_000;
+/** A checkpoint that could not be written (offline, say) is tried again after this long, not at every tick. */
+const CHECKPOINT_RETRY = 30_000;
+/** People not heard from for this long are taken off the list. */
+const PEOPLE_TTL = 20_000;
+/** The worker's refusal of a check-in past the room's participant limit. */
+const roomFull = (error) => error instanceof CollabError && error.status === 429 && error.message === 'This shared workbook has reached its participant limit.';
+
+/** The oldest of `changes` that fit in one commit: at most `limit` of them and MAX_CHANGE characters (at least one, which the room judges). */
+function batch(changes, limit) {
+  let size = 2;
+  for (let n = 0; n < changes.length && n < limit; n++) {
+    size += JSON.stringify(changes[n]).length + (n ? 1 : 0);
+    if (n && size > MAX_CHANGE) return changes.slice(0, n);
+  }
+  return changes.slice(0, limit);
+}
+
+export class RoomClient extends EventTarget {
+  /**
+   * o: { puter, server, room, token?, store (outbox.js), poll (ms without live links), noPeers, toXlsx(wb) → bytes? }
+   * Events: 'status', 'people', 'remote' ({ structural }), 'role', 'refused' ({ message }), 'closed' ({ message }).
+   */
+  constructor(o) {
+    super();
+    this.o = o;
+    this.room = o.room;
+    this.role = 'viewer';
+    this.user = null;
+    this.owner = null;
+    this.name = '';
+    this.file = null;
+    this.roomKey = null;
+    this.status = { state: 'connecting', pending: 0 };
+    this.people = new Map(); // session → { session, user, username, role, state, at }
+    this.roster = [];
+    this.session = crypto.randomUUID().replaceAll('-', '');
+    this.timers = [];
+    this.closed = false;
+    /** Changes this browser kept from an earlier visit that could not be sent: this person may only view the workbook now. */
+    this.dropped = 0;
+    this.queue = Promise.resolve();
+    this.lastCheckpoint = 0;
+    this.lastCheckpointAt = Date.now();
+    this.retryDelay = 1000;
+  }
+
+  request(input) {
+    return call(this.o.puter, this.o.server, { room: this.room, ...input });
+  }
+
+  /** Run work on the replica one piece at a time (responses must land in the order of the log). */
+  serial(fn) {
+    const run = this.queue.then(fn);
+    this.queue = run.catch(() => {});
+    return run;
+  }
+
+  get canEdit() { return canEdit(this.role); }
+
+  /** Whether changes not yet sent outlast this page, to be sent when the workbook is opened here again. */
+  get keepsChanges() { return !this.halted && !this.closed && this.canEdit && this.o.store?.durable !== false; }
+
+  /* ---------- Creating, joining and opening ---------- */
+
+  /** Create the room for a workbook (its owner, on their own worker). Returns the room ID. */
+  static async create({ puter, server, wb, name, file = null }) {
+    const room = crypto.randomUUID().replaceAll('-', '');
+    const state = await packState(new Replica(new Workbook(wb.toJSON())).checkpoint());
+    await call(puter, server, { op: 'create', room, name, state, file });
+    return room;
+  }
+
+  /** Join the room and open its workbook: resolves to the Workbook, kept in step with the room from then on. */
+  async open() {
+    let res;
+    try {
+      res = await this.request({ op: 'join', ...(this.o.token ? { token: this.o.token } : {}) });
+    } catch (error) {
+      // Closed, the room never takes what this browser kept to send it, whoever's it was.
+      if (error instanceof CollabError && error.status === 410) await this.o.store?.sweep((r) => r?.room === this.room).catch(() => {});
+      throw error;
+    }
+    this.role = res.role;
+    this.user = res.user;
+    this.owner = res.owner;
+    this.roomKey = res.publicKey;
+    this.name = res.name;
+    this.file = res.file;
+    this.events = res.events;
+    // This account's unsent changes only: another account's, kept in this browser, are never sent as this one's.
+    this.outboxKey = outboxKey(this.user.uuid, this.room);
+    const kept = await this.o.store.get(this.outboxKey);
+    const saved = kept?.user === this.user.uuid && kept.room === this.room ? kept : null;
+    const loaded = await this.request({ op: 'load', ...(saved ? { at: saved.rev } : {}) });
+    const state = await unpackState(loaded.state);
+    this.wb = new Workbook(state);
+    this.wb.markClean?.();
+    this.replica = new Replica(this.wb, { rev: loaded.rev, readOnly: !this.canEdit });
+    this.lastCheckpoint = loaded.rev;
+    // Changes this browser made before and never delivered go back on top of the revision they were made on.
+    if (saved?.pending?.length && saved.rev >= loaded.rev && this.canEdit) {
+      this.replica.receive(loaded.records.filter((r) => r.rev <= saved.rev));
+      // The log after the checkpoint can be longer than one answer carries: the rest up to that revision is fetched
+      // first, or the changes would be put back too early and moved again by records they were made after.
+      while (this.replica.rev < saved.rev) {
+        const more = (await this.request({ op: 'sync', since: this.replica.rev })).records.filter((r) => r.rev <= saved.rev);
+        if (!more.length) break;
+        this.replica.receive(more);
+      }
+      this.replica.restorePending(saved.pending);
+      this.replica.receive(loaded.records.filter((r) => r.rev > saved.rev));
+    } else {
+      this.replica.receive(loaded.records);
+      // Changes kept for an account that may no longer edit cannot be sent: the editor says so (see `dropped`).
+      if (saved?.pending?.length && !this.canEdit) this.dropped = saved.pending.length;
+      if (kept) await this.o.store.delete(this.outboxKey);
+    }
+    this.replica.addEventListener('local', () => { this.persist(); this.flush(); });
+    this.replica.addEventListener('remote', (e) => this.dispatchEvent(new CustomEvent('remote', { detail: e.detail })));
+    this.replica.addEventListener('refused', () => this.dispatchEvent(new CustomEvent('refused', { detail: { message: t('collabClient.viewOnly') } })));
+    this.subscribe(res.events);
+    this.timers.push(setInterval(() => { if (!this.connectedPeers() || Date.now() - this.lastSync > 20_000) this.scheduleSync(0); }, this.o.poll ?? 4000));
+    this.timers.push(setInterval(() => this.checkIn().catch(() => {}), 15_000));
+    this.timers.push(setInterval(() => this.tick(), 2000));
+    this.setStatus();
+    await this.checkIn().catch(() => {});
+    await this.sync().catch((e) => this.failed(e));
+    if (this.replica.pending.length) this.flush();
+    return this.wb;
+  }
+
+  /**
+   * The owner's consent for this app to give the people they share with a handle on the room's change signal;
+   * without it, they hear of changes only by polling. Puter remembers the answer, so it prompts at most once.
+   */
+  async allowLiveUpdates() {
+    const { perms, appID } = this.o.puter;
+    const app = this.events?.app;
+    if (this.role !== 'owner' || !app || app !== appID || typeof perms?.request !== 'function') return false;
+    const granted = await (perms.Resource?.KV_SHARE
+      ? perms.request(perms.Resource.KV_SHARE, { prefix: 'ss:', access: 'watch' })
+      : perms.request('permission', { permission: `manage:kv-share:${this.user.uuid}:${app}:ss` })).catch(() => false);
+    if (granted) await this.request({ op: 'events', consented: true }).catch(() => {});
+    return !!granted;
+  }
+
+  connectedPeers() { return this.peers?.connectedSessions.length ?? 0; }
+
+  async subscribe(events) {
+    const on = this.o.puter.events?.onLocal;
+    if (!events || !on || this.closed) return;
+    const subject = events.handle ? `kv:${events.handle}:${events.key}` : `kv:${events.app}:${events.key}`;
+    try {
+      // A notice of a change this copy already holds (its own, or one a peer link brought) needs nothing. Any other
+      // notice prompts a synchronization and a check-in; one without its value (Puter leaves out large ones) too.
+      // An author's own notice can arrive before the answer to its commit, so it is looked at again after a moment.
+      this.subscription = await this.o.puter.events.onLocal(subject, ({ event } = {}) => {
+        const rev = event?.value?.rev;
+        const held = () => Number.isInteger(rev) && this.replica && rev <= this.replica.rev;
+        if (held()) return;
+        setTimeout(() => {
+          if (this.closed || held()) return;
+          this.scheduleSync(0);
+          this.soonCheckIn();
+        }, 100);
+      }, { includeValue: true });
+      if (this.closed) this.subscription.off();
+    } catch { /* Polling and peer notices still deliver changes. */ }
+  }
+
+  /* ---------- Synchronizing ---------- */
+
+  scheduleSync(delay = 150) {
+    if (this.closed || this.halted || this.syncTimer) return;
+    this.syncTimer = setTimeout(() => { this.syncTimer = null; this.sync().catch((e) => this.failed(e)); }, delay);
+  }
+
+  /** Fetch the changes the room has and this browser lacks. */
+  sync() {
+    if (this.syncing) return this.syncing;
+    this.syncing = this.serial(async () => {
+      for (let round = 0; round < 20 && !this.closed; round++) {
+        const res = await this.request({ op: 'sync', since: this.replica.rev });
+        this.lastSync = Date.now();
+        this.noteRole(res.role);
+        this.lastCheckpoint = Math.max(this.lastCheckpoint, res.checkpoint || 0);
+        if (res.records.length) { this.replica.receive(res.records); await this.persist(); }
+        if (this.replica.rev >= res.head || !res.records.length) break;
+      }
+      // A request the room could not verify (401), or a copy ahead of it (409), is no lasting refusal: one that goes through again ends it.
+      if (this.status.state !== 'error' || [401, 409].includes(this.status.code)) this.setStatus('connected');
+      this.maybeCheckpoint();
+    }).finally(() => { this.syncing = null; });
+    return this.syncing;
+  }
+
+  noteRole(role) {
+    if (!role || role === this.role) return;
+    this.role = role;
+    this.replica.readOnly = !this.canEdit;
+    this.dispatchEvent(new CustomEvent('role', { detail: { role } }));
+  }
+
+  /** Keep what is pending in the outbox (or clear it once nothing is). */
+  async persist() {
+    if (!this.replica) return;
+    // A room that is gone never takes them: nothing is kept for it.
+    const pending = this.gone ? [] : this.replica.outgoing();
+    if (pending.length) await this.o.store.put(this.outboxKey, { room: this.room, user: this.user.uuid, rev: this.replica.rev, pending, at: Date.now() });
+    else await this.o.store.delete(this.outboxKey);
+    this.setStatus();
+  }
+
+  /**
+   * Send pending changes (one commit at a time; a refused one is rebased and sent again). A commit carries as
+   * many of the oldest as the room takes in one (MAX_BATCH changes, MAX_CHANGE characters), so a long spell
+   * offline drains in several. A batch the room refuses for good is split until the change it refuses is the
+   * one sent alone: the ones before it still arrive.
+   */
+  flush() {
+    if (this.closed || this.halted) return Promise.resolve();
+    if (this.flushing) { this.flushAgain = true; return this.flushing; }
+    clearTimeout(this.retryTimer);
+    this.flushing = this.serial(async () => {
+      let limit = MAX_BATCH;
+      let answered = false; // the room was reached: only then does this say anything of the connection
+      let stalled = false; // the room took nothing, and had nothing new to rebase on
+      for (let round = 0; !this.closed; ) {
+        if (round >= 50) { stalled = true; break; }
+        this.flushAgain = false;
+        const changes = batch(this.replica.outgoing(), limit);
+        if (!changes.length) break;
+        if (!this.canEdit) { this.replica.discardPending(); await this.persist(); break; }
+        this.setStatus('syncing');
+        let res;
+        try {
+          res = await this.request({ op: 'commit', base: this.replica.rev, changes, session: this.session });
+          answered = true;
+        } catch (error) {
+          if (error instanceof CollabError && [400, 413, 422].includes(error.status) && changes.length > 1) {
+            limit = Math.ceil(changes.length / 2);
+            round++;
+            continue;
+          }
+          if (error instanceof CollabError && [400, 403, 413, 422].includes(error.status)) {
+            // Refused for good: later changes may build on it, so they go too, and the workbook shows the room's state.
+            answered = true;
+            this.replica.discardPending();
+            await this.persist();
+            this.dispatchEvent(new CustomEvent('refused', { detail: { message: error.message } }));
+            // The room is asked what changed (a role, say) once this sending is done: a synchronization waits its turn
+            // behind it, and awaited here, neither would ever finish.
+            if (error.status === 403) this.scheduleSync(0);
+            break;
+          }
+          throw error;
+        }
+        this.replica.receive(res.records);
+        await this.persist();
+        if (res.accepted) {
+          this.announce(res);
+          if (!this.flushAgain && !this.replica.pending.length) break;
+        } else if (!res.records.length) { stalled = true; break; } else round++;
+      }
+      // Nothing to send says nothing of the connection: an offline status stands until the room answers.
+      if (answered) { if (!stalled) this.retryDelay = 1000; this.setStatus('connected'); } else this.setStatus();
+      // The room's next place in the log is held by a commit not written yet (one that failed half way is given up after a
+      // while), or others kept getting there first: the changes are sent again shortly, not at once nor only with the next edit.
+      if (stalled && this.replica.pending.length && !this.closed) {
+        this.retryTimer = setTimeout(() => this.flush(), this.retryDelay);
+        this.retryDelay = Math.min(30_000, this.retryDelay * 2);
+      }
+      this.maybeCheckpoint();
+    }).catch((error) => {
+      this.failed(error);
+      if (!this.closed && !(error instanceof CollabError && [403, 404, 410].includes(error.status))) {
+        this.retryTimer = setTimeout(() => this.flush(), this.retryDelay);
+        this.retryDelay = Math.min(30_000, this.retryDelay * 2);
+      }
+    }).finally(() => {
+      this.flushing = null;
+      if (this.flushAgain && !this.closed) this.flush();
+    });
+    return this.flushing;
+  }
+
+  /** Tell linked peers of an accepted change: small ones travel whole, with the room's receipt. */
+  announce(res) {
+    if (!this.peers) return;
+    const record = res.records.find((r) => r.rev === res.rev);
+    const text = record && JSON.stringify(record.changes);
+    if (record && text.length <= MAX_PEER_CHANGE) this.peers.broadcast('change', { record, receipt: res.receipt });
+    else this.peers.broadcast('committed', { rev: res.rev });
+  }
+
+  /** Resolves once everything pending is delivered (or the delivery failed). */
+  async settled() {
+    while (this.flushing || this.syncing) await (this.flushing || this.syncing).catch(() => {});
+  }
+
+  /* ---------- Checkpoints ---------- */
+
+  /**
+   * Write a checkpoint when the log has grown, from the editor with the lowest session among those here (so
+   * that one browser does it), only while this one has nothing pending (its state is then the room's).
+   */
+  maybeCheckpoint() {
+    if (!this.canEdit || this.replica.pending.length || this.checkpointing || Date.now() < (this.checkpointAfter ?? 0)) return;
+    const due = this.replica.rev - this.lastCheckpoint >= CHECKPOINT_EVERY
+      || (this.replica.rev > this.lastCheckpoint && Date.now() - this.lastCheckpointAt > CHECKPOINT_IDLE);
+    if (!due) return;
+    const editors = [...this.people.values()].filter((p) => canEdit(p.role)).map((p) => p.session);
+    if (editors.some((s) => s < this.session)) return;
+    // Packing the whole workbook is not repeated every tick for a room that cannot be reached.
+    this.checkpoint().catch(() => { this.checkpointAfter = Date.now() + CHECKPOINT_RETRY; });
+  }
+
+  /**
+   * Write a checkpoint now; with `file`, the .xlsx goes with it, for the worker to write over the owner's file (and comes
+   * back as `blob`). The owner passes `at`, the file as it is now ({ path, uid }), which the worker writes from then on (it
+   * may have been renamed or moved).
+   */
+  async checkpoint({ file = false, at = null } = {}) {
+    if (!this.canEdit || this.replica.pending.length) return { ok: false };
+    this.checkpointing = true;
+    try {
+      const rev = this.replica.rev;
+      const state = await packState(this.replica.checkpoint());
+      let xlsx, blob;
+      if (file && this.o.toXlsx) {
+        blob = await this.o.toXlsx(this.wb);
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        let text = '';
+        for (let n = 0; n < bytes.length; n += 8192) text += String.fromCharCode(...bytes.subarray(n, n + 8192));
+        xlsx = btoa(text);
+      }
+      const res = await this.request({ op: 'checkpoint', rev, state, ...(xlsx ? { xlsx } : {}), ...(xlsx && at?.path ? { file: { path: at.path, uid: at.uid ?? null } } : {}) });
+      this.lastCheckpoint = Math.max(this.lastCheckpoint, rev);
+      this.lastCheckpointAt = Date.now();
+      return blob ? { ...res, blob } : res;
+    } finally {
+      this.checkpointing = false;
+    }
+  }
+
+  /* ---------- People ---------- */
+
+  soonCheckIn() {
+    if (this.closed || this.halted || this.checkInTimer) return;
+    this.checkInTimer = setTimeout(() => { this.checkInTimer = null; this.checkIn().catch(() => {}); }, Math.max(100, 1500 - (Date.now() - (this.lastCheckIn || 0))));
+  }
+
+  /** Renew this session's ticket (with where this person is) and learn who is here. */
+  checkIn() {
+    if (this.closed || this.halted) return Promise.resolve();
+    if (this.checkingIn) return this.checkingIn;
+    this.checkingIn = (async () => {
+      this.keys ??= await keyPair();
+      if (!this.o.noPeers && this.o.puter.peer && !this.peers) {
+        this.peers = new PeerNetwork({
+          peer: this.o.puter.peer, session: this.session, keys: this.keys, roomKey: this.roomKey, room: this.room,
+          // Tickets expire by the worker's clock.
+          now: () => Date.now() - (this.skew ?? 0),
+          receive: (kind, data, ticket) => this.receivePeer(kind, data, ticket),
+          changed: () => this.checkIn().catch(() => {}),
+          stranger: () => this.soonCheckIn(),
+          linked: () => { this.dispatchEvent(new CustomEvent('people')); if (this.presence) this.sendPresence(true); },
+        });
+        await this.peers.serve().catch(() => {});
+      }
+      this.lastCheckIn = Date.now();
+      const res = await this.request({ op: 'presence', session: this.session, publicKey: this.keys.publicKey, invite: this.peers?.invite ?? null, state: this.presence ?? null });
+      if (this.closed) return;
+      this.roster = res.roster;
+      this.noteRole(res.role);
+      this.peers?.update(res.ticket, res.signature, res.roster);
+      const here = new Set(res.roster.map((entry) => entry.session));
+      for (const s of [...this.people.keys()]) if (!here.has(s)) this.people.delete(s);
+      // The worker says when each person last checked in by its own clock, which can be minutes from this browser's.
+      if (Number.isFinite(res.serverTime)) this.skew = Date.now() - res.serverTime;
+      const skew = this.skew ?? 0;
+      for (const entry of res.roster) {
+        if (entry.session === this.session) continue;
+        const known = this.people.get(entry.session);
+        const at = Number.isFinite(entry.at) ? entry.at + skew : Date.now();
+        // A peer's report is newer than what the worker holds.
+        const state = known && known.at > at ? known.state : entry.state ?? null;
+        this.people.set(entry.session, { session: entry.session, user: entry.user, username: entry.username, role: entry.role, state, at: Math.max(known?.at ?? 0, at) });
+      }
+      this.dispatchEvent(new CustomEvent('people'));
+      if (this.full) { this.full = false; this.dispatchEvent(new CustomEvent('status')); }
+      if (this.status.state === 'offline') this.setStatus('connected');
+    })().catch((e) => { if (roomFull(e)) this.noteFull(); else this.failed(e); throw e; }).finally(() => { this.checkingIn = null; });
+    return this.checkingIn;
+  }
+
+  async receivePeer(kind, data, ticket) {
+    if (ticket.session === this.session) return false;
+    if (kind === 'presence') {
+      const state = sanitizeState(data?.state);
+      this.people.set(ticket.session, { session: ticket.session, user: ticket.user, username: ticket.username, role: ticket.role, state, at: Date.now() });
+      this.dispatchEvent(new CustomEvent('people'));
+      return;
+    }
+    if (kind === 'leave') { this.people.delete(ticket.session); this.dispatchEvent(new CustomEvent('people')); return; }
+    if (kind === 'committed') { this.scheduleSync(50); return; }
+    if (kind === 'change') {
+      // Only changes the room accepted (its receipt names this sender and revision) apply, in the log's order.
+      const record = data?.record, receipt = data?.receipt;
+      if (!record || !Number.isInteger(record.rev) || !Array.isArray(record.changes) || record.user !== ticket.user || !this.roomKey) return false;
+      const ok = await verify(this.roomKey, { room: this.room, rev: record.rev, digest: await hash(JSON.stringify(record.changes)), user: ticket.user }, receipt);
+      if (!ok) return false;
+      // The receipt covers who made it (by account) and what it changes, not the name sent with it: that is the
+      // room-signed ticket's, so a sender cannot put their change under someone else's name in Show Changes.
+      const signed = { ...record, username: ticket.username };
+      this.serial(async () => {
+        if (record.rev === this.replica.rev + 1) { this.replica.receive([signed]); await this.persist(); if (this.replica.pending.length) this.flush(); }
+        else if (record.rev > this.replica.rev) this.scheduleSync(0);
+      }).catch(() => this.scheduleSync(0));
+    }
+  }
+
+  /** Share where this person is: { sheet, sel: { r1, c1, r2, c2 }, active: { r, c }, editing }. */
+  setPresence(state) {
+    this.presence = sanitizeState(state);
+    this.sendPresence(false);
+  }
+
+  sendPresence(now) {
+    if (this.closed) return;
+    if (this.connectedPeers()) {
+      if (this.presenceTimer) return;
+      this.presenceTimer = setTimeout(() => {
+        this.presenceTimer = null;
+        this.lastPresenceSent = Date.now();
+        if (this.presence) this.peers?.broadcast('presence', { state: this.presence });
+      }, now ? 0 : Math.max(0, 50 - (Date.now() - (this.lastPresenceSent || 0))));
+    } else if (this.people.size) this.soonCheckIn(); // without live links, presence travels with the check-ins
+  }
+
+  tick() {
+    let changed = false;
+    // Without links, people are heard of at check-ins, which a background tab makes about once a minute; offline, of nobody.
+    const ttl = this.connectedPeers() || this.status.state === 'offline' ? PEOPLE_TTL : 120_000;
+    for (const [s, p] of this.people) if (Date.now() - p.at > ttl) { this.people.delete(s); changed = true; }
+    if (changed) this.dispatchEvent(new CustomEvent('people'));
+    // A quiet pulse keeps this person's presence alive for linked peers; without links, others are asked for often.
+    if (this.connectedPeers()) { if (this.presence && Date.now() - (this.lastPresenceSent || 0) > 3000) this.sendPresence(true); }
+    else if (this.people.size && Date.now() - (this.lastCheckIn || 0) > 3000) this.checkIn().catch(() => {});
+    this.maybeCheckpoint();
+  }
+
+  /* ---------- Status ---------- */
+
+  /**
+   * The room has no place for this person among those here: nobody sees where they are, but their changes go
+   * through, so the room is reached all the same. The status says so until a check-in is taken.
+   */
+  noteFull() {
+    if (this.closed || this.halted) return;
+    this.full = true;
+    if (this.status.state === 'offline') this.setStatus('connected');
+    this.dispatchEvent(new CustomEvent('status'));
+  }
+
+  failed(error) {
+    if (this.closed || this.halted) return;
+    // The room answered, so the connection is not what failed: a copy ahead of the room (its log not caught up yet
+    // where it was asked) is said in the room's words, until a request goes through again.
+    if (error instanceof CollabError && !error.network && [401, 403, 404, 409, 410].includes(error.status)) {
+      this.status = { state: 'error', pending: this.replica?.pending.length ?? 0, message: error.message, code: error.status };
+      this.dispatchEvent(new CustomEvent('status'));
+      if (error.status === 410 || error.status === 404 || error.status === 403) {
+        // The room is gone for this person: it is said once, and the room is not asked again.
+        this.halt();
+        // Closed, it is gone for everyone, and what this browser kept to send it with it (access removed may be given
+        // back, and the changes with it; a room not found may be a worker out of reach for a while).
+        if (error.status === 410) { this.gone = true; this.persist().catch(() => {}); }
+        this.dispatchEvent(new CustomEvent('closed', { detail: { message: error.message } }));
+      }
+      return;
+    }
+    this.status = { state: 'offline', pending: this.replica?.pending.length ?? 0, message: error?.message || t('collabClient.offline') };
+    this.dispatchEvent(new CustomEvent('status'));
+  }
+
+  setStatus(state) {
+    if (this.closed) return;
+    const pending = this.replica?.pending.length ?? 0;
+    const next = state ?? (this.status.state === 'offline' || this.status.state === 'error' ? this.status.state : pending ? 'syncing' : 'connected');
+    const resolved = next === 'connected' && pending ? 'syncing' : next;
+    if (this.status.state === resolved && this.status.pending === pending) return;
+    this.status = { state: resolved, pending };
+    this.dispatchEvent(new CustomEvent('status'));
+  }
+
+  /** The connection came back (or the tab became visible): catch up and send. */
+  resume() {
+    if (this.closed || this.halted) return;
+    this.sync().then(() => this.flush()).catch((e) => this.failed(e));
+    this.checkIn().catch(() => {});
+  }
+
+  /* ---------- Leaving ---------- */
+
+  /** Leave the room: deliver what is pending (briefly), then close links. */
+  async leave() {
+    if (this.closed) return;
+    await Promise.race([this.settled(), new Promise((r) => setTimeout(r, 3000))]);
+    this.peers?.broadcast('leave', {});
+    this.close();
+    await this.request({ op: 'leave', session: this.session }).catch(() => {});
+  }
+
+  /**
+   * Stop asking the room (it was closed, or this person's access ended): no more polling, check-ins or links. The
+   * workbook stays as it is on screen, and the status says why.
+   */
+  halt() {
+    this.halted = true;
+    for (const timer of this.timers) clearInterval(timer);
+    clearTimeout(this.syncTimer);
+    clearTimeout(this.retryTimer);
+    clearTimeout(this.presenceTimer);
+    clearTimeout(this.checkInTimer);
+    this.subscription?.off();
+    this.peers?.close();
+    // Nobody can be told apart as here any more: their selections leave the grid rather than stay frozen on it.
+    if (this.people.size) { this.people.clear(); this.dispatchEvent(new CustomEvent('people')); }
+  }
+
+  close() {
+    this.closed = true;
+    for (const timer of this.timers) clearInterval(timer);
+    clearTimeout(this.syncTimer);
+    clearTimeout(this.retryTimer);
+    clearTimeout(this.presenceTimer);
+    clearTimeout(this.checkInTimer);
+    this.subscription?.off();
+    this.peers?.close();
+    this.replica?.detach();
+    this.status = { state: 'closed', pending: this.replica?.pending.length ?? 0 };
+  }
+}

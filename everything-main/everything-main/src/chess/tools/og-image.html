@@ -1,0 +1,218 @@
+<!doctype html>
+<!--
+  Source for public/og-image.png (the social share card).
+
+  It is a real 1200×630 page rather than a hand-drawn image so it stays in the
+  app's design language: same Inter, same accent, same board colors, same
+  pieces. Edit here, then re-render with:
+
+    npm run dev
+    node tools/render-og.mjs
+
+  Facebook, LinkedIn, and Slack cache share images per URL, so after changing
+  the picture either re-scrape it in their debuggers or bump the filename.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>og:image source — 1200×630</title>
+    <style>
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 400;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 500;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 600;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 700;
+        src: url('/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2') format('woff2');
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #070a14;
+      }
+
+      /* Exactly the OG canvas: 1200×630 (1.91:1). */
+      .card {
+        width: 1200px;
+        height: 630px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 58px;
+        padding: 0 76px;
+        overflow: hidden;
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        /* Deep navy so the card reads as the app's icon at thumbnail size,
+           and so it never glares in a dark timeline. */
+        background:
+          radial-gradient(900px 540px at 6% -8%, rgba(56, 104, 255, 0.32), transparent 62%),
+          radial-gradient(760px 520px at 98% 112%, rgba(0, 43, 178, 0.38), transparent 60%),
+          linear-gradient(150deg, #0b1226 0%, #070a14 58%, #090d1c 100%);
+      }
+
+      .copy {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 30px;
+      }
+
+      .brand img {
+        width: 46px;
+        height: 46px;
+        display: block;
+      }
+
+      .brand span {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.54);
+      }
+
+      h1 {
+        margin: 0 0 20px;
+        font-size: 74px;
+        line-height: 1.03;
+        font-weight: 700;
+        letter-spacing: -0.028em;
+        color: #ffffff;
+      }
+
+      .sub {
+        margin: 0 0 34px;
+        font-size: 25px;
+        line-height: 1.4;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.64);
+      }
+
+      .pills {
+        display: flex;
+        gap: 10px;
+      }
+
+      .pill {
+        padding: 9px 17px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.055);
+        font-size: 17px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .board {
+        flex: 0 0 auto;
+        width: 416px;
+        height: 416px;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.1),
+          0 46px 84px -34px rgba(0, 0, 0, 0.92);
+      }
+
+      .sq {
+        position: relative;
+      }
+      .sq.light {
+        background-color: #e9ecf4;
+      }
+      .sq.dark {
+        background-color: #7d90bb;
+      }
+      /* Same last-move wash the app paints, so the mating move reads first. */
+      .sq.last {
+        background-image: linear-gradient(
+          rgba(246, 204, 90, 0.42),
+          rgba(246, 204, 90, 0.42)
+        );
+      }
+
+      .sq img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="copy">
+        <div class="brand">
+          <img src="/icon-192.png" alt="" />
+          <span>chess.puter.com</span>
+        </div>
+        <h1>Play Chess Online</h1>
+        <p class="sub">Free in your browser. No sign-up, no ads.</p>
+        <div class="pills">
+          <div class="pill">vs. Computer</div>
+          <div class="pill">Pass &amp; Play</div>
+          <div class="pill">Private Online</div>
+        </div>
+      </div>
+      <div class="board" id="board"></div>
+    </div>
+
+    <script type="module">
+      // Morphy's Opera Game, final position (17.Rd8#) — a real, famous mate
+      // whose empty center keeps the board legible at thumbnail size.
+      const FEN = '1n1Rkb1r/p4ppp/4q3/4p1B1/4P3/8/PPP2PPP/2K5';
+      const LAST_MOVE = ['d1', 'd8']; // the rook's journey to mate
+
+      const board = document.getElementById('board');
+      const files = 'abcdefgh';
+
+      FEN.split('/').forEach((rankText, row) => {
+        let col = 0;
+        for (const ch of rankText) {
+          if (/\d/.test(ch)) {
+            for (let i = 0; i < Number(ch); i++) addSquare(row, col++, null);
+            continue;
+          }
+          addSquare(row, col++, ch);
+        }
+      });
+
+      function addSquare(row, col, piece) {
+        const name = files[col] + (8 - row);
+        const el = document.createElement('div');
+        el.className = `sq ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+        if (LAST_MOVE.includes(name)) el.classList.add('last');
+        if (piece) {
+          const img = document.createElement('img');
+          const color = piece === piece.toUpperCase() ? 'w' : 'b';
+          img.src = `/pieces/${color}${piece.toUpperCase()}.svg`;
+          el.appendChild(img);
+        }
+        board.appendChild(el);
+      }
+    </script>
+  </body>
+</html>

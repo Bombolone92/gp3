@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#238cfd" />
+    <meta
+      name="description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <title>Whiteboard</title>
+    <meta name="application-name" content="Whiteboard" />
+    <link rel="canonical" href="https://whiteboard.puter.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Whiteboard" />
+    <meta property="og:title" content="Whiteboard" />
+    <meta
+      property="og:description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <meta property="og:url" content="https://whiteboard.puter.com/" />
+    <meta
+      property="og:image"
+      content="https://whiteboard.puter.com/icons/icon-512.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Whiteboard app icon" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Whiteboard" />
+    <meta
+      name="twitter:description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <meta
+      name="twitter:image"
+      content="https://whiteboard.puter.com/icons/icon-512.png"
+    />
+    <meta name="twitter:image:alt" content="Whiteboard app icon" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Whiteboard",
+        "url": "https://whiteboard.puter.com/",
+        "description": "A little space for your next big idea. A personal whiteboard for thinking, planning, and creating.",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Any"
+      }
+    </script>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <script type="module">
+localStorage.setItem('whiteboard-theme','light');
+localStorage.setItem('whiteboard-language','fr');
+localStorage.setItem('whiteboard-tour-v1',JSON.stringify({done:true}));
+const fixture={"version":1,"id":"fd6f9ba2-aedc-4d7b-88e9-10a59ff86bba","title":"Table destination Unicode verification","updated":1790977059191,"favorite":false,"items":[{"id":"link-source","type":"note","x":0,"y":180,"w":190,"h":160,"text":"Source","color":"#f6e7a4","autoFontSize":true,"objectLink":{"objectId":"table-target"}},{"id":"table-target","type":"table","x":300,"y":180,"w":500,"h":160,"text":"","color":"#f6e7a4","cells":[["QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ😀"]],"lang":"fr-CA","cellLanguages":{"0,0":{"lang":"fr-CA","textRuns":[{"start":299,"end":301,"style":{"lang":"en-GB"}}]}}}]};
+await new Promise((resolve,reject)=>{
+ const req=indexedDB.open('whiteboard-v1',3);
+ req.onupgradeneeded=()=>{const db=req.result;
+ for(const name of ['boards','templates'])if(!db.objectStoreNames.contains(name))db.createObjectStore(name,{keyPath:'id'});
+ for(const [name,index]of [['revisions','boardId'],['collaboration','scope']])if(!db.objectStoreNames.contains(name)){const store=db.createObjectStore(name,{keyPath:'id'});store.createIndex(index,index);}
+ };
+ req.onerror=()=>reject(req.error);
+ req.onsuccess=()=>{const db=req.result;const tx=db.transaction('boards','readwrite');const store=tx.objectStore('boards');const existing=store.get(fixture.id);existing.onsuccess=()=>{if(!existing.result)store.put(fixture);};tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>reject(tx.error);};
+});
+await import('/assets/index-CFA-tpIX.js');
+dispatchEvent(new Event('comment-fixture-ready'));parent.postMessage({productionEntry:'/assets/index-OpUucuU9.js'},'*');
+</script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BlbulZT3.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html><script>let last='';function report(){const a=document.querySelector('#object-link-current a'),e=document.querySelector('#table-cell-input');const v={caption:a?{length:a.textContent.length,valid:a.textContent.isWellFormed(),tail:a.textContent.slice(-8)}:null,cell:e?{length:e.value.length,valid:e.value.isWellFormed(),tail:e.value.slice(-6),lang:e.lang,passage:e.querySelector('[lang="en-GB"]')?.textContent}:null,originals:[...document.querySelectorAll('#board-outline [data-id]')].map(n=>({id:n.dataset.id,length:n.textContent.length,valid:n.textContent.isWellFormed(),tail:n.textContent.slice(-6),lang:n.querySelector('[data-user-content]')?.lang,passage:n.querySelector('[lang="en-GB"]')?.textContent})),history:['undo','redo'].map(k=>document.querySelector('[data-action="'+k+'"]')?.disabled),language:document.documentElement.lang};const next=JSON.stringify(v);if(next!==last){last=next;parent.postMessage(v,'*');}}new MutationObserver(()=>requestAnimationFrame(report)).observe(document.body,{childList:true,subtree:true,attributes:true});</script>

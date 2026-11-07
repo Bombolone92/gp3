@@ -1,0 +1,50 @@
+test("webhook deliveries run in parallel and failures are retried", async () => {
+  const { boards, call, org } = setup();
+  let failing = true,
+    inFlight = 0,
+    overlapped = false,
+    release;
+  const sentTo = [],
+    held = new Promise((resolve) => (release = resolve));
+  org.fetcher = boards.fetcher = async (url, options) => {
+    if (String(url).startsWith("https://hooks.example.ca/")) {
+      sentTo.push(JSON.parse(options.body).event);
+      inFlight++;
+      if (inFlight > 1) {
+        overlapped = true;
+        release();
+      }
+      await held;
+      inFlight--;
+      return new Response("{}", { status: failing ? 500 : 200 });
+    }
+    return new Response("{}", { status: 200 });
+  };
+  await call(owner, { op: "org.setup", name: "CDS" });
+  await call(owner, {
+    op: "org.policy.set",
+    policy: { integrations: { webhooks: { enabled: true } } },
+  });
+  await call(owner, {
+    op: "webhooks.create",
+    url: "https://hooks.example.ca/a",
+  });
+  // A serial implementation must still settle so the overlap assertion can
+  // fail. This timer is cleanup, not a performance threshold.
+  const unblock = setTimeout(release, 5000);
+  try {
+    await boards.call(owner, createInput().input);
+  } finally {
+    clearTimeout(unblock);
+    release();
+  }
+  assert.ok(sentTo.length > 1, "board creation sends several events");
+  assert.equal(overlapped, true, "another delivery starts before the first settles");
+  const queued = await org.list("org:hookq:");
+  assert.equal(queued.length, sentTo.length);
+  failing = false;
+  org.now = () => Date.now() + 120_000;
+  await org.audit(owner, "user.joined", { type: "user", id: owner.uuid });
+  await org.flush();
+  assert.equal((await org.list("org:hookq:")).length, 0);
+});

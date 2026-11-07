@@ -1,0 +1,27 @@
+The Last Night Train · 末班夜车 — Paper-cut Lightbox 纸雕灯影 (Lemo-Opuscar demo)
+LemoLab × Claude Opus 5.5
+
+Story, picture, score and sound are made in code in this folder. Every paper layer, the train, the stations and the end card
+are drawn by src/ (Canvas2D paper layers + three.js renderer). No photos, footage or generated images are used.
+The line and its stations are fiction (see FACTS.md).
+
+Narration
+- Kokoro TTS (kokoro-onnx, model Kokoro-82M v1.0, voice bm_george), Apache License 2.0
+  https://github.com/thewh1teagle/kokoro-onnx · https://huggingface.co/hexgrad/Kokoro-82M
+  Generated offline with core/tts/tts.py and checked with core/tts/asr_check.py (faster-whisper base.en, MIT).
+
+Music (written for this film, played on sampled instruments by core/audio/sampler.py)
+- Piano: "Salamander Grand Piano V3" by Alexander Holm, licensed under CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/)
+- Samples (CC0): VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library (Versilian Studios)
+  Instruments: glockenspiel, bowed vibraphone, harp, flute, solo violin, violins, violins tremolo, violas, cellos, contrabass, piano.
+
+Sound effects
+- Procedural (core/audio/sfx.py and mix.py): snow wind, river, sea, room tone, wheel clacks, rumble, horn, brake hiss,
+  lamp clicks, shimmer, tunnel whooshes, paper.
+
+Fonts (SIL Open Font License 1.1; fetched into fonts/ by tools/fonts.py, licence texts alongside)
+- Cormorant Garamond — Christian Thalmann (Catharsis Fonts), https://github.com/CatharsisFonts/Cormorant
+- Noto Serif SC (subset to the characters the film uses) — Adobe / Google, https://github.com/notofonts/noto-cjk
+
+Picture engine
+- three.js r170 (MIT), loaded from the library's node_modules.

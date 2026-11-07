@@ -1,0 +1,21 @@
+/** Currencies offered in settings and onboarding (ISO 4217 codes). */
+export const CURRENCIES = [
+  ['USD', 'US dollar'],
+  ['CAD', 'Canadian dollar'],
+  ['EUR', 'Euro'],
+  ['GBP', 'British pound'],
+  ['AUD', 'Australian dollar'],
+  ['NZD', 'New Zealand dollar'],
+  ['CHF', 'Swiss franc'],
+  ['JPY', 'Japanese yen'],
+  ['INR', 'Indian rupee'],
+  ['SGD', 'Singapore dollar'],
+  ['HKD', 'Hong Kong dollar'],
+  ['ZAR', 'South African rand'],
+  ['MXN', 'Mexican peso'],
+  ['BRL', 'Brazilian real'],
+  ['SEK', 'Swedish krona'],
+  ['NOK', 'Norwegian krone'],
+  ['DKK', 'Danish krone'],
+  ['AED', 'UAE dirham'],
+];

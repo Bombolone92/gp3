@@ -1,0 +1,3 @@
+Independent fixture authored as OOXML by tools/native_line_metrics_fixture.py. The reference application exported the source to PDF without saving it. positions.json contains PDF text baselines measured from the page top, in points. Source SHA256: 9159bbfe10e65c5f359af64031256ddc97a5604990d7126a1640e47dd2df95eb
+
+Four installed faces, three point sizes, single automatic line spacing. Courier New at 38pt wraps naturally. The browser comparison tolerates 0.25pt for PDF coordinate rounding. These captures establish normal regular-face line metrics; they do not establish every font, script, or style.

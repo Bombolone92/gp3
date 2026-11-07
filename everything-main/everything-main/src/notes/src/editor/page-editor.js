@@ -1,0 +1,1347 @@
+import { h, debounce, clamp, announce } from '../lib/dom.js';
+import { uid } from '../lib/ids.js';
+import { sanitizeHtml, safeUrl, htmlToText } from '../lib/sanitize.js';
+import { formatPageDate, formatPageTime } from '../lib/dates.js';
+import { Emitter } from '../lib/emitter.js';
+import { modKey } from '../lib/platform.js';
+import { PAGE_COLORS } from '../data/colors.js';
+import { History, snapshotOf, applySnapshot } from './history.js';
+import { hydrate, serialize, fileSpan } from './embeds.js';
+import { ensureBlocks, fixNesting, editableRoot, currentRange, selectRange, placeCaret, isEmptyBody, textOffset, rangeFromOffsets, blockOf, isBlock, blocksInRange } from './selection.js';
+import { indent, moveBlock, toggleList, insertHtml, insertNode, dropRedundantStyles, applyingColor, ownStyleRuns } from './format.js';
+import { moveCell } from './table.js';
+import { setDone } from './tag-edit.js';
+import { InkTools } from './tools.js';
+
+export const ZOOMS = [0.25, 0.5, 0.75, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4];
+const TOP_OF_CONTENT = 128;
+
+/*
+ * Whether the styled spans an edit added are Chrome's frozen look of moved
+ * text, for dropRedundantStyles to clean. Not when they are the user's own
+ * formatting: a color just picked (Chrome reports editing commands with no
+ * input type, hence applyingColor), or Enter, which splits the formatted
+ * text it is in into two copies of its span.
+ */
+export function freezesStyles(e) {
+  return e.isTrusted && !/^(insertParagraph|insertLineBreak|formatFontColor|formatBackColor)$/.test(e.inputType) && !applyingColor();
+}
+
+/**
+ * The page canvas: a free-form surface with a title header and absolutely
+ * positioned note containers ("outlines"), plus an ink layer above them.
+ * Events: 'change' (page edited), 'selection' (caret moved, for ribbon
+ * state), 'navigate' ({ pageId } from an internal link).
+ */
+export class PageEditor extends Emitter {
+  constructor({ store, host, readOnly = false }) {
+    super();
+    this.store = store;
+    this.host = host;
+    this.readOnly = readOnly;
+    this.page = null;
+    this.zoom = 1;
+    this.history = new History();
+    this.dirty = new Set();
+    this.activeOutline = null;
+    this.selectedOutlines = new Set();
+    this.lastRange = null;
+    this.surface = 'auto';
+    this.commitSoon = debounce(() => this.commit(), 350);
+
+    this.scroller = h('div.canvas-scroll', { tabindex: '-1', role: 'region', 'aria-label': 'Page canvas' });
+    this.sizer = h('div.page-sizer');
+    this.pageEl = h('div.page', { role: 'document' });
+    this.header = h('div.page-header');
+    this.titleEl = h('div.page-title', { contenteditable: readOnly ? 'false' : 'plaintext-only', role: 'textbox', 'aria-label': 'Page title', 'data-placeholder': '', spellcheck: 'true' });
+    this.dateBtn = h('button.page-date', { type: 'button', 'aria-label': 'Page date' });
+    this.timeBtn = h('button.page-time', { type: 'button', 'aria-label': 'Page time' });
+    this.header.append(this.titleEl, h('div.page-meta', this.dateBtn, this.timeBtn));
+    this.outlinesEl = h('div.outlines');
+    this.pageEl.append(this.header, this.outlinesEl);
+    this.sizer.append(this.pageEl);
+    this.scroller.append(this.sizer);
+    host.append(this.scroller);
+
+    // Elements added to the outlines since the last edit, so the spans
+    // Chrome's own editing leaves behind can be cleaned (dropRedundantStyles).
+    this.addedRecords = [];
+    this.additions = new MutationObserver((records) => this.addedRecords.push(...records));
+    this.additions.observe(this.outlinesEl, { childList: true, subtree: true });
+
+    // Leaving a list or a heading with Enter makes a <p> like every other
+    // paragraph, not a <div> that the next list nests inside.
+    try {
+      document.execCommand('defaultParagraphSeparator', false, 'p');
+    } catch {
+      /* not an editing browser (tests) */
+    }
+
+    this.ink = new InkTools(this);
+    this.bind();
+    this.resizeObserver = new ResizeObserver(() => this.layout());
+    this.resizeObserver.observe(this.scroller);
+  }
+
+  // ------------------------------------------------------------ open/render
+
+  async open(page) {
+    this.flush();
+    this.page = page;
+    this.removedEmpty = null;
+    this.dirty.clear();
+    this.activeOutline = null;
+    this.selectedOutlines.clear();
+    this.ink.clearSelection();
+    this.history.reset(snapshotOf(page));
+    this.caretBefore = undefined;
+    this.selBefore = null;
+    await this.render();
+    this.scroller.scrollTo(0, 0);
+  }
+
+  async render() {
+    const page = this.page;
+    if (!page) return;
+    this.titleEl.textContent = page.title || '';
+    this.titleEl.dataset.placeholder = this.readOnly ? '' : '';
+    this.updateDate();
+    this.applyBackground();
+    this.outlinesEl.replaceChildren();
+    const jobs = [];
+    for (const o of page.outlines) {
+      const el = this.buildOutline(o);
+      this.outlinesEl.append(el);
+      jobs.push(hydrate(el.querySelector('.outline-body'), this.store));
+    }
+    this.ink.render();
+    this.layout();
+    this.takeAdded();
+    await Promise.all(jobs);
+    this.layout();
+  }
+
+  /** Styled elements added to the outlines since the last call. */
+  takeAdded() {
+    const records = [...this.addedRecords, ...this.additions.takeRecords()];
+    this.addedRecords = [];
+    const out = new Set();
+    for (const r of records) {
+      for (const n of r.addedNodes) {
+        if (n.nodeType !== 1 || !n.isConnected) continue;
+        if (n.hasAttribute('style')) out.add(n);
+        for (const el of n.querySelectorAll('[style]')) out.add(el);
+      }
+    }
+    return out;
+  }
+
+  updateDate() {
+    const page = this.page;
+    this.dateBtn.textContent = formatPageDate(page.created);
+    this.timeBtn.textContent = formatPageTime(page.created);
+  }
+
+  buildOutline(o) {
+    const body = h('div.outline-body', {
+      contenteditable: this.readOnly ? 'false' : 'true',
+      role: 'textbox',
+      'aria-multiline': 'true',
+      'aria-label': 'Note container',
+      spellcheck: 'true',
+    });
+    body.innerHTML = sanitizeHtml(o.html);
+    if (!this.readOnly) ensureBlocks(body);
+    const el = h('div.outline', { dataset: { id: o.id } },
+      h('div.outline-bar', { 'aria-hidden': 'true', title: 'Drag to move this note container' }),
+      body,
+      h('div.outline-resize', { 'aria-hidden': 'true', title: 'Drag to change the width' }),
+    );
+    this.place(el, o);
+    return el;
+  }
+
+  place(el, o) {
+    el.style.left = `${o.x}px`;
+    el.style.top = `${o.y}px`;
+    if (o.w) {
+      el.style.width = `${o.w}px`;
+      el.classList.remove('auto-width');
+    } else {
+      el.style.removeProperty('width');
+      el.classList.add('auto-width');
+    }
+  }
+
+  outlineModel(el) {
+    return this.page?.outlines.find((o) => o.id === el?.dataset.id) || null;
+  }
+
+  outlineEl(id) {
+    return this.outlinesEl.querySelector(`.outline[data-id="${CSS.escape(id)}"]`);
+  }
+
+  /** Sizes the page surface to its content plus room to keep writing. */
+  layout() {
+    if (!this.page) return;
+    const z = this.zoom;
+    const viewW = this.scroller.clientWidth / z;
+    const viewH = this.scroller.clientHeight / z;
+    let right = 0;
+    let bottom = 0;
+    for (const el of this.outlinesEl.children) {
+      right = Math.max(right, el.offsetLeft + el.offsetWidth);
+      bottom = Math.max(bottom, el.offsetTop + el.offsetHeight);
+    }
+    const inkB = this.ink.extent();
+    if (inkB) {
+      right = Math.max(right, inkB.x + inkB.w);
+      bottom = Math.max(bottom, inkB.y + inkB.h);
+    }
+    // Room to the right to click and start another note. Phones (the app's
+    // 760px breakpoint) have no room to spare: there the page is as wide as
+    // the screen unless its content is wider, so it does not always scroll
+    // sideways. Note positions are absolute either way.
+    const phone = window.innerWidth <= 760;
+    const w = Math.max(viewW, right + (phone ? 16 : 240), phone ? 0 : 960);
+    const hgt = Math.max(viewH, bottom + 320);
+    this.pageEl.style.width = `${w}px`;
+    this.pageEl.style.height = `${hgt}px`;
+    this.pageEl.style.transform = z === 1 ? '' : `scale(${z})`;
+    this.sizer.style.width = `${w * z}px`;
+    this.sizer.style.height = `${hgt * z}px`;
+    this.ink.resize(w, hgt);
+  }
+
+  // ------------------------------------------------------------ background
+
+  /** Resolves whether the page surface is dark (follows theme unless switched). */
+  isDarkSurface() {
+    const themeDark = document.documentElement.dataset.themeResolved === 'dark';
+    if (this.page?.color) return false;
+    if (this.surface === 'light') return false;
+    return themeDark;
+  }
+
+  applyBackground() {
+    const page = this.page;
+    const dark = this.isDarkSurface();
+    const themeDark = document.documentElement.dataset.themeResolved === 'dark';
+    this.pageEl.classList.toggle('surface-dark', dark);
+    this.pageEl.classList.toggle('surface-light', !dark);
+    let bg = dark ? '' : themeDark ? '#ffffff' : '';
+    if (page?.color) {
+      const c = PAGE_COLORS.find((x) => x.id === page.color);
+      if (c) bg = themeDark && this.surface !== 'light' ? c.dark : c.light;
+      if (themeDark && this.surface !== 'light') {
+        this.pageEl.classList.add('surface-dark');
+        this.pageEl.classList.remove('surface-light');
+      }
+    }
+    this.scroller.style.setProperty('--page-bg', bg || 'var(--bg-page)');
+    this.pageEl.style.backgroundImage = page?.rules ? `url("${ruleImage(page.rules, page.ruleColor, this.pageEl.classList.contains('surface-dark'))}")` : '';
+  }
+
+  setSurface(mode) {
+    this.surface = mode;
+    this.applyBackground();
+  }
+
+  // ------------------------------------------------------------ events
+
+  bind() {
+    const s = this.scroller;
+    s.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    s.addEventListener('input', (e) => this.onInput(e));
+    s.addEventListener('keydown', (e) => this.onKeyDown(e));
+    s.addEventListener('beforeinput', (e) => this.onBeforeInput(e));
+    s.addEventListener('focusin', (e) => this.onFocusIn(e));
+    s.addEventListener('focusout', (e) => this.onFocusOut(e));
+    s.addEventListener('paste', (e) => this.onPaste(e));
+    s.addEventListener('copy', (e) => this.onCopy(e));
+    s.addEventListener('cut', (e) => this.onCopy(e, { cut: true }));
+    s.addEventListener('drop', (e) => this.onDrop(e));
+    s.addEventListener('dragover', (e) => {
+      if (!this.readOnly && [...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault();
+    });
+    s.addEventListener('click', (e) => this.onClick(e));
+    s.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        this.setZoom(this.zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1), { clientX: e.clientX, clientY: e.clientY });
+      }
+    }, { passive: false });
+    this.titleEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.focusFirstOutline();
+      }
+    });
+    this.dateBtn.addEventListener('click', () => this.emit('edit-date', 'date'));
+    this.timeBtn.addEventListener('click', () => this.emit('edit-date', 'time'));
+    this.onSelectionChange = () => {
+      const range = currentRange();
+      if (range && this.scroller.contains(range.commonAncestorContainer) && editableRoot(range.commonAncestorContainer)) {
+        this.lastRange = range.cloneRange();
+        // Where the selection was before the next change, for undo to put it
+        // back. A selection is measured now (a formatting command splits its
+        // text nodes); a caret is kept as a node and offset, which typing
+        // leaves valid, and measured only when an edit starts there.
+        this.selBefore = range.collapsed ? { points: [range.startContainer, range.startOffset] } : { caret: this.caretAt([range.startContainer, range.startOffset, range.endContainer, range.endOffset]) };
+        this.emit('selection');
+      }
+    };
+    document.addEventListener('selectionchange', this.onSelectionChange);
+    // Paper is white: print a dark page as a light one (light text, ink
+    // and headings would barely show), then put it back.
+    this.onBeforePrint = () => {
+      if (this.surface === 'light') return;
+      this.surfaceBeforePrint = this.surface;
+      this.setSurface('light');
+    };
+    this.onAfterPrint = () => {
+      if (this.surfaceBeforePrint === undefined) return;
+      this.setSurface(this.surfaceBeforePrint);
+      this.surfaceBeforePrint = undefined;
+    };
+    window.addEventListener('beforeprint', this.onBeforePrint);
+    window.addEventListener('afterprint', this.onAfterPrint);
+  }
+
+  pagePoint(e) {
+    const r = this.pageEl.getBoundingClientRect();
+    return { x: (e.clientX - r.left) / this.zoom, y: (e.clientY - r.top) / this.zoom };
+  }
+
+  onPointerDown(e) {
+    if (this.readOnly || !this.page) return;
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    if (this.ink.tool !== 'type') return; // overlay handles it
+    const bar = e.target.closest('.outline-bar');
+    const resize = e.target.closest('.outline-resize');
+    const outline = e.target.closest('.outline');
+    if (bar) return this.startMove(e, outline);
+    if (resize) return this.startResize(e, outline);
+    if (e.target.closest('img') && outline) return this.selectImage(e.target.closest('img'), e);
+    this.clearImageSelection();
+    if (outline || e.target.closest('.page-header')) {
+      if (!e.shiftKey) this.selectOutlines([]);
+      return;
+    }
+    if (!this.pageEl.contains(e.target) && e.target !== this.scroller && e.target !== this.sizer) return;
+    // Ink under the pointer is selected instead of starting a container.
+    const p = this.pagePoint(e);
+    if (this.ink.pickAt(p.x, p.y)) {
+      e.preventDefault();
+      return;
+    }
+    this.ink.clearSelection();
+    this.selectOutlines([]);
+    e.preventDefault();
+    if (p.y < 0) return;
+    this.createOutlineAt(p.x, p.y);
+  }
+
+  /** Starts a new, empty note container at a page point and focuses it. */
+  createOutlineAt(x, y, html = '') {
+    const o = { id: uid('o'), x: Math.max(8, Math.round(x)), y: Math.max(TOP_OF_CONTENT - 20, Math.round(y - 12)), w: null, html };
+    this.page.outlines.push(o);
+    const el = this.buildOutline(o);
+    this.outlinesEl.append(el);
+    const body = el.querySelector('.outline-body');
+    hydrate(body, this.store);
+    body.focus({ preventScroll: true });
+    placeCaret(body, true);
+    this.layout();
+    return el;
+  }
+
+  focusFirstOutline() {
+    let el = [...this.outlinesEl.children].sort((a, b) => a.offsetTop - b.offsetTop)[0];
+    if (!el) el = this.createOutlineAt(48, TOP_OF_CONTENT + 12);
+    const body = el.querySelector('.outline-body');
+    body.focus({ preventScroll: false });
+    placeCaret(body, false);
+  }
+
+  startMove(e, outline) {
+    e.preventDefault();
+    const start = this.pagePoint(e);
+    if (!this.selectedOutlines.has(outline)) this.selectOutlines([outline]);
+    const moving = [...this.selectedOutlines].map((el) => ({ el, model: this.outlineModel(el), x: el.offsetLeft, y: el.offsetTop }));
+    const inkSel = this.ink.selected.size ? this.ink.beginMove() : null;
+    let moved = false;
+    const onMove = (ev) => {
+      const p = this.pagePoint(ev);
+      const dx = p.x - start.x;
+      const dy = p.y - start.y;
+      if (!moved && Math.hypot(dx, dy) < 2) return;
+      moved = true;
+      for (const m of moving) {
+        m.el.style.left = `${Math.max(0, m.x + dx)}px`;
+        m.el.style.top = `${Math.max(0, m.y + dy)}px`;
+      }
+      inkSel?.move(dx, dy);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (!moved) return;
+      for (const m of moving) {
+        m.model.x = Math.round(m.el.offsetLeft);
+        m.model.y = Math.round(m.el.offsetTop);
+      }
+      inkSel?.end();
+      this.layout();
+      this.changed({ structural: true });
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }
+
+  startResize(e, outline) {
+    e.preventDefault();
+    const start = this.pagePoint(e);
+    const w0 = outline.offsetWidth;
+    const model = this.outlineModel(outline);
+    let resized = false;
+    const onMove = (ev) => {
+      const p = this.pagePoint(ev);
+      // A click on the edge is not a resize: it would pin an auto width.
+      if (!resized && Math.abs(p.x - start.x) < 2) return;
+      resized = true;
+      const w = Math.max(80, Math.round(w0 + p.x - start.x));
+      outline.style.width = `${w}px`;
+      outline.classList.remove('auto-width');
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (!resized) return;
+      model.w = Math.round(outline.offsetWidth);
+      this.layout();
+      this.changed({ structural: true });
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }
+
+  selectOutlines(list) {
+    for (const el of this.selectedOutlines) el.classList.remove('selected');
+    this.selectedOutlines = new Set(list);
+    for (const el of this.selectedOutlines) el.classList.add('selected');
+    this.emit('selection');
+  }
+
+  selectAllOutlines() {
+    this.selectOutlines([...this.outlinesEl.children]);
+    this.ink.selectAll();
+  }
+
+  deleteSelectedOutlines() {
+    if (!this.selectedOutlines.size && !this.ink.selected.size) return false;
+    for (const el of this.selectedOutlines) {
+      this.page.outlines = this.page.outlines.filter((o) => o.id !== el.dataset.id);
+      el.remove();
+    }
+    this.selectedOutlines.clear();
+    this.ink.deleteSelection();
+    this.layout();
+    this.changed({ structural: true });
+    return true;
+  }
+
+  onFocusIn(e) {
+    const outline = e.target.closest?.('.outline');
+    if (outline) {
+      this.activeOutline?.classList.remove('active');
+      this.activeOutline = outline;
+      outline.classList.add('active');
+    }
+    this.emit('selection');
+  }
+
+  onFocusOut(e) {
+    const outline = e.target.closest?.('.outline');
+    if (!outline) return;
+    // Wait for focus to land so moves inside the outline are not a blur.
+    setTimeout(() => {
+      if (outline.contains(document.activeElement)) return;
+      outline.classList.remove('active');
+      if (this.activeOutline === outline) this.activeOutline = null;
+      const body = outline.querySelector('.outline-body');
+      if (body && isEmptyBody(body) && outline.isConnected && !this.readOnly) {
+        const model = this.outlineModel(outline);
+        this.page.outlines = this.page.outlines.filter((o) => o.id !== outline.dataset.id);
+        outline.remove();
+        if (model) this.removedEmpty = { x: model.x, y: model.y };
+        this.dirty.delete(outline);
+        // A container that never held anything was never saved: no edit to record.
+        if (model?.html) this.changed({ structural: true });
+        this.layout();
+      }
+    }, 0);
+  }
+
+  onInput(e) {
+    if (this.readOnly || !this.page) return;
+    const own = this.ownStyles;
+    if (e.inputType !== 'deleteByDrag') this.ownStyles = null;
+    // The first change since the last undo step: remember the selection it
+    // started from (selectionchange has not seen the edit yet).
+    if (!this.dirty.size && !this.commitSoon.pending() && this.caretBefore === undefined) this.caretBefore = this.selBefore?.caret ?? this.caretAt(this.selBefore?.points);
+    if (e.target === this.titleEl) {
+      this.commitSoon();
+      this.emit('title-input', this.titleEl.textContent.replace(/\n/g, ' '));
+      return;
+    }
+    const outline = e.target.closest?.('.outline');
+    if (!outline) return;
+    this.dirty.add(outline);
+    // The resize handle follows its picture, and goes when the picture is deleted.
+    if (this.selectedImage) {
+      if (this.selectedImage.isConnected) this.placeImageHandle?.();
+      else this.clearImageSelection();
+    }
+    // Plain typing adds no styled elements: skip the cleanup, and drop what
+    // was recorded meanwhile (links made as you type, for one) so the
+    // records don't pile up through a long typing session.
+    if (e.inputType !== 'insertText' && e.inputType !== 'insertCompositionText' && !e.isComposing) {
+      const added = this.takeAdded();
+      if (added.size && freezesStyles(e)) dropRedundantStyles(added, { own: own?.runs });
+    } else if (this.addedRecords.length) {
+      this.addedRecords = [];
+      this.additions.takeRecords();
+    }
+    if (e.inputType === 'insertText' && e.data === ' ') {
+      this.autoLink();
+      this.autoFormat(outline);
+    } else if (e.inputType === 'insertParagraph') this.autoLink({ previousBlock: true });
+    this.commitSoon();
+    this.layoutSoon();
+  }
+
+  layoutSoon() {
+    if (this.layoutFrame) return;
+    this.layoutFrame = requestAnimationFrame(() => {
+      this.layoutFrame = null;
+      this.layout();
+    });
+  }
+
+  /**
+   * Turns a typed web address into a link when it is followed by a space
+   * or Enter.
+   */
+  autoLink({ previousBlock = false } = {}) {
+    const range = currentRange();
+    if (!range || !range.collapsed) return;
+    let node = range.startContainer;
+    let end = range.startOffset;
+    if (previousBlock) {
+      const body = editableRoot(node);
+      const block = blockOf(node, body);
+      const prev = block?.previousElementSibling;
+      if (!prev) return;
+      const walker = document.createTreeWalker(prev, NodeFilter.SHOW_TEXT);
+      let last = null;
+      while (walker.nextNode()) last = walker.currentNode;
+      if (!last) return;
+      node = last;
+      end = last.nodeValue.length + 1;
+    }
+    if (node.nodeType !== 3 || node.parentElement.closest('a, pre, code')) return;
+    const text = node.nodeValue.slice(0, Math.max(0, end - 1)).replace(/\u00a0/g, ' ');
+    const m = text.match(/(?:^|\s)((?:https?:\/\/|www\.)[^\s<>"]+[^\s<>".,;:!?)\]'])$/i);
+    if (!m) return;
+    const url = m[1];
+    const start = text.length - url.length;
+    const r = document.createRange();
+    r.setStart(node, start);
+    r.setEnd(node, start + url.length);
+    const a = document.createElement('a');
+    a.href = url.startsWith('www.') ? `https://${url}` : url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    const saved = currentRange()?.cloneRange();
+    r.surroundContents(a);
+    if (saved && !previousBlock) {
+      const after = a.nextSibling;
+      if (after?.nodeType === 3) {
+        const c = document.createRange();
+        c.setStart(after, Math.min(1, after.length));
+        c.collapse(true);
+        selectRange(c);
+      }
+    } else if (saved) selectRange(saved);
+  }
+
+  /** List autoformat: "* " / "- " start bullets, "1. " / "1) " start numbers. */
+  autoFormat(outline) {
+    const range = currentRange();
+    if (!range || !range.collapsed) return;
+    const body = outline.querySelector('.outline-body');
+    const block = blockOf(range.startContainer, body);
+    if (!block || block.closest('li, td, th, pre')) return;
+    const text = block.textContent.replace(/ /g, ' ');
+    const m = text.match(/^(\*|-|1\.|1\)|a\.|a\)) $/);
+    if (!m) return;
+    const offset = textOffset(block, range.startContainer, range.startOffset);
+    if (offset !== m[0].length) return;
+    // Clear the marker, then turn the block into a list.
+    for (const n of [...block.childNodes]) if (n.nodeType === 3 || n.nodeName === 'BR') n.remove();
+    block.append(document.createElement('br'));
+    placeCaret(block, false);
+    toggleList(m[1] !== '*' && m[1] !== '-');
+    fixNesting(body);
+    if (m[1].startsWith('a')) {
+      const list = blockOf(currentRange().startContainer, body)?.closest('ol');
+      if (list) list.style.listStyleType = 'lower-alpha';
+    }
+  }
+
+  onBeforeInput(e) {
+    if (e.inputType === 'historyUndo') {
+      e.preventDefault();
+      this.undo();
+    } else if (e.inputType === 'historyRedo') {
+      e.preventDefault();
+      this.redo();
+    } else this.noteOwnStyles(e);
+  }
+
+  /**
+   * Before a join (Backspace or Delete across two paragraphs, a selection
+   * deleted across several) or a drag-move, notes the formatting set on
+   * the text it moves (ownStyleRuns), so the cleanup of Chrome's frozen
+   * spans keeps it. A drag-move's drop comes after its delete.
+   */
+  noteOwnStyles(e) {
+    if (e.inputType === 'insertFromDrop' && this.ownStyles?.drag) return;
+    this.ownStyles = null;
+    if (!e.inputType?.startsWith('delete') || !e.getTargetRanges) return;
+    const blocks = new Set();
+    for (const t of e.getTargetRanges()) {
+      const root = editableRoot(t.startContainer);
+      if (!root?.classList.contains('outline-body') || !root.contains(t.endContainer)) continue;
+      const first = blockOf(t.startContainer, root) || root;
+      const last = blockOf(t.endContainer, root) || root;
+      // Deleting inside one paragraph adds no spans.
+      if (first === last && e.inputType !== 'deleteByDrag') continue;
+      const range = document.createRange();
+      try {
+        range.setStart(t.startContainer, t.startOffset);
+        range.setEnd(t.endContainer, t.endOffset);
+      } catch {
+        continue;
+      }
+      for (const b of [first, last, ...blocksInRange(range, root)]) blocks.add(b);
+    }
+    if (blocks.size) this.ownStyles = { runs: ownStyleRuns(blocks), drag: e.inputType === 'deleteByDrag' };
+  }
+
+  onKeyDown(e) {
+    // An attachment is a button: Enter and Space open it, like a click.
+    const file = e.target.closest?.('.nt-file[role="button"]');
+    if (file && (e.key === 'Enter' || e.key === ' ') && !e.repeat) {
+      e.preventDefault();
+      this.emit('open-file', file.dataset);
+      return;
+    }
+    if (this.readOnly) return;
+    // Keys pressed while an input method is composing (Escape cancels a
+    // candidate, Tab and arrows move between them) belong to the IME.
+    if (e.isComposing || e.keyCode === 229) return;
+    const inBody = e.target.closest?.('.outline-body');
+    const mod = modKey(e);
+    if (mod && !e.altKey && e.code === 'KeyZ') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.shiftKey) this.redo();
+      else this.undo();
+      return;
+    }
+    if (mod && !e.altKey && !e.shiftKey && e.code === 'KeyY') {
+      e.preventDefault();
+      e.stopPropagation();
+      this.redo();
+      return;
+    }
+    if (!inBody) {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && (this.selectedOutlines.size || this.ink.selected.size) && !e.target.closest?.('.page-title')) {
+        e.preventDefault();
+        this.deleteSelectedOutlines();
+      } else if (e.key.startsWith('Arrow') && (this.selectedOutlines.size || this.ink.selected.size) && !e.target.closest?.('.page-title')) {
+        e.preventDefault();
+        const step = e.shiftKey ? 1 : 10;
+        const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
+        const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
+        for (const el of this.selectedOutlines) {
+          const m = this.outlineModel(el);
+          m.x = Math.max(0, m.x + dx);
+          m.y = Math.max(0, m.y + dy);
+          this.place(el, m);
+        }
+        this.ink.nudge(dx, dy);
+        this.layout();
+        this.commitNudge ||= debounce(() => this.changed(), 400);
+        this.commitNudge();
+      } else if (e.key === 'Enter' && this.selectedOutlines.size === 1) {
+        e.preventDefault();
+        const body = [...this.selectedOutlines][0].querySelector('.outline-body');
+        this.selectOutlines([]);
+        body.focus();
+        placeCaret(body, true);
+      } else if (e.key === 'Escape') {
+        this.selectOutlines([]);
+        this.ink.clearSelection();
+      } else if (mod && e.code === 'KeyA' && !e.target.closest?.('.page-title')) {
+        e.preventDefault();
+        this.selectAllOutlines();
+      }
+      return;
+    }
+    if (e.key === 'Tab' && !mod && !e.altKey) {
+      e.preventDefault();
+      if (moveCell(e.shiftKey ? -1 : 1)) return;
+      indent(e.shiftKey ? -1 : 1);
+      return;
+    }
+    if (e.altKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault();
+      moveBlock(e.key === 'ArrowUp' ? -1 : 1);
+      return;
+    }
+    if (e.altKey && e.shiftKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+      e.preventDefault();
+      indent(e.key === 'ArrowRight' ? 1 : -1);
+      return;
+    }
+    if (e.key === 'Escape') {
+      // Leave text editing and select the container, so arrows and Delete act on it.
+      const outline = inBody.closest('.outline');
+      e.preventDefault();
+      inBody.blur();
+      this.scroller.focus({ preventScroll: true });
+      if (outline.isConnected) {
+        this.selectOutlines([outline]);
+        announce('Note container selected. Arrow keys move it, Delete removes it, Enter edits it.');
+      }
+      return;
+    }
+    if (mod && e.code === 'KeyA') {
+      // First press selects the container's text; the second selects every container.
+      const range = currentRange();
+      const all = document.createRange();
+      all.selectNodeContents(inBody);
+      if (range && range.toString() === all.toString() && all.toString().length) {
+        e.preventDefault();
+        inBody.blur();
+        this.scroller.focus({ preventScroll: true });
+        this.selectAllOutlines();
+      }
+    }
+  }
+
+  onClick(e) {
+    const tag = e.target.closest?.('.nt-tag[role="checkbox"]');
+    if (tag && !this.readOnly) {
+      e.preventDefault();
+      setDone(tag, tag.dataset.done !== 'true');
+      const outline = tag.closest('.outline');
+      if (outline) {
+        this.dirty.add(outline);
+        this.commit();
+      }
+      return;
+    }
+    const file = e.target.closest?.('.nt-file');
+    if (file && !e.target.closest('audio, video')) {
+      e.preventDefault();
+      this.emit('open-file', file.dataset);
+      return;
+    }
+    const math = e.target.closest?.('.nt-math');
+    if (math && !this.readOnly) {
+      this.emit('edit-math', math);
+      return;
+    }
+    const link = e.target.closest?.('a[href]');
+    if (link && this.scroller.contains(link)) {
+      const sel = document.getSelection();
+      if (sel && !sel.isCollapsed) return;
+      e.preventDefault();
+      const href = link.getAttribute('href');
+      const internal = href.match(/^#(page|section)=([\w-]+)/);
+      if (internal) this.emit('navigate', { kind: internal[1], id: internal[2] });
+      else if (safeUrl(href)) window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  // ------------------------------------------------------------ paste/drop
+
+  /**
+   * Chrome leaves attachments out of a copy (they can't be selected as
+   * text) and copies equations without their TeX, so a selection holding
+   * either is put on the clipboard in the stored form, which paste
+   * rebuilds. Other copies keep the browser's own HTML.
+   */
+  onCopy(e, { cut = false } = {}) {
+    const range = currentRange();
+    if (!range || range.collapsed || !e.clipboardData) return;
+    const root = editableRoot(range.commonAncestorContainer);
+    if (!root?.classList.contains('outline-body') || !this.scroller.contains(root)) return;
+    let content = range.cloneContents();
+    if (!content.querySelector('.nt-file, .nt-math')) return;
+    // Items or cells copied without their list or table keep it. Text
+    // from inside one item or cell is copied as it is.
+    for (let n = range.commonAncestorContainer; n && n !== root; n = n.parentNode) {
+      if (n.nodeType === 1 && ['LI', 'TD', 'TH'].includes(n.tagName)) break;
+      if (n.nodeType !== 1 || !['UL', 'OL', 'TABLE', 'TBODY', 'THEAD', 'TR'].includes(n.tagName)) continue;
+      const wrap = n.cloneNode(false);
+      wrap.append(content);
+      content = wrap;
+    }
+    const holder = document.createElement('div');
+    holder.append(content);
+    const html = serialize(holder, { keepSrc: true });
+    e.preventDefault();
+    e.clipboardData.setData('text/html', html);
+    e.clipboardData.setData('text/plain', htmlToText(html));
+    if (cut && !this.readOnly) document.execCommand('delete');
+  }
+
+  async onPaste(e) {
+    if (this.readOnly) return;
+    // Pasted text is new: nothing of it was the user's own formatting here.
+    this.ownStyles = null;
+    const inBody = e.target.closest?.('.outline-body');
+    const inTitle = e.target.closest?.('.page-title');
+    if (inTitle) return; // plaintext-only handles it
+    const dt = e.clipboardData;
+    if (!dt) return;
+    const files = [...dt.files];
+    if (files.length) {
+      e.preventDefault();
+      await this.insertFiles(files);
+      return;
+    }
+    const html = dt.getData('text/html');
+    const text = dt.getData('text/plain');
+    if (!inBody) {
+      // Pasting onto the page with no caret starts a container.
+      if (!html && !text) return;
+      e.preventDefault();
+      const el = this.createOutlineAt(48, this.nextFreeY());
+      el.querySelector('.outline-body').focus();
+    } else e.preventDefault();
+    if (html) await this.pasteHtml(cleanPastedHtml(html));
+    else if (text) insertHtml(textToHtml(text));
+  }
+
+  /**
+   * Inserts (sanitized) pasted HTML at the caret with its equations,
+   * attachments and pictures working at once, not only after a reload.
+   */
+  async pasteHtml(html) {
+    // Chrome's insertHTML splits the paragraph at a non-editable span, so
+    // equations and attachments go in as plain placeholders and are put
+    // back afterwards.
+    const tpl = document.implementation.createHTMLDocument('').createElement('div');
+    tpl.innerHTML = html;
+    const embeds = [...tpl.querySelectorAll('span.nt-file, span.nt-math')];
+    embeds.forEach((el, i) => {
+      const ph = tpl.ownerDocument.createElement('img');
+      ph.setAttribute('data-nt-embed', String(i));
+      el.replaceWith(ph);
+    });
+    const body = editableRoot(currentRange()?.commonAncestorContainer);
+    const before = new Set(body?.querySelectorAll('[data-asset]') || []);
+    insertHtml(tpl.innerHTML);
+    if (!body?.classList.contains('outline-body') || !body.isConnected) return;
+    for (const ph of body.querySelectorAll('img[data-nt-embed]')) {
+      const el = embeds[Number(ph.dataset.ntEmbed)];
+      if (!el) {
+        ph.remove();
+        continue;
+      }
+      // An embed's look comes from the app; drop styles a copy froze on it.
+      const embed = document.importNode(el, true);
+      embed.removeAttribute('style');
+      ph.replaceWith(embed);
+    }
+    const outline = body.closest('.outline');
+    this.dirty.add(outline);
+    const added = [...body.querySelectorAll('[data-asset]')].filter((el) => !before.has(el));
+    await hydrate(body, this.store);
+    if (added.length && (await this.adoptAssets(added))) await hydrate(body, this.store);
+    this.dirty.add(outline);
+    this.commit();
+  }
+
+  /**
+   * Gives pasted pictures and attachments their own copy of the file, saved
+   * for this page's section (sealed when it is protected): a shared file
+   * would break the other page's copy when either is re-encrypted. Files
+   * that can't be read (a locked section's, or deleted ones) are replaced
+   * by their name, with a message. Returns whether anything changed.
+   */
+  async adoptAssets(elements) {
+    const sectionId = this.store.findPage?.(this.page?.id)?.section.id;
+    const ids = [...new Set(elements.map((el) => el.dataset.asset))];
+    let changed = false;
+    for (const id of ids) {
+      const els = elements.filter((el) => el.dataset.asset === id && el.isConnected);
+      if (!els.length) continue;
+      const blob = await Promise.resolve(this.store.assetBlob?.(id)).catch(() => null);
+      if (blob) {
+        const ext = id.endsWith('.sealed') ? id.split('.').at(-2) : id.split('.').pop();
+        const fresh = await this.store.saveAsset(blob instanceof Blob ? blob : new Blob([blob]), `x.${ext}`, { sectionId }).catch(() => null);
+        if (!fresh) continue;
+        for (const el of els) {
+          el.dataset.asset = fresh;
+          if (el.tagName === 'IMG') el.removeAttribute('src');
+          else delete el.dataset.hydrated;
+        }
+      } else {
+        const name = els[0].dataset.name || els[0].getAttribute('alt') || 'picture';
+        for (const el of els) el.replaceWith(document.createTextNode(el.tagName === 'IMG' ? el.getAttribute('alt') || '' : `[${el.dataset.name || 'attachment'}]`));
+        this.emit('insert-failed', { file: { name }, err: new Error("it is in a locked section or was deleted") });
+      }
+      changed = true;
+    }
+    return changed;
+  }
+
+  async onDrop(e) {
+    if (this.readOnly) return;
+    const files = [...(e.dataTransfer?.files || [])];
+    if (!files.length) return;
+    e.preventDefault();
+    const body = e.target.closest?.('.outline-body');
+    if (body) {
+      const pos = document.caretPositionFromPoint?.(e.clientX, e.clientY);
+      const range = pos ? document.createRange() : document.caretRangeFromPoint?.(e.clientX, e.clientY);
+      if (pos) range.setStart(pos.offsetNode, pos.offset);
+      if (range) {
+        range.collapse(true);
+        body.focus();
+        selectRange(range);
+      }
+    } else {
+      const p = this.pagePoint(e);
+      this.createOutlineAt(p.x, p.y);
+    }
+    await this.insertFiles(files);
+  }
+
+  nextFreeY() {
+    let bottom = TOP_OF_CONTENT;
+    for (const el of this.outlinesEl.children) bottom = Math.max(bottom, el.offsetTop + el.offsetHeight + 24);
+    return bottom;
+  }
+
+  /** Makes sure there is a caret in an outline, creating one if needed. */
+  ensureCaret() {
+    const range = currentRange();
+    if (range && editableRoot(range.commonAncestorContainer)?.classList.contains('outline-body') && this.scroller.contains(range.commonAncestorContainer)) return range;
+    if (this.lastRange && this.scroller.contains(this.lastRange.commonAncestorContainer) && this.lastRange.commonAncestorContainer.isConnected) {
+      const root = editableRoot(this.lastRange.commonAncestorContainer);
+      if (root?.classList.contains('outline-body')) {
+        root.focus({ preventScroll: true });
+        selectRange(this.lastRange);
+        return this.lastRange;
+      }
+    }
+    // A click on the page made an empty container that closed when focus
+    // moved to the ribbon or a dialog: bring it back where it was.
+    // (Removing it left the saved caret in the containers' parent.)
+    const at = this.removedEmpty && this.lastRange?.commonAncestorContainer === this.outlinesEl ? this.removedEmpty : null;
+    const el = at ? this.createOutlineAt(at.x, at.y + 12) : this.createOutlineAt(48, this.nextFreeY());
+    return currentRange() || (el && currentRange());
+  }
+
+  /**
+   * Saves the selection a command just made in a note (a font or size from
+   * the ribbon boxes re-selects the text it moved) before selectionchange
+   * records it: the saved range may have collapsed as its text moved.
+   */
+  rememberRange() {
+    const cur = currentRange();
+    if (cur && this.scroller.contains(cur.commonAncestorContainer) && editableRoot(cur.commonAncestorContainer)) this.lastRange = cur.cloneRange();
+  }
+
+  /** Restores the last caret (after a ribbon control took focus). */
+  restoreRange() {
+    if (!this.lastRange || !this.lastRange.commonAncestorContainer.isConnected) return false;
+    const root = editableRoot(this.lastRange.commonAncestorContainer);
+    if (!root) return false;
+    root.focus({ preventScroll: true });
+    selectRange(this.lastRange);
+    return true;
+  }
+
+  /** Pasted or dropped files. A failed upload is reported, not dropped silently. */
+  async insertFiles(files) {
+    for (const file of files) {
+      try {
+        if (file.type.startsWith('image/')) await this.insertImage(file);
+        else await this.insertAttachment(file);
+      } catch (err) {
+        console.error(err);
+        this.emit('insert-failed', { file, err });
+      }
+    }
+  }
+
+  async insertImage(file, { alt = '' } = {}) {
+    // A picture the browser can't show (HEIC outside Safari, a damaged
+    // file) goes in as an attachment instead of a broken image.
+    const probe = URL.createObjectURL(file);
+    const width = await imageWidth(probe);
+    URL.revokeObjectURL(probe);
+    if (width === null) return this.insertAttachment(file);
+    this.ensureCaret();
+    const id = await this.store.saveAsset(file, file.name || 'picture.png', { sectionId: this.store.findPage?.(this.page.id)?.section.id });
+    const url = await this.store.assetUrl(id);
+    const style = width > 600 ? ' style="width: 600px"' : '';
+    this.ensureCaret();
+    insertHtml(`<img data-asset="${id}" src="${url}" alt="${escapeAttr(alt || file.name || '')}"${style}>`);
+    this.markActiveDirty();
+  }
+
+  async insertAttachment(file, kind) {
+    this.ensureCaret();
+    const id = await this.store.saveAsset(file, file.name, { sectionId: this.store.findPage?.(this.page.id)?.section.id });
+    this.ensureCaret();
+    const span = fileSpan({ asset: id, name: file.name || 'Attachment', size: file.size, type: file.type, kind: kind || (file.type.startsWith('audio/') ? 'audio' : file.type.startsWith('video/') ? 'video' : 'file') });
+    insertNode(span);
+    const body = editableRoot(currentRange()?.startContainer);
+    if (body) await hydrate(body, this.store);
+    this.markActiveDirty();
+  }
+
+  markActiveDirty() {
+    const range = currentRange();
+    const outline = range && editableRoot(range.startContainer)?.closest('.outline');
+    if (outline) this.dirty.add(outline);
+    this.commit();
+  }
+
+  // ------------------------------------------------------------ images
+
+  selectImage(img, e) {
+    this.clearImageSelection();
+    img.classList.add('nt-selected');
+    this.selectedImage = img;
+    const outline = img.closest('.outline');
+    const handle = h('div.img-handle', { 'aria-hidden': 'true' });
+    const placeHandle = () => {
+      const or = outline.getBoundingClientRect();
+      const ir = img.getBoundingClientRect();
+      handle.style.left = `${(ir.right - or.left) / this.zoom - 5}px`;
+      handle.style.top = `${(ir.bottom - or.top) / this.zoom - 5}px`;
+    };
+    outline.append(handle);
+    placeHandle();
+    this.imageHandle = handle;
+    this.placeImageHandle = placeHandle;
+    handle.addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const start = this.pagePoint(ev);
+      const w0 = img.getBoundingClientRect().width / this.zoom;
+      const onMove = (m) => {
+        const p = this.pagePoint(m);
+        img.style.width = `${Math.max(24, Math.round(w0 + p.x - start.x))}px`;
+        img.style.height = 'auto';
+        placeHandle();
+      };
+      const onUp = () => {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        this.dirty.add(outline);
+        this.commit();
+        this.layout();
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    });
+    if (e) {
+      // Select the image as a node so Delete and copy act on it.
+      const range = document.createRange();
+      range.selectNode(img);
+      setTimeout(() => selectRange(range));
+    }
+    this.emit('selection');
+  }
+
+  clearImageSelection() {
+    this.selectedImage?.classList.remove('nt-selected');
+    this.selectedImage = null;
+    this.imageHandle?.remove();
+    this.imageHandle = null;
+    this.placeImageHandle = null;
+  }
+
+  // ------------------------------------------------------------ commit/undo
+
+  /** Copies edited outlines back into the page model and saves. */
+  commit({ structural = false } = {}) {
+    if (!this.page || this.readOnly) return;
+    this.commitSoon.cancel();
+    let any = structural;
+    for (const outline of this.dirty) {
+      const model = this.outlineModel(outline);
+      if (!model || !outline.isConnected) continue;
+      const html = serialize(outline.querySelector('.outline-body'));
+      if (html !== model.html) {
+        model.html = html;
+        any = true;
+      }
+    }
+    this.dirty.clear();
+    const titleNow = this.titleEl.textContent.replace(/\n/g, ' ');
+    if (titleNow !== this.page.title) {
+      this.page.title = titleNow;
+      any = true;
+    }
+    if (!any) {
+      this.caretBefore = undefined;
+      return;
+    }
+    this.store.pageChanged(this.page, { title: this.page.title });
+    this.history.push(snapshotOf(this.page), this.caret(), this.caretBefore);
+    this.caretBefore = undefined;
+    this.emit('change', {});
+  }
+
+  /**
+   * Follows assets the store re-saved under new ids (re-encrypted when a
+   * section is protected or a page moves): the page on screen and its undo
+   * history must not bring the old, deleted ids back.
+   */
+  renameAssets(map) {
+    for (const [from, to] of Object.entries(map)) {
+      for (const el of this.outlinesEl.querySelectorAll(`[data-asset="${CSS.escape(from)}"]`)) el.dataset.asset = to;
+      for (const entry of this.history.stack) {
+        const doc = entry.snapshot?.doc;
+        if (typeof doc === 'string' && doc.includes(from)) entry.snapshot = { ...entry.snapshot, doc: doc.split(`data-asset=\\"${from}\\"`).join(`data-asset=\\"${to}\\"`) };
+      }
+    }
+  }
+
+  /** Records a structural change (move, delete, ink, page settings). */
+  changed({ structural = true, quiet = false } = {}) {
+    this.commit({ structural });
+    if (quiet) return;
+  }
+
+  flush() {
+    if (this.commitSoon.pending() || this.dirty.size) this.commit();
+  }
+
+  caret() {
+    const range = currentRange();
+    return range ? this.caretAt([range.startContainer, range.startOffset, range.endContainer, range.endOffset]) : null;
+  }
+
+  /** A selection's boundary points as character offsets in its container (or the title). */
+  caretAt(points) {
+    const [sc, so, ec = sc, eo = so] = points || [];
+    const root = sc?.isConnected && editableRoot(sc);
+    if (!root || !this.scroller.contains(root)) return null;
+    const fits = (n, o) => o <= (n.nodeType === 3 ? n.length : n.childNodes.length);
+    if (!fits(sc, so) || !fits(ec, eo)) return null;
+    if (root === this.titleEl) return { title: true, start: textOffset(root, sc, so) };
+    const outline = root.closest('.outline');
+    const end = ec?.isConnected && root.contains(ec) ? textOffset(root, ec, eo) : textOffset(root, sc, so);
+    return { outlineId: outline.dataset.id, start: textOffset(root, sc, so), end };
+  }
+
+  restoreCaret(caret) {
+    if (!caret) return;
+    let root = null;
+    if (caret.title) root = this.titleEl;
+    else root = this.outlineEl(caret.outlineId)?.querySelector('.outline-body');
+    if (!root) return;
+    root.focus({ preventScroll: true });
+    selectRange(rangeFromOffsets(root, caret.start, caret.end ?? caret.start));
+  }
+
+  async undo() {
+    this.flush();
+    const entry = this.history.undo();
+    if (!entry) return false;
+    await this.restoreSnapshot(entry);
+    return true;
+  }
+
+  async redo() {
+    this.flush();
+    const entry = this.history.redo();
+    if (!entry) return false;
+    await this.restoreSnapshot(entry);
+    return true;
+  }
+
+  async restoreSnapshot(entry) {
+    const hadFocus = this.scroller.contains(document.activeElement);
+    applySnapshot(this.page, entry.snapshot);
+    this.store.pageChanged(this.page, { title: this.page.title });
+    await this.render();
+    this.restoreCaret(entry.caret);
+    // When the restored state has no container for the caret (undoing the
+    // first typing in a new one), keep focus on the page so the next
+    // Ctrl+Z or Ctrl+Y still reaches the editor.
+    if (hadFocus && !this.scroller.contains(document.activeElement)) this.scroller.focus({ preventScroll: true });
+    this.emit('change', { title: true });
+  }
+
+  // ------------------------------------------------------------ zoom
+
+  setZoom(z, anchor) {
+    const next = clamp(Math.round(z * 100) / 100, 0.25, 4);
+    if (next === this.zoom) return;
+    const s = this.scroller;
+    const r = s.getBoundingClientRect();
+    const ax = anchor ? anchor.clientX - r.left : s.clientWidth / 2;
+    const ay = anchor ? anchor.clientY - r.top : s.clientHeight / 2;
+    const px = (s.scrollLeft + ax) / this.zoom;
+    const py = (s.scrollTop + ay) / this.zoom;
+    this.zoom = next;
+    this.layout();
+    s.scrollLeft = px * next - ax;
+    s.scrollTop = py * next - ay;
+    this.emit('zoom', next);
+  }
+
+  stepZoom(direction) {
+    const i = ZOOMS.findIndex((z) => z >= this.zoom - 0.001);
+    const next = direction > 0 ? ZOOMS.find((z) => z > this.zoom + 0.001) : [...ZOOMS].reverse().find((z) => z < this.zoom - 0.001);
+    this.setZoom(next ?? ZOOMS[clamp(i, 0, ZOOMS.length - 1)]);
+  }
+
+  /** Zooms so the widest content fits the window. */
+  fitWidth() {
+    let right = 0;
+    for (const el of this.outlinesEl.children) right = Math.max(right, el.offsetLeft + el.offsetWidth);
+    right = Math.max(right, this.header.offsetLeft + this.header.offsetWidth) + 40;
+    this.setZoom(clamp(this.scroller.clientWidth / right, 0.25, 2));
+  }
+
+  destroy() {
+    this.flush();
+    document.removeEventListener('selectionchange', this.onSelectionChange);
+    window.removeEventListener('beforeprint', this.onBeforePrint);
+    window.removeEventListener('afterprint', this.onAfterPrint);
+    this.resizeObserver.disconnect();
+    this.additions.disconnect();
+    this.scroller.remove();
+  }
+}
+
+/** A tiled SVG for rule lines and grids. */
+export function ruleImage(kind, color, dark) {
+  const line = color || (dark ? '#2f4256' : '#c5d9ee');
+  const margin = dark ? '#5b3434' : '#efb2b2';
+  const sizes = { narrow: 20, college: 24, standard: 29, wide: 34, 'grid-small': 13, 'grid-medium': 20, 'grid-large': 32, 'grid-xl': 48 };
+  const s = sizes[kind] || 24;
+  let svg;
+  if (kind.startsWith('grid')) {
+    svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${s}' height='${s}'><path d='M${s - 0.5} 0V${s}M0 ${s - 0.5}H${s}' stroke='${line}' stroke-width='1' fill='none'/></svg>`;
+  } else {
+    svg = `<svg xmlns='http://www.w3.org/2000/svg' width='4' height='${s}'><path d='M0 ${s - 0.5}H4' stroke='${line}' stroke-width='1'/></svg>`;
+    void margin;
+  }
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+function stripPasteWrapper(html) {
+  const m = html.match(/<!--StartFragment-->([\s\S]*)<!--EndFragment-->/);
+  return m ? m[1] : html;
+}
+
+/**
+ * Pasted HTML ready to insert: Word's list paragraphs become real lists,
+ * the result is sanitized, and the line breaks between blocks are dropped
+ * (Chrome turns them into empty paragraphs).
+ */
+export function cleanPastedHtml(html) {
+  const doc = document.implementation.createHTMLDocument('');
+  const root = doc.createElement('div');
+  root.innerHTML = stripPasteWrapper(String(html ?? ''));
+  wordLists(root, doc);
+  root.innerHTML = sanitizeHtml(root.innerHTML);
+  for (const el of [root, ...root.querySelectorAll('ul, ol, table, tbody, thead, tr, td, th, li, blockquote, div')]) {
+    for (const n of [...el.childNodes]) {
+      if (n.nodeType !== 3 || n.nodeValue.replace(/[\t\n\r ]/g, '')) continue;
+      if (isBlock(n.previousSibling) || isBlock(n.nextSibling)) n.remove();
+    }
+  }
+  return root.innerHTML;
+}
+
+/*
+ * Word writes a bulleted or numbered list as paragraphs styled
+ * "mso-list:l1 level2 lfo1" whose bullet or number is literal text in a
+ * span marked "mso-list:Ignore". Rebuild them as nested <ul>/<ol>.
+ */
+function wordLists(root, doc) {
+  let stack = [];
+  for (const p of root.querySelectorAll('p, h1, h2, h3, h4, h5, h6')) {
+    const m = /mso-list:\s*l\d+\s+level(\d+)/i.exec(p.getAttribute('style') || '');
+    if (!m) continue;
+    const level = Number(m[1]);
+    let marker = '';
+    const ignore = [...p.querySelectorAll('[style]')].find((el) => /mso-list:\s*ignore/i.test(el.getAttribute('style')));
+    if (ignore) {
+      marker = ignore.textContent.replace(/[\s\u00a0]/g, '');
+      // Drop the marker and the wrappers it leaves empty, never the item text.
+      let gone = ignore;
+      while (gone.parentNode !== p && !gone.parentNode.textContent.replace(gone.textContent, '').trim()) gone = gone.parentNode;
+      gone.remove();
+    }
+    const ordered = /^[0-9a-z]{1,5}[.)]$/i.test(marker);
+    // A list continues while its paragraphs follow one another.
+    let prev = p.previousSibling;
+    while (prev && prev.nodeType === 3 && !prev.nodeValue.trim()) prev = prev.previousSibling;
+    if (!stack.length || prev !== stack[0].list) stack = [];
+    while (stack.length && stack.at(-1).level > level) stack.pop();
+    let top = stack.at(-1);
+    if (!top || top.level < level) {
+      const list = doc.createElement(ordered ? 'ol' : 'ul');
+      if (top) top.list.lastElementChild.append(list);
+      else p.before(list);
+      top = { level, list };
+      stack.push(top);
+    }
+    const li = doc.createElement('li');
+    while (p.firstChild) li.append(p.firstChild);
+    top.list.append(li);
+    p.remove();
+  }
+}
+
+/** Plain text to paragraphs, keeping URLs as links. */
+export function textToHtml(text) {
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const linkify = (s) => esc(s).replace(/\bhttps?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]/g, (u) => `<a href="${u}">${u}</a>`);
+  const lines = text.replace(/\r\n?/g, '\n').split('\n');
+  if (lines.length === 1) return linkify(lines[0]);
+  return lines.map((l) => `<p>${l ? linkify(l).replace(/\t/g, '&emsp;') : '<br>'}</p>`).join('');
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/[&"<>]/g, (c) => ({ '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' })[c]);
+}
+
+/** The picture's natural width, or null when the browser can't decode it. */
+function imageWidth(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img.naturalWidth);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}

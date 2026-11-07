@@ -1,0 +1,54 @@
+/* Envelope Distort: Properties panel section and dialogs. */
+
+.env-props {
+  display: grid;
+  gap: 8px;
+}
+
+.env-props-group {
+  display: grid;
+  gap: 6px;
+}
+
+.env-props-group[hidden] {
+  display: none;
+}
+
+.env-props-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.env-props-row > .select {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.env-props-label {
+  min-width: 56px;
+  color: var(--text-2);
+  font-size: var(--fs);
+}
+
+.env-edit-toggle .seg-btn {
+  padding: 0 10px;
+  font-size: var(--fs);
+}
+
+.env-props-actions {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 2px;
+}
+
+.env-dialog .fx-body {
+  min-width: min(360px, 100%);
+}
+
+@media (max-width: 760px) {
+  .env-props-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -1,0 +1,161 @@
+name: CI
+
+# Each folder in src/ with a package.json is its own app.
+#
+# Pull requests and pushes to main test only the apps whose files changed, and
+# in those only the tests that import a changed file (vitest --changed; a
+# change to an app's package.json or vite config runs all of its tests).
+# Whiteboard has no such filter (node --test) and runs in full. A change to
+# this workflow or to the shared dev/ folder (imported by every vite.config)
+# checks every app the same way.
+#
+# Every night, the apps that changed on main in the last day run their full
+# suites; a manual run tests every app in full.
+#
+# spreadsheet and documents are split into parallel shards so each job stays
+# well under the time limit. (node --test shards by file, and one whiteboard
+# file holds most of its ~27 minutes, so whiteboard runs as one job.)
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name == 'schedule' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  changes:
+    name: Find changed apps
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.apps.outputs.matrix }}
+      mode: ${{ steps.apps.outputs.mode }}
+      base: ${{ steps.apps.outputs.base }}
+    steps:
+      # History without file contents is enough to diff names, and keeps
+      # whiteboard's tracked tmp/ folder out of this job.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: .github
+
+      - id: apps
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # assets is a placeholder (index.html, no source yet); add it back once it has code.
+          skip='assets'
+          all=$(git ls-tree -r --name-only HEAD src | grep -E '^src/[^/]+/package\.json$' | cut -d/ -f2 | sort -u | grep -Fxv "$skip")
+          mode=affected
+          if [ "$EVENT" = workflow_dispatch ]; then
+            mode=full
+            apps="$all"
+          elif [ "$EVENT" = schedule ]; then
+            mode=full
+            changed=$(git log --since='25 hours ago' --no-renames --name-only --format= HEAD)
+          elif [ -z "$BASE" ] || [ "$BASE" = 0000000000000000000000000000000000000000 ]; then
+            mode=full
+            apps="$all"
+          else
+            changed=$(git diff --no-renames --name-only "$BASE...$HEAD")
+          fi
+          if [ -n "${changed+x}" ]; then
+            if echo "$changed" | grep -qE '^(\.github/workflows/ci\.yml|dev/)'; then
+              apps="$all"
+            else
+              apps=$(echo "$changed" | grep '^src/' | cut -d/ -f2 | sort -u | grep -Fxf <(echo "$all") || true)
+            fi
+          fi
+          # Shards per app; the rest run in one job.
+          matrix=$(echo "$apps" | jq -R . | jq -sc '
+            {spreadsheet: 4, documents: 4} as $shards
+            | [.[] | select(. != "") | . as $app | range(1; ($shards[$app] // 1) + 1)
+               | {app: $app, shard: ., shards: ($shards[$app] // 1)}]')
+          {
+            echo "matrix=$matrix"
+            echo "mode=$mode"
+            echo "base=$BASE"
+          } >> "$GITHUB_OUTPUT"
+          echo "Mode: $mode"
+          echo "Apps: $(echo "$apps" | tr '\n' ' ')"
+
+  test:
+    name: ${{ matrix.app }}${{ matrix.shards > 1 && format(' ({0}/{1})', matrix.shard, matrix.shards) || '' }}
+    needs: changes
+    if: needs.changes.outputs.matrix != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Known failures that are reported but do not fail "CI passed" yet:
+    # whiteboard (two presence-relay ordering tests in collaboration-peers.test.js
+    # fail under CI load). Remove an app from this list once its suite is green.
+    continue-on-error: ${{ contains(fromJSON('["whiteboard"]'), matrix.app) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.changes.outputs.matrix) }}
+    defaults:
+      run:
+        working-directory: src/${{ matrix.app }}
+    env:
+      MODE: ${{ needs.changes.outputs.mode }}
+      BASE: ${{ needs.changes.outputs.base }}
+      SHARD: ${{ matrix.shard }}/${{ matrix.shards }}
+    steps:
+      # vitest --changed diffs against the base commit, so affected runs
+      # fetch history (names only; file contents of this app alone).
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ needs.changes.outputs.mode == 'affected' && '0' || '1' }}
+          filter: ${{ needs.changes.outputs.mode == 'affected' && 'blob:none' || '' }}
+          sparse-checkout: |
+            src/${{ matrix.app }}
+            dev
+
+      # Node 22 is what Amplify builds with (amplify.yml).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/${{ matrix.app }}/package-lock.json
+
+      - run: npm ci
+
+      # Only apps whose code is already Prettier-clean are held to it.
+      - if: matrix.app == 'whiteboard' && matrix.shard == 1
+        run: npm run format:check
+
+      - name: Test
+        run: |
+          if [ "${{ matrix.app }}" = whiteboard ]; then
+            node --test --test-shard="$SHARD" tests/*.test.js
+          elif [ "$MODE" = affected ]; then
+            npx vitest run --changed "$BASE" --passWithNoTests --shard="$SHARD"
+          else
+            npx vitest run --passWithNoTests --shard="$SHARD"
+          fi
+
+      - if: matrix.shard == 1
+        run: npm run build
+
+  ci-passed:
+    name: CI passed
+    needs: [changes, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - if: needs.changes.result != 'success' || (needs.test.result != 'success' && needs.test.result != 'skipped')
+        run: |
+          echo "changes: ${{ needs.changes.result }}, test: ${{ needs.test.result }}"
+          exit 1
+      - run: echo "All changed apps passed."

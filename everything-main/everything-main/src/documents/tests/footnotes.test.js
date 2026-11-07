@@ -1,0 +1,339 @@
+import { beforeAll, afterAll, it, expect, describe, vi } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { zipSync, unzipSync, strToU8, strFromU8 } from 'fflate';
+import { DocxPackage, createDocx, WRITING_STYLES } from '../src/engine/docx.js';
+import { TextDocument, paragraph } from '../src/engine/model.js';
+import { layoutDocument } from '../src/engine/layout.js';
+import { layoutPageStories } from '../src/engine/page-story-layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+import { footnoteNumbers, footnoteOpeningRuns } from '../src/engine/footnotes.js';
+import { ParagraphMeasureCache } from '../src/engine/paragraph-measure-cache.js';
+
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => dom.window.close());
+const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+const measure = (text, style) => ({ width: text.length * style.fontSize * .6, ascent: style.fontSize * .8, descent: style.fontSize * .2 });
+
+/** Independently written: two references to two notes, the separator notes and an unreferenced note. */
+function notedDocx() {
+  const note = (id, text) => `<w:footnote w:id="${id}"><w:p><w:pPr><w:pStyle w:val="FootnoteText"/></w:pPr><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteRef/></w:r><w:r><w:t xml:space="preserve"> ${text}</w:t></w:r></w:p></w:footnote>`;
+  const files = {
+    '[Content_Types].xml': '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/footnotes.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>',
+    '_rels/.rels': '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+    'word/_rels/document.xml.rels': '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" Target="footnotes.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+    'word/styles.xml': `<w:styles xmlns:w="${W}"><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style><w:style w:type="paragraph" w:styleId="FootnoteText"><w:name w:val="footnote text"/><w:basedOn w:val="Normal"/><w:rPr><w:sz w:val="20"/></w:rPr></w:style><w:style w:type="character" w:styleId="FootnoteReference"><w:name w:val="footnote reference"/><w:rPr><w:vertAlign w:val="superscript"/></w:rPr></w:style></w:styles>`,
+    'word/document.xml': `<w:document xmlns:w="${W}"><w:body><w:p><w:r><w:t>First claim</w:t></w:r><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteReference w:id="2"/></w:r><w:r><w:t xml:space="preserve"> and second</w:t></w:r><w:r><w:rPr><w:rStyle w:val="FootnoteReference"/></w:rPr><w:footnoteReference w:id="1"/></w:r><w:r><w:t>.</w:t></w:r></w:p><w:sectPr/></w:body></w:document>`,
+    'word/footnotes.xml': `<w:footnotes xmlns:w="${W}"><w:footnote w:type="separator" w:id="-1"><w:p><w:r><w:separator/></w:r></w:p></w:footnote><w:footnote w:type="continuationSeparator" w:id="0"><w:p><w:r><w:continuationSeparator/></w:r></w:p></w:footnote>${note(1, 'Second source.')}${note(2, 'First source.')}${note(7, 'Unreferenced.')}</w:footnotes>`,
+  };
+  return zipSync(Object.fromEntries(Object.entries(files).map(([k, v]) => [k, strToU8(v)])));
+}
+const open = async bytes => { const pkg = await DocxPackage.open(bytes); return { pkg, model: new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets) }; };
+const layout = (pkg, d, stories = pkg.pageStories) => layoutDocument(d.paragraphs, measure, pageGeometry(d.pageSettings), d.numbering, d.tables, stories, { styles: d.styles });
+
+function noteSettings(bytes, properties) {
+  const parts = unzipSync(bytes);
+  parts['word/settings.xml'] = strToU8(`<w:settings xmlns:w="${W}"><w:footnotePr>${properties}</w:footnotePr></w:settings>`);
+  parts['word/_rels/document.xml.rels'] = strToU8(strFromU8(parts['word/_rels/document.xml.rels']).replace('</Relationships>', '<Relationship Id="settings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/></Relationships>'));
+  parts['[Content_Types].xml'] = strToU8(strFromU8(parts['[Content_Types].xml']).replace('</Types>', '<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/></Types>'));
+  return zipSync(parts);
+}
+
+describe('footnotes', () => {
+  it.each([
+    ['decimal', ['3', '4']], ['decimalZero', ['03', '04']],
+    ['lowerRoman', ['iii', 'iv']], ['upperRoman', ['III', 'IV']],
+    ['lowerLetter', ['c', 'd']], ['upperLetter', ['C', 'D']], ['chicago', ['‡', '§']],
+  ])('keeps supported %s numbering editable and unchanged on export', async (format, expected) => {
+    const source = noteSettings(notedDocx(), `<w:numFmt w:val="${format}"/><w:numStart w:val="3"/>`);
+    const { pkg, model } = await open(source);
+    expect(pkg.readOnly).toBeFalsy();
+    expect(layout(pkg, model).footnoteAreas[0].notes.map(n => n.display)).toEqual(expected);
+    const saved = new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets).arrayBuffer());
+    expect(unzipSync(saved)).toEqual(unzipSync(source));
+  });
+
+  it.each(['ordinal'])('opens unsupported %s footnote numbering as a structured preview', async format => {
+    const source = noteSettings(notedDocx(), `<w:numFmt w:val="${format}"/><w:numStart w:val="3"/>`);
+    const preview = await DocxPackage.open(source, { bestEffort: true });
+    await expect(DocxPackage.open(source)).rejects.toThrow(/footnote numbering format/);
+    expect(preview.readOnly).toBe(true);
+    expect(preview.previewIssues.join(' ')).toContain(`footnote numbering format ${format}; note numbers displayed as decimal`);
+    expect(Object.values(preview.pageStories.stories).filter(s => s.kind === 'footnote')).toHaveLength(2);
+    expect(preview.pageStories.footnotes).toMatchObject({ format: 'decimal', start: 3 });
+    const model = new TextDocument(preview.paragraphs, preview.pageSettings, preview.numbering, preview.styles, preview.tables, preview.assets);
+    expect(model.text).toBe('First claim￼ and second￼.');
+    expect(layout(preview, model).footnoteAreas[0].notes.map(n => n.display)).toEqual(['3', '4']);
+    expect(preview.parts).toEqual(unzipSync(source));
+    expect(() => preview.export(model.paragraphs)).toThrow(/read-only/);
+  });
+
+  it.each([['eachPage', ['3', '4']], ['eachSect', ['3', '4']]])('opens %s numbering for editing, restarting from numStart', async (restart, expected) => {
+    const parts = unzipSync(notedDocx());
+    parts['word/settings.xml'] = strToU8(`<w:settings xmlns:w="${W}"><w:footnotePr><w:numStart w:val="3"/><w:numRestart w:val="${restart}"/></w:footnotePr></w:settings>`);
+    parts['word/_rels/document.xml.rels'] = strToU8(strFromU8(parts['word/_rels/document.xml.rels']).replace('</Relationships>', '<Relationship Id="settings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/></Relationships>'));
+    parts['[Content_Types].xml'] = strToU8(strFromU8(parts['[Content_Types].xml']).replace('</Types>', '<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/></Types>'));
+    const bytes = zipSync(parts);
+    const { pkg, model } = await open(bytes);
+    expect(pkg.readOnly).toBeFalsy();
+    expect(pkg.pageStories.footnotes).toMatchObject({ restart, start: 3 });
+    expect(Object.values(pkg.pageStories.stories).filter(s => s.kind === 'footnote').map(s => [s.noteId, s.editable])).toEqual([['1', true], ['2', true]]);
+    expect(layout(pkg, model).footnoteAreas[0].notes.map(n => n.display)).toEqual(expected);
+    const saved = new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets).arrayBuffer());
+    expect(unzipSync(saved)).toEqual(parts);
+  });
+
+  it('opens referenced notes for editing and numbers them in reference order', async () => {
+    const { pkg, model } = await open(notedDocx());
+    expect(pkg.readOnly).toBeFalsy();
+    expect(model.text).toBe('First claim￼ and second￼.');
+    expect([...footnoteNumbers(model.paragraphs).entries()]).toEqual([['2', '1'], ['1', '2']]);
+    const stories = Object.entries(pkg.pageStories.stories).filter(([, s]) => s.kind === 'footnote');
+    expect(stories.map(([path, s]) => [path, s.editable])).toEqual([['word/footnotes.xml#1', true], ['word/footnotes.xml#2', true]]);
+  });
+
+  it('reserves the footnote area on the referencing page and paints numbered notes', async () => {
+    const { pkg, model } = await open(notedDocx());
+    const body = layout(pkg, model);
+    expect(body.footnoteAreas).toHaveLength(1);
+    expect(body.footnoteAreas[0].notes.map(n => [n.id, n.display])).toEqual([['2', '1'], ['1', '2']]);
+    const stories = layoutPageStories(body, pkg.pageStories, [model.pageSettings], measure, model.numbering, { styles: model.styles });
+    const noteLines = stories.lines.filter(l => l.pageStory?.startsWith('word/footnotes.xml#'));
+    expect(noteLines.map(l => l.pageStory)).toEqual(['word/footnotes.xml#2', 'word/footnotes.xml#1']);
+    expect(noteLines[0].y).toBeGreaterThan(body.footnoteAreas[0].top);
+    expect(body.columnSeparators.some(s => s.footnote)).toBe(true);
+  });
+
+  it('pushes body text off a page to make room for its notes', async () => {
+    const { pkg, model } = await open(notedDocx());
+    model.select(model.text.length); model.replace('\n' + Array.from({ length: 80 }, (_, i) => `Line ${i}`).join('\n'));
+    const withNotes = layout(pkg, model), without = layout(pkg, model, { ...pkg.pageStories, footnotes: undefined });
+    const lastOnFirst = l => Math.max(...l.lines.filter(x => x.page === 0).map(x => x.end));
+    expect(lastOnFirst(withNotes)).toBeLessThan(lastOnFirst(without));
+  });
+
+  it('names the note, not a header or footer, when a note grows taller than a page', async () => {
+    const { pkg, model } = await open(notedDocx());
+    const note = Object.values(pkg.pageStories.stories).find(story => story.kind === 'footnote');
+    note.paragraphs[0].runs.at(-1).text += ' Long source text.'.repeat(1500);
+    expect(() => layout(pkg, model)).toThrow('This footnote or endnote is taller than a page.');
+  });
+
+  it('saves untouched notes byte for byte, edits a note and prunes deleted references', async () => {
+    const source = notedDocx(), { pkg, model } = await open(source);
+    const save = async (edits) => new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets, edits).arrayBuffer());
+    expect(unzipSync(await save())).toEqual(unzipSync(source));
+    const story = pkg.pageStories.stories['word/footnotes.xml#1'];
+    const note = new TextDocument(story.paragraphs, model.pageSettings, model.numbering, model.styles, [], model.assets);
+    note.select(note.text.length); note.replace(' Edited');
+    model.select(model.text.indexOf('￼'), model.text.indexOf('￼') + 1); model.replace('');
+    const bytes = await save({ 'word/footnotes.xml#1': { paragraphs: note.paragraphs, tables: [] } });
+    const xml = strFromU8(unzipSync(bytes)['word/footnotes.xml']);
+    expect(xml).toMatch(/Second source\..*Edited/);
+    expect(xml).not.toMatch(/First source|Unreferenced/);
+    expect(xml).toMatch(/w:type="separator"/);
+    const again = await open(bytes);
+    expect(again.model.text).toBe('First claim and second￼.');
+    expect(again.pkg.pageStories.stories['word/footnotes.xml#1'].paragraphs[0].runs.map(r => r.noteMark ? '#' : r.text).join('')).toBe('# Second source. Edited');
+  });
+
+  it('inserts a new footnote into a document without a notes part', async () => {
+    const blank = createDocx([paragraph('Claim')], undefined, undefined, undefined, [], {}, WRITING_STYLES);
+    const pkg = await DocxPackage.open(new Uint8Array(await blank.export().arrayBuffer()));
+    const model = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets);
+    const { id, path } = pkg.addFootnote();
+    model.select(5); model.insertFootnoteReference(id);
+    const note = new TextDocument([paragraph()], model.pageSettings, model.numbering, model.styles, [], model.assets);
+    note.paragraphs[0].runs = footnoteOpeningRuns(note.typingRun(0));
+    note.select(2); note.replace('A new note.');
+    const bytes = new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets, { [path]: { paragraphs: note.paragraphs, tables: [] } }).arrayBuffer());
+    const parts = unzipSync(bytes);
+    expect(strFromU8(parts['word/document.xml'])).toMatch(/<w:vertAlign w:val="superscript"\/>.*<w:footnoteReference w:id="1"\/>/);
+    expect(strFromU8(parts['word/_rels/document.xml.rels'])).toMatch(/relationships\/footnotes" Target="footnotes.xml"/);
+    expect(strFromU8(parts['word/footnotes.xml'])).toMatch(/<w:r><w:rPr><w:vertAlign w:val="superscript"\/><\/w:rPr><w:footnoteRef\/><\/w:r><w:r><w:t xml:space="preserve"> A new note.<\/w:t><\/w:r>/);
+    const again = await open(bytes);
+    expect(again.model.text).toBe('Claim￼');
+    expect(again.pkg.pageStories.stories['word/footnotes.xml#1'].paragraphs[0].runs.map(r => r.noteMark ? '#' : r.text).join('')).toBe('# A new note.');
+  });
+
+  it('keeps notes clear of body text when a reference sits near the foot of a page', async () => {
+    for (const n of [36, 37]) {
+      const { pkg, model } = await open(notedDocx());
+      model.select(0); model.replace(Array.from({ length: n }, (_, i) => `Line ${i}`).join('\n') + '\n');
+      model.select(model.text.length); model.replace('\n' + Array.from({ length: 60 }, (_, i) => `Tail ${i}`).join('\n'));
+      const body = layout(pkg, model);
+      for (const area of body.footnoteAreas) {
+        const overlap = body.lines.filter(l => l.page === area.page && !l.pageStory && !l.virtual && l.y + l.height > area.top + 0.5);
+        expect(overlap).toEqual([]);
+        // Each note sits on the page of its reference.
+        const pid = model.paragraphs.find(p => p.runs.some(r => r.noteMark?.kind === 'footnoteReference')).id;
+        expect(body.lines.some(l => l.paragraphId === pid && l.page === area.page)).toBe(true);
+      }
+    }
+  }, 120000);
+
+  it('settles reservations once, then reuses them for edits that leave every line where it was', async () => {
+    // A reference near the foot of a page needs several passes to settle its note's room.
+    const { pkg, model } = await open(notedDocx());
+    model.select(0); model.replace(Array.from({ length: 36 }, (_, i) => `Line ${i}`).join('\n') + '\n');
+    model.select(model.text.length); model.replace('\n' + Array.from({ length: 60 }, (_, i) => `Tail ${i}`).join('\n'));
+    const cache = new ParagraphMeasureCache(), remembered = (text, style) => measure(text, style);
+    remembered.paragraphCache = () => cache;
+    let passes = 0;
+    const measureParagraphs = cache.measure.bind(cache);
+    cache.measure = (...args) => { passes++; return measureParagraphs(...args); };
+    const lay = () => { passes = 0; cache.nextGeneration(); return layoutDocument(model.paragraphs, remembered, pageGeometry(model.pageSettings), model.numbering, model.tables, pkg.pageStories, { styles: model.styles }); };
+    const plain = body => JSON.stringify({ pages: body.pageCount, lines: body.lines.map(l => [l.paragraphId, l.page, l.y, l.start, l.end]), notes: body.footnoteAreas });
+    const blocks = model.paragraphs.length;
+    expect(plain(lay())).toBe(plain(layout(pkg, model)));
+    expect(passes).toBeGreaterThanOrEqual(2 * blocks);
+    // Typing in a later paragraph moves no line: one pass with the remembered reservations.
+    model.select(model.text.indexOf('Tail 30') + 4); model.replace('x');
+    expect(plain(lay())).toBe(plain(layout(pkg, model)));
+    expect(passes).toBe(blocks);
+    // Text before a reference that moves it to another line settles the reservations again.
+    model.select(model.text.indexOf('First claim')); model.replace('Words before the claim push its reference along the line. '.repeat(3));
+    expect(plain(lay())).toBe(plain(layout(pkg, model)));
+    expect(passes).toBeGreaterThan(blocks);
+  }, 120000);
+
+  it('names a table for footnote settling without serializing its cells again on each keystroke', async () => {
+    const { pkg, model } = await open(notedDocx());
+    model.select(model.text.length); model.replace('\nAfter');
+    model.select(model.text.length); model.insertTable(20, 2);
+    model.paragraphs.filter(p => p.cellId).forEach((p, i) => { p.runs = [{ ...model.paragraphs[0].runs[0], text: `Cell ${i} words` }]; });
+    const cache = new ParagraphMeasureCache(), remembered = (text, style) => measure(text, style);
+    remembered.paragraphCache = () => cache;
+    const lay = () => { cache.nextGeneration(); return layoutDocument(model.paragraphs, remembered, pageGeometry(model.pageSettings), model.numbering, model.tables, pkg.pageStories, { styles: model.styles }); };
+    const plain = body => JSON.stringify({ pages: body.pageCount, lines: body.lines.map(l => [l.paragraphId, l.page, l.y, l.start, l.end, l.cellId]), notes: body.footnoteAreas });
+    const first = lay();
+    expect(plain(first)).toBe(plain(layout(pkg, model)));
+    // Typing before the table moves its cells' offsets, not their lines: the table keeps its name, and
+    // its rows name the cells' measured paragraphs instead of serializing them (with their text) again.
+    model.select(3); model.replace('typed ');
+    const serialized = vi.spyOn(JSON, 'stringify');
+    let typed, rows;
+    try {
+      typed = lay();
+      rows = serialized.mock.results.filter(r => typeof r.value === 'string' && r.value.includes('"tableRow"'));
+    } finally { serialized.mockRestore(); }
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.filter(r => r.value.includes('Cell 7'))).toEqual([]);
+    expect(typed.flowSignature).toBe(first.flowSignature);
+    expect(plain(typed)).toBe(plain(layout(pkg, model)));
+    // A cell that wraps to another line paginates differently: the table's name changes with it.
+    const cell = model.paragraphs.find(p => p.cellId && p.runs[0].text === 'Cell 7 words');
+    model.select(model.paragraphOffset(model.paragraphs.indexOf(cell)) + 4); model.replace('grows past the width of its column and wraps onto more lines than before ');
+    const grown = lay();
+    expect(grown.flowSignature).not.toBe(typed.flowSignature);
+    expect(plain(grown)).toBe(plain(layout(pkg, model)));
+    // Typed into the same cell without a new line, it keeps its height, and the name returns to what it was.
+    model.undo();
+    expect(lay().flowSignature).toBe(typed.flowSignature);
+  });
+
+  it('tracks a footnote inserted with Track Changes on, so rejecting it removes the note', async () => {
+    const { pkg, model } = await open(notedDocx());
+    model.trackChanges = true; model.revisionAuthor = 'Reviewer';
+    const { id, path } = pkg.addFootnote();
+    model.select(5); model.insertFootnoteReference(id);
+    expect(model.revisions.map(r => [r.type, r.author, model.text.slice(r.start, r.end)])).toEqual([['ins', 'Reviewer', '\ufffc']]);
+    const note = new TextDocument([paragraph()], model.pageSettings, model.numbering, model.styles, [], model.assets);
+    note.paragraphs[0].runs = footnoteOpeningRuns(note.typingRun(0));
+    const save = async () => strFromU8(unzipSync(new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets, { [path]: { paragraphs: note.paragraphs, tables: [] } }, undefined, true).arrayBuffer()))['word/document.xml']);
+    expect(await save()).toMatch(new RegExp(`<w:ins [^>]*w:author="Reviewer"[^>]*><w:r><w:rPr>.*?</w:rPr><w:footnoteReference w:id="${id}"/></w:r></w:ins>`));
+    const text = model.text;
+    expect(model.resolveRevisions(false)).toBe(true);
+    expect(model.text).toBe(text.slice(0, 5) + text.slice(6));
+  });
+
+  it('drops a new note whose reference was undone', async () => {
+    const { pkg, model } = await open(notedDocx());
+    const { id, path } = pkg.addFootnote();
+    model.select(5); model.insertFootnoteReference(id);
+    const note = new TextDocument([paragraph()], model.pageSettings, model.numbering, model.styles, [], model.assets);
+    note.paragraphs[0].runs = footnoteOpeningRuns(note.typingRun(0));
+    model.undo();
+    const bytes = new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets, { [path]: { paragraphs: note.paragraphs, tables: [] } }).arrayBuffer());
+    expect(strFromU8(unzipSync(bytes)['word/footnotes.xml'])).not.toMatch(new RegExp(`w:id="${id}"`));
+  });
+});
+
+describe('a note reference inserted where a field starts', () => {
+  it('goes before the field, so updating the field keeps the note', async () => {
+    const { insertBodyField } = await import('../src/engine/field-results.js');
+    const { bodyFieldRanges } = await import('../src/engine/body-fields.js');
+    const doc = new TextDocument([paragraph('')]);
+    doc.replace('Report '); insertBodyField(doc, ' DATE \\@ "yyyy" ', '1999'); doc.replace(' ends.');
+    doc.select('Report '.length);
+    doc.insertFootnoteReference('1', 'footnote');
+    const [field] = bodyFieldRanges(doc.paragraphs);
+    expect(doc.text).toBe('Report ￼1999 ends.');
+    expect(doc.text.slice(field.start, field.end)).toBe('1999');
+    // An empty result keeps both its ends together, after the note.
+    const empty = new TextDocument([paragraph('')]);
+    empty.replace('Author: .'); empty.select('Author: '.length); insertBodyField(empty, ' AUTHOR ', '');
+    empty.select('Author: '.length);
+    expect(bodyFieldRanges(empty.paragraphs).map(r => [r.start, r.end])).toEqual([[8, 8]]);
+    empty.insertMathRun({ xml: '<m:oMath/>', text: 'x' });
+    const [blank] = bodyFieldRanges(empty.paragraphs);
+    expect([blank.start, blank.end]).toEqual(['Author: ￼'.length, 'Author: ￼'.length]);
+  });
+});
+
+// The Footnote and Endnote dialog's Insert applies a new number format, then inserts the note with the settings
+// addFootnote returns, which the editor shows. Those were the file's settings, so the screen went back to 1, 2
+// while the saved file numbered the notes i, ii.
+it('a footnote inserted after a change of number format shows the new format', async () => {
+  const { pkg, model } = await open(noteSettings(notedDocx(), '<w:numFmt w:val="decimal"/>'));
+  pkg.setNoteSettings('footnote', { format: 'lowerRoman', start: 2 });
+  const added = pkg.addFootnote();
+  expect(added.settings).toMatchObject({ format: 'lowerRoman', start: 2, part: 'word/footnotes.xml' });
+  model.select(model.text.length); model.insertFootnoteReference(added.id);
+  const story = [paragraph('')]; story[0].runs = [...footnoteOpeningRuns({ text: '', overrides: {} }), { text: 'New', overrides: {} }];
+  const definition = { ...pkg.pageStories, footnotes: added.settings, stories: { ...pkg.pageStories.stories, [added.path]: { kind: 'footnote', noteId: added.id, paragraphs: story, tables: [], editable: true } } };
+  expect(layout(pkg, model, definition).footnoteAreas[0].notes.map(n => n.display)).toEqual(['ii', 'iii', 'iv']);
+  const saved = unzipSync(new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets, { [added.path]: { paragraphs: story, tables: [] } }).arrayBuffer()));
+  expect(strFromU8(saved['word/settings.xml'])).toMatch(/<w:numFmt w:val="lowerRoman"\/><w:numStart w:val="2"\/>/);
+});
+
+describe('note styles for new notes', () => {
+  it('adds Word’s note styles to a document without them, once, and saves them as built-in styles', async () => {
+    const blank = createDocx([paragraph('Text')]);
+    const pkg = await DocxPackage.open(new Uint8Array(await blank.export([paragraph('Text')]).arrayBuffer()));
+    const model = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets);
+    const revision = model.revision;
+    expect(model.addNoteStyles('footnote')).toEqual({ textStyle: 'FootnoteText', referenceStyle: 'FootnoteReference' });
+    expect(model.revision).not.toBe(revision);
+    const again = model.styles;
+    expect(model.addNoteStyles('footnote')).toEqual({ textStyle: 'FootnoteText', referenceStyle: 'FootnoteReference' });
+    expect(model.styles).toBe(again);
+    expect(model.addNoteStyles('endnote')).toEqual({ textStyle: 'EndnoteText', referenceStyle: 'EndnoteReference' });
+    // A paragraph in the style lays out at 10 pt with no space after.
+    const note = new TextDocument([paragraph('Note', { styleId: 'FootnoteText', styleChanged: true })], model.pageSettings, model.numbering, model.styles, [], {});
+    expect([note.paragraphs[0].runs[0].fontSize, note.paragraphs[0].format.spaceAfter, note.paragraphs[0].format.lineSpacing]).toEqual([10, 0, 1]);
+    const saved = new Uint8Array(await pkg.export(model.paragraphs, model.pageSettings, model.numbering, model.styles, model.tables, model.assets).arrayBuffer());
+    const styles = strFromU8(unzipSync(saved)['word/styles.xml']);
+    const style = id => styles.match(new RegExp(`<w:style [^>]*w:styleId="${id}"[^>]*>[\\s\\S]*?</w:style>`))?.[0];
+    expect(style('FootnoteText')).toMatch(/^<w:style w:type="paragraph" w:styleId="FootnoteText"><w:name w:val="footnote text"\/><w:basedOn w:val="Normal"\/><w:uiPriority w:val="99"\/><w:semiHidden\/><w:unhideWhenUsed\/><w:pPr><w:spacing [^>]*w:after="0"[^>]*\/><\/w:pPr><w:rPr><w:sz w:val="20"\/><w:szCs w:val="20"\/><\/w:rPr><\/w:style>$/);
+    expect(style('EndnoteReference')).toMatch(/<w:name w:val="endnote reference"\/>[\s\S]*<w:vertAlign w:val="superscript"\/>/);
+    expect(styles).not.toMatch(/customStyle/);
+    // Read back, the styles are found by name and kept.
+    const reopened = await DocxPackage.open(saved);
+    const back = new TextDocument(reopened.paragraphs, reopened.pageSettings, reopened.numbering, reopened.styles, reopened.tables, reopened.assets);
+    const before = back.styles;
+    expect(back.addNoteStyles('footnote')).toEqual({ textStyle: 'FootnoteText', referenceStyle: 'FootnoteReference' });
+    expect(back.styles).toBe(before);
+  });
+
+  it('keeps a document’s own note styles and takes free ids for missing ones', async () => {
+    const { model } = await open(notedDocx());
+    const before = model.styles;
+    expect(model.addNoteStyles('footnote')).toEqual({ textStyle: 'FootnoteText', referenceStyle: 'FootnoteReference' });
+    expect(model.styles).toBe(before);
+    // A style already using the id under another name is left alone.
+    model.styles = { ...model.styles, definitions: { ...model.styles.definitions, EndnoteText: { ...model.styles.definitions.FootnoteText, id: 'EndnoteText', name: 'My notes' } } };
+    expect(model.addNoteStyles('endnote')).toEqual({ textStyle: 'EndnoteText1', referenceStyle: 'EndnoteReference' });
+    expect(model.styles.definitions.EndnoteText.name).toBe('My notes');
+  });
+});

@@ -1,0 +1,102 @@
+/* Print: the paper is the page; the app disappears around it. */
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .skip-link,
+  .sidebar,
+  .tabbar,
+  .fab,
+  .toast-root,
+  .sample-banner,
+  .page-head,
+  .toolbar,
+  .chip-row,
+  .list-foot,
+  .detail-actions,
+  .detail-side,
+  .editor-footer {
+    display: none !important;
+  }
+
+  .shell {
+    display: block;
+  }
+
+  .main {
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .main-inner {
+    padding: 0;
+    max-width: none;
+  }
+
+  .view {
+    animation: none;
+  }
+
+  .paper {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  /* On paper there is nothing to scroll: the page is as wide as the paper,
+     and the rail that keeps a narrow phone's table from bleeding out of the
+     card is only in the way here. It is also a scroll container, and a
+     scroll container is monolithic — it cannot be split across pages — so a
+     document with more line items than fit on one page had everything past
+     that page clipped away. The PDF writer paginates them; printing must
+     too. */
+  .paper-table-scroll {
+    overflow: visible;
+  }
+
+  /* Once the table can break across pages, decide where: between rows, never
+     through one. <thead> repeats on each page on its own. */
+  .paper-table tr,
+  .paper-trow,
+  .receipt-amount {
+    break-inside: avoid;
+  }
+
+  /* Any dialog that is not the thing being printed stays out of the page.
+     Print is reached from the More sheet, which is still on screen (mid
+     close animation) when the print dialog opens, and a fixed overlay would
+     otherwise land on top of the document. */
+  body:not(.print-paper) .modal-root {
+    display: none !important;
+  }
+
+  /* Printing paper shown in a modal (a receipt, a statement): only that
+     paper prints, not the view behind it. */
+  body.print-paper #app,
+  body.print-paper .modal-scrim,
+  body.print-paper .modal-head,
+  body.print-paper .sheet-handle,
+  body.print-paper .side-actions {
+    display: none !important;
+  }
+
+  body.print-paper .modal-root {
+    position: static;
+    display: block;
+  }
+
+  body.print-paper .modal-panel {
+    position: static;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    padding: 0;
+    animation: none;
+  }
+}

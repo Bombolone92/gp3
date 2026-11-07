@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: "Inter Tight"; src: url(fonts/InterTightwght.ttf); font-weight: 100 900; }
+@font-face { font-family: "Noto Sans SC"; src: url(fonts/NotoSansSCwght.ttf); font-weight: 100 900; }
+@font-face { font-family: "DM Mono"; src: url(fonts/DMMono-Medium.ttf); font-weight: 500; }
+html,body { margin:0; background:#000; overflow:hidden; }
+canvas { display:block; width:1920px; height:1080px; }
+</style></head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="engine.js"></script>
+<script src="voice/cues.js"></script>
+<script src="film.js"></script>
+<script>
+const zh = (window.CUES || []).map((c) => c.zh).join('') + '被落下的伞';
+Promise.all([
+  '900 40px "Inter Tight"', '900 40px "Noto Sans SC"', '700 40px "Noto Sans SC"', '500 20px "DM Mono"',
+].map((f) => document.fonts.load(f, 'Aa×' + zh))).then(() => { render(0); window.READY = true; });
+</script>
+</body></html>

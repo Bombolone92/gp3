@@ -1,0 +1,1345 @@
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  font-weight: 560;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+/* `display: inline-flex` above would otherwise outrank the user-agent rule
+   [hidden] relies on - the same trap the tranche and checkbox rows below set.
+   The Rule 701 report's back-to-today button hides while today is already
+   the date in force, rather than being rebuilt away with the row around it. */
+.btn[hidden] {
+  display: none;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+/* Pressed.
+
+   Every control in the app answered the cursor and answered a Tab, and none
+   of them answered the press itself - the one moment someone is waiting to
+   be told that something registered. On a desktop that is the difference
+   between a button that feels connected to the mouse and one that doesn't,
+   and it is the only cue that a press being dragged off the control has
+   been called off. On a touch screen it is the only moment there is: hover
+   arrives after the tap has already finished, so a finger held on "Issue
+   security" got nothing back until the sheet opened.
+
+   Each control takes one step further along the ramp its own hover uses -
+   no new colours, and both themes carry it.
+
+   transition-duration: 0s wherever the press changes a colour the hover
+   already transitions: that 0.15s ease is right on the way in to a hover,
+   which the cursor arrives at and stays on, and wrong for a press, which is
+   often over inside 150ms - the acknowledgement would still be fading up as
+   the finger left. Pressing lands at once and releasing fades back, because
+   the shorthand only applies while :active is matched. */
+.btn-primary:active:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.btn-ghost {
+  border-color: var(--hairline-strong);
+  color: var(--ink);
+  background: transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.btn-ghost:active:not(:disabled) {
+  background: var(--surface-3);
+  transition-duration: 0s;
+}
+
+.btn-danger {
+  background: var(--critical);
+  color: #fff;
+  /* Its hover is a filter, so that has to fade too, or this one button
+     snaps while every other button eases. */
+  transition: background 0.15s, border-color 0.15s, color 0.15s, filter 0.15s;
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+/* Further than the hover this one already carries, so the press still reads
+   as a change on a control the cursor has darkened once. */
+.btn-danger:active:not(:disabled) {
+  filter: brightness(0.85);
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/* A button that behaves like a link - an attachment name that opens the file.
+   Styled exactly like the `a` rule in base.css, so the one control in the app
+   that is a link in everything but markup doesn't read as inert text. */
+.btn-link {
+  color: var(--accent);
+  text-align: left;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  flex: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-btn:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.icon-btn:active:not(:disabled) {
+  background: var(--surface-3);
+  color: var(--ink);
+  transition-duration: 0s;
+}
+
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.icon-btn:disabled:hover {
+  background: none;
+  color: var(--ink-3);
+}
+
+/* Forms */
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 570;
+  color: var(--ink-2);
+  margin-bottom: 5px;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+
+/* A hint that is a warning: the compound selector is needed because the
+   .warn utility is declared earlier in the cascade. */
+.field-hint.warn {
+  color: var(--warn);
+}
+
+.input, .select, .textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  transition: border-color 0.15s;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Keyboard focus also gets the ring every other control in the app wears.
+   The `outline: none` above is the more specific selector, so it beat the
+   :focus-visible rule in base.css - which left the text fields, selects, and
+   textareas as the only controls that answered a Tab with nothing but a 1px
+   change of border colour. Pointer focus keeps the quiet border alone. */
+.input:focus-visible, .select:focus-visible, .textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+}
+
+/* iOS Safari auto-zooms the page when a focused control's font-size is
+   under 16px. Touch devices get 16px controls so focusing a field never
+   yanks the viewport; fine pointers keep the denser 14px.
+   See the touch-target block at the end of this file for the rest of what
+   a coarse pointer changes. */
+@media (pointer: coarse) {
+  .input, .select, .textarea {
+    font-size: 16px;
+  }
+}
+
+/* A select can be the field at fault too - the transfer sheet's recipient
+   picker, left on "choose" - and flagInvalid marks it the same way. */
+.input[aria-invalid="true"], .select[aria-invalid="true"] {
+  border-color: var(--critical);
+}
+
+/* Forced colours replace the border colour, so the flag was invisible there
+   and the toast that explains it is gone in seconds; a dashed edge survives. */
+@media (forced-colors: active) {
+  .input[aria-invalid="true"], .select[aria-invalid="true"] {
+    border-style: dashed;
+  }
+}
+
+/* A locked field. Editing a certificate that a transfer or repurchase has
+   closed freezes its size, class, and issue date, and those three looked
+   exactly like the live fields beside them - "Price per share" is editable
+   and "Issue date", in the same grid row, is not. The only way to find out
+   was to click in and get no caret.
+
+   The background carries the state and the ink stays readable: these hold
+   real values the user is here to read, so muting them to the edge of
+   legibility would trade one problem for another. -webkit-text-fill-color
+   because Safari fades disabled text whatever `color` says, and opacity:1
+   because Chrome dims a disabled `select` and only a `select`. */
+.input:disabled, .select:disabled, .textarea:disabled {
+  background: var(--surface-2);
+  border-color: var(--hairline);
+  color: var(--ink-2);
+  -webkit-text-fill-color: var(--ink-2);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* The chevron belongs to the wrapper, so it dims with the control rather
+   than staying at full strength over a greyed-out box. */
+.select-wrap:has(.select:disabled)::after {
+  opacity: 0.45;
+}
+
+.select-wrap {
+  position: relative;
+}
+
+/* A month and a year select standing in for a native month input: the month
+   names are the wider column, the year takes what it needs. */
+.month-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(88px, auto);
+  gap: 8px;
+}
+
+.select {
+  appearance: none;
+  padding-right: 32px;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.6px solid var(--ink-3);
+  border-bottom: 1.6px solid var(--ink-3);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* minmax(0, 1fr), not 1fr, for the same reason as .tranche-row below: a bare
+   1fr floors at the column's min-content, and a <select> contributes its
+   widest option. The CSV wizard's column pickers list the file's own header
+   cells, so one long header pushed both columns past the half, the grid
+   past the sheet, and the sheet into a horizontal scrollbar with the right
+   column cut off; the company profile's currency picker did the same on a
+   tablet. Zero-floored, the select clips its text instead. */
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 12px;
+}
+
+.form-grid .span-2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .form-grid .span-2 {
+    grid-column: span 1;
+  }
+}
+
+/* Custom vesting tranches: a date, a share count, and a remove button, under
+   a row of headings. Both share this grid so each heading sits over the field
+   it names - a hand-set spacer standing in for the button column can't, since
+   the button grows to 44px on a touch screen and the heading beside it would
+   slide out of line by the difference. */
+/* minmax(0, 1fr), not 1fr: a bare 1fr floors at the column's min-content, and
+   a date input's min-content at the 16px touch font is 169px - so on a 320px
+   phone the date took that and the shares field was left 49px wide, showing
+   three characters of a six-figure count. Zero-floored, the two split what
+   there is. */
+.tranche-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* The heading row hides while the list is empty, and `display: grid` above
+   would otherwise outrank the user-agent rule [hidden] relies on - the same
+   trap the checkbox row below sets. */
+.tranche-row[hidden] {
+  display: none;
+}
+
+.tranche-row .field-label {
+  margin-bottom: 0;
+}
+
+@media (pointer: coarse) {
+  .tranche-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+  }
+}
+
+/* On the narrowest phones the two halves are not equal: a date at the 16px
+   touch font is 86px of text plus the browser's picker glyph, and an equal
+   share of a 320px sheet left it 85px - the day clipped off, the glyph over
+   the last digit at 375. The date takes the larger share and loses some
+   padding; a share count is shorter than a date. */
+@media (max-width: 400px) {
+  .tranche-row {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 34px;
+  }
+  .tranche-row input[type="date"] {
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 400px) and (pointer: coarse) {
+  .tranche-row {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 44px;
+  }
+}
+
+/* Checkbox row */
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 0;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* `display: flex` above would otherwise outrank the user-agent rule [hidden]
+   relies on - the same trap the offline banner sets. A checkbox that only
+   applies to one mode hides rather than being rebuilt away, so it keeps its
+   identity (and focus) when the mode changes. */
+.check-row[hidden] {
+  display: none;
+}
+
+.check-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+/* Segmented control */
+
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  gap: 2px;
+}
+
+.seg-btn {
+  padding: 6px 13px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 560;
+  color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.seg-btn:hover {
+  color: var(--ink);
+}
+
+/* Not the option already chosen: pressing it changes nothing, so it says
+   nothing - and a fill would paint over the surface that marks it chosen. */
+.seg-btn:not([aria-pressed="true"]):active {
+  background: var(--surface-3);
+  color: var(--ink);
+  transition-duration: 0s;
+}
+
+/* An option with an icon: the glyph sits beside its label, the way it does on
+   every other icon-and-text control here. A button is not a flex container and
+   svg is display: block, so the theme switcher's sun, moon, and monitor each
+   took a line of their own above the word - stacking the switcher 45px tall
+   next to every other segmented control's 32px. Scoped to options that carry
+   an icon, so the plain ones keep the block box the ellipsis on .seg-kinds
+   needs. */
+.seg-btn.has-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.seg-btn[aria-pressed="true"], .seg-btn[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  padding: 5px 12px;
+}
+
+/* A switcher that cannot be switched: the edit sheet of a converted SAFE locks
+   its cap type beside its locked figures, and the sheet's own type buttons go
+   quiet while a save is in flight. Without this the options kept full ink and
+   a pointer and simply did nothing when pressed. After the pressed rule, so
+   the chosen option mutes along with the rest. */
+.seg-btn:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+
+/* A switcher that fills its row: the options share it evenly, and a long
+   one gives up its tail rather than the row. The buttons are nowrap, and a
+   flex item's floor is its content, so an option that did not fit - the
+   import sheet's "Replace <company>", with a company name of any length -
+   pushed the whole sheet into sideways scrolling, on a phone by twice its
+   width. min-width: 0 lets the button shrink, and the ellipsis says it did;
+   the option's title carries the whole label where one is given. */
+.seg.seg-wide {
+  display: flex;
+  width: 100%;
+}
+
+.seg.seg-wide .seg-btn {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Full-width switcher with more options than a phone-width sheet fits
+   comfortably: the buttons share the row evenly and give up side padding
+   before they give up legibility. */
+.seg.seg-kinds {
+  display: flex;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.seg.seg-kinds .seg-btn {
+  flex: 1;
+  min-width: 0;
+  padding-inline: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The ellipsis above is the last resort, and it was firing on every phone
+   there is: six kinds across a 390px sheet leaves 52px a cell, and "Options"
+   wants 57 and "Warrant" 58 - so the switcher that decides what is being
+   issued read "Opti…" and "Warr…" from 320px all the way to 427px. Shrinking
+   the type didn't buy back enough (at 360px both were still clipped), and
+   scrolling the row would hide options behind an edge with nothing to say
+   they were there.
+
+   Three to a row instead, wrapping to two rows. Every label reads in full at
+   any width the sheet goes down to, and the pill just gets taller - the gap
+   above already applies on both axes. Above this width all six fit across in
+   one row, as they always did. */
+@media (max-width: 430px) {
+  .seg.seg-kinds {
+    flex-wrap: wrap;
+  }
+  .seg.seg-kinds .seg-btn {
+    flex: 1 1 30%;
+  }
+}
+
+/* Inline filter rows that outgrow their container scroll rather than push
+   the page sideways. min-width:0 is what lets a flex item shrink at all. */
+.seg.seg-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.seg.seg-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* A button in a scrolling strip keeps its own width. Under a coarse pointer
+   every .seg-btn gets a 44px minimum, which replaces the automatic minimum
+   that had held a flex item at its content - so the buttons in these strips
+   shrank to 44px and their one-line labels ran into their neighbours
+   ("Warrants" 24px into "SAFEs & notes" on a 320px phone). The strip
+   scrolls; nothing in it needs to give way. */
+.seg.seg-scroll .seg-btn {
+  flex: none;
+}
+
+/* The focus ring goes inside the button here, because a box that scrolls on
+   one axis scrolls on both: `overflow-x: auto` above makes overflow-y `auto`
+   too, whatever the stylesheet asks for, so this strip clips vertically as
+   well. The app's ring is 2px of outline standing 2px off the control - 4px
+   in all - and .seg allows 3px of padding, so the top and bottom of every
+   ring in the securities filter and the cap table's date chips came out
+   flattened against the container edge. Drawn against the button's own edge
+   instead, the whole ring lands inside the padding that is there. */
+.seg-scroll .seg-btn:focus-visible {
+  outline-offset: 0;
+}
+
+/* Cards */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  /* Cards sit inside grid columns, and a grid track is sized by its item's
+     content unless the item is allowed to shrink. Without this the card's
+     widest child - a table, a nowrap legend row - sets the column width and
+     the whole page scrolls sideways on a phone, instead of the child
+     scrolling (or ellipsizing) inside its own box the way it was built to. */
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 620;
+  margin-bottom: 2px;
+}
+
+.card-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* A card's title block and the control beside it - a switcher, a button.
+   The control never shrinks (its labels are nowrap), and the title block
+   always can, so the line always "fit" and never wrapped: the title was
+   squeezed into whatever the control left over. On a 360px phone the
+   dashboard's ownership card gave "Fully diluted, including the unallocated
+   pool" a 92px column to run down four lines deep, and by 320px the
+   171px-wide by-class/by-holder switcher had pushed straight through the
+   card's right border.
+
+   Wrapping instead: the title keeps the width it asks for and the control
+   drops beneath it, which only happens on cards too narrow to hold both. */
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+/* Data tables */
+
+.table-wrap {
+  /* Positioned so it is the containing block for the .visually-hidden
+     captions and header labels inside it. Absolutely positioned boxes skip
+     an unpositioned scroll container: the "Actions" label of a table wider
+     than the phone would land at its static position in the initial
+     containing block - hundreds of pixels off-screen - and drag a
+     horizontal scrollbar onto the whole page. */
+  position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  min-width: 560px;
+}
+
+table.data th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--hairline);
+  white-space: nowrap;
+}
+
+table.data td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: middle;
+}
+
+table.data tbody tr:last-child td {
+  border-bottom: none;
+}
+
+table.data tbody tr.rowlink {
+  cursor: pointer;
+}
+
+table.data tbody tr.rowlink:hover {
+  background: var(--surface-2);
+}
+
+/* The pills in a row wear --surface-2, which is the exact tint the hover
+   paints behind them - so the one row under the cursor was the one row whose
+   badge lost its shape and read as loose text. One step up the surface ramp
+   keeps the pill a pill. The accent variant carries its own wash. */
+table.data tbody tr.rowlink:hover .badge:not(.accent),
+table.data tbody tr.rowlink:hover .kind-pill {
+  background: var(--surface-3);
+}
+
+table.data .num, table.data td.num, table.data th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+table.data tr.section-row td {
+  background: var(--surface-2);
+  font-weight: 620;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+  padding: 7px 14px;
+}
+
+table.data tfoot td {
+  font-weight: 620;
+  border-top: 1px solid var(--hairline-strong);
+  border-bottom: none;
+  background: var(--surface);
+}
+
+/* The holder column of a list: an avatar beside a name and a meta line, both
+   nowrap with an ellipsis that never fired. An auto-layout table floors a
+   column at its content's width, and a nowrap line's width is the whole
+   line - so an email address set the column's minimum, and with six other
+   columns beside it the stakeholders and securities tables ran 8 and 16px
+   past their card at a 1280px window: a horizontal scrollbar on a table with
+   room to spare, for a few characters of "acmerobotics.example".
+
+   max-width: 0 takes the column's content out of the floor, so the name and
+   meta line ellipsize inside whatever the column is given, the way they were
+   written to. The percentage is what it is given: a column whose content
+   counts for nothing is otherwise handed nothing either, and it sat at its
+   floor while the number columns took every spare pixel of a wide window.
+   Where the other columns need the room the share yields to them, down to a
+   floor that keeps a name readable where the table has to scroll regardless.
+
+   Only with the sidebar up. Below that every one of these tables scrolls
+   sideways anyway, and a full name is worth the scroll. */
+@media (min-width: 960px) {
+  table.data .col-holder {
+    width: 26%;
+    max-width: 0;
+    min-width: 150px;
+  }
+}
+
+/* Below it the tables scroll sideways and a full name is worth the scroll -
+   up to a point. An auto-layout column floors at its longest unwrapped
+   name, and one forty-character holder made the name column wider than a
+   phone (349px of a 375px screen), so nothing but names was on screen until
+   the reader scrolled. The cell caps itself and the ellipsis it already
+   carries takes over; the holder's page has the whole name. */
+@media (max-width: 959px) {
+  table.data .col-holder .holder-cell {
+    max-width: min(62vw, 260px);
+  }
+}
+
+/* Badges & chips */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: var(--r-full);
+  font-size: 11.5px;
+  font-weight: 590;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.badge.accent {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-weight: 640;
+  font-size: 13px;
+  flex: none;
+  text-transform: uppercase;
+}
+
+/* Progress meter (vesting) - fill and track share the accent ramp. */
+
+.meter {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--accent);
+}
+
+/* Empty states */
+
+.empty {
+  text-align: center;
+  padding: 42px 20px;
+  color: var(--ink-2);
+}
+
+.empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  margin-bottom: 14px;
+}
+
+.empty h2 {
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.empty p {
+  font-size: 13.5px;
+  max-width: 380px;
+  margin: 0 auto 16px;
+}
+
+/* Modal */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: end center;
+}
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade-in 0.2s ease;
+}
+
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-bottom: none;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  /* Full-width on a phone, so the side insets pad it like the tab bar. */
+  padding: 10px calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
+  animation: sheet-up 0.28s var(--ease-spring);
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--hairline-strong);
+  margin: 2px auto 10px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.modal-title {
+  font-size: 17px;
+  /* A flex item floors at its longest word, so a 45-letter single-word
+     holder name in "Edit <name>" pushed the close button off the panel and
+     off a phone screen; the title breaks the word instead. */
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.modal-head .icon-btn {
+  flex: none;
+}
+
+.modal-root.closing .modal-panel {
+  animation: sheet-down 0.2s ease forwards;
+}
+
+.modal-root.closing .modal-scrim {
+  animation: fade-out 0.2s ease forwards;
+}
+
+.confirm-message {
+  color: var(--ink-2);
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+@media (min-width: 640px) {
+  .modal-root {
+    place-items: center;
+  }
+  .modal-panel {
+    width: min(480px, calc(100vw - 48px));
+    border-radius: var(--r-lg);
+    border-bottom: 1px solid var(--hairline);
+    padding: 8px 24px 24px;
+    max-height: calc(100vh - 96px);
+    max-height: calc(100dvh - 96px);
+    animation: pop-in 0.22s var(--ease-spring);
+  }
+  .modal-panel.wide {
+    width: min(720px, calc(100vw - 48px));
+  }
+  .sheet-handle {
+    display: none;
+  }
+  .modal-head {
+    padding-top: 12px;
+  }
+  .modal-root.closing .modal-panel {
+    animation: fade-out 0.15s ease forwards;
+  }
+}
+
+/* Toasts */
+
+/* The shared bottom stack: toasts and the offline banner queue in one column
+   instead of being positioned independently at the same spot and covering
+   each other. Full width with the children centred, so a message is limited
+   by the viewport rather than by half of it (which is all a left: 50% box
+   gets to shrink-to-fit into). */
+.bottom-stack {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + 14px);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  pointer-events: none;
+}
+
+@media (min-width: 960px) {
+  .bottom-stack {
+    bottom: 24px;
+  }
+}
+
+.toast-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--ink);
+  color: var(--page);
+  padding: 10px 16px;
+  border-radius: var(--r-full);
+  font-size: 13.5px;
+  font-weight: 540;
+  max-width: min(92vw, 480px);
+  pointer-events: auto;
+  animation: toast-in 0.25s var(--ease-spring);
+}
+
+/* A refusal carries a holder's name, which can be one unbroken word longer
+   than the toast is wide; it wraps rather than running out of the pill. */
+.toast > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.toast.leaving {
+  animation: fade-out 0.2s ease forwards;
+}
+
+/* The ring is the accent everywhere else, but this button sits on ink, and
+   in the dark theme the accent reads 2.9:1 against it. Page-on-ink is the
+   toast's own text contrast, in both themes. */
+.toast :focus-visible {
+  outline-color: var(--page);
+}
+
+.toast-action {
+  color: inherit;
+  font-weight: 680;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  flex: none;
+}
+
+/* The shortcut that presses the button - see toast.js. Drawn in the toast's
+   own ink, so it reads on the dark toast in the light theme and the light
+   one in the dark theme alike; not shown where there is no keyboard. */
+.toast-action kbd {
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  padding: 0 4px;
+  margin-left: 6px;
+  opacity: 0.75;
+  text-decoration: none;
+  display: inline-block;
+}
+
+@media (pointer: coarse) {
+  .toast-action kbd {
+    display: none;
+  }
+}
+
+/* Banners */
+
+.sample-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.sample-banner .sample-banner-ic {
+  color: var(--accent);
+  display: inline-flex;
+}
+
+/* "Start fresh" on the sample banner, "Back to today" on the cap table's
+   as-of banner. Both read as links and both were the only text controls in
+   the app that answered the cursor with nothing - every other one underlines
+   (the `a` rule, .btn-link) or lights up (.btn-ghost, .nav-item, .more-row). */
+.sample-banner button {
+  font-weight: 640;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.sample-banner button:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Forced colours drop the accent that sets these apart from the sentence
+   beside them, and the underline only came on hover - so "Start fresh" and
+   "Back to today" read as plain text there. The underline is the one cue
+   that mode keeps. */
+@media (forced-colors: active) {
+  .sample-banner button {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+/* The banner is a live region, so it stays in the document and hides instead
+   of being removed - and `display: flex` below would otherwise outrank the
+   user-agent rule that [hidden] relies on. */
+.offline-banner[hidden] {
+  display: none;
+}
+
+/* Last in the bottom stack, so passing toasts rise above the standing
+   condition rather than the other way round.
+
+   pointer-events: auto, as on a toast: the stack lets clicks through to the
+   page, and that is inherited - so the stale-data banner's Reload button,
+   the one way out of a session whose saves are all being refused, could not
+   be pressed at all. A click on it landed on whatever the page had
+   underneath. */
+.offline-banner {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  background: var(--surface-3);
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink-2);
+  font-size: 12.5px;
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  pointer-events: auto;
+}
+
+/* Touch targets
+
+   Every size above is set for a cursor, which lands where it is pointed. A
+   fingertip does not: it needs roughly 44px of anything to hit it reliably
+   (WCAG 2.5.5), and a 34px icon button between two others is a coin flip
+   between edit and delete. So a coarse pointer grows the controls, and a fine
+   one keeps the denser desktop sizing.
+
+   min-height rather than fresh padding: nothing has to be re-derived from a
+   font's line box, and no control can come out smaller than it already was.
+   Every box here is border-box, so the number is the number. */
+
+@media (pointer: coarse) {
+  .btn,
+  .btn-link,
+  .seg-btn,
+  .check-row,
+  .input, .select, .textarea {
+    min-height: 44px;
+  }
+
+  /* A short label ("All") leaves the chip narrower than it is tall. The kind
+     switcher keeps its own min-width: 0 - five options have to share a phone
+     width, and that rule is the more specific of the two. */
+  .seg-btn {
+    min-width: 44px;
+  }
+
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* The box itself, not just the row around it: the label is the generous
+     target, but people do aim at the box. */
+  .check-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Two text buttons that sit inline in a compact bar. They take the 44px as
+     padding and hand it straight back as margin, so the hit area grows while
+     the banner and the toast pill keep their own height. */
+  .sample-banner button,
+  .toast-action {
+    padding-block: 13px;
+    margin-block: -13px;
+  }
+
+  /* And across: "Undo" is four letters, 35px wide on its own, and the one
+     control on a phone whose target the finger decides - the toast is gone
+     in six seconds. The width is handed back as margin the same way, so the
+     pill keeps its shape. */
+  .toast-action {
+    padding-inline: 8px;
+    margin-inline: -8px;
+  }
+}
+
+/* Global search dialog */
+
+.search-field {
+  position: relative;
+}
+
+.search-field .search-ic {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.search-input {
+  padding-left: 38px;
+}
+
+/* The native clear button sits in no other field in the app and wears none
+   of its shape; Escape and select-all are the ways out of this one. */
+.search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* The list scrolls, the field above it does not: typing and reading results
+   happen at the same time, so the field must not scroll away mid-search. */
+.search-results {
+  /* vh first, for the browsers that drop dvh - see .app in base.css. */
+  max-height: min(46vh, 420px);
+  max-height: min(46dvh, 420px);
+  overflow-y: auto;
+  margin: 12px -6px 0;
+  padding: 0 2px;
+}
+
+.search-group + .search-group {
+  margin-top: 6px;
+}
+
+.search-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 8px 4px;
+  font-size: 11.5px;
+  font-weight: 620;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+
+/* A result row is an option in a listbox, not a button: the field keeps
+   focus while the arrow keys move the selection, so "active" is a class and
+   aria-selected rather than :focus. Hover and keyboard selection deliberately
+   look the same - there is one active row either way. */
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.search-row.is-active {
+  background: var(--surface-2);
+}
+
+.search-row .search-row-ic {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  flex: none;
+}
+
+.search-row.is-active .search-row-ic {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.search-row .t {
+  font-weight: 570;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-row .s {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The chevron marks the row that Enter will open, and only that one. */
+.search-row .search-row-go {
+  display: inline-flex;
+  color: var(--ink-3);
+  flex: none;
+  visibility: hidden;
+}
+
+.search-row.is-active .search-row-go {
+  visibility: visible;
+}
+
+.search-empty {
+  padding: 18px 8px;
+  font-size: 13.5px;
+  color: var(--ink-3);
+}
+
+.search-hint {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* Keys a touch screen does not have, hidden the way the toast's kbd hint is. */
+@media (pointer: coarse) {
+  .search-hint {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .search-row {
+    min-height: 44px;
+  }
+}
+
+/* Animations */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(40%); opacity: 0.4; }
+}
+
+@keyframes sheet-down {
+  to { transform: translateY(30%); opacity: 0; }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.96); opacity: 0; }
+}
+
+@keyframes toast-in {
+  from { transform: translateY(12px); opacity: 0; }
+}
+
+/* Negotiated financing terms sit behind a disclosure on the class, security
+   and round forms: the exception on most cap tables, one click away on the
+   ones that need them. Open by default only where something is recorded. */
+.terms-group {
+  margin: 14px 0;
+  border-top: 1px solid var(--hairline);
+  padding-top: 10px;
+}
+.terms-group > summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 570;
+  color: var(--ink-2);
+  padding: 4px 0;
+}
+.terms-group[open] > summary {
+  margin-bottom: 8px;
+}
+/* Touch: the 44px minimum every other control on a phone meets. The
+   summary is one 18px line, and at 4px of padding it was a 26px target. */
+@media (pointer: coarse) {
+  .terms-group > summary {
+    padding: 13px 0;
+  }
+}
+.terms-body > .field,
+.terms-body > .check-row {
+  margin-bottom: 10px;
+}
+.terms-history {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+.terms-history li {
+  margin: 2px 0;
+  overflow-wrap: anywhere;
+}
+.terms-allocation {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+}
+.terms-allocation h3 {
+  margin: 0 0 4px;
+  font-weight: 570;
+}

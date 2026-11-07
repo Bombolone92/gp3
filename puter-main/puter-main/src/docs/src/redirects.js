@@ -1,0 +1,43 @@
+const redirects = {
+    '/Introduction': '/',
+
+    // `puter.perms` collapsed one-method-per-task into `request(resource,
+    // details)`, so these pages went. Every one of them shipped, which is the
+    // reason for the redirect: an external link or a bookmark would otherwise
+    // land on nothing. Pages that only ever existed on the branch that removed
+    // them are deliberately absent — nobody could have a link to those.
+    '/Perms/requestAppData': '/Perms/appData',
+    '/Perms/requestEmail': '/Perms/request',
+    '/Perms/requestManageApps': '/Perms/request',
+    '/Perms/requestManageSubdomains': '/Perms/request',
+    '/Perms/requestReadApps': '/Perms/request',
+    '/Perms/requestReadDesktop': '/Perms/request',
+    '/Perms/requestReadDocuments': '/Perms/request',
+    '/Perms/requestReadPictures': '/Perms/request',
+    '/Perms/requestReadSubdomains': '/Perms/request',
+    '/Perms/requestReadVideos': '/Perms/request',
+    '/Perms/requestWriteDesktop': '/Perms/request',
+    '/Perms/requestWriteDocuments': '/Perms/request',
+    '/Perms/requestWritePictures': '/Perms/request',
+    '/Perms/requestWriteVideos': '/Perms/request',
+    // The raw-permission-string example became the `fs` resource example.
+    '/playground/perms-request-permission': '/playground/perms-request-fs',
+    // A push example needs the site's own service worker, which the playground can't serve.
+    '/playground/notifications-push': '/Notifications/push',
+    // A browser registers for pushes through `enable()`.
+    '/Notifications/registerDevice': '/Notifications/enable',
+    // These examples need an app the reader owns, which the playground can't provide.
+    '/playground/events-persistent': '/Events/onPersistent',
+    '/playground/events-persistent-pinned': '/Events/onPersistent',
+    '/playground/events-handlers': '/Events/handlers',
+    '/playground/events-handlers-publish-all': '/Events/handlers',
+    '/playground/events-workers': '/Events/workers',
+    // Recipe slugs follow their titles.
+    '/recipes/push-when-closed': '/recipes/reach-a-user-when-your-app-is-closed',
+
+    // Only the account's own session can call `updateProfile()`, so it is
+    // not documented for apps.
+    '/Auth/updateProfile': '/Auth/getProfile',
+};
+
+module.exports = redirects;

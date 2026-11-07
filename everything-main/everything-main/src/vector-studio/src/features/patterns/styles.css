@@ -1,0 +1,115 @@
+/* Pattern editing bar, Pattern Options panel. */
+.pattern-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 2px 8px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  box-shadow: inset 0 -2px 0 var(--accent);
+  flex: none;
+  flex-wrap: wrap;
+}
+
+.pattern-bar[hidden],
+.pattern-editing .isolation-bar {
+  display: none;
+}
+
+.pattern-bar-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.pattern-bar-spacer,
+.po-spacer {
+  flex: 1;
+}
+
+.panel-patternOptions .po-empty {
+  padding: 12px;
+}
+
+.po-empty-actions,
+.po-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.po-actions {
+  padding: 10px 12px 12px;
+}
+
+.po-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 0;
+}
+
+.po-hint {
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.po-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 8px;
+  align-items: start;
+}
+
+.po-fields .prop-row {
+  grid-template-columns: 78px minmax(0, 1fr);
+}
+
+.po-name {
+  width: 100%;
+  min-width: 0;
+}
+
+.po-preview {
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+}
+
+.po-pair {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.po-pair > div {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+
+.po-overlap {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.po-dim {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.po-dim .check-row {
+  margin-top: 0;
+}
+
+.po-dim .select {
+  width: 76px;
+}

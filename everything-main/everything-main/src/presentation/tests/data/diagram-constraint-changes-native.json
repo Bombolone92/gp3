@@ -1,0 +1,3899 @@
+{
+  "provenance": "Synthetic controls regenerated and saved by the native reference application. These cases isolate propagation AFTER adjusted values have been chosen: changes contain the independently observed local/parent adjustment outcomes, while expected geometry probes test their effects on other scoped references. This is not a test of text measurement, rule search or equality-group synchronization. Composite edge-derived dimensions retain their geometric constraint despite an attempted local change; explicit/local dimensions publish their changed geometry.",
+  "available": {
+    "w": 200,
+    "h": 100
+  },
+  "cases": [
+    {
+      "name": "fonts none rule local probe first false h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 12
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        }
+      ]
+    },
+    {
+      "name": "fonts none rule local probe first false h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 38
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 15
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        }
+      ]
+    },
+    {
+      "name": "fonts none rule local probe first true h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 12
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        },
+        {
+          "ownerIndex": 3,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "fonts none rule local probe first true h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 38
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 15
+        },
+        {
+          "ownerIndex": 3,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "fonts none rule parent probe first false h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 252000
+        }
+      ]
+    },
+    {
+      "name": "fonts none rule parent probe first false h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 468000
+        }
+      ]
+    },
+    {
+      "name": "fonts none rule parent probe first true h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 252000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "fonts none rule parent probe first true h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 468000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule local probe first false h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule local probe first false h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule local probe first true h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 3,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule local probe first true h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 3,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule parent probe first false h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 252000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule parent probe first false h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 468000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule parent probe first true h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 252000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "fonts equ rule parent probe first true h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 468000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule local probe first false h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule local probe first false h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule local probe first true h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        },
+        {
+          "ownerIndex": 3,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule local probe first true h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 2,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        },
+        {
+          "ownerIndex": 3,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 1440000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule parent probe first false h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 252000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule parent probe first false h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 468000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule parent probe first true h10",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 7
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 252000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "fonts group rule parent probe first true h30",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"query\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"query\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"query\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"query\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"query\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "query",
+              "pointType": "all"
+            }
+          },
+          "value": 13
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "1",
+          "w": 180000,
+          "h": 468000
+        },
+        {
+          "name": "query",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "2",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "query",
+          "context": "3",
+          "w": 1080000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "growth ref none w probe first false",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "growth ref none h probe first false",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "growth ref none w probe first true",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 1080000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "growth ref none h probe first true",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 360000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "growth ref equ w probe first false",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 1080000
+        }
+      ]
+    },
+    {
+      "name": "growth ref equ h probe first false",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "growth ref equ w probe first true",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"w\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 1080000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "growth ref equ h probe first true",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"5\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "b",
+          "context": "1",
+          "w": 180000,
+          "h": 360000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts anone bnone rules b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 40
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts anone bnone rules both",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 38
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts anone bnone rules parent-b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "b",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 288000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts anone bequ rules b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 16
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts anone bequ rules both",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 15
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts anone bequ rules parent-b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"none\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "b",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 288000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts aequ bnone rules b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 40
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts aequ bnone rules both",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 38
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts aequ bnone rules parent-b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"none\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "b",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 288000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts aequ bequ rules b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 16
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts aequ bequ rules both",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:ruleLst><dgm:rule type=\"primFontSz\" val=\"5\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 15
+        },
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "reference fonts aequ bequ rules parent-b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"b\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"b\" val=\"10\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"a\" val=\"40\" op=\"equ\"/><dgm:constr type=\"primFontSz\" for=\"ch\" forName=\"b\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\" fact=\"0.5\" op=\"equ\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"a\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"b\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"b\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "<dgm:rule type=\"primFontSz\" for=\"ch\" forName=\"b\" val=\"5\"/>",
+      "changes": [
+        {
+          "ownerIndex": -1,
+          "property": {
+            "type": "primFontSz",
+            "selector": {
+              "relationship": "ch",
+              "name": "b",
+              "pointType": "all"
+            }
+          },
+          "value": 8
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1080000
+        },
+        {
+          "name": "b",
+          "context": "2",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "w": 1440000,
+          "h": 288000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry lin explicit ref h",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry lin derived ref b",
+      "algorithm": "lin",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 100
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 3600000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry composite explicit ref h",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry composite explicit ref b",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry composite derived ref h",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry composite derived ref b",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry composite local ref h",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"h\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "growth geometry composite local ref b",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "2",
+          "w": 180000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "anchor l explicit before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 720000,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 353250
+        }
+      ]
+    },
+    {
+      "name": "anchor l explicit before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 720000,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor l local before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 720000,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 353250
+        }
+      ]
+    },
+    {
+      "name": "anchor l local before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 720000,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor l edges before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 720000,
+          "y": 0,
+          "w": 1080000,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 180000
+        }
+      ]
+    },
+    {
+      "name": "anchor l edges before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"50\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 180000
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 720000,
+          "y": 0,
+          "w": 1080000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrX explicit before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrX\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 3633750,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 644625
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrX explicit before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrX\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 3633750,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrX local before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrX\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrX local before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrX\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor r explicit before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 2227500,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 504000
+        }
+      ]
+    },
+    {
+      "name": "anchor r explicit before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 504000
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 2227500,
+          "y": 0,
+          "w": 2812500,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor r local before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 504000
+        }
+      ]
+    },
+    {
+      "name": "anchor r local before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"w\" val=\"30\"/><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 504000
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor r edges before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"110\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "2",
+          "x": 3960000,
+          "y": 0,
+          "w": 1080000,
+          "h": 720000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 504000
+        }
+      ]
+    },
+    {
+      "name": "anchor r edges before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"r\" for=\"ch\" forName=\"a\" val=\"140\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"110\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"r\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"20\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"w\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "w",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 78.125
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 504000
+        },
+        {
+          "name": "a",
+          "context": "2",
+          "x": 3960000,
+          "y": 0,
+          "w": 1080000,
+          "h": 720000
+        }
+      ]
+    },
+    {
+      "name": "anchor t explicit before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 720000,
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 189000
+        }
+      ]
+    },
+    {
+      "name": "anchor t explicit before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 720000,
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "anchor t local before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 720000,
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 189000
+        }
+      ]
+    },
+    {
+      "name": "anchor t local before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 720000,
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "anchor t edges before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 720000,
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 108000
+        }
+      ]
+    },
+    {
+      "name": "anchor t edges before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"20\"/><dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 108000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 720000,
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrY explicit before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrY\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 1935000,
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 310500
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrY explicit before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrY\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 1935000,
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrY local before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrY\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 0,
+          "w": 1080000,
+          "h": 0
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrY local before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrY\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 0,
+          "w": 1080000,
+          "h": 0
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrY edges before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrY\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"65\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 2340000,
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 270000
+        }
+      ]
+    },
+    {
+      "name": "anchor ctrY edges before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"ctrY\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"65\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 0
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 2340000,
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    },
+    {
+      "name": "anchor b explicit before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 1350000,
+          "w": 1080000,
+          "h": 1170000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 252000
+        }
+      ]
+    },
+    {
+      "name": "anchor b explicit before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"a\" val=\"10\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 252000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 1350000,
+          "w": 1080000,
+          "h": 1170000
+        }
+      ]
+    },
+    {
+      "name": "anchor b local before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 0,
+          "w": 1080000,
+          "h": 0
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 252000
+        }
+      ]
+    },
+    {
+      "name": "anchor b local before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"h\" val=\"10\"/><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 252000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 0,
+          "w": 1080000,
+          "h": 0
+        }
+      ]
+    },
+    {
+      "name": "anchor b edges before false",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"60\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 0,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 2160000,
+          "w": 1080000,
+          "h": 360000
+        },
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 252000
+        }
+      ]
+    },
+    {
+      "name": "anchor b edges before true",
+      "algorithm": "composite",
+      "constraints": "<dgm:constr type=\"b\" for=\"ch\" forName=\"a\" val=\"70\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"a\" val=\"60\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"a\" val=\"30\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"a\" val=\"0\"/><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"5\"/><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\"/><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"b\" refFor=\"ch\" refForName=\"a\" fact=\"0.1\"/>",
+      "body": "<dgm:forEach axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"><dgm:layoutNode name=\"probe\" styleLbl=\"node1\"><dgm:alg type=\"sp\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/></dgm:layoutNode></dgm:forEach><dgm:forEach axis=\"ch\" ptType=\"node\" st=\"1\" cnt=\"1\"><dgm:layoutNode name=\"a\" styleLbl=\"node1\"><dgm:alg type=\"tx\"/><dgm:shape type=\"rect\"/><dgm:presOf axis=\"self\"/><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"40\"/></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"100\"/></dgm:ruleLst></dgm:layoutNode></dgm:forEach>",
+      "rules": "",
+      "changes": [
+        {
+          "ownerIndex": 1,
+          "property": {
+            "type": "h",
+            "selector": {
+              "relationship": "self",
+              "name": "",
+              "pointType": "all"
+            }
+          },
+          "value": 32.5
+        }
+      ],
+      "expected": [
+        {
+          "name": "probe",
+          "context": "3",
+          "x": 0,
+          "y": 0,
+          "w": 180000,
+          "h": 252000
+        },
+        {
+          "name": "a",
+          "context": "1",
+          "x": 0,
+          "y": 2160000,
+          "w": 1080000,
+          "h": 360000
+        }
+      ]
+    }
+  ]
+}

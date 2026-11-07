@@ -1,0 +1,33 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {unzipSync} from 'fflate';
+import {createHash} from 'node:crypto';
+const source='tests/fixtures/adjacent-control-selection/control.docx';
+const references=JSON.parse(readFileSync('tests/fixtures/adjacent-control-selection/far-boundary-reference.json'));
+test.setTimeout(180000);
+for(const zoom of [1,.75])for(const ref of references.cases)test(`extended ${ref.name} selection stops at the next control's far boundary at ${zoom}`,async({page},info)=>{
+ for(const kind of ['source','result'])expect(createHash('sha256').update(readFileSync('tests/fixtures/adjacent-control-selection/'+ref[kind])).digest('hex')).toBe(ref[kind+'Sha256']);
+ await page.goto('/playground.html');
+ await page.evaluate(async({bytes,zoom})=>{
+  const{DocxPackage}=await import('/src/engine/docx.js');const{CanvasEditor}=await import('/src/engine/canvas-editor.js');
+  const host=document.createElement('div');host.id='far-control';host.style.cssText='position:fixed;inset:0;background:white;z-index:1000';document.body.append(host);
+  window.farPackage=await DocxPackage.open(Uint8Array.from(bytes));window.farErrors=[];
+  window.farEditor=new CanvasEditor(host,{...window.farPackage,onError:e=>window.farErrors.push(e.message)});window.farEditor.zoom=zoom;window.farEditor.relayout();window.farEditor.focus();
+ },{bytes:[...readFileSync(source)],zoom});
+ const input=page.locator('#far-control textarea');await input.focus();
+ for(const key of ref.setup)await input.press(key);
+ expect(await page.evaluate(()=>window.farEditor.model.selection.controlCaret?.side)).toBe('inside');
+ for(const key of ref.keys.slice(0,-1))await input.press(key);
+ const selection=await page.evaluate(()=>window.farEditor.model.selection);
+ writeFileSync(info.outputPath('selection.json'),JSON.stringify(selection,null,2));
+ expect([selection.anchor,selection.focus]).toEqual(ref.selection);
+ await page.keyboard.press('x');await expect(input).toHaveValue(ref.text);
+ const state=await page.evaluate(async()=>{const{contentControlRanges}=await import('/src/engine/content-controls.js');const d=window.farEditor.model;return contentControlRanges(d.paragraphs).map(r=>({text:d.text.slice(r.start,r.end),placeholder:!!r.control.placeholder}));});
+ writeFileSync(info.outputPath('controls.json'),JSON.stringify(state,null,2));
+ expect(state).toEqual(ref.controls);
+ const save=async name=>{const bytes=Uint8Array.from(await page.evaluate(async()=>[...new Uint8Array(await window.farEditor.export(window.farPackage).arrayBuffer())]));writeFileSync(info.outputPath(name+'.docx'),bytes);return unzipSync(bytes);};
+ const edited=await save('edited'),parts=unzipSync(readFileSync(source));for(const name of Object.keys(parts))if(name!=='word/document.xml')expect(edited[name]).toEqual(parts[name]);
+ expect(await page.evaluate(async bytes=>{const{DocxPackage}=await import('/src/engine/docx.js');const{contentControlRanges}=await import('/src/engine/content-controls.js');const{TextDocument}=await import('/src/engine/model.js');const p=await DocxPackage.open(Uint8Array.from(bytes)),d=new TextDocument(p.paragraphs,p.pageSettings,p.numbering,p.styles,p.tables,p.assets);return {text:d.text,controls:contentControlRanges(d.paragraphs).map(r=>({text:d.text.slice(r.start,r.end),placeholder:!!r.control.placeholder}))};},[...readFileSync(info.outputPath('edited.docx'))])).toEqual({text:ref.text,controls:ref.controls});
+ await input.press('Control+z');expect(await save('undo')).toEqual(parts);await input.press('Control+y');expect(await save('redo')).toEqual(edited);
+ expect(await page.evaluate(()=>window.farErrors)).toEqual([]);
+});

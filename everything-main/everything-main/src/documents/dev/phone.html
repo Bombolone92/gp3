@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Documents (phone preview)</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: flex; gap: 32px; align-items: flex-start; justify-content: center; padding: 24px; background: #333; font-family: system-ui, sans-serif; color: #ccc; }
+    figure { margin: 0; text-align: center; }
+    figcaption { margin-bottom: 8px; font-size: 13px; }
+    iframe { border: 0; border-radius: 28px; background: #000; display: block; }
+  </style>
+</head>
+<body>
+  <!-- Dev harness: the mock app inside phone- and tablet-sized frames. -->
+  <figure><figcaption>390 x 844 (phone)</figcaption><iframe src="/mock.html" width="390" height="844" title="Phone"></iframe></figure>
+  <figure><figcaption>820 x 1000 (tablet)</figcaption><iframe src="/mock.html" width="820" height="1000" title="Tablet"></iframe></figure>
+</body>
+</html>

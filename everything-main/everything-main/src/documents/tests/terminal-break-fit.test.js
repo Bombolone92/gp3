@@ -1,0 +1,21 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { DocxPackage } from '../src/engine/docx.js';
+import { layoutDocument, caretRect } from '../src/engine/layout.js';
+import { pageGeometry } from '../src/engine/page-settings.js';
+import { TextDocument } from '../src/engine/model.js';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>{dom.window.close();delete globalThis.DOMParser;delete globalThis.XMLSerializer;});
+const reference=JSON.parse(readFileSync('tests/fixtures/terminal-break-fit/reference.json','utf8'));
+it.each(reference)('matches the native reference page assignment and caret for $name',async c=>{
+ const p=await DocxPackage.open(readFileSync(`public/fixtures/terminal-break-${c.name}.docx`));
+ const measure=(text,s)=>({width:text.length*s.fontSize/2,ascent:s.fontSize,descent:s.fontSize/3});
+ const layout=layoutDocument(p.paragraphs,measure,pageGeometry(p.pageSettings),p.numbering,p.tables);
+ const d=new TextDocument(p.paragraphs,p.pageSettings,p.numbering,p.styles,p.tables,p.assets);
+ expect(layout.pageCount).toBe(c.pages);
+ expect(caretRect(layout,d.text.indexOf('After')).page).toBe(c.afterPage);
+ const line=layout.lines.find(l=>l.hardBreak==='page');
+ expect(line.y+line.height).toBeLessThanOrEqual((400-36)*4/3+1e-6);
+});

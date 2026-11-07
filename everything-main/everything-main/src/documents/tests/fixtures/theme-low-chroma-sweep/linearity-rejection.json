@@ -1,0 +1,584 @@
+[
+  {
+    "base": "7F8080",
+    "rounding": "floor",
+    "modelRejected": true,
+    "channels": [
+      {
+        "channel": "R",
+        "impossible": true,
+        "lowerInclusive": {
+          "label": "C002",
+          "modifier": 2,
+          "rgb": [
+            1,
+            1,
+            1
+          ],
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "label": "C086",
+          "modifier": 86,
+          "rgb": [
+            42,
+            43,
+            43
+          ],
+          "slopeBound": "1/2"
+        }
+      },
+      {
+        "channel": "G",
+        "impossible": false,
+        "lowerInclusive": {
+          "label": "C002",
+          "modifier": 2,
+          "rgb": [
+            1,
+            1,
+            1
+          ],
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "label": "C127",
+          "modifier": 127,
+          "rgb": [
+            63,
+            63,
+            63
+          ],
+          "slopeBound": "64/127"
+        }
+      },
+      {
+        "channel": "B",
+        "impossible": false,
+        "lowerInclusive": {
+          "label": "C002",
+          "modifier": 2,
+          "rgb": [
+            1,
+            1,
+            1
+          ],
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "label": "C127",
+          "modifier": 127,
+          "rgb": [
+            63,
+            63,
+            63
+          ],
+          "slopeBound": "64/127"
+        }
+      }
+    ]
+  },
+  {
+    "base": "7F8080",
+    "rounding": "nearest",
+    "modelRejected": false,
+    "channels": [
+      {
+        "channel": "R",
+        "impossible": false,
+        "lowerInclusive": {
+          "label": "C084",
+          "modifier": 84,
+          "rgb": [
+            42,
+            42,
+            42
+          ],
+          "slopeBound": "83/168"
+        },
+        "upperExclusive": {
+          "label": "C086",
+          "modifier": 86,
+          "rgb": [
+            42,
+            43,
+            43
+          ],
+          "slopeBound": "85/172"
+        }
+      },
+      {
+        "channel": "G",
+        "impossible": false,
+        "lowerInclusive": {
+          "label": "C128",
+          "modifier": 128,
+          "rgb": [
+            63,
+            64,
+            64
+          ],
+          "slopeBound": "127/256"
+        },
+        "upperExclusive": {
+          "label": "C001",
+          "modifier": 1,
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "slopeBound": "1/2"
+        }
+      },
+      {
+        "channel": "B",
+        "impossible": false,
+        "lowerInclusive": {
+          "label": "C128",
+          "modifier": 128,
+          "rgb": [
+            63,
+            64,
+            64
+          ],
+          "slopeBound": "127/256"
+        },
+        "upperExclusive": {
+          "label": "C001",
+          "modifier": 1,
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "slopeBound": "1/2"
+        }
+      }
+    ]
+  },
+  {
+    "base": "7F8080",
+    "rounding": "floor with any fixed bias",
+    "modelRejected": false,
+    "channels": [
+      {
+        "channel": "R",
+        "impossible": false,
+        "lowerExclusive": {
+          "from": {
+            "modifier": 1,
+            "rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          "to": {
+            "modifier": 84,
+            "rgb": [
+              42,
+              42,
+              42
+            ]
+          },
+          "slopeBound": "41/83"
+        },
+        "upperExclusive": {
+          "from": {
+            "modifier": 2,
+            "rgb": [
+              1,
+              1,
+              1
+            ]
+          },
+          "to": {
+            "modifier": 86,
+            "rgb": [
+              42,
+              43,
+              43
+            ]
+          },
+          "slopeBound": "1/2"
+        }
+      },
+      {
+        "channel": "G",
+        "impossible": false,
+        "lowerExclusive": {
+          "from": {
+            "modifier": 1,
+            "rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          "to": {
+            "modifier": 128,
+            "rgb": [
+              63,
+              64,
+              64
+            ]
+          },
+          "slopeBound": "63/127"
+        },
+        "upperExclusive": {
+          "from": {
+            "modifier": 2,
+            "rgb": [
+              1,
+              1,
+              1
+            ]
+          },
+          "to": {
+            "modifier": 127,
+            "rgb": [
+              63,
+              63,
+              63
+            ]
+          },
+          "slopeBound": "63/125"
+        }
+      },
+      {
+        "channel": "B",
+        "impossible": false,
+        "lowerExclusive": {
+          "from": {
+            "modifier": 1,
+            "rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          "to": {
+            "modifier": 128,
+            "rgb": [
+              63,
+              64,
+              64
+            ]
+          },
+          "slopeBound": "63/127"
+        },
+        "upperExclusive": {
+          "from": {
+            "modifier": 2,
+            "rgb": [
+              1,
+              1,
+              1
+            ]
+          },
+          "to": {
+            "modifier": 127,
+            "rgb": [
+              63,
+              63,
+              63
+            ]
+          },
+          "slopeBound": "63/125"
+        }
+      }
+    ]
+  },
+  {
+    "base": "80817F",
+    "rounding": "floor",
+    "modelRejected": true,
+    "channels": [
+      {
+        "channel": "R",
+        "impossible": true,
+        "lowerInclusive": {
+          "label": "C258",
+          "modifier": 2,
+          "rgb": [
+            1,
+            1,
+            1
+          ],
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "label": "C300",
+          "modifier": 44,
+          "rgb": [
+            21,
+            22,
+            21
+          ],
+          "slopeBound": "1/2"
+        }
+      },
+      {
+        "channel": "G",
+        "impossible": false,
+        "lowerInclusive": {
+          "label": "C341",
+          "modifier": 85,
+          "rgb": [
+            42,
+            43,
+            42
+          ],
+          "slopeBound": "43/85"
+        },
+        "upperExclusive": {
+          "label": "C339",
+          "modifier": 83,
+          "rgb": [
+            41,
+            41,
+            41
+          ],
+          "slopeBound": "42/83"
+        }
+      },
+      {
+        "channel": "B",
+        "impossible": true,
+        "lowerInclusive": {
+          "label": "C258",
+          "modifier": 2,
+          "rgb": [
+            1,
+            1,
+            1
+          ],
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "label": "C300",
+          "modifier": 44,
+          "rgb": [
+            21,
+            22,
+            21
+          ],
+          "slopeBound": "1/2"
+        }
+      }
+    ]
+  },
+  {
+    "base": "80817F",
+    "rounding": "nearest",
+    "modelRejected": true,
+    "channels": [
+      {
+        "channel": "R",
+        "impossible": true,
+        "lowerInclusive": {
+          "label": "C384",
+          "modifier": 128,
+          "rgb": [
+            64,
+            64,
+            63
+          ],
+          "slopeBound": "127/256"
+        },
+        "upperExclusive": {
+          "label": "C300",
+          "modifier": 44,
+          "rgb": [
+            21,
+            22,
+            21
+          ],
+          "slopeBound": "43/88"
+        }
+      },
+      {
+        "channel": "G",
+        "impossible": true,
+        "lowerInclusive": {
+          "label": "C341",
+          "modifier": 85,
+          "rgb": [
+            42,
+            43,
+            42
+          ],
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "label": "C257",
+          "modifier": 1,
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "slopeBound": "1/2"
+        }
+      },
+      {
+        "channel": "B",
+        "impossible": true,
+        "lowerInclusive": {
+          "label": "C383",
+          "modifier": 127,
+          "rgb": [
+            63,
+            64,
+            63
+          ],
+          "slopeBound": "125/254"
+        },
+        "upperExclusive": {
+          "label": "C300",
+          "modifier": 44,
+          "rgb": [
+            21,
+            22,
+            21
+          ],
+          "slopeBound": "43/88"
+        }
+      }
+    ]
+  },
+  {
+    "base": "80817F",
+    "rounding": "floor with any fixed bias",
+    "modelRejected": true,
+    "channels": [
+      {
+        "channel": "R",
+        "impossible": true,
+        "lowerExclusive": {
+          "from": {
+            "modifier": 44,
+            "rgb": [
+              21,
+              22,
+              21
+            ]
+          },
+          "to": {
+            "modifier": 86,
+            "rgb": [
+              43,
+              43,
+              42
+            ]
+          },
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "from": {
+            "modifier": 2,
+            "rgb": [
+              1,
+              1,
+              1
+            ]
+          },
+          "to": {
+            "modifier": 44,
+            "rgb": [
+              21,
+              22,
+              21
+            ]
+          },
+          "slopeBound": "1/2"
+        }
+      },
+      {
+        "channel": "G",
+        "impossible": false,
+        "lowerExclusive": {
+          "from": {
+            "modifier": 1,
+            "rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          "to": {
+            "modifier": 85,
+            "rgb": [
+              42,
+              43,
+              42
+            ]
+          },
+          "slopeBound": "1/2"
+        },
+        "upperExclusive": {
+          "from": {
+            "modifier": 2,
+            "rgb": [
+              1,
+              1,
+              1
+            ]
+          },
+          "to": {
+            "modifier": 83,
+            "rgb": [
+              41,
+              41,
+              41
+            ]
+          },
+          "slopeBound": "41/81"
+        }
+      },
+      {
+        "channel": "B",
+        "impossible": false,
+        "lowerExclusive": {
+          "from": {
+            "modifier": 44,
+            "rgb": [
+              21,
+              22,
+              21
+            ]
+          },
+          "to": {
+            "modifier": 127,
+            "rgb": [
+              63,
+              64,
+              63
+            ]
+          },
+          "slopeBound": "41/83"
+        },
+        "upperExclusive": {
+          "from": {
+            "modifier": 2,
+            "rgb": [
+              1,
+              1,
+              1
+            ]
+          },
+          "to": {
+            "modifier": 44,
+            "rgb": [
+              21,
+              22,
+              21
+            ]
+          },
+          "slopeBound": "1/2"
+        }
+      }
+    ]
+  }
+]

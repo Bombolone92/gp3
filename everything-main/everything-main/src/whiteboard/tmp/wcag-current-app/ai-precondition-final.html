@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#238cfd" />
+    <meta
+      name="description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <title>Whiteboard</title>
+    <meta name="application-name" content="Whiteboard" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <script type="module">
+const fixture=new URLSearchParams(location.search),lang=fixture.get('lang')==='fr'?'fr':'en',scenario=fixture.get('case')||'empty';
+const cases=await(await fetch('/ai-native-boards.json')).json(),board=cases[lang+'-'+scenario];
+if(!board)throw Error('Unknown fixture');
+const getItem=Storage.prototype.getItem;
+Storage.prototype.getItem=function(key){if(this===localStorage){if(key==='whiteboard-language')return lang;if(key==='whiteboard-theme')return lang==='fr'?'dark':'light';}return getItem.call(this,key);};
+if(lang==='fr'){const spacing=document.createElement('style');spacing.textContent='*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important;}p{margin-bottom:2em!important;}';document.head.append(spacing);}
+const db=await new Promise((resolve,reject)=>{const request=indexedDB.open('whiteboard-v1',3);request.onupgradeneeded=()=>{const db=request.result;for(const name of ['boards','templates'])if(!db.objectStoreNames.contains(name))db.createObjectStore(name,{keyPath:'id'});for(const [name,key] of [['revisions','boardId'],['collaboration','scope']])if(!db.objectStoreNames.contains(name)){const store=db.createObjectStore(name,{keyPath:'id'});store.createIndex(key,key);}};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
+await new Promise((resolve,reject)=>{const tx=db.transaction('boards','readwrite');tx.objectStore('boards').put(board);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});db.close();
+location.hash='local='+board.id;
+let feedbackSince=0,lastFeedback='';
+const observe=()=>{const status=document.querySelector('#ai-status'),toast=document.querySelector('#toast'),dialog=document.querySelector('dialog[open]'),focus=document.activeElement;const active=(status?.textContent||'')||(toast?.classList.contains('visible')?toast.textContent:'');if(active&&active!==lastFeedback){lastFeedback=active;feedbackSince=performance.now();}const rect=status?.getBoundingClientRect(),view={width:innerWidth,height:innerHeight};const data={fixture:lang+'-'+scenario,viewport:view,documentLanguage:document.documentElement.lang,theme:document.documentElement.dataset.theme,focus:focus?.getAttribute('aria-label')||focus?.textContent?.trim().slice(0,100)||focus?.id,status:status?.textContent||'',toastVisible:toast?.classList.contains('visible')||false,toastOpacity:toast?getComputedStyle(toast).opacity:null,feedbackAgeMs:feedbackSince?Math.round(performance.now()-feedbackSince):null,statusRect:rect?[rect.x,rect.y,rect.width,rect.height]:null,dialogScrollTop:dialog?.scrollTop,modelItems:board.items.length};parent.postMessage({audit:'ai-native-feedback',description:JSON.stringify(data)},'http://127.0.0.1:5181');};
+setInterval(observe,250);
+await import("/assets/index-D8AHaY2M.js");
+observe();
+</script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CLanGHHL.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#238cfd" />
+    <meta
+      name="description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <title>Whiteboard</title>
+    <meta name="application-name" content="Whiteboard" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <script type="module" crossorigin src="/assets/index-D9Adoouo.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DRYrpTm4.css">
+  <style>
+.minimap {
+ --minimap-bottom:78px;
+ bottom:min(var(--minimap-bottom),40%);
+ max-height:calc(100% - min(var(--minimap-bottom),40%) - 12px);
+ overflow:auto;
+}
+@media(max-width:760px){.minimap{--minimap-bottom:138px}}
+@media(max-width:460px){.minimap{--minimap-bottom:180px}}
+</style></head>
+  <body>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  <script>
+function report(){
+ const focused=document.activeElement;
+ const wrap=document.querySelector('.canvas-wrap');
+ const panel=document.querySelector('#minimap');
+ if(!wrap||!panel)return;
+ const rect=e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height].map(n=>Math.round(n*100)/100)};
+ parent.postMessage({audit:'minimap',description:JSON.stringify({focus:focused?.id||focused?.tagName,focused:rect(focused),canvas:rect(wrap),panel:rect(panel),scroll:panel.scrollTop,scrollMax:panel.scrollHeight-panel.clientHeight})},"http://127.0.0.1:5181");
+}
+addEventListener('focusin',()=>requestAnimationFrame(report));
+addEventListener('scroll',()=>requestAnimationFrame(report),true);
+addEventListener('resize',()=>requestAnimationFrame(report));
+</script></body>
+</html>

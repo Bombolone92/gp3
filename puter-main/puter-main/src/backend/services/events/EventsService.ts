@@ -1,0 +1,7570 @@
+/*
+ * Copyright (C) 2024-present Puter Technologies Inc.
+ *
+ * This file is part of Puter.
+ *
+ * Puter is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { randomUUID } from 'node:crypto';
+import type { EventKey, KvOp } from '../../clients/event/types.js';
+import {
+    EVENTS_ACK_LIMIT,
+    EVENTS_BROADCAST_DELIVERY_LIMIT,
+    EVENTS_COALESCE_WINDOW_MS,
+    EVENTS_CONSECUTIVE_FAILURES,
+    EVENTS_DURABLE_SUBSCRIPTIONS_PER_APP,
+    EVENTS_DURABLE_SUBSCRIPTIONS_PER_USER,
+    EVENTS_FETCH_LIMIT_CAP,
+    EVENTS_FETCH_LIMIT_DEFAULT,
+    EVENTS_HANDLER_DEPTH,
+    EVENTS_HANDLER_PUBLISH_BATCH,
+    EVENTS_HANDLER_PUBLISH_LIMIT,
+    EVENTS_HANDLER_SOURCE_MAX_BYTES,
+    EVENTS_KV_FILTER_EVALUATIONS_PER_EVENT,
+    EVENTS_KV_MATCHED_SUBSCRIPTIONS_PER_EVENT,
+    EVENTS_KV_VALUE_MAX_BYTES,
+    EVENTS_KV_VALUE_DELIVERIES_PER_EVENT,
+    EVENTS_MATCHED_SUBSCRIPTIONS_PER_EVENT,
+    EVENTS_SINGLE_DELIVERY_LIMIT,
+    EVENTS_SUBSCRIBE_LIMIT,
+    EVENTS_UNSUBSCRIBE_LIMIT,
+    EVENTS_WORKER_INVOCATION_LIMIT,
+    EVENTS_USER_SCOPE_SOURCE_MAX_BYTES,
+    EVENTS_WORKER_SOURCE_MAX_BYTES,
+    limitFor,
+    SUSPENDED_ROW_TTL_DAYS,
+    type TieredQuota,
+} from '../../controllers/events/limits.js';
+import {
+    assertResolvedActor,
+    isAccessTokenActor,
+    isAccountContext,
+    makeActor,
+    type Actor,
+} from '../../core/actor.js';
+import { HttpError, isHttpError } from '../../core/http/HttpError.js';
+import type {
+    SqlGuard,
+    ScheduleEndReason,
+    ScheduleSubscriptionChange,
+} from '../../core/schedules.js';
+import { checkRateLimit } from '../../core/http/middleware/rateLimit.js';
+import type {
+    DurableCreated,
+    ReanchorInput,
+    SuspendedReason,
+} from '../../stores/events/DurableSubscriptionStore.js';
+import type { LiveKvShareHandle } from '../../stores/events/KvShareHandleStore.js';
+import {
+    DurableQuotaRaceLost,
+    HANDLER_SETTLE_BATCH,
+    isSuspendedReason,
+    type DurablePage,
+    type DurableReap,
+} from '../../stores/events/DurableSubscriptionStore.js';
+import {
+    appHandlerScope,
+    EVENTS_WORKERS_LIST_DEFAULT_LIMIT,
+    EVENTS_WORKERS_LIST_LIMIT_CAP,
+    hashContent,
+    type EventHandlerSummary,
+    type EventsWorkerSummary,
+    type HandlerScope,
+    type PublishOutcome,
+    type UserScopeSummary,
+} from '../../stores/events/EventHandlerStore.js';
+import {
+    SESSION_SUBSCRIPTION_TTL_SECONDS,
+    type DispatchSubscription,
+    type DurableSubscription,
+    type GenerationBump,
+    type SessionSubscription,
+} from '../../stores/events/EventSubscriptionStore.js';
+import type {
+    ClaimedDelivery,
+    PendingShed,
+} from '../../stores/events/PendingDeliveryStore.js';
+import {
+    isScheduleRow,
+    runsInWorker,
+    type HandlerScopeKind,
+    type SubscriptionPermission,
+} from '../../stores/events/types.js';
+import type { FSEntry } from '../../stores/fs/FSEntry.js';
+import { parseKvNamespace } from '../../stores/systemKv/SystemKVStore.js';
+import {
+    awaitLater,
+    runWithConcurrencyLimitSettled,
+} from '../../util/concurrency.js';
+import {
+    openCursor,
+    sealCursor,
+    type PageResult,
+} from '../../util/pagination.js';
+import type { AclMode, ResourceDescriptor } from '../acl/ACLService.js';
+import { resolveNode } from '../fs/resolveNode.js';
+import { maskUnderAnchor } from '../fs/sharePathMask.js';
+import { actorPlanId, assertActorHasCredits } from '../metering/enforcement.js';
+import {
+    canViewNotification,
+    notificationRowScope,
+    ownedAppUids,
+} from '../notification/notificationAudience.js';
+import { notificationsFoldInEnabled } from '../notification/notificationSocket.js';
+import {
+    inAccountMailbox,
+    OUTSIDE_ACCOUNT_MAILBOX_TYPES,
+} from '../notification/notificationTypes.js';
+import {
+    appSocketRoom,
+    type SocketSpecifier,
+} from '../socket/SocketService.js';
+import { savedAfterId, type JobRunContext } from '../jobs/JobScheduler.js';
+import { PuterService } from '../types.js';
+import {
+    DEFAULT_FREE_SUBSCRIPTION,
+    DEFAULT_TEMP_SUBSCRIPTION,
+} from '../metering/consts.js';
+import { assertRentedUnitRoom } from '../../util/rentedUnits.js';
+import type { IConfig } from '../../types.js';
+import {
+    resolveFsAnchor,
+    resolveKvAnchor,
+    resolveKvHandleAnchor,
+    resolveNotifAnchor,
+    type FsAnchorDeps,
+} from './anchors.js';
+import {
+    assertCrossAppKvAuthorized,
+    assertSubscribeAuthorized,
+    backgroundConsentRequired,
+    checkDeliveryAuthorized,
+    crossAppKvDenial,
+    crossAppKvPermissions,
+    deliveryGenerationTag,
+    EVENTS_BACKGROUND_PERMISSION,
+    kvShareHandleDisabled,
+    kvSharedRegionAuthorized,
+    nodeDescriptor,
+    resolveGrantActor,
+    rowInActorScope,
+    SUBSCRIBE_MODE,
+    unknownKvShareHandle,
+    type CrossAppKvDeps,
+    type EventAclDeps,
+    type KvSharedRegionDeps,
+    type SubscriptionGrant,
+} from './authorization.js';
+import { coalesceKey, DeliveryCoalescer } from './coalescer.js';
+import { forwardTarget, presenceApp } from './EventForwardService.js';
+import type { ForwardDelivery, ForwardEvent } from './forwardQueue.js';
+import {
+    DELIVERY_USAGE_TYPES,
+    EVENTS_COSTS,
+    EVENTS_COST_UNITS,
+    type EventsUsageType,
+} from './costs.js';
+import {
+    CONSENT_SETTLE_WINDOW_MS,
+    CONSENT_SETTLES_PER_WINDOW,
+    ConsentSettles,
+} from './consentSettles.js';
+import { DeliveryAuthCache } from './deliveryAuthCache.js';
+import { EndedSubscriptions } from './endedSubscriptions.js';
+import {
+    FILTER_EVALUATIONS_PER_EVENT,
+    compileMatch,
+    evaluateWithCap,
+    relativeTo,
+    type CompiledMatch,
+} from './matcher.js';
+import { MatcherCache } from './matcherCache.js';
+import {
+    badRequest,
+    parseContext,
+    parseHandlerHash,
+    parseHandlerName,
+    parseHandlerScopeKind,
+    parseHandlerSource,
+    projectContext,
+    spendUserWindow,
+} from './requestParsing.js';
+import {
+    mergeNotifCatchUp,
+    notifFetchCursor,
+    notifFetchPosition,
+    projectNotifRow,
+    resolveNotifFetch,
+    type NotifFetchScope,
+} from './notifFetch.js';
+import {
+    lookupFsSubject,
+    lookupKvSubject,
+    lookupNotifSubject,
+    type DeliverableEvent,
+    type DeliveryClass,
+    type DeliveryFields,
+    type EventContextBase,
+    type FsEventContext,
+    type GapMarker,
+    type GapReason,
+    type KvEventContext,
+    type MatchSpec,
+    type NotifEventContext,
+    type ProjectedEvent,
+    type ProjectedFsEvent,
+    type ProjectedKvEvent,
+    type ProjectedNotifEvent,
+    type SubjectSpec,
+} from './registry.js';
+import { SubscriptionCache } from './subscriptionCache.js';
+import {
+    kvShareAccessOf,
+    kvShareGrantCovers,
+    kvSharePermission,
+    relativeToKvShareRoot,
+    type KvShareAccess,
+} from '../kvShare/kvShares.js';
+import {
+    KV_MATCH_MAX_LENGTH,
+    KV_MATCH_SEPARATOR,
+    NOTIF_MATCH_SEPARATOR,
+    fsAnchorToken,
+    isFsToken,
+    isKvToken,
+    isNotifToken,
+    kvHandleFromSubject,
+    kvHandleMatchFromSubject,
+    notifAnchorToken,
+    notifMatchSpansEveryApp,
+    parseSubject,
+    type FsOp,
+    type ParsedSubject,
+    type SubjectOp,
+} from './subjects.js';
+import {
+    backlogPolicyFor,
+    isResumable,
+    RESUMABLE_REASONS,
+} from './suspension.js';
+import { singleAttempt } from './metrics.js';
+import type {
+    EventsInvokeTransport,
+    WorkerMissHandler,
+} from '../../clients/events/EventsWorkerInvokerClient.js';
+import {
+    EVENTS_HANDLER_TOKEN_TTL_SECONDS,
+    EVENTS_WORKER_SESSION_NAME,
+    eventsInvokeKey,
+    eventsWorkerScope,
+    eventsWorkerScript,
+    userHandlerScript,
+} from './workerRuntime.js';
+import { handlerSetHash } from './workerSource.js';
+// The SDK's own scan, so a publish that skips the SDK is held to the same rule.
+import { scanHandlerSource } from '../../../puter-js/src/modules/events/lib/freeVariables.js';
+import {
+    EventsWorkerInvoker,
+    RecordingWorkerInvoker,
+    type AddressOptions,
+    type MintRefusal,
+    type WorkerInvocation,
+    type WorkerInvocationOutcome,
+    type WorkerInvocationResult,
+    type WorkerInvokerSeam,
+    type WorkerRunOptions,
+    type WorkerRunResult,
+} from './workerSeam.js';
+
+/**
+ * Subscribe, unsubscribe, and the dispatch hot path.
+ *
+ * The write path is the constraint everything here is shaped by. Almost every
+ * write in the product belongs to a user with no subscriptions at all, and that
+ * write must not pay for the ones that do — so dispatch is three gates in
+ * increasing order of cost:
+ *
+ * 1. The feature switch: a boolean.
+ * 2. "Does this user have anything at all": in-process, invalidated by a broadcast
+ *    rather than a timer, so it costs nothing once warm.
+ * 3. One Redis command against the user's watched tokens.
+ *
+ * Only past all three does anything read a subscription or walk the tree, and
+ * only a row that survived op and filter matching pays for the ACL re-check
+ * that decides whether its holder may still be told. Everything is keyed by the
+ * owner of the resource, because that is all a write knows about itself.
+ *
+ * Nothing here reaches the caller: an event that could not be dispatched is an
+ * event nobody hears, and the write that produced it still succeeded.
+ */
+
+// -- Wire shapes ------------------------------------------------------
+
+export interface SubscribeRequest {
+    subject?: unknown;
+    /** KV subjects only: deliver the key's new value alongside the key. */
+    includeValue?: unknown;
+}
+
+export interface UnsubscribeRequest {
+    subId?: unknown;
+}
+
+/** Body of `POST /events/subscriptions/update`. */
+export interface UpdateDurableRequest {
+    subId?: unknown;
+    /** Replaces the stored context; `null` clears it. */
+    context?: unknown;
+}
+
+/** Body of the `events.ack` verb: which subscription, and which delivery. */
+export interface AckRequest {
+    subId?: unknown;
+    id?: unknown;
+    /**
+     * The region that owns the lease, echoed back from the delivery. Absent
+     * when it was emitted where the client is connected, which is everything a
+     * single-region deployment ever sees.
+     */
+    origin?: unknown;
+}
+
+/**
+ * Why a client handed a queued delivery back: it has no handler for it, or its
+ * handler failed in a way worth retrying, or in a way that is not.
+ */
+export type DeclineReason = 'no_handler' | 'retriable' | 'terminal';
+
+/** Body of the `events.nack` verb: an ack's fields, plus why. */
+export interface NackRequest extends AckRequest {
+    /** `failed` is a handler failure; anything else is "no handler here". */
+    reason?: unknown;
+    /** For a failure: whether it is worth trying again. */
+    retry?: unknown;
+}
+
+const declineReason = (request: NackRequest): DeclineReason => {
+    if (request?.reason !== 'failed') return 'no_handler';
+    return request.retry === true ? 'retriable' : 'terminal';
+};
+
+/** Body of `POST /events/subscribe`. */
+export interface DurableSubscribeRequest extends SubscribeRequest {
+    queue?: unknown;
+    /** Older form of `queue`: `'single'` or `'broadcast'`. */
+    delivery?: unknown;
+    handlerName?: unknown;
+    /**
+     * Hash of the source the caller believes `handlerName` is published with.
+     * Sent when the subscribe passed an inline handler; the row binds only if
+     * it matches what the app actually published.
+     */
+    handlerHash?: unknown;
+    /**
+     * Source of an inline handler, sent without a `handlerName`. Published into
+     * the caller's user scope under a name derived from it.
+     */
+    handlerSource?: unknown;
+    /** `'user'` binds `handlerName` to the caller's user scope. */
+    handlerScope?: unknown;
+    context?: unknown;
+    expiresAt?: unknown;
+}
+
+/** Body of `POST /events/handlers/publish`. */
+export interface PublishHandlerRequest {
+    appUid?: unknown;
+    /** `'user'` publishes into the caller's user scope; absent means the app's. */
+    scope?: unknown;
+    name?: unknown;
+    source?: unknown;
+    /** The published hash this publish is an update to. */
+    ifHash?: unknown;
+    replace?: unknown;
+}
+
+/** Body of `POST /events/handlers/publishAll`. */
+export interface PublishHandlersRequest {
+    appUid?: unknown;
+    scope?: unknown;
+    handlers?: unknown;
+}
+
+/** Body of `POST /events/handlers/remove`, and the shape `list` is scoped by. */
+export interface HandlerNameRequest {
+    appUid?: unknown;
+    scope?: unknown;
+    name?: unknown;
+}
+
+export interface HandlerScopeRequest {
+    appUid?: unknown;
+    scope?: unknown;
+}
+
+/** What one publish reports back. Never carries source. */
+export interface PublishedHandlerView {
+    name: string;
+    hash: string;
+    updatedAt: number;
+    outcome: PublishOutcome;
+    /** Suspended subscriptions this publish brought back into service. */
+    resumed: number;
+}
+
+/** What a removal did to the name and to whatever was bound to it. */
+export interface RemovedHandlerView {
+    name: string;
+    removed: boolean;
+    suspended: number;
+}
+
+/**
+ * Query for `GET /events/workers`. Scoped to the caller — the account's own
+ * apps, or one app's own worker.
+ */
+export interface ListEventsWorkersRequest {
+    limit?: number;
+    cursor?: string;
+}
+
+/** One events worker as its owner's listing reports it. */
+export interface EventsWorkerView extends EventsWorkerSummary {
+    scope: 'app';
+    /** Deployed script name, for support/diagnosis. */
+    script: string;
+}
+
+/** The caller's own scope of one app, as the same listing reports it. */
+export interface UserScopeWorkerView extends UserScopeSummary {
+    scope: 'user';
+}
+
+/** Body of `POST /events/workers/destroy`. */
+export interface DestroyEventsWorkerRequest {
+    appUid?: unknown;
+    /** `'user'` destroys the caller's user scope of the app. */
+    scope?: unknown;
+}
+
+/** What destroying an app's events worker did. */
+export interface DestroyedEventsWorkerView {
+    appUid: string;
+    removed: number;
+    suspended: number;
+    /** Present for a user scope. */
+    scope?: 'user';
+}
+
+/** What `ensureInlineHandler` binds a row to. */
+export interface InlineHandlerView {
+    name: string;
+    /** The published source's hash; for an inline handler, the name without `@`. */
+    hash: string;
+    scope: 'user';
+}
+
+export interface DurableListRequest {
+    limit?: number;
+    cursor?: string;
+    includeTotal?: boolean;
+}
+
+/**
+ * One page of catch-up. `cursor` is where the client got to — the cursor from
+ * its last page — rather than a stored position, because nothing about a fetch
+ * is registered anywhere.
+ */
+export interface FetchRequest {
+    subject?: string;
+    cursor?: string;
+    /** The name `cursor` shipped under first; still read when it is absent. */
+    after?: string;
+    /** With no cursor, `'end'` answers an empty page at the newest row. */
+    from?: 'start' | 'end';
+    limit?: number;
+}
+
+/** What a client gets back for a subscription it just made. */
+export interface SubscriptionView {
+    subId: string;
+    subject: string;
+    anchor: { uid: string; path: string };
+    match: string | null;
+    op: FsOp | null;
+    /** Whether KV deliveries on this row carry the key's new value. */
+    includeValue: boolean;
+}
+
+/**
+ * A durable row as its holder sees it. `context` **values** are deliberately
+ * absent: the column holds whatever secret the handler needs, it is read on the
+ * delivery path and nowhere else, and a listing is the one surface an app can
+ * call repeatedly. What is safe to return is the shape — which keys are set,
+ * and a hash that changes when any value does, which is what lets a caller tell
+ * two subscriptions apart without being handed either one's secrets.
+ */
+export interface DurableSubscriptionView extends SubscriptionView {
+    /** Each event is leased to one consumer and redelivered until acked. */
+    queue: boolean;
+    handlerName: string | null;
+    appUid: string | null;
+    /** Key names of the stored context, or `null` for a row without one. */
+    contextKeys: string[] | null;
+    /** Hash of the stored context, so a change is visible without the values. */
+    contextHash: string | null;
+    createdAt: number;
+    expiresAt: number | null;
+    suspendedAt: number | null;
+    suspendedReason: string | null;
+    /** Present for a row bound to a user-scope handler. */
+    handlerScope?: 'user';
+}
+
+export type VerbAck<T extends object> =
+    | ({ ok: true } & T)
+    | { ok: false; error: { code: string; message: string } };
+
+export type { GapMarker, GapReason } from './registry.js';
+
+/** One delivery, as the client receives it. */
+export interface DeliveryEnvelope {
+    subId: string;
+    event: DeliverableEvent;
+    /** Set on a `single`: nothing else takes this until `events.ack` settles it. */
+    ackRequired?: true;
+    /** The handle `events.ack` names — the delivery, not the event. */
+    ackId?: string;
+    /**
+     * Which region holds the lease, present only when that is not the region
+     * the client is connected to. Echoed back with the ack so whichever region
+     * receives it knows where to send it.
+     */
+    origin?: string;
+    /** Client skips its handler: the event is past the handler-chain limit. */
+    skipHandler?: true;
+}
+
+/**
+ * The envelope plus where it goes. The address is not part of the wire, and
+ * neither is the handler a durable row runs alongside the socket copy.
+ */
+interface AddressedDelivery {
+    target: SocketSpecifier;
+    envelope: DeliveryEnvelope;
+    /**
+     * Whether the socket copy also goes to the other regions holding one. True
+     * for `broadcast`, which every connected subscriber gets; a `single` picks
+     * exactly one region itself and never fans.
+     */
+    remote?: boolean;
+    worker?: WorkerInvocation;
+    meter: DeliveryMeter;
+    /**
+     * Whether this specific call is the one that charges for the event. Always
+     * true for `broadcast` (one send, no retries); a `single` retry after a
+     * lease expiry carries `false` — the same event was already charged for on
+     * whichever attempt reached here first.
+     */
+    bill: boolean;
+}
+
+/**
+ * Who a delivery is billed to, and at which class's rate. Carried with the
+ * delivery rather than looked up when it lands: by then the row that answers
+ * both may already have been suspended or removed.
+ */
+interface DeliveryMeter {
+    holderUserId: number;
+    /** The app whose subscription this is, so usage is attributable to it. */
+    appUid: string | null;
+    deliveryClass: DeliveryClass;
+    /** Only a durable row has a state to suspend when the balance runs out. */
+    durable: boolean;
+}
+
+/** What one schedule run came to, including why nothing ran. */
+export type ScheduleInvokeResult = WorkerRunResult | { outcome: 'too-deep' };
+
+/**
+ * Why a subscription ended without its holder unsubscribing. Both are terminal:
+ * the grant is gone, or the node is, and neither comes back by itself.
+ */
+export type SubscriptionEndReason = 'permission_revoked' | 'anchor_deleted';
+
+/** Who a stored row acts as, and what its cached decisions hang on. */
+interface GrantIdentity {
+    actor: Actor;
+    generation: string;
+}
+
+/**
+ * One authorized subject, as a row stores it. `uid`/`path` are family-scoped:
+ * an FS row names a node and its path, a KV row names the app whose namespace
+ * it watches and the key prefix it anchors at.
+ */
+interface ResolvedAnchor {
+    token: string;
+    uid: string;
+    path: string;
+    match: string | null;
+    op: FsOp | null;
+    ownerUserId: number;
+    permission: SubscriptionPermission;
+    /** Fully-qualified wire form, which is what the row records. */
+    subject: string;
+}
+
+/** A withdrawn grant, as the settle pass reads it off the bus. */
+export interface RevokedGrant {
+    holderUserId: number;
+    /** The app the grant was to, or `null` for a user-to-user grant. */
+    appUid: string | null;
+    /** The grant string, or `null` when every grant to the app went. */
+    permission: string | null;
+}
+
+/** What a dispatch call site can supply that the event itself does not carry. */
+export interface FsDispatchOptions {
+    /**
+     * Resolved lazily and only past the second gate — walking the tree for a
+     * user nobody subscribed on behalf of is the cost this exists to avoid.
+     * Paths as well as uids: the same walk answers the token lookup and the
+     * per-delivery ACL re-check.
+     */
+    ancestors?: () => Promise<ReadonlyArray<{ uid: string; path: string }>>;
+    /** Who performed the write, for the `self` flag. */
+    actingUserId?: number;
+    /** Handler runs behind the write; see `Actor.handlerDepth`. */
+    handlerDepth?: number;
+    /** The write was made by server-side code; see `viaWorkerOf`. */
+    viaWorker?: boolean;
+    /** Present only for a move: where the entry lived before it, lazily. */
+    movedFrom?: {
+        path: string;
+        ancestors: () => Promise<ReadonlyArray<{ uid: string; path: string }>>;
+    };
+    /**
+     * Set by {@link EventsService#dispatchForwarded}: a replay of another
+     * region's committed change, evaluated against session rows only — durable
+     * rows already crossed by row, and re-forwarding would loop.
+     */
+    forwarded?: true;
+    /** Carried over from the emitting region so both copies share one id/ts. */
+    id?: string;
+    ts?: number;
+}
+
+/** What a `dispatchKv` call site can supply beyond the bus payload. */
+export interface KvDispatchOptions {
+    /** Who performed the write, for the `self` flag. */
+    actingUserId?: number;
+    /** The write was made by server-side code; see `viaWorkerOf`. */
+    viaWorker?: boolean;
+    /** See {@link FsDispatchOptions.forwarded}. */
+    forwarded?: true;
+    /** Carried over from the emitting region so both copies share one id/ts. */
+    id?: string;
+    ts?: number;
+}
+
+/** One persisted notification, as the bus reports it. */
+export interface NotifDispatchInput {
+    dismissed?: true;
+    /** The recipient, whose mailbox is the anchor. */
+    userId: number;
+    userUuid: string;
+    uid: string;
+    type: string;
+    audience: string;
+    /** App the notification is about, or `null` for a platform one. */
+    appUid: string | null;
+    value: Record<string, unknown>;
+    createdAt: number;
+    /** An earlier notification replaced in place; `createdAt` is when. */
+    replaced?: true;
+    /** Handler runs behind whatever created it; see `Actor.handlerDepth`. */
+    handlerDepth?: number;
+}
+
+/** One committed KV mutation, as the bus reports it. */
+export interface KvDispatchInput {
+    /** Owner of the namespace: the keyspace subscriptions on it are indexed in. */
+    userId: number;
+    /** `v1:<userUuid>:<appUid>`. */
+    namespace: string;
+    keys: readonly string[];
+    op: KvOp;
+    /** What each key now holds, aligned with `keys`; absent when unknown. */
+    values?: readonly unknown[];
+    /** Keys among `keys` private to the namespace's app. */
+    noShareKeys?: readonly string[];
+    /** Handler runs behind the write; see `Actor.handlerDepth`. */
+    handlerDepth?: number;
+    /** Who made the change; the listener hands it on as an option. */
+    actingUserId?: number;
+    viaWorker?: true;
+}
+
+interface RouteLimits {
+    matchedSubscriptions: number;
+    filterEvaluations: number;
+    /** Deliveries that may carry a KV value; unset where there is none. */
+    kvValueDeliveries?: number;
+}
+
+// -- Socket wire names ------------------------------------------------
+
+export const EVENTS_SUBSCRIBE_VERB = 'events.subscribe';
+export const EVENTS_UNSUBSCRIBE_VERB = 'events.unsubscribe';
+export const EVENTS_ACK_VERB = 'events.ack';
+/** Client→server: hand a queued delivery back, so the worker takes it now. */
+export const EVENTS_NACK_VERB = 'events.nack';
+export const EVENTS_DELIVERY_CHANNEL = 'events.delivery';
+/** Server→client, no ack: the server ended a session subscription itself. */
+export const EVENTS_ENDED_CHANNEL = 'events.ended';
+
+/** Sent on `events.ended` when the server ends a session subscription itself. */
+export interface EndedNotice {
+    subId: string;
+    code: 'subscription_ended';
+    reason: SubscriptionEndReason;
+    message: string;
+}
+
+const ENDED_MESSAGES: Record<SubscriptionEndReason, string> = {
+    anchor_deleted: 'The node this subscription was attached to was deleted',
+    permission_revoked:
+        'Access to what this subscription watched was withdrawn',
+};
+
+// -- Expiry sweep -----------------------------------------------------
+
+/** Expired and long-suspended rows, then stranded worker sessions. */
+const EXPIRY_SWEEP_JOB = 'events.subscriptions.expirySweep';
+/** An expiry is a date, not a deadline, so hourly is close enough. */
+const EXPIRY_SWEEP_EVERY_MS = 60 * 60 * 1000;
+const EXPIRY_SWEEP_LEASE_MS = 15 * 60 * 1000;
+/** Rows one delete takes. Small enough not to hold a lock anyone waits on. */
+const EXPIRY_BATCH_SIZE = 500;
+/**
+ * Batches one sweep takes at most. It runs once for the fleet, so this is the
+ * fleet's hourly drain; the job's signal stops it sooner.
+ */
+const EXPIRY_MAX_BATCHES = 1000;
+/**
+ * Subjects one "subscriptions ended" notification names before it stops
+ * listing.
+ */
+const ENDED_SUBJECTS_LISTED = 20;
+
+/** Ended rows by kind, holder and app: a count and the subjects listed. */
+type EndedGroups = Map<
+    string,
+    { first: DurableSubscription; subjects: string[]; count: number }
+>;
+
+/**
+ * Add ended rows to `groups`. A schedule is news of its own: its holder knows
+ * it as a schedule, not as the subscription row behind it.
+ */
+const collectEnded = (
+    groups: EndedGroups,
+    rows: readonly DurableSubscription[],
+): void => {
+    for (const row of rows) {
+        const kind = isScheduleRow(row) ? 'schedule' : 'subscription';
+        const key = `${kind}|${row.holderUserId}|${row.appUid ?? ''}`;
+        let group = groups.get(key);
+        if (!group) {
+            group = { first: row, subjects: [], count: 0 };
+            groups.set(key, group);
+        }
+        group.count++;
+        if (group.subjects.length < ENDED_SUBJECTS_LISTED)
+            group.subjects.push(row.subject);
+    }
+};
+
+/** Re-reads an unsubscribe takes to catch a row racing a reanchor. */
+const UNSUBSCRIBE_READS = 3;
+
+/** A deleted account's apps settled at once. */
+const DELETED_ACCOUNT_SETTLE_CONCURRENCY = 4;
+/** Session rows ended at once when their handle stops standing. */
+const SESSION_END_CONCURRENCY = 4;
+/**
+ * Worker sessions one page of the stray-session sweep reads, and pages one pass
+ * takes. Bounded low: the sweep is a safety net for sessions no API path could
+ * reach any more, not a bulk cleanup; it runs every hour and resumes where the
+ * last pass stopped.
+ */
+const WORKER_SESSION_SWEEP_BATCH = 500;
+const WORKER_SESSION_SWEEP_MAX_PAGES = 2;
+
+// -- Owed deliveries --------------------------------------------------
+
+/**
+ * Socket attempts one queued delivery gets before the worker takes it. One: a
+ * client with no handler for it, or whose handler fails, declines it at once,
+ * and a second try would only delay the worker by another socket lease.
+ */
+const QUEUE_SOCKET_ATTEMPTS = 1;
+
+/** How often expired leases are reclaimed and owed deliveries retried. */
+const PENDING_SWEEP_INTERVAL_MS = 10_000;
+
+/** Subscriptions one sweep pass looks at, taken from the oldest end. */
+const PENDING_SWEEP_SUBSCRIPTIONS = 100;
+
+/**
+ * Subscriptions one sweep pass works on at once, so one slow handler run holds
+ * up one lane rather than everything behind it.
+ */
+const PENDING_SWEEP_CONCURRENCY = 10;
+
+/**
+ * Deliveries one subscription may be handed in a row. A consumer that settles
+ * inline would otherwise drain a whole backlog inside one ack.
+ */
+const PENDING_DRAIN_BATCH = 25;
+
+// -- Metering ---------------------------------------------------------
+
+/**
+ * How long a holder's metering identity is reused, and how many are held.
+ *
+ * Deliveries for one holder arrive in bursts, and the identity behind them —
+ * their user row, and the app the subscription belongs to — does not move
+ * between them. Without this, every delivered event pays a user lookup to
+ * record a line worth a fraction of a microcent.
+ */
+const METER_ACTOR_TTL_MS = 60_000;
+const METER_ACTOR_LIMIT = 5_000;
+
+/** Rows one page of the credit sweep takes, and pages one sweep takes. */
+const NO_CREDIT_SWEEP_BATCH = 500;
+const NO_CREDIT_SWEEP_MAX_BATCHES = 200;
+
+const NO_CREDIT_SWEEP_JOB = 'events.subscriptions.creditSweep';
+
+/** User-scope handlers no row is bound to, dropped once this old. */
+const USER_HANDLER_GC_JOB = 'events.userHandlers.gc';
+const USER_HANDLER_GC_EVERY_MS = 60 * 60 * 1000;
+const USER_HANDLER_GC_LEASE_MS = 15 * 60 * 1000;
+const USER_HANDLER_GC_MIN_AGE_SECONDS = 24 * 60 * 60;
+/**
+ * An inline create that finds a handler this much short of the sweep's age
+ * touches it before binding, so the sweep cannot take it from under the row.
+ */
+const USER_HANDLER_REUSE_MARGIN_SECONDS = 60 * 60;
+/** Handlers one page takes, and pages one run takes at most. */
+const USER_HANDLER_GC_BATCH = 200;
+const USER_HANDLER_GC_MAX_BATCHES = 50;
+
+/** User scopes of a deleted app announced per delete, at most. */
+const DELETED_APP_SCOPE_ANNOUNCE_MAX = 10_000;
+const DELETED_APP_SCOPE_PAGE = 500;
+/**
+ * How often suspensions waiting on a restored balance are re-checked. Well
+ * inside the hour a `no_credit` backlog is held for, so a top-up gets the
+ * subscription back before what it was owed expires.
+ */
+const NO_CREDIT_SWEEP_EVERY_MS = 15 * 60 * 1000;
+const NO_CREDIT_SWEEP_LEASE_MS = 10 * 60 * 1000;
+
+/** The part of a socket this service uses, so tests need not build one. */
+export interface EventSocket {
+    id: string;
+    on(event: string, listener: (...args: never[]) => void): unknown;
+    once(event: string, listener: (...args: never[]) => void): unknown;
+}
+
+// -- Errors -----------------------------------------------------------
+
+const disabled = (): HttpError =>
+    new HttpError(503, 'Events are not enabled on this server', {
+        legacyCode: 'events_disabled',
+    });
+
+const unknownSubscription = (): HttpError =>
+    new HttpError(404, 'No such subscription', {
+        legacyCode: 'subscription_does_not_exist',
+    });
+
+/**
+ * A schedule's subscription row goes only with its schedule. Answered for the
+ * caller's own row only; anyone else's id still reads as absent.
+ */
+const scheduleSubscription = (): HttpError =>
+    new HttpError(
+        404,
+        'This subscription belongs to a schedule; remove it with puter.events.removeSchedule()',
+        { legacyCode: 'events_schedule_not_found' },
+    );
+
+const scheduleImmutable = (): HttpError =>
+    new HttpError(
+        400,
+        "Use updateSchedule() to change a schedule's context or timing",
+        { legacyCode: 'events_schedule_immutable' },
+    );
+
+const handlerRequired = (): HttpError =>
+    new HttpError(
+        400,
+        'A `queue` subscription needs a handlerName or handlerSource',
+        {
+            legacyCode: 'events_handler_required',
+        },
+    );
+
+/**
+ * A temporary account gets session subscriptions and nothing else. A durable
+ * row outlives the account itself and is revoked from a settings surface a
+ * temporary account never reaches — so this is refused outright rather than
+ * sold as a quota of zero.
+ */
+const durableNeedsAccount = (): HttpError =>
+    new HttpError(
+        403,
+        'A temporary account may only subscribe for the life of its connection',
+        { legacyCode: 'events_durable_requires_account' },
+    );
+
+/** Same code: a scoped token is not the account, and holds no connection either. */
+const durableScopedToken = (): HttpError =>
+    new HttpError(
+        403,
+        'A scoped access token may not hold persistent subscriptions',
+        { legacyCode: 'events_durable_requires_account' },
+    );
+
+const handlerNotFound = (name: string): HttpError =>
+    new HttpError(404, `No handler named \`${name}\` is published`, {
+        legacyCode: 'events_handler_not_found',
+    });
+
+/** Same code as `handlerNotFound`: an app with no handlers has no events worker. */
+const noEventsWorker = (appUid: string): HttpError =>
+    new HttpError(404, `No handlers are published for \`${appUid}\``, {
+        legacyCode: 'events_handler_not_found',
+    });
+
+/**
+ * The app's generated events worker — every published handler's source, baked
+ * into one file — would exceed what the runtime may load. Refused before the
+ * write rather than left to fail at deploy time.
+ */
+const eventsWorkerTooLarge = (scope: HandlerScope): HttpError =>
+    new HttpError(
+        413,
+        isUserScope(scope)
+            ? `A user scope's handlers may not exceed ${EVENTS_USER_SCOPE_SOURCE_MAX_BYTES} bytes combined`
+            : `This app's events worker would exceed ${EVENTS_WORKER_SOURCE_MAX_BYTES} bytes across its published handlers`,
+        { legacyCode: 'events_worker_too_large' },
+    );
+
+/**
+ * The inline body the caller sent is not what is published. Refused rather than
+ * bound: the point of sending a hash is to find out, and binding the published
+ * source anyway would run code the caller never saw.
+ */
+const handlerHashMismatch = (name: string): HttpError =>
+    new HttpError(
+        409,
+        `The handler published as \`${name}\` is not the source this subscription was written against`,
+        { legacyCode: 'events_handler_hash_mismatch' },
+    );
+
+/**
+ * Handlers belong to an app, so a caller has to be acting for one — an app
+ * token names its own, and a user session names one in the request.
+ */
+const handlerAppRequired = (): HttpError =>
+    new HttpError(400, 'Publishing a handler requires an app', {
+        legacyCode: 'events_handler_app_required',
+    });
+
+/** A scoped token, whoever issued it: neither the account nor the app. */
+const eventsWorkerOwnerOnly = (): HttpError =>
+    new HttpError(
+        403,
+        'Listing events workers requires an account, or an app acting for one',
+        { legacyCode: 'events_worker_owner_only' },
+    );
+
+/**
+ * Deploying an app's code is the developer's, and an app token cannot borrow
+ * its user's ownership of some other app. Same answer for an app that is not
+ * there: which apps exist is not this surface's to disclose.
+ */
+const handlerAppForbidden = (): HttpError =>
+    new HttpError(403, 'Only the app owner may publish its handlers', {
+        legacyCode: 'events_handler_forbidden',
+    });
+
+/**
+ * User-scope handlers are published by an app acting for the signed-in user, so
+ * a scoped token, a temporary account or an app other than the caller's has no
+ * scope to publish into.
+ */
+const userScopeForbidden = (): HttpError =>
+    new HttpError(
+        403,
+        'Only an app acting for a signed-in user may publish into a user scope',
+        { legacyCode: 'events_handler_forbidden' },
+    );
+
+const userHandlersDisabled = (): HttpError =>
+    new HttpError(503, 'User-scope handlers are not enabled on this server', {
+        legacyCode: 'events_user_handlers_disabled',
+    });
+
+const invalidInlineName = (): HttpError =>
+    badRequest(
+        'Names starting with `@` are reserved for inline handlers',
+        'events_handler_name_invalid',
+    );
+
+const isUserScope = (scope: HandlerScope): boolean => scope.holder !== 0;
+
+const kindOf = (scope: HandlerScope): HandlerScopeKind =>
+    isUserScope(scope) ? 'user' : 'app';
+
+/** The handler scope a durable row's `handlerName` is looked up in. */
+const scopeOfRow = (row: {
+    appUid: string | null;
+    holderUserId: number;
+    handlerScope?: HandlerScopeKind;
+}): HandlerScope => ({
+    appUid: row.appUid ?? '',
+    holder: row.handlerScope === 'user' ? row.holderUserId : 0,
+});
+
+/** The name an inline handler is published under: its source's hash. */
+const inlineHandlerName = (source: string): string => `@${hashContent(source)}`;
+
+/**
+ * A handler runs with nothing around it, so a name it neither binds nor gets
+ * from the runtime fails on its first delivery. Refused at publish instead.
+ */
+const assertNoFreeVariables = (source: string): void => {
+    // Over the cap the store refuses it anyway, so it isn't worth tokenizing.
+    if (Buffer.byteLength(source, 'utf8') > EVENTS_HANDLER_SOURCE_MAX_BYTES)
+        return;
+    try {
+        scanHandlerSource(source);
+    } catch (err) {
+        throw badRequest(
+            err instanceof Error ? err.message : String(err),
+            'events_handler_free_variable',
+        );
+    }
+};
+
+const errorAck = (err: unknown): VerbAck<never> => {
+    if (err instanceof HttpError)
+        return {
+            ok: false,
+            error: {
+                code: String(err.legacyCode ?? err.code ?? 'events_failed'),
+                message: err.message,
+            },
+        };
+    return {
+        ok: false,
+        error: { code: 'events_failed', message: 'Subscription failed' },
+    };
+};
+
+/**
+ * A share-handle row's real anchor is the owner's namespace and the absolute
+ * granted prefix — neither of which its holder was ever told. The handle is the
+ * only anchor its holder may see, mirroring `#asRowAddressesIt`, and `match` is
+ * read off the subject they wrote: the stored one is composed onto the granted
+ * prefix, so even whether it is `null` depends on the prefix's length.
+ *
+ * A row on someone else's node is addressed by uid alone. The anchor's real
+ * path names every directory above it, which is exactly what the FS surfaces
+ * mask out of a recipient's view.
+ */
+const toView = (sub: DispatchSubscription): SubscriptionView => {
+    const handle = kvHandleFromSubject(sub.subject);
+    const foreign = sub.ownerUserId !== sub.holderUserId;
+    return {
+        subId: sub.subId,
+        subject: sub.subject,
+        anchor:
+            handle !== null
+                ? { uid: handle, path: '' }
+                : { uid: sub.anchorUid, path: foreign ? '' : sub.anchorPath },
+        match:
+            handle !== null ? kvHandleMatchFromSubject(sub.subject) : sub.match,
+        op: sub.op,
+        includeValue: sub.includeValue === true,
+    };
+};
+
+const toDurableView = (sub: DurableSubscription): DurableSubscriptionView => ({
+    ...toView(sub),
+    queue: sub.delivery === 'single',
+    handlerName: sub.handlerName,
+    ...(sub.handlerScope === 'user' ? { handlerScope: 'user' as const } : {}),
+    appUid: sub.appUid,
+    ...projectContext(sub.context),
+    createdAt: sub.createdAt,
+    expiresAt: sub.expiresAt,
+    suspendedAt: sub.suspendedAt,
+    suspendedReason: sub.suspendedReason,
+});
+
+/**
+ * Where one row's deliveries go. A session row is addressed at the connection
+ * that made it. A durable row has no connection to name, so it is addressed at
+ * a room: the app's own room for a row an app created, and the holder's user
+ * room for one their session created — which is every desktop tab they have
+ * open, and the only handle that reaches an account rather than a connection.
+ */
+const deliveryTarget = (row: DispatchSubscription): SocketSpecifier => {
+    if (row.socketId !== undefined) return { socket: row.socketId };
+    return {
+        room: row.appUid
+            ? appSocketRoom(row.holderUserId, row.appUid)
+            : String(row.holderUserId),
+    };
+};
+
+/** Whether this deployment can address an events worker at all. */
+const workerRuntimeReady = (config: IConfig): boolean =>
+    config.events?.workerRuntime === true && !!config.events?.internalSecret;
+
+const nowSeconds = (): number => Math.floor(Date.now() / 1000);
+
+/** Prefix of a worker-listing cursor that is past the apps' own workers. */
+const USER_PART_CURSOR = 'user:';
+
+/** Past `expiresAt` a durable row is finished, sweep or no sweep. */
+const unexpired = (row: DispatchSubscription): boolean => {
+    if (row.durable !== true) return true;
+    const { expiresAt } = row as DurableSubscription;
+    return expiresAt === null || expiresAt > nowSeconds();
+};
+
+const isSingle = (row: DispatchSubscription): boolean =>
+    row.durable === true && row.delivery === 'single';
+
+/**
+ * The three fields a forwarded copy needs and nothing else: `fsProject` and
+ * `fsTokens` read `uid`/`path`, `#eventDescriptor` reads `{uid, path}`, and
+ * `dispatchFs` reads `entry.userId` as the owner. Nothing else about the row
+ * crosses a region.
+ */
+const slimFsEntry = (
+    entry: FSEntry,
+): { uid: string; path: string; userId: number; isDir?: boolean } => ({
+    uid: entry.uid,
+    path: entry.path,
+    userId: entry.userId,
+    ...(entry.isDir !== undefined ? { isDir: entry.isDir } : {}),
+});
+
+/** Every region a set of matched remote tokens named, deduplicated. */
+const regionsIn = (remote: ReadonlyMap<string, string[]>): string[] => [
+    ...new Set([...remote.values()].flat()),
+];
+
+/**
+ * `row.anchorPath` is the anchor's path at subscribe time, not now — a rename
+ * or move leaves it stale, and matching against it would silently drop every
+ * event past the move. The live path is the entry's own when the event is on
+ * the anchor, and otherwise the one the ancestor walk carries. The fallback is
+ * for the chains that walk does not cover: a non-fs context (kv, notif), which
+ * ignores this value, and the chain a move left, which `leftAnchorPath` has.
+ */
+const liveAnchorPath = (
+    row: DispatchSubscription,
+    context: EventContextBase,
+): string => {
+    const fs = context as Partial<FsEventContext>;
+    if (!fs.entry) return row.anchorPath;
+    if (fs.entry.uid === row.anchorUid) return fs.entry.path;
+    return (
+        fs.ancestors?.find((ancestor) => ancestor.uid === row.anchorUid)
+            ?.path ?? row.anchorPath
+    );
+};
+
+/**
+ * Where this row's anchor sat in the chain a move left, or `null` when the row
+ * was not watching that side. Only a move has one.
+ */
+const leftAnchorPath = (
+    row: DispatchSubscription,
+    context: EventContextBase,
+): string | null => {
+    const fs = context as Partial<FsEventContext>;
+    return (
+        fs.movedFrom?.ancestors.find(
+            (ancestor) => ancestor.uid === row.anchorUid,
+        )?.path ?? null
+    );
+};
+
+/**
+ * The (anchor path, event path) pairs a row's filter is tested against. A move
+ * is two: where the node is now, and — for a row anchored on the chain it left
+ * — where it was, which is the only scope a filter on the source folder can
+ * match a departure in.
+ */
+const matchScopesFor = (
+    row: DispatchSubscription,
+    context: EventContextBase,
+    matchOn: string,
+): Array<[string, string]> => {
+    const scopes: Array<[string, string]> = [
+        [liveAnchorPath(row, context), matchOn],
+    ];
+    const left = leftAnchorPath(row, context);
+    const from = (context as Partial<FsEventContext>).movedFrom?.path;
+    if (left !== null && from !== undefined) scopes.push([left, from]);
+    return scopes;
+};
+
+/**
+ * Whether this row was watching where a moved node came from — anchored on the
+ * node itself, or somewhere in the chain it left. A row that only watches the
+ * destination was never shown the source, so it is not told the old path.
+ */
+const sawItLeave = (
+    row: DispatchSubscription,
+    context: EventContextBase,
+): boolean => {
+    const fs = context as Partial<FsEventContext>;
+    if (!fs.movedFrom) return false;
+    return (
+        fs.entry?.uid === row.anchorUid || leftAnchorPath(row, context) !== null
+    );
+};
+
+/** Who one row's deliveries are billed to, and at which rate. */
+const meterFor = (row: DispatchSubscription): DeliveryMeter => ({
+    holderUserId: row.holderUserId,
+    appUid: row.appUid,
+    deliveryClass: isSingle(row) ? 'single' : 'broadcast',
+    durable: row.durable === true,
+});
+
+/** The marker that stands in for an event a delivery budget refused. */
+const rateLimitGap = (event: DeliverableEvent): GapMarker => ({
+    id: event.id,
+    subject: event.subject,
+    op: 'gap',
+    reason: 'delivery_rate_limit',
+    ts: event.ts,
+});
+
+/**
+ * Whether a KV row reaches past its own namespace. Read off the app the row was
+ * created by — which is the actor's `effectiveApp` at subscribe time, so an
+ * access token an app issued counts as that app rather than as no app. A row
+ * with no app is its user acting on their own data, which the KV surface has
+ * never gated.
+ */
+const isCrossAppKvRow = (
+    rowAppUid: string | null,
+    targetAppUid: string,
+): boolean => rowAppUid !== null && rowAppUid !== targetAppUid;
+
+// -- Durable request parsing ------------------------------------------
+
+/** A flag: `true` to opt in, anything falsy for the default. */
+const parseIncludeValue = (value: unknown): true | undefined => {
+    if (value === undefined || value === null || value === false)
+        return undefined;
+    if (value === true) return true;
+    throw badRequest('includeValue must be a boolean', 'invalid_include_value');
+};
+
+/**
+ * A value rides only on a key-value row — the other families have no value to
+ * name. Decided on the raw subject, before anything is resolved, so the refusal
+ * names this and not whatever resolution would have said.
+ */
+const assertValueDeliverable = (rawSubject: string): void => {
+    if (parseSubject(rawSubject).family !== 'kv')
+        throw badRequest(
+            'includeValue applies to kv: subjects only',
+            'invalid_include_value',
+        );
+};
+
+/**
+ * The value as a delivery may carry it: the value itself under the cap, nothing
+ * over it. `undefined` never rides — it is what "no value in hand" looks like.
+ */
+const inlineKvValue = (value: unknown): { value: unknown } | undefined => {
+    if (value === undefined) return undefined;
+    const bytes = Buffer.byteLength(JSON.stringify(value) ?? 'null', 'utf8');
+    return bytes > EVENTS_KV_VALUE_MAX_BYTES ? undefined : { value };
+};
+
+/**
+ * Where a share-handle row stands for one delivery: the level its holder
+ * reaches through it, `revoked` once it reaches nothing, or `unknown` while
+ * that can't be checked (a failed lookup, a suspended owner).
+ */
+type KvShareStanding = KvShareAccess | 'revoked' | 'unknown';
+
+/**
+ * A share-handle row as one delivery serves it: not at all once its share is
+ * gone, and without values while the share is at `watch`. Decided per delivery,
+ * so a level change applies to subscriptions already made.
+ */
+const servedAtStanding = (
+    row: DispatchSubscription,
+    standing: KvShareStanding,
+): DispatchSubscription | null => {
+    if (standing === 'revoked' || standing === 'unknown') return null;
+    if (standing !== 'watch' || row.includeValue !== true) return row;
+    const { includeValue: _includeValue, ...withoutValue } = row;
+    return withoutValue;
+};
+
+/**
+ * A queued delivery as `row` is served now. The queue keeps an event as it was
+ * owed, so a value the row no longer carries comes off at hand-out.
+ */
+const claimedAsServed = (
+    row: DispatchSubscription,
+    claimed: ClaimedDelivery,
+): ClaimedDelivery => {
+    if (row.includeValue === true || !('value' in claimed.event))
+        return claimed;
+    const { value: _value, ...event } = claimed.event;
+    return { ...claimed, event };
+};
+
+/** Omit inline values without changing the event's key metadata. */
+const withoutKvValue = <C extends EventContextBase>(context: C): C => {
+    const { value: _value, ...withoutValue } = context as C & {
+        value?: unknown;
+    };
+    return withoutValue as C;
+};
+
+/**
+ * Rows in the order a fan-out serves them: the keyspace owner's own first, then
+ * the other holders taking turns, one row each per round. The first holder is
+ * picked at random per event, so none is always the one past a cap.
+ */
+const holdersTakeTurns = (
+    rows: DispatchSubscription[],
+): DispatchSubscription[] => {
+    const ordered: DispatchSubscription[] = [];
+    const byHolder = new Map<number, DispatchSubscription[]>();
+    for (const row of rows) {
+        if (row.holderUserId === row.ownerUserId) {
+            ordered.push(row);
+            continue;
+        }
+        const held = byHolder.get(row.holderUserId);
+        if (held) held.push(row);
+        else byHolder.set(row.holderUserId, [row]);
+    }
+    if (byHolder.size === 0) return ordered;
+
+    const holders = [...byHolder.values()];
+    const start = Math.floor(Math.random() * holders.length);
+    let turns = [...holders.slice(start), ...holders.slice(0, start)];
+    for (let round = 0; turns.length > 0; round++) {
+        for (const held of turns) ordered.push(held[round]);
+        turns = turns.filter((held) => held.length > round + 1);
+    }
+    return ordered;
+};
+
+/** Candidate counts at or below this can't reach any KV fan-out cap. */
+const KV_ROUTE_LIMITS_NEVER_BIND = Math.min(
+    EVENTS_KV_MATCHED_SUBSCRIPTIONS_PER_EVENT.limit,
+    ...Object.values(EVENTS_KV_MATCHED_SUBSCRIPTIONS_PER_EVENT.bySubscription),
+    EVENTS_KV_FILTER_EVALUATIONS_PER_EVENT.limit,
+    ...Object.values(EVENTS_KV_FILTER_EVALUATIONS_PER_EVENT.bySubscription),
+);
+
+/**
+ * Rows one token can hand `#route` that it may still use: every filter
+ * evaluation, then a gap marker each for the ones after. Past that a row is
+ * neither delivered to nor told, so dispatch does not read it.
+ */
+const FS_ROWS_PER_TOKEN =
+    FILTER_EVALUATIONS_PER_EVENT + EVENTS_MATCHED_SUBSCRIPTIONS_PER_EVENT;
+const KV_ROWS_PER_TOKEN =
+    Math.max(
+        EVENTS_KV_FILTER_EVALUATIONS_PER_EVENT.limit,
+        ...Object.values(EVENTS_KV_FILTER_EVALUATIONS_PER_EVENT.bySubscription),
+    ) +
+    Math.max(
+        EVENTS_KV_MATCHED_SUBSCRIPTIONS_PER_EVENT.limit,
+        ...Object.values(
+            EVENTS_KV_MATCHED_SUBSCRIPTIONS_PER_EVENT.bySubscription,
+        ),
+    );
+
+/**
+ * The rows a dispatch reads: ones `#route` can deliver to, and for a forwarded
+ * copy session rows only — durable rows already crossed by row (`warmRegion`
+ * rebuilds them in every region).
+ */
+const dispatchKeeps = (forwarded: boolean | undefined) =>
+    forwarded
+        ? (row: DispatchSubscription): boolean => row.socketId !== undefined
+        : unexpired;
+
+/** Handler depths below this run on every plan, so no plan is looked up. */
+const HANDLER_DEPTH_NEVER_BINDS = Math.min(
+    EVENTS_HANDLER_DEPTH.limit,
+    ...Object.values(EVENTS_HANDLER_DEPTH.bySubscription),
+);
+
+/**
+ * `queue` is the flag; `delivery: 'single' | 'broadcast'` is its older spelling
+ * and still accepted. `targets` is ignored.
+ */
+const parseDelivery = (request: DurableSubscribeRequest): DeliveryClass => {
+    const { queue, delivery } = request;
+    if (queue !== undefined && queue !== null && typeof queue !== 'boolean')
+        throw badRequest('queue must be a boolean', 'bad_request');
+    if (
+        delivery !== undefined &&
+        delivery !== null &&
+        delivery !== 'broadcast' &&
+        delivery !== 'single'
+    )
+        throw badRequest(
+            `Unknown delivery class: ${String(delivery)}`,
+            'bad_request',
+        );
+    if (
+        typeof queue === 'boolean' &&
+        delivery &&
+        queue !== (delivery === 'single')
+    )
+        throw badRequest('queue and delivery disagree', 'bad_request');
+    return queue === true || delivery === 'single' ? 'single' : 'broadcast';
+};
+
+/** An app uid a user session names, for a surface with no app of its own. */
+const parseAppUid = (value: unknown): string | null => {
+    if (value === undefined || value === null || value === '') return null;
+    if (typeof value !== 'string')
+        throw badRequest('appUid must be a string', 'bad_request');
+    return value;
+};
+
+/** Unix seconds or an ISO-8601 string, and it has to be in the future. */
+const parseExpiresAt = (value: unknown): number | null => {
+    if (value === undefined || value === null) return null;
+    const seconds =
+        typeof value === 'number'
+            ? Math.floor(value)
+            : Math.floor(Date.parse(String(value)) / 1000);
+    if (!Number.isFinite(seconds) || seconds <= Math.floor(Date.now() / 1000))
+        throw badRequest(
+            'expiresAt must be a future time',
+            'invalid_expires_at',
+        );
+    return seconds;
+};
+
+export class EventsService extends PuterService {
+    readonly #cache = new SubscriptionCache();
+    readonly #deliveryAuth = new DeliveryAuthCache();
+    readonly #compiled = new MatcherCache();
+    readonly #lookups = new Map<string, Promise<boolean>>();
+    readonly #refreshTimers = new Map<string, ReturnType<typeof setInterval>>();
+    /** Holder identities the metering lines are written as. */
+    readonly #meterActors = new Map<
+        string,
+        { actor: Actor; expiresAt: number }
+    >();
+    #coalescer: DeliveryCoalescer<AddressedDelivery> | null = null;
+    /** End notices held until what is coalesced for their subscription ships. */
+    readonly #endNotices = new Map<
+        string,
+        { target: SocketSpecifier; notice: EndedNotice }
+    >();
+    readonly #ended = new EndedSubscriptions();
+    /** Flushes per subscription that have left the coalescer but not yet sent. */
+    readonly #flushing = new Map<string, number>();
+    /** Paces settles started by deliveries that found consent withdrawn. */
+    readonly #consentSettles = new ConsentSettles();
+    #pendingSweep: ReturnType<typeof setInterval> | null = null;
+
+    /**
+     * What runs an app's handler. Replaced at start-up by the invoker that
+     * calls the app's events worker; the recorder stands in until then and
+     * settles nothing, so a delivery handed to it stays owed.
+     */
+    worker: WorkerInvokerSeam = new RecordingWorkerInvoker();
+
+    // -- Lifecycle ---------------------------------------------------
+
+    override onServerStart(): void {
+        // Without it nothing can be addressed, and every background delivery
+        // keeps retrying with no obvious cause.
+        if (
+            this.config.events?.workerRuntime === true &&
+            !this.config.events?.internalSecret
+        )
+            console.warn(
+                '[events] workerRuntime is on but events.internalSecret is unset — no events worker can be addressed',
+            );
+
+        // Left alone when something has already put its own invoker here.
+        if (this.worker instanceof RecordingWorkerInvoker)
+            this.worker = new EventsWorkerInvoker(
+                this.clients.eventsWorkerInvoker,
+                (invocation) => this.#mintSubscriberToken(invocation),
+                (appUid, options) => this.#addressEventsWorker(appUid, options),
+                () => workerRuntimeReady(this.config),
+                () => this.userHandlersEnabled,
+            );
+
+        this.clients.event.on(
+            'outer.pubsub.events.generationBumped',
+            (_key, data, meta) => {
+                // Our own emit reaches local listeners too, and that half has
+                // already been applied.
+                if (!(meta as { from_outside?: boolean })?.from_outside) return;
+                const { userId, durable, ended } = (data ?? {}) as {
+                    userId?: number;
+                    durable?: boolean;
+                    ended?: string[];
+                };
+                if (Array.isArray(ended))
+                    for (const subId of ended) this.#endedElsewhere(subId);
+                if (typeof userId !== 'number') return;
+                this.invalidateUser(userId, { rebuild: durable === true });
+            },
+        );
+
+        // The delivery re-check would already deny these, but a row nobody can
+        // deliver to still holds an anchor slot, still bills, and still costs a
+        // filter evaluation on every event under it.
+        this.clients.event.on('permission.revoked', (_key, data) => {
+            void this.settleRevokedGrant(data as RevokedGrant).catch((err) => {
+                console.warn('[events] revocation settle failed', err);
+            });
+        });
+
+        // A retired handle is a dead address: what was made through it ends,
+        // even where another grant still covers the region. Awaited by the
+        // emitter, so a revoke returns once its subscriptions are settled.
+        this.clients.event.on('kv.share.retired', async (_key, data) => {
+            try {
+                await this.settleRetiredKvHandles(data);
+            } catch (err) {
+                console.warn('[events] retired-handle settle failed', err);
+            }
+        });
+
+        // A deleted app's rows can never deliver again — the grant identity
+        // they are re-checked under no longer resolves — so they are torn
+        // down rather than left to cost their holder an anchor slot forever.
+        // Best-effort: `#emitAppChanged` is fire-and-forget, so this must not
+        // be able to fail the delete that triggered it.
+        this.clients.event.on('app.changed', async (_key, data) => {
+            const {
+                app_uid: appUid,
+                action,
+                old_app: oldApp,
+            } = (data ?? {}) as {
+                app_uid?: string;
+                action?: string;
+                old_app?: { owner_user_id?: unknown };
+            };
+            if (action !== 'deleted' || !appUid) return;
+            const ownerUserId = Number(oldApp?.owner_user_id);
+            try {
+                await this.settleDeletedApp(
+                    appUid,
+                    Number.isFinite(ownerUserId) && ownerUserId > 0
+                        ? ownerUserId
+                        : undefined,
+                );
+            } catch (err) {
+                console.warn('[events] deleted-app settle failed', err);
+            }
+        });
+
+        // A deleted account's apps cascade away without `app.changed`, so the
+        // same settle runs for each here, then the owner's subscription keys go.
+        this.clients.event.on('user.delete', async (_key, data) => {
+            if (!this.enabled) return;
+            const settled = await runWithConcurrencyLimitSettled(
+                [...new Set(data?.appUids ?? [])],
+                DELETED_ACCOUNT_SETTLE_CONCURRENCY,
+                (appUid) => this.settleDeletedApp(appUid, data.user_id),
+            );
+            for (const outcome of settled)
+                if (outcome.status === 'rejected')
+                    console.warn(
+                        '[events] deleted-account app settle failed',
+                        outcome.reason,
+                    );
+            try {
+                await this.stores.eventSubscription.dropOwner(data.user_id);
+            } catch (err) {
+                console.warn('[events] deleted-account key drop failed', err);
+            }
+            try {
+                await this.stores.eventHandler.deleteUserScopesForHolder(
+                    data.user_id,
+                );
+            } catch (err) {
+                console.warn(
+                    '[events] deleted-account handler drop failed',
+                    err,
+                );
+            }
+        });
+
+        // The KV store is a store, so the bus is the only seam it has to reach
+        // a service. Same posture as the FS hook: post-commit, and nothing here
+        // can fail the write that produced it.
+        this.clients.event.on('kv.mutated', (_key, data) => {
+            const input = data as KvDispatchInput;
+            void (async () => {
+                try {
+                    await this.dispatchKv(input, {
+                        actingUserId: input.actingUserId,
+                        viaWorker: input.viaWorker === true,
+                    });
+                } catch (err) {
+                    console.warn('[events] kv dispatch failed', err);
+                }
+            })();
+        });
+
+        // Emitted once the row is written, so a delivery never names a
+        // notification the mailbox does not have.
+        this.clients.event.on('notif.created', (_key, data) => {
+            void this.dispatchNotif(data as NotifDispatchInput).catch((err) => {
+                console.warn('[events] notification dispatch failed', err);
+            });
+        });
+
+        this.clients.event.on('notif.acknowledged', (_key, data) => {
+            if (!this.notificationsFoldIn) return;
+            void (async () => {
+                const user = await this.stores.user.getById(data.userId);
+                if (!user?.uuid) return;
+                await this.dispatchNotif({
+                    ...data,
+                    userUuid: user.uuid,
+                    value: {},
+                    createdAt: Date.now(),
+                    dismissed: true,
+                });
+            })().catch((err) => {
+                console.warn(
+                    '[events] notification dismissal dispatch failed',
+                    err,
+                );
+            });
+        });
+
+        this.#armPendingSweep();
+        if (this.enabled) this.#registerJobs();
+    }
+
+    override onServerPrepareShutdown(): void {
+        if (this.#pendingSweep) clearInterval(this.#pendingSweep);
+        this.#pendingSweep = null;
+    }
+
+    override onServerShutdown(): void {
+        for (const timer of this.#refreshTimers.values()) clearInterval(timer);
+        this.#refreshTimers.clear();
+    }
+
+    /**
+     * What one delivery costs, in the shape the driver surfaces report theirs.
+     * Nothing consumes this at runtime — the rates are published on the
+     * rate-limits page, which is where a developer actually reads them.
+     */
+    getReportedCosts(): Record<string, unknown>[] {
+        return Object.entries(EVENTS_COSTS).map(
+            ([usageType, ucentsPerUnit]) => ({
+                usageType,
+                ucentsPerUnit,
+                unit: EVENTS_COST_UNITS[usageType as EventsUsageType],
+                source: 'service:events',
+            }),
+        );
+    }
+
+    /** The master switch. Read on every write, so it stays a field lookup. */
+    get enabled(): boolean {
+        return this.config.events?.enabled === true;
+    }
+
+    /**
+     * Whether a subscription may name another app's KV namespace. Off by
+     * default; the gate below runs either way, so turning it on adds no
+     * unchecked path.
+     */
+    get crossAppKvEnabled(): boolean {
+        return this.config.events?.crossAppKv === true;
+    }
+
+    /**
+     * Whether one user may hand another a watchable region of their key-value
+     * namespace. Off by default, and read on the mint, the subscribe and the
+     * delivery re-check alike — turning it off stops rows already made rather
+     * than only new ones.
+     */
+    get kvHandlesEnabled(): boolean {
+        return this.config.events?.kvHandles === true;
+    }
+
+    /** Whether an app may publish handlers into a user's own scope. */
+    get userHandlersEnabled(): boolean {
+        return this.config.events?.userHandlers === true;
+    }
+
+    /**
+     * Whether notification delivery runs through dispatch. Off, notifications
+     * take the path they always have and nothing here sees them.
+     */
+    get notificationsFoldIn(): boolean {
+        return notificationsFoldInEnabled(this.config);
+    }
+
+    // -- Socket surface ----------------------------------------------
+
+    /**
+     * Install the subscription verbs on one connection. Session subscriptions
+     * are per-socket by construction: they are addressed to this socket's id,
+     * and they leave when it does.
+     */
+    attachSocket(socket: EventSocket, actor: Actor): void {
+        const userId = actor.user?.id;
+        if (userId === undefined) return;
+
+        socket.on(EVENTS_SUBSCRIBE_VERB, ((
+            payload: SubscribeRequest,
+            ack: unknown,
+        ) => {
+            void this.#answer(ack, () =>
+                this.subscribe(actor, socket.id, payload),
+            );
+        }) as (...args: never[]) => void);
+
+        socket.on(EVENTS_UNSUBSCRIBE_VERB, ((
+            payload: UnsubscribeRequest,
+            ack: unknown,
+        ) => {
+            void this.#answer(ack, async () => {
+                await this.unsubscribe(actor, socket.id, payload);
+                return {};
+            });
+        }) as (...args: never[]) => void);
+
+        socket.on(EVENTS_ACK_VERB, ((payload: AckRequest, ack: unknown) => {
+            void this.#answer(ack, async () => {
+                await this.ackDelivery(actor, payload);
+                return {};
+            });
+        }) as (...args: never[]) => void);
+
+        socket.on(EVENTS_NACK_VERB, ((payload: NackRequest, ack: unknown) => {
+            void this.#answer(ack, async () => {
+                await this.declineDelivery(actor, payload);
+                return {};
+            });
+        }) as (...args: never[]) => void);
+
+        // Presence is per (user, app) and per region, so it is the connection
+        // rather than the subscription that moves it — a client that has not
+        // subscribed yet is still somewhere, and that is what a peer needs.
+        void this.services.eventForward
+            .noteConnect(actor, socket.id)
+            .catch((err) => {
+                console.warn('[events] presence connect failed', err);
+            });
+
+        socket.once('disconnect', (() => {
+            void this.reapSocket(userId, socket.id);
+            void this.services.eventForward
+                .noteDisconnect(actor, socket.id)
+                .catch((err) => {
+                    console.warn('[events] presence disconnect failed', err);
+                });
+        }) as (...args: never[]) => void);
+    }
+
+    /**
+     * Put down one delivery another region handed us. Nothing is metered or
+     * re-checked: the region that emitted it did both, and this one holds no
+     * state about it at all.
+     */
+    async deliverForwarded(item: ForwardDelivery): Promise<void> {
+        if (!this.enabled) return;
+        const envelope: DeliveryEnvelope = {
+            subId: item.subId,
+            event: item.event,
+            ...(item.ackRequired
+                ? {
+                      ackRequired: true as const,
+                      ackId: item.ackId,
+                      origin: item.origin,
+                  }
+                : {}),
+            ...(item.skipHandler ? { skipHandler: true as const } : {}),
+        };
+        await this.services.socket.send(
+            forwardTarget(item.userId, item.appUid),
+            EVENTS_DELIVERY_CHANNEL,
+            envelope,
+        );
+    }
+
+    /**
+     * Settle a delivery whose client acked it in another region. The same
+     * settle a local ack performs — including the guard that a suspended row
+     * hands out nothing more — minus the checks the connected region already
+     * made against the client.
+     */
+    async settleRelayedAck(
+        holderUserId: number,
+        subId: string,
+        entryId: string,
+    ): Promise<void> {
+        if (!this.enabled || !subId || !entryId) return;
+        const row = await this.stores.durableSubscription.getBySubId(subId);
+        if (!row || row.holderUserId !== holderUserId) return;
+
+        await this.stores.pendingDelivery.settle(subId, entryId);
+        if (row.suspendedAt === null) await this.#drain(row);
+    }
+
+    /** Apply a decline whose client gave it in another region. */
+    async declineRelayed(
+        holderUserId: number,
+        subId: string,
+        entryId: string,
+        reason: DeclineReason,
+    ): Promise<void> {
+        if (!this.enabled || !subId || !entryId) return;
+        const row = await this.stores.durableSubscription.getBySubId(subId);
+        if (!row || row.holderUserId !== holderUserId) return;
+        await this.#declined(row, entryId, reason);
+    }
+
+    async #answer<T extends object>(
+        ack: unknown,
+        run: () => Promise<T>,
+    ): Promise<void> {
+        const respond =
+            typeof ack === 'function'
+                ? (ack as (response: unknown) => void)
+                : undefined;
+        try {
+            const result = await run();
+            respond?.({ ok: true, ...result });
+        } catch (err) {
+            if (!respond) {
+                console.warn('[events] subscription verb failed', err);
+                return;
+            }
+            respond(errorAck(err));
+        }
+    }
+
+    // -- Subscribe / unsubscribe -------------------------------------
+
+    async subscribe(
+        actor: Actor,
+        socketId: string,
+        request: SubscribeRequest,
+    ): Promise<{ sub: SubscriptionView }> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+        // An unresolved `effectiveApp` must not be read as "no app" — it
+        // means the actor skipped `makeActor` and something upstream is
+        // broken.
+        assertResolvedActor(actor);
+
+        await this.#spendCallBudget(holderUserId);
+
+        const includeValue = parseIncludeValue(request?.includeValue);
+        const rawSubject = String(request?.subject ?? '');
+        if (includeValue) assertValueDeliverable(rawSubject);
+        const anchor = await this.#resolveSubscribeAnchor(actor, rawSubject);
+
+        const sub: SessionSubscription = {
+            subId: randomUUID(),
+            socketId,
+            holderUserId,
+            ownerUserId: anchor.ownerUserId,
+            subject: anchor.subject,
+            token: anchor.token,
+            anchorUid: anchor.uid,
+            anchorPath: anchor.path,
+            match: anchor.match,
+            op: anchor.op,
+            appUid: actor.effectiveApp?.uid ?? null,
+            permission: anchor.permission,
+            ...(includeValue ? { includeValue } : {}),
+        };
+
+        const bump = await this.stores.eventSubscription.add(sub);
+        this.#publishGeneration(bump, false);
+        this.#startRefresh(holderUserId, socketId);
+
+        return { sub: toView(sub) };
+    }
+
+    async unsubscribe(
+        actor: Actor,
+        socketId: string,
+        request: UnsubscribeRequest,
+    ): Promise<void> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+
+        await this.#spendUnsubscribeBudget(holderUserId);
+
+        const subId = String(request?.subId ?? '');
+        if (!subId) throw unknownSubscription();
+
+        for (let read = 0; read < UNSUBSCRIBE_READS; read++) {
+            const sub = await this.stores.eventSubscription.getForSocket(
+                holderUserId,
+                socketId,
+                subId,
+            );
+            // An id this socket never held — or one another app created —
+            // reads as absent rather than refused: a 403 here is an oracle
+            // for subIds.
+            if (!sub || !rowInActorScope(actor, sub))
+                throw unknownSubscription();
+
+            const bump = await this.stores.eventSubscription.remove(sub);
+            if (bump) {
+                this.#forget(subId);
+                this.#publishGeneration(bump, false);
+                return;
+            }
+            // Lost to a duplicate (the next read finds nothing) or to a move
+            // (the next read finds where it went).
+        }
+        throw unknownSubscription();
+    }
+
+    /** What this actor holds on one connection, scoped to what it may see. */
+    async listSubscriptions(
+        actor: Actor,
+        socketId: string,
+    ): Promise<SubscriptionView[]> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+
+        const held = await this.stores.eventSubscription.listForSocket(
+            holderUserId,
+            socketId,
+        );
+        return held.filter((sub) => rowInActorScope(actor, sub)).map(toView);
+    }
+
+    // -- Durable subscriptions ---------------------------------------
+
+    /**
+     * Register a subscription that outlives the connection that made it. Same
+     * subject resolution and same ACL check as the session verb — what differs
+     * is where the row lands and who it is later addressed as.
+     */
+    async subscribeDurable(
+        actor: Actor,
+        request: DurableSubscribeRequest,
+    ): Promise<{ sub: DurableSubscriptionView }> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+        // As the session verb does: an unresolved `effectiveApp` would land an
+        // app's row in the account's scope.
+        assertResolvedActor(actor);
+        // A scoped token is neither the account nor the app, including one an
+        // app issued (a read URL): it may not list or remove the row it would
+        // create.
+        if (isAccessTokenActor(actor) && !isAccountContext(actor))
+            throw durableScopedToken();
+
+        await this.#spendCallBudget(holderUserId);
+
+        const delivery = parseDelivery(request ?? {});
+        const appUid = actor.effectiveApp?.uid ?? null;
+        const limits = await this.#subscriptionQuota(actor);
+        const named = parseHandlerName(request?.handlerName);
+        const handlerHash = parseHandlerHash(request?.handlerHash);
+        const handlerSource = parseHandlerSource(request?.handlerSource);
+        const handlerScope = parseHandlerScopeKind(
+            request?.handlerScope,
+            'handlerScope',
+        );
+        const context = parseContext(request?.context);
+        const expiresAt = parseExpiresAt(request?.expiresAt);
+        const includeValue = parseIncludeValue(request?.includeValue);
+
+        if (
+            handlerSource !== null &&
+            (named || request?.handlerScope === 'app')
+        )
+            throw badRequest(
+                'handlerSource is its own handler: send it without handlerName or an app handlerScope',
+                'bad_request',
+            );
+        if (handlerScope === 'user' && !named && handlerSource === null)
+            throw badRequest(
+                "handlerScope 'user' needs a handlerName",
+                'bad_request',
+            );
+        // An inline handler is named by its source, so the name is known
+        // before anything is published.
+        const handlerName =
+            handlerSource !== null ? inlineHandlerName(handlerSource) : named;
+        const userScoped = handlerSource !== null || handlerScope === 'user';
+
+        // A queued event is owed to exactly one consumer, and the handler is
+        // the only one that is always there to take it.
+        if (delivery === 'single' && !handlerName) throw handlerRequired();
+
+        // Consent first: a row that would run the app's code with nobody
+        // present is refused before anything about it is resolved or stored.
+        if (
+            runsInWorker({ appUid, handlerName }) &&
+            (await this.hasBackgroundConsent(actor)) !== true
+        )
+            throw backgroundConsentRequired();
+
+        if (handlerName && handlerSource === null) {
+            if (userScoped) {
+                const scope = await this.#userScope(actor, appUid, {
+                    requireFlag: true,
+                });
+                await this.assertHandlerBinding(
+                    appUid,
+                    handlerName,
+                    handlerHash,
+                    { holder: scope.holder },
+                );
+            } else {
+                await this.assertHandlerBinding(
+                    appUid,
+                    handlerName,
+                    handlerHash,
+                );
+            }
+        }
+
+        const rawSubject = String(request?.subject ?? '');
+        if (includeValue) assertValueDeliverable(rawSubject);
+        const anchor = await this.#resolveSubscribeAnchor(actor, rawSubject);
+
+        // After the anchor, so a subject that won't resolve publishes nothing.
+        // A row create that fails past this leaves the handler for the sweep.
+        if (handlerSource !== null)
+            await this.ensureInlineHandler(actor, appUid, handlerSource);
+
+        let created: DurableCreated;
+        try {
+            created = await this.stores.durableSubscription.create({
+                holderUserId,
+                ownerUserId: anchor.ownerUserId,
+                appUid,
+                subject: anchor.subject,
+                token: anchor.token,
+                anchorUid: anchor.uid,
+                anchorPath: anchor.path,
+                match: anchor.match,
+                op: anchor.op,
+                delivery,
+                handlerName,
+                ...(userScoped ? { handlerScope: 'user' as const } : {}),
+                context,
+                permission: anchor.permission,
+                expiresAt,
+                limits,
+                ...(includeValue ? { includeValue } : {}),
+            });
+        } catch (err) {
+            // Its row was written and taken back out; a region that cached
+            // it in between has to hear that it is gone.
+            if (err instanceof DurableQuotaRaceLost && err.bump)
+                this.#publishGeneration(err.bump, true);
+            throw err;
+        }
+        const { row, bump, reaped } = created;
+        if (bump) this.#publishGeneration(bump, true);
+        for (const trimmed of reaped)
+            if (trimmed.userId !== bump?.userId)
+                this.#publishGeneration(trimmed, true);
+
+        return { sub: toDurableView(row) };
+    }
+
+    /**
+     * How many durable rows this caller's plan allows, in total and for the app
+     * they are acting as. The store enforces them against one count, so the
+     * plan is read here and the counting stays where the index is.
+     *
+     * A deployment with no metering has no plans to read, and is held to the
+     * paid caps.
+     */
+    async #subscriptionQuota(actor: Actor): Promise<TieredQuota> {
+        const plan = await this.#planId(actor);
+        if (
+            plan !== null &&
+            limitFor(EVENTS_DURABLE_SUBSCRIPTIONS_PER_USER, plan) === 0
+        )
+            throw durableNeedsAccount();
+        return {
+            perUser: limitFor(EVENTS_DURABLE_SUBSCRIPTIONS_PER_USER, plan),
+            perApp: limitFor(EVENTS_DURABLE_SUBSCRIPTIONS_PER_APP, plan),
+        };
+    }
+
+    /** The plan this actor is on, or `null` where there are no plans. */
+    #planId(actor: Actor): Promise<string | null> {
+        return actorPlanId(this.services.metering, actor);
+    }
+
+    /**
+     * What this actor holds durably. An app-context actor is confined to its
+     * own rows by the index the query runs on; an account-context one sees
+     * across apps, which is what makes the account the revoke surface for a row
+     * whose app is long gone. A scoped token holds nothing, whoever issued it.
+     */
+    async listDurable(
+        actor: Actor,
+        request: DurableListRequest = {},
+    ): Promise<PageResult<DurableSubscriptionView>> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+
+        const app = actor.effectiveApp;
+        // Unresolved is not "no app" — reading it that way is what would hand
+        // an app the account-wide view.
+        if (app === undefined) return { items: [] };
+        if (isAccessTokenActor(actor) && !isAccountContext(actor))
+            return { items: [] };
+
+        const page = await this.stores.durableSubscription.listForHolder(
+            holderUserId,
+            {
+                appUid: app?.uid ?? null,
+                limit: request.limit,
+                cursor: request.cursor,
+                includeTotal: request.includeTotal,
+            },
+        );
+        return {
+            items: page.items.map(toDurableView),
+            ...(page.cursor ? { cursor: page.cursor } : {}),
+            ...(page.total !== undefined ? { total: page.total } : {}),
+        };
+    }
+
+    /**
+     * What a client missed while it was away. A plain authorized query against
+     * the subject's own store: nothing is registered, no cursor is kept here,
+     * and a second fetch from anywhere returns the same answer — the client
+     * holds the position.
+     *
+     * Only `notif:` has a store to read; `fs:` and `kv:` say so rather than
+     * returning an empty page, which a client would read as "nothing
+     * happened".
+     */
+    async fetchMissed(
+        actor: Actor,
+        request: FetchRequest,
+    ): Promise<PageResult<ProjectedNotifEvent>> {
+        if (!this.enabled) throw disabled();
+        const user = actor.user;
+        if (!user?.id || !user.uuid) throw disabled();
+        // Unresolved is not "no app": reading it that way would hand an app
+        // rows only the account may see.
+        if (actor.effectiveApp === undefined) return { items: [] };
+        // A scoped token is neither the account nor the app, including one an
+        // app issued. Refused here, not by the row filter, which would still
+        // cut a cursor from the full page.
+        if (isAccessTokenActor(actor) && !isAccountContext(actor))
+            return { items: [] };
+
+        const scope = resolveNotifFetch(String(request.subject ?? ''), {
+            userUuid: user.uuid,
+            appUid: actor.effectiveApp?.uid ?? null,
+        });
+
+        // The same audience gate the subscribe path applies, asked before the
+        // query rather than over its rows. Filtering afterwards empties `items`
+        // but still cuts the cursor from the unfiltered page, so walking it
+        // counts and names rows this actor may not see. Answered as an empty
+        // page, not a refusal: which notifications exist is not this surface's
+        // to say.
+        if (scope.appUid !== undefined) {
+            const ownsApp =
+                scope.appUid !== null && scope.audience === 'developer'
+                    ? await this.#recipientOwnsApp(user.id, scope.appUid)
+                    : false;
+            const visible = canViewNotification(
+                { audience: scope.audience, appUid: scope.appUid },
+                actor,
+                { recipientOwnsApp: ownsApp },
+            );
+            if (!visible) return { items: [] };
+        }
+
+        const opened = openCursor(
+            request.cursor ?? request.after,
+            this.config.jwt_secret_v2,
+        );
+        if (opened === undefined && request.from === 'end')
+            return this.#fetchEnd(user.id, scope);
+
+        const asked = Math.floor(Number(request.limit));
+        const limit = Math.min(
+            Number.isFinite(asked) && asked > 0
+                ? asked
+                : EVENTS_FETCH_LIMIT_DEFAULT,
+            EVENTS_FETCH_LIMIT_CAP,
+        );
+        const from = notifFetchPosition(opened);
+
+        // One extra row answers "is there another page" without a count.
+        // The generic slice is the desktop's view of the mailbox, so it leaves
+        // out the types kept off the desktop, as the live delivery does.
+        const slice = {
+            audience: scope.audience,
+            appUid: scope.appUid,
+            limit: limit + 1,
+            ...(scope.appUid === undefined
+                ? { excludeTypes: OUTSIDE_ACCOUNT_MAILBOX_TYPES }
+                : {}),
+        };
+        // A replacement keeps its row, so rows behind the cursor are read
+        // again by when they were replaced: two indexed reads, not one OR.
+        const [inserted, replaced] = await Promise.all([
+            this.stores.notification.listScoped(user.id, {
+                ...slice,
+                after: from.id,
+            }),
+            from.id === null
+                ? []
+                : this.stores.notification.listReplacedScoped(user.id, {
+                      ...slice,
+                      upTo: from.id,
+                      after: from.replaced,
+                  }),
+        ]);
+        const { rows: page, next } = mergeNotifCatchUp(
+            inserted,
+            replaced,
+            limit,
+            from,
+        );
+        const visible = await this.#visibleNotifications(actor, page);
+
+        return {
+            items: visible.map((row, i) => projectNotifRow(row, user.uuid!, i)),
+            ...(next
+                ? {
+                      cursor: sealCursor(
+                          notifFetchCursor(next),
+                          this.config.jwt_secret_v2,
+                      ),
+                  }
+                : {}),
+        };
+    }
+
+    /**
+     * An empty page whose cursor sits at the newest row of `scope` and at its
+     * latest replacement: reads from it return rows inserted or replaced
+     * later.
+     */
+    async #fetchEnd(
+        userId: number,
+        scope: NotifFetchScope,
+    ): Promise<PageResult<ProjectedNotifEvent>> {
+        const slice = { audience: scope.audience, appUid: scope.appUid };
+        const [latest, replaced] = await Promise.all([
+            this.stores.notification.latestScopedId(userId, slice),
+            this.stores.notification.latestScopedReplacement(userId, slice),
+        ]);
+        return {
+            items: [],
+            cursor: sealCursor(
+                notifFetchCursor({
+                    id: latest ?? 0,
+                    replaced: replaced ?? { replacedAt: 0, id: 0 },
+                }),
+                this.config.jwt_secret_v2,
+            ),
+        };
+    }
+
+    /**
+     * The audience predicate, applied to rows the query already scoped to the
+     * caller's own mailbox. A row the actor may not see is dropped rather than
+     * refused: which notifications exist is not something an app token gets to
+     * probe for.
+     *
+     * Ownership is a per-row fact rather than one shared answer: an unscoped
+     * page (a session's own generic fetch) can carry `developer` rows about
+     * several apps at once.
+     */
+    async #visibleNotifications(
+        actor: Actor,
+        rows: Array<Record<string, unknown>>,
+    ): Promise<Array<Record<string, unknown>>> {
+        if (rows.length === 0) return rows;
+        const scopes = rows.map(notificationRowScope);
+        const owned = await ownedAppUids(
+            this.stores.app,
+            Number(actor.user?.id),
+            scopes.flatMap((s) =>
+                s.audience === 'developer' && s.appUid ? [s.appUid] : [],
+            ),
+        );
+
+        return rows.filter((_row, i) =>
+            canViewNotification(scopes[i], actor, {
+                recipientOwnsApp: owned.has(scopes[i].appUid ?? ''),
+            }),
+        );
+    }
+
+    async unsubscribeDurable(
+        actor: Actor,
+        request: UnsubscribeRequest,
+    ): Promise<void> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+
+        await this.#spendUnsubscribeBudget(holderUserId);
+
+        const subId = String(request?.subId ?? '');
+        const row = subId
+            ? await this.stores.durableSubscription.getBySubId(subId)
+            : null;
+        // Someone else's id, one another app created, or any id asked by a
+        // scoped token reads as absent rather than refused: a 403 here is an
+        // oracle for subIds.
+        if (
+            !row ||
+            row.holderUserId !== holderUserId ||
+            !rowInActorScope(actor, row)
+        )
+            throw unknownSubscription();
+        if (isScheduleRow(row)) throw scheduleSubscription();
+
+        const bump = await this.stores.durableSubscription.remove(row);
+        // A concurrent duplicate of this same call already removed it.
+        if (!bump) throw unknownSubscription();
+        // Whatever it was still owed goes with it: a backlog held for a
+        // subscription nobody can consume is memory, and the paths it names are
+        // ones its holder just gave up asking about.
+        await this.stores.pendingDelivery.purge(subId);
+        this.#forget(subId);
+        this.#publishGeneration(bump, true);
+    }
+
+    /**
+     * Replace a durable row's `context` in place. Its id, its backlog and
+     * anything in flight are kept, and the next invocation carries the new
+     * value. Spends from the subscribe budget, which is what a replace by
+     * unsubscribe and subscribe would have spent.
+     */
+    async updateDurable(
+        actor: Actor,
+        request: UpdateDurableRequest,
+    ): Promise<{ sub: DurableSubscriptionView }> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+
+        await this.#spendCallBudget(holderUserId);
+
+        if (!request || !Object.hasOwn(request, 'context'))
+            throw badRequest('context is required', 'bad_request');
+        const context = parseContext(request.context);
+
+        const subId = String(request.subId ?? '');
+        const row = subId
+            ? await this.stores.durableSubscription.getBySubId(subId)
+            : null;
+        // Absent rather than refused, as unsubscribe answers.
+        if (
+            !row ||
+            row.holderUserId !== holderUserId ||
+            !rowInActorScope(actor, row)
+        )
+            throw unknownSubscription();
+        if (isScheduleRow(row)) throw scheduleImmutable();
+        if (row.context === context) return { sub: toDurableView(row) };
+
+        const updated = await this.stores.durableSubscription.updateContext(
+            row,
+            context,
+        );
+        if (!updated) throw unknownSubscription();
+        this.#publishGeneration(updated.bump, true);
+        return { sub: toDurableView(updated.row) };
+    }
+
+    /**
+     * Settle a `single` delivery the client took. An id this subscription is
+     * not holding — one already settled, or one reclaimed and handed on — is
+     * not an error: at-least-once makes a duplicate ack routine.
+     */
+    async ackDelivery(actor: Actor, request: AckRequest): Promise<void> {
+        const { row, entryId, relayTo } = await this.#ackTarget(actor, request);
+        // The lease lives where the event was emitted, which is not always
+        // where the client ended up connected. Nothing about the delivery is
+        // held here to settle, so the ack goes home rather than being applied.
+        if (relayTo) {
+            this.services.eventForward.relayAck(
+                relayTo,
+                row.holderUserId,
+                row.subId,
+                entryId,
+            );
+            return;
+        }
+
+        const subId = row.subId;
+        await this.stores.pendingDelivery.settle(subId, entryId);
+        // A suspended row is not delivered to: settling what it already handed
+        // out must not be the trigger that hands out the next one.
+        if (row.suspendedAt === null) await this.#drain(row);
+    }
+
+    /**
+     * Hand back a queued delivery a client will not take. The worker gets it
+     * now rather than when the client's lease lapses. A stale decline (the
+     * entry already settled, or handed on since) is ignored like a duplicate
+     * ack.
+     */
+    async declineDelivery(actor: Actor, request: NackRequest): Promise<void> {
+        const { row, entryId, relayTo } = await this.#ackTarget(actor, request);
+        const reason = declineReason(request);
+        if (relayTo) {
+            this.services.eventForward.relayNack(
+                relayTo,
+                row.holderUserId,
+                row.subId,
+                entryId,
+                reason,
+            );
+            return;
+        }
+        await this.#declined(row, entryId, reason);
+    }
+
+    /** The row an ack or decline names, and the region it belongs to. */
+    async #ackTarget(
+        actor: Actor,
+        request: AckRequest,
+    ): Promise<{
+        row: DurableSubscription;
+        entryId: string;
+        relayTo: string | null;
+    }> {
+        if (!this.enabled) throw disabled();
+        const holderUserId = actor.user?.id;
+        if (holderUserId === undefined) throw disabled();
+
+        const subId = String(request?.subId ?? '');
+        const entryId = String(request?.id ?? '');
+        if (!subId || !entryId) throw unknownSubscription();
+
+        await spendUserWindow(EVENTS_ACK_LIMIT, holderUserId);
+
+        const row = await this.stores.durableSubscription.getBySubId(subId);
+        if (
+            !row ||
+            row.holderUserId !== holderUserId ||
+            !rowInActorScope(actor, row)
+        )
+            throw unknownSubscription();
+
+        const origin = String(request?.origin ?? '');
+        const forward = this.services.eventForward;
+        const relayTo =
+            origin && origin !== forward.region && forward.isPeer(origin)
+                ? origin
+                : null;
+        return { row, entryId, relayTo };
+    }
+
+    /**
+     * Take a declined delivery off the client's lease. A failed client run
+     * counts like a failed worker run: retried after the backoff, or dropped. A
+     * client with no handler costs nothing and the worker runs it now; a row
+     * with no worker has nothing to hand it to, so its lease is left to lapse.
+     */
+    async #declined(
+        row: DurableSubscription,
+        entryId: string,
+        reason: DeclineReason,
+    ): Promise<void> {
+        if (reason === 'no_handler' && !runsInWorker(row)) return;
+        const claimed = await this.stores.pendingDelivery.takeFromSocket(
+            row.subId,
+            entryId,
+        );
+        if (!claimed) return;
+
+        singleAttempt.add(1, {
+            target: 'socket',
+            result: `declined-${reason}`,
+        });
+        if (reason !== 'no_handler') {
+            await this.#handlerFailed(row, claimed, reason);
+            return;
+        }
+        if (row.suspendedAt !== null) return;
+        // A row that can't be served now lets the worker lease lapse, and a
+        // later drain asks again.
+        const serving = await this.#stillOwed(row);
+        if (!serving) return;
+        if (await this.#runInWorker(serving, claimedAsServed(serving, claimed)))
+            await this.#drain(row);
+    }
+
+    // -- Handlers ----------------------------------------------------
+
+    /**
+     * Publish one named handler for an app.
+     *
+     * The name is the identity and the hash is only a change detector, so
+     * re-publishing the same source is a no-op and re-publishing a name that is
+     * suspending subscriptions brings them back. A publish whose base has moved
+     * under it — two build steps racing — is refused rather than resolved.
+     */
+    async publishHandler(
+        actor: Actor,
+        request: PublishHandlerRequest,
+    ): Promise<PublishedHandlerView> {
+        await this.#spendHandlerBudget(actor);
+        const scope = await this.#handlerApp(
+            actor,
+            request?.appUid,
+            parseHandlerScopeKind(request?.scope, 'scope'),
+            true,
+        );
+        const before = awaitLater(this.stores.eventHandler.countForApp(scope));
+        const result = await this.#publishOne(actor, scope, request, before, {
+            pending: true,
+        });
+        await this.#maybeAnnounceWorkerCreate(scope, await before);
+        return result;
+    }
+
+    /**
+     * Publish a set of handlers, which is what a build step has. Each item is
+     * the same operation under the same rules; one that is refused stops the
+     * pass, so a deploy either lands its set or reports which name it stopped
+     * at rather than leaving half a build published under a success.
+     */
+    async publishHandlers(
+        actor: Actor,
+        request: PublishHandlersRequest,
+    ): Promise<PublishedHandlerView[]> {
+        await this.#spendHandlerBudget(actor);
+        const scope = await this.#handlerApp(
+            actor,
+            request?.appUid,
+            parseHandlerScopeKind(request?.scope, 'scope'),
+            true,
+        );
+        const handlers = request?.handlers;
+        if (!Array.isArray(handlers) || handlers.length === 0)
+            throw badRequest(
+                'handlers must be a non-empty array',
+                'bad_request',
+            );
+        if (handlers.length > EVENTS_HANDLER_PUBLISH_BATCH)
+            throw badRequest(
+                `handlers may not exceed ${EVENTS_HANDLER_PUBLISH_BATCH} entries`,
+                'bad_request',
+            );
+
+        const before = awaitLater(this.stores.eventHandler.countForApp(scope));
+        const unitCheck = { pending: true };
+        const published: PublishedHandlerView[] = [];
+        try {
+            for (const item of handlers) {
+                if (!item || typeof item !== 'object' || Array.isArray(item)) {
+                    // The count is read ahead of every item, so its failure
+                    // is the one to surface.
+                    await before;
+                    throw badRequest(
+                        'each handler must be an object',
+                        'bad_request',
+                    );
+                }
+                published.push(
+                    await this.#publishOne(
+                        actor,
+                        scope,
+                        item as PublishHandlerRequest,
+                        before,
+                        unitCheck,
+                    ),
+                );
+            }
+        } finally {
+            // A refused item stops the pass but leaves the ones before it
+            // published, and those are what stood the worker up.
+            if (published.length > 0)
+                await this.#maybeAnnounceWorkerCreate(scope, await before);
+        }
+        return published;
+    }
+
+    /**
+     * What an app has published, and how many subscriptions each name carries.
+     * Never the source: a listing is the one handler surface that can be called
+     * repeatedly, and the source is the app's own code.
+     */
+    async listHandlers(
+        actor: Actor,
+        request: HandlerScopeRequest = {},
+    ): Promise<EventHandlerSummary[]> {
+        return this.stores.eventHandler.listForApp(
+            await this.#handlerApp(
+                actor,
+                request?.appUid,
+                parseHandlerScopeKind(request?.scope, 'scope'),
+            ),
+        );
+    }
+
+    /**
+     * Take a name out of service. With nothing bound to it the row simply goes;
+     * with dependents it goes too, and they suspend with `handler_not_found`
+     * rather than being deleted — republishing the name is what brings them
+     * back, so a bad deploy is recoverable and a rename is deliberately not.
+     */
+    async removeHandler(
+        actor: Actor,
+        request: HandlerNameRequest,
+    ): Promise<RemovedHandlerView> {
+        await this.#spendHandlerBudget(actor);
+        const scope = await this.#handlerApp(
+            actor,
+            request?.appUid,
+            parseHandlerScopeKind(request?.scope, 'scope'),
+        );
+        const name = parseHandlerName(request?.name);
+        if (!name) throw badRequest('name is required', 'bad_request');
+
+        const removed = await this.stores.eventHandler.remove(scope, name);
+        const suspended = await this.#suspendHandlerDependents(scope, name);
+        if (removed) await this.#maybeAnnounceWorkerDestroy(scope);
+        return { name, removed: removed !== null, suspended };
+    }
+
+    // -- Events workers ------------------------------------------------
+    //
+    // The billable artifact a published handler set implies, not the handlers
+    // themselves. An account session or full-access token sees every app it
+    // owns; an app sees only its own, the same scope `#handlerApp` gives
+    // publish and destroy. A scoped token is refused outright.
+
+    /**
+     * The events workers billed to this account — one per app it owns with at
+     * least one published handler. Narrowed to a single app when the actor is
+     * one.
+     */
+    async listEventsWorkers(
+        actor: Actor,
+        request: ListEventsWorkersRequest = {},
+    ): Promise<{
+        items: Array<EventsWorkerView | UserScopeWorkerView>;
+        cursor?: string;
+        deployable: boolean;
+    }> {
+        if (!this.enabled) throw disabled();
+
+        const acting = actor.effectiveApp;
+        // Unresolved is not "no app": reading it that way would show a token
+        // that skipped `makeActor` every app's worker instead of refusing it.
+        if (acting === undefined) throw eventsWorkerOwnerOnly();
+        // A scoped token is neither the account nor the app, including one an
+        // app issued (a read URL): its effectiveApp is that app.
+        if (isAccessTokenActor(actor) && !isAccountContext(actor))
+            throw eventsWorkerOwnerOnly();
+
+        const ownerUserId = actor.user?.id;
+        if (ownerUserId === undefined) throw disabled();
+
+        const limit = Math.min(
+            Math.max(
+                1,
+                Math.floor(request.limit ?? EVENTS_WORKERS_LIST_DEFAULT_LIMIT),
+            ),
+            EVENTS_WORKERS_LIST_LIMIT_CAP,
+        );
+        const deployable = this.config.events?.workerRuntime === true;
+        const items: Array<EventsWorkerView | UserScopeWorkerView> = [];
+
+        // The apps' own workers come first, then the caller's user scopes; a
+        // `user:` cursor marks the second part.
+        const inUserPart =
+            request.cursor?.startsWith(USER_PART_CURSOR) ?? false;
+        if (!inUserPart) {
+            const page =
+                await this.stores.eventHandler.listEventsWorkersForOwner(
+                    ownerUserId,
+                    {
+                        limit,
+                        cursor: request.cursor,
+                        ...(acting ? { appUid: acting.uid } : {}),
+                    },
+                );
+            for (const worker of page.items) {
+                const handlers = await this.stores.eventHandler.setForApp(
+                    appHandlerScope(worker.appUid),
+                );
+                items.push({
+                    ...worker,
+                    scope: 'app',
+                    script: eventsWorkerScript(
+                        handlerSetHash(handlers),
+                        eventsWorkerScope(this.config),
+                    ),
+                });
+            }
+            if (page.cursor) return { items, cursor: page.cursor, deployable };
+        }
+
+        const room = limit - items.length;
+        const scopes = await this.stores.eventHandler.listUserScopesForUser(
+            ownerUserId,
+            {
+                limit: Math.max(room, 1),
+                cursor: inUserPart
+                    ? request.cursor!.slice(USER_PART_CURSOR.length)
+                    : undefined,
+                ...(acting ? { appUid: acting.uid } : {}),
+            },
+        );
+        if (room <= 0)
+            return {
+                items,
+                ...((scopes.total ?? 0) > 0
+                    ? { cursor: USER_PART_CURSOR }
+                    : {}),
+                deployable,
+            };
+        for (const scope of scopes.items)
+            items.push({ ...scope, scope: 'user' });
+        return {
+            items,
+            ...(scopes.cursor
+                ? { cursor: `${USER_PART_CURSOR}${scopes.cursor}` }
+                : {}),
+            deployable,
+        };
+    }
+
+    /**
+     * Remove every handler an app has published, in one call. Same consequences
+     * as removing each by name — dependents suspend, not delete — since it runs
+     * the same per-name removal, just for the whole set.
+     */
+    async destroyEventsWorker(
+        actor: Actor,
+        request: DestroyEventsWorkerRequest,
+    ): Promise<DestroyedEventsWorkerView> {
+        await this.#spendHandlerBudget(actor);
+        const scope = await this.#handlerApp(
+            actor,
+            request?.appUid,
+            parseHandlerScopeKind(request?.scope, 'scope'),
+            false,
+            true,
+        );
+        const { appUid } = scope;
+
+        const names = (await this.stores.eventHandler.listForApp(scope)).map(
+            (handler) => handler.name,
+        );
+        if (names.length === 0) throw noEventsWorker(appUid);
+
+        if (isUserScope(scope)) {
+            const removed = await this.stores.eventHandler.deleteUserScope(
+                appUid,
+                scope.holder,
+            );
+            let suspended = 0;
+            for (const name of names)
+                suspended += await this.#suspendHandlerDependents(scope, name);
+            if (removed > 0) {
+                await this.#maybeAnnounceWorkerDestroy(scope);
+                await this.#revokeWorkerSession(scope.holder, appUid);
+            }
+            return { appUid, removed, suspended, scope: 'user' };
+        }
+
+        let removed = 0;
+        let suspended = 0;
+        try {
+            for (const name of names) {
+                const droppedRow = await this.stores.eventHandler.remove(
+                    scope,
+                    name,
+                );
+                if (droppedRow) removed += 1;
+                suspended += await this.#suspendHandlerDependents(scope, name);
+            }
+        } finally {
+            // A pass that stops partway may still have taken the last handler
+            // with it, and the announce is what a rent listener stops on.
+            if (removed > 0) {
+                await this.#maybeAnnounceWorkerDestroy(scope);
+                // The worker is gone; nothing should still be able to invoke
+                // under the session it was running deliveries with. Rows stay
+                // suspended `handler_not_found` — publishing again mints a
+                // fresh session through the unchanged `#mintSubscriberToken`.
+                await this.#revokeWorkerSessions(appUid);
+            }
+        }
+        return { appUid, removed, suspended };
+    }
+
+    // -- Suspension --------------------------------------------------
+
+    /**
+     * Take rows out of service without deleting them, and do to their backlogs
+     * whatever the reason says. Every suspension goes through here so the
+     * backlog policy cannot be forgotten at one call site: a suspended
+     * subscription stops being metered, and one that stops being metered while
+     * holding a full backlog is a hold nobody pays for.
+     */
+    async suspendSubscriptions(
+        rows: readonly DurableSubscription[],
+        reason: SuspendedReason,
+    ): Promise<number> {
+        return (await this.#suspend(rows, reason)).length;
+    }
+
+    /**
+     * The rows this pass was the one to suspend. An unshare withdraws several
+     * grant strings in a row and every one of them settles, so a row another
+     * pass already took is not this pass's to purge or announce.
+     */
+    async #suspend(
+        rows: readonly DurableSubscription[],
+        reason: SuspendedReason,
+        opts: {
+            override?: readonly SuspendedReason[];
+            /** What a schedule ended by this records instead of `reason`. */
+            scheduleEndReason?: ScheduleEndReason;
+            guard?: SqlGuard;
+        } = {},
+    ): Promise<DurableSubscription[]> {
+        if (rows.length === 0) return [];
+
+        const { suspended, bumps } =
+            await this.stores.durableSubscription.suspend(rows, reason, {
+                override: opts.override,
+                guard: opts.guard,
+            });
+        const policy = backlogPolicyFor(reason);
+        for (const row of suspended) {
+            // A schedule's row never holds a backlog.
+            if (isScheduleRow(row)) continue;
+            try {
+                if (policy.cap === 0)
+                    await this.stores.pendingDelivery.purge(row.subId);
+                else {
+                    const shed = await this.stores.pendingDelivery.hold(
+                        row.subId,
+                        policy.cap,
+                        policy.ttlMs,
+                    );
+                    if (shed) this.#reportShed([shed]);
+                }
+            } catch (err) {
+                console.warn(
+                    '[events] could not settle the backlog of a suspended subscription',
+                    row.subId,
+                    err,
+                );
+            }
+            // Takes any coalesced delivery with it: one still in flight is for
+            // a subscription that has stopped.
+            this.#forget(row.subId);
+        }
+        for (const bump of bumps) this.#publishGeneration(bump, true);
+        await this.#schedulesChanged(suspended, {
+            type: 'suspended',
+            reason,
+            ...(opts.scheduleEndReason
+                ? { endReason: opts.scheduleEndReason }
+                : {}),
+        });
+        return suspended;
+    }
+
+    /** Hand the schedules' rows among `rows` to the schedule lifecycle. */
+    async #schedulesChanged(
+        rows: readonly DurableSubscription[],
+        change: ScheduleSubscriptionChange,
+    ): Promise<void> {
+        const schedules = rows.filter(isScheduleRow);
+        if (schedules.length === 0) return;
+        await this.services.schedules?.onSubscriptionsChanged(
+            schedules,
+            change,
+        );
+    }
+
+    /**
+     * Run `settle` over every page of a holder-wide read. Rows a page settles
+     * may leave the set it pages over, so it walks by id rather than offset.
+     * Stops before the next page, or before settling one just read, once
+     * `signal` aborts.
+     */
+    async #eachHolderPage(
+        page: (afterId: number) => Promise<DurablePage>,
+        settle: (rows: DurableSubscription[]) => Promise<number>,
+        signal?: AbortSignal,
+    ): Promise<number> {
+        let settled = 0;
+        let afterId = 0;
+        for (;;) {
+            if (signal?.aborted) return settled;
+            const { rows, nextId } = await page(afterId);
+            if (signal?.aborted) return settled;
+            if (rows.length > 0) settled += await settle(rows);
+            if (nextId === null) return settled;
+            afterId = nextId;
+        }
+    }
+
+    /**
+     * Put rows back in service, and hand over what survived their hold. Rows
+     * suspended for a reason that never lifts are skipped: consent to watch is
+     * re-established by subscribing again, never by resuming.
+     */
+    async resumeSubscriptions(
+        rows: readonly DurableSubscription[],
+    ): Promise<number> {
+        const resuming = rows.filter(
+            (row) =>
+                row.suspendedAt !== null &&
+                isSuspendedReason(row.suspendedReason) &&
+                isResumable(row.suspendedReason),
+        );
+        if (resuming.length === 0) return 0;
+
+        const bumps = await this.stores.durableSubscription.resume(resuming);
+        for (const row of resuming) {
+            // A schedule's row holds no backlog, and has no anchor to re-check.
+            if (isScheduleRow(row)) continue;
+            try {
+                await this.stores.pendingDelivery.releaseHold(row.subId);
+                await this.#drain(row);
+            } catch (err) {
+                console.warn(
+                    '[events] could not hand over the backlog of a resumed subscription',
+                    row.subId,
+                    err,
+                );
+            }
+        }
+        for (const bump of bumps) this.#publishGeneration(bump, true);
+        await this.#schedulesChanged(resuming, { type: 'resumed' });
+        return resuming.length;
+    }
+
+    /**
+     * Stop one subscription after its handler kept failing. The counting is the
+     * retry path's; this is the state it drives, and the developer is told
+     * because it is their code that stopped working. Called by extensions.
+     */
+    async suspendForFailures(
+        subId: string,
+        guard?: SqlGuard,
+    ): Promise<boolean> {
+        return this.#suspendOne(subId, 'failures', {
+            notifyDeveloper: true,
+            guard,
+        });
+    }
+
+    /**
+     * Stop one subscription whose holder cannot pay for it. The 402 is the
+     * metering path's to raise; the backlog is held on the short window,
+     * because the resume condition is usually a top-up minutes away.
+     */
+    async suspendForNoCredit(subId: string): Promise<boolean> {
+        return this.#suspendOne(subId, 'no_credit', { notifyDeveloper: false });
+    }
+
+    /**
+     * Put back what a restored balance releases. The seam credit restoration
+     * calls: one holder's rows, one pass, and nothing else has to know how a
+     * suspension is spelled. Stops between pages once `signal` aborts.
+     */
+    async resumeForCredit(
+        holderUserId: number,
+        signal?: AbortSignal,
+    ): Promise<number> {
+        if (!this.enabled) return 0;
+        return this.#eachHolderPage(
+            (afterId) =>
+                this.stores.durableSubscription.listSuspendedForHolderPage(
+                    holderUserId,
+                    'no_credit',
+                    afterId,
+                ),
+            (rows) => this.resumeSubscriptions(rows),
+            signal,
+        );
+    }
+
+    /**
+     * Delete user-scope handlers older than a day that no subscription row of
+     * any state is bound to: what a failed create or a deleted row leaves
+     * behind. Each goes through the store's guarded delete, so one bound since
+     * it was listed stays. Returns how many were deleted.
+     */
+    async sweepUnboundUserHandlers(signal?: AbortSignal): Promise<number> {
+        if (!this.enabled) return 0;
+        const olderThan =
+            Math.floor(Date.now() / 1000) - USER_HANDLER_GC_MIN_AGE_SECONDS;
+        let deleted = 0;
+        let cursor: string | undefined;
+        for (
+            let pass = 0;
+            pass < USER_HANDLER_GC_MAX_BATCHES && !signal?.aborted;
+            pass++
+        ) {
+            const page = await this.stores.eventHandler.listUnboundUserHandlers(
+                olderThan,
+                { limit: USER_HANDLER_GC_BATCH, cursor },
+            );
+            for (const handler of page.items) {
+                if (signal?.aborted) return deleted;
+                if (
+                    await this.stores.eventHandler.deleteUserHandlerIfUnbound(
+                        { appUid: handler.appUid, holder: handler.holder },
+                        handler.name,
+                        olderThan,
+                    )
+                )
+                    deleted += 1;
+            }
+            if (!page.cursor) break;
+            cursor = page.cursor;
+        }
+        return deleted;
+    }
+
+    /** Drop rows past their expiry, in batches, and report how many went. */
+    async sweepExpired(signal?: AbortSignal): Promise<number> {
+        if (!this.enabled) return 0;
+        return this.#sweepInBatches(
+            (batchSize) =>
+                this.stores.durableSubscription.sweepExpired(batchSize),
+            'ended',
+            signal,
+        );
+    }
+
+    /**
+     * Drop rows that have been suspended longer than they are worth keeping. A
+     * revoked subscription never resumes, so the row survives only as the
+     * answer its holder gets from `list` when they ask why it stopped.
+     */
+    async sweepSuspended(signal?: AbortSignal): Promise<number> {
+        if (!this.enabled) return 0;
+        const cutoff =
+            Math.floor(Date.now() / 1000) -
+            SUSPENDED_ROW_TTL_DAYS * 24 * 60 * 60;
+        return this.#sweepInBatches(
+            (batchSize) =>
+                this.stores.durableSubscription.sweepSuspended(
+                    cutoff,
+                    batchSize,
+                ),
+            'ended',
+            signal,
+        );
+    }
+
+    /**
+     * Revoke `events:handlers` worker sessions whose app is already gone — the
+     * safety net for whatever `workers.destroy` and app deletion did not catch
+     * (a caller that skipped both, or a row stranded before either hook
+     * existed). Scoped to this one worker name; the same strand for
+     * `WorkerDriver`-minted sessions is a separate finding, not covered here.
+     */
+    async sweepStrandedWorkerSessions({
+        signal,
+        state,
+        saveState,
+    }: JobRunContext): Promise<number> {
+        if (!this.enabled) return 0;
+
+        let revoked = 0;
+        let afterId = savedAfterId(state);
+        let saved = afterId;
+        for (
+            let page = 0;
+            page < WORKER_SESSION_SWEEP_MAX_PAGES && !signal.aborted;
+            page++
+        ) {
+            const rows = await this.stores.session.listWorkerSessions({
+                workerName: EVENTS_WORKER_SESSION_NAME,
+                afterId,
+                limit: WORKER_SESSION_SWEEP_BATCH,
+            });
+            const appUids = [
+                ...new Set(rows.map((row) => row.appUid).filter(Boolean)),
+            ] as string[];
+            const apps = await this.stores.app.getByUids(appUids);
+
+            for (const row of rows) {
+                if (apps.has(row.appUid)) continue;
+                try {
+                    await this.services.auth.revokeSession(row.uuid);
+                    revoked += 1;
+                } catch (err) {
+                    console.warn(
+                        '[events] could not revoke a stranded worker session',
+                        row.uuid,
+                        err,
+                    );
+                }
+            }
+
+            // A short page is the end of the table; the next run wraps.
+            afterId =
+                rows.length < WORKER_SESSION_SWEEP_BATCH
+                    ? 0
+                    : rows[rows.length - 1].id;
+            if (afterId !== saved) {
+                await saveState(afterId === 0 ? null : { afterId });
+                saved = afterId;
+            }
+            if (afterId === 0) break;
+        }
+        return revoked;
+    }
+
+    /**
+     * Put back subscriptions a restored balance releases. Lazy on purpose: a
+     * top-up is not something this service hears about, and coupling delivery
+     * to the payment path would make one more thing that has to be told. The
+     * cost of the delay is bounded by how long a `no_credit` backlog is held.
+     *
+     * Each run picks up where the last one stopped and wraps at the end of the
+     * table, so a backlog past one run's cap is still reached.
+     */
+    async sweepNoCredit({
+        signal,
+        state,
+        saveState,
+    }: JobRunContext): Promise<number> {
+        if (!this.enabled || !this.services.metering) return 0;
+
+        let resumed = 0;
+        let after = savedAfterId(state);
+        let saved = after;
+        for (
+            let pass = 0;
+            pass < NO_CREDIT_SWEEP_MAX_BATCHES && !signal.aborted;
+            pass++
+        ) {
+            const page =
+                await this.stores.durableSubscription.listSuspendedPage(
+                    'no_credit',
+                    after,
+                    NO_CREDIT_SWEEP_BATCH,
+                );
+            const holders = new Set(page.rows.map((row) => row.holderUserId));
+            for (const holderUserId of holders) {
+                // The page is redone next run.
+                if (signal.aborted) return resumed;
+                const actor = await this.#meterActor({
+                    holderUserId,
+                    appUid: null,
+                    deliveryClass: 'broadcast',
+                    durable: true,
+                });
+                if (!actor) continue;
+                try {
+                    await assertActorHasCredits(
+                        this.services.metering,
+                        actor,
+                        this.config,
+                    );
+                } catch {
+                    continue;
+                }
+                resumed += await this.resumeForCredit(holderUserId, signal);
+            }
+            // Interrupted mid-page: keep the checkpoint so the page is redone.
+            if (signal.aborted) return resumed;
+            after = page.nextId ?? 0;
+            if (after !== saved) {
+                await saveState(after === 0 ? null : { afterId: after });
+                saved = after;
+            }
+            if (after === 0) break;
+        }
+        return resumed;
+    }
+
+    /**
+     * Reap in batches until a short one, publishing each batch's bumps so every
+     * region stops delivering against what went, and ending the schedules whose
+     * rows went with `endReason`.
+     */
+    async #sweepInBatches(
+        pass: (batchSize: number) => Promise<DurableReap>,
+        endReason: ScheduleEndReason,
+        signal?: AbortSignal,
+    ): Promise<number> {
+        let removed = 0;
+        for (let i = 0; i < EXPIRY_MAX_BATCHES && !signal?.aborted; i++) {
+            const { rows, bumps } = await pass(EXPIRY_BATCH_SIZE);
+            for (const bump of bumps) this.#publishGeneration(bump, true);
+            removed += rows.length;
+            await this.#schedulesChanged(rows, { type: 'ended', endReason });
+            if (rows.length < EXPIRY_BATCH_SIZE) break;
+        }
+        return removed;
+    }
+
+    /**
+     * Retry what nobody took. Reads the pending index from its oldest end — the
+     * subscriptions that have waited longest — so finding the work costs one
+     * ordered read rather than a walk of the keyspace, which is exactly the
+     * thing that gets expensive when there is a backlog to find.
+     *
+     * A lease that lapsed is what makes a delivery claimable again, so this
+     * needs no notion of failure: it retries whatever is not currently held.
+     */
+    async sweepPending(): Promise<number> {
+        if (!this.enabled) return 0;
+
+        // A partial write can move a pending set without its share of the
+        // region counter going with it, in either direction. This is what
+        // keeps that drift from being permanent.
+        try {
+            await this.stores.pendingDelivery.reconcileRegionDepth();
+        } catch (err) {
+            console.warn('[events] pending counter reconcile failed', err);
+        }
+
+        const heads = await this.stores.pendingDelivery.head(
+            PENDING_SWEEP_SUBSCRIPTIONS,
+        );
+        // Settled: `#sweepOne` reports its own failures.
+        const handed = await runWithConcurrencyLimitSettled(
+            heads,
+            PENDING_SWEEP_CONCURRENCY,
+            ({ subId }) => this.#sweepOne(subId),
+        );
+        let attempted = 0;
+        for (const outcome of handed)
+            if (outcome.status === 'fulfilled') attempted += outcome.value;
+        return attempted;
+    }
+
+    /** One subscription's turn in the pending sweep; what it was handed. */
+    async #sweepOne(subId: string): Promise<number> {
+        try {
+            // Leased means nothing can be claimed yet, so the row isn't read.
+            if (await this.stores.pendingDelivery.inFlight(subId)) {
+                await this.stores.pendingDelivery.defer(subId);
+                return 0;
+            }
+            const row = await this.stores.durableSubscription.getBySubId(subId);
+            // Nothing left to deliver to, so nothing left to hold.
+            if (!row || this.#isOver(row)) {
+                await this.stores.pendingDelivery.purge(subId);
+                return 0;
+            }
+            // A suspended row is not delivered to, but the backlog its
+            // suspension put a deadline on is this pass's to enforce: past it
+            // the events go and a gap marker says so, which is the half that
+            // keeps a suspension from being a free memory hold.
+            if (row.suspendedAt !== null) {
+                // Except a revoked row's, which names paths its holder may no
+                // longer see: anything a dispatch in flight queued after the
+                // settle's own purge goes now, not at a deadline.
+                if (row.suspendedReason === 'permission_revoked')
+                    await this.stores.pendingDelivery.purge(subId);
+                // A hold not past its deadline yet must not pin the head
+                // against every other backlog in the region.
+                else if (
+                    (await this.stores.pendingDelivery.expireHold(subId)) === 0
+                )
+                    await this.stores.pendingDelivery.defer(subId);
+                return 0;
+            }
+            return await this.#drain(row, { deferWhenBusy: true });
+        } catch (err) {
+            console.warn('[events] pending sweep failed', subId, err);
+            return 0;
+        }
+    }
+
+    /** Past its expiry, so the daily reaper is only a matter of time. */
+    #isOver(row: DurableSubscription): boolean {
+        return row.expiresAt !== null && row.expiresAt <= Date.now() / 1000;
+    }
+
+    // -- Handler internals -------------------------------------------
+
+    /**
+     * Which app's handlers this call is about, and whether the caller may
+     * deploy them. Publishing is a developer operation: the app token's own app
+     * or the one a user session named, and in both cases an app that user
+     * owns.
+     *
+     * An app that is not there answers the same as one the caller does not own
+     * — which apps exist is not this surface's to disclose.
+     *
+     * `user` scope is the caller's own handlers in the app they are acting as,
+     * which any signed-in session of that app may publish. `publishing` is what
+     * creates handlers, so it alone needs the flag and some credit; a user out
+     * of credit can still list and remove what they have.
+     */
+    async #handlerApp(
+        actor: Actor,
+        requested: unknown,
+        kind: HandlerScopeKind = 'app',
+        publishing = false,
+        destroying = false,
+    ): Promise<HandlerScope> {
+        if (!this.enabled) throw disabled();
+        const userId = actor.user?.id;
+        if (userId === undefined) throw disabled();
+        if (kind === 'user')
+            return this.#userScope(actor, requested, {
+                requireFlag: publishing,
+                requireCredit: publishing,
+                accountOk: destroying,
+            });
+
+        const acting = actor.effectiveApp;
+        // Unresolved is not "no app": reading it that way is what would let an
+        // app token publish into a namespace it never named.
+        if (acting === undefined) throw handlerAppForbidden();
+        // A scoped token acts as neither the account nor the app, including
+        // one an app issued (a read URL): without this, a token minted for one
+        // narrow purpose replaces handler code that then runs holding each
+        // subscriber's own credential.
+        if (isAccessTokenActor(actor) && !isAccountContext(actor))
+            throw handlerAppForbidden();
+
+        const named = parseAppUid(requested);
+        if (acting && named !== null && named !== acting.uid)
+            throw handlerAppForbidden();
+
+        const appUid = acting?.uid ?? named;
+        if (!appUid) throw handlerAppRequired();
+
+        const app = await this.stores.app.getByUid(appUid);
+        if (!app) throw handlerAppForbidden();
+        if (
+            Number((app as { owner_user_id?: unknown }).owner_user_id) !==
+            Number(userId)
+        )
+            throw handlerAppForbidden();
+        return appHandlerScope(appUid);
+    }
+
+    /**
+     * The caller's user scope of the app they are acting as. A scoped token, an
+     * unresolved or absent app, another app than the caller's, and a temporary
+     * account have no such scope.
+     */
+    async #userScope(
+        actor: Actor,
+        requested: unknown,
+        checks: {
+            requireFlag?: boolean;
+            requireCredit?: boolean;
+            /** An account session may name any app, for its own scope only. */
+            accountOk?: boolean;
+        } = {},
+    ): Promise<HandlerScope> {
+        const userId = actor.user?.id;
+        if (userId === undefined) throw disabled();
+        if (checks.requireFlag && !this.userHandlersEnabled)
+            throw userHandlersDisabled();
+
+        const acting = actor.effectiveApp;
+        const named = parseAppUid(requested);
+        const account =
+            checks.accountOk === true &&
+            acting === null &&
+            !isAccessTokenActor(actor) &&
+            named !== null;
+        if (!account) {
+            if (!acting || isAccessTokenActor(actor))
+                throw userScopeForbidden();
+            if (named !== null && named !== acting.uid)
+                throw userScopeForbidden();
+        }
+        if ((await this.#planId(actor)) === DEFAULT_TEMP_SUBSCRIPTION)
+            throw userScopeForbidden();
+
+        if (checks.requireCredit)
+            await assertActorHasCredits(
+                this.services.metering,
+                actor,
+                this.config,
+            );
+        return { appUid: (acting?.uid ?? named)!, holder: userId };
+    }
+
+    async #spendHandlerBudget(actor: Actor): Promise<void> {
+        const userId = actor.user?.id;
+        if (userId === undefined) throw disabled();
+        await spendUserWindow(EVENTS_HANDLER_PUBLISH_LIMIT, userId);
+    }
+
+    /**
+     * One publish, and whatever it releases. `before` is the request's handler
+     * count, read alongside this publish's own reads and settled before it
+     * writes.
+     */
+    async #publishOne(
+        actor: Actor,
+        scope: HandlerScope,
+        item: PublishHandlerRequest,
+        before: Promise<number>,
+        unitCheck: { pending: boolean },
+    ): Promise<PublishedHandlerView> {
+        const name = String(item?.name ?? '');
+        const source = typeof item?.source === 'string' ? item.source : '';
+        assertNoFreeVariables(source);
+        // Minted names stay the server's, or a name could point at other code.
+        if (
+            isUserScope(scope) &&
+            name.startsWith('@') &&
+            name !== inlineHandlerName(source)
+        )
+            throw invalidInlineName();
+        const sizeChecked = awaitLater(
+            this.#assertHandlerSetSize(scope, name, source),
+        );
+        const existing = await before;
+        await sizeChecked;
+        // The first handler of a scope is a new unit to rent; once per request,
+        // since a batch's own earlier items would otherwise count against it.
+        if (existing === 0 && unitCheck.pending) {
+            await this.#assertUnitRoom(actor);
+            unitCheck.pending = false;
+        }
+
+        const { handler, outcome } = await this.stores.eventHandler.publish({
+            scope,
+            name,
+            source,
+            ifHash: typeof item?.ifHash === 'string' ? item.ifHash : null,
+            replace: item?.replace === true,
+        });
+        if (outcome !== 'unchanged') this.#deployEagerly(scope, handler);
+
+        return {
+            name: handler.name,
+            hash: handler.sourceHash,
+            updatedAt: handler.updatedAt,
+            outcome,
+            resumed: await this.#resumeHandlerDependents(scope, handler.name),
+        };
+    }
+
+    /** The rented-unit cap applies only where user scopes are on. */
+    async #assertUnitRoom(actor: Actor): Promise<void> {
+        if (!this.userHandlersEnabled) return;
+        await assertRentedUnitRoom(
+            { stores: this.stores, metering: this.services.metering },
+            actor,
+        );
+    }
+
+    /**
+     * Refuse a publish that would push the app's events worker — every
+     * handler's source, baked into one file — over the size cap. The name being
+     * published may already have a row; its current bytes are backed out of the
+     * total since this publish replaces them rather than adding to them.
+     */
+    async #assertHandlerSetSize(
+        scope: HandlerScope,
+        name: string,
+        source: string,
+    ): Promise<void> {
+        const [totalBytes, existing] = await Promise.all([
+            this.stores.eventHandler.totalSourceBytesForApp(scope),
+            this.stores.eventHandler.getByName(scope, name),
+        ]);
+        const existingBytes = existing
+            ? Buffer.byteLength(existing.source, 'utf8')
+            : 0;
+        const projected =
+            totalBytes - existingBytes + Buffer.byteLength(source, 'utf8');
+        const cap = isUserScope(scope)
+            ? EVENTS_USER_SCOPE_SOURCE_MAX_BYTES
+            : EVENTS_WORKER_SOURCE_MAX_BYTES;
+        if (projected > cap) throw eventsWorkerTooLarge(scope);
+    }
+
+    /**
+     * Announce `events.worker.create` when this request just took the app from
+     * zero published handlers to one or more. `before` is read at the start of
+     * the request and compared against a fresh count now — a publish racing
+     * against another one for the same app can double-announce or (rarely) miss
+     * the transition, which is accepted rather than adding a lock around
+     * something a listener idempotently prices anyway.
+     */
+    async #maybeAnnounceWorkerCreate(
+        scope: HandlerScope,
+        before: number,
+    ): Promise<void> {
+        if (before > 0) return;
+        await this.#emitWorkerLifecycle('events.worker.create', scope);
+    }
+
+    /**
+     * The other half of {@link #maybeAnnounceWorkerCreate}, for a 1→0
+     * transition. `ownerUserId`, when given, is used in place of an app-row
+     * lookup — needed when the app row is already gone, as it is by the time
+     * `app.changed`'s `deleted` action reaches {@link settleDeletedApp}.
+     */
+    async #maybeAnnounceWorkerDestroy(
+        scope: HandlerScope,
+        ownerUserId?: number,
+    ): Promise<void> {
+        await this.#emitWorkerLifecycle(
+            'events.worker.destroy',
+            scope,
+            ownerUserId,
+        );
+    }
+
+    /**
+     * Emitted after the row write that triggered it has committed, and awaited
+     * — so a rent listener has settled before the caller is told the publish or
+     * removal succeeded. For the app's own scope the actor carries the app's
+     * _owner_, not the caller: a developer session publishing for an app it
+     * owns is the common case, but billing follows ownership, resolved fresh
+     * through the user store rather than assumed from the request. For a user
+     * scope it carries the holder, who is the one renting it.
+     *
+     * Never throws: this runs on the way out of a write, including one that is
+     * itself failing, so nothing here may be what the caller sees.
+     */
+    async #emitWorkerLifecycle(
+        name: 'events.worker.create' | 'events.worker.destroy',
+        scope: HandlerScope,
+        knownOwnerUserId?: number,
+    ): Promise<void> {
+        const { appUid } = scope;
+        try {
+            // Only a count now on the far side of the transition is one: a
+            // `create` needs a handler standing, a `destroy` needs none.
+            const count = await this.stores.eventHandler.countForApp(scope);
+            if (name === 'events.worker.create' ? count === 0 : count > 0)
+                return;
+
+            let ownerUserId = isUserScope(scope)
+                ? scope.holder
+                : knownOwnerUserId;
+            if (ownerUserId === undefined) {
+                const app = await this.stores.app.getByUid(appUid);
+                ownerUserId = Number(
+                    (app as { owner_user_id?: unknown } | null)?.owner_user_id,
+                );
+            }
+            if (!Number.isFinite(ownerUserId) || (ownerUserId as number) <= 0)
+                return;
+            const owner = await this.stores.user.getById(ownerUserId);
+            if (!owner) return;
+
+            await this.clients.event.emitAndWait(
+                name,
+                {
+                    actor: makeActor({ user: owner }),
+                    appUid,
+                    scope: kindOf(scope),
+                },
+                {},
+            );
+        } catch (err) {
+            console.warn(`[events] ${name} was not announced`, appUid, err);
+        }
+    }
+
+    /**
+     * Suspend everything bound to a name that is no longer published, in
+     * batches so a widely-used handler cannot make one call hold the whole
+     * set.
+     */
+    async #suspendHandlerDependents(
+        scope: HandlerScope,
+        name: string,
+    ): Promise<number> {
+        const { appUid } = scope;
+        let suspended = 0;
+        for (;;) {
+            const batch = await this.stores.durableSubscription.listByHandler(
+                appUid,
+                kindOf(scope),
+                scope.holder,
+                name,
+            );
+            if (batch.length === 0) break;
+            suspended += await this.suspendSubscriptions(
+                batch,
+                'handler_not_found',
+            );
+            if (batch.length < HANDLER_SETTLE_BATCH) break;
+        }
+        if (suspended > 0) await this.#notifySuspended(scope, name, suspended);
+        return suspended;
+    }
+
+    /**
+     * Bring back what was waiting on this name. The other half of a removal —
+     * and of a handler that kept failing, since new source under the name is
+     * the fix for one that could not take its deliveries.
+     */
+    async #resumeHandlerDependents(
+        scope: HandlerScope,
+        name: string,
+    ): Promise<number> {
+        let resumed = 0;
+        for (const reason of ['handler_not_found', 'failures'] as const) {
+            for (;;) {
+                const batch =
+                    await this.stores.durableSubscription.listByHandler(
+                        scope.appUid,
+                        kindOf(scope),
+                        scope.holder,
+                        name,
+                        { suspendedReason: reason },
+                    );
+                if (batch.length === 0) break;
+                resumed += await this.resumeSubscriptions(batch);
+                if (batch.length < HANDLER_SETTLE_BATCH) break;
+            }
+        }
+        return resumed;
+    }
+
+    /** One row into a suspended state, for the reasons a single row reaches. */
+    async #suspendOne(
+        subId: string,
+        reason: SuspendedReason,
+        options: { notifyDeveloper: boolean; guard?: SqlGuard },
+    ): Promise<boolean> {
+        if (!this.enabled) return false;
+        const row = await this.stores.durableSubscription.getBySubId(subId);
+        if (!row || row.suspendedAt !== null) return false;
+
+        const suspended = await this.#suspend([row], reason, {
+            guard: options.guard,
+        });
+        if (suspended.length === 0) return false;
+        if (options.notifyDeveloper && row.appUid && row.handlerName)
+            await this.#notifySuspended(scopeOfRow(row), row.handlerName, 1);
+        return true;
+    }
+
+    /**
+     * Tell whoever owns a handler that subscriptions on it have stopped. For an
+     * app's own set that is the developer, whose publish is the fix; for a user
+     * scope it is the holder, and the developer is told nothing.
+     */
+    async #notifySuspended(
+        scope: HandlerScope,
+        handlerName: string,
+        subscriptions: number,
+    ): Promise<void> {
+        const { appUid } = scope;
+        try {
+            if (isUserScope(scope)) {
+                await this.services.notification.notify(
+                    [scope.holder],
+                    {
+                        title: 'Background handler was suspended',
+                        handler: handlerName,
+                        subscriptions,
+                    },
+                    { type: 'app.events.handler_suspended', appUid },
+                );
+                return;
+            }
+
+            const app = await this.stores.app.getByUid(appUid);
+            const ownerUserId = Number(
+                (app as { owner_user_id?: unknown } | null)?.owner_user_id,
+            );
+            if (!Number.isFinite(ownerUserId) || ownerUserId <= 0) return;
+
+            await this.services.notification.notify(
+                [ownerUserId],
+                {
+                    title: 'Event subscriptions were suspended',
+                    handler: handlerName,
+                    subscriptions,
+                },
+                { type: 'app.events.suspended', appUid },
+            );
+        } catch (err) {
+            console.warn(
+                '[events] could not report a suspended handler',
+                handlerName,
+                err,
+            );
+        }
+    }
+
+    /**
+     * Whether this actor may have its handler run in the background.
+     *
+     * Asked of the actor rather than of the app, so an access token an app
+     * issued has to carry the consent itself — a delivery that runs code with
+     * nobody present is not something a narrower credential inherits.
+     *
+     * `null` when the check itself failed, which is not an answer either way.
+     * Called by extensions.
+     */
+    async hasBackgroundConsent(actor: Actor): Promise<boolean | null> {
+        try {
+            return await this.services.permission.check(
+                actor,
+                EVENTS_BACKGROUND_PERMISSION,
+            );
+        } catch (err) {
+            console.warn('[events] background consent check failed', err);
+            return null;
+        }
+    }
+
+    /**
+     * Whether a subscription may bind the handler name it asked for.
+     *
+     * Handlers are published per app, so an account-scoped row has no namespace
+     * to bind in — the name is stored and binds nothing. An inline body is
+     * different: sending a hash _is_ the binding claim, and there is nothing
+     * for it to match. `scope` names the holder whose user scope the name is
+     * looked up in; absent means the app's own set. Called by extensions.
+     */
+    async assertHandlerBinding(
+        appUid: string | null,
+        name: string,
+        hash: string | null,
+        scope?: { holder: number },
+    ): Promise<void> {
+        if (appUid === null) {
+            if (hash !== null) throw handlerNotFound(name);
+            return;
+        }
+
+        const published = await this.stores.eventHandler.getByName(
+            { appUid, holder: scope?.holder ?? 0 },
+            name,
+        );
+        if (!published) throw handlerNotFound(name);
+        if (hash !== null && hash !== published.sourceHash)
+            throw handlerHashMismatch(name);
+    }
+
+    /**
+     * Make sure the caller's user scope holds `source`, and say what to bind
+     * to. The handler is named by its source's hash, so a scope that already
+     * has it is answered from the cached set with no read or write on the
+     * primary, no publish budget and no credit check. That path does not resume
+     * rows suspended for a missing handler: a handler that stands again was
+     * published again, which resumes them. A new handler is inserted without
+     * telling peer nodes, which re-read a set missing a name they are asked
+     * for. Called by extensions.
+     */
+    async ensureInlineHandler(
+        actor: Actor,
+        appUid: string,
+        source: unknown,
+    ): Promise<InlineHandlerView> {
+        if (!this.enabled) throw disabled();
+        const handlerSource = parseHandlerSource(source);
+        if (handlerSource === null)
+            throw badRequest('handlerSource is required', 'bad_request');
+        const scope = await this.#userScope(actor, appUid, {
+            requireFlag: true,
+        });
+        const hash = hashContent(handlerSource);
+        const name = `@${hash}`;
+        const view: InlineHandlerView = { name, hash, scope: 'user' };
+
+        const held = await this.stores.eventHandler.cachedSetForApp(scope, {
+            handlerName: name,
+        });
+        const present = held.find(
+            (h) => h.name === name && h.sourceHash === hash,
+        );
+        if (present) {
+            // Fresh enough that the sweep cannot reach it: no read, no write.
+            const idle =
+                present.updatedAt === undefined
+                    ? Infinity
+                    : Math.floor(Date.now() / 1000) - present.updatedAt;
+            if (
+                idle <
+                USER_HANDLER_GC_MIN_AGE_SECONDS -
+                    USER_HANDLER_REUSE_MARGIN_SECONDS
+            )
+                return view;
+            if (await this.stores.eventHandler.touchUserHandler(scope, name))
+                return view;
+            // Collected since the set was cached: publish it again.
+            await this.stores.eventHandler.forgetScopeCache(scope);
+        }
+
+        await assertActorHasCredits(this.services.metering, actor, this.config);
+        await this.#spendHandlerBudget(actor);
+        assertNoFreeVariables(handlerSource);
+        const [before] = await Promise.all([
+            this.stores.eventHandler.countForApp(scope),
+            this.#assertHandlerSetSize(scope, name, handlerSource),
+        ]);
+        if (before === 0) await this.#assertUnitRoom(actor);
+
+        try {
+            await this.stores.eventHandler.publish({
+                scope,
+                name,
+                source: handlerSource,
+                broadcast: false,
+            });
+        } catch (err) {
+            // Two creates of one source race on the unique index; for a name
+            // that is its own hash the loser has nothing to resolve.
+            if (
+                !isHttpError(err) ||
+                err.legacyCode !== 'events_handler_conflict'
+            )
+                throw err;
+            const winner = await this.stores.eventHandler.getByName(
+                scope,
+                name,
+            );
+            if (winner?.sourceHash !== hash) throw err;
+            return view;
+        }
+        this.#deployEagerly(scope, { name, sourceHash: hash });
+        await this.#resumeHandlerDependents(scope, name);
+        await this.#maybeAnnounceWorkerCreate(scope, before);
+        return view;
+    }
+
+    /**
+     * Resolve, authorize and compile one subscribe request. Shared so a durable
+     * row cannot be created under a weaker check than a session one.
+     */
+    async #resolveSubscribeAnchor(
+        actor: Actor,
+        rawSubject: string,
+    ): Promise<ResolvedAnchor> {
+        const parsed = parseSubject(rawSubject);
+        if (parsed.family === 'kv')
+            return this.#resolveKvSubscribe(actor, parsed);
+        if (parsed.family === 'notif')
+            return this.#resolveNotifSubscribe(actor, parsed);
+        if (parsed.family !== 'fs')
+            throw new HttpError(
+                400,
+                `Subject family not subscribable yet: ${parsed.family}`,
+                { legacyCode: 'invalid_subject' },
+            );
+
+        const anchor = await resolveFsAnchor(
+            parsed,
+            this.#anchorDeps(),
+            { username: actor.user?.username },
+            rawSubject,
+        );
+
+        const permission = await assertSubscribeAuthorized(
+            actor,
+            { uid: anchor.uid, path: anchor.path },
+            rawSubject,
+            this.#aclDeps(),
+        );
+
+        // The resolver answers where a subscription keys, not whose it is, so
+        // the owner comes from the anchor node itself — and that is the
+        // keyspace the row is indexed in, because dispatch only ever knows
+        // whose resource changed. An anchor gone since it resolved reads as
+        // the subject the caller sent, the same answer a missing one gets.
+        const entry = await resolveNode(this.stores.fsEntry, {
+            uid: anchor.uid,
+        });
+        if (!entry)
+            throw new HttpError(404, `No such entry: ${rawSubject}`, {
+                legacyCode: 'subject_does_not_exist',
+            });
+
+        // Compile now so an unusable pattern fails this call rather than every
+        // event under the anchor.
+        if (anchor.match) compileMatch(anchor.match);
+
+        return {
+            ...anchor,
+            ownerUserId: entry.userId,
+            permission,
+            subject: rawSubject,
+        };
+    }
+
+    /**
+     * Resolve and authorize a `kv:` subject.
+     *
+     * Nothing is looked up: the namespace comes from the actor, so a key that
+     * does not exist yet is an ordinary subscription rather than a missing
+     * anchor. The keyspace is the namespace's user — which is the subscriber,
+     * because a KV namespace is one user's data for one app, cross-app
+     * included.
+     */
+    async #resolveKvSubscribe(
+        actor: Actor,
+        parsed: ParsedSubject,
+    ): Promise<ResolvedAnchor> {
+        const user = actor.user;
+        if (!user) throw disabled();
+
+        if (parsed.anchorRef.kind === 'kvHandle')
+            return this.#resolveKvHandleSubscribe(
+                actor,
+                parsed,
+                parsed.anchorRef,
+            );
+
+        const anchor = resolveKvAnchor(parsed, {
+            userUuid: user.uuid!,
+            appUid: actor.effectiveApp?.uid ?? null,
+        });
+
+        // Own namespace never reaches a permission lookup — the same
+        // self-access shortcut a cross-app KV read takes.
+        if (anchor.crossApp)
+            await assertCrossAppKvAuthorized(
+                actor,
+                anchor.appUid,
+                this.#kvDeps(),
+            );
+
+        if (anchor.match)
+            compileMatch(anchor.match, { separator: KV_MATCH_SEPARATOR });
+
+        return {
+            token: anchor.token,
+            uid: anchor.appUid,
+            path: anchor.prefix,
+            match: anchor.match,
+            op: null,
+            ownerUserId: user.id!,
+            // The column wants a mode; a KV row's re-check is the cross-app
+            // gate rather than an ACL reading, so nothing reads this back.
+            permission: SUBSCRIBE_MODE,
+            subject: anchor.subject,
+        };
+    }
+
+    /**
+     * Resolve and authorize a `kv:<handle>:<key>` subject.
+     *
+     * The handle resolves to the region it was granted on and the key is
+     * composed onto it, so the row lands on exactly the anchor the owner's own
+     * subject would — same token, same keyspace, no dispatch change. Which
+     * keyspace that is matters: the row is indexed under the **owner**, because
+     * a write only ever knows whose namespace it touched.
+     *
+     * Authority is the grant, never the handle: an actor holding the grant at
+     * any level may subscribe, and one who does not is told the handle is not
+     * there rather than that it is theirs to want. The handle is also bound to
+     * its holder, so another user whose own grant overlaps the region cannot
+     * use it.
+     */
+    async #resolveKvHandleSubscribe(
+        actor: Actor,
+        parsed: ParsedSubject,
+        { handle, key }: { handle: string; key: string },
+    ): Promise<ResolvedAnchor> {
+        if (!this.kvHandlesEnabled) throw kvShareHandleDisabled();
+
+        // Checked as the holder wrote it. The stored pattern is composed onto
+        // the shared prefix, so a limit or error on that would describe it.
+        compileMatch(key, { separator: KV_MATCH_SEPARATOR });
+
+        const share = await this.stores.kvShareHandle.getByHandle(handle);
+        if (
+            !share ||
+            share.revokedAt !== null ||
+            (await this.stores.kvShareHandle.predatesItsApp(share))
+        )
+            throw unknownKvShareHandle(handle);
+        if (
+            actor.user?.id !== share.granteeUserId &&
+            actor.user?.id !== share.ownerUserId
+        )
+            throw unknownKvShareHandle(handle);
+
+        const owner = await this.stores.user.getById(share.ownerUserId);
+        if (!owner?.uuid || Boolean(Number(owner.suspended ?? 0)))
+            throw unknownKvShareHandle(handle);
+
+        // Watching is the lowest level, so every level answers it; storing it
+        // rather than the handle's own grant is what lets a level change leave
+        // the subscription alone.
+        const watch = kvSharePermission(
+            owner.uuid,
+            share.appUid,
+            share.keyPrefix,
+            'watch',
+        );
+        const held = await kvSharedRegionAuthorized(
+            actor,
+            watch,
+            this.#kvShareDeps(),
+        );
+        if (!held) throw unknownKvShareHandle(handle);
+
+        const anchor = resolveKvHandleAnchor(parsed, {
+            ownerUserUuid: owner.uuid,
+            appUid: share.appUid,
+            keyPrefix: share.keyPrefix,
+        });
+
+        if (anchor.match)
+            compileMatch(anchor.match, {
+                separator: KV_MATCH_SEPARATOR,
+                maxLength: KV_MATCH_MAX_LENGTH,
+            });
+
+        return {
+            token: anchor.token,
+            uid: anchor.appUid,
+            path: anchor.prefix,
+            match: anchor.match,
+            op: null,
+            ownerUserId: share.ownerUserId,
+            // The grant string rather than a mode: it is what a revoke names,
+            // and what the delivery re-check asks again.
+            permission: watch,
+            subject: anchor.subject,
+        };
+    }
+
+    /**
+     * Resolve and authorize a `notif:` subject.
+     *
+     * You only ever subscribe to your own mailbox, so the anchor is fixed and
+     * the check is the audience predicate: a slice the actor could never be
+     * shown reads as absent rather than refused, the same answer subscribing to
+     * a node you cannot see gives.
+     */
+    async #resolveNotifSubscribe(
+        actor: Actor,
+        parsed: ParsedSubject,
+    ): Promise<ResolvedAnchor> {
+        const user = actor.user;
+        if (!user?.uuid || user.id === undefined) throw disabled();
+        // Nothing dispatches notifications while the fold-in is off, so a
+        // subscription would be a row that never delivers.
+        if (!this.notificationsFoldIn)
+            throw new HttpError(
+                400,
+                'Subject family not subscribable yet: notif',
+                { legacyCode: 'invalid_subject' },
+            );
+
+        const anchor = resolveNotifAnchor(parsed, {
+            userUuid: user.uuid,
+            appUid: actor.effectiveApp?.uid ?? null,
+        });
+
+        const ownsApp =
+            anchor.appScoped && anchor.audience === 'developer'
+                ? await this.#recipientOwnsApp(user.id, anchor.ref)
+                : false;
+        const visible = canViewNotification(
+            {
+                audience: anchor.audience,
+                appUid: anchor.appScoped ? anchor.ref : null,
+            },
+            actor,
+            { recipientOwnsApp: ownsApp },
+        );
+        if (!visible)
+            throw new HttpError(404, `No such subject: ${anchor.subject}`, {
+                legacyCode: 'subject_does_not_exist',
+            });
+
+        compileMatch(anchor.match, { separator: NOTIF_MATCH_SEPARATOR });
+
+        return {
+            token: anchor.token,
+            uid: anchor.ref,
+            path: '',
+            match: anchor.match,
+            op: null,
+            ownerUserId: user.id,
+            // The column wants a mode; a notification row's re-check is the
+            // audience predicate, so nothing reads this back.
+            permission: SUBSCRIBE_MODE,
+            subject: anchor.subject,
+        };
+    }
+
+    /** Disconnect handler; also covers a socket the server dropped. */
+    async reapSocket(holderUserId: number, socketId: string): Promise<void> {
+        // Nothing could have been registered, so nothing has to be looked up.
+        // A switch flipped off under live subscriptions leaves them to the TTL.
+        if (!this.enabled) return;
+        this.#stopRefresh(holderUserId, socketId);
+        try {
+            const held = await this.stores.eventSubscription.listForSocket(
+                holderUserId,
+                socketId,
+            );
+            for (const sub of held) this.#forget(sub.subId);
+
+            const bumps = await this.stores.eventSubscription.reapSocket(
+                holderUserId,
+                socketId,
+            );
+            for (const bump of bumps) this.#publishGeneration(bump, false);
+        } catch (err) {
+            // The TTL backstop exists for exactly this.
+            console.warn('[events] failed to reap socket subscriptions', err);
+        }
+    }
+
+    // -- Dispatch ----------------------------------------------------
+
+    /**
+     * Publish one committed filesystem change. Never throws, and no write ever
+     * waits on it.
+     */
+    async dispatchFs(
+        key: EventKey,
+        entry: FSEntry,
+        options: FsDispatchOptions = {},
+    ): Promise<boolean> {
+        if (!this.enabled) return false;
+
+        const subject = lookupFsSubject(key);
+        if (!subject) return false;
+
+        const ownerUserId = entry?.userId;
+        if (typeof ownerUserId !== 'number') return false;
+
+        if (!(await this.#userHasAny(ownerUserId))) return false;
+
+        const ancestors = options.ancestors ? await options.ancestors() : [];
+        const movedFrom = options.movedFrom
+            ? {
+                  path: options.movedFrom.path,
+                  ancestors: await options.movedFrom.ancestors(),
+              }
+            : undefined;
+        const context: FsEventContext = {
+            key,
+            entry,
+            ancestors,
+            movedFrom,
+            id: options.id ?? randomUUID(),
+            ts: options.ts ?? Date.now(),
+            handlerDepth: options.handlerDepth,
+            viaWorker: options.viaWorker === true,
+        };
+
+        const { local, remote } =
+            await this.stores.eventSubscription.watchedFor(
+                ownerUserId,
+                subject.tokens(context),
+            );
+        if (local.length === 0 && remote.size === 0) return false;
+
+        // Ship first: the far side should not wait on this region's ACL
+        // re-checks. A forwarded copy is never re-forwarded — its rows are
+        // already session-local by construction, and `hop` is not read.
+        if (!options.forwarded && remote.size > 0)
+            this.services.eventForward.forwardEvent(regionsIn(remote), {
+                family: 'fs',
+                ownerUserId,
+                actingUserId: options.actingUserId,
+                ...(context.viaWorker ? { viaWorker: true as const } : {}),
+                id: context.id,
+                ts: context.ts,
+                fs: {
+                    key,
+                    entry: slimFsEntry(entry),
+                    ancestors: [...ancestors],
+                    movedFrom: movedFrom && {
+                        path: movedFrom.path,
+                        ancestors: [...movedFrom.ancestors],
+                    },
+                },
+            });
+
+        if (local.length === 0) return false;
+
+        const keep = dispatchKeeps(options.forwarded);
+        const rows = await this.stores.eventSubscription.getForTokens(
+            ownerUserId,
+            local,
+            { perToken: FS_ROWS_PER_TOKEN, keep },
+        );
+        // Only a removal can invalidate an anchor, so nothing else pays for
+        // this — and it settles every row keyed on the uid now gone, not just
+        // the ones one event could reach.
+        const removed =
+            key === 'fs.remove.node' ? fsAnchorToken(entry.uid) : null;
+        const settling =
+            removed !== null && local.includes(removed)
+                ? await this.stores.eventSubscription.getForTokens(
+                      ownerUserId,
+                      [removed],
+                      options.forwarded ? { keep } : {},
+                  )
+                : [];
+        if (rows.length === 0 && settling.length === 0) return false;
+
+        await this.#route(
+            subject,
+            context,
+            rows,
+            options.actingUserId,
+            (matched) => this.#stillAuthorized(matched, context),
+        );
+
+        if (settling.length > 0)
+            await this.#settleDeletedAnchor(context, settling);
+        return true;
+    }
+
+    /**
+     * Publish one committed key-value change. Same three gates as an FS write,
+     * keyed on the same thing: the owner of the namespace, which for KV is the
+     * user whose data it is — cross-app subscriptions included, because an app
+     * reaching another app's namespace still reaches it under its own user.
+     *
+     * A batch is one bus event over many keys, so the watched-set check is one
+     * command for the whole batch rather than one per key. A value is measured
+     * once per key, and only once something is listening for it.
+     */
+    async dispatchKv(
+        input: KvDispatchInput,
+        options: KvDispatchOptions = {},
+    ): Promise<boolean> {
+        if (!this.enabled) return false;
+
+        const subject = lookupKvSubject('kv.mutated');
+        if (!subject) return false;
+
+        const ownerUserId = input?.userId;
+        if (typeof ownerUserId !== 'number') return false;
+        if (!input.keys?.length) return false;
+
+        if (!(await this.#userHasAny(ownerUserId))) return false;
+
+        const namespace = parseKvNamespace(input.namespace);
+        if (!namespace) return false;
+
+        const ts = options.ts ?? Date.now();
+        const noShareKeys = new Set(input.noShareKeys ?? []);
+        const contexts: KvEventContext[] = input.keys.map((kvKey) => ({
+            key: 'kv.mutated',
+            userUuid: namespace.userUuid,
+            appUid: namespace.appUid,
+            kvKey,
+            op: input.op,
+            // A forwarded replay is always a single key, carrying the
+            // emitter's own id so both copies match.
+            id: options.forwarded && options.id ? options.id : randomUUID(),
+            ts,
+            handlerDepth: input.handlerDepth,
+            viaWorker: options.viaWorker === true,
+            ...(noShareKeys.has(kvKey) ? { noShare: true as const } : {}),
+        }));
+        const carried: Array<{ value: unknown } | undefined> = [];
+        const valueAt = (i: number): { value: unknown } | undefined => {
+            if (!(i in carried)) carried[i] = inlineKvValue(input.values?.[i]);
+            return carried[i];
+        };
+
+        const tokensPerKey = contexts.map((context) => subject.tokens(context));
+        const { local, remote, remoteValues } =
+            await this.stores.eventSubscription.watchedFor(
+                ownerUserId,
+                [...new Set(tokensPerKey.flat())],
+                { values: true },
+            );
+        if (local.length === 0 && remote.size === 0) return false;
+
+        if (!options.forwarded && remote.size > 0)
+            contexts.forEach((context, i) => {
+                const regions = new Set<string>();
+                const asking = new Set<string>();
+                for (const token of tokensPerKey[i]) {
+                    for (const region of remote.get(token) ?? [])
+                        regions.add(region);
+                    for (const region of remoteValues.get(token) ?? [])
+                        asking.add(region);
+                }
+                if (regions.size === 0) return;
+                // The value goes only where a row asked for it; everywhere
+                // else it would cross regions to be discarded on arrival.
+                const value = [...regions].some((region) => asking.has(region))
+                    ? valueAt(i)
+                    : undefined;
+                const forward = (
+                    to: string[],
+                    carried?: { value: unknown },
+                ) => {
+                    if (to.length === 0) return;
+                    this.services.eventForward.forwardEvent(to, {
+                        family: 'kv',
+                        ownerUserId,
+                        actingUserId: options.actingUserId,
+                        ...(context.viaWorker
+                            ? { viaWorker: true as const }
+                            : {}),
+                        id: context.id,
+                        ts: context.ts,
+                        kv: {
+                            userUuid: namespace.userUuid,
+                            appUid: namespace.appUid,
+                            kvKey: context.kvKey,
+                            op: context.op,
+                            ...carried,
+                            ...(context.noShare
+                                ? { noShare: true as const }
+                                : {}),
+                        },
+                    });
+                };
+                if (!value) {
+                    forward([...regions]);
+                    return;
+                }
+                forward([...regions].filter((region) => !asking.has(region)));
+                forward(
+                    [...regions].filter((region) => asking.has(region)),
+                    value,
+                );
+            });
+
+        if (local.length === 0) return false;
+
+        const rows = await this.stores.eventSubscription.getForTokens(
+            ownerUserId,
+            local,
+            {
+                perToken: KV_ROWS_PER_TOKEN,
+                keep: dispatchKeeps(options.forwarded),
+            },
+        );
+        if (rows.length === 0) return false;
+
+        const limits = await this.#kvRouteLimits(
+            ownerUserId,
+            namespace.userUuid,
+            rows.length,
+        );
+
+        if (rows.some((row) => row.includeValue === true))
+            contexts.forEach((context, i) =>
+                Object.assign(context, valueAt(i)),
+            );
+
+        // Indexed once: a row holds one token, so a key's candidates are the
+        // rows under the tokens it enumerated.
+        const byToken = new Map<string, DispatchSubscription[]>();
+        for (const row of rows)
+            byToken.set(row.token, [...(byToken.get(row.token) ?? []), row]);
+
+        let matchedAny = false;
+        for (const [i, context] of contexts.entries()) {
+            const forKey = tokensPerKey[i].flatMap(
+                (token) => byToken.get(token) ?? [],
+            );
+            if (forKey.length === 0) continue;
+            matchedAny = true;
+
+            await this.#route(
+                subject,
+                context,
+                forKey,
+                options.actingUserId,
+                (matched) =>
+                    this.#kvStillAuthorized(
+                        matched,
+                        namespace.appUid,
+                        context.noShare === true,
+                    ),
+                limits,
+            );
+        }
+        return matchedAny;
+    }
+
+    /**
+     * The namespace owner's plan bounds a mutation's delivery work. Below the
+     * smallest cap nothing can bind, so the owner lookup is skipped.
+     */
+    async #kvRouteLimits(
+        ownerUserId: number,
+        ownerUserUuid: string,
+        candidates: number,
+    ): Promise<RouteLimits> {
+        const plan =
+            candidates <= KV_ROUTE_LIMITS_NEVER_BIND
+                ? DEFAULT_FREE_SUBSCRIPTION
+                : await this.#planOrFree(ownerUserId, ownerUserUuid);
+        return {
+            matchedSubscriptions: limitFor(
+                EVENTS_KV_MATCHED_SUBSCRIPTIONS_PER_EVENT,
+                plan,
+            ),
+            filterEvaluations: limitFor(
+                EVENTS_KV_FILTER_EVALUATIONS_PER_EVENT,
+                plan,
+            ),
+            kvValueDeliveries: EVENTS_KV_VALUE_DELIVERIES_PER_EVENT,
+        };
+    }
+
+    /**
+     * A user's plan by row id; the free one when it can't be resolved, or when
+     * `expectedUuid` is given and the row is no longer that user.
+     */
+    async #planOrFree(
+        userId: number,
+        expectedUuid?: string,
+    ): Promise<string | null> {
+        if (!this.services.metering) return null;
+        try {
+            const user = await this.stores.user.getById(userId);
+            if (!user || (expectedUuid && user.uuid !== expectedUuid))
+                return DEFAULT_FREE_SUBSCRIPTION;
+            return (
+                (await this.#planId(makeActor({ user }))) ??
+                DEFAULT_FREE_SUBSCRIPTION
+            );
+        } catch (err) {
+            console.warn('[events] could not resolve a plan', err);
+            return DEFAULT_FREE_SUBSCRIPTION;
+        }
+    }
+
+    /**
+     * Replay a peer's committed change against this region's session rows.
+     * Reusing `dispatchFs`/`dispatchKv` is the point: gate → watched set → rows
+     * → filter → authorize → coalesce → meter → emit, all region-local and all
+     * code already tested. `matched` reports whether this event's tokens were
+     * watched here at all — the index-staleness signal a `false` turns into a
+     * `noWatch` reply — and is independent of whether anything downstream (a
+     * filter, an ACL re-check) actually delivered.
+     */
+    async dispatchForwarded(
+        item: ForwardEvent,
+    ): Promise<{ matched: boolean; tokens: readonly string[] }> {
+        if (!this.enabled) return { matched: false, tokens: [] };
+
+        if (item.family === 'fs' && item.fs) {
+            const subject = lookupFsSubject(item.fs.key);
+            // Only `entry.uid`/`ancestors`/`movedFrom.ancestors` are read to
+            // compute tokens — the slim entry a forward carries has exactly
+            // those, never a full `FSEntry`.
+            const tokens = subject
+                ? subject.tokens({
+                      key: item.fs.key,
+                      entry: item.fs.entry,
+                      ancestors: item.fs.ancestors,
+                      movedFrom: item.fs.movedFrom,
+                      id: item.id,
+                      ts: item.ts,
+                  } as unknown as FsEventContext)
+                : [];
+            const matched = await this.dispatchFs(
+                item.fs.key,
+                item.fs.entry as FSEntry,
+                {
+                    ancestors: async () => item.fs!.ancestors,
+                    movedFrom: item.fs!.movedFrom && {
+                        path: item.fs!.movedFrom.path,
+                        ancestors: async () => item.fs!.movedFrom!.ancestors,
+                    },
+                    actingUserId: item.actingUserId,
+                    viaWorker: item.viaWorker === true,
+                    forwarded: true,
+                    id: item.id,
+                    ts: item.ts,
+                },
+            );
+            return { matched, tokens };
+        }
+
+        if (item.family === 'kv' && item.kv) {
+            const subject = lookupKvSubject('kv.mutated');
+            const tokens = subject
+                ? subject.tokens({
+                      key: 'kv.mutated',
+                      userUuid: item.kv.userUuid,
+                      appUid: item.kv.appUid,
+                      kvKey: item.kv.kvKey,
+                      op: item.kv.op,
+                      id: item.id,
+                      ts: item.ts,
+                  } as KvEventContext)
+                : [];
+            const matched = await this.dispatchKv(
+                {
+                    userId: item.ownerUserId,
+                    namespace: `v1:${item.kv.userUuid}:${item.kv.appUid}`,
+                    keys: [item.kv.kvKey],
+                    op: item.kv.op,
+                    ...(item.kv.value !== undefined
+                        ? { values: [item.kv.value] }
+                        : {}),
+                    ...(item.kv.noShare === true
+                        ? { noShareKeys: [item.kv.kvKey] }
+                        : {}),
+                },
+                {
+                    actingUserId: item.actingUserId,
+                    viaWorker: item.viaWorker === true,
+                    forwarded: true,
+                    id: item.id,
+                    ts: item.ts,
+                },
+            );
+            return { matched, tokens };
+        }
+
+        if (item.family === 'notif' && item.notif) {
+            const input = {
+                ...item.notif,
+                userId: item.ownerUserId,
+                createdAt: item.ts,
+            };
+            const matched = await this.dispatchNotif(input, {
+                forwarded: true,
+                id: item.id,
+            });
+            return { matched, tokens: [notifAnchorToken(item.notif.userUuid)] };
+        }
+
+        return { matched: false, tokens: [] };
+    }
+
+    /**
+     * Publish a posting or dismissal to the same mailbox audience. Postings
+     * also reach the desktop's wire; forwarded copies evaluate session rows
+     * only.
+     */
+    async dispatchNotif(
+        input: NotifDispatchInput,
+        options: { forwarded?: boolean; id?: string } = {},
+    ): Promise<boolean> {
+        if (!this.notificationsFoldIn) return false;
+
+        const subject = lookupNotifSubject('notif.created');
+        if (!subject) return false;
+        const userId = input?.userId;
+        if (typeof userId !== 'number' || !input.userUuid || !input.uid)
+            return false;
+
+        const context: NotifEventContext = {
+            key: input.dismissed ? 'notif.acknowledged' : 'notif.created',
+            ...(input.dismissed ? { dismissed: true as const } : {}),
+            userId,
+            userUuid: input.userUuid,
+            uid: input.uid,
+            type: input.type ?? '',
+            audience: (input.audience ??
+                'account') as NotifEventContext['audience'],
+            appUid: input.appUid ?? null,
+            notification: input.dismissed ? {} : (input.value ?? {}),
+            ...(input.replaced === true ? { replaced: true as const } : {}),
+            id: options.id ?? (input.dismissed ? randomUUID() : input.uid),
+            ts: input.createdAt || Date.now(),
+            handlerDepth: input.handlerDepth,
+        };
+
+        // The adapter is not a subscription: the desktop is delivered to
+        // whether or not anything subscribed, which is what keeps the wire
+        // contract identical with the fold-in on.
+        if (!input.dismissed && !options.forwarded)
+            this.services.notification.deliverOverSocket(context);
+
+        if (!(await this.#userHasAny(userId))) return false;
+
+        const { local, remote } =
+            await this.stores.eventSubscription.watchedFor(
+                userId,
+                subject.tokens(context),
+            );
+        if (!options.forwarded && remote.size > 0)
+            this.services.eventForward.forwardEvent(regionsIn(remote), {
+                family: 'notif',
+                ownerUserId: userId,
+                id: context.id,
+                ts: context.ts,
+                notif: {
+                    userUuid: input.userUuid,
+                    uid: input.uid,
+                    type: context.type,
+                    audience: context.audience,
+                    appUid: context.appUid,
+                    value: context.notification,
+                    ...(input.dismissed ? { dismissed: true as const } : {}),
+                    ...(input.replaced ? { replaced: true as const } : {}),
+                    handlerDepth: input.handlerDepth,
+                },
+            });
+        if (local.length === 0) return false;
+
+        const fetched = await this.stores.eventSubscription.getForTokens(
+            userId,
+            local,
+            { keep: dispatchKeeps(options.forwarded) },
+        );
+        // A subscription naming no app is the desktop's view of the mailbox.
+        const rows = inAccountMailbox(context.type)
+            ? fetched
+            : fetched.filter((row) => !notifMatchSpansEveryApp(row.match));
+        if (rows.length === 0) return true;
+
+        await this.#route(subject, context, rows, userId, (matched) =>
+            this.#notifStillAuthorized(matched, context),
+        );
+        return true;
+    }
+
+    /**
+     * Which rows may be told about this notification. The audience predicate is
+     * the whole check — an `account` row never reaches an actor holding an app,
+     * and a `developer` row only reaches one whose holder owns the app it
+     * names.
+     */
+    async #notifStillAuthorized(
+        rows: DispatchSubscription[],
+        context: Pick<NotifEventContext, 'audience' | 'appUid' | 'userId'>,
+    ): Promise<DispatchSubscription[]> {
+        if (rows.length === 0) return rows;
+
+        const scope = { audience: context.audience, appUid: context.appUid };
+        const ownsApp =
+            context.audience === 'developer' && context.appUid
+                ? await this.#recipientOwnsApp(context.userId, context.appUid)
+                : false;
+
+        return rows.filter((row) =>
+            canViewNotification(
+                scope,
+                { effectiveApp: row.appUid ? { uid: row.appUid } : null },
+                { recipientOwnsApp: ownsApp },
+            ),
+        );
+    }
+
+    /** Whether the mailbox's owner is the owner of the app a row names. */
+    async #recipientOwnsApp(userId: number, appUid: string): Promise<boolean> {
+        const owned = await ownedAppUids(this.stores.app, userId, [appUid]);
+        return owned.has(appUid);
+    }
+
+    async #route<C extends EventContextBase, P extends ProjectedEvent>(
+        subject: SubjectSpec<C, P>,
+        context: C,
+        candidates: DispatchSubscription[],
+        actingUserId: number | undefined,
+        authorize: (
+            rows: DispatchSubscription[],
+        ) => Promise<DispatchSubscription[]>,
+        limits: RouteLimits = {
+            matchedSubscriptions: EVENTS_MATCHED_SUBSCRIPTIONS_PER_EVENT,
+            filterEvaluations: FILTER_EVALUATIONS_PER_EVENT,
+        },
+    ): Promise<void> {
+        // Every cap below counts in this order, so one holder's rows can't
+        // crowd out the owner's or another holder's.
+        const rows = holdersTakeTurns(candidates.filter(unexpired));
+        if (rows.length === 0) return;
+
+        // One throwaway projection reads the op off the registry entry rather
+        // than re-deriving it from the subject string.
+        const delivery: C & DeliveryFields = {
+            ...context,
+            self: false,
+            seq: 0,
+        };
+        const { op } = subject.project(delivery);
+        const matchOn = subject.matchOn(context);
+
+        const evaluated = evaluateWithCap(
+            rows,
+            (row) => this.#passes(row, subject, op, matchOn, context),
+            limits.filterEvaluations,
+        );
+
+        const matched = await authorize(
+            evaluated.matched.slice(0, limits.matchedSubscriptions),
+        );
+
+        // The value rides on the first deliveries that asked for it, in serving
+        // order. A share-handle row at `watch` lost its ask at `authorize`.
+        let valuesLeft = limits.kvValueDeliveries ?? 0;
+        const bare =
+            limits.kvValueDeliveries === undefined
+                ? context
+                : withoutKvValue(context);
+
+        let seq = 0;
+        for (const row of matched) {
+            const carries = valuesLeft > 0 && row.includeValue === true;
+            const event = this.#asRowAddressesIt(
+                row,
+                subject.project({
+                    ...(carries ? context : bare),
+                    // A row watching only where the node landed was never
+                    // shown where it came from, so it is not handed that path.
+                    ...(sawItLeave(row, context)
+                        ? {}
+                        : { movedFrom: undefined }),
+                    // An unknown actor is never "self" — defaulting true would
+                    // tell a holder an event they didn't cause was their own.
+                    self:
+                        actingUserId !== undefined &&
+                        actingUserId === row.holderUserId,
+                    seq: seq++,
+                }),
+            );
+            // A stale or mis-scoped share-handle row: nothing resolves under
+            // its grant, so nothing is delivered rather than the owner's
+            // namespace and absolute key going out in its place.
+            if (event === null) continue;
+            if (carries) valuesLeft--;
+
+            // A `single` is owed rather than sent: it is queued, and never
+            // coalesced or broadcast — collapsing two of them would drop one
+            // the subscription was promised.
+            if (isSingle(row)) {
+                await this.#oweSingle(row, event, context.handlerDepth ?? 0);
+                continue;
+            }
+
+            this.#queue(row, event.subject, {
+                target: deliveryTarget(row),
+                envelope: { subId: row.subId, event },
+                // A session row is addressed at one connection, which is the
+                // one that made it and is therefore here.
+                remote: row.socketId === undefined,
+                worker:
+                    this.#workerInvocation(
+                        row,
+                        event,
+                        context.handlerDepth ?? 0,
+                    ) ?? undefined,
+                meter: meterFor(row),
+                // `broadcast` is one send per delivery — no retry to dedup.
+                bill: true,
+            });
+        }
+
+        // The marker goes to whoever lost the event, not to whoever received
+        // it: rows a cap cut before they were delivered, and rows the
+        // evaluation cap never reached — those may or may not have matched, and
+        // over-reporting is the only safe direction when we cannot know. It is
+        // itself capped, or a fan-out ceiling would be a fan-out of markers.
+        const missed = [
+            ...evaluated.matched.slice(limits.matchedSubscriptions),
+            ...rows.slice(evaluated.evaluated),
+        ].slice(0, limits.matchedSubscriptions);
+        if (missed.length === 0) return;
+
+        // Same re-check the delivery path applies: a row a revoked grant
+        // would have refused must not learn it lost an event either.
+        this.#gap(
+            await authorize(missed),
+            subject,
+            context,
+            evaluated.stoppedEarly
+                ? 'filter_evaluation_limit'
+                : 'matched_subscription_limit',
+        );
+    }
+
+    /**
+     * One event named the way the row that receives it addresses things. Only a
+     * share-handle row differs: the projection names the owner's namespace and
+     * an absolute key, neither of which its holder can address or was told
+     * about, so both are re-based on the handle. Every other row is untouched.
+     *
+     * `null` when the key does not resolve under the grant — a stale or
+     * mis-scoped row, never delivered rather than sent with the owner's
+     * namespace and absolute key exposed.
+     */
+    #asRowAddressesIt<P extends ProjectedEvent>(
+        row: DispatchSubscription,
+        event: P,
+    ): P | null {
+        // Asked of every delivery, so the families that can never answer are
+        // turned away on a token comparison rather than a subject parse.
+        if (!isKvToken(row.token)) {
+            if (row.ownerUserId === row.holderUserId) return event;
+            if (!isFsToken(row.token)) return event;
+            return this.#asRecipientAddressesIt(row, event);
+        }
+        const kv = event as ProjectedKvEvent;
+        const handle = kvHandleFromSubject(row.subject);
+        if (handle === null) return kv as P;
+
+        const key = relativeToKvShareRoot(row.permission, kv.key);
+        if (key === null) return null;
+        return { ...kv, subject: `kv:${handle}:${key}`, key } as P;
+    }
+
+    /**
+     * A delivery on someone else's node, addressed the way every FS surface
+     * addresses one: the anchor stands in for everything above it, so the
+     * folders the owner keeps it in — and what sits beside it — stay theirs.
+     *
+     * `from` on a move is masked the same way. A row anchored on the node
+     * itself is told where it went, and that can be somewhere the holder was
+     * never granted anything at all.
+     */
+    #asRecipientAddressesIt<P extends ProjectedEvent>(
+        row: DispatchSubscription,
+        event: P,
+    ): P {
+        const fs = event as unknown as ProjectedFsEvent;
+        if (typeof fs.path !== 'string') return event;
+        const anchor = { uid: row.anchorUid, path: row.anchorPath };
+        return {
+            ...event,
+            path: maskUnderAnchor(anchor, { path: fs.path, uid: fs.uid }),
+            ...(typeof fs.from === 'string'
+                ? {
+                      from: maskUnderAnchor(anchor, {
+                          path: fs.from,
+                          uid: fs.uid,
+                      }),
+                  }
+                : {}),
+        };
+    }
+
+    /** Op filter first — a comparison, where the glob is not. */
+    #passes(
+        row: DispatchSubscription,
+        subject: MatchSpec,
+        op: SubjectOp,
+        matchOn: string,
+        context: EventContextBase,
+    ): boolean {
+        if (row.op !== null && row.op !== op) return false;
+        if (!row.match) return true;
+
+        const matcher = this.#matcherFor(row, subject.matchSeparator);
+        return matchScopesFor(row, context, matchOn).some(
+            ([anchorPath, target]) => {
+                const scoped = subject.matchScope(anchorPath, target);
+                return scoped !== null && matcher.test(scoped);
+            },
+        );
+    }
+
+    /**
+     * Re-run each surviving row's access against the node the event is about,
+     * not against its anchor: a filter that reaches into something the holder
+     * cannot list must not deliver from it, and a share revoked after the
+     * subscription was made must stop delivering at once rather than when the
+     * row is next touched.
+     *
+     * Last of the filters, because it is the only one that can cost a lookup.
+     * Two layers keep that lookup rare: the cross-event cache, keyed by the
+     * permission cache's own generation, answers a subscription being written
+     * to repeatedly without asking anything; and within one event, rows sharing
+     * an identity and a grant share one decision — which is what a fan-out over
+     * one folder is.
+     */
+    async #stillAuthorized(
+        rows: DispatchSubscription[],
+        context: FsEventContext,
+    ): Promise<DispatchSubscription[]> {
+        if (rows.length === 0) return rows;
+
+        const node = this.#eventDescriptor(context);
+        const identities = new Map<string, Promise<GrantIdentity | null>>();
+        const decisions = new Map<string, Promise<boolean>>();
+        const allowed = await Promise.all(
+            rows.map((row) =>
+                this.#recheck(row, node, context.entry.uid, {
+                    identities,
+                    decisions,
+                }),
+            ),
+        );
+        return rows.filter((_row, i) => allowed[i]);
+    }
+
+    async #recheck(
+        row: DispatchSubscription,
+        node: ResourceDescriptor,
+        nodeUid: string,
+        memo: {
+            identities: Map<string, Promise<GrantIdentity | null>>;
+            decisions: Map<string, Promise<boolean>>;
+        },
+    ): Promise<boolean> {
+        const identityKey = `${row.holderUserId}|${row.appUid ?? ''}`;
+        let identity = memo.identities.get(identityKey);
+        if (!identity) {
+            identity = this.#grantIdentity(row);
+            memo.identities.set(identityKey, identity);
+        }
+        // An identity that cannot be resolved — a deleted app, a deleted user —
+        // is one nothing may be delivered to.
+        const resolved = await identity;
+        if (!resolved) return false;
+
+        const key = {
+            subId: row.subId,
+            generation: resolved.generation,
+            nodeUid,
+        };
+        const cached = this.#deliveryAuth.read(key);
+        if (cached !== null) return cached;
+
+        const decisionKey = `${identityKey}|${row.permission}`;
+        let decision = memo.decisions.get(decisionKey);
+        if (!decision) {
+            decision = checkDeliveryAuthorized(
+                resolved.actor,
+                row.permission as AclMode,
+                node,
+                this.#aclDeps(),
+            );
+            memo.decisions.set(decisionKey, decision);
+        }
+
+        const allowed = await decision;
+        this.#deliveryAuth.write(key, allowed);
+        return allowed;
+    }
+
+    /**
+     * The KV counterpart of the FS re-check. Own-namespace rows — which is
+     * every row until cross-app is turned on — are decided by a string
+     * comparison and cost nothing; only a row watching another app's namespace
+     * asks anything, and rows sharing an identity and a target share the
+     * answer.
+     *
+     * Deliberately not held in the cross-event cache: that cache keys on the
+     * permission generation, and an app switching its data sharing off does not
+     * move it. Asking each time is what makes that flip stop deliveries at
+     * once.
+     *
+     * `privateEntry` drops every cross-app row and every share-handle row
+     * before any grant is asked: a private key reaches only rows a `get` would
+     * show it to, and a handle's holder is always another user.
+     */
+    async #kvStillAuthorized(
+        rows: DispatchSubscription[],
+        targetAppUid: string,
+        privateEntry = false,
+    ): Promise<DispatchSubscription[]> {
+        if (rows.length === 0) return rows;
+
+        const decisions = new Map<string, Promise<boolean>>();
+        const served = await Promise.all(
+            rows.map(async (row): Promise<DispatchSubscription | null> => {
+                const shared = kvHandleFromSubject(row.subject) !== null;
+                if (
+                    privateEntry &&
+                    (shared || isCrossAppKvRow(row.appUid, targetAppUid))
+                )
+                    return null;
+                // A row on a shared region is authorized by its grant, not by
+                // whose namespace it names — and that is one question per
+                // subscription, because the handle *is* the granted root.
+                if (shared)
+                    return servedAtStanding(
+                        row,
+                        await this.#kvShareStanding(row),
+                    );
+                if (!isCrossAppKvRow(row.appUid, targetAppUid)) return row;
+                const key = `${row.holderUserId}|${row.appUid ?? ''}`;
+                let decision = decisions.get(key);
+                if (!decision) {
+                    decision = this.#kvGrantHolds(row, targetAppUid);
+                    decisions.set(key, decision);
+                }
+                return (await decision) ? row : null;
+            }),
+        );
+        return served.filter((row): row is DispatchSubscription => !!row);
+    }
+
+    /**
+     * Whether one row's holder may still watch the region it was made on, and
+     * at what level: the share's own, read off the live handle, or `write` for
+     * the owner's row. The handle must be live and theirs, so a retired one
+     * goes silent within the handle cache's lifetime even where a wider grant
+     * covers the region. The grant check doesn't vary by key, so it's cached
+     * under the row's anchor.
+     */
+    async #kvShareStanding(
+        row: DispatchSubscription,
+    ): Promise<KvShareStanding> {
+        const handle = kvHandleFromSubject(row.subject);
+        if (handle === null) return 'revoked';
+        let live: LiveKvShareHandle | null;
+        let identity: GrantIdentity | null;
+        try {
+            live = await this.stores.kvShareHandle.getLive(handle);
+            if (
+                !live ||
+                (live.row.granteeUserId !== row.holderUserId &&
+                    live.row.ownerUserId !== row.holderUserId)
+            )
+                return 'revoked';
+            // Lifted by an unsuspend, so the row waits instead of ending.
+            if (live.ownerSuspended) return 'unknown';
+            identity = await this.#resolveGrantIdentity(row);
+        } catch {
+            return 'unknown';
+        }
+        if (!identity) return 'revoked';
+
+        const level =
+            live.row.ownerUserId === row.holderUserId
+                ? 'write'
+                : (kvShareAccessOf(live.row.permission) ?? 'watch');
+        const key = {
+            subId: row.subId,
+            generation: identity.generation,
+            nodeUid: row.anchorUid,
+        };
+        const cached = this.#deliveryAuth.read(key);
+        if (cached !== null) return cached ? level : 'revoked';
+
+        const allowed = await kvSharedRegionAuthorized(
+            identity.actor,
+            row.permission,
+            this.#kvShareDeps(),
+        );
+        if (allowed === null) return 'unknown';
+        this.#deliveryAuth.write(key, allowed);
+        return allowed ? level : 'revoked';
+    }
+
+    /** Whether one row's holder may still be told about `targetAppUid`'s data. */
+    async #kvGrantHolds(
+        row: SubscriptionGrant,
+        targetAppUid: string,
+    ): Promise<boolean> {
+        try {
+            const actor = await resolveGrantActor(row, this.#aclDeps());
+            if (!actor) return false;
+            return (
+                (await crossAppKvDenial(
+                    actor,
+                    targetAppUid,
+                    this.#kvDeps(),
+                )) === null
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Who a row acts as, and the counter its answers are keyed by. `null` for
+     * an identity that no longer resolves, and for a lookup that failed.
+     */
+    async #grantIdentity(
+        row: DispatchSubscription,
+    ): Promise<GrantIdentity | null> {
+        try {
+            return await this.#resolveGrantIdentity(row);
+        } catch {
+            return null;
+        }
+    }
+
+    /** {@link #grantIdentity}, throwing when the lookup fails. */
+    async #resolveGrantIdentity(
+        row: DispatchSubscription,
+    ): Promise<GrantIdentity | null> {
+        const deps = this.#aclDeps();
+        const actor = await resolveGrantActor(row, deps);
+        if (!actor) return null;
+        return {
+            actor,
+            generation: await deliveryGenerationTag(actor, deps),
+        };
+    }
+
+    /** The event's node as ACL wants it, reusing the walk dispatch already did. */
+    #eventDescriptor(context: FsEventContext): ResourceDescriptor {
+        return nodeDescriptor(
+            { uid: context.entry.uid, path: context.entry.path },
+            { getAncestorChain: async () => context.ancestors },
+        );
+    }
+
+    #matcherFor(
+        row: DispatchSubscription,
+        separator: string | null,
+    ): CompiledMatch {
+        return this.#compiled.get(row.subId, row.match as string, (pattern) =>
+            compileMatch(pattern, {
+                separator,
+                // A wildcard-free FS filter is a path that didn't exist yet.
+                literalCoversSubtree: isFsToken(row.token),
+                maxLength: isKvToken(row.token)
+                    ? KV_MATCH_MAX_LENGTH
+                    : undefined,
+            }),
+        );
+    }
+
+    #gap(
+        rows: DispatchSubscription[],
+        subject: { subject: string },
+        context: EventContextBase,
+        reason: GapReason,
+    ): void {
+        for (const row of rows) {
+            const marker: GapMarker = {
+                id: context.id,
+                subject: subject.subject,
+                op: 'gap',
+                reason,
+                ts: context.ts,
+            };
+            // A marker is a delivery, so it takes the same route its
+            // subscription's events would: queued for a `single`, coalesced
+            // and rate limited for the rest — a burst that opens many gaps in
+            // one window still surfaces one marker per subscription. It is
+            // never billed: charging for a loss would bill the holder for it.
+            if (isSingle(row)) {
+                void this.#owe(row, marker, context.handlerDepth ?? 0);
+                continue;
+            }
+            this.#queue(row, marker.subject, {
+                target: deliveryTarget(row),
+                remote: row.socketId === undefined,
+                envelope: { subId: row.subId, event: marker },
+                meter: meterFor(row),
+                // A gap marker is never billed regardless — `#delivered`'s own
+                // op check is the real guard — but it never earns the claim.
+                bill: false,
+            });
+        }
+    }
+
+    // -- Settling ----------------------------------------------------
+
+    /**
+     * Take out of service every durable subscription a withdrawn grant was
+     * holding up. One holder-index read per revocation, not one per row.
+     *
+     * The delivery re-check already refuses these, so this is not what makes a
+     * revocation safe — it is what keeps a revoked subscription from going on
+     * costing its holder an anchor slot, a daily line and a filter evaluation
+     * per event forever. Re-granting does not bring one back: the consent to
+     * watch is re-established by subscribing again.
+     *
+     * Session rows are left to the re-check: finding them means knowing which
+     * connections a holder has, which is a keyspace scan, and one that ends
+     * with the connection anyway.
+     */
+    async settleRevokedGrant(revocation: RevokedGrant): Promise<number> {
+        if (!this.enabled) return 0;
+
+        // A copied-out worker token must stop working the moment the consent
+        // that let it be minted is gone — not just the rows using it.
+        if (
+            revocation.appUid &&
+            (revocation.permission === null ||
+                revocation.permission === EVENTS_BACKGROUND_PERMISSION)
+        ) {
+            await this.#revokeWorkerSession(
+                revocation.holderUserId,
+                revocation.appUid,
+            );
+        }
+
+        // Suspended rows included: the three resumable reasons hold a backlog,
+        // and one skipped here comes back in service on the next resume and
+        // hands over everything queued after the revocation.
+        // Withdrawing an app's access wholesale is how it is uninstalled.
+        const scheduleEndReason =
+            revocation.permission === null ? 'uninstalled' : undefined;
+        // A schedule stands only on the app's access and on consent, so a
+        // specific grant can't settle one.
+        const excludeSchedules =
+            revocation.permission !== null &&
+            revocation.permission !== EVENTS_BACKGROUND_PERMISSION;
+        const ended: EndedGroups = new Map();
+        try {
+            return await this.#eachHolderPage(
+                (afterId) =>
+                    this.stores.durableSubscription.listActiveForHolderPage(
+                        revocation.holderUserId,
+                        revocation.appUid,
+                        afterId,
+                        undefined,
+                        { includeSuspended: true, excludeSchedules },
+                    ),
+                async (held) => {
+                    const settling = await this.#leftSettling(
+                        held,
+                        revocation.permission,
+                    );
+                    if (settling.length === 0) return 0;
+
+                    // The `permission_revoked` arm of the shared policy purges
+                    // the backlog at once: it holds the paths of a resource its
+                    // holder has just lost the right to see, and keeping it for
+                    // a resume that by design never comes turns a revocation
+                    // into a delayed disclosure.
+                    const suspended = await this.#suspend(
+                        settling,
+                        'permission_revoked',
+                        {
+                            override: RESUMABLE_REASONS,
+                            ...(scheduleEndReason ? { scheduleEndReason } : {}),
+                        },
+                    );
+                    collectEnded(ended, suspended);
+                    return suspended.length;
+                },
+            );
+        } finally {
+            await this.#reportEnded(ended, 'permission_revoked');
+            await this.#dropScopeWithoutConsent(revocation);
+        }
+    }
+
+    /**
+     * Take out of service every durable subscription one user, the share's
+     * owner or its holder, made through these share handles, with their
+     * backlogs. One holder-index read, bounded by the user's subscription cap.
+     *
+     * Session rows made through them in this region end too, found on the
+     * handle index in the owner's keyspace, so only the owner's call finds any.
+     * Other regions' rows stop at the delivery re-check and end on their
+     * socket's next refresh.
+     */
+    async settleRetiredKvHandles(retired: {
+        handles: readonly string[];
+        userId: number;
+    }): Promise<number> {
+        if (!this.enabled || retired.handles.length === 0) return 0;
+        // The durable settle below must run whatever happens here: those rows
+        // keep a backlog the retire has to purge.
+        let sessions = 0;
+        try {
+            sessions = await this.#endKvHandleSessions(
+                retired.userId,
+                retired.handles,
+            );
+        } catch (err) {
+            console.warn(
+                '[events] could not end a retired handle`s session subscriptions',
+                err,
+            );
+        }
+
+        const handles = new Set(retired.handles);
+        const ended: EndedGroups = new Map();
+        let durable = 0;
+        try {
+            durable = await this.#eachHolderPage(
+                (afterId) =>
+                    this.stores.durableSubscription.listActiveForHolderPage(
+                        retired.userId,
+                        null,
+                        afterId,
+                        undefined,
+                        { includeSuspended: true, excludeSchedules: true },
+                    ),
+                async (held) => {
+                    const settling = held.filter((row) => {
+                        const handle = kvHandleFromSubject(row.subject);
+                        return handle !== null && handles.has(handle);
+                    });
+                    if (settling.length === 0) return 0;
+                    const suspended = await this.#suspend(
+                        settling,
+                        'permission_revoked',
+                        { override: RESUMABLE_REASONS },
+                    );
+                    collectEnded(ended, suspended);
+                    return suspended.length;
+                },
+            );
+        } finally {
+            await this.#reportEnded(ended, 'permission_revoked');
+        }
+        return sessions + durable;
+    }
+
+    /** End this region's session rows made through these handles. */
+    async #endKvHandleSessions(
+        ownerUserId: number,
+        handles: readonly string[],
+    ): Promise<number> {
+        const rows = await this.stores.eventSubscription.listForKvHandles(
+            ownerUserId,
+            handles,
+        );
+        const ended = await runWithConcurrencyLimitSettled(
+            rows,
+            SESSION_END_CONCURRENCY,
+            (row) => this.#endSubscription(row, 'permission_revoked'),
+        );
+        for (const outcome of ended)
+            if (outcome.status === 'rejected')
+                console.warn(
+                    '[events] could not end a retired handle`s subscription',
+                    outcome.reason,
+                );
+        return rows.length;
+    }
+
+    /**
+     * Whether a session row made through a share handle still stands: the
+     * handle is live and theirs, and the grant is still held. Only a definite
+     * answer ends a row, so a failed read keeps it, and the delivery re-check
+     * still guards it. A suspended owner's handle stands, since that can be
+     * undone.
+     */
+    async #kvHandleRowStands(row: SessionSubscription): Promise<boolean> {
+        const handle = kvHandleFromSubject(row.subject);
+        if (handle === null) return true;
+        try {
+            const live = await this.stores.kvShareHandle.getLive(handle);
+            if (
+                !live ||
+                (live.row.granteeUserId !== row.holderUserId &&
+                    live.row.ownerUserId !== row.holderUserId)
+            )
+                return false;
+            if (!this.kvHandlesEnabled) return false;
+            const actor = await resolveGrantActor(row, this.#aclDeps());
+            if (!actor) return false;
+            return await this.services.permission.check(actor, row.permission);
+        } catch {
+            return true;
+        }
+    }
+
+    /**
+     * Revoke the reused `events:handlers` worker session for (holder, app), if
+     * one was ever minted. Best-effort: a lookup or revoke failure must not
+     * fail the settle that triggered it.
+     */
+    async #revokeWorkerSession(userId: number, appUid: string): Promise<void> {
+        try {
+            const row = await this.stores.session.getWorker(userId, {
+                appUid,
+                workerName: EVENTS_WORKER_SESSION_NAME,
+            });
+            if (row) await this.services.auth.revokeSession(row.uuid);
+        } catch (err) {
+            console.warn(
+                '[events] could not revoke worker session',
+                appUid,
+                err,
+            );
+        }
+    }
+
+    /**
+     * Retire every holder's `events:handlers` session for one app. A session is
+     * only ever minted for a holder who owns a durable row bound to one of the
+     * app's handlers, so that table is the candidate list — indexed on
+     * `app_uid`, so no new lookup is needed to find them.
+     */
+    async #revokeWorkerSessions(appUid: string): Promise<void> {
+        const holders =
+            await this.stores.durableSubscription.listHolderIdsForApp(appUid);
+        for (const userId of holders)
+            await this.#revokeWorkerSession(userId, appUid);
+    }
+
+    /**
+     * Retire everything a deleted app left behind. Its rows can never deliver
+     * again — the grant identity they are re-checked under no longer resolves,
+     * `#recheck` refuses a row whose identity cannot be resolved — so they are
+     * deleted rather than suspended, unlike `workers.destroy` (a reversible
+     * developer action) which only ever suspends.
+     */
+    async settleDeletedApp(
+        appUid: string,
+        ownerUserId?: number,
+    ): Promise<void> {
+        if (!this.enabled) return;
+
+        const holders =
+            await this.stores.durableSubscription.listHolderIdsForApp(appUid);
+        const userScopes = await this.#userScopeHolders(appUid);
+        await this.#sweepInBatches(
+            (batchSize) =>
+                this.stores.durableSubscription.reapForApp(appUid, batchSize),
+            'app_deleted',
+        );
+        await this.stores.eventHandler.deleteForApp(appUid);
+        await this.#maybeAnnounceWorkerDestroy(
+            appHandlerScope(appUid),
+            ownerUserId,
+        );
+        // Each holder was renting their scope; the rent stops with it.
+        await runWithConcurrencyLimitSettled(
+            userScopes,
+            DELETED_ACCOUNT_SETTLE_CONCURRENCY,
+            (holder) => this.#maybeAnnounceWorkerDestroy({ appUid, holder }),
+        );
+        for (const userId of holders)
+            await this.#revokeWorkerSession(userId, appUid);
+    }
+
+    /**
+     * The holders with a user scope in this app, up to what one delete
+     * announces.
+     */
+    async #userScopeHolders(appUid: string): Promise<number[]> {
+        const holders: number[] = [];
+        let cursor: string | undefined;
+        do {
+            const page = await this.stores.eventHandler.listUserScopes(appUid, {
+                limit: DELETED_APP_SCOPE_PAGE,
+                cursor,
+            });
+            for (const scope of page.items) holders.push(scope.holder);
+            cursor = page.cursor ?? undefined;
+        } while (cursor && holders.length < DELETED_APP_SCOPE_ANNOUNCE_MAX);
+        return holders;
+    }
+
+    /**
+     * Drop the holder's user scope of an app once the background consent that
+     * let it run is confirmed gone. Asked again rather than assumed: a mode
+     * change is a revoke followed by a grant, and must not cost the scope.
+     */
+    async #dropScopeWithoutConsent(revocation: RevokedGrant): Promise<void> {
+        const { appUid, holderUserId } = revocation;
+        if (
+            !appUid ||
+            (revocation.permission !== null &&
+                revocation.permission !== EVENTS_BACKGROUND_PERMISSION)
+        )
+            return;
+        try {
+            // Most holders have no scope, and asking consent is the costly part.
+            const scope = { appUid, holder: holderUserId };
+            if ((await this.stores.eventHandler.countForApp(scope)) === 0)
+                return;
+            const actor = await resolveGrantActor(
+                { holderUserId, appUid, permission: SUBSCRIBE_MODE },
+                this.#aclDeps(),
+            );
+            if (!actor || (await this.hasBackgroundConsent(actor)) !== false)
+                return;
+            if (
+                (await this.stores.eventHandler.deleteUserScope(
+                    appUid,
+                    holderUserId,
+                )) > 0
+            )
+                await this.#maybeAnnounceWorkerDestroy(scope);
+        } catch (err) {
+            console.warn('[events] could not drop a user scope', err);
+        }
+    }
+
+    /**
+     * Which of a holder's rows one withdrawn grant actually stops.
+     *
+     * Withdrawing an app's access wholesale is the user saying the app is done,
+     * so it takes everything the app holds — no per-row question, and none of
+     * the standing exemptions an app enjoys over its own data keep a
+     * subscription alive past the consent that made it.
+     */
+    async #leftSettling(
+        held: readonly DurableSubscription[],
+        permission: string | null,
+    ): Promise<DurableSubscription[]> {
+        if (permission === null) return [...held];
+        if (permission === EVENTS_BACKGROUND_PERMISSION)
+            return this.#leftWithoutConsent(held);
+        return this.#leftUnauthorized(held, permission);
+    }
+
+    /**
+     * Of a holder's rows, the ones that were running the app's code in the
+     * background on a consent that has just been withdrawn. Rows delivered only
+     * to a connection are untouched: what was withdrawn is the right to run
+     * with nobody there, not the app itself.
+     *
+     * The consent is asked for again rather than assumed gone — a mode change
+     * is recorded as a revoke followed by a grant, and settling on the revoke
+     * alone would end subscriptions whose consent still stands.
+     */
+    async #leftWithoutConsent(
+        rows: readonly DurableSubscription[],
+    ): Promise<DurableSubscription[]> {
+        const background = rows.filter(runsInWorker);
+        if (background.length === 0) return [];
+
+        const deps = this.#aclDeps();
+        // Rows of one holder and app stand on one consent: ask it once.
+        const consent = new Map<string, Promise<boolean>>();
+        const consented = async (row: DurableSubscription) => {
+            const actor = await resolveGrantActor(row, deps);
+            return (
+                actor !== null &&
+                (await this.hasBackgroundConsent(actor)) === true
+            );
+        };
+        const settling: DurableSubscription[] = [];
+        for (const row of background) {
+            const key = `${row.holderUserId}|${row.appUid ?? ''}`;
+            const asked = consent.get(key) ?? consented(row);
+            consent.set(key, asked);
+            if (!(await asked)) settling.push(row);
+        }
+        return settling;
+    }
+
+    /**
+     * Of a holder's rows, the ones a named withdrawn grant has actually left
+     * without access.
+     *
+     * Two steps, and both are needed. The first is implication-aware rather
+     * than string equality: a row's anchor and stored mode compose the
+     * permission its subscribe check ran against, and `list` is answered by
+     * `read`, `write` and `manage`, so withdrawing any of them puts the row in
+     * question. That only narrows, though — the second step asks the access
+     * question for real, because a share whose mode merely _changed_ is
+     * recorded as a grant followed by a revoke, and settling on the revoke
+     * alone would end a subscription whose reach just got wider.
+     *
+     * A grant withdrawn on an _ancestor_ of an anchor is not narrowed to here —
+     * the row names its own node, not the chain above it. Those are left to the
+     * delivery re-check, which stops them immediately and permanently.
+     */
+    async #leftUnauthorized(
+        rows: readonly DurableSubscription[],
+        permission: string,
+    ): Promise<DurableSubscription[]> {
+        const settling: DurableSubscription[] = [];
+        for (const row of rows) {
+            const covered = this.#coveredByRevocation(row, permission);
+            // One that can't be checked right now is left to the delivery
+            // re-check, which settles it once it can tell.
+            if (covered && (await this.#anchorStillReachable(row)) === false)
+                settling.push(row);
+        }
+        return settling;
+    }
+
+    /**
+     * Whether one withdrawn grant is one of the ones a row was standing on.
+     * Narrowing only — the question is asked again for real below.
+     *
+     * A shared key-value region is the exact string match plus prefix
+     * implication, which is what makes handle to subscriptions a lookup over
+     * rows the holder index already returned rather than a scan for the
+     * handle.
+     */
+    #coveredByRevocation(
+        row: DurableSubscription,
+        permission: string,
+    ): boolean {
+        // A schedule stands only on the app's access and on consent, which a
+        // revocation of either settles before it gets here.
+        if (isScheduleRow(row)) return false;
+        if (kvHandleFromSubject(row.subject) !== null)
+            return kvShareGrantCovers(permission, row.permission);
+        if (isKvToken(row.token))
+            return crossAppKvPermissions(row.anchorUid).includes(permission);
+        return this.services.acl
+            .permissionsFor(row.anchorUid, row.permission as AclMode)
+            .includes(permission);
+    }
+
+    /**
+     * Whether a row's holder can still reach its anchor, asked fresh. `null`
+     * for a share-handle row whose share can't be checked right now.
+     */
+    async #anchorStillReachable(
+        row: DurableSubscription,
+    ): Promise<boolean | null> {
+        // On the token, like the families below it: the stored subject parses
+        // only because a subscribe validated it, and a settle must not start
+        // throwing on a row it cannot read.
+        if (isScheduleRow(row))
+            return (await resolveGrantActor(row, this.#aclDeps())) !== null;
+        if (isNotifToken(row.token)) {
+            const actor = await resolveGrantActor(row, this.#aclDeps());
+            if (!actor?.user.uuid) return false;
+            const anchor = resolveNotifAnchor(parseSubject(row.subject), {
+                userUuid: actor.user.uuid,
+                appUid: row.appUid,
+            });
+            return (
+                (
+                    await this.#notifStillAuthorized([row], {
+                        audience: anchor.audience,
+                        appUid: anchor.appScoped ? anchor.ref : null,
+                        userId: row.holderUserId,
+                    })
+                ).length > 0
+            );
+        }
+        if (kvHandleFromSubject(row.subject) !== null) {
+            const standing = await this.#kvShareStanding(row);
+            return standing === 'unknown' ? null : standing !== 'revoked';
+        }
+        if (isKvToken(row.token)) {
+            if (!isCrossAppKvRow(row.appUid, row.anchorUid)) return true;
+            return this.#kvGrantHolds(row, row.anchorUid);
+        }
+        return this.#reachable(row, row);
+    }
+
+    /**
+     * Whether a row's holder may watch from `at`, under the mode it subscribed
+     * with.
+     */
+    async #reachable(
+        row: DispatchSubscription,
+        at: { anchorUid: string; anchorPath: string },
+    ): Promise<boolean> {
+        const deps = this.#aclDeps();
+        const actor = await resolveGrantActor(row, deps);
+        if (!actor) return false;
+        return checkDeliveryAuthorized(
+            actor,
+            row.permission as AclMode,
+            nodeDescriptor({ uid: at.anchorUid, path: at.anchorPath }, deps),
+            deps,
+        );
+    }
+
+    /**
+     * Move a path-form row up to the nearest surviving ancestor its holder may
+     * still watch, or end it. Asked again after each move: a recursive delete
+     * works from the leaves up, so the level just moved to may be gone by the
+     * time the row is written there — and its own removal pass ran before the
+     * row was visible on it.
+     */
+    async #carryForward(
+        row: DispatchSubscription,
+        anchorPath: string,
+        ancestors: ReadonlyArray<{ uid: string; path: string }>,
+        notify: boolean,
+    ): Promise<void> {
+        let current = row;
+        let currentAnchorPath = anchorPath;
+        for (let hop = 0; hop <= ancestors.length; hop++) {
+            const next = await this.#nextAnchor(
+                current,
+                currentAnchorPath,
+                ancestors,
+            );
+            // Climbing must not land a row where its holder could never have
+            // subscribed: the re-check would deny every delivery, but the row
+            // would still hold an anchor slot and a filter evaluation there.
+            if (!next || !(await this.#reachable(current, next))) {
+                await this.#endSubscription(current, 'anchor_deleted', notify);
+                return;
+            }
+            // A concurrent unsubscribe already took the row.
+            if (!(await this.#reanchor(current, next))) return;
+            if (await resolveNode(this.stores.fsEntry, { uid: next.anchorUid }))
+                return;
+            current = {
+                ...current,
+                token: next.token,
+                anchorUid: next.anchorUid,
+                anchorPath: next.anchorPath,
+                match: next.match,
+                ownerUserId: next.ownerUserId,
+            };
+            currentAnchorPath = next.anchorPath;
+        }
+    }
+
+    /**
+     * What the removal of an anchor node does to the rows keyed on it. Runs in
+     * the pass that delivered the `remove`, because nothing will ever come
+     * looking for them again: the uid they key on is gone.
+     *
+     * A row carrying a match asked about a _path_, so it follows that path up
+     * to whatever still exists, its match rewritten to lead with the segments
+     * that went. A row with no match asked about that node, whose uid is never
+     * coming back, so it ends.
+     */
+    async #settleDeletedAnchor(
+        context: FsEventContext,
+        candidates: readonly DispatchSubscription[],
+    ): Promise<void> {
+        const onAnchor = candidates.filter(
+            (row) => row.anchorUid === context.entry.uid,
+        );
+        if (onAnchor.length === 0) return;
+
+        // Told only if it can still see the node — rows the final `remove`'s
+        // own match never reached get a fresh check here.
+        const told = new Set(
+            (
+                await this.#stillAuthorized(
+                    onAnchor.filter((row) => row.durable !== true),
+                    context,
+                )
+            ).map((row) => row.subId),
+        );
+
+        for (const row of onAnchor) {
+            try {
+                // Durable rows are never in `told` (they're filtered out
+                // above) — that must never read as "don't notify".
+                const notify = row.durable === true || told.has(row.subId);
+                // The removed node's live path, not `row.anchorPath` — a
+                // rename or move before this delete left that stale.
+                if (row.match)
+                    await this.#carryForward(
+                        row,
+                        context.entry.path,
+                        context.ancestors,
+                        notify,
+                    );
+                else await this.#endSubscription(row, 'anchor_deleted', notify);
+            } catch (err) {
+                console.warn(
+                    '[events] could not settle a subscription whose anchor was removed',
+                    row.subId,
+                    err,
+                );
+            }
+        }
+    }
+
+    /**
+     * Where a path-form row moves to, or `null` when there is nowhere to move
+     * it: nothing left above it, or a rewritten pattern past what may be
+     * compiled.
+     *
+     * The chain holds existing ancestors only, deepest first, so its head is
+     * already the nearest survivor however many levels a recursive delete took
+     * at once. It is still walked rather than indexed, because a delete works
+     * from the leaves up and the level above may have gone since the walk. Root
+     * is where climbing stops on its own — its uid never changes.
+     */
+    async #nextAnchor(
+        row: DispatchSubscription,
+        anchorPath: string,
+        ancestors: ReadonlyArray<{ uid: string; path: string }>,
+    ): Promise<ReanchorInput | null> {
+        for (const survivor of ancestors) {
+            const climbed = relativeTo(survivor.path, anchorPath);
+            if (climbed === null) continue;
+
+            const match = climbed
+                ? `${climbed}/${row.match}`
+                : String(row.match);
+            try {
+                compileMatch(match);
+            } catch {
+                return null;
+            }
+
+            // The keyspace a row is indexed in is the anchor owner's, so a
+            // climb that crosses an ownership boundary moves with it.
+            const entry = await resolveNode(this.stores.fsEntry, {
+                uid: survivor.uid,
+            });
+            if (!entry) continue;
+
+            return {
+                token: fsAnchorToken(survivor.uid),
+                anchorUid: survivor.uid,
+                anchorPath: survivor.path,
+                match,
+                ownerUserId: entry.userId,
+            };
+        }
+        return null;
+    }
+
+    /**
+     * Whether it actually moved — `false` when a concurrent unsubscribe won
+     * first.
+     */
+    async #reanchor(
+        row: DispatchSubscription,
+        next: ReanchorInput,
+    ): Promise<boolean> {
+        let bumps: GenerationBump[];
+        let moved: boolean;
+        if (row.durable === true) {
+            ({ bumps } = await this.stores.durableSubscription.reanchor(
+                row as DurableSubscription,
+                next,
+            ));
+            moved = bumps.length > 0;
+        } else {
+            ({ moved, bumps } =
+                await this.stores.eventSubscription.reanchorSession(
+                    row as SessionSubscription,
+                    { ...(row as SessionSubscription), ...next },
+                ));
+        }
+        // The matcher cache keys on the pattern it compiled, so it corrects
+        // itself; the access decisions were about a node this row no longer
+        // watches.
+        this.#deliveryAuth.forget(row.subId);
+        for (const bump of bumps)
+            this.#publishGeneration(bump, row.durable === true);
+        // `false` when an unsubscribe or a disconnect won first.
+        return moved;
+    }
+
+    /**
+     * End one subscription that cannot be carried forward. Anything already
+     * coalesced for it is deliberately left alone — the final `remove` is the
+     * last thing it is owed, and cancelling it here would be the delivery this
+     * whole pass exists to make.
+     */
+    async #endSubscription(
+        row: DispatchSubscription,
+        reason: SubscriptionEndReason,
+        notify = true,
+    ): Promise<void> {
+        this.#compiled.forget(row.subId);
+        this.#deliveryAuth.forget(row.subId);
+
+        if (row.durable !== true) {
+            const bump = await this.stores.eventSubscription.remove(
+                row as SessionSubscription,
+            );
+            // A concurrent unsubscribe (or another settle pass) already took it.
+            if (bump) {
+                this.#ended.mark(row.subId);
+                this.#publishGeneration(bump, false, [row.subId]);
+                if (notify) this.#tellEnded(row, reason);
+            }
+            return;
+        }
+
+        const durable = row as DurableSubscription;
+        const bump = await this.stores.durableSubscription.remove(durable);
+        if (!bump) return;
+        // Nothing can drain a stream whose row is gone, so what is still owed
+        // goes with it — the same trade an explicit unsubscribe makes.
+        await this.stores.pendingDelivery.purge(durable.subId).catch(() => {});
+        this.#publishGeneration(bump, true);
+        await this.#notifyEnded([durable], reason);
+    }
+
+    /**
+     * Tell durable holders their subscriptions are over. They did not ask for
+     * this, and silence would read as "still watching" — so it goes to the
+     * holder, not the app's developer. One notification per holder and app:
+     * withdrawing an app's access ends everything it held at once, and that is
+     * one piece of news, not one per row.
+     */
+    async #notifyEnded(
+        rows: readonly DurableSubscription[],
+        reason: SubscriptionEndReason,
+    ): Promise<void> {
+        const groups: EndedGroups = new Map();
+        collectEnded(groups, rows);
+        await this.#reportEnded(groups, reason);
+    }
+
+    /** Send what {@link collectEnded} gathered, one notification per group. */
+    async #reportEnded(
+        groups: EndedGroups,
+        reason: SubscriptionEndReason,
+    ): Promise<void> {
+        for (const { first, subjects, count } of groups.values()) {
+            const noun = isScheduleRow(first) ? 'schedule' : 'subscription';
+            try {
+                await this.services.notification.notify(
+                    [first.holderUserId],
+                    {
+                        title:
+                            count === 1
+                                ? `A ${noun} ended`
+                                : `${count} ${noun}s ended`,
+                        subject: first.subject,
+                        subjects,
+                        count,
+                        reason,
+                    },
+                    { type: 'app.events.ended', appUid: first.appUid },
+                );
+            } catch (err) {
+                console.warn(
+                    '[events] could not report a subscription ending',
+                    err,
+                );
+            }
+        }
+    }
+
+    /**
+     * Tell the connection a session subscription the server itself ended. Held
+     * until what was still owed to it has gone out, so a removal already
+     * underway arrives first.
+     */
+    #tellEnded(row: DispatchSubscription, reason: SubscriptionEndReason): void {
+        const held = {
+            target: deliveryTarget(row),
+            notice: {
+                subId: row.subId,
+                code: 'subscription_ended' as const,
+                reason,
+                message: ENDED_MESSAGES[reason],
+            },
+        };
+        if (this.#owed(row.subId)) {
+            this.#endNotices.set(row.subId, held);
+            return;
+        }
+        void this.#sendEnded(held);
+    }
+
+    /**
+     * Whether a delivery for this subscription is still coalescing or
+     * mid-flush.
+     */
+    #owed(subId: string): boolean {
+        return (
+            (this.#flushing.get(subId) ?? 0) > 0 ||
+            this.#coalescer?.hasGroup(subId) === true
+        );
+    }
+
+    async #sendEnded(held: {
+        target: SocketSpecifier;
+        notice: EndedNotice;
+    }): Promise<void> {
+        try {
+            await this.services.socket.send(
+                held.target,
+                EVENTS_ENDED_CHANNEL,
+                held.notice,
+            );
+        } catch (err) {
+            console.warn(
+                '[events] could not tell a connection its subscription ended',
+                err,
+            );
+        }
+    }
+
+    /**
+     * Release a subscription's held end notice once nothing is left owed to it:
+     * not still coalescing, and not a flush of it already in flight.
+     * `SocketService.send` emits synchronously before its first await, so once
+     * this sends, whatever was owed is already on the wire.
+     */
+    #releaseEnded(subId: string): void {
+        const held = this.#endNotices.get(subId);
+        if (!held) return;
+        if (this.#owed(subId)) return;
+        this.#endNotices.delete(subId);
+        void this.#sendEnded(held);
+    }
+
+    // -- Owed deliveries ---------------------------------------------
+
+    /**
+     * One `single` event, or the marker that says its subscription is being
+     * delivered faster than the class allows. Spent before the queue: a budget
+     * checked at hand-out time would let a backlog build that nothing can ever
+     * work through.
+     */
+    async #oweSingle(
+        row: DispatchSubscription,
+        event: DeliverableEvent,
+        handlerDepth: number,
+    ): Promise<void> {
+        const allowed = await checkRateLimit(
+            `${EVENTS_SINGLE_DELIVERY_LIMIT.scope}:${row.subId}`,
+            EVENTS_SINGLE_DELIVERY_LIMIT.limit,
+            EVENTS_SINGLE_DELIVERY_LIMIT.window,
+        );
+        await this.#owe(
+            row,
+            allowed ? event : rateLimitGap(event),
+            handlerDepth,
+        );
+    }
+
+    /**
+     * Queue a `single` and try to hand it straight over. The queue comes first:
+     * an attempt that fails after it is recorded is a retry, where one that
+     * fails before it is a lost event.
+     *
+     * Resolves once the event is queued. The hand-over runs detached: it can
+     * take a whole handler run, and the dispatch queueing the next row's event
+     * must not wait on it.
+     */
+    async #owe(
+        row: DispatchSubscription,
+        event: DeliverableEvent,
+        handlerDepth: number,
+    ): Promise<void> {
+        try {
+            const { shed } = await this.stores.pendingDelivery.enqueue(
+                row.subId,
+                event,
+                handlerDepth,
+            );
+            this.#reportShed(shed);
+        } catch (err) {
+            this.#enqueueFailed(row, err);
+            return;
+        }
+        void (async () => {
+            try {
+                await this.#drain(row, { justAuthorized: true });
+            } catch (err) {
+                // Queued, so the sweeper retries it.
+                console.warn(
+                    '[events] could not hand over a queued delivery',
+                    row.subId,
+                    err,
+                );
+            }
+        })();
+    }
+
+    /**
+     * A user-scope row while the flag is off: nothing resolves its handler, so
+     * it is left alone entirely, before any credit check, billing, client
+     * delivery or suspension. What it is owed stays queued.
+     */
+    #parkedUserRow(row: DispatchSubscription): boolean {
+        return (
+            row.durable === true &&
+            row.handlerScope === 'user' &&
+            !this.userHandlersEnabled
+        );
+    }
+
+    /**
+     * Hand this subscription what it is owed, oldest first, until something
+     * takes a lease and holds it. Stops after a batch so one consumer that
+     * settles inline cannot drain a whole backlog inside one call.
+     */
+    async #drain(
+        row: DispatchSubscription,
+        // Only the sweeper defers: it alone reads the pending index in score
+        // order, so only it may rewrite a score without starving what is behind.
+        // A just-authorized row comes as its delivery re-check served it.
+        opts?: { deferWhenBusy?: boolean; justAuthorized?: boolean },
+    ): Promise<number> {
+        if (this.#parkedUserRow(row)) {
+            if (opts?.deferWhenBusy)
+                await this.stores.pendingDelivery.defer(row.subId);
+            return 0;
+        }
+        const serving = opts?.justAuthorized ? row : await this.#stillOwed(row);
+        if (!serving) {
+            if (opts?.deferWhenBusy)
+                await this.stores.pendingDelivery.defer(row.subId);
+            return 0;
+        }
+
+        let handed = 0;
+        for (let pass = 0; pass < PENDING_DRAIN_BATCH; pass++) {
+            const claimed = await this.stores.pendingDelivery.claim(row.subId);
+            if (!claimed) {
+                // Already in flight (or briefly nothing to claim): move on in
+                // the sweeper's line rather than pin the head against every
+                // other backlog behind it.
+                if (opts?.deferWhenBusy)
+                    await this.stores.pendingDelivery.defer(row.subId);
+                return handed;
+            }
+            // A generic mailbox slice can contain several apps; ownership
+            // must still hold for each queued developer notification.
+            if (
+                'audience' in claimed.event &&
+                (
+                    await this.#notifStillAuthorized([row], {
+                        audience: claimed.event.audience,
+                        appUid: claimed.event.appUid,
+                        userId: row.holderUserId,
+                    })
+                ).length === 0
+            ) {
+                await this.stores.pendingDelivery.settle(
+                    row.subId,
+                    claimed.entryId,
+                );
+                continue;
+            }
+            handed++;
+            // Anything still holding the lease is the next consumer's answer to
+            // give, so this pass is over.
+            if (
+                !(await this.#handOut(
+                    serving,
+                    claimedAsServed(serving, claimed),
+                ))
+            )
+                return handed;
+        }
+        return handed;
+    }
+
+    /**
+     * The row as its queued backlog may be handed over now, or null when it may
+     * not. A share-handle row comes back as its share serves it, so a backlog
+     * queued with values goes out without them at `watch`.
+     *
+     * Nothing between the claim and the socket asks this — and the revoke
+     * settle deliberately leaves a grant withdrawn on an _ancestor_ of an
+     * anchor to the delivery re-check, which this path is. Without it the queue
+     * keeps draining for the whole backlog TTL after an unshare.
+     *
+     * Asked once per drain rather than per delivery: the whole backlog stands
+     * on the one grant. A row that has lost it is settled the way the revoke
+     * settle would have — permanently, and taking the backlog with it. One
+     * whose share can't be checked right now hands out nothing and keeps its
+     * backlog for a later pass.
+     */
+    async #stillOwed(
+        row: DispatchSubscription,
+    ): Promise<DispatchSubscription | null> {
+        if (row.durable !== true) return row;
+        const durable = row as DurableSubscription;
+        if (kvHandleFromSubject(durable.subject) !== null) {
+            const standing = await this.#kvShareStanding(durable);
+            if (standing === 'unknown') return null;
+            if (standing !== 'revoked')
+                return servedAtStanding(durable, standing);
+        } else {
+            const reachable = await this.#anchorStillReachable(durable);
+            if (reachable === null) return null;
+            if (reachable) return row;
+        }
+
+        const suspended = await this.#suspend([durable], 'permission_revoked');
+        await this.#notifyEnded(suspended, 'permission_revoked');
+        return null;
+    }
+
+    /**
+     * One attempt at one owed delivery. A connected client first, the worker
+     * once that client declines it or its socket lease lapses — a client that
+     * is there answers faster than anything else, and one that is not must not
+     * stall the delivery.
+     *
+     * Returns whether the delivery settled, which is what says the next one may
+     * go out now rather than when this lease lapses.
+     */
+    async #handOut(
+        row: DispatchSubscription,
+        claimed: ClaimedDelivery,
+    ): Promise<boolean> {
+        if (this.#parkedUserRow(row)) return false;
+        const meter = meterFor(row);
+        // Held, not dropped: a delivery its holder cannot pay for waits out the
+        // suspension's window and goes out if the balance comes back.
+        if (!(await this.#chargeable(meter, row.subId))) return false;
+
+        const target = deliveryTarget(row);
+        const hasWorkerFallback = runsInWorker(row);
+        // Region-wide: `has` only sees this node's sockets, and the room send
+        // below reaches a sibling node's just the same.
+        const heldHere =
+            this.services.socket.has(target) ||
+            (await this.services.eventForward.heldInRegion(
+                row.holderUserId,
+                row.appUid,
+            ));
+
+        // A row with no worker to fall back to has nothing left to try once
+        // its socket budget is spent. Without this, a socket that disappeared
+        // mid-attempt would spend that whole budget on nobody and wedge the
+        // entry forever even after it reappears.
+        if (
+            !hasWorkerFallback &&
+            claimed.socketAttempts >= QUEUE_SOCKET_ATTEMPTS &&
+            heldHere
+        ) {
+            await this.stores.pendingDelivery.resetSocketAttempts(
+                row.subId,
+                claimed.entryId,
+            );
+            claimed = { ...claimed, socketAttempts: 0, triedRegions: [] };
+        }
+
+        // This region's own connection first, otherwise the region presence
+        // names, most recently connected first.
+        const socketsLeft = claimed.socketAttempts < QUEUE_SOCKET_ATTEMPTS;
+        const here = socketsLeft && heldHere;
+        const region =
+            socketsLeft && !here
+                ? await this.services.eventForward.candidateRegion(
+                      row.holderUserId,
+                      row.appUid,
+                      claimed.triedRegions,
+                  )
+                : null;
+
+        if (here || region) {
+            await this.stores.pendingDelivery.leaseToSocket(
+                row.subId,
+                claimed.entryId,
+            );
+            if (region)
+                await this.stores.pendingDelivery.recordRemoteAttempt(
+                    row.subId,
+                    claimed.entryId,
+                    region,
+                );
+            const envelope: DeliveryEnvelope = {
+                subId: row.subId,
+                event: claimed.event,
+                ackRequired: true,
+                ackId: claimed.entryId,
+            };
+            const bill = await this.#firstAttempt(row.subId, claimed);
+            if (region) {
+                this.services.eventForward.handOff(region, {
+                    holderUserId: row.holderUserId,
+                    appUid: row.appUid,
+                    subId: row.subId,
+                    event: claimed.event,
+                    ackRequired: true,
+                    ackId: claimed.entryId,
+                });
+                this.#delivered(envelope, meter, bill);
+            } else {
+                await this.#send({
+                    target,
+                    envelope,
+                    meter,
+                    bill,
+                });
+            }
+            singleAttempt.add(1, {
+                target: region ? 'remote-socket' : 'local-socket',
+                result: 'sent',
+            });
+            return false;
+        }
+
+        // Nowhere to put it yet: the lease is what paces the next attempt.
+        if (!hasWorkerFallback) {
+            singleAttempt.add(1, { target: 'none', result: 'no-target' });
+            return false;
+        }
+
+        return this.#runInWorker(row, claimed);
+    }
+
+    /**
+     * Run one claimed delivery in the events worker. Returns whether it
+     * settled, which is what says the next one may go out now.
+     */
+    async #runInWorker(
+        row: DispatchSubscription,
+        claimed: ClaimedDelivery,
+    ): Promise<boolean> {
+        const meter = meterFor(row);
+        const invocation = this.#workerInvocation(
+            row,
+            claimed.event,
+            claimed.handlerDepth,
+        );
+        // Nothing to run yet: the lease paces the retry and nothing is failed.
+        if (!invocation) return false;
+        if (await this.#suspendIfHandlerGone(invocation)) return false;
+
+        // Over the invocation budget nothing ran, so nothing was delivered and
+        // the lease is the backoff — and the budget refusal itself must not
+        // spend the one bill this entry gets, nor count against the handler.
+        const result = await this.#invokeHandler(invocation);
+        if (result === null) {
+            singleAttempt.add(1, { target: 'worker', result: 'over-budget' });
+            return false;
+        }
+
+        // Never runnable, so dropped outright: not a handler failure, and no
+        // gap marker, which would be handed to the handler at this same depth.
+        if (result === 'too-deep') {
+            singleAttempt.add(1, { target: 'worker', result: 'too-deep' });
+            await this.stores.pendingDelivery.settle(
+                row.subId,
+                claimed.entryId,
+            );
+            return true;
+        }
+
+        const { outcome, retryAfterMs } = result;
+        singleAttempt.add(1, { target: 'worker', result: outcome });
+        // Only a settled outcome is a delivery: billing and reporting it
+        // ahead of that would charge for an attempt that failed, is still
+        // retrying, or was discarded outright.
+        if (outcome === 'settled') {
+            this.#delivered(
+                { subId: row.subId, event: claimed.event },
+                meter,
+                await this.#firstAttempt(row.subId, claimed),
+            );
+            await this.stores.pendingDelivery.clearFailures(row.subId);
+            await this.stores.pendingDelivery.settle(
+                row.subId,
+                claimed.entryId,
+            );
+            return true;
+        }
+        // Nothing was attempted, so nothing failed: the lease paces the retry.
+        if (outcome === 'deferred') return false;
+
+        await this.#handlerFailed(row, claimed, outcome, retryAfterMs);
+        return false;
+    }
+
+    /**
+     * What a handler that would not take a delivery costs it, and what a run of
+     * them costs the subscription.
+     *
+     * A refusal is the handler's answer, so the delivery is dropped with a gap
+     * marker rather than sent again to the same answer; anything else is "not
+     * now", and the delivery waits longer each time. Both count: five failures
+     * in a row is a handler that is not working, whichever way it is failing,
+     * and retrying it forever is how one bad deploy becomes a standing load on
+     * whatever it is calling. A run Puter could not start or finish waits the
+     * same way but never counts, so Puter's own outage suspends nobody.
+     */
+    async #handlerFailed(
+        row: DispatchSubscription,
+        claimed: ClaimedDelivery,
+        outcome: Exclude<WorkerInvocationOutcome, 'settled' | 'deferred'>,
+        retryAfterMs?: number,
+    ): Promise<void> {
+        const pending = this.stores.pendingDelivery;
+        try {
+            if (outcome === 'terminal') {
+                // A run was made, so a dropped event is billed like a
+                // completed one, and still only once.
+                const bill = await this.#firstAttempt(row.subId, claimed);
+                if (
+                    await pending.discard(
+                        row.subId,
+                        claimed.entryId,
+                        'handler_rejected',
+                    )
+                )
+                    this.#delivered(
+                        { subId: row.subId, event: claimed.event },
+                        meterFor(row),
+                        bill,
+                    );
+            } else
+                await pending.deferAfterFailure(
+                    row.subId,
+                    claimed.entryId,
+                    retryAfterMs,
+                );
+            if (outcome === 'unavailable') return;
+
+            const failures = await pending.recordFailure(row.subId);
+            if (failures < EVENTS_CONSECUTIVE_FAILURES) return;
+
+            await pending.clearFailures(row.subId);
+            await this.suspendForFailures(row.subId);
+        } catch (err) {
+            console.warn(
+                '[events] could not record a failed handler attempt',
+                row.subId,
+                err,
+            );
+        }
+    }
+
+    /**
+     * Whether this is the first genuine attempt at this entry — across however
+     * many times it is claimed, retried and handed to a different transport. A
+     * `single` retries the same entry after a lease expiry, and that is one
+     * owed event, not a new one each time: only the attempt that gets here
+     * first is billed. A gap marker is never billed at all, so it never spends
+     * the claim either.
+     */
+    async #firstAttempt(
+        subId: string,
+        claimed: ClaimedDelivery,
+    ): Promise<boolean> {
+        if (claimed.event.op === 'gap') return false;
+        return this.stores.pendingDelivery.markBilled(subId, claimed.entryId);
+    }
+
+    /** What the handler seam is handed, or null for a row that wants none. */
+    #workerInvocation(
+        row: DispatchSubscription,
+        event: DeliverableEvent,
+        handlerDepth: number,
+    ): WorkerInvocation | null {
+        if (row.durable !== true || !runsInWorker(row)) return null;
+        // Owed rather than run while the flag is off: nothing resolves a user
+        // scope, and the delivery path must not spend budget on it.
+        const userScoped = row.handlerScope === 'user';
+        if (userScoped && !this.userHandlersEnabled) return null;
+        return {
+            subId: row.subId,
+            holderUserId: row.holderUserId,
+            appUid: row.appUid,
+            handlerName: row.handlerName ?? null,
+            ...(userScoped ? { handlerScope: 'user' as const } : {}),
+            event,
+            context: row.context ?? null,
+            handlerDepth,
+        };
+    }
+
+    /**
+     * The token one invocation carries: the subscriber acting through the
+     * subscribing app, the same authority that app has for this user in a tab —
+     * not a token scoped to whatever grant the subscription was made under. It
+     * can read what the app can read, and reaches the app's own KV and AppData
+     * like any other app session would. What authorizes running that with
+     * nobody present is the `events:background` consent the row needed to run a
+     * handler at all, checked at subscribe time and re-run on every delivery.
+     *
+     * The session behind the token is one row per (user, app), reused across
+     * every delivery — the same idempotent worker session `puter.workers.*`
+     * uses — so it appears once in the user's sessions list and is revocable
+     * there like any other. The token itself is short-lived and carries the
+     * handler depth its writes are stamped with.
+     *
+     * Null when the identity cannot be rebuilt (the holder or the app is gone)
+     * or the consent is no longer there, which is not a handler failure: there
+     * is nothing to invoke.
+     */
+    async #mintSubscriberToken(
+        invocation: WorkerInvocation,
+    ): Promise<{ token: string } | { refused: MintRefusal }> {
+        const { appUid } = invocation;
+        if (!appUid) return { refused: 'no-identity' };
+
+        const actor =
+            invocation.actor ??
+            (await resolveGrantActor(
+                {
+                    holderUserId: invocation.holderUserId,
+                    appUid,
+                    permission: SUBSCRIBE_MODE,
+                },
+                this.#aclDeps(),
+            ));
+        if (!actor) return { refused: 'no-identity' };
+
+        // Asked again here: nothing else on the delivery path reads it, the
+        // settle that ends a revoked row is best-effort, and what is minted is
+        // the app's whole standing for this holder. The permission cache
+        // answers it, so only a grant change costs a lookup.
+        const consent = await this.hasBackgroundConsent(actor);
+        if (consent !== true) {
+            // A no may be a withdrawal whose settle never ran or failed.
+            // Without one the row stays in service, deferred forever.
+            if (consent === false) this.#settleLostConsent(actor, appUid);
+            return { refused: 'no-consent' };
+        }
+
+        try {
+            return {
+                token: await this.services.auth.createWorkerAppToken(
+                    actor,
+                    appUid,
+                    EVENTS_WORKER_SESSION_NAME,
+                    {
+                        handlerDepth: invocation.handlerDepth + 1,
+                        expiresInSeconds: EVENTS_HANDLER_TOKEN_TTL_SECONDS,
+                    },
+                ),
+            };
+        } catch (err) {
+            console.warn(
+                '[events] could not mint a delivery token',
+                invocation.subId,
+                err,
+            );
+            return { refused: 'mint-failed' };
+        }
+    }
+
+    /**
+     * Run the revocation settle for consent a delivery found withdrawn. One at
+     * a time per holder and app, however many deliveries find it at once.
+     *
+     * The delivery's answer came through caches that can trail a grant, so the
+     * no is asked again past them first. Only a fresh no settles; anything else
+     * leaves the delivery deferred, as a cached no always did. Settles are
+     * budgeted per window, so a check that wrongly answers no defers rows
+     * instead of ending them all.
+     */
+    #settleLostConsent(actor: Actor, appUid: string): void {
+        const holderUserId = actor.user!.id;
+        const key = `${holderUserId}|${appUid}`;
+        const start = this.#consentSettles.begin(key);
+        if (start === 'spent') this.#consentSettlesSpent();
+        if (start !== 'start') return;
+        void (async () => {
+            try {
+                const consented = await this.services.permission.check(
+                    actor,
+                    EVENTS_BACKGROUND_PERMISSION,
+                    { primary: true },
+                );
+                if (consented) {
+                    this.#consentSettles.confirm(key);
+                    return;
+                }
+                if (!this.#consentSettles.take()) {
+                    this.#consentSettlesSpent();
+                    return;
+                }
+                console.warn(
+                    `[events] a delivery found background consent withdrawn for user ${holderUserId}, app ${appUid}; settling`,
+                );
+                await this.settleRevokedGrant({
+                    holderUserId,
+                    appUid,
+                    permission: EVENTS_BACKGROUND_PERMISSION,
+                });
+            } catch (err) {
+                console.warn('[events] withdrawn consent settle failed', err);
+            } finally {
+                this.#consentSettles.end(key);
+            }
+        })();
+    }
+
+    #consentSettlesSpent(): void {
+        this.clients.alarm.create(
+            'events_consent_settle_budget',
+            'Deliveries found background consent withdrawn more often than expected; the rest are deferred, not ended',
+            {
+                settlesPerWindow: CONSENT_SETTLES_PER_WINDOW,
+                windowMs: CONSENT_SETTLE_WINDOW_MS,
+            },
+            'warning',
+            { dedup: true },
+        );
+    }
+
+    /**
+     * Replace how invocations reach an events worker. For the layer that owns
+     * workers, which is the only one that can provide an in-process runtime;
+     * production leaves the client on its dispatcher transport.
+     */
+    useWorkerTransport(transport: EventsInvokeTransport): void {
+        this.clients.eventsWorkerInvoker.setTransport(transport);
+    }
+
+    /**
+     * Let this backend deploy a script the dispatcher reports missing, instead
+     * of waiting on the rehydrate callback to reach it.
+     */
+    useWorkerMissHandler(handler: WorkerMissHandler): void {
+        this.clients.eventsWorkerInvoker.setMissHandler(handler);
+    }
+
+    /**
+     * Let a user-scope publish start the deploy of its script right away, so
+     * the first run does not wait on one. Set by the layer that owns the
+     * deployer.
+     */
+    useEagerDeploy(
+        deploy: (scope: HandlerScope, script: string) => Promise<unknown>,
+    ): void {
+        this.#eagerDeploy = deploy;
+    }
+
+    #eagerDeploy:
+        ((scope: HandlerScope, script: string) => Promise<unknown>) | null =
+        null;
+
+    /** Fire and forget: the publish has answered, and a miss deploys anyway. */
+    #deployEagerly(
+        scope: HandlerScope,
+        handler: { name: string; sourceHash: string },
+    ): void {
+        const deploy = this.#eagerDeploy;
+        if (
+            !deploy ||
+            !isUserScope(scope) ||
+            !this.userHandlersEnabled ||
+            !workerRuntimeReady(this.config)
+        )
+            return;
+        const script = userHandlerScript(
+            handler,
+            eventsWorkerScope(this.config),
+        );
+        void (async () => {
+            try {
+                await deploy(scope, script);
+            } catch (err) {
+                console.warn('[events] eager deploy failed', script, err);
+            }
+        })();
+    }
+
+    // -- Schedules ---------------------------------------------------
+
+    /**
+     * Run one schedule's handler: the depth check, then mint, address and
+     * invoke on the schedule lane. Unlike a delivery it says why nothing ran,
+     * and never spends the delivery invocation limit; schedules have their own.
+     * Called by extensions.
+     */
+    async invokeForSchedule(
+        invocation: WorkerInvocation,
+        options: Pick<WorkerRunOptions, 'stampEvent' | 'beforeSend'> = {},
+    ): Promise<ScheduleInvokeResult> {
+        if (options.beforeSend && !(await options.beforeSend()))
+            return { outcome: 'deferred' };
+        if (await this.#tooDeep(invocation)) return { outcome: 'too-deep' };
+        if (await this.#suspendIfHandlerGone(invocation))
+            return { outcome: 'deferred' };
+        // Something other than the worker invoker was put in its place.
+        if (!(this.worker instanceof EventsWorkerInvoker))
+            return this.worker.invoke(invocation);
+        return this.worker.run(invocation, {
+            ...options,
+            lane: 'schedule',
+            missRead: 'replica',
+        });
+    }
+
+    /**
+     * Who a schedule runs as; `null` once its holder or app is gone. Called by
+     * extensions.
+     */
+    resolveScheduleActor(
+        holderUserId: number,
+        appUid: string,
+    ): Promise<Actor | null> {
+        return resolveGrantActor(
+            { holderUserId, appUid, permission: SUBSCRIBE_MODE },
+            this.#aclDeps(),
+        );
+    }
+
+    /**
+     * Whether a schedule's holder can pay for a run. One who can't has the
+     * schedule's row suspended, which parks the schedule, and is told once.
+     * Called by extensions.
+     */
+    chargeableForSchedule(
+        holderUserId: number,
+        appUid: string,
+        subId: string,
+        handlerScope?: HandlerScopeKind,
+    ): Promise<boolean> {
+        // The run is refused as unavailable instead, so nothing suspends here.
+        if (handlerScope === 'user' && !this.userHandlersEnabled)
+            return Promise.resolve(true);
+        return this.#chargeable(
+            { holderUserId, appUid, deliveryClass: 'single', durable: true },
+            subId,
+        );
+    }
+
+    /** Bill one schedule run, as one single delivery. Called by extensions. */
+    meterScheduleRun(holderUserId: number, appUid: string): Promise<void> {
+        return this.#meterDelivery({
+            holderUserId,
+            appUid,
+            deliveryClass: 'single',
+            durable: true,
+        });
+    }
+
+    /**
+     * Where an app's handlers currently live: the script its published set
+     * hashes to, and the key an invocation of it carries.
+     *
+     * Resolved from the set's names and hashes alone, through the store's
+     * cache. A publish or removal drops that entry, so a superseded script —
+     * still deployed, still running the handlers it was baked with — is
+     * addressed only by a read that raced the write, and only until the entry
+     * expires.
+     */
+    async #addressEventsWorker(
+        appUid: string,
+        options: AddressOptions = {},
+    ): Promise<{ script: string; key: string; holder?: string } | null> {
+        if (!workerRuntimeReady(this.config)) return null;
+        const secret = this.config.events!.internalSecret!;
+        if (options.handlerScope === 'user')
+            return this.#addressUserHandler(appUid, options, secret);
+
+        const set = await this.stores.eventHandler.cachedSetForApp(
+            appHandlerScope(appUid),
+            options,
+        );
+        if (set.length === 0) return null;
+
+        // A gone or suspended owner is nobody to deploy or bill this as, so
+        // there is nothing to address — retriable rather than a kill switch,
+        // the same posture `no-owner` takes on the deploy side.
+        const app = await this.stores.app.getByUid(appUid);
+        const ownerUserId = Number(
+            (app as { owner_user_id?: unknown } | null)?.owner_user_id,
+        );
+        if (!app || !Number.isFinite(ownerUserId)) return null;
+        const owner = await this.stores.user.getById(ownerUserId);
+        if (!owner || owner.suspended) return null;
+
+        const script = eventsWorkerScript(
+            handlerSetHash(set),
+            eventsWorkerScope(this.config),
+        );
+        return { script, key: eventsInvokeKey(secret, script) };
+    }
+
+    /**
+     * A user scope's handler: its own script, from the one `(name, hash)` entry
+     * of the holder's set. The holder must exist and not be suspended, as the
+     * owner must for an app's set, and the invocation names them so a miss
+     * deploys from their scope.
+     */
+    async #addressUserHandler(
+        appUid: string,
+        options: AddressOptions,
+        secret: string,
+    ): Promise<{ script: string; key: string; holder: string } | null> {
+        const { holderUserId, handlerName } = options;
+        if (!holderUserId || !handlerName) return null;
+
+        const set = await this.stores.eventHandler.cachedSetForApp(
+            { appUid, holder: holderUserId },
+            // Replica unless asked otherwise, so this and the missing-handler
+            // check share one cache entry; a set lacking the name is re-read
+            // on the primary either way.
+            { missRead: options.missRead ?? 'replica', handlerName },
+        );
+        const entry = set.find((handler) => handler.name === handlerName);
+        if (!entry) return null;
+
+        const holder = await this.stores.user.getById(holderUserId);
+        if (!holder?.uuid || holder.suspended) return null;
+
+        const script = userHandlerScript(entry, eventsWorkerScope(this.config));
+        return {
+            script,
+            key: eventsInvokeKey(secret, script),
+            holder: holder.uuid,
+        };
+    }
+
+    /**
+     * Park a user-scope row whose handler is no longer in its holder's set, the
+     * way removing it would have, and tell the holder. Publishing the name
+     * again resumes it. Not asked while the flag is off, which suspends
+     * nobody.
+     */
+    async #suspendIfHandlerGone(
+        invocation: WorkerInvocation,
+    ): Promise<boolean> {
+        const { appUid, handlerName, holderUserId } = invocation;
+        if (
+            invocation.handlerScope !== 'user' ||
+            !appUid ||
+            !handlerName ||
+            !this.userHandlersEnabled
+        )
+            return false;
+        const set = await this.stores.eventHandler.cachedSetForApp(
+            { appUid, holder: holderUserId },
+            { missRead: 'replica', handlerName },
+        );
+        if (set.some((handler) => handler.name === handlerName)) return false;
+
+        const row = await this.stores.durableSubscription.getBySubId(
+            invocation.subId,
+        );
+        if (!row || row.suspendedAt !== null) return false;
+        await this.suspendSubscriptions([row], 'handler_not_found');
+        await this.#notifySuspended(
+            { appUid, holder: holderUserId },
+            handlerName,
+            1,
+        );
+        return true;
+    }
+
+    /**
+     * Say that deliveries were dropped to stay inside a cap. The subscriptions
+     * that lost them are told by the gap marker the store queued in their
+     * place; this is the half nobody else would see.
+     */
+    #reportShed(shed: readonly PendingShed[]): void {
+        for (const dropped of shed) {
+            if (dropped.scope === 'subscription') {
+                console.warn(
+                    `[events] dropped ${dropped.dropped} undelivered event(s) of ${dropped.subId}: backlog full`,
+                );
+                continue;
+            }
+            console.error(
+                `[events] dropped ${dropped.dropped} undelivered event(s) of ${dropped.subId}: too many held in this region`,
+            );
+            this.clients.alarm.create(
+                'events_pending_ceiling',
+                'Too many undelivered events are being held here — the oldest were dropped',
+                { subId: dropped.subId, dropped: dropped.dropped },
+                'warning',
+                { dedup: true },
+            );
+        }
+    }
+
+    /**
+     * A `single` that could not be queued is an event its subscription was
+     * promised and will never see, and nothing downstream will notice on its
+     * own. The write that produced it still succeeded.
+     */
+    #enqueueFailed(row: DispatchSubscription, err: unknown): void {
+        console.error(
+            `[events] could not queue an event for ${row.subId}`,
+            err,
+        );
+        this.clients.alarm.create(
+            'events_pending_enqueue_failed',
+            'An event owed to a subscription could not be queued and is lost',
+            {
+                subId: row.subId,
+                holderUserId: row.holderUserId,
+                error: err instanceof Error ? err : new Error(String(err)),
+            },
+            'warning',
+            { dedup: true },
+        );
+    }
+
+    // -- Delivery ----------------------------------------------------
+
+    #coalesce(): DeliveryCoalescer<AddressedDelivery> {
+        this.#coalescer ??= new DeliveryCoalescer<AddressedDelivery>(
+            EVENTS_COALESCE_WINDOW_MS,
+            (_key, delivery) => void this.#flush(delivery),
+        );
+        return this.#coalescer;
+    }
+
+    /**
+     * Coalesce one delivery, unless this subscription ended since the candidate
+     * rows for this dispatch were read.
+     */
+    #queue(
+        row: DispatchSubscription,
+        subject: string,
+        delivery: AddressedDelivery,
+    ): void {
+        if (this.#ended.has(row.subId) || this.#parkedUserRow(row)) return;
+        const event = delivery.envelope.event;
+        const key =
+            event.op === 'dismiss'
+                ? `${subject}:dismiss:${event.uid}`
+                : subject;
+        this.#coalesce().push(coalesceKey(row.subId, key), delivery);
+    }
+
+    async #flush(delivery: AddressedDelivery): Promise<void> {
+        // Counted before the first await, so `#owed` never sees a gap between
+        // leaving the coalescer and reaching the wire.
+        const subId = delivery.envelope.subId;
+        this.#flushing.set(subId, (this.#flushing.get(subId) ?? 0) + 1);
+        try {
+            if (
+                !(await this.#chargeable(
+                    delivery.meter,
+                    delivery.envelope.subId,
+                ))
+            )
+                return;
+
+            const allowed = await checkRateLimit(
+                `${EVENTS_BROADCAST_DELIVERY_LIMIT.scope}:${delivery.envelope.subId}`,
+                EVENTS_BROADCAST_DELIVERY_LIMIT.limit,
+                EVENTS_BROADCAST_DELIVERY_LIMIT.window,
+            );
+            if (allowed) {
+                await this.#send(delivery);
+                return;
+            }
+            // The marker goes to the socket only: running the handler on a
+            // notice that its event was dropped is the invocation the budget
+            // was refusing.
+            await this.#send({
+                target: delivery.target,
+                remote: delivery.remote,
+                meter: delivery.meter,
+                envelope: {
+                    subId: delivery.envelope.subId,
+                    event: rateLimitGap(delivery.envelope.event),
+                },
+                bill: false,
+            });
+        } catch (err) {
+            console.warn('[events] delivery failed', err);
+        } finally {
+            const left = (this.#flushing.get(subId) ?? 1) - 1;
+            if (left > 0) this.#flushing.set(subId, left);
+            else this.#flushing.delete(subId);
+            this.#releaseEnded(subId);
+        }
+    }
+
+    /**
+     * Addressed at a socket id — which socket.io joins every socket to — or at
+     * a room, so either way the adapter carries it to whichever node terminates
+     * the connection. A durable row with a handler also runs it in the events
+     * worker; connected clients run theirs as well, unless the event is past
+     * the handler-chain limit.
+     */
+    async #send(delivery: AddressedDelivery): Promise<void> {
+        let gate: 'too-deep' | 'over-budget' | 'ok' | null = null;
+        if (delivery.worker) {
+            try {
+                gate = await this.#handlerGate(delivery.worker);
+            } catch (err) {
+                console.warn('[events] handler gate failed', err);
+            }
+        }
+        // `available` is a deployment-wide fact (is there a worker runtime to
+        // call at all), separate from whether this one invocation succeeds.
+        const toWorker = gate === 'ok' && (this.worker.available?.() ?? true);
+        // Past the depth cap nothing may run it, in the worker or a client.
+        const skipHandler = gate === 'too-deep';
+        const envelope: DeliveryEnvelope = skipHandler
+            ? { ...delivery.envelope, skipHandler: true }
+            : delivery.envelope;
+
+        try {
+            void this.services.socket
+                .send(delivery.target, EVENTS_DELIVERY_CHANNEL, envelope)
+                .catch((err: unknown) => {
+                    console.warn('[events] socket send failed', err);
+                });
+        } catch (err) {
+            console.warn('[events] socket send failed', err);
+        }
+
+        // Every connected subscriber gets a `broadcast`, and the ones this
+        // region cannot reach are wherever presence says they are.
+        const fannedOut = delivery.remote
+            ? this.#fanOut(delivery, skipHandler)
+            : null;
+
+        let invoked = false;
+        if (toWorker) {
+            // A `broadcast` invocation is never retried. A run that finished,
+            // or threw an error that drops the event, counts as delivered.
+            try {
+                const { outcome } = await this.worker.invoke(delivery.worker!);
+                invoked = outcome === 'settled' || outcome === 'terminal';
+            } catch (err) {
+                console.warn('[events] handler invocation failed', err);
+            }
+        }
+
+        // One delivery is one line, however many transports carried it. A
+        // socket copy nobody was connected to take is not billed.
+        this.#delivered(
+            delivery.envelope,
+            delivery.meter,
+            delivery.bill &&
+                (invoked || (await this.#socketReached(delivery, fannedOut))),
+        );
+    }
+
+    /** Hand a `broadcast` to every other region holding a socket for it. */
+    async #fanOut(
+        delivery: AddressedDelivery,
+        skipHandler: boolean,
+    ): Promise<void> {
+        try {
+            await this.services.eventForward.fanOut({
+                holderUserId: delivery.meter.holderUserId,
+                appUid: delivery.meter.appUid,
+                subId: delivery.envelope.subId,
+                event: delivery.envelope.event,
+                ...(skipHandler ? { skipHandler: true as const } : {}),
+            });
+        } catch (err) {
+            console.warn('[events] forward failed', err);
+        }
+    }
+
+    /**
+     * Whether a socket copy had anyone to reach: this node, any node in this
+     * region, or — for a row every connection gets — a region presence names.
+     * Without peers nothing counts connections region-wide, so a miss here
+     * proves nothing and the delivery is billed as it always was.
+     */
+    async #socketReached(
+        delivery: AddressedDelivery,
+        fannedOut: Promise<void> | null,
+    ): Promise<boolean> {
+        const forward = this.services.eventForward;
+        if (!forward.active) return true;
+        if (this.services.socket.has(delivery.target)) return true;
+        const { holderUserId, appUid } = delivery.meter;
+        try {
+            if (
+                await this.stores.presence.holdsConnection(
+                    holderUserId,
+                    presenceApp(appUid),
+                )
+            )
+                return true;
+            if (!fannedOut) return false;
+            // After the fan-out, so its presence read is the one answered.
+            await fannedOut;
+            return (await forward.regionsFor(holderUserId, appUid)).length > 0;
+        } catch (err) {
+            console.warn(
+                '[events] could not tell whether a delivery reached anyone',
+                err,
+            );
+            return true;
+        }
+    }
+
+    /**
+     * One event reached a subscriber. Metering rides the same call the seam
+     * does, so a delivery cannot be reported without being charged for: nothing
+     * filtered out, coalesced away, rate limited or refused for credit gets
+     * here, and a gap marker — a notice of loss rather than a delivery — is
+     * reported without a line. `bill` is false for a `single` retry: the event
+     * it carries was already charged for on an earlier attempt. It is false too
+     * for a socket copy no connection was there to take.
+     */
+    #delivered(
+        envelope: DeliveryEnvelope,
+        meter: DeliveryMeter,
+        bill: boolean,
+    ): void {
+        this.onDelivered(envelope);
+        if (envelope.event.op === 'gap' || !bill) return;
+        void this.#meterDelivery(meter);
+    }
+
+    /**
+     * Called once per event that actually reached a subscriber, gap markers
+     * included.
+     */
+    onDelivered(_envelope: DeliveryEnvelope): void {
+        return;
+    }
+
+    // -- Metering ----------------------------------------------------
+
+    /**
+     * Record one delivered event against its subscription's holder. Buffered
+     * rather than written: a line is worth a fraction of a microcent and they
+     * arrive per event, so writing each one would cost more than it records.
+     */
+    async #meterDelivery(meter: DeliveryMeter): Promise<void> {
+        const metering = this.services.metering;
+        if (!metering) return;
+        try {
+            const actor = await this.#meterActor(meter);
+            if (!actor) return;
+            const usageType = DELIVERY_USAGE_TYPES[meter.deliveryClass];
+            metering.bufferIncrementUsages(actor, [
+                {
+                    usageType,
+                    usageAmount: 1,
+                    costOverride: EVENTS_COSTS[usageType],
+                },
+            ]);
+        } catch (err) {
+            console.warn('[events] could not meter a delivery', err);
+        }
+    }
+
+    /**
+     * Whether this holder's deliveries can still be charged for. Answered from
+     * the metering service's own cache, so it costs a map read per coalesced
+     * delivery rather than a lookup per event; the account that cannot pay has
+     * the subscription suspended and is told once, and comes back through the
+     * credit sweep.
+     */
+    async #chargeable(meter: DeliveryMeter, subId: string): Promise<boolean> {
+        const actor = await this.#meterActor(meter);
+        if (!actor) return true;
+
+        try {
+            await assertActorHasCredits(
+                this.services.metering,
+                actor,
+                this.config,
+            );
+            return true;
+        } catch (err) {
+            if (!isHttpError(err) || err.statusCode !== 402) {
+                // Not being able to read a balance is our problem, not a reason
+                // to stop delivering.
+                console.warn('[events] could not read a balance', err);
+                return true;
+            }
+        }
+
+        // A session row has no state to suspend and nothing that outlives the
+        // connection: it simply stops being delivered to.
+        if (meter.durable && (await this.suspendForNoCredit(subId)))
+            await this.#notifyNoCredit(meter.holderUserId, meter.appUid);
+        return false;
+    }
+
+    /** Tell a holder their subscriptions stopped, and what brings them back. */
+    async #notifyNoCredit(
+        holderUserId: number,
+        appUid: string | null,
+    ): Promise<void> {
+        try {
+            // The holder's news rather than the developer's — they are the one
+            // billed, and the one who can act on it.
+            await this.services.notification.notify(
+                [holderUserId],
+                {
+                    title: 'Event delivery stopped',
+                    reason: 'no_credit',
+                },
+                { type: 'app.events.ended', appUid },
+            );
+        } catch (err) {
+            console.warn('[events] could not report an empty balance', err);
+        }
+    }
+
+    /**
+     * Whether a handler may run for this invocation. Asking spends from this
+     * minute's invocations for the (account, app), so ask once per delivery.
+     * `too-deep` is permanent for this event and spends nothing.
+     */
+    async #handlerGate(
+        invocation: WorkerInvocation,
+    ): Promise<'too-deep' | 'over-budget' | 'ok'> {
+        if (await this.#tooDeep(invocation)) return 'too-deep';
+        const allowed = await checkRateLimit(
+            `${EVENTS_WORKER_INVOCATION_LIMIT.scope}:${invocation.holderUserId}:${invocation.appUid ?? ''}`,
+            EVENTS_WORKER_INVOCATION_LIMIT.limit,
+            EVENTS_WORKER_INVOCATION_LIMIT.window,
+        );
+        return allowed ? 'ok' : 'over-budget';
+    }
+
+    /**
+     * Gate then invoke, for `single`. `null` says nothing ran: a `single` stays
+     * owed and its lease paces the next attempt. `too-deep` says nothing ever
+     * will: the event is as many handler runs deep as the holder's plan lets a
+     * chain go.
+     */
+    async #invokeHandler(
+        invocation: WorkerInvocation,
+    ): Promise<WorkerInvocationResult | 'too-deep' | null> {
+        const gate = await this.#handlerGate(invocation);
+        if (gate === 'too-deep') return 'too-deep';
+        if (gate === 'over-budget') return null;
+        return this.worker.invoke(invocation);
+    }
+
+    async #tooDeep(invocation: WorkerInvocation): Promise<boolean> {
+        if (invocation.handlerDepth < HANDLER_DEPTH_NEVER_BINDS) return false;
+        const plan = await this.#planOrFree(invocation.holderUserId);
+        return invocation.handlerDepth >= limitFor(EVENTS_HANDLER_DEPTH, plan);
+    }
+
+    /**
+     * The identity a holder's lines are written as: their account, acting as
+     * the app whose subscription this is, so usage lands where the account can
+     * see which app produced it.
+     */
+    async #meterActor(meter: DeliveryMeter): Promise<Actor | null> {
+        const key = `${meter.holderUserId}|${meter.appUid ?? ''}`;
+        const now = Date.now();
+        const held = this.#meterActors.get(key);
+        if (held && held.expiresAt > now) return held.actor;
+
+        const user = await this.stores.user.getById(meter.holderUserId);
+        if (!user) return null;
+        const actor = makeActor({
+            user,
+            app: meter.appUid ? { uid: meter.appUid } : null,
+        });
+
+        // Insertion-ordered, so the oldest goes when a burst of one-off holders
+        // would otherwise grow this without bound.
+        if (this.#meterActors.size >= METER_ACTOR_LIMIT) {
+            const oldest = this.#meterActors.keys().next().value;
+            if (oldest !== undefined) this.#meterActors.delete(oldest);
+        }
+        this.#meterActors.set(key, {
+            actor,
+            expiresAt: now + METER_ACTOR_TTL_MS,
+        });
+        return actor;
+    }
+
+    // -- Hot-path cache ----------------------------------------------
+
+    /**
+     * Whether this user has anything subscribed at all. Warm, a `Map` read;
+     * cold, one pipeline — behind, at most once per warm window, the table read
+     * that teaches this region about durable rows it has never seen. Without
+     * that, an empty watched set is ambiguous: it means "nobody is listening"
+     * in a region that has looked, and nothing at all in one that has not.
+     *
+     * The epoch is captured before the read and is part of the in-flight key,
+     * so a bump landing mid-flight — a subscribe discovering the very folder a
+     * fire-and-forget dispatch is still warming up against, say — starts its
+     * own fresh lookup rather than being handed the answer an older,
+     * now-superseded one is about to compute.
+     */
+    async #userHasAny(userId: number): Promise<boolean> {
+        const cached = this.#cache.read(userId);
+        if (cached !== null) return cached;
+
+        const epoch = this.#cache.generationOf(userId);
+        const key = `${userId}|${epoch}`;
+
+        // Concurrent writes at the same epoch miss together, and each miss
+        // can cost a table read. One lookup answers all of them.
+        const inFlight = this.#lookups.get(key);
+        if (inFlight) return inFlight;
+
+        const lookup = this.#lookUpHasAny(userId, epoch).finally(() => {
+            this.#lookups.delete(key);
+        });
+        this.#lookups.set(key, lookup);
+        return lookup;
+    }
+
+    async #lookUpHasAny(userId: number, epoch: number): Promise<boolean> {
+        try {
+            let hasAny =
+                await this.stores.eventSubscription.userHasAnyIfWarm(userId);
+            if (hasAny === null) {
+                await this.stores.durableSubscription.warmRegion(userId);
+                hasAny = await this.stores.eventSubscription.userHasAny(userId);
+            }
+            this.#cache.write(userId, epoch, hasAny);
+            return hasAny;
+        } catch {
+            // Not being able to tell is the same outcome as no subscribers,
+            // and this must not become the writer's problem.
+            return false;
+        }
+    }
+
+    /**
+     * Forget what this process, and this region, believe about one user's
+     * subscriptions. Where a generation bump from anywhere else lands: the
+     * process drops its answer, and the region rebuilds its durable rows from
+     * the table on the next dispatch.
+     *
+     * Bumps unconditionally rather than passing a remote generation through to
+     * the cache's own number check: `ev:g` is a region-local counter, so a
+     * peer's bump can carry a number this process's own counter has already
+     * passed for entirely unrelated reasons, and comparing them would let a
+     * real invalidation be silently ignored as "already applied". There is
+     * nothing to order a cross-region signal against, so every one just
+     * forgets, and `SubscriptionCache`'s read-side TTL is what bounds a process
+     * that never received one at all.
+     */
+    invalidateUser(
+        userId: number,
+        { rebuild = true }: { rebuild?: boolean } = {},
+    ): void {
+        this.#cache.bump(userId);
+        if (!rebuild) return;
+        void this.stores.eventSubscription
+            .markRegionCold(userId)
+            .catch(() => {});
+    }
+
+    /**
+     * `durable` says whether the table changed. Session rows live in this
+     * region's Redis alone, so a peer hearing about one has nothing to rebuild
+     * — only a durable bump is worth a primary read over there.
+     *
+     * Also fans the bump over the addressed peer channel — a 25 ms queue window
+     * and a pooled round trip, rather than the ~2 s all-peers webhook batch
+     * above, which stays as the backstop for a dropped addressed item or a peer
+     * running old code. And where the store reported a session-watcher
+     * transition (`bump.announce`), tells every peer to start or stop
+     * forwarding raw events for that token — the whole of how subscribe,
+     * unsubscribe, socket reap and reanchor keep the remote-watch index honest,
+     * since all of them land here.
+     */
+    #publishGeneration(
+        bump: GenerationBump,
+        durable: boolean,
+        ended?: readonly string[],
+    ): void {
+        const { userId, generation } = bump;
+        this.#cache.bump(userId, generation);
+        try {
+            this.clients.event.emit(
+                'outer.pubsub.events.generationBumped',
+                {
+                    userId,
+                    generation,
+                    durable,
+                    ...(ended?.length ? { ended: [...ended] } : {}),
+                },
+                {},
+            );
+        } catch {
+            // A peer that misses the bump rebuilds on its own next miss.
+        }
+        this.services.eventForward.announceGeneration(
+            { userId, generation },
+            durable,
+            'subscription',
+        );
+        for (const announce of bump.announce ?? [])
+            this.services.eventForward.announceWatch(
+                userId,
+                announce.token,
+                announce.op,
+            );
+    }
+
+    // -- Plumbing ----------------------------------------------------
+
+    #forget(subId: string): void {
+        this.#compiled.forget(subId);
+        this.#deliveryAuth.forget(subId);
+        this.#coalesce().cancelGroup(subId);
+        this.#endNotices.delete(subId);
+    }
+
+    /** A sibling process ended this subscription; stop queueing for it here too. */
+    #endedElsewhere(subId: string): void {
+        this.#ended.mark(subId);
+        this.#compiled.forget(subId);
+        this.#coalescer?.cancelGroup(subId);
+        // Cancelling may be the last thing this subId was owed here.
+        this.#releaseEnded(subId);
+    }
+
+    #anchorDeps(): FsAnchorDeps {
+        return {
+            resolveNode: (ref) => resolveNode(this.stores.fsEntry, ref),
+            getAncestorChain: (path) =>
+                this.stores.fsEntry.getAncestorChain(path),
+        };
+    }
+
+    #kvShareDeps(): KvSharedRegionDeps {
+        return {
+            enabled: this.kvHandlesEnabled,
+            checkPermission: (actor, permission) =>
+                this.services.permission.check(actor, permission),
+        };
+    }
+
+    #kvDeps(): CrossAppKvDeps {
+        return {
+            enabled: this.crossAppKvEnabled,
+            getApp: (uid) => this.stores.app.getByUid(uid),
+            checkPermission: (actor, permission) =>
+                this.services.permission.check(actor, permission),
+        };
+    }
+
+    #aclDeps(): EventAclDeps {
+        return {
+            acl: this.services.acl,
+            getAncestorChain: (path) =>
+                this.stores.fsEntry.getAncestorChain(path),
+            getUser: (userId) => this.stores.user.getById(userId),
+            getApp: (uid) => this.stores.app.getByUid(uid),
+            getCacheGeneration: (uid) =>
+                this.stores.permission.getCacheGeneration(uid),
+        };
+    }
+
+    #spendCallBudget(userId: number): Promise<void> {
+        return spendUserWindow(EVENTS_SUBSCRIBE_LIMIT, userId);
+    }
+
+    #spendUnsubscribeBudget(userId: number): Promise<void> {
+        return spendUserWindow(EVENTS_UNSUBSCRIBE_LIMIT, userId);
+    }
+
+    /**
+     * Hold a live socket's keys open. Connections routinely outlive the TTL,
+     * and renewing is what separates one of those from a node that died without
+     * reaping.
+     */
+    #startRefresh(holderUserId: number, socketId: string): void {
+        const key = `${holderUserId}|${socketId}`;
+        if (this.#refreshTimers.has(key)) return;
+        const timer = setInterval(
+            () => {
+                void this.#refreshSocket(holderUserId, socketId);
+            },
+            Math.floor((SESSION_SUBSCRIPTION_TTL_SECONDS * 1000) / 3),
+        );
+        timer.unref?.();
+        this.#refreshTimers.set(key, timer);
+    }
+
+    /**
+     * One refresh of a live socket's keys. Rows made through a share handle
+     * that no longer stands end here, which is how a retire in another region
+     * reaches this one's rows.
+     */
+    async #refreshSocket(
+        holderUserId: number,
+        socketId: string,
+    ): Promise<void> {
+        try {
+            const { reasserted, lapsed } =
+                await this.stores.eventSubscription.refresh(
+                    holderUserId,
+                    socketId,
+                    { stillHeld: (row) => this.#kvHandleRowStands(row) },
+                );
+            await runWithConcurrencyLimitSettled(
+                lapsed,
+                SESSION_END_CONCURRENCY,
+                (row) => this.#endSubscription(row, 'permission_revoked'),
+            );
+            // The whole of the refresh story for a peer's remote-watch entry:
+            // re-assert whatever this socket still holds, so a lost `ev:rw`
+            // field — or its TTL simply lapsing — heals within one window
+            // rather than waiting on the next transition.
+            for (const { ownerUserId, token } of reasserted)
+                this.services.eventForward.announceWatch(
+                    ownerUserId,
+                    token,
+                    'add',
+                );
+        } catch {
+            // The TTL backstop covers a refresh that fails.
+        }
+    }
+
+    /** The table sweeps, each run once per cadence across the fleet. */
+    #registerJobs(): void {
+        this.services.jobs.register(EXPIRY_SWEEP_JOB, {
+            every: EXPIRY_SWEEP_EVERY_MS,
+            scope: 'fleet',
+            nearPrimary: true,
+            leaseMs: EXPIRY_SWEEP_LEASE_MS,
+            run: async (ctx) => {
+                await this.sweepExpired(ctx.signal);
+                await this.sweepSuspended(ctx.signal);
+                await this.sweepStrandedWorkerSessions(ctx);
+            },
+        });
+        this.services.jobs.register(USER_HANDLER_GC_JOB, {
+            every: USER_HANDLER_GC_EVERY_MS,
+            scope: 'fleet',
+            nearPrimary: true,
+            leaseMs: USER_HANDLER_GC_LEASE_MS,
+            run: async (ctx) => {
+                await this.sweepUnboundUserHandlers(ctx.signal);
+            },
+        });
+        this.services.jobs.register(NO_CREDIT_SWEEP_JOB, {
+            every: NO_CREDIT_SWEEP_EVERY_MS,
+            scope: 'fleet',
+            leaseMs: NO_CREDIT_SWEEP_LEASE_MS,
+            run: async (ctx) => {
+                await this.sweepNoCredit(ctx);
+            },
+        });
+    }
+
+    #armPendingSweep(): void {
+        if (!this.enabled) return;
+        const sweep = setInterval(() => {
+            void this.sweepPending().catch((err) => {
+                console.warn('[events] pending sweep failed', err);
+            });
+        }, PENDING_SWEEP_INTERVAL_MS);
+        sweep.unref?.();
+        this.#pendingSweep = sweep;
+    }
+
+    #stopRefresh(holderUserId: number, socketId: string): void {
+        const key = `${holderUserId}|${socketId}`;
+        const timer = this.#refreshTimers.get(key);
+        if (!timer) return;
+        clearInterval(timer);
+        this.#refreshTimers.delete(key);
+    }
+}

@@ -1,0 +1,464 @@
+import { showAllTools, saveToPuter, onTab } from './helpers/editor-tools.js';
+import { reopenDocx } from './helpers/reopen-docx.js';
+import { test, expect } from '@playwright/test';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { unzipSync, zipSync, strToU8, strFromU8 } from 'fflate';
+
+test('edits indents and tab stops with an icon toolbar, undoes atomically, and reopens DOCX', async ({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/playground.html'); await showAllTools(page);
+  await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/indents-tabs.docx');
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/^Lead\tLeft\tCenter\tRight\t123.45/);
+  for (const name of ['Undo', 'Redo', 'Bold', 'Italic', 'Underline', 'Align left', 'Align center', 'Align right', 'Decrease Indent', 'Increase Indent', 'Indents and tabs']) {
+    await expect(page.getByRole('button', { name, exact: true }).locator('svg')).toHaveCount(1);
+  }
+  for (const name of ['Insert tab', 'Page setup', 'Page break']) {
+    const control = page.getByRole('button', { name, exact: true, includeHidden: true });
+    await expect(control).toHaveCount(1); await expect(control.locator('svg')).toHaveCount(1);
+  }
+  const setup = page.getByRole('button', { name: 'Indents and tabs', exact: true });
+  const undo = page.getByRole('button', { name: 'Undo', exact: true });
+  const redo = page.getByRole('button', { name: 'Redo', exact: true });
+  await setup.click();
+  const dialog = page.getByRole('dialog', { name: 'Indents and tabs' });
+  await expect(dialog.getByRole('spinbutton', { name: 'Left indent (in)', exact: true })).toHaveValue('0.75');
+  await expect(dialog.getByRole('combobox', { name: 'Special indent', exact: true })).toHaveValue('hanging');
+  await dialog.getByRole('spinbutton', { name: 'Left indent (in)', exact: true }).fill('0.5');
+  await dialog.getByRole('spinbutton', { name: 'Right indent (in)', exact: true }).fill('0.5');
+  await dialog.getByRole('combobox', { name: 'Special indent', exact: true }).selectOption('firstLine');
+  await dialog.getByRole('spinbutton', { name: 'Special indent (in)', exact: true }).fill('0.25');
+  await dialog.getByRole('spinbutton', { name: 'Tab 1 position (in)', exact: true }).fill('1.75');
+  await dialog.getByRole('spinbutton', { name: 'Tab 4 position (in)', exact: true }).fill('5.5');
+  await dialog.getByRole('spinbutton', { name: 'Default tab spacing (in)', exact: true }).fill('0.25');
+  await expect(dialog.getByRole('button', { name: 'Apply', exact: true })).toBeInViewport();
+  await page.screenshot({ path: testInfo.outputPath('indent-tab-dialog.png'), animations: 'disabled' });
+  await dialog.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await undo.click();
+  await expect(undo).toBeDisabled();
+  await setup.click();
+  await expect(dialog.getByRole('spinbutton', { name: 'Default tab spacing (in)', exact: true })).toHaveValue('0.5');
+  await expect(dialog.getByRole('combobox', { name: 'Special indent', exact: true })).toHaveValue('hanging');
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await redo.click();
+  await input.press('ControlOrMeta+Home');
+  await page.keyboard.insertText('New ');
+  const text = await input.inputValue();
+  await input.press('Tab'); await expect(input).toHaveValue(/^New \tLead/);
+  await undo.click(); await expect(input).toHaveValue(text);
+  await input.press('Escape'); await input.press('Tab');
+  await expect(input).not.toBeFocused(); await expect(input).toHaveValue(text);
+  // The first custom stop is 1.75 inches from the text margin (96 + 168 px).
+  const canvas = page.locator('canvas.canvas-page').first();
+  await canvas.scrollIntoViewIfNeeded();
+  const box = await canvas.boundingBox();
+  await page.mouse.click(box.x + 264, box.y + 108);
+  expect(await input.evaluate(el => el.selectionStart)).toBe('New Lead\t'.length);
+  const image = await canvas.evaluate(el => el.toDataURL('image/png'));
+  writeFileSync(testInfo.outputPath('indents-tabs.png'), Buffer.from(image.split(',')[1], 'base64'));
+  await page.screenshot({ path: testInfo.outputPath('icon-toolbar.png'), animations: 'disabled' });
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+  const saved = testInfo.outputPath('indents-tabs.docx'); await (await downloaded).saveAs(saved);
+  await reopenDocx(page, input, saved, await input.inputValue());
+  await expect(input).toHaveValue(text); await expect(undo).toBeDisabled();
+  await setup.click();
+  await expect(dialog.getByRole('spinbutton', { name: 'Left indent (in)', exact: true })).toHaveValue('0.5');
+  await expect(dialog.getByRole('spinbutton', { name: 'Tab 1 position (in)', exact: true })).toHaveValue('1.75');
+  await expect(dialog.getByRole('spinbutton', { name: 'Default tab spacing (in)', exact: true })).toHaveValue('0.25');
+  await dialog.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(undo).toBeDisabled(); // Opening/applying must not round values or invent edits.
+  await input.press('ControlOrMeta+a'); await setup.click();
+  await expect(dialog.getByRole('spinbutton', { name: 'Left indent (in)', exact: true })).toHaveValue('');
+  await expect(dialog.getByText(/Tab stops vary/)).toBeVisible();
+  await dialog.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(undo).toBeDisabled(); // Unchanged mixed fields preserve every paragraph's own properties.
+  expect(errors).toEqual([]);
+});
+
+test('opens DOCX, edits on canvas, formats across paragraphs, undoes and reopens its download', async ({ page }, testInfo) => {
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/playground.html'); await showAllTools(page);
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/A small beginning/);
+  await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/two-paragraphs.docx');
+  await expect(page.getByRole('textbox', { name: 'Document name' })).toHaveValue('two-paragraphs');
+  await expect(page.getByRole('button', { name: 'Download .docx', exact: true })).toBeEnabled();
+  const canvas = page.locator('canvas.canvas-page').first();
+  const box = await canvas.boundingBox();
+  await page.mouse.click(box.x + 100, box.y + 108);
+  await page.keyboard.press('Home');
+  await page.keyboard.type('New ');
+  await expect(input).toHaveValue(/^New A small beginning/);
+  await page.keyboard.press('ControlOrMeta+Home');
+  await page.keyboard.press('ControlOrMeta+Shift+End');
+  await (await onTab(page, 'home')).getByRole('button', { name: 'Bold', exact: true }).click();
+  await expect((await onTab(page, 'home')).getByRole('button', { name: 'Bold', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect((await onTab(page, 'home')).getByRole('button', { name: 'Bold', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await expect((await onTab(page, 'home')).getByRole('button', { name: 'Bold', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const contents = await input.inputValue();
+  await page.screenshot({ path: testInfo.outputPath('canvas-editor.png'), fullPage: true });
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+  const download = await downloaded;
+  const saved = testInfo.outputPath('edited.docx');
+  await download.saveAs(saved);
+  await reopenDocx(page, input, saved, await input.inputValue());
+  await expect(page.getByRole('textbox', { name: 'Document name' })).toHaveValue('edited');
+  await expect(input).toHaveValue(contents);
+  await expect(page.getByRole('button', { name: 'Download .docx', exact: true })).toBeEnabled();
+  await input.press('ControlOrMeta+a');
+  await expect((await onTab(page, 'home')).getByRole('button', { name: 'Bold', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});
+
+test('selects and edits across a page boundary and restores layout with undo', async ({ page }, testInfo) => {
+  await page.goto('/playground.html'); await showAllTools(page);
+  await page.getByRole('button', { name: 'Across pages', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/Every page is another chance/);
+  const canvases = page.locator('canvas.canvas-page');
+  await expect(canvases).toHaveCount(2);
+  await page.getByRole('combobox', { name: 'Zoom' }).selectOption('0.5');
+  await canvases.nth(0).click({ position: { x: 50, y: 480 } });
+  await page.keyboard.down('Shift');
+  await canvases.nth(1).scrollIntoViewIfNeeded();
+  await canvases.nth(1).click({ position: { x: 100, y: 54 } });
+  await page.keyboard.up('Shift');
+  const selection = await input.evaluate(el => [el.selectionStart, el.selectionEnd]);
+  expect(selection[1]).toBeGreaterThan(selection[0] + 10);
+  await (await onTab(page, 'home')).getByRole('button', { name: 'Bold', exact: true }).click();
+  await expect((await onTab(page, 'home')).getByRole('button', { name: 'Bold', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await input.press('ControlOrMeta+a');
+  await page.keyboard.type('A short replacement.');
+  await expect(canvases).toHaveCount(1);
+  // Undo the whole replacement first, then the subsequently typed characters.
+  for (let i = 0; i < 30 && (await input.inputValue()).length < 100; i++) await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(canvases).toHaveCount(2);
+  await page.screenshot({ path: testInfo.outputPath('two-pages.png') });
+});
+
+test('supports text mode and native composition event sequencing', async ({ page }) => {
+  await page.goto('/playground.html'); await showAllTools(page);
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/A small/);
+  await page.getByRole('checkbox', { name: 'Text mode' }).check();
+  await expect(input).toBeVisible();
+  await input.press('ControlOrMeta+a');
+  await page.keyboard.insertText('Café 👋\nSecond paragraph');
+  await expect(input).toHaveValue('Café 👋\nSecond paragraph');
+  await input.press('ControlOrMeta+Home');
+  // Exercise the actual native-composition event sequence, without pretending this is an OS IME test.
+  await input.evaluate(el => {
+    el.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: '' }));
+    el.setRangeText('한', 0, 0, 'end');
+    el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertCompositionText', data: '한', isComposing: true }));
+    el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '한' }));
+  });
+  await expect(input).toHaveValue('한Café 👋\nSecond paragraph');
+  await input.press('ControlOrMeta+z');
+  await expect(input).toHaveValue('Café 👋\nSecond paragraph');
+});
+
+test('pointer dragging selects across paragraphs, and a rejected file leaves current edits intact', async ({ page }) => {
+  await page.goto('/playground.html'); await showAllTools(page);
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toHaveValue(/A small beginning/);
+  const original = await input.inputValue();
+  const box = await page.locator('canvas.canvas-page').boundingBox();
+  await page.mouse.move(box.x + 145, box.y + 108);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 240, box.y + 146, { steps: 6 });
+  await page.mouse.up();
+  const range = await input.evaluate(el => [el.selectionStart, el.selectionEnd]);
+  expect(range[0]).toBeGreaterThan(0);
+  expect(range[1]).toBeGreaterThan(original.indexOf('\n'));
+  await page.keyboard.insertText('Replacement');
+  const edited = await input.inputValue();
+  expect(edited).toContain('Replacement');
+  const parts = unzipSync(new Uint8Array(readFileSync('public/fixtures/two-paragraphs.docx')));
+  parts['word/document.xml'] = strToU8('<invalid');
+  await page.getByLabel('Open DOCX file').setInputFiles({ name: 'table.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: Buffer.from(zipSync(parts)) });
+  await expect(page.getByRole('alert')).toContainText('invalid XML');
+  await expect(input).toHaveValue(edited);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(input).toHaveValue(original);
+});
+
+test('the app uses the canvas engine and saves and reopens through Puter storage', async ({ page }) => {
+  await page.goto('/mock.html'); await showAllTools(page);
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  await expect(input).toBeVisible();
+  await page.keyboard.type('Saved with our canvas engine.');
+  await input.press('ControlOrMeta+Enter');
+  await page.keyboard.insertText('Second page.');
+  await (await onTab(page, 'layout')).getByRole('button', { name: 'Page setup', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Paper size', exact: true }).selectOption('A4');
+  await page.getByRole('button', { name: 'Apply', exact: true }).click();
+  await page.getByRole('button', { name: 'Keep with next paragraph', exact: true }).click();
+  await page.getByRole('button', { name: 'Keep lines together', exact: true }).click();
+  await page.getByRole('button', { name: 'Widow and orphan control', exact: true }).click();
+  await (await onTab(page, 'home')).getByRole('button', { name: 'Numbered list', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Paragraph style', exact: true }).selectOption('Heading2');
+  await input.press('ControlOrMeta+a');
+  await page.getByRole('combobox', { name: 'Character style', exact: true }).selectOption('Emphasis');
+  await saveToPuter(page);
+  await expect(page.locator('.canvas-save-status')).toHaveText('Saved to Puter');
+  const url = page.url();
+  expect(url).toContain('edit/');
+  await page.reload(); await showAllTools(page);
+  await expect(input).toHaveValue('Saved with our canvas engine.\nSecond page.');
+  await expect(page.getByRole('combobox', { name: 'Paragraph style', exact: true })).toHaveValue('Heading2');
+  await expect(page.getByRole('combobox', { name: 'Character style', exact: true })).toHaveValue('Emphasis');
+  await expect((await onTab(page, 'home')).getByRole('button', { name: 'Numbered list', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Keep with next paragraph', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Keep lines together', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Widow and orphan control', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('canvas.canvas-page')).toHaveCount(2);
+  await input.press('ControlOrMeta+End');
+  await (await onTab(page, 'insert')).getByRole('button', { name: 'Insert table', exact: true }).click();
+  await page.getByRole('button', { name: 'Insert', exact: true }).click();
+  await page.keyboard.insertText('Cloud cell');
+  await saveToPuter(page);
+  await expect(page.locator('.canvas-save-status')).toHaveText('Saved to Puter');
+  await page.reload(); await showAllTools(page); await expect(input).toHaveValue(/Cloud cell/);
+  await input.evaluate(el => { const at = el.value.indexOf('Cloud cell'); el.setSelectionRange(at, at); el.dispatchEvent(new Event('select', { bubbles: true })); });
+  await expect(page.getByRole('combobox', { name: 'Table actions', exact: true })).toBeEnabled();
+  await input.press('Tab'); await page.keyboard.insertText('Next cell');
+  await expect(input).toHaveValue(/Cloud cell\nNext cell/);
+  expect((await page.locator('canvas.canvas-page').first().boundingBox()).width).toBeCloseTo(11906 / 15, 0);
+});
+
+test('page setup and explicit breaks preserve selection, undo, mixed formatting and DOCX semantics', async ({ page }, testInfo) => {
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/playground.html'); await showAllTools(page);
+  await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/page-settings.docx');
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  const canvases = page.locator('canvas.canvas-page');
+  const setup = page.getByRole('button', { name: 'Page setup', exact: true });
+  const apply = page.getByRole('button', { name: 'Apply', exact: true });
+  const undo = page.getByRole('button', { name: 'Undo', exact: true });
+  const redo = page.getByRole('button', { name: 'Redo', exact: true });
+  await expect(input).toHaveValue('Before break\nAfter break\nSame paragraph\nNew page from style\nLast paragraph');
+  await expect(canvases).toHaveCount(3);
+  let box = await canvases.first().boundingBox();
+  expect(box.width).toBeCloseTo(16838 / 15, 0); expect(box.height).toBeCloseTo(11906 / 15, 0);
+  await input.press('ControlOrMeta+Home'); await input.press('Shift+End');
+  const selection = await input.evaluate(el => [el.selectionStart, el.selectionEnd]);
+  // Opening the document brings the Home tab to the front: choose Layout once it has opened.
+  await onTab(page, 'layout'); await setup.click();
+  await expect(page.getByRole('combobox', { name: 'Paper size' })).toHaveValue('A4');
+  await expect(page.getByRole('combobox', { name: 'Page orientation' })).toHaveValue('landscape');
+  await apply.click(); await expect(undo).toBeDisabled(); // Opening and applying unchanged fields is lossless.
+  await setup.click();
+  await page.getByRole('spinbutton', { name: 'Left margin (in)' }).fill('20');
+  await apply.click(); await expect(page.getByRole('dialog', { name: 'Page setup' }).getByRole('alert')).toContainText('writing space');
+  await expect(undo).toBeDisabled();
+  await page.getByRole('spinbutton', { name: 'Left margin (in)' }).fill('0.5');
+  await page.getByRole('spinbutton', { name: 'Right margin (in)' }).fill('0.75');
+  await page.getByRole('combobox', { name: 'Page orientation' }).selectOption('portrait');
+  await page.getByRole('combobox', { name: 'Paper size' }).selectOption('Letter');
+  await apply.click();
+  expect(await input.evaluate(el => [el.selectionStart, el.selectionEnd])).toEqual(selection);
+  box = await canvases.first().boundingBox(); expect(box.width).toBe(816); expect(box.height).toBe(1056);
+  await undo.click(); expect((await canvases.first().boundingBox()).width).toBeCloseTo(16838 / 15, 0);
+  await redo.click(); expect((await canvases.first().boundingBox()).width).toBe(816);
+  await page.getByRole('combobox', { name: 'Zoom' }).selectOption('0.5');
+  await canvases.first().scrollIntoViewIfNeeded(); box = await canvases.first().boundingBox();
+  expect(box.width).toBe(408); expect(box.height).toBe(528);
+  // Place the caret using the saved left margin + gutter at 50% zoom.
+  await page.mouse.click(box.x + 30, box.y + 28); await input.press('Home');
+  for (let i = 0; i < 7; i++) await input.press('ArrowRight');
+  await input.press('ControlOrMeta+Enter'); await expect(canvases).toHaveCount(4);
+  await expect(input).toHaveValue(/^Before \nbreak\nAfter/);
+  await input.press('Backspace'); await expect(canvases).toHaveCount(3);
+  await undo.click(); await expect(canvases).toHaveCount(4);
+  // Select across both sides of the new page break, replace, then restore all formatting.
+  await input.press('ArrowLeft'); await input.press('Shift+ArrowRight'); await input.press('Shift+ArrowRight');
+  await page.keyboard.insertText('X'); await expect(canvases).toHaveCount(3);
+  await undo.click(); await expect(canvases).toHaveCount(4);
+  // Turn off a style-inherited paragraph break using a direct override.
+  await input.evaluate(el => {
+    const pos = el.value.indexOf('New page from style'); el.setSelectionRange(pos, pos);
+    el.dispatchEvent(new Event('select', { bubbles: true }));
+  });
+  const before = page.getByRole('button', { name: 'Start paragraph on new page' });
+  await expect(before).toHaveAttribute('aria-pressed', 'true'); await before.click(); await expect(canvases).toHaveCount(3);
+  await undo.click(); await expect(before).toHaveAttribute('aria-pressed', 'true'); await expect(canvases).toHaveCount(4);
+  await redo.click(); await expect(before).toHaveAttribute('aria-pressed', 'false'); await expect(canvases).toHaveCount(3);
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+  const path = testInfo.outputPath('pages.docx'); await (await downloaded).saveAs(path);
+  const text = await input.inputValue();
+  await reopenDocx(page, input, path, await input.inputValue());
+  await expect(page.getByRole('textbox', { name: 'Document name' })).toHaveValue('pages');
+  await expect(input).toHaveValue(text); await expect(canvases).toHaveCount(3);
+  box = await canvases.first().boundingBox(); expect(box.width).toBe(816); expect(box.height).toBe(1056);
+  // Capture the canvas backing surface: a viewport screenshot clips tall pages in the scroll host.
+  const pageImage = await canvases.last().evaluate(canvas => canvas.toDataURL('image/png'));
+  writeFileSync(testInfo.outputPath('page-settings.png'), Buffer.from(pageImage.split(',')[1], 'base64'));
+  await onTab(page, 'layout'); await setup.click(); await expect(page.getByRole('spinbutton', { name: 'Left margin (in)' })).toHaveValue('0.5');
+  await page.screenshot({ path: testInfo.outputPath('page-setup-dialog.png'), fullPage: true, animations: 'disabled' });
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click(); await expect(undo).toBeDisabled();
+  expect(errors).toEqual([]);
+});
+
+test('paragraph formatting repaginates, undoes and survives DOCX download and reopen', async ({ page }, testInfo) => {
+  await page.goto('/playground.html'); await showAllTools(page);
+  await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/paragraph-formatting.docx');
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  const alignment = (await onTab(page, 'home')).getByRole('button', { name: 'Align center', exact: true });
+  const spacing = page.getByRole('combobox', { name: 'Line spacing' });
+  // Paragraph spacing is on the Layout tab; its value is read while another tab is in front.
+  const before = page.getByRole('spinbutton', { name: 'Space before paragraph (pt)', includeHidden: true });
+  const after = page.getByRole('spinbutton', { name: 'Space after paragraph (pt)', includeHidden: true });
+  const canvases = page.locator('canvas.canvas-page');
+  await expect(input).toHaveValue(/^Formatting survives/);
+  await expect(canvases).toHaveCount(2);
+  // The first paragraph's properties come from an inherited paragraph style.
+  await expect(alignment).toHaveAttribute('aria-pressed', 'true');
+  await expect(spacing).toHaveValue('1.5');
+  await expect(before).toHaveValue('6');
+  await expect(after).toHaveValue('18');
+  await input.press('ControlOrMeta+Home');
+  await page.keyboard.insertText('Edited ');
+  await input.press('ControlOrMeta+a');
+  await expect(alignment).toHaveAttribute('aria-pressed', 'mixed');
+  await expect(spacing).toHaveValue('');
+  await expect(after).toHaveValue('');
+  await alignment.click();
+  await spacing.selectOption('2');
+  const expandedPages = await canvases.count();
+  expect(expandedPages).toBeGreaterThan(2);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(canvases).toHaveCount(2);
+  await expect(spacing).toHaveValue('');
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await expect(canvases).toHaveCount(expandedPages);
+  await onTab(page, 'layout'); await before.fill('12'); await before.press('Tab');
+  await after.fill('18'); await after.press('Tab');
+  await expect(before).toHaveValue('12');
+  await expect(after).toHaveValue('18');
+  const finalPages = await canvases.count();
+  await page.getByRole('combobox', { name: 'Zoom' }).selectOption('0.5');
+  await canvases.first().scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('paragraph-formatting.png'), fullPage: true });
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+  const path = testInfo.outputPath('formatted.docx');
+  await (await downloaded).saveAs(path);
+  const originalText = await input.inputValue();
+  await reopenDocx(page, input, path, await input.inputValue());
+  await expect(page.getByRole('textbox', { name: 'Document name' })).toHaveValue('formatted');
+  await expect(input).toHaveValue(originalText);
+  await expect(canvases).toHaveCount(finalPages);
+  await input.press('ControlOrMeta+a'); await onTab(page, 'home');
+  await expect(alignment).toHaveAttribute('aria-pressed', 'true');
+  await expect(spacing).toHaveValue('2');
+  await expect(before).toHaveValue('12');
+  await expect(after).toHaveValue('18');
+  // Hit the center-aligned first paragraph on its drawn baseline, then insert text.
+  const box = await canvases.first().boundingBox();
+  await page.mouse.click(box.x + 408, box.y + 132);
+  await page.keyboard.press('Home');
+  await page.keyboard.insertText('Click ');
+  await expect(input).toHaveValue(/^Click Edited Formatting survives/);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(input).toHaveValue(originalText);
+});
+
+test('font size italic and underline preserve mixed runs and empty paragraphs through DOCX', async ({ page }, testInfo) => {
+  await page.goto('/playground.html'); await showAllTools(page);
+  await page.getByLabel('Open DOCX file').setInputFiles('public/fixtures/font-formatting.docx');
+  const input = page.getByRole('textbox', { name: 'Document text' });
+  const size = page.getByRole('spinbutton', { name: 'Font size (pt)' });
+  const italic = (await onTab(page, 'home')).getByRole('button', { name: 'Italic', exact: true });
+  const underline = (await onTab(page, 'home')).getByRole('button', { name: 'Underline', exact: true });
+  await expect(input).toHaveValue(/^A 24-point heading/);
+  await expect(size).toHaveValue('24');
+  await expect(italic).toHaveAttribute('aria-pressed', 'true');
+  await expect(underline).toHaveAttribute('aria-pressed', 'true');
+  await input.press('ControlOrMeta+a');
+  await expect(size).toHaveValue('');
+  await expect(italic).toHaveAttribute('aria-pressed', 'mixed');
+  await input.press('ControlOrMeta+Home');
+  await input.press('Shift+End');
+  await size.fill('32'); await size.press('Tab');
+  await italic.click(); await underline.click();
+  await expect(italic).toHaveAttribute('aria-pressed', 'false');
+  await expect(underline).toHaveAttribute('aria-pressed', 'false');
+  await input.press('ControlOrMeta+z');
+  await expect(underline).toHaveAttribute('aria-pressed', 'true');
+  await input.press('ControlOrMeta+Shift+z');
+  await expect(underline).toHaveAttribute('aria-pressed', 'false');
+  const box = await page.locator('canvas.canvas-page').boundingBox();
+  await page.mouse.click(box.x + 210, box.y + 125);
+  await page.keyboard.press('Home');
+  await page.keyboard.insertText('Edited ');
+  await expect(input).toHaveValue(/^Edited A 24-point heading/);
+  await input.press('ControlOrMeta+End');
+  await expect(size).toHaveValue('18');
+  await expect(italic).toHaveAttribute('aria-pressed', 'true');
+  await expect(underline).toHaveAttribute('aria-pressed', 'true');
+  await page.screenshot({ path: testInfo.outputPath('font-formatting.png'), fullPage: true });
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download .docx', exact: true }).click();
+  const path = testInfo.outputPath('fonts.docx');
+  await (await downloaded).saveAs(path);
+  const text = await input.inputValue();
+  await reopenDocx(page, input, path, await input.inputValue());
+  await expect(page.getByRole('textbox', { name: 'Document name' })).toHaveValue('fonts');
+  await expect(input).toHaveValue(text);
+  await expect(size).toHaveValue('32');
+  await expect(italic).toHaveAttribute('aria-pressed', 'false');
+  await expect(underline).toHaveAttribute('aria-pressed', 'false');
+  await input.press('ControlOrMeta+End');
+  await expect(size).toHaveValue('18');
+  await page.keyboard.insertText('New');
+  await expect(input).toHaveValue(/\nNew$/);
+  await expect(italic).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('canvas typography agrees with browser font metrics and keeps underline-only changes out of shaping', async ({ page }) => {
+  await page.goto('/playground.html'); await showAllTools(page);
+  await expect((await onTab(page, 'home')).getByRole('button', { name: 'Italic', exact: true })).toBeEnabled();
+  const result = await page.evaluate(async () => {
+    const { layoutDocument, font, caretRect } = await import('/src/engine/layout.js');
+    const { paragraph } = await import('/src/engine/model.js');
+    const { fontMetrics } = await import('/src/engine/font-metrics.js');
+    const ctx = document.createElement('canvas').getContext('2d');
+    const runs = [{ text: 'Small ', fontSize: 12 }, { text: 'Large italic', fontSize: 24, italic: true }];
+    const measure = (text, style) => { ctx.font = font(style); ctx.fontKerning = 'none'; return { width: ctx.measureText(text).width, ...fontMetrics(style) }; };
+    const measured = layoutDocument([paragraph('', { runs })], measure), line = measured.lines[0];
+    const dom = document.createElement('div');
+    dom.style.cssText = 'position:absolute;white-space:pre;line-height:normal;padding:0;margin:0';
+    const spans = runs.map(run => {
+      const span = document.createElement('span'); span.style.font = font(run); span.style.fontKerning = 'none'; span.textContent = run.text; dom.append(span); return span;
+    });
+    const marker = document.createElement('span'); marker.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline'; dom.append(marker);
+    document.body.append(dom);
+    const widths = spans.map(span => span.getBoundingClientRect().width);
+    const baseline = marker.getBoundingClientRect().top - dom.getBoundingClientRect().top;
+    dom.remove();
+    ctx.font = font(runs[1]);
+    const browserMetrics = ctx.measureText(runs[1].text);
+    const plain = layoutDocument([paragraph('fi')], measure);
+    const underlined = layoutDocument([paragraph('', { runs: [{ text: 'f' }, { text: 'i', underline: true }] })], measure);
+    return { widths, canvasWidths: line.fragments.map(f => f.width), baseline, canvasBaseline: line.baseline - line.y,
+      ascent: line.ascent, browserAscent: browserMetrics.fontBoundingBoxAscent, descent: line.descent, browserDescent: browserMetrics.fontBoundingBoxDescent,
+      plain: plain.lines[0].width, underlined: underlined.lines[0].width, fragments: underlined.lines[0].fragments.length,
+      smallCaret: caretRect(measured, 2).height, largeCaret: caretRect(measured, 9).height };
+  });
+  for (let i = 0; i < 2; i++) expect(Math.abs(result.widths[i] - result.canvasWidths[i])).toBeLessThan(0.1);
+  expect(Math.abs(result.baseline - result.canvasBaseline)).toBeLessThan(1);
+  expect(Math.abs(result.ascent - result.browserAscent)).toBeLessThan(1);
+  expect(Math.abs(result.descent - result.browserDescent)).toBeLessThan(1);
+  expect(result.largeCaret / result.smallCaret).toBeCloseTo(2);
+  expect(result.underlined).toBe(result.plain);
+  expect(result.fragments).toBe(1);
+});

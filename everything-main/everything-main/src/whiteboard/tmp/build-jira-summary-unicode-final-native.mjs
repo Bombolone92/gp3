@@ -1,0 +1,13 @@
+import { build } from 'vite';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+const root='tmp/jira-summary-unicode-final-native';
+const result=await build({configFile:false,logLevel:'silent',build:{write:false,rollupOptions:{input:'tmp/jira-summary-unicode-native-entry.js',output:{entryFileNames:'assets/jira-final.js'}}}});
+await mkdir(join(root,'assets'),{recursive:true});
+for(const out of result.output)await writeFile(join(root,out.fileName),out.type==='asset'?out.source:out.code);
+const css=result.output.find(out=>out.type==='asset'&&out.fileName.endsWith('.css'));
+if(!css)throw Error('Missing Jira component CSS');
+const before=await readFile('tmp/jira-summary-unicode-before-native/index.html','utf8');
+const html=before.replace('Jira task summary before','Jira task summary final').replace('/assets/jira-summary-unicode-native-entry-BN6O8oPb.css','/'+css.fileName).replace('/assets/jira-before.js','/assets/jira-final.js');
+await writeFile(join(root,'index.html'),html);
+console.log(JSON.stringify({root,assets:result.output.map(out=>out.fileName),entry:'tmp/jira-summary-unicode-native-entry.js',scope:'Actual createPlanning and source CSS; controlled local org.request, no external Jira requests'}));

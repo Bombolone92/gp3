@@ -1,0 +1,119 @@
+/* Printing (daily reports, statements, menus, sign-in sheets): only the page content, on white paper. */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  /* The light palette in every theme. :not() matches the specificity of the
+     system dark tokens, which would otherwise print light text on white. */
+  :root,
+  :root[data-theme],
+  :root:not([data-theme='light']) {
+    --bg: #fff;
+    --surface: #fff;
+    --surface-2: #f4f5f6;
+    --surface-3: #e9ebee;
+    --surface-hover: #f1f2ef;
+    --border: #d4d7dc;
+    --border-strong: #b9bec6;
+    --text: #111;
+    --text-2: #333;
+    --text-3: #555;
+    --text-inverse: #fff;
+
+    --accent: #0f766e;
+    --accent-soft: #e3f3f0;
+    --accent-soft-2: #c7e8e2;
+    --on-accent: #fff;
+    --accent-text: #0b6b63;
+    --success: #18794e;
+    --success-soft: #e5f4ec;
+    --warning: #8a4b06;
+    --warning-soft: #fdf1dc;
+    --danger: #c0262d;
+    --danger-soft: #fde9e9;
+    --info: #0b6f84;
+    --info-soft: #e2f3f6;
+    --neutral: #4c5767;
+    --neutral-soft: #edf0f3;
+    --series-1: #0f766e;
+    --series-2: #eb6834;
+    --grid: #e8eaee;
+
+    --t-violet: #6d3fc0; --t-violet-bg: #efe8fb;
+    --t-green: #1f7a3f; --t-green-bg: #e3f4e8;
+    --t-indigo: #3e4bb5; --t-indigo-bg: #e7e9fb;
+    --t-sky: #0b6aa2; --t-sky-bg: #e1f1fa;
+    --t-teal: #0b6b63; --t-teal-bg: #e0f3f0;
+    --t-amber: #8a5300; --t-amber-bg: #fcf0d9;
+    --t-pink: #b0246b; --t-pink-bg: #fbe6f0;
+    --t-lime: #4b6b0e; --t-lime-bg: #eef5dc;
+    --t-orange: #a3420b; --t-orange-bg: #fdebdd;
+    --t-rose: #b4233c; --t-rose-bg: #fce7ea;
+    --t-red: #b42318; --t-red-bg: #fde8e6;
+    color-scheme: light;
+  }
+
+  html,
+  body,
+  .app,
+  .main-col,
+  .content {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .rail,
+  .topbar,
+  .tabbar,
+  .demo-banner,
+  .skip-link,
+  .toast-region,
+  .alpha-notice,
+  .no-print,
+  .page-header .actions,
+  .child-actions,
+  .tabs,
+  .icon-btn,
+  .day-nav,
+  .toolbar .btn,
+  .toolbar .icon-btn {
+    display: none !important;
+  }
+
+  .page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .report-sheet,
+  .statement,
+  .card {
+    border: 0;
+    padding: 0;
+  }
+
+  .pill,
+  .type-tile,
+  .report-stats > div {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  tr,
+  .report-section,
+  .act-card {
+    break-inside: avoid;
+  }
+
+  .table-wrap {
+    overflow: visible !important;
+  }
+
+  .menu-cell {
+    border: 0;
+    resize: none;
+  }
+}

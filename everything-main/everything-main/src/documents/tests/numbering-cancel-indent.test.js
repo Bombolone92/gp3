@@ -1,0 +1,30 @@
+import {beforeAll,it,expect} from 'vitest';
+import {readFileSync} from 'node:fs';
+import {JSDOM} from 'jsdom';
+import {DocxPackage} from '../src/engine/docx.js';
+import {TextDocument} from '../src/engine/model.js';
+import {expectBodyEditParts} from './helpers/expect-body-edit-parts.js';
+beforeAll(()=>{const w=new JSDOM('').window;globalThis.DOMParser=w.DOMParser;globalThis.XMLSerializer=w.XMLSerializer;});
+const expected=[[18,12,6],[30,12,6],[18,24,6],[18,12,9],[30,24,9],[0,12,0],[30,12,0],[0,24,0],[0,12,9],[30,24,9]];
+const geometry=p=>p.paragraphs.filter(p=>p.runs.some(r=>r.image)).map(p=>[p.format.indentLeft/20,p.format.indentRight/20,p.format.firstLine/20]);
+it('matches native cancellation geometry without losing direct indents or source declarations',async()=>{
+ const pkg=await DocxPackage.open(readFileSync('public/fixtures/numbering-cancel-direct.docx'));
+ expect(geometry(pkg)).toEqual(expected);
+ const model=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets);
+ model.select(0);model.replace('Edited ');
+ const save=async()=>new Uint8Array(await pkg.export(model.paragraphs,model.pageSettings,model.numbering,model.styles).arrayBuffer());
+ const reopened=await DocxPackage.open(await save());expect(geometry(reopened)).toEqual(expected);
+ expectBodyEditParts(reopened.parts,pkg.parts);
+ model.undo();expect((await DocxPackage.open(await save())).parts).toEqual(pkg.parts);
+}, 60000);
+it('resets indents at the cancelling style while preserving same-level, descendant and direct declarations',async()=>{
+ const pkg=await DocxPackage.open(readFileSync('public/fixtures/numbering-cancel-style.docx'));
+ const cases=[[0,12,0],[30,12,0],[0,12,6],[24,12,0],[0,12,9],[36,12,0]];
+ expect(geometry(pkg)).toEqual([...cases,...cases]);
+ const model=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets);
+ model.select(0);model.replace('Edited ');
+ const save=async()=>new Uint8Array(await pkg.export(model.paragraphs,model.pageSettings,model.numbering,model.styles).arrayBuffer());
+ const reopened=await DocxPackage.open(await save());expect(geometry(reopened)).toEqual([...cases,...cases]);
+ expectBodyEditParts(reopened.parts,pkg.parts);
+ model.undo();expect((await DocxPackage.open(await save())).parts).toEqual(pkg.parts);
+}, 60000);

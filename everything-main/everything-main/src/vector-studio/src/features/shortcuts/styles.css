@@ -1,0 +1,158 @@
+.keyboard-shortcuts .dialog-body {
+  padding-bottom: 8px;
+}
+
+.ks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.ks-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ks-set-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+}
+
+.ks-set {
+  min-width: 180px;
+}
+
+.ks-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ks-tab {
+  padding: 6px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ks-tab[aria-selected='true'] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.ks-search {
+  width: 100%;
+}
+
+.ks-list {
+  height: max(140px, min(44vh, 460px));
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.ks-group {
+  position: sticky;
+  top: 0;
+  padding: 6px 10px;
+  background: var(--bg-panel-2);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  z-index: 1;
+}
+
+.ks-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 2px 18px;
+  min-height: 30px;
+}
+
+.ks-row:nth-child(even) {
+  background: var(--bg-hover);
+}
+
+.ks-row.changed .ks-label::after {
+  content: ' •';
+  color: var(--accent);
+}
+
+.ks-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ks-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 170px;
+  flex: none;
+}
+
+.ks-key {
+  flex: 1;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  cursor: text;
+}
+
+.ks-key.capturing {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--text-2);
+}
+
+.ks-clear {
+  opacity: 0.6;
+}
+
+.ks-clear-space {
+  width: 28px;
+  flex: none;
+}
+
+.ks-row:hover .ks-clear,
+.ks-clear:focus-visible {
+  opacity: 1;
+}
+
+.ks-status {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--text-2);
+}
+
+.ks-empty {
+  padding: 16px;
+  color: var(--text-2);
+}
+
+@media (max-width: 760px) {
+  .ks-cell {
+    width: 130px;
+  }
+}

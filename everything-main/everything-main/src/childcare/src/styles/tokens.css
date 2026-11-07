@@ -1,0 +1,191 @@
+/* Design tokens. Light values on :root; dark values both for an explicit
+   [data-theme='dark'] and for the system preference when no theme is
+   forced. Every color pair below meets WCAG AA for its intended use. */
+
+:root {
+  --bg: #f5f5f2;
+  --surface: #ffffff;
+  --surface-2: #f5f5f3;
+  --surface-3: #eaecef;
+  --surface-hover: #f1f2ef;
+  --border: #e2e5e9;
+  --border-strong: #c9ced5;
+  --text: #16202b;
+  --text-2: #475262;
+  --text-3: #5f6a79;
+  --text-inverse: #ffffff;
+
+  --accent: #0f766e;
+  --accent-hover: #0b5f58;
+  --accent-soft: #e3f3f0;
+  --accent-soft-2: #c7e8e2;
+  --on-accent: #ffffff;
+  --accent-text: #0b6b63;
+
+  --success: #18794e;
+  --success-soft: #e5f4ec;
+  --warning: #8a4b06;
+  --warning-soft: #fdf1dc;
+  --danger: #c0262d;
+  --danger-hover: #a51f25;
+  --danger-soft: #fde9e9;
+  --info: #0b6f84;
+  --info-soft: #e2f3f6;
+  --neutral: #4c5767;
+  --neutral-soft: #edf0f3;
+
+  --rail: #ffffff;
+  --rail-active: #e3f3f0;
+  --scrim: rgba(13, 20, 28, 0.42);
+  --focus: #0f766e;
+
+  /* Chart series, validated for color vision deficiency on --surface. */
+  --series-1: #0f766e;
+  --series-2: #eb6834;
+  --grid: #e8eaee;
+
+
+  /* Activity colors: soft tile background and strong glyph, AA on each other. */
+  --t-violet: #6d3fc0; --t-violet-bg: #efe8fb;
+  --t-green: #1f7a3f; --t-green-bg: #e3f4e8;
+  --t-indigo: #3e4bb5; --t-indigo-bg: #e7e9fb;
+  --t-sky: #0b6aa2; --t-sky-bg: #e1f1fa;
+  --t-teal: #0b6b63; --t-teal-bg: #e0f3f0;
+  --t-amber: #8a5300; --t-amber-bg: #fcf0d9;
+  --t-pink: #b0246b; --t-pink-bg: #fbe6f0;
+  --t-lime: #4b6b0e; --t-lime-bg: #eef5dc;
+  --t-orange: #a3420b; --t-orange-bg: #fdebdd;
+  --t-rose: #b4233c; --t-rose-bg: #fce7ea;
+  --t-red: #b42318; --t-red-bg: #fde8e6;
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  --rail-w: 232px;
+  --rail-w-collapsed: 64px;
+  --topbar-h: 60px;
+  --tabbar-h: 60px;
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #0f1216;
+  --surface: #171b21;
+  --surface-2: #1d2229;
+  --surface-3: #262c35;
+  --surface-hover: #212730;
+  --border: #272d36;
+  --border-strong: #3a424e;
+  --text: #edf0f4;
+  --text-2: #aab3c0;
+  --text-3: #8e98a6;
+  --text-inverse: #0f1216;
+
+  --accent: #3cc7b3;
+  --accent-hover: #63d6c5;
+  --accent-soft: #10302c;
+  --accent-soft-2: #174540;
+  --on-accent: #06201c;
+  --accent-text: #63d6c5;
+
+  --success: #4cc38a;
+  --success-soft: #132b20;
+  --warning: #f0b45c;
+  --warning-soft: #2e2312;
+  --danger: #ff7b7b;
+  --danger-hover: #ff9a9a;
+  --danger-soft: #341719;
+  --info: #5cc6db;
+  --info-soft: #11292f;
+  --neutral: #aab3c0;
+  --neutral-soft: #232932;
+
+  --rail: #13171c;
+  --rail-active: #10302c;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --focus: #63d6c5;
+
+  --series-1: #3cc7b3;
+  --series-2: #d95926;
+  --grid: #262c35;
+
+
+  --t-violet: #c4a7f5; --t-violet-bg: #2a2140;
+  --t-green: #7fd49b; --t-green-bg: #16301f;
+  --t-indigo: #aab3f5; --t-indigo-bg: #22264a;
+  --t-sky: #85c9ee; --t-sky-bg: #102c3d;
+  --t-teal: #63d6c5; --t-teal-bg: #10302c;
+  --t-amber: #f2c46d; --t-amber-bg: #33280f;
+  --t-pink: #f29ac4; --t-pink-bg: #3a1a2a;
+  --t-lime: #b9dc7a; --t-lime-bg: #262f12;
+  --t-orange: #f5a878; --t-orange-bg: #3a2214;
+  --t-rose: #f59aa8; --t-rose-bg: #3d1a20;
+  --t-red: #ff9a90; --t-red-bg: #3d1916;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1216;
+    --surface: #171b21;
+    --surface-2: #1d2229;
+    --surface-3: #262c35;
+    --surface-hover: #212730;
+    --border: #272d36;
+    --border-strong: #3a424e;
+    --text: #edf0f4;
+    --text-2: #aab3c0;
+    --text-3: #8e98a6;
+    --text-inverse: #0f1216;
+
+    --accent: #3cc7b3;
+    --accent-hover: #63d6c5;
+    --accent-soft: #10302c;
+    --accent-soft-2: #174540;
+    --on-accent: #06201c;
+    --accent-text: #63d6c5;
+
+    --success: #4cc38a;
+    --success-soft: #132b20;
+    --warning: #f0b45c;
+    --warning-soft: #2e2312;
+    --danger: #ff7b7b;
+    --danger-hover: #ff9a9a;
+    --danger-soft: #341719;
+    --info: #5cc6db;
+    --info-soft: #11292f;
+    --neutral: #aab3c0;
+    --neutral-soft: #232932;
+
+    --rail: #13171c;
+    --rail-active: #10302c;
+    --scrim: rgba(0, 0, 0, 0.6);
+    --focus: #63d6c5;
+
+  --series-1: #3cc7b3;
+  --series-2: #d95926;
+  --grid: #262c35;
+
+
+    --t-violet: #c4a7f5; --t-violet-bg: #2a2140;
+    --t-green: #7fd49b; --t-green-bg: #16301f;
+    --t-indigo: #aab3f5; --t-indigo-bg: #22264a;
+    --t-sky: #85c9ee; --t-sky-bg: #102c3d;
+    --t-teal: #63d6c5; --t-teal-bg: #10302c;
+    --t-amber: #f2c46d; --t-amber-bg: #33280f;
+    --t-pink: #f29ac4; --t-pink-bg: #3a1a2a;
+    --t-lime: #b9dc7a; --t-lime-bg: #262f12;
+    --t-orange: #f5a878; --t-orange-bg: #3a2214;
+    --t-rose: #f59aa8; --t-rose-bg: #3d1a20;
+    --t-red: #ff9a90; --t-red-bg: #3d1916;
+
+    color-scheme: dark;
+  }
+}

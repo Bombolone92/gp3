@@ -1,0 +1,146 @@
+name: Deploy Website
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "website/**"
+            - "i18n/**"
+            - "scripts/website_links.py"
+            - "handoff/pwa/**"
+            - "handoff/wasm/**"
+            - "chorefile"
+            - ".github/workflows/website.yml"
+    release:
+        types: [published]
+    workflow_dispatch:
+
+# Allow this job to clone the repo and create a page deployment
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+jobs:
+    # Built on Linux on purpose: the iroh client pulls in `ring`, which compiles C
+    # for wasm32, and the macOS runners' Apple clang has no wasm target.
+    pwa:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: handoff/pwa/package.json
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: setup Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  targets: wasm32-unknown-unknown
+
+            - name: cache Rust build
+              uses: Swatinem/rust-cache@v2
+              with:
+                  workspaces: handoff/wasm
+
+            - name: install wasm-bindgen-cli
+              uses: taiki-e/install-action@v2
+              with:
+                  # Must match the pinned `wasm-bindgen` dependency in handoff/wasm/Cargo.toml
+                  # exactly, or the CLI refuses to process the module.
+                  tool: wasm-bindgen-cli@0.2.122
+
+            # Pinned, not apt: the distro binaryen is older and produces a
+            # different module, which is how a broken wasm shipped once already.
+            - name: install binaryen
+              run: |
+                curl -sSfL https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-linux.tar.gz | tar xz
+                echo "$PWD/binaryen-version_132/bin" >> "$GITHUB_PATH"
+
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.6.0
+
+            - name: Build
+              run: chore pwa /vibe/phone/
+
+            - name: Upload phone PWA
+              uses: actions/upload-artifact@v4
+              with:
+                  name: pwa-dist
+                  path: handoff/pwa/dist
+                  if-no-files-found: error
+
+    build:
+        needs: pwa
+        runs-on: macos-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  package_json_file: website/package.json
+
+            - name: setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: website/pnpm-lock.yaml
+
+            - name: setup uv
+              uses: astral-sh/setup-uv@v5
+
+            - name: setup chore
+              uses: getchore/setup-chore@v1
+              with:
+                  version: v1.6.0
+
+            - name: Build
+              run: chore website-build
+              env:
+                GH_TOKEN: ${{ github.token }}
+
+            - name: Download phone PWA
+              uses: actions/download-artifact@v5
+              with:
+                  name: pwa-dist
+                  path: website/dist/phone
+
+            - name: Setup Pages
+              uses: actions/configure-pages@v6
+
+            - name: Upload Artifacts
+              uses: actions/upload-pages-artifact@v5
+              with:
+                  path: website/dist
+
+    deploy:
+        needs: build
+        runs-on: macos-latest
+
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        steps:
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@v5

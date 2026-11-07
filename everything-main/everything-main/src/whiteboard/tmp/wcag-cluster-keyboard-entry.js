@@ -1,0 +1,40 @@
+import { openClusters } from '../src/clusters-ui.js';
+import { board, item, validateBoard } from '../src/model.js';
+import { setLanguage, translateUI, t } from '../src/i18n.js';
+import '../src/style.css';
+import '@fontsource/dm-sans/latin-400.css';
+import '@fontsource/dm-sans/latin-500.css';
+import '@fontsource/dm-sans/latin-600.css';
+const params = new URLSearchParams(location.search);
+const locale = params.get('lang') === 'fr' ? 'fr' : 'en';
+setLanguage(locale);
+document.documentElement.lang = locale;
+document.documentElement.dataset.theme = params.get('theme') === 'dark' ? 'dark' : 'light';
+const b = board('Local cluster keyboard audit');
+b.tags = Array.from({length: 60}, (_, n) => ({id: 't' + String(n).padStart(2, '0'), name: 'Review group ' + String(n + 1).padStart(2, '0'), color: '#365dc4'}));
+b.items = b.tags.map((tag, n) => item('note', n % 10 * 240, Math.floor(n / 10) * 240, {text: 'Local note ' + n, tagIds: [tag.id]}));
+validateBoard(b);
+let d;
+const update = () => {
+ const preview = d?.querySelector('#cluster-preview');
+ if (!preview) return;
+ const description = `preview=${Math.round(preview.scrollTop)}/${preview.scrollHeight - preview.clientHeight}; focus=${document.activeElement?.id || document.activeElement?.tagName}; page=${d.querySelector('#cluster-page').textContent}`;
+ document.title = 'Cluster keyboard audit | ' + description;
+ parent.postMessage({audit:'cluster-keyboard', description}, location.origin);
+};
+const open = () => {
+ const previous = document.activeElement;
+ openClusters({board:()=>b, selection:()=>new Set(b.items.map(i=>i.id)), canEdit:()=>true, toast(){}, mutate:fn=>fn(), select(){}, focusClusters(){}, modal(title,html,ready){
+  d=document.createElement('dialog');d.setAttribute('aria-label',t(title));
+  d.innerHTML=`<div class="dialog-header"><h2>${t(title)}</h2><button type="button" class="icon-btn" aria-label="${t('Close dialog')}">×</button></div>${html}`;
+  document.body.append(d);d.querySelector('.dialog-header button').onclick=()=>d.close();
+  d.addEventListener('close',()=>{d.remove();previous?.focus();});
+  ready(d);translateUI(d);d.showModal();
+  const mode=d.querySelector('#cluster-mode');mode.value='tag';mode.dispatchEvent(new Event('change'));
+  d.querySelector('#cluster-preview').addEventListener('scroll',update);
+  d.addEventListener('focusin',update);d.addEventListener('click',()=>requestAnimationFrame(update));
+  requestAnimationFrame(update);return d;
+ }});
+};
+document.querySelector('#open').onclick=open;
+open();

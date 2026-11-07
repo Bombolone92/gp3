@@ -1,0 +1,66 @@
+--- a/src/engine/svg-word-compositing.js
++++ b/src/engine/svg-word-compositing.js
+@@ -26,15 +26,36 @@
+   layers.push({path,box:{x,y,width,height},rule:s.fillRule,color:`rgb(${color[1]},${color[2]},${color[3]})`,alpha,variants:new Map()});
+   translucent ||= alpha<1;return layers.length<=256;
+  }
+- if(visit(root)&&translucent)plans.set(root,{...dimensions,frame:wordSvgFrame(dimensions.width,dimensions.height),layers});
++ if(visit(root)&&translucent)plans.set(root,{...dimensions,frame:wordSvgFrame(dimensions.width,dimensions.height),layers,schedules:new Map()});
+ }
+ export function retainSvgCompositing(root,image){const p=plans.get(root);if(p)plans.set(image,p);}
+-export function releaseSvgCompositing(image){const p=plans.get(image);if(p){for(const l of p.layers)for(const e of [...l.variants.values()])discard(e);plans.delete(image);}}
++export function releaseSvgCompositing(image){const p=plans.get(image);if(p){for(const schedule of p.schedules.values())for(const batch of schedule)for(const e of [...batch.variants.values()])discard(e);plans.delete(image);}}
+ function bounds(layer,m){
+  const b=layer.box,points=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f}));
+  const left=Math.floor(Math.min(...points.map(p=>p.x)))-1,top=Math.floor(Math.min(...points.map(p=>p.y)))-1;
+  const width=Math.ceil(Math.max(...points.map(p=>p.x)))+1-left,height=Math.ceil(Math.max(...points.map(p=>p.y)))+1-top;
+  return {left,top,width,height};
++}
++function overlaps(a,b){return a.left<b.left+b.width&&b.left<a.left+a.width&&a.top<b.top+b.height&&b.top<a.top+a.height;}
++function stages(plan,jobs,m){
++ const key=[m.a,m.b,m.c,m.d,m.e-Math.floor(m.e),m.f-Math.floor(m.f)].join(',');
++ let batches=plan.schedules.get(key);
++ if(!batches){
++  if(plan.schedules.size>=128)return null;
++  batches=[];const assigned=[];
++  for(let i=0;i<jobs.length;i++){
++   let stage=0;for(let j=0;j<i;j++)if(overlaps(jobs[i],jobs[j]))stage=Math.max(stage,assigned[j]+1);
++   const translucent=jobs[i].layer.alpha<1;
++   while(batches[stage]&&batches[stage].translucent!==translucent)stage++;
++   if(!batches[stage])batches[stage]={members:[],translucent,variants:new Map()};
++   batches[stage].members.push(i);assigned[i]=stage;
++  }
++  plan.schedules.set(key,batches);
++ }
++ return batches.map(batch=>{
++  const members=batch.members.map(i=>jobs[i]);const left=Math.min(...members.map(j=>j.left)),top=Math.min(...members.map(j=>j.top));
++  return {batch,left,top,width:Math.max(...members.map(j=>j.left+j.width))-left,height:Math.max(...members.map(j=>j.top+j.height))-top};
++ });
+ }
+ export function paintSvgCompositing(c,image,coordinates){
+  const p=plans.get(image);
+@@ -48,17 +69,19 @@
+   const viewport=new Path2D();viewport.rect(0,0,p.width,p.height);c.clip(viewport);
+   const m=c.getTransform(),jobs=p.layers.map(layer=>({layer,...bounds(layer,m)}));
+   if(jobs.some(j=>![j.left,j.top,j.width,j.height].every(Number.isFinite)||j.width<=0||j.height<=0||j.width>8192||j.height>8192)||jobs.reduce((n,j)=>n+j.width*j.height,0)>MAX_PIXELS)return false;
+-  for(const {layer,left,top,width,height} of jobs){
++  const batches=stages(p,jobs,m);
++  if(!batches||batches.some(j=>j.width>8192||j.height>8192)||batches.reduce((n,j)=>n+j.width*j.height,0)>MAX_PIXELS)return false;
++  for(const {batch,left,top,width,height} of batches){
+    const key=[m.a,m.b,m.c,m.d,m.e-left,m.f-top,width,height].join(',');
+-   let e=layer.variants.get(key);
++   let e=batch.variants.get(key);
+    if(!e){
+     misses++;while(pixels+width*height>MAX_PIXELS)discard(recent.values().next().value);
+-    const off=new OffscreenCanvas(width,height),ctx=off.getContext('2d');ctx.setTransform(m.a,m.b,m.c,m.d,m.e-left,m.f-top);ctx.fillStyle=layer.color;ctx.globalAlpha=layer.alpha;ctx.fill(layer.path,layer.rule);
+-    e={key,bitmap:off.transferToImageBitmap(),width,height,variants:layer.variants};layer.variants.set(key,e);pixels+=width*height;
++    const off=new OffscreenCanvas(width,height),ctx=off.getContext('2d');ctx.setTransform(m.a,m.b,m.c,m.d,m.e-left,m.f-top);for(const index of batch.members){const layer=jobs[index].layer;ctx.fillStyle=layer.color;ctx.globalAlpha=layer.alpha;ctx.fill(layer.path,layer.rule);}
++    e={key,bitmap:off.transferToImageBitmap(),width,height,variants:batch.variants};batch.variants.set(key,e);pixels+=width*height;
+    }else hits++;
+    recent.delete(e);recent.add(e);
+    c.save();try{c.resetTransform();c.globalAlpha=1;
+-    if(layer.alpha<1){c.globalCompositeOperation='destination-out';c.drawImage(e.bitmap,left,top);c.globalCompositeOperation='lighter';c.drawImage(e.bitmap,left,top);}
++    if(batch.translucent){c.globalCompositeOperation='destination-out';c.drawImage(e.bitmap,left,top);c.globalCompositeOperation='lighter';c.drawImage(e.bitmap,left,top);}
+     else{c.globalCompositeOperation='source-over';c.drawImage(e.bitmap,left,top);}
+    }finally{c.restore();}
+   }

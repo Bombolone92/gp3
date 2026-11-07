@@ -1,0 +1,1238 @@
+/* Shared components: buttons, forms, cards, lists, badges, modal, toast. */
+
+/* --- layout helpers --- */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row.wrap {
+  flex-wrap: wrap;
+}
+
+.grow {
+  flex: 1;
+}
+
+.min0 {
+  min-width: 0;
+}
+
+.muted {
+  color: var(--ink-3);
+}
+
+/* --- buttons --- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent-strong);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-2);
+  border-color: var(--hairline-strong);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* This is the button that empties the trash and deletes a contract for good,
+   and it was the only one in the app that answered a pointer with nothing —
+   the same silence a disabled control gives, on the one press that cannot be
+   taken back. */
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-strong);
+}
+
+:root[data-theme="dark"] .btn-danger {
+  color: #1a0d0d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .btn-danger {
+    color: #1a0d0d;
+  }
+}
+
+.btn-danger-ghost {
+  color: var(--danger);
+  border-color: var(--hairline-strong);
+}
+
+/* Later than .btn-ghost:hover so the danger affordance survives hovering. */
+.btn-danger-ghost:hover:not(:disabled) {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+.btn-compact {
+  padding: 6px 11px;
+  font-size: 13px;
+}
+
+.btn-dashed {
+  border: 1px dashed var(--hairline-strong);
+  margin-top: 10px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  flex-shrink: 0;
+}
+
+.icon-btn:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.icon-btn.danger:hover {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.icon-btn.subtle {
+  width: 32px;
+  height: 32px;
+  color: var(--ink-3);
+}
+
+/* Both of these are disabled in code while a request is in flight — a document
+   downloading, an attachment being read into the extract box. Without this they
+   stayed fully lit and still answered the hover, so the only feedback for a
+   slow download was that nothing happened. */
+.icon-btn:disabled,
+.chip:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.icon-btn:disabled:hover,
+.chip:disabled:hover {
+  background: none;
+  color: inherit;
+}
+
+/*
+ * Touch: these sit shoulder to shoulder and each pair ends in something
+ * destructive — edit beside delete on every obligation, download beside delete
+ * on every document — at 32 and 36px, which is a mis-tap away from throwing
+ * out the file you meant to open. A fingertip covers about 44px, so that is
+ * what they take here. The glyphs are untouched; only the area under them
+ * grows, and only where the pointer is a finger.
+ */
+@media (pointer: coarse) {
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .icon-btn.subtle {
+    width: 40px;
+    height: 40px;
+  }
+
+  /*
+   * The same fingertip, applied to the controls that carry words.
+   *
+   * Every one of them was still under it: a plain .btn is 40.3px tall and a
+   * .chip 40.9, so the app's most ordinary control — "Save changes", "Sign
+   * out", the button that ends every sheet — was the smallest thing on a
+   * phone to aim at, smaller than the icon buttons above and smaller than
+   * .btn-compact, which an earlier pass had grown to 42.9 and left taller
+   * than the button it is a denser version of.
+   *
+   * A floor rather than more padding: the padding still decides how wide
+   * each one is and how it reads at rest, and only the height is held to a
+   * fingertip, so no label moves and nothing changes under a mouse.
+   */
+  .btn,
+  .chip,
+  .segmented button {
+    min-height: 44px;
+  }
+
+  .chip {
+    padding: 7px 14px;
+  }
+
+  /* Compact is a density, not a smaller button: it sits in card heads and
+     beside list rows where a full-height button would shout. It keeps its
+     narrower sides and its smaller type here, and takes the height the floor
+     above gives everything else. */
+  .btn-compact {
+    padding: 6px 13px;
+  }
+}
+
+/* --- forms --- */
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.field-hint {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 5px;
+}
+
+/*
+ * Two fields side by side, sharing one set of rows: label, control, hint.
+ *
+ * As a plain flex row each field stacked on its own, so a label that needed
+ * two lines pushed its input 19px below the one beside it — "Renewal term
+ * (months)" against "Notice period (days)" on any phone. Sharing the rows
+ * lines the inputs up whatever the labels do. Row gap stays at zero: the
+ * label and hint carry their own margins.
+ *
+ * Where subgrid is not understood the fields stack as they always did, which
+ * is the layout this replaces.
+ */
+.field-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0 12px;
+}
+
+.field-row > .field {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
+  min-width: 0;
+}
+
+/*
+ * Two to a row only while two of them fit. A date input will not draw itself
+ * narrower than "yyyy-mm-dd" and its picker — about 158px — so on a 360 or
+ * 320px phone the pair was wider than the sheet holding it, and the contract
+ * form's start and end dates took the whole panel sideways: a form you had to
+ * scroll horizontally to fill in. They take a line each below this width,
+ * which is also what "Renewal term (months)" beside "Notice period (days)"
+ * was already asking for.
+ */
+@media (max-width: 380px) {
+  .field-row {
+    grid-auto-flow: row;
+  }
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14.5px;
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+  border-color: transparent;
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 44px;
+}
+
+.select {
+  appearance: none;
+  padding-right: 34px;
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.8px solid var(--ink-3);
+  border-bottom: 1.8px solid var(--ink-3);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* Amount and currency read as one control: the code belongs to the contract,
+   not to a global setting. */
+.money-input {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.money-input:focus-within {
+  outline: 2px solid var(--accent);
+  border-color: transparent;
+}
+
+.money-input .input {
+  border: 0;
+  border-radius: 0;
+  /* Let the amount shrink beside the code on a narrow screen. */
+  min-width: 0;
+}
+
+/* The wrapper already shows focus; a second ring inside it just looks broken. */
+.money-input .input:focus-visible {
+  outline: none;
+}
+
+/* Currency-code inputs read uppercase, but a placeholder is a hint, not a
+   value: shouting it back is worse than showing it as written. */
+.code-input {
+  text-transform: uppercase;
+}
+
+.code-input::placeholder {
+  text-transform: none;
+}
+
+.money-input .currency-input {
+  flex: 0 0 auto;
+  width: 5em;
+  padding-right: 8px;
+  padding-left: 8px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border-right: 1px solid var(--hairline-strong);
+}
+
+.switch-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.switch-field .field-hint {
+  margin-top: 2px;
+}
+
+.switch {
+  width: 46px;
+  height: 28px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  border: 1px solid var(--hairline-strong);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-full);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  transition: transform 0.18s var(--ease-spring);
+}
+
+/* The track is 46 by 28, and the words beside it toggle nothing, so this is
+   the whole target for "does this contract renew itself". The reach grows to
+   a fingertip without the track or the knob moving a pixel. */
+@media (pointer: coarse) {
+  .switch::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+}
+
+.switch[aria-checked="true"] {
+  background: var(--accent);
+  border-color: var(--accent-strong);
+}
+
+.switch[aria-checked="true"] .switch-knob {
+  transform: translateX(18px);
+}
+
+/* --- segmented control --- */
+
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+  max-width: 380px;
+}
+
+.segmented button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  /* Reserve the active state's border so selection never shifts layout. */
+  border: 1px solid transparent;
+}
+
+/* The one pill group that stayed silent under the pointer: the filter chips
+   beside it light up, so the theme picker reading as inert made it look like
+   the choice had already been made for you. */
+.segmented button:hover:not(.active) {
+  background: var(--surface-3);
+  color: var(--ink);
+}
+
+.segmented button.active {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--hairline);
+}
+
+/*
+ * Equal segments cannot be narrower than the widest of them, and "System"
+ * with an icon in front of it wants 92px. Three of those plus the track need
+ * 358px of screen, so on a phone the control grew straight out through the
+ * side of its card — on a 320px one, off the page.
+ *
+ * The icons go and the words stay: Light, Dark and System already say it,
+ * and the icons were only ever decoration beside them.
+ */
+@media (max-width: 380px) {
+  .segmented button > svg {
+    display: none;
+  }
+}
+
+/* --- choice list (pick one of a few named outcomes) --- */
+
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 12px 13px;
+  text-align: left;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font: inherit;
+}
+
+.choice:hover {
+  background: var(--surface-2);
+}
+
+.choice.active {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.choice-ic {
+  display: inline-flex;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+
+.choice.active .choice-ic,
+.choice-mark {
+  color: var(--accent);
+}
+
+.choice-title {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.choice-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+/*
+ * Muted ink is dark enough for the surfaces it is normally read on, but the
+ * chosen option is the one that swaps its background for the accent wash —
+ * and in dark that wash lifts the surface far enough to leave this line at
+ * 4.14:1, under what 12.5px needs. The sentence explaining the answer you
+ * just gave is the last one that should go quiet, so it steps up an ink.
+ */
+.choice.active .choice-sub {
+  color: var(--ink-2);
+}
+
+.choice-mark {
+  display: inline-flex;
+  min-width: 18px;
+}
+
+/* --- chips --- */
+
+.chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 7px 13px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--hairline-strong);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: var(--surface);
+}
+
+.chip:hover {
+  background: var(--surface-2);
+}
+
+.chip.active {
+  background: var(--ink);
+  color: var(--page);
+  border-color: var(--ink);
+}
+
+/* --- cards & lists --- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/*
+ * A heading on the left, what you can do to the section on the right.
+ *
+ * Held to one line, the actions won: "Extract with AI" and "Add" are 214px
+ * of nowrap buttons, so on a phone the heading was squeezed down to its
+ * longest word — "Obligations" over "(3 open)" — and on a 320px screen it
+ * still did not fit and took the whole page sideways with it. The actions
+ * drop to a line of their own instead, which only happens when they would
+ * not otherwise fit.
+ */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Wrapped, the actions stay on the right, the way the renewal row's own
+   button does. A head with nothing but a heading in it is left alone. */
+.card-head > :last-child:not(:first-child) {
+  margin-left: auto;
+}
+
+.card-title {
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.card-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.card-more {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Every other clickable thing in a card head lights up under the pointer;
+   this one is bare text, so it says so the way bare text does. */
+.card-more:hover {
+  text-decoration: underline;
+}
+
+/* "View all" is a 19px-tall line of text at the top right of every card, and
+   on a phone that is what a thumb has to find. The box around it grows to a
+   fingertip; the negative margin keeps the card head the height it was. */
+@media (pointer: coarse) {
+  .card-more {
+    padding: 13px 6px;
+    margin: -13px -6px;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 6px;
+  border-radius: var(--r-sm);
+  color: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+.list-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* Only the rows that actually go somewhere light up. The currency breakdown
+   and the skipped-import list reuse .list-row on a plain div, and a hover
+   response there promises a click that does nothing. */
+a.list-row:hover,
+.list-row.as-button:hover {
+  background: var(--surface-2);
+}
+
+.list-row.as-button {
+  font: inherit;
+}
+
+.row-title {
+  font-weight: 600;
+  font-size: 14.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* One line is right for a record's context, where cutting it keeps the list
+   scannable and the record itself is a tap away. Where the line is a sentence
+   instead — what a settings action does, why an import row was refused, the
+   note somebody left on a term — the cut takes the meaning with it, and there
+   is nowhere else to read it. */
+.row-sub.wrap {
+  overflow: visible;
+  white-space: normal;
+}
+
+.row-chev {
+  color: var(--ink-3);
+  display: inline-flex;
+}
+
+/*
+ * The contract row is the app's main list, and on a phone its four fixed
+ * columns left the title 62px: "Equipment maintenance plan" arrived as
+ * "Equipm…" on every screen it appears on, which is most of them. Below this
+ * width the status badge drops to a line of its own and hands the title the
+ * 204px it needs, with the chevron staying where a chevron goes.
+ *
+ * The badge is ordered after the chevron rather than moved, so what a screen
+ * reader reads is untouched; the chevron carries no text of its own.
+ */
+@media (max-width: 560px) {
+  .contract-row {
+    flex-wrap: wrap;
+  }
+
+  /* 38px glyph and 18px chevron, each with the row's 12px gap. */
+  .contract-row > .grow {
+    flex-basis: calc(100% - 80px);
+  }
+
+  .contract-row > .row-chev {
+    order: 1;
+  }
+
+  /*
+   * The context line is the deadline, and 234px of it is not the whole
+   * deadline: "Northwind Cloud · Renews Aug 30…" cut the year and the days
+   * left off the one fact the row is there to carry, on the list the app
+   * opens on. A second line is allowed to hold it, and a second only — the
+   * list is still a list.
+   */
+  .contract-row .row-sub {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+  }
+
+  .contract-row > .badge {
+    order: 2;
+    margin-left: auto;
+  }
+}
+
+.list-sep {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  padding: 14px 6px 6px;
+  border-top: 1px solid var(--hairline);
+  margin-top: 8px;
+}
+
+.quiet-note {
+  color: var(--ink-3);
+  font-size: 13.5px;
+  padding: 6px;
+}
+
+/* --- badges --- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-ok { background: var(--ok-wash); color: var(--ok); }
+.badge-warn { background: var(--warn-wash); color: var(--warn); }
+.badge-danger { background: var(--danger-wash); color: var(--danger); }
+.badge-muted { background: var(--surface-2); color: var(--ink-3); }
+
+.badge-owner {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+/* These two are filled with exactly the shade a row takes on hover, so the
+   badge dissolved into the row the moment the pointer reached it and its
+   label read as loose text. A hairline holds the shape on any background. */
+.badge-muted,
+.badge-owner {
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+/* Ownership is a category, not a status. Tinting "Theirs" with the accent read
+   as one more status chip beside the "Active"/"Evergreen" badge it sits next
+   to, so it leans on weight and a hairline instead of hue. */
+.badge-owner.owner-them {
+  background: var(--surface-3);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--r-full);
+  background: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+:root[data-theme="dark"] .nav-badge {
+  color: #1a0d0d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .nav-badge {
+    color: #1a0d0d;
+  }
+}
+
+/* --- avatar & glyphs --- */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-full);
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.type-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  flex-shrink: 0;
+}
+
+/* --- callouts --- */
+
+.callout {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.callout-sub {
+  color: var(--ink-2);
+  font-size: 13.5px;
+  margin-top: 3px;
+}
+
+.callout-ok { background: var(--ok-wash); }
+.callout-ok > span { color: var(--ok); }
+.callout-warn { background: var(--warn-wash); }
+.callout-warn > span { color: var(--warn); }
+.callout-danger { background: var(--danger-wash); }
+.callout-danger > span { color: var(--danger); }
+
+/* --- empty states --- */
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+.empty-icon.accent {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.empty h3 {
+  font-size: 17px;
+}
+
+.empty p {
+  color: var(--ink-2);
+  font-size: 14px;
+  max-width: 420px;
+}
+
+.empty .btn {
+  margin-top: 10px;
+}
+
+/* --- modal --- */
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade-in 0.2s ease;
+}
+
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-height: calc(100dvh - 40px - var(--safe-t));
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  border: 1px solid var(--hairline);
+  /* No padding of its own at the top: the head below owns that row so it can
+     sit flush against the panel's edge when it sticks. */
+  padding: 0 18px calc(20px + var(--safe-b));
+  animation: sheet-up 0.28s var(--ease-spring);
+}
+
+/*
+ * Focus lands on the panel itself when a sheet has no field to put it in,
+ * purely so the keyboard and the reading order start inside the dialog. It is
+ * tabindex="-1" and cannot be reached any other way, so ringing the whole
+ * sheet in the accent points at nothing the user can act on — and since the
+ * fallback only runs when there is no field, two sheets that look alike drew
+ * different chrome depending on whether one happened to contain an input.
+ * Controls inside keep their own rings.
+ */
+.modal-panel:focus-visible {
+  outline: none;
+}
+
+.sheet-handle {
+  width: 38px;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--hairline-strong);
+  margin: 6px auto 4px;
+}
+
+/*
+ * The panel is what scrolls, and the head used to scroll away with it: a few
+ * flicks into the contract form or the import mapping and the sheet had lost
+ * both the title saying what you were filling in and the only visible way out
+ * of it. It stays put instead, bled to the panel's edges so the content passes
+ * behind it rather than beside it.
+ */
+.modal-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 -18px;
+  padding: 14px 18px;
+  background: var(--surface);
+}
+
+/* Only once there is content behind it: at the top of a sheet the head is
+   part of the same surface and a rule under the title would just be noise.
+   A shadow rather than a border, so the head keeps its height either way and
+   the content below it never shifts by a pixel as the line appears. */
+.modal-panel.scrolled .modal-head {
+  box-shadow: 0 1px 0 var(--hairline-strong);
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.modal-note {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  margin-bottom: 14px;
+}
+
+/* A closing dialog is already gone for interaction purposes: let clicks
+   fall through the fading scrim instead of being swallowed. */
+.modal-root.closing {
+  pointer-events: none;
+}
+
+.modal-root.closing .modal-panel {
+  animation: sheet-down 0.2s ease forwards;
+}
+
+.modal-root.closing .modal-scrim {
+  animation: fade-out 0.2s ease forwards;
+}
+
+@media (min-width: 640px) {
+  .modal-root {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .modal-panel {
+    max-width: 520px;
+    border-radius: var(--r-lg);
+    max-height: calc(100dvh - 96px);
+    padding: 0 22px 22px;
+    animation: pop-in 0.22s var(--ease-spring);
+  }
+
+  .modal-head {
+    margin: 0 -22px;
+    padding: 14px 22px;
+  }
+
+  .modal-panel.wide {
+    max-width: 720px;
+  }
+
+  .sheet-handle {
+    display: none;
+  }
+
+  .modal-root.closing .modal-panel {
+    animation: fade-out 0.15s ease forwards;
+  }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(60%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes sheet-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* --- toast --- */
+
+.toast-root {
+  position: fixed;
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+
+@media (min-width: 900px) {
+  .toast-root {
+    bottom: 24px;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--page);
+  font-size: 14px;
+  font-weight: 500;
+  animation: toast-in 0.25s var(--ease-spring);
+  max-width: 100%;
+}
+
+.toast.leaving {
+  animation: toast-out 0.2s ease forwards;
+}
+
+.toast-action {
+  font-weight: 700;
+  color: inherit;
+  text-decoration: underline;
+  margin-left: 4px;
+}
+
+/* Undo is the way back from every delete in the app, and it is only offered
+   for as long as the toast is up. Same treatment as the other bare-text
+   actions: a thumb-sized box, with the toast left the height it was. */
+@media (pointer: coarse) {
+  .toast-action {
+    padding: 13px 6px;
+    /* Left keeps the 4px the base rule sets, less the padding just added. */
+    margin: -13px -6px -13px -2px;
+  }
+}
+
+@keyframes toast-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+/* --- spinner --- */
+
+.spinner {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-full);
+  border: 2.5px solid var(--surface-3);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+/*
+ * The blanket reduced-motion rule stops every animation after one 0.01ms pass,
+ * which leaves this one a ring with a coloured notch: the only thing on screen
+ * saying the upload, the boot or the AI is still going, sitting perfectly
+ * still. It keeps turning, at half the speed — a 22px circle is not the kind
+ * of motion the setting is there to spare anyone.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- sample banner --- */
+
+.sample-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: var(--content-max);
+  margin: 0 auto 16px;
+  padding: 9px 14px;
+  border-radius: var(--r-md);
+  background: var(--accent-wash);
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.sample-banner-ic {
+  display: inline-flex;
+  color: var(--accent);
+}
+
+.sample-banner button {
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.sample-banner button:hover {
+  text-decoration: underline;
+}
+
+/* A 19px-tall line of text is not something to aim a thumb at. The negative
+   margin keeps the banner the height it was. */
+@media (pointer: coarse) {
+  .sample-banner button {
+    padding: 11px 6px;
+    margin: -11px -6px;
+  }
+}

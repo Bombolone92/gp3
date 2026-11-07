@@ -1,0 +1,52 @@
+import {beforeAll,afterAll,it,expect} from 'vitest';
+import {JSDOM} from 'jsdom';
+import {readFileSync} from 'node:fs';
+import {unzipSync} from 'fflate';
+import {DocxPackage} from '../src/engine/docx.js';
+import {TextDocument} from '../src/engine/model.js';
+import {layoutDocument,hitTest,caretRect} from '../src/engine/layout.js';
+import {pageGeometry} from '../src/engine/page-settings.js';
+import {expectBodyEditParts} from './helpers/expect-body-edit-parts.js';
+import {readFloatingTable} from '../src/engine/floating-tables.js';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>dom.window.close());
+const bytes=readFileSync('tests/fixtures/floating-tables/floating-tables.docx');
+const model=p=>new TextDocument(p.paragraphs,p.pageSettings,p.numbering,p.styles,p.tables,p.assets);
+const measure=t=>({width:t.length*7,ascent:12,descent:4});
+const render=d=>layoutDocument(d.paragraphs,measure,pageGeometry(d.pageSettings),d.numbering,d.tables);
+const save=async(p,d)=>new Uint8Array(await p.export(d.paragraphs,d.pageSettings,d.numbering,d.styles,d.tables,d.assets).arrayBuffer());
+const position=xml=>readFloatingTable(new DOMParser().parseFromString(`<w:tblpPr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ${xml}/>`, 'application/xml').documentElement);
+it('uses the default margins and preserves authored signed offsets',()=>{
+ expect(position('w:tblpY="-7"')).toMatchObject({horzAnchor:'margin',vertAnchor:'margin',tblpY:-7});
+});
+it.each(['w:tblpX="NaN"','w:tblpY="9999999999999"','w:leftFromText="-1"','w:horzAnchor="column"','w:tblpXSpec="banana"','w:unknown="0"'])('rejects invalid floating position %s',xml=>expect(()=>position(xml)).toThrow());
+it('retains positioning, unrelated parts and exact undo for cell edits',async()=>{
+ const p=await DocxPackage.open(bytes),d=model(p);expect(d.tables.filter(t=>t.floating)).toHaveLength(19);
+ expect(unzipSync(await save(p,d))).toEqual(unzipSync(bytes));
+ d.selectCell(d.tables[1].rows[0].cells[0].id);d.replace('Edited ');
+ const out=await save(p,d),parts=unzipSync(out),source=unzipSync(bytes);
+ expectBodyEditParts(parts,source);
+ const reopened=await DocxPackage.open(out);expect(reopened.tables.map(t=>t.floating)).toEqual(p.tables.map(t=>t.floating));
+ d.undo();expect(unzipSync(await save(p,d))).toEqual(source);
+},60000);
+it('applies alignment and indentation controls to the floating frame and round trips them',async()=>{
+ const p=await DocxPackage.open(bytes),d=model(p);d.selectCell(d.tables[1].rows[0].cells[0].id);
+ d.setTableProperties({alignment:'right'});let next=await DocxPackage.open(await save(p,d));
+ expect(next.tables[1].floating).toMatchObject({tblpXSpec:'right',vertAnchor:'page',tblpY:2880});
+ expect(next.tables[1].indent).toBe(0);expect(d.tables[1].indent).toBe(0);
+ d.setTableProperties({indent:-120});next=await DocxPackage.open(await save(p,d));
+ expect(next.tables[1].floating.tblpX).toBe(-120);expect(next.tables[1].floating.tblpXSpec).toBeUndefined();
+ d.undo();d.undo();expect(unzipSync(await save(p,d))).toEqual(unzipSync(bytes));
+},60000);
+it('keeps full-width negative-offset floats from moving the preceding paragraph',async()=>{
+ const p=await DocxPackage.open(bytes),d=model(p),t=d.tables[4];
+ d.selectCell(t.rows[0].cells[0].id);d.setTableProperties({width:{type:'dxa',value:9360},columns:[9360]});
+ const l=render(d),frame=l.floatingTables.find(f=>f.tableId===t.id);
+ expect(frame.page).toBe(4);expect(frame.top*.75).toBeCloseTo(90);
+ const c=l.cells.find(c=>c.tableId===t.id),line=l.lines.find(l=>l.cellId===c.id);
+ const at=hitTest(l,c.page,line.stops[0].x,line.y+8);
+ expect(at).toBe(line.start);expect(caretRect(l,at).page).toBe(4);
+ const following=l.lines.find(line=>line.start>=frame.start&&!line.cellId);
+ expect(following.y+following.height).toBeGreaterThan(frame.bottom);
+});

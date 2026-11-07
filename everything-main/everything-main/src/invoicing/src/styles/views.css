@@ -1,0 +1,1578 @@
+/* ---------- Dashboard ---------- */
+
+/* A card whose content is a list: the heading gets a band of its own with a
+   rule under it, and the rows run the full width of the box the way a table's
+   do. No padding on the card, so nothing sits inside a second margin. */
+.list-card {
+  margin-bottom: 16px;
+  padding: 0;
+  overflow: clip;
+}
+
+.list-card .card-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.list-card .card-title {
+  margin-bottom: 0;
+}
+
+/* What the list is showing, in the footer of the box that shows it. */
+.list-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--hairline);
+  background: var(--band);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.list-foot .money-lines {
+  display: inline-flex;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* ---------- Editor ---------- */
+
+/* One width-capped column: the form reads top to bottom (details, lines,
+   adjustments) and a second grid column would sit empty beside the short
+   details card on wide screens. */
+.editor-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: var(--editor-col);
+}
+
+.client-row {
+  display: flex;
+  gap: 8px;
+}
+
+.client-row .select-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.client-add {
+  flex: none;
+}
+
+/* Line item rows: labeled columns on wide screens, stacked labels via
+   aria-label + placeholders on narrow ones. */
+.item-head {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .item-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 152px 110px 96px 38px;
+    gap: 8px;
+    padding: 0 2px 7px;
+    font-size: 12.5px;
+    font-weight: 450;
+    color: var(--ink-3);
+  }
+
+  /* .num is the paper's own class and does nothing outside it, which left
+     the Amount heading sitting at the far side of the figures it labels. */
+  .item-head .num {
+    text-align: right;
+  }
+}
+
+.items-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 152px 110px 96px 38px;
+  /* Two rows: the description cell spans both, everything else sits in the
+     first and centres against the quantity and rate boxes alone. That cell
+     grows downward — the work-description toggle (or the box it opens) and
+     the line's tax picker sit under the name input — and centred against the
+     whole of it the other controls sat half a toggle's height below the
+     description they belong to. No row gap: the second row exists only to
+     hold what the cell carries below its input. */
+  gap: 0 8px;
+  align-items: center;
+}
+
+/* Quantity and the unit it is counted in share one column: "12" and "hours"
+   describe one thing, and a sixth column would have eaten the description's
+   width on every form, including the ones that never bill in units. */
+.item-qty-cell {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.item-qty-cell .item-qty {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.item-qty-cell .item-unit {
+  flex: 0 0 72px;
+  min-width: 0;
+}
+
+/* The description cell: the name input, and under it the line's own tax
+   treatment when the document carries taxes to opt out of. */
+.item-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  grid-row: 1 / 3;
+  align-self: start;
+}
+
+.item-name-cell .select-wrap {
+  max-width: 240px;
+}
+
+/* The line's own work description, and the quiet way in: a text button
+   until the line has one, a compact box from then on. */
+.item-details {
+  font-size: 13px;
+  min-height: 0;
+  padding: 8px 10px;
+}
+
+.item-details-toggle {
+  align-self: flex-start;
+  border: 0;
+  background: none;
+  padding: 1px 2px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 450;
+  color: var(--ink-3);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.item-details-toggle:hover,
+.item-details-toggle:focus-visible {
+  color: var(--accent-on-wash);
+}
+
+.item-tax {
+  font-size: 12.5px;
+  padding-block: 6px;
+  color: var(--ink-2);
+}
+
+/* The iOS no-zoom floor in components.css must keep winning on touch, and the
+   picker needs a thumb's worth of height: its tighter padding left it 37px
+   tall while every other control in the form reached 44. */
+@media (pointer: coarse) {
+  .item-tax { font-size: 16px; min-height: 44px; }
+  /* A 21px text button is not a target a thumb can trust. */
+  .item-details-toggle { min-height: 44px; }
+}
+
+.item-amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 13.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The stacked layout's own column headings: .item-head belongs to the wide
+   layout and is hidden below, which left the two number boxes under the
+   description with nothing saying which was quantity and which was rate. */
+.item-col-label {
+  display: none;
+  font-size: 12.5px;
+  font-weight: 450;
+  color: var(--ink-3);
+}
+
+@media (max-width: 639px) {
+  /* The Rate box keeps a floor. The amount beside it sizes to its content,
+     so a five-figure line ("$12,345,678.90") took the width straight out of
+     the only editable box in the row — 30px of it inside a 320px screen,
+     with the caret and the digits fighting over the same three pixels. The
+     figure gives way instead: it already truncates with an ellipsis, and the
+     totals below spell it out in full. */
+  .item-row {
+    grid-template-columns: 76px minmax(72px, 1fr) auto;
+    grid-template-areas:
+      'name name remove'
+      'qtylabel ratelabel .'
+      'qty rate amount';
+    row-gap: 4px;
+  }
+
+  /* Bound to the input under it rather than floating between the two
+     rows: 4px below, the row's own gap plus this above. */
+  .item-col-label { display: block; margin-top: 6px; }
+
+  .item-row .item-name-cell { grid-area: name; }
+  .item-row .item-qty-label { grid-area: qtylabel; }
+  .item-row .item-rate-label { grid-area: ratelabel; }
+  .item-row .item-qty-cell { grid-area: qty; flex-direction: column; gap: 4px; }
+  .item-row .item-qty-cell .item-unit { flex: none; width: 100%; }
+  /* The quantity cell is two boxes tall here, and a rate box centred against
+     it floated between them; it belongs beside the quantity it prices. */
+  .item-row .item-rate { align-self: start; }
+  .item-row .item-rate { grid-area: rate; }
+  /* Beside the description box it removes — the row's first line — not
+     centred against a cell that grows with a work description under it,
+     where it floated at the seam between the two boxes. */
+  .item-row .item-remove { grid-area: remove; justify-self: end; align-self: start; margin-top: 4px; }
+  .item-row .item-amount { grid-area: amount; align-self: center; padding-inline-start: 4px; }
+
+  .items-rows { gap: 14px; }
+}
+
+/* The wide layout's last column holds the remove button, which is a thumb's
+   width on touch. Kept after the narrow override so it only widens the
+   columned form, never the stacked one. */
+@media (min-width: 640px) and (pointer: coarse) {
+  .item-head,
+  .item-row {
+    grid-template-columns: minmax(0, 1fr) 152px 110px 96px 44px;
+  }
+}
+
+.add-line {
+  margin-top: 12px;
+}
+
+.editor-totals {
+  max-width: 320px;
+  margin-inline-start: auto;
+  margin-top: 6px;
+}
+
+/* Editor totals reuse the paper's total-row layout with app colors. */
+.editor-totals .paper-trow {
+  color: var(--ink-2);
+}
+
+.editor-totals .paper-trow.strong {
+  color: var(--ink);
+  border-top-color: var(--ink);
+}
+
+/* The bar the form is committed from. Pinned to the bottom of the viewport
+   while there is still form above it, so Create is reachable from anywhere in
+   a long document instead of only from the end of it. The negative side
+   margins let its rule and its background span the content column, the way a
+   footer under a panel does. */
+.editor-footer {
+  position: sticky;
+  /* Above the tab bar, not under it: the bar is fixed to the bottom of the
+     screen and would cover a footer that stopped at the viewport edge. */
+  bottom: calc(var(--tabbar-h) + var(--safe-b));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  margin: 18px -16px 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+/* The bar spans the content column, but what it commits is the form: the
+   actions keep to the column the cards are capped at, so Create sits under
+   the edge of the card above it instead of out on the panel's own margin. */
+.editor-footer-inner {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: var(--editor-col);
+}
+
+@media (min-width: 900px) {
+  .editor-footer {
+    bottom: 0;
+    margin: 18px -36px 0;
+    padding: 14px 36px;
+  }
+}
+
+/* The toasts are pinned to the same edge this bar is, and a validation
+   message ("Add at least one line item") landed squarely on Cancel and Create
+   on a phone. While the editor is on screen (body.route-editor, set by the
+   shell) they sit above the bar instead. One offset covers the bar at every
+   size — 61px with pointer buttons, 73px on a coarse-pointer desktop — since a
+   few pixels of extra air under a toast read as nothing at all. */
+body.route-editor .toast-root {
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + 14px + 74px);
+}
+
+@media (min-width: 900px) {
+  body.route-editor .toast-root {
+    bottom: calc(22px + 74px);
+  }
+}
+
+/* ---------- Detail ---------- */
+
+/* The client name under a document number leads to their page. */
+.sub-link {
+  color: inherit;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+.sub-link:hover {
+  color: var(--accent);
+  border-bottom-color: currentColor;
+}
+
+.detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* The number sits on a flex row beside its status chip, and a flex item will
+   not shrink below its longest word — which is what .page-title's own
+   overflow-wrap needs it to do. A prefix typed without separators
+   ("AuroraStudio-" is fine, "AuroraStudio" is not) then held the heading
+   wider than a small phone and pushed the page with it. */
+.detail-title-row > .page-title {
+  min-width: 0;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (min-width: 980px) {
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}
+
+.detail-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-card .card-head {
+  align-items: center;
+}
+
+.side-due {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--warn);
+}
+
+.side-note {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.side-note.break {
+  word-break: break-all;
+  margin-bottom: 10px;
+}
+
+.side-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pay-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.pay-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: start;
+  padding: 9px 4px;
+  transition: background 0.12s;
+}
+
+.pay-row + .pay-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.pay-row:hover {
+  background: var(--band);
+}
+
+.pay-ic {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);   /* pre-color-mix() Safari */
+  background: color-mix(in srgb, var(--ok) 12%, transparent);
+  color: var(--ok);
+  flex: none;
+}
+
+/* Money going back out gets its own tone, and the amount reads negative. */
+.pay-ic.refund {
+  background: var(--surface-2);   /* pre-color-mix() Safari */
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  color: var(--warn);
+}
+
+.pay-tag {
+  margin-inline-start: 8px;
+}
+
+.doc-row-ic.refund {
+  background: var(--surface-2);   /* pre-color-mix() Safari */
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  color: var(--warn);
+}
+
+.doc-row-amount.refunded {
+  color: var(--warn);
+}
+
+.pay-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pay-title {
+  font-weight: 650;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pay-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rem-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rem-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 2px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.rem-date {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rem-how {
+  margin-inline-start: auto;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* One delivered email: the date and what rode along on one line, then the
+   message it was, then the addresses on their own. An address is longer than
+   this column is wide, and has no space to break at, so it needs the full
+   width and permission to break mid-word even so. */
+.sent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sent-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.sent-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Which message this was. Two sends to one client on one day are the invoice
+   and the chase after it, and a date beside an address cannot tell them apart.
+   One line, because a subject is a whole sentence and six of them would bury
+   the addresses; the rest is a hover away. */
+.sent-subject {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sent-to {
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Clients ---------- */
+
+.client-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+}
+
+.client-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: inherit;
+  transition: border-color 0.13s, background 0.13s;
+}
+
+.client-card:hover {
+  border-color: var(--hairline-strong);
+  background: var(--band);
+}
+
+.client-chev {
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+  flex: none;
+}
+
+/* ---------- Client detail ---------- */
+
+.client-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar.big {
+  width: 44px;
+  height: 44px;
+  font-size: 17px;
+}
+
+.client-contact {
+  display: flex;
+  flex-wrap: wrap;
+  /* Top, not stretched: a two-line address makes the whole row two lines
+     tall, and the email beside it centred itself against that height,
+     sitting half a line below the address it lines up with. */
+  align-items: flex-start;
+  gap: 6px 18px;
+  margin: -6px 2px 16px;
+}
+
+.client-contact a.client-meta-row {
+  color: var(--ink-2);
+}
+
+.client-contact a.client-meta-row:hover {
+  color: var(--accent);
+}
+
+.client-meta-row.multiline {
+  align-items: flex-start;
+  white-space: pre-line;
+}
+
+/* A client's page carries three tiles, not four, and a fixed count needs its
+   widths stated: auto-fit put two across a 390px phone and stranded "Open"
+   alone on a half-width row with an empty cell beside it — the same thing the
+   dashboard's four tiles were fixed for. Under 360px .stat-grid already gives
+   each tile the whole width; from there to 560px the third spans the pair
+   above it, and above that all three sit on one row. */
+@media (min-width: 360px) and (max-width: 559px) {
+  .stat-grid-3 > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 560px) {
+  .stat-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.statement-paper .paper-table td,
+.statement-paper .paper-table th {
+  font-size: 13px;
+}
+
+.client-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.client-name {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.client-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.client-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.client-meta:empty { display: none; }
+
+.client-meta-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+  /* Not for truncating — the ellipsis lives on the text's own box below —
+     but so the row keeps shrinking inside its flex parent: an overflow other
+     than visible is what makes a flex item's automatic minimum size zero,
+     and without it one long address would hold the card open. */
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* text-overflow only ever acts on a box's own inline content, and this row is
+   a flex container: the ellipsis it asked for could never reach a bare text
+   node beside the icon, so ines.baumgartner@baugenossenschaftsverwaltung-…
+   was sliced off mid-word and read as a complete, wrong address. The text
+   gets a box of its own to be truncated in. */
+.client-meta-row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* An address wraps instead (the row hands it `pre-line`), so there is no
+   single line to cut short and nothing to hide. */
+.client-meta-row.multiline > span {
+  overflow: visible;
+}
+
+.client-meta-row svg { flex: none; color: var(--ink-3); }
+
+.client-stats {
+  display: flex;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.client-stat.owed {
+  color: var(--warn);
+  font-weight: 650;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.client-stat .money-lines {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.client-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.client-actions .btn {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+/* ---------- Recurring ---------- */
+
+/* Rule rows are not links (their actions are the icon buttons), so they
+   must not advertise a row-level click with a hover background. */
+.rule-row {
+  cursor: default;
+}
+
+.rule-row:hover {
+  background: none;
+}
+
+.rule-end {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* A completed schedule reads as finished rather than merely idle. */
+.doc-row-ic.rule-done {
+  background: var(--surface-2);   /* pre-color-mix() Safari */
+  background: color-mix(in srgb, var(--ok) 13%, transparent);
+  color: var(--ok);
+}
+
+.end-note {
+  margin: 0;
+}
+
+.rule-actions {
+  display: flex;
+  gap: 2px;
+}
+
+@media (max-width: 560px) {
+  .rule-end {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+}
+
+/* ---------- Reports ---------- */
+
+.rep-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.rep-selects {
+  display: flex;
+  gap: 8px;
+}
+
+.rep-selects .select-wrap {
+  min-width: 108px;
+}
+
+/* Report tiles carry no link, so they must not offer a link's hover. */
+.stat-tile.static:hover {
+  background: var(--surface);
+  border-color: var(--hairline);
+}
+
+.rep-note {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin: -4px 2px 18px;
+  max-width: 70ch;
+}
+
+.rep-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rep-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.rep-swatch {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.rep-swatch.s1 { background: var(--series-1); }
+.rep-swatch.s2 { background: var(--series-2); }
+
+.rep-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.rep-row {
+  display: grid;
+  grid-template-columns: 46px minmax(60px, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  /* Inset to match the heading of the card these rows sit in. */
+  padding: 8px 14px;
+}
+
+.rep-row + .rep-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.rep-month {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* Two thin bars per month, separated by surface rather than by a border. */
+.rep-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rep-bar {
+  display: block;
+  height: 7px;
+  border-radius: 0 4px 4px 0;
+  min-width: 0;
+}
+
+.rep-bar.s1 { background: var(--series-1); }
+.rep-bar.s2 { background: var(--series-2); }
+
+.rep-val {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+.rep-val-2 {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.rep-client {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+}
+
+.rep-client + .rep-client {
+  border-top: 1px solid var(--hairline);
+}
+
+.rep-client-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rep-client-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rep-client-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.rep-client-track {
+  display: block;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  overflow: hidden;
+  max-width: 320px;
+}
+
+.rep-client-amount {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .rep-row {
+    grid-template-columns: 42px minmax(40px, 1fr) auto auto;
+    gap: 8px;
+  }
+
+  .rep-val {
+    font-size: 11.5px;
+  }
+}
+
+/* ---------- Settings ---------- */
+
+.settings-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 720px;
+}
+
+.settings-save {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.paylink-preview {
+  margin: 2px 0 0;
+  word-break: break-all;
+}
+
+/* Branding: the preview sits on white, because the paper is white — a light
+   logo would otherwise vanish against a dark app theme. */
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.logo-preview {
+  display: grid;
+  place-items: center;
+  width: 104px;
+  height: 58px;
+  padding: 5px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline-strong);
+  background: #ffffff;
+  flex: none;
+  overflow: hidden;
+}
+
+.logo-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.logo-empty {
+  display: grid;
+  place-items: center;
+  color: #9a9da6;
+}
+
+.brand-hint {
+  margin: -8px 0 14px;
+}
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.color-input {
+  width: 54px;
+  height: 38px;
+  padding: 3px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  flex: none;
+  cursor: pointer;
+}
+
+/* The tint sample previews how the color prints, so — like the logo box
+   above it — it sits on white rather than on the app surface. A dark brand
+   color read at 2.9:1 against the dark theme's card, which is the one thing
+   a preview of that color must never do. */
+.brand-sample {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 11px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline-strong);
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.brand-sample-rule {
+  display: block;
+  width: 46px;
+  height: 2px;
+  background: currentColor;
+}
+
+.brand-note {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* ---------- Compose (email) ---------- */
+
+/* The address and the "send me a copy" rider under it: one field, because
+   both name someone the message goes to. */
+.compose-to {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compose-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.compose-row .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.compose-body {
+  min-height: 180px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.compose-intro {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  margin-bottom: 14px;
+}
+
+.compose-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin: -4px 0 14px;
+}
+
+/* The icon holds its size; the words beside it are what gives way. */
+.compose-note-ic {
+  flex: none;
+}
+
+.compose-note svg {
+  margin-top: 3px;
+}
+
+/* What rides along. A stacked column rather than the usual wrapping row of
+   checkboxes: a filename is long enough that two of them side by side read as
+   one sentence. */
+.compose-attach {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Every hint in here annotates a 13.5px checkbox label — at the sheet's base
+   size they read louder than the choices they are about. */
+.compose-attach .field-hint {
+  font-size: 12.5px;
+}
+
+.compose-attach-over {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+
+/* A choice that cannot be taken — too large for one email, or past the count
+   an email carries. The box greys itself; the name beside it and the pointer
+   over it have to be told. The hint saying why stays at full strength. */
+.compose-attach .check-row.is-off {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.compose-actions {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.compose-alt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Three ways out is one too many for a narrow sheet. Stack them rather than
+   squeeze the wording out of the buttons: the two fallbacks share a row, and
+   the primary takes the full width under them. */
+@media (max-width: 420px) {
+  .compose-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .compose-alt > * {
+    flex: 1;
+  }
+}
+
+.tpl-legend {
+  margin: -6px 0 12px;
+  line-height: 1.7;
+}
+
+.tpl-ph {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+/* Outstanding by age: buckets across, clients down. Wide by nature, so the
+   table scrolls inside its own box rather than pushing the page sideways —
+   and the box is focusable, because nothing inside it is and a keyboard (or
+   400% zoom) would otherwise never reach the last column. */
+.age-scroll {
+  overflow-x: auto;
+  /* Positioned, so the visually-hidden text inside the empty cells is
+     contained: an absolutely positioned descendant whose containing block
+     sits outside a scroll container is not clipped by it, and those spans
+     were dragging the whole page 350px sideways. */
+  position: relative;
+}
+
+/* Drawn inside its own edge: the card holding it clips to its radius, and a
+   ring hung outside the box would be cut off along the card's border. */
+.age-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.age-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.age-table th,
+.age-table td {
+  padding: 9px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* The outer columns carry the card's own inset, so the table lines up with
+   the heading above it and the note below. */
+.age-table th:first-child,
+.age-table td:first-child {
+  padding-inline-start: 14px;
+}
+
+.age-table th:last-child,
+.age-table td:last-child {
+  padding-inline-end: 14px;
+}
+
+.age-table thead th {
+  font-size: 12.5px;
+  font-weight: 450;
+  color: var(--ink-3);
+  background: var(--band);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.age-table tbody td,
+.age-table tbody th {
+  border-bottom: 1px solid var(--hairline);
+  font-weight: 500;
+}
+
+.age-table tbody tr:last-child td,
+.age-table tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+/* The client column is the one that may be long; it gives way, the figures
+   never do. */
+.age-table tbody td:first-child,
+.age-table tbody th:first-child {
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.age-cell {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.age-zero {
+  color: var(--ink-3);
+}
+
+.age-sum {
+  font-weight: 700;
+}
+
+.age-total-row th,
+.age-total-row td {
+  font-weight: 700;
+  border-top: 1px solid var(--hairline-strong);
+}
+
+.age-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.age-link:hover {
+  color: var(--accent);
+  border-bottom-color: currentColor;
+}
+
+/* A note under a ruled list, inside the box that holds it. The box has to
+   span the card for its rule to close the box — .rep-note's 70ch cap left the
+   line stopping halfway across a wide card, under nothing — so the measure is
+   held by the room on the right instead of by a width, and falls back to the
+   card's own inset once the card is narrower than the text wants to be. */
+.age-note {
+  margin: 0;
+  max-width: none;
+  padding: 11px 14px 13px;
+  padding-inline-end: max(14px, calc(100% - 70ch));
+  border-top: 1px solid var(--hairline);
+}
+
+/* Text for screen readers only; the empty cells read as "nothing" rather
+   than as an em dash nobody can hear. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The pill that says a list is showing one age band, with the way out of it
+   right there: an invisible filter is how "where did my invoices go?" starts. */
+.age-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 7px 8px 7px 13px;
+  margin-bottom: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--band);
+  font-size: 13.5px;
+}
+
+.age-filter-text {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.age-filter-clear {
+  margin-inline-start: auto;
+}
+
+/* The tax-note picker: a preset list with the free-text box under it, shown
+   only when "Custom wording" is chosen. */
+.tax-note-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tax-note-preview {
+  margin-top: -4px;
+}
+
+/* Installments: description, date, share, and the amount that comes out of
+   it. Same shape as a line-item row, and the same stacking on a phone. The
+   rows take the width; the Add button under them keeps to its own, like Add
+   tax and Add line — stretched across the column it sat centred on a line of
+   its own and lit up the whole width on hover, the one add button in the
+   form drawn differently from the other two. */
+.schedule-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.schedule-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 88px 90px 96px 38px;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.schedule-row .item-amount {
+  text-align: right;
+}
+
+.schedule-note {
+  margin-top: 10px;
+}
+
+@media (max-width: 819px) {
+  .schedule-row {
+    grid-template-columns: minmax(0, 1fr) 88px 90px auto;
+    grid-template-areas:
+      'label label label remove'
+      'date type value amount';
+    row-gap: 6px;
+  }
+
+  .schedule-row .schedule-label { grid-area: label; }
+  .schedule-row .schedule-date { grid-area: date; }
+  .schedule-row .select-wrap { grid-area: type; }
+  .schedule-row .schedule-value { grid-area: value; }
+  .schedule-row .item-amount { grid-area: amount; padding-inline-start: 4px; }
+  .schedule-row .item-remove { grid-area: remove; justify-self: end; }
+
+  .schedule-rows { gap: 16px; }
+}
+
+/* A date input will not go below about 110px, so on the narrowest phones it
+   takes a row of its own rather than squeezing the two boxes beside it. */
+@media (max-width: 430px) {
+  .schedule-row {
+    grid-template-columns: 88px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'label label remove'
+      'date date date'
+      'type value amount';
+  }
+}
+
+/* Narrower still, and the derived figure moves off the row instead of eating
+   it: at 320px "$1,188.00" sized to its own content first and left the value
+   box 55px, clipping a two-digit percentage mid-digit. The amount is output,
+   the box beside it is what someone is typing into, so the amount gives way —
+   here by taking a line of its own, since ellipsising a figure is no better
+   than clipping one. */
+@media (max-width: 359px) {
+  .schedule-row {
+    grid-template-areas:
+      'label label remove'
+      'date date date'
+      'type value value'
+      'amount amount amount';
+  }
+
+  .schedule-row .item-amount { padding-inline-start: 0; }
+}
+
+/* The exchange-rate field: the box, and beside it what the total comes to in
+   the account's own money. It takes a row of the details grid to itself,
+   because the sentence beside the box is taller than a label — in a cell of
+   its own it stretched the row and, with every field's contents pinned to the
+   row's bottom, left the dates and the currency box a band below the rate
+   box. The row lays the box and the note side by side, and lets the note
+   drop under the box where the two will not fit. */
+.fx-field {
+  grid-column: 1 / -1;
+}
+
+.fx-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+/* The box takes what a rate needs and no more beside the note; once the note
+   has dropped under it — a single-column phone — it fills the row like every
+   other box in the form. */
+.fx-row .input {
+  flex: 1 1 200px;
+}
+
+@media (min-width: 640px) {
+  .fx-row .input {
+    max-width: 260px;
+  }
+}
+
+.fx-note {
+  flex: 1 1 240px;
+  min-width: 0;
+  margin: 0;
+}
+
+/* The import wizard: a column of steps inside the sheet. */
+.import-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.import-errors {
+  margin: 4px 0 0;
+  padding-inline-start: 18px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.import-errors li {
+  margin-bottom: 2px;
+}
+
+/* Attachments: the list, and the box files can be dropped on. */
+.attach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.attach-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.attach-ic {
+  display: flex;
+  color: var(--ink-3);
+  flex: none;
+}
+
+/* The name is a button, because downloading is an action: it reads as a row
+   and behaves as one, with the size held apart from the truncating name. */
+.attach-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 9px 4px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+
+.attach-main:hover .attach-name {
+  color: var(--accent);
+}
+
+.attach-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 550;
+}
+
+.attach-size {
+  flex: none;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.attach-drop {
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r-md);
+  padding: 10px;
+  transition: border-color 0.13s, background 0.13s;
+}
+
+.attach-drop.over {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.attach-drop .side-note {
+  margin: 8px 2px 0;
+}
+
+.attach-share {
+  margin-top: 12px;
+}
+
+/* Touch: the two controls the new views added that a finger could miss. The
+   aging figure is the tap target, not the cell around it, so it takes the
+   height itself and gives the row back the space with a negative margin —
+   the same trick the toast action uses to keep its box the size it was. */
+@media (pointer: coarse) {
+  .attach-main {
+    min-height: 44px;
+  }
+
+  .age-table th,
+  .age-table td {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .age-link {
+    display: block;
+    padding: 14px 0;
+    margin: -14px 0;
+  }
+}

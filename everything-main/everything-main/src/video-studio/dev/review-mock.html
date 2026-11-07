@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Video Studio (review harness)</title>
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    (() => {
+      let t = 'dark';
+      try { t = localStorage.getItem('video-studio:theme') || 'dark'; } catch {}
+      const dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.dataset.theme = t;
+      document.documentElement.dataset.themeResolved = dark ? 'dark' : 'light';
+    })();
+  </script>
+  <script type="module" src="/dev/review-mock.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to editor</a>
+  <div id="app" class="app" aria-busy="true"></div>
+  <div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

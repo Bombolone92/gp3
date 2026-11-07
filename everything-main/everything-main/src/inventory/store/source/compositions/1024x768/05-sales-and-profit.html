@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>sales-and-profit</title><style>
+  *{box-sizing:border-box}html,body{margin:0;width:1024px;height:768px;overflow:hidden}
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;background:#fff6e9;color:#241302}
+  .canvas{position:relative;width:100%;height:100%;overflow:hidden;isolation:isolate}
+  .canvas:before{content:"";position:absolute;width:1240px;height:1240px;background:#ff8f15;border-radius:50%;right:-530px;bottom:-440px;z-index:-2}
+  .canvas:after{content:"";position:absolute;width:980px;height:980px;border:2px solid rgba(168,88,0,.19);border-radius:50%;right:-255px;top:-600px;z-index:-1}
+  .brand{position:absolute;left:88px;top:56px;display:flex;align-items:center;gap:18px;font-size:36px;font-weight:720;letter-spacing:-1px;line-height:1}
+  .brand img{width:60px;height:60px;border-radius:16px;box-shadow:0 7px 18px #a8580015}
+  .page-number{position:absolute;right:90px;top:68px;display:flex;align-items:center;gap:15px;font-size:30px;font-weight:650;letter-spacing:1px}
+  .page-number span{height:2px;width:44px;background:currentColor;opacity:.4}
+  .copy{position:absolute;left:88px;top:241px;width:780px}
+  h1{font-size:112px;line-height:1.015;letter-spacing:-4.8px;font-weight:780;margin:0}
+  .sub{font-size:36px;line-height:1.4;letter-spacing:-.7px;margin:38px 0 0;max-width:750px;color:#65452b}
+  .eyebrow{position:absolute;left:90px;bottom:90px;display:flex;align-items:center;gap:18px;font-size:32px;font-weight:600;letter-spacing:-.5px}
+  .eyebrow:before{content:"";height:12px;width:12px;background:#a85800;border-radius:50%}
+  .showcase{position:absolute;left:980px;right:88px;top:210px;bottom:88px;display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:28px}
+  .ui{display:block;width:100%;height:auto;flex:none}
+  .fragment{border-radius:24px;background:#fff;overflow:hidden;box-shadow:0 22px 44px #65360a15,0 1px 2px #65360a12;outline:1px solid #e9dfd0}
+  .complete-card{border-radius:30px;box-shadow:0 25px 65px #65360a20}
+  .product-label{font-size:38px;font-weight:650;letter-spacing:-1px;padding:0 6px 6px}
+  .action-img{width:65%;align-self:flex-end;border-radius:22px;box-shadow:0 12px 22px #65360a14}
+  .supplier-head{background:white;padding:30px;border-radius:26px}
+  .scan-img{width:31%;align-self:flex-start;border-radius:18px}
+  .sales-pair{display:flex;flex-direction:column;gap:30px;width:79%;align-self:center}
+  .sales-pair .ui{border-radius:32px;box-shadow:0 22px 48px #65360a18}
+  .whole-app{border:10px solid #fff;border-radius:25px;box-shadow:0 35px 90px #713f1830;overflow:hidden;background:#fff}
+  .slide-0{background:#ff8f15}
+  .slide-0:before{background:#ffb860;width:1460px;height:1460px;right:-450px;bottom:-720px}
+  .slide-0:after{border-color:#24130220;width:1400px;height:1400px;right:-600px;top:-870px}
+  .slide-0 .copy{top:145px;width:1744px;left:88px}
+  .slide-0 h1{font-size:91px;letter-spacing:-4.5px;line-height:1.02}
+  .slide-0 h1 br{display:none}.slide-0 h1 br:after{content:" "}
+  .slide-0 .sub{margin:22px 0 0;font-size:35px;color:#482700}
+  .slide-0 .showcase{left:503px;right:90px;top:326px;bottom:43px;justify-content:flex-start}
+  .slide-0 .whole-app{position:absolute;width:1090px;right:0;bottom:0}
+  .overview-value{position:absolute;width:530px;left:-415px;top:166px;border-radius:32px;box-shadow:0 22px 55px #713f1825}
+  .slide-0 .eyebrow{left:90px;bottom:90px;width:355px;line-height:1.25;align-items:flex-start}
+  .slide-0 .eyebrow:before{flex-shrink:0;margin-top:13px;background:#241302}
+  .slide-1 .copy{width:760px}.slide-1 .showcase{gap:34px}
+  .slide-2 h1{font-size:101px}.slide-2 .showcase{gap:24px;left:975px}.slide-2 .action-img{width:100%}
+  .slide-3{background:#241b15;color:#fff7ed}
+  .slide-3:before{background:#ff8f15;right:-740px;bottom:-790px}
+  .slide-3:after{border-color:#ffffff14}
+  .slide-3 .sub{color:#e6c4a0}.slide-3 .eyebrow{color:#ffb45f}.slide-3 .eyebrow:before{background:#ff8f15}
+  .slide-3 .fragment{outline:0}.slide-3 .showcase{gap:24px;top:170px;bottom:65px}
+  .slide-4 .showcase{top:170px;bottom:82px}.slide-4 .sub{max-width:695px}
+
+
+  .brand{left:48px;top:35px;font-size:29px;gap:12px}.brand img{width:44px;height:44px;border-radius:12px}
+  .page-number{right:49px;top:45px;font-size:25px;gap:10px}.page-number span{width:30px}
+  .copy,.slide-0 .copy,.slide-1 .copy{left:48px;top:111px;width:940px}
+  h1,.slide-2 h1,.slide-0 h1{font-size:58px;line-height:1.04;letter-spacing:-2.2px}
+  h1 br{display:none}h1 br:after{content:" "}
+  .sub,.slide-0 .sub{font-size:28px;line-height:1.2;margin:18px 0 0;letter-spacing:-.5px;max-width:930px}
+  .eyebrow{display:none}
+  .showcase,.slide-2 .showcase,.slide-4 .showcase{left:110px;right:110px;top:267px;bottom:44px;gap:20px}
+  .product-label{font-size:29px;padding:0 4px}.fragment{border-radius:20px}
+  .action-img{width:51%;border-radius:16px;align-self:flex-end}
+  .slide-0 .copy{top:106px}.slide-0 h1{font-size:55px}
+  .slide-0 .showcase{left:120px;right:120px;top:226px;bottom:29px}
+  .slide-0 .whole-app{position:static;width:100%;border-width:7px;border-radius:20px}
+  .slide-0 .sub{font-size:27px;margin-top:15px}
+  .slide-0:before{width:1100px;height:1100px;right:-400px;bottom:-700px}
+  .slide-1 .showcase{gap:20px;left:90px;right:90px}
+  .slide-2 .copy{width:850px}.slide-2 h1{font-size:57px}.slide-2 .showcase{top:271px;left:120px;right:120px}
+  .slide-3 .showcase{left:112px;right:112px;top:284px;bottom:62px;gap:24px}
+  .slide-4 .showcase{left:70px;right:70px;top:310px;bottom:95px}
+  .sales-pair{flex-direction:row;width:100%;gap:24px}.sales-pair .ui{width:calc(50% - 12px);height:auto;align-self:start;border-radius:26px}
+
+
+  </style></head><body><main class="canvas slide-4"><div class="brand"><img src="/icon-192.png" alt="">Inventory</div><div class="page-number">05<span></span>05</div><div class="copy"><h1>See what earns its keep.</h1><p class="sub">Follow your sales and real gross profit.</p></div><div class="showcase"><div class="sales-pair"><img class="ui " src="/store/source/ui/sales-revenue.png" width="756" height="484" alt="sales revenue"><img class="ui " src="/store/source/ui/sales-gross-profit.png" width="756" height="484" alt="sales gross profit"></div></div><div class="eyebrow">Make the numbers useful</div></main></body></html>

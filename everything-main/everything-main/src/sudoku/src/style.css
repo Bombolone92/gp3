@@ -1,0 +1,1488 @@
+/* Sudoku is pencil and paper, so the palette is paper: a cool near-white page,
+   a true white grid sitting on it, and one blue that does all the signalling.
+
+   That single accent carries a lot here. It marks the digits the player typed
+   as opposed to the clues the puzzle came with, which is the most important
+   distinction on the board and the one that has to survive at phone size; it
+   fills the selected cell; and it is the primary button. Red is kept for one
+   job only (a digit that cannot be right), so it never has to compete.
+
+   No gradients and no shadows anywhere. Depth comes from borders and from the
+   page/surface pair, which stays crisp at any zoom and on any display. */
+:root {
+  color-scheme: light;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-sunken: #eef0f4;
+  --border: #e3e6ec;
+  --border-strong: #c3c9d4;
+  --text: #14171c;
+  --muted: #666e7c;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-tint: #e4ecfd;
+  /* The label colour for a filled accent or danger button. Split out from the
+     fill because the two schemes need opposite answers: the dark theme's accent
+     is a light blue, and white text on it measures 3.2:1, under the 4.5:1 that
+     14px semibold needs. Near-black on that same blue measures 5.9:1. */
+  --on-accent: #ffffff;
+  --danger: #d02b20;
+  --danger-tint: #fbe6e4;
+  --on-danger: #ffffff;
+  --good: #157f4a;
+  --good-tint: #e2f3ea;
+  --cell-peer: #f1f3f7;
+  --cell-same: #e6ebf6;
+  --hint-tint: #fdf3da;
+  --hint-line: #cf9c25;
+  --radius-sm: 8px;
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+/* The effective theme is stamped on <html> as data-theme="light|dark",
+   resolved from the saved preference (or the OS, when that preference is
+   "system") by an inline script before first paint, and kept in sync by
+   main.js after that. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #101215;
+  --surface: #181b20;
+  --surface-sunken: #14171b;
+  --border: #2e343d;
+  --border-strong: #474f5c;
+  --text: #e7e9ee;
+  --muted: #98a0ad;
+  --accent: #5b8cf5;
+  --accent-strong: #85aafa;
+  --accent-tint: #1c2a41;
+  --on-accent: #0b1020;
+  --danger: #ef5f56;
+  --danger-tint: #3a2120;
+  --on-danger: #2a0b09;
+  --good: #4cb782;
+  --good-tint: #16291f;
+  --cell-peer: #1e222a;
+  --cell-same: #262d3a;
+  --hint-tint: #302818;
+  --hint-line: #b98d2b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* The app is sized to the viewport and the document never scrolls: a scrollbar
+   appearing or vanishing would shift the board sideways mid-game. Anything
+   that can outgrow its space scrolls inside its own box instead. See .sidebar
+   and, on narrow screens, .layout. */
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  /* Tabular figures everywhere: the clock, the digit counts and the records
+     table all hold numbers that must not jitter as they change. */
+  font-variant-numeric: tabular-nums;
+  /* A double-tap on a cell must not zoom the page. */
+  touch-action: manipulation;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+h1,
+h2,
+p,
+dl,
+dd,
+dt {
+  margin: 0;
+}
+
+svg.lucide {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.noscript-note {
+  max-width: 1120px;
+  margin: 16px auto 0;
+  padding: 12px 24px;
+  color: var(--muted);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Header                                                              */
+/* ------------------------------------------------------------------ */
+
+.topbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 24px 10px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+}
+
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+}
+
+.brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* A segmented control: one visible group, one choice pressed. Used for the
+   theme, and sized so the three buttons read as a single object. */
+.segmented {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.segmented button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.segmented button svg.lucide {
+  width: 15px;
+  height: 15px;
+}
+
+.segmented button:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--accent-tint);
+  color: var(--accent-strong);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.icon-btn-sm {
+  width: 26px;
+  height: 26px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.icon-btn-sm svg.lucide {
+  width: 15px;
+  height: 15px;
+}
+
+.account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 170px;
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.account-btn:hover {
+  background: var(--bg);
+}
+
+.account-btn svg.lucide {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+
+.account-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout                                                              */
+/* ------------------------------------------------------------------ */
+
+/* Fills the space under the header exactly. Both columns are the height of
+   that row, which lets the board size itself from the available height with no
+   magic numbers and no resize listener. */
+.layout {
+  --sidebar-width: 322px;
+  --column-gap: 28px;
+  --board-max: 620px;
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+  grid-template-rows: minmax(0, 1fr);
+  gap: var(--column-gap);
+  width: 100%;
+  min-height: 0;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 10px 24px 24px;
+  /* Lets the sidebar read this row's size, which is how it works out where the
+     board's top and bottom edges land. */
+  container-type: size;
+}
+
+/* The board is a square fitted to the smaller of its column's two axes. Naming
+   the result here means the sidebar can derive the same number instead of
+   guessing at it. */
+.layout {
+  --board-size: min(100cqh, var(--board-max), calc(100cqw - var(--sidebar-width) - var(--column-gap)));
+}
+
+.board-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  /* Lets .board-frame read this column's height as 100cqh. */
+  container-type: size;
+}
+
+/* A square that fits whichever of the column's two axes is smaller. The first
+   declaration is the fallback where size container queries are unsupported;
+   its 132px approximates the header plus this row's vertical padding. */
+.board-frame {
+  position: relative;
+  width: min(100%, calc(100dvh - 132px));
+  width: min(100%, 100cqh);
+  max-width: var(--board-max);
+}
+
+/* ------------------------------------------------------------------ */
+/* Board                                                               */
+/* ------------------------------------------------------------------ */
+
+/* Cell borders, not grid gaps, draw the lines: a 2px box separator and a 1px
+   cell separator would need unequal grid tracks, whereas with border-box
+   sizing every cell keeps exactly the same outer size and only its content box
+   differs by a pixel, invisible behind a centred digit. */
+.board {
+  display: grid;
+  grid-template-rows: repeat(9, 1fr);
+  aspect-ratio: 1;
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  /* Everything inside sizes off the board's own width, so the digits, the
+     pencil marks and the line weights all scale together from a phone to a
+     desktop with no breakpoints. */
+  container-type: inline-size;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+}
+
+.board-row:nth-child(3n):not(:nth-child(9)) .cell {
+  border-bottom-color: var(--border-strong);
+  border-bottom-width: 2px;
+}
+
+.board-row:nth-child(9) .cell {
+  border-bottom: none;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 6.1cqi;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  /* Colour is the only thing that animates: a cell that resizes or moves
+     during play is a cell you misclick. */
+  transition: background-color 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cell:nth-child(3n):not(:nth-child(9)) {
+  border-right-color: var(--border-strong);
+  border-right-width: 2px;
+}
+
+.cell:nth-child(9) {
+  border-right: none;
+}
+
+/* The board clips to its rounded corners, so a ring drawn square in a corner
+   cell has a bite taken out of it. Rounding the four corner cells to the same
+   curve is what lets the ring follow it instead: the board's inner radius is
+   its own radius less the 2px border it sits inside. */
+.board {
+  --cell-corner: calc(var(--radius-lg) - 2px);
+}
+
+.board-row:first-child .cell:first-child {
+  border-top-left-radius: var(--cell-corner);
+}
+
+.board-row:first-child .cell:nth-child(9) {
+  border-top-right-radius: var(--cell-corner);
+}
+
+.board-row:nth-child(9) .cell:first-child {
+  border-bottom-left-radius: var(--cell-corner);
+}
+
+.board-row:nth-child(9) .cell:nth-child(9) {
+  border-bottom-right-radius: var(--cell-corner);
+}
+
+/* Highlight order matters, later rules winning. Peers are the faintest wash, the
+   matching digit is stronger, and the selected cell is unmistakable. */
+.cell.peer {
+  background: var(--cell-peer);
+}
+
+.cell.same {
+  background: var(--cell-same);
+}
+
+.cell.hint {
+  background: var(--hint-tint);
+}
+
+.cell.conflict,
+.cell.wrong {
+  background: var(--danger-tint);
+}
+
+.cell.selected {
+  background: var(--accent-tint);
+}
+
+/* An inset outline rather than a border or a ring: it cannot shift the layout.
+   The radius is inherited from the cell so that in a corner it curves with the
+   board rather than being clipped square against it. */
+.cell.selected::after,
+.cell.hint-target::after,
+.cell:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  pointer-events: none;
+}
+
+.cell.hint-target::after {
+  outline-color: var(--hint-line);
+}
+
+/* Focus lands on the cell the roving tabindex is on, which is always the
+   selected one, so this only has to deepen what is already drawn. */
+.cell:focus-visible {
+  outline: none;
+}
+
+.cell:focus-visible::after {
+  outline-width: 3px;
+  outline-offset: -3px;
+}
+
+/* Clues are the puzzle; entries are yours. Weight and colour both carry the
+   difference, so it holds up in greyscale and for colour-blind players. */
+.cell.given {
+  color: var(--text);
+  font-weight: 600;
+  cursor: default;
+}
+
+/* Both reds carry to the digit itself, not just its wash, so a duplicate reads
+   as strongly as a digit the solution rules out. */
+.cell.wrong,
+.cell.conflict {
+  color: var(--danger);
+}
+
+.cell-value {
+  pointer-events: none;
+}
+
+/* Pencil marks sit in a fixed 3x3 so a digit is always in the same spot,
+   which is what makes them scannable. */
+.cell-notes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+  padding: 4%;
+  color: var(--muted);
+  font-size: 2.5cqi;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.cell-notes span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The digit the player is working with, picked out among the pencil marks. */
+.cell-notes span.note-same {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+/* Pause and generating states. Blurring the board is the point: the puzzle
+   should be genuinely unreadable while the clock is stopped. */
+.veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--bg) 76%, transparent);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  z-index: 2;
+}
+
+.veil-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.veil-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.veil-icon svg.lucide {
+  width: 22px;
+  height: 22px;
+}
+
+.veil-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* A spinner is the one place motion is load-bearing: it is the only signal
+   that generating an Expert grid is progressing rather than stuck. */
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar                                                             */
+/* ------------------------------------------------------------------ */
+
+/* Started at the board's own top edge, so the two columns read as one
+   composition rather than a square beside a floating stack of cards. The cards
+   below then happen to fill almost exactly the board's height, which is why
+   nothing here is stretched to force the bottom edges to line up: doing that
+   left no room for the hint card, and the controls were pushed out of sight the
+   moment a hint appeared. Growing downwards into the column's remaining space
+   instead costs a little symmetry and keeps New puzzle reachable.
+
+   The max() floor keeps the inset from going negative on a short window, where
+   the sidebar is the taller of the two and simply scrolls. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  margin-top: max(0px, calc((100cqh - var(--board-size)) / 2));
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.card {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.status-card {
+  flex: none;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.status-text {
+  min-width: 0;
+}
+
+.status-difficulty {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.status-note {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-right {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.clock {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.progress {
+  height: 4px;
+  margin-top: 11px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+}
+
+.progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+.progress.complete .progress-fill {
+  background: var(--good);
+}
+
+/* Hint card */
+.hint-card {
+  flex: none;
+  padding: 10px 12px;
+  border-color: var(--hint-line);
+  background: var(--hint-tint);
+}
+
+.hint-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.hint-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.hint-text {
+  margin-bottom: 9px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Tools */
+.tools {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.tool {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.tool svg.lucide {
+  width: 17px;
+  height: 17px;
+  color: var(--muted);
+}
+
+.tool:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tool[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent-strong);
+}
+
+.tool[aria-pressed='true'] svg.lucide {
+  color: var(--accent-strong);
+}
+
+/* A toggle has to say which way it is set by more than colour alone, so the
+   Notes tool swaps its glyph too: a crossed-out pencil off, a plain pencil on. */
+.tool .icon-notes-on,
+.tool[aria-pressed='true'] .icon-notes-off {
+  display: none;
+}
+
+.tool[aria-pressed='true'] .icon-notes-on {
+  display: block;
+}
+
+/* Keypad */
+/* Three across on a desktop, where width is the scarce axis and a ninth of the
+   sidebar makes a 30px key. Nine across on a phone, where it is height that is
+   scarce and a row of nine still clears the touch guidance. See the stacked
+   breakpoint below. */
+.keypad {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.key {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 2;
+  /* Both of these keep the 1fr tracks honest. A grid item's automatic minimum
+     size is its min-content size, and aspect-ratio turns the key's intrinsic
+     *height* into a floor on its width: with the inherited 1.45 line-height
+     that floor was 32px, so a narrow sidebar could not shrink the row and the
+     ninth key was cut off the side. */
+  min-width: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* Only a key that would actually do something lights up under the pointer. */
+.keypad:not(.is-disabled) .key:not(.exhausted):hover {
+  background: var(--bg);
+}
+
+/* In pencil-mark mode the keys write notes, and they say so by adopting the
+   pencil marks' own weight and colour. */
+.keypad.notes-mode .key {
+  color: var(--muted);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+/* A digit with all nine placed is done: dimmed and inert rather than removed,
+   so the keypad never reflows mid-game. A paused or finished board dims the
+   whole pad the same way, so the keys never look live while nothing can be
+   entered. */
+.key.exhausted,
+.keypad.is-disabled .key {
+  color: var(--muted);
+  opacity: 0.4;
+  cursor: default;
+}
+
+.key.selected-digit {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent-strong);
+}
+
+.key-count {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Controls */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  margin-bottom: 10px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+select {
+  width: 100%;
+  padding: 9px 32px 9px 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23808896' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn svg.lucide {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+.btn-ghost {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.btn-ghost.btn-danger {
+  color: var(--danger);
+}
+
+.btn-ghost.btn-danger:hover:not(:disabled) {
+  background: var(--danger-tint);
+}
+
+.btn-danger-solid {
+  background: var(--danger);
+  color: var(--on-danger);
+}
+
+.btn-danger-solid:hover {
+  background: color-mix(in srgb, var(--danger) 86%, black);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.controls-hint {
+  min-height: 1.2em;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.app-footer {
+  flex: none;
+  padding: 2px 0 0;
+  text-align: center;
+}
+
+.app-footer a {
+  color: var(--muted);
+  font-size: 11.5px;
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* One focus treatment for everything focusable, so the ring is recognisable
+   wherever it lands. */
+.segmented button:focus-visible,
+.icon-btn:focus-visible,
+.account-btn:focus-visible,
+.tool:focus-visible,
+.key:focus-visible,
+.btn:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dialogs                                                             */
+/* ------------------------------------------------------------------ */
+
+.dialog {
+  width: min(92vw, 400px);
+  max-height: calc(100dvh - 32px);
+  padding: 26px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
+}
+
+.dialog[open] {
+  animation: dialog-in 0.18s ease;
+}
+
+.dialog::backdrop {
+  background: color-mix(in srgb, #0b0d10 55%, transparent);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.dialog-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 14px;
+  border-radius: var(--radius-lg);
+}
+
+.dialog-icon svg.lucide {
+  width: 24px;
+  height: 24px;
+}
+
+.dialog-icon-good {
+  background: var(--good-tint);
+  color: var(--good);
+}
+
+.dialog-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.dialog-sub {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.dialog-buttons .btn {
+  flex: 1;
+}
+
+/* Result summary in the solved dialog */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.result-grid > div {
+  padding: 10px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.result-grid dt {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.result-grid dd {
+  margin-top: 3px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.result-grid dd.is-record {
+  color: var(--good);
+}
+
+/* Records table */
+.stats-table-wrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  text-align: right;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.stats-table thead th {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stats-table th:first-child,
+.stats-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.stats-table tbody tr:last-child th,
+.stats-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.stats-table td.empty {
+  color: var(--muted);
+}
+
+/* Settings list */
+.option-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 14px;
+  text-align: left;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.option:last-child {
+  border-bottom: none;
+}
+
+.option-text {
+  min-width: 0;
+}
+
+.option-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.option-note {
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* A switch built from a checkbox, so it keeps every keyboard and
+   screen-reader behaviour the platform already gives a checkbox. */
+.switch {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 24px;
+}
+
+.switch input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.switch-track {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+  pointer-events: none;
+}
+
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.switch input:checked + .switch-track {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.switch input:checked + .switch-track::after {
+  background: var(--on-accent);
+  transform: translateX(16px);
+}
+
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Toast                                                               */
+/* ------------------------------------------------------------------ */
+
+.toast {
+  position: fixed;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 50;
+  max-width: min(92vw, 420px);
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ------------------------------------------------------------------ */
+/* Motion                                                              */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  /* The spinner is the exception: with no motion it is indistinguishable from
+     a frozen app, so it keeps turning, just calmly. */
+  .spinner {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+
+/* Short desktop windows: tighten the vertical rhythm so the sidebar stays
+   whole rather than starting to scroll. */
+@media (min-width: 921px) and (max-height: 780px) {
+  .topbar {
+    padding: 12px 24px 6px;
+  }
+
+  .layout {
+    padding: 6px 24px 14px;
+  }
+
+  .sidebar {
+    gap: 8px;
+  }
+
+  .tool {
+    padding: 7px 2px 6px;
+  }
+}
+
+/* Stacked layout. Board first, then the tools and keypad directly beneath it,
+   the order a thumb wants and the order the eye reads. Scrolling happens
+   inside .layout rather than on the document, which keeps the header put and
+   any scrollbar off the board. */
+@media (max-width: 920px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    gap: 14px;
+    padding: 6px 14px 18px;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  .topbar {
+    padding: 12px 14px 6px;
+  }
+
+  .board-column {
+    container-type: normal;
+  }
+
+  .board-frame {
+    /* Leaves room for the tools and keypad below without a scroll on the
+       common phone shape; the cap keeps a tablet's board from swallowing the
+       page. */
+    width: min(100%, 62dvh);
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 540px;
+    min-height: auto;
+    margin: 0 auto;
+    overflow: visible;
+  }
+
+  /* One strip of nine. A 3x3 pad would cost roughly 300px of height that the
+     board needs here, and a ninth of a phone's width is only about 36px, so
+     the keys are made taller than wide instead: 36x45 clears the 44px touch
+     guidance on one axis and comfortably clears the 24px WCAG minimum on
+     both, for nine pixels of height. */
+  .keypad {
+    grid-template-columns: repeat(9, 1fr);
+    gap: 6px;
+  }
+
+  .key {
+    aspect-ratio: 4 / 5;
+    font-size: 21px;
+  }
+
+  .key-count {
+    font-size: 9.5px;
+  }
+
+  .app-footer {
+    padding-top: 4px;
+  }
+}
+
+/* Tablets in portrait have the width and the height to breathe, so the board
+   and the panel below it both grow rather than sitting in a phone-sized column
+   with wide empty margins either side. */
+@media (min-width: 601px) and (max-width: 920px) {
+  .board-frame,
+  .sidebar {
+    max-width: 620px;
+  }
+
+  .board-frame {
+    width: min(100%, 66dvh);
+  }
+
+  .tools,
+  .keypad {
+    gap: 8px;
+  }
+
+  /* Back to square at this width, where a ninth of the row is already 64px. */
+  .key {
+    aspect-ratio: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-name,
+  .account-name {
+    /* The mark and the icon carry the identity; the words are the first thing
+       to go when the row runs out of room. */
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 6px;
+  }
+
+  .tool-label {
+    font-size: 10px;
+  }
+
+  .tools,
+  .keypad {
+    gap: 5px;
+  }
+
+  .dialog {
+    padding: 22px 18px;
+  }
+
+  .result-grid {
+    gap: 6px;
+  }
+}
+
+/* Very short landscape phones: a board and a full keypad cannot both fit
+   stacked, so put them side by side instead. */
+@media (max-width: 920px) and (max-height: 520px) and (orientation: landscape) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(238px, 330px);
+    gap: 12px;
+  }
+
+  /* The narrowest place the strip of nine has to fit. */
+  .keypad {
+    gap: 4px;
+  }
+
+  .key {
+    font-size: 17px;
+  }
+
+  .board-column {
+    container-type: size;
+  }
+
+  .board-frame {
+    width: min(100%, 100cqh);
+  }
+
+  .sidebar {
+    max-width: none;
+    margin-top: 0;
+    overflow-y: auto;
+  }
+}

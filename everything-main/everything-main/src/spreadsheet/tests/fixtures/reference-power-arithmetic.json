@@ -1,0 +1,4999 @@
+{
+  "source": "Microsoft Excel 16.113 for Mac, 2026-09-22. Evaluate and worksheet formula2 probes agree; stored formulas validated. Numeric text is used for normal results, raw worksheet numbers for subnormals, with a separate zero/sign/error probe. Includes prior unit-beta stage POWER controls.",
+  "cases": [
+    {
+      "expression": "(0.5)^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.5,-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(0.5)^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.5,-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(0.5)^(-308)",
+      "expected": 5.21481209941628e+92
+    },
+    {
+      "expression": "POWER(0.5,-308)",
+      "expected": 5.21481209941628e+92
+    },
+    {
+      "expression": "(0.5)^(-3)",
+      "expected": 8
+    },
+    {
+      "expression": "POWER(0.5,-3)",
+      "expected": 8
+    },
+    {
+      "expression": "(0.5)^(-2.1)",
+      "expected": 4.28709385014517
+    },
+    {
+      "expression": "POWER(0.5,-2.1)",
+      "expected": 4.28709385014517
+    },
+    {
+      "expression": "(0.5)^(-2)",
+      "expected": 4
+    },
+    {
+      "expression": "POWER(0.5,-2)",
+      "expected": 4
+    },
+    {
+      "expression": "(0.5)^(-1)",
+      "expected": 2
+    },
+    {
+      "expression": "POWER(0.5,-1)",
+      "expected": 2
+    },
+    {
+      "expression": "(0.5)^(-0.5)",
+      "expected": 1.41421356237309
+    },
+    {
+      "expression": "POWER(0.5,-0.5)",
+      "expected": 1.41421356237309
+    },
+    {
+      "expression": "(0.5)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(0.5,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(0.5)^(0.5)",
+      "expected": 0.707106781186548
+    },
+    {
+      "expression": "POWER(0.5,0.5)",
+      "expected": 0.707106781186548
+    },
+    {
+      "expression": "(0.5)^(1)",
+      "expected": 0.5
+    },
+    {
+      "expression": "POWER(0.5,1)",
+      "expected": 0.5
+    },
+    {
+      "expression": "(0.5)^(2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(0.5,2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "(0.5)^(2.1)",
+      "expected": 0.233258247884202
+    },
+    {
+      "expression": "POWER(0.5,2.1)",
+      "expected": 0.233258247884202
+    },
+    {
+      "expression": "(0.5)^(3)",
+      "expected": 0.125
+    },
+    {
+      "expression": "POWER(0.5,3)",
+      "expected": 0.125
+    },
+    {
+      "expression": "(0.5)^(308)",
+      "expected": 1.91761463488192e-93
+    },
+    {
+      "expression": "POWER(0.5,308)",
+      "expected": 1.91761463488192e-93
+    },
+    {
+      "expression": "(0.5)^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(0.5)^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(2)^(-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(2,-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(2)^(-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(2,-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(2)^(-308)",
+      "expected": 1.91761463488192e-93
+    },
+    {
+      "expression": "POWER(2,-308)",
+      "expected": 1.91761463488192e-93
+    },
+    {
+      "expression": "(2)^(-3)",
+      "expected": 0.125
+    },
+    {
+      "expression": "POWER(2,-3)",
+      "expected": 0.125
+    },
+    {
+      "expression": "(2)^(-2.1)",
+      "expected": 0.233258247884202
+    },
+    {
+      "expression": "POWER(2,-2.1)",
+      "expected": 0.233258247884202
+    },
+    {
+      "expression": "(2)^(-2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(2,-2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "(2)^(-1)",
+      "expected": 0.5
+    },
+    {
+      "expression": "POWER(2,-1)",
+      "expected": 0.5
+    },
+    {
+      "expression": "(2)^(-0.5)",
+      "expected": 0.707106781186547
+    },
+    {
+      "expression": "POWER(2,-0.5)",
+      "expected": 0.707106781186547
+    },
+    {
+      "expression": "(2)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(2,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(2)^(0.5)",
+      "expected": 1.4142135623731
+    },
+    {
+      "expression": "POWER(2,0.5)",
+      "expected": 1.4142135623731
+    },
+    {
+      "expression": "(2)^(1)",
+      "expected": 2
+    },
+    {
+      "expression": "POWER(2,1)",
+      "expected": 2
+    },
+    {
+      "expression": "(2)^(2)",
+      "expected": 4
+    },
+    {
+      "expression": "POWER(2,2)",
+      "expected": 4
+    },
+    {
+      "expression": "(2)^(2.1)",
+      "expected": 4.28709385014517
+    },
+    {
+      "expression": "POWER(2,2.1)",
+      "expected": 4.28709385014517
+    },
+    {
+      "expression": "(2)^(3)",
+      "expected": 8
+    },
+    {
+      "expression": "POWER(2,3)",
+      "expected": 8
+    },
+    {
+      "expression": "(2)^(308)",
+      "expected": 5.21481209941628e+92
+    },
+    {
+      "expression": "POWER(2,308)",
+      "expected": 5.21481209941628e+92
+    },
+    {
+      "expression": "(2)^(1023)",
+      "expected": 8.9884656743116e+307
+    },
+    {
+      "expression": "POWER(2,1023)",
+      "expected": 8.9884656743116e+307
+    },
+    {
+      "expression": "(2)^(1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(0.1)^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.1,-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(0.1)^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.1,-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(0.1)^(-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.1,-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(0.1)^(-3)",
+      "expected": 1000
+    },
+    {
+      "expression": "POWER(0.1,-3)",
+      "expected": 1000
+    },
+    {
+      "expression": "(0.1)^(-2.1)",
+      "expected": 125.892541179417
+    },
+    {
+      "expression": "POWER(0.1,-2.1)",
+      "expected": 125.892541179417
+    },
+    {
+      "expression": "(0.1)^(-2)",
+      "expected": 100
+    },
+    {
+      "expression": "POWER(0.1,-2)",
+      "expected": 100
+    },
+    {
+      "expression": "(0.1)^(-1)",
+      "expected": 10
+    },
+    {
+      "expression": "POWER(0.1,-1)",
+      "expected": 10
+    },
+    {
+      "expression": "(0.1)^(-0.5)",
+      "expected": 3.16227766016838
+    },
+    {
+      "expression": "POWER(0.1,-0.5)",
+      "expected": 3.16227766016838
+    },
+    {
+      "expression": "(0.1)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(0.1,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(0.1)^(0.5)",
+      "expected": 0.316227766016838
+    },
+    {
+      "expression": "POWER(0.1,0.5)",
+      "expected": 0.316227766016838
+    },
+    {
+      "expression": "(0.1)^(1)",
+      "expected": 0.1
+    },
+    {
+      "expression": "POWER(0.1,1)",
+      "expected": 0.1
+    },
+    {
+      "expression": "(0.1)^(2)",
+      "expected": 0.01
+    },
+    {
+      "expression": "POWER(0.1,2)",
+      "expected": 0.01
+    },
+    {
+      "expression": "(0.1)^(2.1)",
+      "expected": 0.00794328234724282
+    },
+    {
+      "expression": "POWER(0.1,2.1)",
+      "expected": 0.00794328234724282
+    },
+    {
+      "expression": "(0.1)^(3)",
+      "expected": 0.001
+    },
+    {
+      "expression": "POWER(0.1,3)",
+      "expected": 0.001
+    },
+    {
+      "expression": "(0.1)^(308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.1,308)",
+      "expected": 0
+    },
+    {
+      "expression": "(0.1)^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.1,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(0.1)^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.1,1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(10)^(-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(10,-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(10)^(-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(10,-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(10)^(-308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(10,-308)",
+      "expected": 0
+    },
+    {
+      "expression": "(10)^(-3)",
+      "expected": 0.001
+    },
+    {
+      "expression": "POWER(10,-3)",
+      "expected": 0.001
+    },
+    {
+      "expression": "(10)^(-2.1)",
+      "expected": 0.00794328234724281
+    },
+    {
+      "expression": "POWER(10,-2.1)",
+      "expected": 0.00794328234724281
+    },
+    {
+      "expression": "(10)^(-2)",
+      "expected": 0.01
+    },
+    {
+      "expression": "POWER(10,-2)",
+      "expected": 0.01
+    },
+    {
+      "expression": "(10)^(-1)",
+      "expected": 0.1
+    },
+    {
+      "expression": "POWER(10,-1)",
+      "expected": 0.1
+    },
+    {
+      "expression": "(10)^(-0.5)",
+      "expected": 0.316227766016838
+    },
+    {
+      "expression": "POWER(10,-0.5)",
+      "expected": 0.316227766016838
+    },
+    {
+      "expression": "(10)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(10,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(10)^(0.5)",
+      "expected": 3.16227766016838
+    },
+    {
+      "expression": "POWER(10,0.5)",
+      "expected": 3.16227766016838
+    },
+    {
+      "expression": "(10)^(1)",
+      "expected": 10
+    },
+    {
+      "expression": "POWER(10,1)",
+      "expected": 10
+    },
+    {
+      "expression": "(10)^(2)",
+      "expected": 100
+    },
+    {
+      "expression": "POWER(10,2)",
+      "expected": 100
+    },
+    {
+      "expression": "(10)^(2.1)",
+      "expected": 125.892541179417
+    },
+    {
+      "expression": "POWER(10,2.1)",
+      "expected": 125.892541179417
+    },
+    {
+      "expression": "(10)^(3)",
+      "expected": 1000
+    },
+    {
+      "expression": "POWER(10,3)",
+      "expected": 1000
+    },
+    {
+      "expression": "(10)^(308)",
+      "expected": 1e+308
+    },
+    {
+      "expression": "POWER(10,308)",
+      "expected": 1e+308
+    },
+    {
+      "expression": "(10)^(1023)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(10,1023)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(10)^(1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(10,1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e-154)^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-154,-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-154)^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-154,-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-154)^(-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-154,-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-154)^(-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-154,-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-154)^(-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-154,-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-154)^(-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-154,-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-154)^(-1)",
+      "expected": 1e+154
+    },
+    {
+      "expression": "POWER(1e-154,-1)",
+      "expected": 1e+154
+    },
+    {
+      "expression": "(1e-154)^(-0.5)",
+      "expected": 1e+77
+    },
+    {
+      "expression": "POWER(1e-154,-0.5)",
+      "expected": 1e+77
+    },
+    {
+      "expression": "(1e-154)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1e-154,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(1e-154)^(0.5)",
+      "expected": 1e-77
+    },
+    {
+      "expression": "POWER(1e-154,0.5)",
+      "expected": 1e-77
+    },
+    {
+      "expression": "(1e-154)^(1)",
+      "expected": 1e-154
+    },
+    {
+      "expression": "POWER(1e-154,1)",
+      "expected": 1e-154
+    },
+    {
+      "expression": "(1e-154)^(2)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(1e-154,2)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^(2.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "POWER(1e-154,2.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "(1e-154)^(3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,3)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^(308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,308)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-155)^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-155,-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-155)^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-155,-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-155)^(-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-155,-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-155)^(-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-155,-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-155)^(-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-155,-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-155)^(-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1e-155,-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(1e-155)^(-1)",
+      "expected": 1e+155
+    },
+    {
+      "expression": "POWER(1e-155,-1)",
+      "expected": 1e+155
+    },
+    {
+      "expression": "(1e-155)^(-0.5)",
+      "expected": 3.16227766016838e+77
+    },
+    {
+      "expression": "POWER(1e-155,-0.5)",
+      "expected": 3.16227766016838e+77
+    },
+    {
+      "expression": "(1e-155)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1e-155,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(1e-155)^(0.5)",
+      "expected": 3.16227766016838e-78
+    },
+    {
+      "expression": "POWER(1e-155,0.5)",
+      "expected": 3.16227766016838e-78
+    },
+    {
+      "expression": "(1e-155)^(1)",
+      "expected": 1e-155
+    },
+    {
+      "expression": "POWER(1e-155,1)",
+      "expected": 1e-155
+    },
+    {
+      "expression": "(1e-155)^(2)",
+      "expected": 1e-310
+    },
+    {
+      "expression": "POWER(1e-155,2)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-155)^(2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-155,2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-155)^(3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-155,3)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-155)^(308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-155,308)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-155)^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-155,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-155)^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-155,1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-710))^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-710))^(-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-710))^(-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-710))^(-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-710))^(-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-710))^(-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-710))^(-0.5)",
+      "expected": 1.4946554004725e+154
+    },
+    {
+      "expression": "POWER(EXP(-710),-0.5)",
+      "expected": 1.4946554004725e+154
+    },
+    {
+      "expression": "(EXP(-710))^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(EXP(-710),0)",
+      "expected": 1
+    },
+    {
+      "expression": "(EXP(-710))^(0.5)",
+      "expected": 6.6905053812662e-155
+    },
+    {
+      "expression": "POWER(EXP(-710),0.5)",
+      "expected": 6.6905053812662e-155
+    },
+    {
+      "expression": "(EXP(-710))^(1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),1)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(2)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),2)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),3)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),308)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-745))^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-2.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(-0.5)",
+      "expected": 4.4989137945432e+161
+    },
+    {
+      "expression": "POWER(EXP(-745),-0.5)",
+      "expected": 4.4989137945432e+161
+    },
+    {
+      "expression": "(EXP(-745))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(0.5)",
+      "expected": 2.2227587494851e-162
+    },
+    {
+      "expression": "POWER(EXP(-745),0.5)",
+      "expected": 2.2227587494851e-162
+    },
+    {
+      "expression": "(EXP(-745))^(1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-745),1)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-745))^(2)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-745),2)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-745))^(2.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "POWER(EXP(-745),2.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "(EXP(-745))^(3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-745),3)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-745))^(308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-745),308)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-745))^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-745),1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-745))^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-745),1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e154)^(-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e154,-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e154)^(-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e154,-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e154)^(-308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e154,-308)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e154)^(-3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e154,-3)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e154)^(-2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e154,-2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e154)^(-2)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e154,-2)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e154)^(-1)",
+      "expected": 1e-154
+    },
+    {
+      "expression": "POWER(1e154,-1)",
+      "expected": 1e-154
+    },
+    {
+      "expression": "(1e154)^(-0.5)",
+      "expected": 1e-77
+    },
+    {
+      "expression": "POWER(1e154,-0.5)",
+      "expected": 1e-77
+    },
+    {
+      "expression": "(1e154)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1e154,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(1e154)^(0.5)",
+      "expected": 1e+77
+    },
+    {
+      "expression": "POWER(1e154,0.5)",
+      "expected": 1e+77
+    },
+    {
+      "expression": "(1e154)^(1)",
+      "expected": 1e+154
+    },
+    {
+      "expression": "POWER(1e154,1)",
+      "expected": 1e+154
+    },
+    {
+      "expression": "(1e154)^(2)",
+      "expected": 1e+308
+    },
+    {
+      "expression": "POWER(1e154,2)",
+      "expected": 1e+308
+    },
+    {
+      "expression": "(1e154)^(2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e154,2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e154)^(3)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e154,3)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e154)^(308)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e154,308)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e154)^(1023)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e154,1023)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e154)^(1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e154,1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e155)^(-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e155,-1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e155)^(-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e155,-1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e155)^(-308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e155,-308)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e155)^(-3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e155,-3)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e155)^(-2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e155,-2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e155)^(-2)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e155,-2)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e155)^(-1)",
+      "expected": 1e-155
+    },
+    {
+      "expression": "POWER(1e155,-1)",
+      "expected": 1e-155
+    },
+    {
+      "expression": "(1e155)^(-0.5)",
+      "expected": 3.16227766016838e-78
+    },
+    {
+      "expression": "POWER(1e155,-0.5)",
+      "expected": 3.16227766016838e-78
+    },
+    {
+      "expression": "(1e155)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1e155,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(1e155)^(0.5)",
+      "expected": 3.16227766016838e+77
+    },
+    {
+      "expression": "POWER(1e155,0.5)",
+      "expected": 3.16227766016838e+77
+    },
+    {
+      "expression": "(1e155)^(1)",
+      "expected": 1e+155
+    },
+    {
+      "expression": "POWER(1e155,1)",
+      "expected": 1e+155
+    },
+    {
+      "expression": "(1e155)^(2)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e155,2)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e155)^(2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e155,2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e155)^(3)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e155,3)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e155)^(308)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e155,308)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e155)^(1023)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e155,1023)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(1e155)^(1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1e155,1074)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-0.5)^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-0.5,-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-0.5)^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-0.5,-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-0.5)^(-308)",
+      "expected": 5.21481209941628e+92
+    },
+    {
+      "expression": "POWER(-0.5,-308)",
+      "expected": 5.21481209941628e+92
+    },
+    {
+      "expression": "(-0.5)^(-3)",
+      "expected": -8
+    },
+    {
+      "expression": "POWER(-0.5,-3)",
+      "expected": -8
+    },
+    {
+      "expression": "(-0.5)^(-2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.5,-2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-0.5)^(-2)",
+      "expected": 4
+    },
+    {
+      "expression": "POWER(-0.5,-2)",
+      "expected": 4
+    },
+    {
+      "expression": "(-0.5)^(-1)",
+      "expected": -2
+    },
+    {
+      "expression": "POWER(-0.5,-1)",
+      "expected": -2
+    },
+    {
+      "expression": "(-0.5)^(-0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.5,-0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-0.5)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-0.5,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(-0.5)^(0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.5,0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-0.5)^(1)",
+      "expected": -0.5
+    },
+    {
+      "expression": "POWER(-0.5,1)",
+      "expected": -0.5
+    },
+    {
+      "expression": "(-0.5)^(2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(-0.5,2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "(-0.5)^(2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.5,2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-0.5)^(3)",
+      "expected": -0.125
+    },
+    {
+      "expression": "POWER(-0.5,3)",
+      "expected": -0.125
+    },
+    {
+      "expression": "(-0.5)^(308)",
+      "expected": 1.91761463488192e-93
+    },
+    {
+      "expression": "POWER(-0.5,308)",
+      "expected": 1.91761463488192e-93
+    },
+    {
+      "expression": "(-0.5)^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-0.5,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(-0.5)^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-0.5,1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(-2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,-2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(-1)",
+      "expected": -1e+154
+    },
+    {
+      "expression": "POWER(-1e-154,-1)",
+      "expected": -1e+154
+    },
+    {
+      "expression": "(-1e-154)^(-0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,-0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-1e-154,0)",
+      "expected": 1
+    },
+    {
+      "expression": "(-1e-154)^(0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(1)",
+      "expected": -1e-154
+    },
+    {
+      "expression": "POWER(-1e-154,1)",
+      "expected": -1e-154
+    },
+    {
+      "expression": "(-1e-154)^(2)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(-1e-154,2)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^(2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^(3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,3)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^(308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,308)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(-EXP(-710))^(-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-1074)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-1023)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-308)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-3)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(-2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-2)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(-0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),-0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-EXP(-710),0)",
+      "expected": 1
+    },
+    {
+      "expression": "(-EXP(-710))^(0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-EXP(-710),1)",
+      "expected": 0
+    },
+    {
+      "expression": "(-EXP(-710))^(2)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-EXP(-710),2)",
+      "expected": 0
+    },
+    {
+      "expression": "(-EXP(-710))^(2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-EXP(-710),2.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-EXP(-710))^(3)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-EXP(-710),3)",
+      "expected": 0
+    },
+    {
+      "expression": "(-EXP(-710))^(308)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-EXP(-710),308)",
+      "expected": 0
+    },
+    {
+      "expression": "(-EXP(-710))^(1023)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-EXP(-710),1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(-EXP(-710))^(1074)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-EXP(-710),1074)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^2",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(1e-154,2)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^(2)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(1e-154,(2))",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^(1+1)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(1e-154,(1+1))",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^SUM(1,1)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(1e-154,SUM(1,1))",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^+2",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(1e-154,+2)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^--2",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(1e-154,--2)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^2.0000000000001",
+      "expected": 9.999999999645e-309
+    },
+    {
+      "expression": "POWER(1e-154,2.0000000000001)",
+      "expected": 9.999999999645e-309
+    },
+    {
+      "expression": "(1e-154)^3",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,3)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^4",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,4)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^10",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,10)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^10.1",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,10.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^1023",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-154)^1023.1",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-154,1023.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-104)^2",
+      "expected": 1e-208
+    },
+    {
+      "expression": "POWER(1e-104,2)",
+      "expected": 1e-208
+    },
+    {
+      "expression": "(1e-104)^(2)",
+      "expected": 1e-208
+    },
+    {
+      "expression": "POWER(1e-104,(2))",
+      "expected": 1e-208
+    },
+    {
+      "expression": "(1e-104)^(1+1)",
+      "expected": 1e-208
+    },
+    {
+      "expression": "POWER(1e-104,(1+1))",
+      "expected": 1e-208
+    },
+    {
+      "expression": "(1e-104)^SUM(1,1)",
+      "expected": 1e-208
+    },
+    {
+      "expression": "POWER(1e-104,SUM(1,1))",
+      "expected": 1e-208
+    },
+    {
+      "expression": "(1e-104)^+2",
+      "expected": 1e-208
+    },
+    {
+      "expression": "POWER(1e-104,+2)",
+      "expected": 1e-208
+    },
+    {
+      "expression": "(1e-104)^--2",
+      "expected": 1e-208
+    },
+    {
+      "expression": "POWER(1e-104,--2)",
+      "expected": 1e-208
+    },
+    {
+      "expression": "(1e-104)^2.0000000000001",
+      "expected": 9.9999999997607e-209
+    },
+    {
+      "expression": "POWER(1e-104,2.0000000000001)",
+      "expected": 9.9999999997607e-209
+    },
+    {
+      "expression": "(1e-104)^3",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-104,3)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-104)^4",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-104,4)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-104)^10",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-104,10)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-104)^10.1",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-104,10.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-104)^1023",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-104,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-104)^1023.1",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-104,1023.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-78)^2",
+      "expected": 1e-156
+    },
+    {
+      "expression": "POWER(1e-78,2)",
+      "expected": 1e-156
+    },
+    {
+      "expression": "(1e-78)^(2)",
+      "expected": 1e-156
+    },
+    {
+      "expression": "POWER(1e-78,(2))",
+      "expected": 1e-156
+    },
+    {
+      "expression": "(1e-78)^(1+1)",
+      "expected": 1e-156
+    },
+    {
+      "expression": "POWER(1e-78,(1+1))",
+      "expected": 1e-156
+    },
+    {
+      "expression": "(1e-78)^SUM(1,1)",
+      "expected": 1e-156
+    },
+    {
+      "expression": "POWER(1e-78,SUM(1,1))",
+      "expected": 1e-156
+    },
+    {
+      "expression": "(1e-78)^+2",
+      "expected": 1e-156
+    },
+    {
+      "expression": "POWER(1e-78,+2)",
+      "expected": 1e-156
+    },
+    {
+      "expression": "(1e-78)^--2",
+      "expected": 1e-156
+    },
+    {
+      "expression": "POWER(1e-78,--2)",
+      "expected": 1e-156
+    },
+    {
+      "expression": "(1e-78)^2.0000000000001",
+      "expected": 9.9999999998205e-157
+    },
+    {
+      "expression": "POWER(1e-78,2.0000000000001)",
+      "expected": 9.9999999998205e-157
+    },
+    {
+      "expression": "(1e-78)^3",
+      "expected": 1e-234
+    },
+    {
+      "expression": "POWER(1e-78,3)",
+      "expected": 1e-234
+    },
+    {
+      "expression": "(1e-78)^4",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-78,4)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-78)^10",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-78,10)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-78)^10.1",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-78,10.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-78)^1023",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-78,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(1e-78)^1023.1",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(1e-78,1023.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(0.5)^2",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(0.5,2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "(0.5)^(2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(0.5,(2))",
+      "expected": 0.25
+    },
+    {
+      "expression": "(0.5)^(1+1)",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(0.5,(1+1))",
+      "expected": 0.25
+    },
+    {
+      "expression": "(0.5)^SUM(1,1)",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(0.5,SUM(1,1))",
+      "expected": 0.25
+    },
+    {
+      "expression": "(0.5)^+2",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(0.5,+2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "(0.5)^--2",
+      "expected": 0.25
+    },
+    {
+      "expression": "POWER(0.5,--2)",
+      "expected": 0.25
+    },
+    {
+      "expression": "(0.5)^2.0000000000001",
+      "expected": 0.249999999999983
+    },
+    {
+      "expression": "POWER(0.5,2.0000000000001)",
+      "expected": 0.249999999999983
+    },
+    {
+      "expression": "(0.5)^3",
+      "expected": 0.125
+    },
+    {
+      "expression": "POWER(0.5,3)",
+      "expected": 0.125
+    },
+    {
+      "expression": "(0.5)^4",
+      "expected": 0.0625
+    },
+    {
+      "expression": "POWER(0.5,4)",
+      "expected": 0.0625
+    },
+    {
+      "expression": "(0.5)^10",
+      "expected": 0.0009765625
+    },
+    {
+      "expression": "POWER(0.5,10)",
+      "expected": 0.0009765625
+    },
+    {
+      "expression": "(0.5)^10.1",
+      "expected": 0.000911165030797664
+    },
+    {
+      "expression": "POWER(0.5,10.1)",
+      "expected": 0.000911165030797664
+    },
+    {
+      "expression": "(0.5)^1023",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(0.5)^1023.1",
+      "expected": 1.038033659297e-308
+    },
+    {
+      "expression": "POWER(0.5,1023.1)",
+      "expected": 1.038033659297e-308
+    },
+    {
+      "expression": "(-1e-154)^2",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(-1e-154,2)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^(2)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(-1e-154,(2))",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^(1+1)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(-1e-154,(1+1))",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^SUM(1,1)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(-1e-154,SUM(1,1))",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^+2",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(-1e-154,+2)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^--2",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(-1e-154,--2)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^2.0000000000001",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,2.0000000000001)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^3",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,3)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^4",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,4)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^10",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,10)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^10.1",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,10.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(-1e-154)^1023",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(-1e-154,1023)",
+      "expected": 0
+    },
+    {
+      "expression": "(-1e-154)^1023.1",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1e-154,1023.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "LET(v,2,(1e-154)^v)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "LET(v,2,POWER(1e-154,v))",
+      "expected": 0
+    },
+    {
+      "expression": "LAMBDA(v,(1e-154)^v)(2)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "LAMBDA(v,v^2)(1e-154)",
+      "expected": 1e-308
+    },
+    {
+      "expression": "(SUM(1e-154,0))^2",
+      "expected": 1e-308
+    },
+    {
+      "expression": "POWER(SUM(1e-154,0),2)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(EXP(-710),0)",
+      "expected": 1
+    },
+    {
+      "expression": "(EXP(-710))^(0.1)",
+      "expected": 1.46248622725123e-31
+    },
+    {
+      "expression": "POWER(EXP(-710),0.1)",
+      "expected": 1.46248622725123e-31
+    },
+    {
+      "expression": "(EXP(-710))^(0.5)",
+      "expected": 6.6905053812662e-155
+    },
+    {
+      "expression": "POWER(EXP(-710),0.5)",
+      "expected": 6.6905053812662e-155
+    },
+    {
+      "expression": "(EXP(-710))^(1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(EXP(-710),2.1)",
+      "expected": 0
+    },
+    {
+      "expression": "(EXP(-710))^(-0.1)",
+      "expected": 6.83767122976274e+30
+    },
+    {
+      "expression": "POWER(EXP(-710),-0.1)",
+      "expected": 6.83767122976274e+30
+    },
+    {
+      "expression": "(EXP(-720))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-720),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-720))^(0.1)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "POWER(EXP(-720),0.1)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "(EXP(-720))^(0.5)",
+      "expected": 4.5080270656002e-157
+    },
+    {
+      "expression": "POWER(EXP(-720),0.5)",
+      "expected": 4.5080270656002e-157
+    },
+    {
+      "expression": "(EXP(-720))^(1.1)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "POWER(EXP(-720),1.1)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "(EXP(-720))^(2.1)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "POWER(EXP(-720),2.1)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "(EXP(-720))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-720),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-725))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-725),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-725))^(0.1)",
+      "expected": 1.36930634e-315
+    },
+    {
+      "expression": "POWER(EXP(-725),0.1)",
+      "expected": 1.36930634e-315
+    },
+    {
+      "expression": "(EXP(-725))^(0.5)",
+      "expected": 3.7004139519266e-158
+    },
+    {
+      "expression": "POWER(EXP(-725),0.5)",
+      "expected": 3.7004139519266e-158
+    },
+    {
+      "expression": "(EXP(-725))^(1.1)",
+      "expected": 1.36930634e-315
+    },
+    {
+      "expression": "POWER(EXP(-725),1.1)",
+      "expected": 1.36930634e-315
+    },
+    {
+      "expression": "(EXP(-725))^(2.1)",
+      "expected": 1.36930634e-315
+    },
+    {
+      "expression": "POWER(EXP(-725),2.1)",
+      "expected": 1.36930634e-315
+    },
+    {
+      "expression": "(EXP(-725))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-725),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-730))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-730),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-730))^(0.1)",
+      "expected": 9.226315e-318
+    },
+    {
+      "expression": "POWER(EXP(-730),0.1)",
+      "expected": 9.226315e-318
+    },
+    {
+      "expression": "(EXP(-730))^(0.5)",
+      "expected": 3.0374850235291e-159
+    },
+    {
+      "expression": "POWER(EXP(-730),0.5)",
+      "expected": 3.0374850235291e-159
+    },
+    {
+      "expression": "(EXP(-730))^(1.1)",
+      "expected": 9.226315e-318
+    },
+    {
+      "expression": "POWER(EXP(-730),1.1)",
+      "expected": 9.226315e-318
+    },
+    {
+      "expression": "(EXP(-730))^(2.1)",
+      "expected": 9.226315e-318
+    },
+    {
+      "expression": "POWER(EXP(-730),2.1)",
+      "expected": 9.226315e-318
+    },
+    {
+      "expression": "(EXP(-730))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-730),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-735))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-735),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-735))^(0.1)",
+      "expected": 6.217e-320
+    },
+    {
+      "expression": "POWER(EXP(-735),0.1)",
+      "expected": 6.217e-320
+    },
+    {
+      "expression": "(EXP(-735))^(0.5)",
+      "expected": 2.493356777844e-160
+    },
+    {
+      "expression": "POWER(EXP(-735),0.5)",
+      "expected": 2.493356777844e-160
+    },
+    {
+      "expression": "(EXP(-735))^(1.1)",
+      "expected": 6.217e-320
+    },
+    {
+      "expression": "POWER(EXP(-735),1.1)",
+      "expected": 6.217e-320
+    },
+    {
+      "expression": "(EXP(-735))^(2.1)",
+      "expected": 6.217e-320
+    },
+    {
+      "expression": "POWER(EXP(-735),2.1)",
+      "expected": 6.217e-320
+    },
+    {
+      "expression": "(EXP(-735))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-735),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-740))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-740),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-740))^(0.1)",
+      "expected": 4.2e-322
+    },
+    {
+      "expression": "POWER(EXP(-740),0.1)",
+      "expected": 4.2e-322
+    },
+    {
+      "expression": "(EXP(-740))^(0.5)",
+      "expected": 2.0492823108714e-161
+    },
+    {
+      "expression": "POWER(EXP(-740),0.5)",
+      "expected": 2.0492823108714e-161
+    },
+    {
+      "expression": "(EXP(-740))^(1.1)",
+      "expected": 4.2e-322
+    },
+    {
+      "expression": "POWER(EXP(-740),1.1)",
+      "expected": 4.2e-322
+    },
+    {
+      "expression": "(EXP(-740))^(2.1)",
+      "expected": 4.2e-322
+    },
+    {
+      "expression": "POWER(EXP(-740),2.1)",
+      "expected": 4.2e-322
+    },
+    {
+      "expression": "(EXP(-740))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-740),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-742))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-742),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-742))^(0.1)",
+      "expected": 5.4e-323
+    },
+    {
+      "expression": "POWER(EXP(-742),0.1)",
+      "expected": 5.4e-323
+    },
+    {
+      "expression": "(EXP(-742))^(0.5)",
+      "expected": 7.3720567715216e-162
+    },
+    {
+      "expression": "POWER(EXP(-742),0.5)",
+      "expected": 7.3720567715216e-162
+    },
+    {
+      "expression": "(EXP(-742))^(1.1)",
+      "expected": 5.4e-323
+    },
+    {
+      "expression": "POWER(EXP(-742),1.1)",
+      "expected": 5.4e-323
+    },
+    {
+      "expression": "(EXP(-742))^(2.1)",
+      "expected": 5.4e-323
+    },
+    {
+      "expression": "POWER(EXP(-742),2.1)",
+      "expected": 5.4e-323
+    },
+    {
+      "expression": "(EXP(-742))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-742),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-743))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-743),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-743))^(0.1)",
+      "expected": 2e-323
+    },
+    {
+      "expression": "POWER(EXP(-743),0.1)",
+      "expected": 2e-323
+    },
+    {
+      "expression": "(EXP(-743))^(0.5)",
+      "expected": 4.4455174989702e-162
+    },
+    {
+      "expression": "POWER(EXP(-743),0.5)",
+      "expected": 4.4455174989702e-162
+    },
+    {
+      "expression": "(EXP(-743))^(1.1)",
+      "expected": 2e-323
+    },
+    {
+      "expression": "POWER(EXP(-743),1.1)",
+      "expected": 2e-323
+    },
+    {
+      "expression": "(EXP(-743))^(2.1)",
+      "expected": 2e-323
+    },
+    {
+      "expression": "POWER(EXP(-743),2.1)",
+      "expected": 2e-323
+    },
+    {
+      "expression": "(EXP(-743))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-743),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-744))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-744),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-744))^(0.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "POWER(EXP(-744),0.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "(EXP(-744))^(0.5)",
+      "expected": 3.1434555694053e-162
+    },
+    {
+      "expression": "POWER(EXP(-744),0.5)",
+      "expected": 3.1434555694053e-162
+    },
+    {
+      "expression": "(EXP(-744))^(1.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "POWER(EXP(-744),1.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "(EXP(-744))^(2.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "POWER(EXP(-744),2.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "(EXP(-744))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-744),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "(EXP(-745))^(0.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "POWER(EXP(-745),0.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "(EXP(-745))^(0.5)",
+      "expected": 2.2227587494851e-162
+    },
+    {
+      "expression": "POWER(EXP(-745),0.5)",
+      "expected": 2.2227587494851e-162
+    },
+    {
+      "expression": "(EXP(-745))^(1.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "POWER(EXP(-745),1.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "(EXP(-745))^(2.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "POWER(EXP(-745),2.1)",
+      "expected": 5e-324
+    },
+    {
+      "expression": "(EXP(-745))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "((EXP(-745)+EXP(-745)))^(0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((EXP(-745)+EXP(-745)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "((EXP(-745)+EXP(-745)))^(0.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "POWER((EXP(-745)+EXP(-745)),0.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "((EXP(-745)+EXP(-745)))^(0.5)",
+      "expected": 3.1434555694053e-162
+    },
+    {
+      "expression": "POWER((EXP(-745)+EXP(-745)),0.5)",
+      "expected": 3.1434555694053e-162
+    },
+    {
+      "expression": "((EXP(-745)+EXP(-745)))^(1.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "POWER((EXP(-745)+EXP(-745)),1.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "((EXP(-745)+EXP(-745)))^(2.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "POWER((EXP(-745)+EXP(-745)),2.1)",
+      "expected": 1e-323
+    },
+    {
+      "expression": "((EXP(-745)+EXP(-745)))^(-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER((EXP(-745)+EXP(-745)),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(-1,(2147483647))",
+      "expected": -1
+    },
+    {
+      "expression": "POWER(-1,-(2147483647))",
+      "expected": -1
+    },
+    {
+      "expression": "POWER(-1,(2147483648))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-1,-(2147483648))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-1,(4294967296))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,-(4294967296))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,(2^53))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,-(2^53))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,(1e100))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,-(1e100))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,(9e307))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,-(9e307))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1,(2147483647))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,-(2147483647))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,(2147483648))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,-(2147483648))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,(4294967296))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,-(4294967296))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,(2^53))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,-(2^53))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,(1e100))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,-(1e100))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,(9e307))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,-(9e307))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((1+2^-52),(2147483647))",
+      "expected": 1.00000047683727
+    },
+    {
+      "expression": "POWER((1+2^-52),-(2147483647))",
+      "expected": 0.999999523162959
+    },
+    {
+      "expression": "POWER((1+2^-52),(2147483648))",
+      "expected": 1.00000047683727
+    },
+    {
+      "expression": "POWER((1+2^-52),-(2147483648))",
+      "expected": 0.999999523162959
+    },
+    {
+      "expression": "POWER((1+2^-52),(4294967296))",
+      "expected": 1.00000095367477
+    },
+    {
+      "expression": "POWER((1+2^-52),-(4294967296))",
+      "expected": 0.999999046326138
+    },
+    {
+      "expression": "POWER((1+2^-52),(2^53))",
+      "expected": 7.38905609893065
+    },
+    {
+      "expression": "POWER((1+2^-52),-(2^53))",
+      "expected": 0.135335283236613
+    },
+    {
+      "expression": "POWER((1+2^-52),(1e100))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((1+2^-52),-(1e100))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((1+2^-52),(9e307))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((1+2^-52),-(9e307))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((1-2^-52),(2147483647))",
+      "expected": 0.999999523162952
+    },
+    {
+      "expression": "POWER((1-2^-52),-(2147483647))",
+      "expected": 1.00000047683728
+    },
+    {
+      "expression": "POWER((1-2^-52),(2147483648))",
+      "expected": 0.999999523162952
+    },
+    {
+      "expression": "POWER((1-2^-52),-(2147483648))",
+      "expected": 1.00000047683728
+    },
+    {
+      "expression": "POWER((1-2^-52),(4294967296))",
+      "expected": 0.999999046326138
+    },
+    {
+      "expression": "POWER((1-2^-52),-(4294967296))",
+      "expected": 1.00000095367477
+    },
+    {
+      "expression": "POWER((1-2^-52),(2^53))",
+      "expected": 0.135335283236613
+    },
+    {
+      "expression": "POWER((1-2^-52),-(2^53))",
+      "expected": 7.38905609893065
+    },
+    {
+      "expression": "POWER((1-2^-52),(1e100))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((1-2^-52),-(1e100))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER((1-2^-52),(9e307))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((1-2^-52),-(9e307))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(2,(2147483647))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,-(2147483647))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(2,(2147483648))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,-(2147483648))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(2,(4294967296))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,-(4294967296))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(2,(2^53))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,-(2^53))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(2,(1e100))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,-(1e100))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(2,(9e307))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,-(9e307))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,(2147483647))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,-(2147483647))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.5,(2147483648))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,-(2147483648))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.5,(4294967296))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,-(4294967296))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.5,(2^53))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,-(2^53))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.5,(1e100))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,-(1e100))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0.5,(9e307))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0.5,-(9e307))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-710),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(EXP(-710),0.1)",
+      "expected": 1.46248622725123e-31
+    },
+    {
+      "expression": "-EXP(-710)",
+      "expected": -4.476286225675e-309
+    },
+    {
+      "expression": "POWER(EXP(-711),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(EXP(-711),0.1)",
+      "expected": 1.32331226177914e-31
+    },
+    {
+      "expression": "-EXP(-711)",
+      "expected": -1.646733675225e-309
+    },
+    {
+      "expression": "POWER(EXP(-712),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-712),0.1)",
+      "expected": 6.057994641999e-310
+    },
+    {
+      "expression": "-EXP(-712)",
+      "expected": 6.057994641999e-310
+    },
+    {
+      "expression": "POWER(EXP(-713),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-713),0.1)",
+      "expected": 2.228611683518e-310
+    },
+    {
+      "expression": "-EXP(-713)",
+      "expected": 2.228611683518e-310
+    },
+    {
+      "expression": "POWER(EXP(-714),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-714),0.1)",
+      "expected": 8.198604207208e-311
+    },
+    {
+      "expression": "-EXP(-714)",
+      "expected": 8.198604207208e-311
+    },
+    {
+      "expression": "POWER(EXP(-715),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-715),0.1)",
+      "expected": 3.016097934134e-311
+    },
+    {
+      "expression": "-EXP(-715)",
+      "expected": 3.016097934134e-311
+    },
+    {
+      "expression": "POWER(EXP(-716),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-716),0.1)",
+      "expected": 1.109560422528e-311
+    },
+    {
+      "expression": "-EXP(-716)",
+      "expected": 1.109560422528e-311
+    },
+    {
+      "expression": "POWER(EXP(-717),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-717),0.1)",
+      "expected": 4.081844681855e-312
+    },
+    {
+      "expression": "-EXP(-717)",
+      "expected": 4.081844681855e-312
+    },
+    {
+      "expression": "POWER(EXP(-718),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-718),0.1)",
+      "expected": 1.501626740506e-312
+    },
+    {
+      "expression": "-EXP(-718)",
+      "expected": 1.501626740506e-312
+    },
+    {
+      "expression": "POWER(EXP(-719),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-719),0.1)",
+      "expected": 5.5241760615e-313
+    },
+    {
+      "expression": "-EXP(-719)",
+      "expected": 5.5241760615e-313
+    },
+    {
+      "expression": "POWER(EXP(-720),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-720),0.1)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "-EXP(-720)",
+      "expected": 2.0322308024e-313
+    },
+    {
+      "expression": "POWER((((0.999*2^-511)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((0.999*2^-511)^2)),0.1)",
+      "expected": 1.71651475442227e-31
+    },
+    {
+      "expression": "POWER((((0.999*2^-511)^2)),0.5)",
+      "expected": 1.4901764780938e-154
+    },
+    {
+      "expression": "POWER((((0.999*2^-511)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-511)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-511)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-511)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-511)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-511)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((1*2^-511)^2)),0.1)",
+      "expected": 1.71685826350611e-31
+    },
+    {
+      "expression": "POWER((((1*2^-511)^2)),0.5)",
+      "expected": 1.49166814624e-154
+    },
+    {
+      "expression": "POWER((((1*2^-511)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((1*2^-511)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1*2^-511)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-511)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-511)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-511)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((1.001*2^-511)^2)),0.1)",
+      "expected": 1.7172014978925e-31
+    },
+    {
+      "expression": "POWER((((1.001*2^-511)^2)),0.5)",
+      "expected": 1.4931598143863e-154
+    },
+    {
+      "expression": "POWER((((1.001*2^-511)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-511)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-511)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-511)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-511)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-512)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((0.999*2^-512)^2)),0.1)",
+      "expected": 1.49431288636842e-31
+    },
+    {
+      "expression": "POWER((((0.999*2^-512)^2)),0.5)",
+      "expected": 7.450882390469e-155
+    },
+    {
+      "expression": "POWER((((0.999*2^-512)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-512)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-512)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-512)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-512)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-512)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((1*2^-512)^2)),0.1)",
+      "expected": 1.49461192839485e-31
+    },
+    {
+      "expression": "POWER((((1*2^-512)^2)),0.5)",
+      "expected": 7.4583407312002e-155
+    },
+    {
+      "expression": "POWER((((1*2^-512)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((1*2^-512)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1*2^-512)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-512)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-512)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-512)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((1.001*2^-512)^2)),0.1)",
+      "expected": 1.49491073128325e-31
+    },
+    {
+      "expression": "POWER((((1.001*2^-512)^2)),0.5)",
+      "expected": 7.4657990719314e-155
+    },
+    {
+      "expression": "POWER((((1.001*2^-512)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-512)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-512)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-512)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-512)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-513)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-513)^2)),0.1)",
+      "expected": 1.387891209915e-309
+    },
+    {
+      "expression": "POWER((((0.999*2^-513)^2)),0.5)",
+      "expected": 3.7254411952345e-155
+    },
+    {
+      "expression": "POWER((((0.999*2^-513)^2)),1.1)",
+      "expected": 1.387891209915e-309
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-513)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-513)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-513)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-513)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-513)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((1*2^-513)^2)),0.1)",
+      "expected": 1.30113525617323e-31
+    },
+    {
+      "expression": "POWER((((1*2^-513)^2)),0.5)",
+      "expected": 3.7291703656001e-155
+    },
+    {
+      "expression": "POWER((((1*2^-513)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((1*2^-513)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1*2^-513)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-513)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-513)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-513)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((1.001*2^-513)^2)),0.1)",
+      "expected": 1.30139537919606e-31
+    },
+    {
+      "expression": "POWER((((1.001*2^-513)^2)),0.5)",
+      "expected": 3.7328995359657e-155
+    },
+    {
+      "expression": "POWER((((1.001*2^-513)^2)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-513)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-513)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-513)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-513)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-514)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-514)^2)),0.1)",
+      "expected": 3.469728024788e-310
+    },
+    {
+      "expression": "POWER((((0.999*2^-514)^2)),0.5)",
+      "expected": 1.8627205976173e-155
+    },
+    {
+      "expression": "POWER((((0.999*2^-514)^2)),1.1)",
+      "expected": 3.469728024788e-310
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-514)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-514)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-514)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-514)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-514)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-514)^2)),0.1)",
+      "expected": 3.476677903918e-310
+    },
+    {
+      "expression": "POWER((((1*2^-514)^2)),0.5)",
+      "expected": 1.8645851828001e-155
+    },
+    {
+      "expression": "POWER((((1*2^-514)^2)),1.1)",
+      "expected": 3.476677903918e-310
+    },
+    {
+      "expression": "POWER((0-((1*2^-514)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1*2^-514)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-514)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-514)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-514)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-514)^2)),0.1)",
+      "expected": 3.483634736403e-310
+    },
+    {
+      "expression": "POWER((((1.001*2^-514)^2)),0.5)",
+      "expected": 1.8664497679828e-155
+    },
+    {
+      "expression": "POWER((((1.001*2^-514)^2)),1.1)",
+      "expected": 3.483634736403e-310
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-514)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-514)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-514)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-514)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-520)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-520)^2)),0.1)",
+      "expected": 8.471015686e-314
+    },
+    {
+      "expression": "POWER((((0.999*2^-520)^2)),0.5)",
+      "expected": 2.9105009338193e-157
+    },
+    {
+      "expression": "POWER((((0.999*2^-520)^2)),1.1)",
+      "expected": 8.471015686e-314
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-520)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-520)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-520)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-520)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-520)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-520)^2)),0.1)",
+      "expected": 8.487983164e-314
+    },
+    {
+      "expression": "POWER((((1*2^-520)^2)),0.5)",
+      "expected": 2.9134143481251e-157
+    },
+    {
+      "expression": "POWER((((1*2^-520)^2)),1.1)",
+      "expected": 8.487983164e-314
+    },
+    {
+      "expression": "POWER((0-((1*2^-520)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1*2^-520)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-520)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-520)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-520)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-520)^2)),0.1)",
+      "expected": 8.504967618e-314
+    },
+    {
+      "expression": "POWER((((1.001*2^-520)^2)),0.5)",
+      "expected": 2.9163277624531e-157
+    },
+    {
+      "expression": "POWER((((1.001*2^-520)^2)),1.1)",
+      "expected": 8.504967618e-314
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-520)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-520)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-520)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-520)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-522)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((0.999*2^-522)^2)),0.1)",
+      "expected": 5.294384803e-315
+    },
+    {
+      "expression": "POWER((((0.999*2^-522)^2)),0.5)",
+      "expected": 7.2762523341239e-158
+    },
+    {
+      "expression": "POWER((((0.999*2^-522)^2)),1.1)",
+      "expected": 5.294384803e-315
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-522)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-522)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-522)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((0.999*2^-522)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-522)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1*2^-522)^2)),0.1)",
+      "expected": 5.304989477e-315
+    },
+    {
+      "expression": "POWER((((1*2^-522)^2)),0.5)",
+      "expected": 7.2835358703127e-158
+    },
+    {
+      "expression": "POWER((((1*2^-522)^2)),1.1)",
+      "expected": 5.304989477e-315
+    },
+    {
+      "expression": "POWER((0-((1*2^-522)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1*2^-522)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-522)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1*2^-522)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-522)^2)),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((1.001*2^-522)^2)),0.1)",
+      "expected": 5.31560476e-315
+    },
+    {
+      "expression": "POWER((((1.001*2^-522)^2)),0.5)",
+      "expected": 7.2908194048622e-158
+    },
+    {
+      "expression": "POWER((((1.001*2^-522)^2)),1.1)",
+      "expected": 5.31560476e-315
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-522)^2)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-522)^2)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-522)^2)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((1.001*2^-522)^2)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,2147483647)",
+      "expected": -1
+    },
+    {
+      "expression": "POWER(-1,-2147483647)",
+      "expected": -1
+    },
+    {
+      "expression": "POWER(-0.99999999999999,2147483647)",
+      "expected": -0.999978542557995
+    },
+    {
+      "expression": "POWER(-0.99999999999999,-2147483647)",
+      "expected": -1.00002145790244
+    },
+    {
+      "expression": "POWER(1.0000000000001,2147483647)",
+      "expected": 1.00021459974301
+    },
+    {
+      "expression": "POWER(1.0000000000001,-2147483647)",
+      "expected": 0.999785446300163
+    },
+    {
+      "expression": "POWER(-1,2147483648)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-1,-2147483648)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-0.99999999999999,2147483648)",
+      "expected": 0.999978542557985
+    },
+    {
+      "expression": "POWER(-0.99999999999999,-2147483648)",
+      "expected": 1.00002145790245
+    },
+    {
+      "expression": "POWER(1.0000000000001,2147483648)",
+      "expected": 1.00021459974311
+    },
+    {
+      "expression": "POWER(1.0000000000001,-2147483648)",
+      "expected": 0.999785446300063
+    },
+    {
+      "expression": "POWER(-1,4294967294)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-1,-4294967294)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-0.99999999999999,4294967294)",
+      "expected": 0.999957085576412
+    },
+    {
+      "expression": "POWER(-0.99999999999999,-4294967294)",
+      "expected": 1.00004291626531
+    },
+    {
+      "expression": "POWER(1.0000000000001,4294967294)",
+      "expected": 1.00042924553906
+    },
+    {
+      "expression": "POWER(1.0000000000001,-4294967294)",
+      "expected": 0.999570938633617
+    },
+    {
+      "expression": "POWER(-1,4294967295)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,-4294967295)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.99999999999999,4294967295)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.99999999999999,-4294967295)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1.0000000000001,4294967295)",
+      "expected": 1.0004292455418
+    },
+    {
+      "expression": "POWER(1.0000000000001,-4294967295)",
+      "expected": 0.999570938630884
+    },
+    {
+      "expression": "POWER(-1,4294967296)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,-4294967296)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.99999999999999,4294967296)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.99999999999999,-4294967296)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1.0000000000001,4294967296)",
+      "expected": 1.0004292455419
+    },
+    {
+      "expression": "POWER(1.0000000000001,-4294967296)",
+      "expected": 0.999570938630784
+    },
+    {
+      "expression": "POWER(-1,4294967297)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,-4294967297)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.99999999999999,4294967297)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-0.99999999999999,-4294967297)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(1.0000000000001,4294967297)",
+      "expected": 1.000429245542
+    },
+    {
+      "expression": "POWER(1.0000000000001,-4294967297)",
+      "expected": 0.999570938630684
+    },
+    {
+      "expression": "POWER((((2^-513)^2-EXP(-745))),0)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((((2^-513)^2-EXP(-745))),0.1)",
+      "expected": 1.390671161567e-309
+    },
+    {
+      "expression": "POWER((((2^-513)^2-EXP(-745))),0.5)",
+      "expected": 3.7291703656001e-155
+    },
+    {
+      "expression": "POWER((((2^-513)^2-EXP(-745))),1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((((2^-513)^2-EXP(-745))),1.1)",
+      "expected": 1.390671161567e-309
+    },
+    {
+      "expression": "POWER((((2^-513)^2-EXP(-745))),-0.1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER((((2^-513)^2-EXP(-745))),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2-EXP(-745))),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2-EXP(-745))),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2-EXP(-745))),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2-EXP(-745))),1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2-EXP(-745))),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2-EXP(-745))),-0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2-EXP(-745))),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "-((2^-513)^2-EXP(-745))",
+      "expected": 1.390671161567e-309
+    },
+    {
+      "expression": "POWER((((2^-513)^2+0)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((2^-513)^2+0)),0.1)",
+      "expected": 1.30113525617323e-31
+    },
+    {
+      "expression": "POWER((((2^-513)^2+0)),0.5)",
+      "expected": 3.7291703656001e-155
+    },
+    {
+      "expression": "POWER((((2^-513)^2+0)),1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((((2^-513)^2+0)),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((((2^-513)^2+0)),-0.1)",
+      "expected": 7.68559606125114e+30
+    },
+    {
+      "expression": "POWER((((2^-513)^2+0)),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+0)),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+0)),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+0)),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+0)),1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+0)),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+0)),-0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+0)),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "-((2^-513)^2+0)",
+      "expected": -1.390671161567e-309
+    },
+    {
+      "expression": "POWER((((2^-513)^2+EXP(-745))),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((((2^-513)^2+EXP(-745))),0.1)",
+      "expected": 1.30113525617323e-31
+    },
+    {
+      "expression": "POWER((((2^-513)^2+EXP(-745))),0.5)",
+      "expected": 3.7291703656001e-155
+    },
+    {
+      "expression": "POWER((((2^-513)^2+EXP(-745))),1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((((2^-513)^2+EXP(-745))),1.1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((((2^-513)^2+EXP(-745))),-0.1)",
+      "expected": 7.68559606125114e+30
+    },
+    {
+      "expression": "POWER((((2^-513)^2+EXP(-745))),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+EXP(-745))),0)",
+      "expected": 1
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+EXP(-745))),0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+EXP(-745))),0.5)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+EXP(-745))),1)",
+      "expected": 0
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+EXP(-745))),1.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+EXP(-745))),-0.1)",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER((0-((2^-513)^2+EXP(-745))),-1)",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "-((2^-513)^2+EXP(-745))",
+      "expected": -1.390671161567e-309
+    },
+    {
+      "expression": "POWER(0,EXP(-745))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0,(0-EXP(-745)))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(0,EXP(-710))",
+      "expected": 0
+    },
+    {
+      "expression": "POWER(0,(0-EXP(-710)))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(1,EXP(-745))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,(0-EXP(-745)))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,EXP(-710))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(1,(0-EXP(-710)))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-1,EXP(-745))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,(0-EXP(-745)))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,EXP(-710))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-1,(0-EXP(-710)))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(2,EXP(-745))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(2,(0-EXP(-745)))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(2,EXP(-710))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(2,(0-EXP(-710)))",
+      "expected": 1
+    },
+    {
+      "expression": "POWER(-2,EXP(-745))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-2,(0-EXP(-745)))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-2,EXP(-710))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(-2,(0-EXP(-710)))",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),EXP(-745))",
+      "expected": 5e-324
+    },
+    {
+      "expression": "POWER(EXP(-745),(0-EXP(-745)))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "POWER(EXP(-745),EXP(-710))",
+      "expected": 5e-324
+    },
+    {
+      "expression": "POWER(EXP(-745),(0-EXP(-710)))",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "1e100*POWER(0.0012589254117942,100)",
+      "expected": 1.0000000000026e-190
+    },
+    {
+      "expression": "1e100*POWER(0.001122018454302,100)",
+      "expected": 1.0000000000033e-195
+    },
+    {
+      "expression": "1e100*POWER(0.001,100)",
+      "expected": 1e-200
+    },
+    {
+      "expression": "1e100*POWER(0.00089125093813375,100)",
+      "expected": 1.0000000000005e-205
+    },
+    {
+      "expression": "1e100*POWER(0.00083176377110267,100)",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*POWER(0.51286138399136,1000)",
+      "expected": 9.9999999999061e-191
+    },
+    {
+      "expression": "1e100*POWER(0.5069907082747,1000)",
+      "expected": 9.9999999999149e-196
+    },
+    {
+      "expression": "1e100*POWER(0.50118723362727,1000)",
+      "expected": 9.9999999999546e-201
+    },
+    {
+      "expression": "1e100*POWER(0.49545019080479,1000)",
+      "expected": 9.9999999999962e-206
+    },
+    {
+      "expression": "1e100*POWER(0.49203953568145,1000)",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*POWER(0.93540567414755,10000)",
+      "expected": 9.9999999997995e-191
+    },
+    {
+      "expression": "1e100*POWER(0.93432936825731,10000)",
+      "expected": 9.9999999995573e-196
+    },
+    {
+      "expression": "1e100*POWER(0.93325430079699,10000)",
+      "expected": 9.9999999998914e-201
+    },
+    {
+      "expression": "1e100*POWER(0.93218047034161,10000)",
+      "expected": 1.00000000002e-205
+    },
+    {
+      "expression": "1e100*POWER(0.93153676523857,10000)",
+      "expected": 0
+    },
+    {
+      "expression": "1e100*POWER(0.99866539202847,500000)",
+      "expected": 1.0000000010406e-190
+    },
+    {
+      "expression": "1e100*POWER(0.99864239717276,500000)",
+      "expected": 9.9999999937311e-196
+    },
+    {
+      "expression": "1e100*POWER(0.99861940284652,500000)",
+      "expected": 9.9999999765061e-201
+    },
+    {
+      "expression": "1e100*POWER(0.99859640904975,500000)",
+      "expected": 1.0000000020851e-205
+    },
+    {
+      "expression": "1e100*POWER(0.99858261302581,500000)",
+      "expected": 0
+    }
+  ]
+}

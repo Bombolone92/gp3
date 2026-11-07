@@ -1,0 +1,505 @@
+{
+  "description": "Native reference presOf connection destination order, 2026-09-19. Synthetic data tree defined in diagram-layout-fixture.js. Numeric labels identify data nodes; P/S prefixes identify the parent/sibling transition of that child. Input and native-resaved XML were compared without using rendered text as a proxy for node identity.",
+  "cases": [
+    {
+      "name": "ch",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"ch\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["21", "22"]
+    },
+    {
+      "name": "des",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"des\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["21", "22"]
+    },
+    {
+      "name": "desOrSelf",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"desOrSelf\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["2", "21", "22"]
+    },
+    {
+      "name": "ancst",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"ancst\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": []
+    },
+    {
+      "name": "ancstOrSelf",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"ancstOrSelf\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["2"]
+    },
+    {
+      "name": "par",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"par\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": []
+    },
+    {
+      "name": "root",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"root\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": []
+    },
+    {
+      "name": "preced",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"preced\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["1", "11", "12"]
+    },
+    {
+      "name": "precedSib",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"precedSib\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["1"]
+    },
+    {
+      "name": "follow",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"follow\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["3", "31"]
+    },
+    {
+      "name": "followSib",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\"",
+      "query": "axis=\"followSib\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["3"]
+    },
+    {
+      "name": "all transitions",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" hideLastTrans=\"0\"",
+      "selected": ["P1", "1", "S1", "P2", "2", "S2", "P3", "3", "S3"]
+    },
+    {
+      "name": "hide last",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\"",
+      "selected": ["P1", "1", "S1", "P2", "2", "S2", "P3", "3"]
+    },
+    {
+      "name": "last transition",
+      "context": "axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\"",
+      "query": "axis=\"followSib\" ptType=\"sibTrans\" cnt=\"1\"",
+      "selected": []
+    },
+    {
+      "name": "multiple axes",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\"",
+      "selected": ["11", "12", "21", "22", "31"]
+    },
+    {
+      "name": "multiple axis counts",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\" cnt=\"2 1\"",
+      "selected": ["11", "21"]
+    },
+    {
+      "name": "negative start",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"-1\"",
+      "selected": ["3"]
+    },
+    {
+      "name": "negative step",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"3\" step=\"-1\"",
+      "selected": ["3", "2", "1"]
+    },
+    {
+      "name": "assistant node",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\"",
+      "selected": ["1", "2", "3"]
+    },
+    {
+      "name": "assistant norm",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"norm\"",
+      "selected": ["1", "2"]
+    },
+    {
+      "name": "assistant nonNorm",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"nonNorm\"",
+      "selected": ["3"]
+    },
+    {
+      "name": "assistant nonAsst",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"nonAsst\"",
+      "selected": ["1", "2"]
+    },
+    {
+      "name": "all all",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"all\" hideLastTrans=\"0\"",
+      "selected": [
+        "0",
+        "P1",
+        "1",
+        "P11",
+        "11",
+        "S11",
+        "P12",
+        "12",
+        "S12",
+        "S1",
+        "P2",
+        "2",
+        "P21",
+        "21",
+        "S21",
+        "P22",
+        "22",
+        "S22",
+        "S2",
+        "P3",
+        "3",
+        "P31",
+        "31",
+        "S31",
+        "S3"
+      ]
+    },
+    {
+      "name": "all node",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"node\" hideLastTrans=\"0\"",
+      "selected": ["1", "11", "12", "2", "21", "22", "3", "31"]
+    },
+    {
+      "name": "all norm",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"norm\" hideLastTrans=\"0\"",
+      "selected": ["1", "11", "12", "2", "21", "22", "31"]
+    },
+    {
+      "name": "all nonNorm",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"nonNorm\" hideLastTrans=\"0\"",
+      "selected": ["3"]
+    },
+    {
+      "name": "all asst",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"asst\" hideLastTrans=\"0\"",
+      "selected": ["3"]
+    },
+    {
+      "name": "all nonAsst",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"nonAsst\" hideLastTrans=\"0\"",
+      "selected": ["1", "11", "12", "2", "21", "22", "31"]
+    },
+    {
+      "name": "all doc",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"doc\" hideLastTrans=\"0\"",
+      "selected": ["0"]
+    },
+    {
+      "name": "multi ptType=\"node\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node\"",
+      "selected": [
+        "P11",
+        "11",
+        "S11",
+        "P12",
+        "12",
+        "P21",
+        "21",
+        "S21",
+        "P22",
+        "22",
+        "P31",
+        "31"
+      ]
+    },
+    {
+      "name": "multi ptType=\"node node\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\"",
+      "selected": ["11", "12", "21", "22", "31"]
+    },
+    {
+      "name": "multi ptType=\"node all\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node all\"",
+      "selected": [
+        "P11",
+        "11",
+        "S11",
+        "P12",
+        "12",
+        "P21",
+        "21",
+        "S21",
+        "P22",
+        "22",
+        "P31",
+        "31"
+      ]
+    },
+    {
+      "name": "multi ptType=\"node node\" cnt=\"1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\" cnt=\"1\"",
+      "selected": ["11", "12"]
+    },
+    {
+      "name": "multi ptType=\"node node\" cnt=\"0 1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\" cnt=\"0 1\"",
+      "selected": ["11", "21", "31"]
+    },
+    {
+      "name": "multi ptType=\"node node\" st=\"2\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\" st=\"2\"",
+      "selected": ["21", "22", "31"]
+    },
+    {
+      "name": "multi ptType=\"node node\" st=\"1 2\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\" st=\"1 2\"",
+      "selected": ["12", "22"]
+    },
+    {
+      "name": "multi ptType=\"node node\" step=\"2\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\" step=\"2\"",
+      "selected": ["11", "12", "31"]
+    },
+    {
+      "name": "slice st=\"0\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"0\"",
+      "selected": ["1", "2", "3"]
+    },
+    {
+      "name": "slice st=\"-2\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"-2\"",
+      "selected": ["2", "3"]
+    },
+    {
+      "name": "slice st=\"-9\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"-9\"",
+      "selected": []
+    },
+    {
+      "name": "slice st=\"9\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"9\"",
+      "selected": []
+    },
+    {
+      "name": "slice st=\"-1\" step=\"-1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"-1\" step=\"-1\"",
+      "selected": ["3", "2", "1"]
+    },
+    {
+      "name": "slice step=\"0\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" step=\"0\"",
+      "selected": ["1", "2", "3"]
+    },
+    {
+      "name": "slice st=\"0\" step=\"-1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"0\" step=\"-1\"",
+      "selected": ["1"]
+    },
+    {
+      "name": "slice cnt=\"0\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" cnt=\"0\"",
+      "selected": ["1", "2", "3"]
+    },
+    {
+      "name": "slice cnt=\"2\" step=\"2\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" cnt=\"2\" step=\"2\"",
+      "selected": ["1"]
+    },
+    {
+      "name": "deep ancst",
+      "context": "axis=\"ch ch\" ptType=\"node node\" st=\"2 1\" cnt=\"1 1\"",
+      "query": "axis=\"ancst\" hideLastTrans=\"0\"",
+      "selected": ["0", "2"]
+    },
+    {
+      "name": "deep ancstOrSelf",
+      "context": "axis=\"ch ch\" ptType=\"node node\" st=\"2 1\" cnt=\"1 1\"",
+      "query": "axis=\"ancstOrSelf\" hideLastTrans=\"0\"",
+      "selected": ["0", "2", "21"]
+    },
+    {
+      "name": "deep preced",
+      "context": "axis=\"ch ch\" ptType=\"node node\" st=\"2 1\" cnt=\"1 1\"",
+      "query": "axis=\"preced\" hideLastTrans=\"0\"",
+      "selected": ["P21"]
+    },
+    {
+      "name": "deep follow",
+      "context": "axis=\"ch ch\" ptType=\"node node\" st=\"2 1\" cnt=\"1 1\"",
+      "query": "axis=\"follow\" hideLastTrans=\"0\"",
+      "selected": ["S21", "P22", "22", "S22"]
+    },
+    {
+      "name": "duplicate results",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch par\" ptType=\"node all\"",
+      "selected": ["0"]
+    },
+    {
+      "name": "reverse count",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"-1\" step=\"-2\" cnt=\"2\"",
+      "selected": ["3", "1"]
+    },
+    {
+      "name": "reverse start count",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"3\" step=\"-1\" cnt=\"2\"",
+      "selected": ["3", "2", "1"]
+    },
+    {
+      "name": "extra types",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node node\"",
+      "selected": ["1", "2", "3"]
+    },
+    {
+      "name": "missing axes",
+      "context": "axis=\"self\"",
+      "query": "ptType=\"node node\"",
+      "selected": []
+    },
+    {
+      "name": "duplicates then children",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch par ch\" ptType=\"node all node\"",
+      "selected": ["1", "2", "3"]
+    },
+    {
+      "name": "st=\"2\" cnt=\"1\" step=\"-1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\" step=\"-1\"",
+      "selected": ["2", "1"]
+    },
+    {
+      "name": "st=\"3\" cnt=\"1\" step=\"-1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"3\" cnt=\"1\" step=\"-1\"",
+      "selected": ["3", "2", "1"]
+    },
+    {
+      "name": "st=\"2\" cnt=\"2\" step=\"-1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"2\" step=\"-1\"",
+      "selected": ["2", "1"]
+    },
+    {
+      "name": "st=\"2\" cnt=\"1\" step=\"1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"1\" step=\"1\"",
+      "selected": ["2"]
+    },
+    {
+      "name": "st=\"2\" cnt=\"2\" step=\"2\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"2\" step=\"2\"",
+      "selected": ["2"]
+    },
+    {
+      "name": "st=\"2\" cnt=\"2\" step=\"-2\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch\" ptType=\"node\" st=\"2\" cnt=\"2\" step=\"-2\"",
+      "selected": ["2"]
+    },
+    {
+      "name": "axis=\"des ancst\" ptType=\"node all\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"des ancst\" ptType=\"node all\"",
+      "selected": ["0", "1", "2", "3"]
+    },
+    {
+      "name": "axis=\"des par\" ptType=\"node all\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"des par\" ptType=\"node all\"",
+      "selected": ["0", "1", "2", "3"]
+    },
+    {
+      "name": "axis=\"ch par\" ptType=\"node all\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch par\" ptType=\"node all\"",
+      "selected": ["0"]
+    },
+    {
+      "name": "axis=\"des root\" ptType=\"node all\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"des root\" ptType=\"node all\"",
+      "selected": ["0"]
+    },
+    {
+      "name": "axis=\"ch des\" ptType=\"node node\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch des\" ptType=\"node node\"",
+      "selected": ["11", "12", "21", "22", "31"]
+    },
+    {
+      "name": "axis=\"desOrSelf\" hideLastTrans=\"1\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" hideLastTrans=\"1\"",
+      "selected": [
+        "0",
+        "P1",
+        "1",
+        "P11",
+        "11",
+        "S11",
+        "P12",
+        "12",
+        "S1",
+        "P2",
+        "2",
+        "P21",
+        "21",
+        "S21",
+        "P22",
+        "22",
+        "S2",
+        "P3",
+        "3",
+        "P31",
+        "31"
+      ]
+    },
+    {
+      "name": "axis=\"desOrSelf\" ptType=\"sibTrans\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"sibTrans\"",
+      "selected": ["S11", "S1", "S21", "S2"]
+    },
+    {
+      "name": "axis=\"desOrSelf\" ptType=\"parTrans\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"desOrSelf\" ptType=\"parTrans\"",
+      "selected": ["P1", "P11", "P12", "P2", "P21", "P22", "P3", "P31"]
+    },
+    {
+      "name": "axis=\"ch ch\" ptType=\"node node\" hideLastTrans=\"0\"",
+      "context": "axis=\"self\"",
+      "query": "axis=\"ch ch\" ptType=\"node node\" hideLastTrans=\"0\"",
+      "selected": ["11", "12", "21", "22", "31"]
+    }
+  ]
+}

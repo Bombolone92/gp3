@@ -1,0 +1,23 @@
+tangecam_01_ptz:
+  url: "http://CAMERA_IP:8080/ptz"
+  method: post
+  content_type: "application/json"
+  payload: >-
+    {"action": {{ action | to_json }}}
+  timeout: 8
+
+tangecam_01_ptz_hold:
+  url: "http://CAMERA_IP:8080/ptz"
+  method: post
+  content_type: "application/json"
+  payload: >-
+    {"action": {{ action | to_json }}, "hold": true}
+  timeout: 8
+
+tangecam_01_light:
+  url: "http://CAMERA_IP:8080/light"
+  method: post
+  content_type: "application/json"
+  payload: >-
+    {"mode": {{ mode | to_json }}}
+  timeout: 8

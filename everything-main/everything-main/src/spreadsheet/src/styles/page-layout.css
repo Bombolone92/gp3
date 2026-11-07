@@ -1,0 +1,124 @@
+/* ---------- Page Layout view: the sheet as printed pages ---------- */
+
+.grid-paper { position: absolute; inset: 0 auto auto 0; }
+.grid:not(.page-layout) .grid-paper { display: none; }
+
+/* Grey between the pages; each page is a sheet of paper under its cells. */
+.grid.page-layout .grid-viewport { background-color: color-mix(in srgb, var(--surface-3), var(--ink) 9%) !important; }
+.grid.page-layout .grid-cells, .grid.page-layout .grid-row { pointer-events: none; }
+.grid.page-layout .cell { pointer-events: auto; }
+.grid.page-layout .freeze-bar { display: none; }
+
+.pl-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  background: var(--surface); /* the sheet is paper in every theme (the viewport scopes the light palette) */
+  box-shadow: 0 0 0 1px var(--hairline-strong), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* The header and footer sit in the page's top and bottom margins, in three sections. */
+.pl-hf {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+  color: var(--ink);
+  font: 11pt var(--font, system-ui);
+  font-size: calc(11pt * var(--zoom, 1));
+  cursor: text;
+}
+.pl-footer { align-items: flex-end; }
+.pl-section {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 1.4em;
+  max-height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 1px 3px;
+  border: 1px dashed transparent;
+  border-radius: 2px;
+  white-space: pre-wrap;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.pl-section[data-side="left"] { text-align: left; }
+.pl-section[data-side="center"] { text-align: center; }
+.pl-section[data-side="right"] { text-align: right; }
+.pl-footer .pl-section { align-self: flex-end; }
+@media (hover: hover) {
+  .pl-hf:hover .pl-section[contenteditable="true"] { border-color: var(--hairline-strong); background: var(--accent-wash, rgba(46, 111, 214, 0.06)); }
+}
+.pl-hf.pl-editing .pl-section { border-color: var(--hairline-strong); }
+.pl-hf .pl-section:focus { border-color: var(--accent); border-style: solid; background: var(--surface); }
+
+/* "Add header" / "Add footer" on a page whose margin has none. */
+.pl-add {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--ink-3);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.pl-header .pl-add { top: 2px; }
+.pl-footer .pl-add { bottom: 2px; }
+.pl-hf.pl-editing .pl-add, .pl-hf:not(.pl-blank) .pl-add { display: none; }
+
+/* Rulers in inches, above the column letters and beside the row numbers. */
+.grid-ruler { position: absolute; top: 0; left: 0; pointer-events: none; }
+.grid:not(.page-layout) .grid-ruler { display: none; }
+.grid-ruler.across { height: var(--ruler-size, 18px); width: 100%; }
+.grid-ruler.down { width: var(--ruler-size, 18px); height: 100%; }
+.grid.page-layout .grid-colhead { top: var(--ruler-size, 18px); height: calc(100% - var(--ruler-size, 18px)); }
+.grid.page-layout .grid-rowhead { left: var(--ruler-size, 18px); width: calc(100% - var(--ruler-size, 18px)); }
+.grid-ruler.across { border-bottom: 1px solid var(--hairline-strong); box-sizing: border-box; }
+.grid-ruler.down { border-right: 1px solid var(--hairline-strong); box-sizing: border-box; }
+.pl-ruler { position: absolute; background: var(--surface); overflow: hidden; }
+.grid-ruler.across .pl-ruler { top: 0; height: 100%; }
+.grid-ruler.down .pl-ruler { left: 0; width: 100%; }
+.pl-ruler-margin { position: absolute; background: var(--surface-3); }
+.grid-ruler.across .pl-ruler-margin { top: 0; bottom: 0; }
+.grid-ruler.down .pl-ruler-margin { left: 0; right: 0; }
+.pl-ruler-ticks { position: absolute; inset: 0; }
+.pl-ruler-ticks svg { display: block; overflow: visible; stroke: var(--ink-3); stroke-width: 1; fill: var(--ink-3); font: 9px var(--font, system-ui); }
+.pl-ruler-ticks text { stroke: none; }
+
+/* The Header & Footer tools, over the page while a section is typed in. */
+.pl-tools {
+  position: absolute;
+  left: 0;
+  z-index: 30;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  font: 11px/1.2 var(--font, system-ui);
+  white-space: nowrap;
+}
+/* Inside the page: below the header, above the footer. */
+.pl-header .pl-tools { top: 100%; margin-top: 4px; }
+.pl-footer .pl-tools { bottom: 100%; margin-bottom: 4px; }
+.pl-hf.pl-editing .pl-tools { display: flex; }
+.pl-tool-row { display: flex; gap: 2px; }
+.pl-tool {
+  padding: 3px 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+@media (hover: hover) { .pl-tool:hover { background: var(--surface-3); } }
+.pl-tool[aria-pressed="true"] { background: var(--accent-wash, rgba(46, 111, 214, 0.12)); border-color: var(--accent); }
+
+/* A selection across pages is outlined on each page it covers. */
+.sel-extras .sel-range.page-piece { border: 2px solid var(--xl-green, var(--accent)); }

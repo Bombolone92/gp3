@@ -1,0 +1,23 @@
+{
+  "referenceVersion": "16.0.20326",
+  "pages": 2,
+  "roundPointCases": [
+    1,
+    4,
+    7,
+    12,
+    13,
+    14,
+    15
+  ],
+  "notes": [
+    "The native reference on-screen view at 100 percent confirms the round point on the cubic row.",
+    "Poppler paints round degenerate Beziers; PDFium omits them from the same PDF. Native PDF pens retain the source width, subject to the previously established .14pt floor.",
+    "Square-cap degeneracies are not certified: PDF renderers disagree and this change does not alter square or flat caps."
+  ],
+  "sha256": {
+    "control.docx": "1ed32c5b615362e15c7d87b5273d5cd5eb4c0fe0ed35be4275d5f9452441d602",
+    "cases.json": "bacde2d97d6a7ad21664f5ac2cc26de18bb390824881f716879935d835e36bea",
+    "native.pdf": "aae5bb776c13000469f35f5a72d974386884288e57a280d7355c032f65d925b4"
+  }
+}

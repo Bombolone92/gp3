@@ -1,0 +1,69 @@
+.preview-dialog .dialog-body {
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+}
+
+.preview-bar {
+  display: flex;
+  /* On a phone the size choice, page and Restart share two rows. */
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.preview-bar .grow {
+  flex: 1;
+}
+
+.preview-bar .select {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: 260px;
+}
+
+.preview-stage {
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  padding: 16px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.preview-screen {
+  max-width: 100%;
+  height: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  transition: width 200ms var(--ease);
+}
+
+.preview-screen > div {
+  min-height: 100%;
+}
+
+@media (max-width: 600px) {
+  .preview-stage {
+    padding: 0;
+  }
+  .preview-screen {
+    border: 0;
+    border-radius: 0;
+  }
+  .preview-bar .seg-label {
+    display: none;
+  }
+}

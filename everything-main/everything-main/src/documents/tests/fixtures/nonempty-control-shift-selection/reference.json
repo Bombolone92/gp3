@@ -1,0 +1,129 @@
+{
+  "date": "2026-09-30",
+  "referenceBuild": "16.0.20326",
+  "zoomPercent": 100,
+  "cases": [
+    {
+      "name": "right",
+      "source": "control.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "result": "native-right.docx",
+      "resultSha256": "056e783ae12bf3806c82c710c688e7b363dfa7f9e75211e870931591b1dad7bb",
+      "setup": [
+        "End",
+        "ArrowLeft",
+        "ArrowLeft"
+      ],
+      "keys": [
+        "Shift+ArrowRight",
+        "x"
+      ],
+      "text": "ABCxD",
+      "controls": [
+        {
+          "text": "BCx",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "name": "right-twice",
+      "source": "control.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "result": "native-right-twice.docx",
+      "resultSha256": "04fc286cfe800aaf95b1a3e710e5279280f7a00e409d658383b862209cccf921",
+      "setup": [
+        "End",
+        "ArrowLeft",
+        "ArrowLeft"
+      ],
+      "keys": [
+        "Shift+ArrowRight",
+        "x",
+        "Control+z",
+        "Shift+ArrowRight",
+        "x"
+      ],
+      "text": "ABCx",
+      "controls": [
+        {
+          "text": "BCx",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "name": "left",
+      "source": "control.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "result": "native-left.docx",
+      "resultSha256": "3b90e93dd3ef0140460136f1c124fab9871a3d54ca8d55c6fd9343e2ff1431c8",
+      "setup": [
+        "Home",
+        "ArrowRight",
+        "ArrowRight"
+      ],
+      "keys": [
+        "Shift+ArrowLeft",
+        "x"
+      ],
+      "text": "AxBCD",
+      "controls": [
+        {
+          "text": "xBC",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "name": "left-twice",
+      "source": "control.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "result": "native-left-twice.docx",
+      "resultSha256": "19a4e612a66d43ff143160acf126d87349dcd3a9f734168ae5b8fec3ffa3dd69",
+      "setup": [
+        "Home",
+        "ArrowRight",
+        "ArrowRight"
+      ],
+      "keys": [
+        "Shift+ArrowLeft",
+        "x",
+        "Control+z",
+        "Shift+ArrowLeft",
+        "x"
+      ],
+      "text": "xBCD",
+      "controls": [
+        {
+          "text": "BC",
+          "placeholder": false
+        }
+      ]
+    },
+    {
+      "name": "left-reverse",
+      "source": "control.docx",
+      "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+      "result": "native-left-reverse.docx",
+      "resultSha256": "a4f2eb3a1e55d6a1584d96d6f01e672de397a2254510df30b7f45067b59e3a19",
+      "setup": [
+        "Home",
+        "ArrowRight",
+        "ArrowRight"
+      ],
+      "keys": [
+        "Shift+ArrowLeft",
+        "Shift+ArrowRight",
+        "x"
+      ],
+      "text": "AxBCD",
+      "controls": [
+        {
+          "text": "xBC",
+          "placeholder": false
+        }
+      ]
+    }
+  ]
+}

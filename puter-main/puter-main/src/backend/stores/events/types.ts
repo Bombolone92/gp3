@@ -1,0 +1,142 @@
+/*
+ * Copyright (C) 2024-present Puter Technologies Inc.
+ *
+ * This file is part of Puter.
+ *
+ * Puter is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import type { AclMode } from '../../services/acl/ACLService.js';
+import type { DeliveryClass } from '../../services/events/registry.js';
+import type { FsOp } from '../../services/events/subjects.js';
+
+/**
+ * Row shapes shared by the two subscription stores. Session rows live in Redis
+ * and die with their connection; durable rows live in a table and are cached
+ * into the same Redis keyspace. Dispatch reads both out of one hash, matches
+ * them with one matcher and re-checks them with one ACL call, so what it reads
+ * is declared once here rather than per store.
+ */
+
+/**
+ * Which handler set a subscription's `handlerName` refers to: the app's own
+ * (`'app'`) or the holder's scope of that app (`'user'`). Stored as 0 and 1.
+ */
+export type HandlerScopeKind = 'app' | 'user';
+
+/**
+ * Whether a row's events also run the app's published handler in its events
+ * worker. Only an app has a worker, and only a named handler can be run.
+ */
+export const runsInWorker = (row: {
+    appUid: string | null;
+    handlerName?: string | null;
+}): boolean => row.appUid !== null && !!row.handlerName;
+
+/**
+ * Token, and subject, of the subscription row a recurring or `once` schedule
+ * owns. Those rows carry the schedule's lifecycle (suspend, resume, reap) and
+ * are kept out of dispatch, the durable quotas and the durable listing. Called
+ * by extensions.
+ */
+export const SCHEDULE_TOKEN_PREFIX = 'schedule:';
+
+export const scheduleToken = (scheduleUid: string): string =>
+    `${SCHEDULE_TOKEN_PREFIX}${scheduleUid}`;
+
+export const isScheduleRow = (row: { token: string }): boolean =>
+    row.token.startsWith(SCHEDULE_TOKEN_PREFIX);
+
+/**
+ * What a row's delivery re-check runs against. An access mode for a filesystem
+ * row, which composes with its anchor uid; the whole grant string for a row on
+ * a shared key-value region, where the grant is what a revoke names and there
+ * is no anchor to compose it with.
+ */
+export type SubscriptionPermission = AclMode | string;
+
+/** What dispatch needs from a subscription, whichever store it came from. */
+export interface DispatchSubscription {
+    subId: string;
+    /** Who subscribed: the delivery target, and whose access is re-checked. */
+    holderUserId: number;
+    /** Owner of the anchor node: the keyspace this row is indexed in. */
+    ownerUserId: number;
+    /** The subject as the client asked for it. */
+    subject: string;
+    /** Anchor token the row is indexed under. */
+    token: string;
+    /**
+     * What the row is anchored on, in its family's terms: an FS row names the
+     * node's uid and path, a KV row names the app whose namespace it watches
+     * and the key prefix its token stops at.
+     */
+    anchorUid: string;
+    anchorPath: string;
+    /**
+     * Glob the anchor's members are filtered by, or `null` when the anchor is
+     * exact. Relative to the anchor for FS; the whole key for KV.
+     */
+    match: string | null;
+    /** FS rows only: KV subjects carry no operation filter. */
+    op: FsOp | null;
+    /** The app that created the row, and the scope of the three verbs. */
+    appUid: string | null;
+    /** What the subscribe check passed under; re-checked per delivery. */
+    permission: SubscriptionPermission;
+    /** KV rows only: deliveries carry the key's new value where they can. */
+    includeValue?: true;
+    /** Session rows only: the connection a delivery is addressed at. */
+    socketId?: string;
+    /** Durable rows only: set on every row that outlives its connection. */
+    durable?: true;
+    delivery?: DeliveryClass;
+    handlerName?: string | null;
+    /** Durable rows only: absent means `'app'`. */
+    handlerScope?: HandlerScopeKind;
+    /** Durable rows only: handed to the handler, and read nowhere else. */
+    context?: string | null;
+}
+
+export interface SessionSubscription extends DispatchSubscription {
+    socketId: string;
+}
+
+/** A row in `event_subscriptions`, as the rest of the system sees it. */
+export interface DurableSubscription extends DispatchSubscription {
+    durable: true;
+    delivery: DeliveryClass;
+    handlerName: string | null;
+    /** Plaintext JSON, capped at 4 KB. Never returned by `list`. */
+    context: string | null;
+    /** Unix seconds, or `null` for a subscription with no end. */
+    expiresAt: number | null;
+    suspendedAt: number | null;
+    suspendedReason: string | null;
+    createdAt: number;
+}
+
+/** A region-local session-watcher count crossed 0<->1+ for one token. */
+export interface RemoteWatchAnnounce {
+    token: string;
+    op: 'add' | 'drop';
+}
+
+/** One owner's generation after a change to the set of rows keyed under them. */
+export interface GenerationBump {
+    userId: number;
+    generation: number;
+    /** Session tokens whose local watcher count just crossed 0<->1+, if any. */
+    announce?: RemoteWatchAnnounce[];
+}

@@ -1,0 +1,511 @@
+/* Work orders, vendors, inspections. Also the board, form and print
+   pieces shared with the leasing screens. */
+
+/* ---- Forms -------------------------------------------------------------- */
+
+.pm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pm-form .card + .card {
+  margin-top: 0;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.items-table .qty-col {
+  width: 90px;
+}
+
+.items-table .amt-col {
+  width: 140px;
+}
+
+.items-table td {
+  vertical-align: middle;
+}
+
+.items-table tfoot td {
+  border-top: 1px solid var(--border);
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.items-table .total-cell {
+  font-weight: 700;
+}
+
+/* ---- Toolbars ----------------------------------------------------------- */
+
+.list-card .toolbar.sub-toolbar {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.filter-select {
+  width: auto;
+  max-width: 190px;
+}
+
+.view-toggle .btn[aria-pressed='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.header-pills {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.section-heading {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.toolbar .section-heading {
+  margin: 0;
+}
+
+/* ---- Small status bits -------------------------------------------------- */
+
+.overdue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.due-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.prio {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  padding: 0 6px;
+  height: 20px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: 1px;
+  background: var(--neutral-soft);
+  color: var(--neutral);
+}
+
+.prio-urgent {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.prio-high {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.pre-wrap {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.stack.xs {
+  gap: 2px;
+}
+
+.person-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.email-cell {
+  display: inline-block;
+  max-width: 220px;
+  vertical-align: bottom;
+}
+
+.vendor-name {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---- Boards (work orders, applicants, renewals) ------------------------- */
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(220px, 1fr));
+  gap: 12px;
+  align-items: start;
+  margin-top: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.wo-board {
+  --cols: 5;
+}
+
+.board-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 4px;
+}
+
+.board-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.board-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.board-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface);
+}
+
+.board-card.urgent {
+  border-left: 3px solid var(--danger);
+}
+
+.board-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.board-card-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.board-card-top .icon-btn {
+  margin: -4px -6px 0 0;
+  flex: none;
+}
+
+.board-card-sub {
+  font-size: 13px;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.board-card-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.board-card-meta .prio {
+  margin-left: 0;
+}
+
+.board-card-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.board-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.board-empty {
+  margin: 0;
+  padding: 10px 4px;
+  font-size: 13px;
+  color: var(--text-3);
+  text-align: center;
+}
+
+.board-more {
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---- Inspections -------------------------------------------------------- */
+
+.areas {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0 14px 12px;
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+}
+
+.area:first-child {
+  padding-top: 4px;
+}
+
+.area.cond-good {
+  border-left-color: var(--success);
+}
+
+.area.cond-fair {
+  border-left-color: var(--info);
+}
+
+.area.cond-poor {
+  border-left-color: var(--warning);
+}
+
+.area.cond-damaged {
+  border-left-color: var(--danger);
+}
+
+.area-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.area-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.condition-seg button[aria-checked='true'] {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.change.worse {
+  color: var(--danger);
+}
+
+.change.better {
+  color: var(--success);
+}
+
+.change-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.add-area .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.area-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.area-picks .tag button {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ---- Print sheets ------------------------------------------------------- */
+
+@media screen {
+  #print-root {
+    display: none;
+  }
+}
+
+.print-sheet {
+  font-size: 13px;
+}
+
+.print-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #111;
+}
+
+.print-company {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.print-contact,
+.print-sub {
+  color: #555;
+}
+
+.print-title {
+  text-align: right;
+}
+
+.print-title h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.print-kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0 0 16px;
+}
+
+.print-kv dt {
+  font-weight: 700;
+}
+
+.print-kv dd {
+  margin: 0;
+}
+
+.print-sheet section h2 {
+  margin: 16px 0 6px;
+  font-size: 14px;
+}
+
+.print-sheet .table {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.print-sign {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 48px;
+}
+
+.print-sign div {
+  padding-top: 6px;
+  border-top: 1px solid #111;
+  color: #555;
+}
+
+/* ---- Responsive --------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+  .board {
+    grid-template-columns: repeat(var(--cols, 4), minmax(240px, 260px));
+  }
+}
+
+@media (max-width: 767px) {
+  .board {
+    grid-template-columns: repeat(var(--cols, 4), minmax(250px, 82vw));
+    scroll-snap-type: x mandatory;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0 16px 8px;
+  }
+
+  .board-col {
+    scroll-snap-align: start;
+  }
+
+  .view-toggle .vt-label {
+    display: none;
+  }
+
+  .filter-select {
+    max-width: none;
+    flex: 1 1 140px;
+  }
+
+  .items-table .qty-col {
+    width: 64px;
+  }
+
+  .items-table .amt-col {
+    width: 100px;
+  }
+
+  .form-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .form-actions .spacer {
+    display: none;
+  }
+}

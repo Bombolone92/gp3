@@ -1,0 +1,551 @@
+/* Desktop word-processor chrome: a grey window frame holding the title bar, the ribbon tabs and a
+   white ribbon card, a grey workspace around the pages, and a quiet status bar. */
+:root {
+  --ed-frame: #f3f3f3;
+  --ed-card: #ffffff;
+  --ed-ink: #242424;
+  --ed-ink-2: #424242;
+  --ed-ink-3: #616161;
+  --ed-line: #e0e0e0;
+  --ed-field: #c7c7c7;
+  --ed-hover: #f0f0f0;
+  --ed-press: #e0e0e0;
+  --ed-accent: var(--brand);
+  --ed-accent-wash: #e5ecf5;
+  --ed-workspace: #f3f3f3;
+  --ed-page-edge: #d4d4d4;
+  /* Behind Read Mode's pages, with no page color chosen. */
+  --ed-read-backdrop: #f6f5f2;
+  /* Lines in shape thumbnails, which have no fill to stand on. */
+  --ed-shape-line: #44546a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --ed-frame: #1f1f1f;
+    --ed-card: #2b2b2b;
+    --ed-ink: #f0f0f0;
+    --ed-ink-2: #d6d6d6;
+    --ed-ink-3: #ababab;
+    --ed-line: #3d3d3d;
+    --ed-field: #5c5c5c;
+    --ed-hover: #3a3a3a;
+    --ed-press: #474747;
+    --ed-accent: #7ea6dc;
+    --ed-accent-wash: #2d3d52;
+    --ed-workspace: #1a1a1a;
+    --ed-page-edge: #3a3a3a;
+    --ed-read-backdrop: #1a1a1a;
+    --ed-shape-line: #a7b4c6;
+  }
+}
+:root[data-theme="dark"] {
+  --ed-frame: #1f1f1f;
+  --ed-card: #2b2b2b;
+  --ed-ink: #f0f0f0;
+  --ed-ink-2: #d6d6d6;
+  --ed-ink-3: #ababab;
+  --ed-line: #3d3d3d;
+  --ed-field: #5c5c5c;
+  --ed-hover: #3a3a3a;
+  --ed-press: #474747;
+  --ed-accent: #7ea6dc;
+  --ed-accent-wash: #2d3d52;
+  --ed-workspace: #1a1a1a;
+  --ed-page-edge: #3a3a3a;
+  --ed-read-backdrop: #1a1a1a;
+  --ed-shape-line: #a7b4c6;
+}
+
+.ed-workspace { background: var(--ed-frame); color: var(--ed-ink); }
+
+/* ---- Title bar ---- */
+.ed-header { border-bottom: 0; background: var(--ed-frame); }
+.ed-titlebar {
+  /* The quick access commands and the actions keep their width; a long name truncates instead. */
+  display: grid; grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr); align-items: center; gap: 8px;
+  height: calc(40px + var(--safe-t)); padding: var(--safe-t) calc(10px + var(--safe-r)) 0 calc(8px + var(--safe-l));
+}
+.ed-quick { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.ed-header .canvas-title-wrap { justify-content: center; flex: none; gap: 6px; min-width: 0; }
+.ed-header .canvas-title { font: 400 13px/1.3 var(--font); text-align: center; padding: 3px 8px; color: var(--ed-ink); }
+@media (hover: hover) { .ed-header .canvas-title:hover { background: var(--ed-hover); } }
+.ed-header .canvas-save-status { font-size: 12px; color: var(--ed-ink-3); }
+/* Quiet while all is well; a save that failed, or cannot go out offline, stands out as the editor's own pill does. */
+.ed-header .canvas-save-status:is(.error, .offline) { color: var(--critical); }
+.ed-header .canvas-title-actions { justify-content: flex-end; gap: 6px; }
+.ed-header .canvas-title-actions > * { flex-shrink: 0; }
+.ed-search {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px 0 8px; min-width: 150px;
+  border: 1px solid var(--ed-line); border-radius: 6px; background: var(--ed-card); color: var(--ed-ink-3); font-size: 12px;
+}
+.ed-search:hover { border-color: var(--ed-field); }
+
+/* ---- Tabs ---- */
+.ribbon-tabs {
+  display: flex; align-items: flex-end; gap: 2px; height: 32px; padding: 0 calc(12px + var(--safe-r)) 0 calc(12px + var(--safe-l));
+  overflow-x: auto; scrollbar-width: none;
+}
+.ribbon-tabs::-webkit-scrollbar { display: none; }
+.ribbon-tabs.more-after { mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); }
+.ribbon-tabs.more-before { mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent); }
+.ribbon-tabs.more-before.more-after { mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent); }
+.ribbon-tablist { display: flex; align-items: flex-end; gap: 2px; height: 100%; }
+.ribbon-tab, .ribbon-file {
+  position: relative; flex: none; height: 30px; padding: 0 10px 2px; border: 0; border-radius: 4px 4px 0 0;
+  background: transparent; color: var(--ed-ink-2); font: 400 13px/1 var(--font); cursor: default; white-space: nowrap;
+}
+@media (hover: hover) { .ribbon-tab:hover, .ribbon-file:hover { color: var(--ed-ink); background: var(--ed-hover); } }
+.ribbon-tab[aria-selected="true"] { color: var(--ed-ink); font-weight: 600; }
+.ribbon-tab[aria-selected="true"]::after {
+  content: ''; position: absolute; left: 10px; right: 10px; bottom: 0; height: 3px; border-radius: 2px; background: var(--ed-accent);
+}
+.ribbon-tab[data-contextual] { color: var(--ed-accent); }
+.ribbon-tab[hidden] { display: none; }
+.ribbon-file[aria-expanded="true"] { background: var(--ed-press); }
+
+/* ---- Ribbon card ---- */
+.ed-ribbon { border-bottom: 0; background: var(--ed-frame); padding: 0 calc(8px + var(--safe-r)) 6px calc(8px + var(--safe-l)); }
+.ed-ribbon::before, .ed-ribbon::after { display: none; }
+.ribbon-card {
+  min-width: 0; border-radius: 8px; background: var(--ed-card);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.ribbon-panel { display: flex; align-items: stretch; height: 72px; padding: 2px 6px; overflow: hidden; }
+.ribbon-panel[hidden] { display: none; }
+.ribbon-group { display: flex; align-items: stretch; flex: none; padding: 0 6px; border-right: 1px solid var(--ed-line); margin: 1px 0; }
+.ribbon-group:last-child { border-right: 0; }
+.ribbon-group-body { display: flex; align-items: center; gap: 2px; }
+.ribbon-group-body[hidden], .ribbon-group > [hidden] { display: none; }
+.ribbon-rows { display: flex; flex-direction: column; justify-content: space-evenly; gap: 0; }
+.ribbon-row { display: flex; align-items: center; gap: 2px; }
+.ribbon-divider { flex: none; width: 1px; height: 20px; margin: 0 4px; background: var(--ed-line); }
+.ribbon-group-body > .ribbon-divider { height: 56px; }
+/* A group's settings button sits in its bottom row, as the Font and Paragraph settings buttons do. */
+.ribbon-launcher { display: flex; align-self: stretch; flex-direction: column; justify-content: flex-end; padding-bottom: 8px; }
+
+/* Small commands: 16px icons in 28px buttons. */
+.ribbon-card button.ribbon-small, .ribbon-flyout button.ribbon-small, .ed-quick button.ribbon-small {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px; flex: none;
+  width: auto; min-width: 26px; height: 24px; padding: 0 5px; border: 1px solid transparent; border-radius: 4px;
+  background: transparent; color: var(--ed-ink-2); font-size: 12px; white-space: nowrap; opacity: 1;
+}
+.ribbon-small.has-label { padding: 0 7px 0 5px; }
+.ribbon-small svg.ico { width: 16px; height: 16px; }
+/* Hover tints only where a pointer can hover: on a touch screen a tapped command kept its tint until the next tap.
+   A finger sees the tint while it presses instead. */
+@media (hover: hover) { .ribbon-card button:not(:disabled):hover, .ribbon-flyout button:not(:disabled):hover, .ed-quick button:not(:disabled):hover { background: var(--ed-hover); } }
+@media (hover: none) {
+  :is(.ribbon-card, .ribbon-flyout, .ed-quick) button:not(:disabled):active, button.ed-status-item:active, .ed-status-view:active,
+  .ribbon-tab:active, .ribbon-file:active, .ed-menus-button:active, .ed-pill:not(:disabled):active, .ed-header .canvas-title:active { background: var(--ed-hover); }
+}
+.ribbon-card button[aria-pressed="true"], .ribbon-flyout button[aria-pressed="true"], .ribbon-card button[aria-expanded="true"], .ribbon-flyout button[aria-expanded="true"] { background: var(--ed-press); border-color: transparent; color: var(--ed-ink); box-shadow: none; }
+.ribbon-card button[aria-pressed="mixed"], .ribbon-flyout button[aria-pressed="mixed"] { border: 1px dashed var(--ed-ink-3); }
+.ribbon-card button:disabled, .ribbon-flyout button:disabled, .ed-quick button:disabled { opacity: 1; color: var(--ed-ink-3); }
+.ribbon-card button:disabled svg.ico, .ribbon-flyout button:disabled svg.ico, .ed-quick button:disabled svg.ico { opacity: 0.38; }
+:is(.ribbon-card, .ribbon-flyout) button:disabled .ribbon-large-label, :is(.ribbon-card, .ribbon-flyout) button:disabled .ribbon-small-label { opacity: 0.5; }
+
+/* The panel and tab row clip their overflow, so keyboard focus rings sit inside the control. */
+:is(.ribbon-card, .ribbon-flyout, .ed-quick) button:focus-visible, .ribbon-tab:focus-visible, .ribbon-file:focus-visible { outline-offset: -2px; }
+
+/* Large commands: a 32px icon over a label of up to two lines, all inside the group's 66px. */
+.ribbon-card button.ribbon-large, .ribbon-flyout button.ribbon-large {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; flex: none;
+  min-width: 46px; max-width: 78px; height: 66px; padding: 3px 5px 0; border: 1px solid transparent; border-radius: 5px;
+  background: transparent; color: var(--ed-ink-2); font-size: 12px; line-height: 1.1; text-align: center; opacity: 1;
+}
+.ribbon-large svg.ico { width: 32px; height: 32px; }
+.ribbon-card button.ribbon-large.ribbon-wide, .ribbon-flyout button.ribbon-large.ribbon-wide { max-width: 100px; }
+.ribbon-large-label { display: block; white-space: normal; overflow-wrap: break-word; }
+.ribbon-label-end { white-space: nowrap; }
+/* A one-word drop-down label and its arrow share a line, so the button may widen a little for them. */
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-large:has(> .is-one-word) { max-width: 100px; }
+.ribbon-caret { display: inline-block; width: 7px; height: 7px; margin-left: 3px; vertical-align: 1px; flex: none;
+  background: currentColor; clip-path: polygon(10% 30%, 90% 30%, 50% 75%); opacity: 0.8; }
+.ribbon-small.has-caret { padding-right: 3px; gap: 2px; }
+
+/* Split buttons: the command and its options arrow hover as one. */
+.ribbon-split { display: inline-flex; align-items: stretch; flex: none; border-radius: 4px; }
+.ribbon-split.is-large { flex-direction: column; }
+.ribbon-split.is-large > .ribbon-large { height: 50px; padding-top: 1px; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.ribbon-split.is-large > .ribbon-split-arrow { width: 100%; height: 16px; border-top-left-radius: 0; border-top-right-radius: 0; }
+.ribbon-split.is-large > .ribbon-split-arrow:has(> .ribbon-split-label) { gap: 3px; padding: 0 4px; font-size: 12px; line-height: 1.1; white-space: nowrap; }
+:is(.ribbon-card, .ribbon-flyout) button:disabled > .ribbon-split-label { opacity: 0.5; }
+.ribbon-card button.ribbon-split-arrow, .ribbon-flyout button.ribbon-split-arrow {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 14px; width: 14px; height: 24px; padding: 0;
+  border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--ed-ink-2);
+}
+.ribbon-split-arrow .ribbon-caret { margin: 0; }
+.ribbon-split.is-small > button:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.ribbon-split.is-small > .ribbon-split-arrow { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+@media (hover: hover) { .ribbon-split:hover > button:not(:disabled) { box-shadow: inset 0 0 0 1px var(--ed-line); } }
+
+/* Colour commands keep the current colour as a bar under the letter. */
+:is(.ribbon-card, .ribbon-flyout) .ribbon-color.canvas-color-tool { width: auto; gap: 1px; padding: 0 2px 0 4px; }
+.ribbon-color .canvas-color-icon { width: 18px; height: 22px; padding-bottom: 4px; }
+.ribbon-color .canvas-color-indicator { left: 1px; right: 1px; height: 4px; border-radius: 0; box-shadow: none; }
+.ribbon-color .canvas-color-indicator.is-none { box-shadow: inset 0 0 0 1px var(--ed-field); }
+
+/* Fields. */
+/* Shown at every width: phones scroll the ribbon sideways rather than drop the font name. */
+:is(.ribbon-card, .ribbon-flyout) .canvas-font-label.ribbon-font {
+  display: inline-block; width: 132px; min-width: 132px; max-width: 132px; height: 26px; padding: 3px 22px 3px 7px; border: 1px solid var(--ed-field); border-radius: 4px;
+  background: var(--ed-card) var(--select-chevron) no-repeat right 6px center; color: var(--ed-ink); font-size: 12.5px; text-align: start;
+}
+.ribbon-card input.canvas-spacing, .ribbon-flyout input.canvas-spacing {
+  height: 26px; padding: 3px 6px; border: 1px solid var(--ed-field); border-radius: 4px; background: var(--ed-card); color: var(--ed-ink); font-size: 12.5px;
+}
+/* Wide enough for the "Mixed" placeholder; the preset sizes open from the arrow joined to its right edge. */
+:is(.ribbon-card, .ribbon-flyout) input.ribbon-size { width: 52px; padding-right: 3px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+:is(.ribbon-card, .ribbon-flyout) .ribbon-size-split > button.ribbon-split-arrow {
+  height: 26px; margin-left: -1px; border: 1px solid var(--ed-field); border-radius: 0 4px 4px 0; background: var(--ed-card);
+}
+:is(.ribbon-card, .ribbon-flyout) .ribbon-size-split > button.ribbon-split-arrow:hover:not(:disabled) { border-color: var(--ed-ink-3); }
+.ribbon-card input.ribbon-number, .ribbon-flyout input.ribbon-number { width: 62px; }
+:is(.ribbon-card, .ribbon-flyout) input.canvas-spacing:hover, :is(.ribbon-card, .ribbon-flyout) .canvas-font-label.ribbon-font:hover { border-color: var(--ed-ink-3); background-color: var(--ed-card); }
+:is(.ribbon-card, .ribbon-flyout) input.canvas-spacing:focus, :is(.ribbon-card, .ribbon-flyout) .canvas-font-label.ribbon-font:focus-visible { border-color: var(--ed-accent); outline: 1px solid var(--ed-accent); outline-offset: -2px; }
+/* While its picker is open the font box stays a field (the pressed-button rule would drop its chevron). */
+:is(.ribbon-card, .ribbon-flyout) .canvas-font-label.ribbon-font[aria-expanded="true"] { background: var(--ed-card) var(--select-chevron) no-repeat right 6px center; border-color: var(--ed-accent); }
+/* Labelled number fields; those in one group share its columns, so a longer label keeps the inputs aligned. */
+.ribbon-spin-group { display: grid; grid-template-columns: 16px minmax(46px, max-content) auto auto; gap: 3px 5px; align-content: center; }
+.ribbon-spin-title { grid-column: 1 / -1; font-size: 12px; line-height: 14px; color: var(--ed-ink-2); padding-left: 2px; }
+/* A title over two fields fits the group's 66px only with slightly shorter fields. */
+.ribbon-spin-group .ribbon-spin input.canvas-spacing { height: 22px; padding-block: 1px; }
+.ribbon-spin { display: grid; grid-template-columns: 16px minmax(46px, max-content) auto auto; align-items: center; gap: 5px; font-size: 12px; color: var(--ed-ink-2); }
+.ribbon-spin-group > .ribbon-spin { grid-column: 1 / -1; grid-template-columns: subgrid; }
+.ribbon-spin-label { white-space: nowrap; }
+.ribbon-spin-unit { color: var(--ed-ink-3); font-size: 11px; }
+.ribbon-check { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 4px; font-size: 12px; color: var(--ed-ink-2); white-space: nowrap; }
+.ribbon-check input { margin: 0; accent-color: var(--ed-accent); }
+
+/* Style gallery. */
+.ribbon-gallery-frame { display: flex; align-items: stretch; height: 62px; border: 1px solid var(--ed-line); border-radius: 6px; padding: 3px; gap: 3px; margin-right: 4px; }
+.ribbon-gallery { display: flex; gap: 3px; overflow: hidden; }
+.ribbon-gallery > * { flex: none; }
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-style {
+  display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex: none; width: 96px; height: 56px; padding: 6px 4px 4px;
+  border: 1px solid var(--ed-line); border-radius: 4px; background: var(--ed-card); color: var(--ed-ink-2); overflow: hidden;
+}
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-style[aria-selected="true"] { border-color: var(--ed-accent); box-shadow: inset 0 0 0 1px var(--ed-accent); background: var(--ed-accent-wash); }
+.ribbon-style-sample { font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: var(--ed-ink-3); white-space: nowrap; overflow: hidden; max-width: 100%; }
+/* A style's own color (styleColor). On a dark theme it is lightened, keeping its hue, until it reads at 4.5:1. */
+.ribbon-style-sample[style*="--style-color"] { color: var(--style-color); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ribbon-style-sample[style*="--style-color"] { color: oklch(from var(--style-color) max(l, 0.75) c h); } }
+:root[data-theme="dark"] .ribbon-style-sample[style*="--style-color"] { color: oklch(from var(--style-color) max(l, 0.75) c h); }
+.ribbon-style-name { font-size: 11px; color: var(--ed-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-gallery-more { min-width: 18px; width: 18px; height: auto; padding: 0; }
+.ribbon-gallery-more svg.ico { transform: rotate(90deg); width: 12px; height: 12px; }
+
+/* Collapsed groups. */
+.ribbon-card button.ribbon-collapsed { max-width: 90px; padding-left: 2px; padding-right: 2px; }
+/* A folded group is one button: it needs less room around it than a group of commands does. */
+.ribbon-group.is-collapsed { padding: 0 2px; }
+.ribbon-flyout {
+  position: fixed; z-index: 60; display: flex; padding: 6px 8px; border-radius: 8px; background: var(--ed-card); color: var(--ed-ink);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.ribbon-flyout .ribbon-group-body { display: flex; }
+
+/* ---- Quick access ---- */
+.ed-quick button.ribbon-small { color: var(--ed-ink-2); height: 28px; min-width: 30px; }
+.ed-quick .canvas-tool[data-icon] svg:not(.ico) { display: none; }
+
+/* ---- Workspace and pages ---- */
+.ed-workspace .canvas-host { background: var(--ed-workspace); }
+.ed-workspace .canvas-page { outline: 1px solid var(--ed-page-edge); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.06); }
+.ed-workspace .canvas-pages { padding: 16px 24px 32px; gap: 16px; }
+.ed-workspace .canvas-ruler-top, .ed-workspace .canvas-ruler-side { background: var(--ed-workspace); }
+.ed-workspace .canvas-message { background: var(--ed-frame); color: var(--ed-ink-2); border-bottom: 1px solid var(--ed-line); }
+.ed-workspace .canvas-message:has(.canvas-message-close) { background: #fff4ce; color: #3b2f00; border-bottom-color: #f0e0a0; }
+/* The bar stays yellow in every theme, so its Dismiss button takes the bar's dark ink rather than the theme's
+   (a dark theme's light grey X measured 1.6:1 on the yellow). */
+.ed-workspace .canvas-message:has(.canvas-message-close) .canvas-message-close { color: inherit; }
+@media (hover: hover) { .ed-workspace .canvas-message .canvas-message-close:not([disabled]):hover { background: rgba(0, 0, 0, .08); color: inherit; } }
+.ed-workspace .canvas-message.canvas-message-error { background: var(--critical-wash); color: var(--ink); }
+
+/* ---- Status bar ---- */
+.ed-statusbar.canvas-statusbar {
+  min-height: 28px; padding: 0 calc(12px + var(--safe-r)) var(--safe-b) calc(12px + var(--safe-l)); gap: 10px;
+  border-top: 1px solid var(--ed-line); background: var(--ed-frame); color: var(--ed-ink-2); font-size: 12px;
+}
+.ed-status-left, .ed-status-right { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.ed-status-right { margin-left: auto; flex: none; }
+/* Between phone and desktop widths the language gives way, so the zoom controls stay whole. */
+.ed-status-left { flex: 0 1 auto; overflow: hidden; }
+/* The narrowest phones (and a desktop window zoomed to 400%) have no room for both halves on one line: the
+   right half goes under the left rather than cutting the page and word counts off. */
+@media (max-width: 420px) {
+  .ed-statusbar.canvas-statusbar { flex-wrap: wrap; row-gap: 0; }
+  .ed-status-left { flex-shrink: 0; max-width: 100%; }
+}
+.ed-status-item { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 8px; border: 0; border-radius: 4px; background: transparent; color: inherit; font: inherit; white-space: nowrap; }
+@media (hover: hover) { button.ed-status-item:hover, .ed-status-view:hover, .ed-zoom-step:hover { background: var(--ed-hover); } }
+.ed-statusbar .canvas-text-mode { margin-left: 0; padding: 0 6px; }
+.ed-status-view.icon-btn { width: 28px; height: 24px; border-radius: 4px; }
+.ed-status-view[aria-pressed="true"] { background: var(--ed-press); }
+.ed-zoom { display: flex; align-items: center; gap: 2px; margin-left: 4px; }
+.ed-zoom-step.icon-btn { width: 22px; height: 22px; border-radius: 4px; color: var(--ed-ink-2); }
+.ed-zoom-step[aria-disabled="true"] { opacity: .45; cursor: default; }
+.ed-zoom-step[aria-disabled="true"]:hover { background: none; }
+.ed-zoom-slider { width: 110px; height: 16px; accent-color: var(--ed-ink-3); }
+.ed-statusbar .canvas-zoom select { min-width: 58px; padding: 2px 16px 2px 4px; background-color: transparent; font-size: 12px; text-align: right; }
+
+/* ---- Focus mode: the page alone ---- */
+.ed-focus .ed-header, .ed-focus .ed-ribbon, .ed-focus .ed-statusbar, .ed-focus .canvas-message { display: none !important; }
+.ed-focus .canvas-host { background: #1d1d1d; }
+/* The page alone: the rulers (and the tab-type button that goes with them) leave with the rest of the window. */
+.ed-focus .canvas-ruler-top, .ed-focus .canvas-ruler-side, .ed-focus .canvas-tab-selector { display: none; }
+.ed-focus .canvas-document-surface.has-rulers { padding-top: 0; }
+.ed-focus-exit { position: fixed; top: 12px; right: 16px; z-index: 50; }
+
+/* ---- Small dialogs ---- */
+.ed-dialog-body { display: grid; gap: 12px; min-width: min(360px, 80vw); }
+.ed-choice-list { display: grid; max-height: 320px; overflow: auto; border: 1px solid var(--hairline-strong); border-radius: 6px; padding: 4px; }
+.ed-choice { padding: 7px 10px; border: 0; border-radius: 4px; background: transparent; color: var(--ink); text-align: start; font-size: 13px; }
+.ed-choice:hover, .ed-choice:focus-visible { background: var(--accent-wash); }
+.ed-stats { border-collapse: collapse; font-size: 13px; }
+.ed-stats th { text-align: start; font-weight: 400; color: var(--ink-2); padding: 5px 24px 5px 0; }
+.ed-stats td { text-align: end; font-variant-numeric: tabular-nums; }
+.ed-zoom-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+
+/* ---- Narrow windows and phones ---- */
+@media (max-width: 900px) {
+  .ed-search span { display: none; }
+  .ed-search { min-width: 0; padding: 0 6px; }
+}
+@media (max-width: 700px) {
+  .ed-titlebar { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .ed-quick > button:is([aria-label="Print"], [aria-label="All Documents"]) { display: none; }
+  .ed-header .canvas-title-wrap { overflow: hidden; }
+  .ed-header .canvas-title-wrap { justify-content: flex-start; }
+  .ribbon-panel { overflow-x: auto; scrollbar-width: thin; height: auto; min-height: 0; }
+  .ribbon-card button.ribbon-large { height: 56px; max-width: 70px; }
+  .ribbon-card button.ribbon-large:has(> .is-one-word) { max-width: 90px; }
+  .ribbon-large svg.ico { width: 24px; height: 24px; }
+  .ribbon-gallery { max-width: 220px; }
+  .ed-zoom-slider, .ed-zoom-step, .ed-status-view, .ed-statusbar .ed-status-item:has(svg) { display: none; }
+}
+
+/* The smallest phones search from the Home tab's Find, leaving the title bar to the document's name and status. */
+@media (max-width: 420px) { .ed-search { display: none; } }
+
+/* Phones: one row of commands that scrolls sideways, fading at an edge with more beyond it. */
+.ribbon-card { position: relative; }
+.ribbon-card::before, .ribbon-card::after { content: ''; position: absolute; top: 0; bottom: 0; width: 28px; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 1; }
+.ribbon-card::before { left: 0; border-radius: 8px 0 0 8px; background: linear-gradient(to right, var(--ed-card), transparent); }
+.ribbon-card::after { right: 0; border-radius: 0 8px 8px 0; background: linear-gradient(to left, var(--ed-card), transparent); }
+.ribbon-card.more-before::before, .ribbon-card.more-after::after { opacity: 1; }
+@media (max-width: 700px) {
+  .ribbon-rows { flex-direction: row; gap: 2px; }
+  .ribbon-rows .ribbon-row + .ribbon-row::before { content: ''; width: 1px; height: 20px; margin: 0 4px; background: var(--ed-line); }
+  .ribbon-group-body > .ribbon-divider { height: 20px; }
+  .ribbon-panel { align-items: center; min-height: 0; padding: 2px 4px; }
+  .ribbon-group { margin: 2px 0; }
+  .ribbon-launcher { align-self: center; padding-bottom: 0; }
+  .ribbon-gallery-frame { height: 48px; }
+  :is(.ribbon-card, .ribbon-flyout) button.ribbon-style { height: 40px; width: 84px; padding: 2px; }
+}
+/* Touch screens: every command is at least a fingertip wide and high. */
+@media (pointer: coarse) {
+  .ribbon-card button.ribbon-small, .ribbon-card button.ribbon-split-arrow, .ribbon-flyout button.ribbon-small, .ed-quick button.ribbon-small, .ribbon-tab, .ribbon-file { min-width: 44px; min-height: 44px; }
+  :is(.ribbon-card, .ribbon-flyout) button.ribbon-split-arrow { min-width: 28px; }
+  :is(.ribbon-card, .ribbon-flyout) .canvas-font-label.ribbon-font, :is(.ribbon-card, .ribbon-flyout) input.canvas-spacing { min-height: 44px; }
+  .ribbon-tabs { height: 46px; }
+  /* The title bar holds its 44px quick access commands, and its other controls reach as far. */
+  .ed-titlebar { height: calc(48px + var(--safe-t)); }
+  .ed-header .canvas-title { min-height: 44px; }
+  :is(.ed-search, .ed-header .canvas-save-status, .ed-header .user-btn) { position: relative; }
+  :is(.ed-search, .ed-header .canvas-save-status, .ed-header .user-btn)::after {
+    content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%);
+  }
+}
+/* Fingertip-high rows of small commands outgrow the card's 72px, which clipped the Paste icon and hid Cut
+   and Format Painter: wider touch screens let the card grow to its rows and line the groups up at the top. */
+@media (pointer: coarse) and (min-width: 701px) {
+  .ribbon-panel { height: auto; min-height: 72px; }
+  .ribbon-group-body { align-items: flex-start; }
+}
+
+/* Sort Text dialog */
+.ed-sort-row { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 8px; }
+.ed-sort-value { font-size: 13px; color: var(--ink); }
+/* A fieldset is as wide as its content by default; this one wraps its choices instead of widening a phone's sheet. */
+.ed-sort-order { display: flex; flex-wrap: wrap; gap: 8px 18px; min-width: 0; border: 0; padding: 0 0 0 98px; margin: 0; font-size: 13px; }
+.ed-sort-order label, .ed-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+
+/* Format Painter: a brush cursor over the pages while it is armed. */
+.canvas-host.is-format-painting .canvas-pages {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M5 2v20M2 2h6M2 22h6' stroke='%23000' stroke-width='1.5' fill='none'/%3E%3Crect x='12' y='3' width='9' height='6' rx='1' fill='%23fff' stroke='%23000'/%3E%3Cpath d='M16.5 9v4h-2v8h4v-8h-2' fill='%23fff' stroke='%23000'/%3E%3C/svg%3E") 5 12, text;
+}
+
+/* Font dialog */
+.ed-font-dialog { min-width: min(560px, 86vw); }
+.ed-font-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--hairline-strong); }
+.ed-font-tab { padding: 6px 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--ink-2); font-size: 13px; }
+.ed-font-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.ed-font-panel { display: grid; gap: 12px; }
+.ed-font-panel[hidden] { display: none; }
+.ed-font-grid { display: grid; grid-template-columns: 1.7fr 1.2fr 1.1fr; gap: 10px; }
+.ed-font-field { display: grid; gap: 4px; min-width: 0; }
+.ed-font-color { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-start; width: 100%; min-width: 0; overflow: hidden; white-space: nowrap; }
+.ed-font-chip { width: 16px; height: 16px; border-radius: 3px; border: 1px solid var(--hairline-strong); flex: none; }
+/* On a dark theme the faint edge vanishes against black (Automatic) and dark colors: the control edge stands out at 3:1. */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ed-font-chip { border-color: var(--control-border); } }
+:root[data-theme="dark"] .ed-font-chip { border-color: var(--control-border); }
+.ed-font-effects, .ed-font-advanced { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; border: 1px solid var(--hairline-strong); border-radius: 6px; padding: 8px 12px 12px; margin: 0; }
+.ed-font-effects legend, .ed-font-advanced legend { font-size: 12px; color: var(--ink-2); padding: 0 4px; }
+.ed-font-advanced { grid-template-columns: 1fr; }
+.ed-font-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: end; }
+.ed-font-preview-frame { display: grid; gap: 4px; }
+.ed-font-preview { display: flex; align-items: center; justify-content: center; height: 64px; overflow: hidden; border: 1px solid var(--hairline-strong); border-radius: 6px; background: #fff; color: #000; white-space: nowrap; }
+@media (max-width: 560px) { .ed-font-grid, .ed-font-pair { grid-template-columns: 1fr; } }
+
+/* Spelling pane and status */
+.ed-proof-pane { border-right: 0; border-left: 1px solid var(--hairline); }
+.ed-proof-status { margin: 0 0 8px; font-size: 13px; color: var(--ink-2); }
+.ed-proof-status:empty { display: none; }
+.ed-proof-detail[hidden] { display: none; }
+.ed-proof-detail h3 { margin: 12px 0 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.ed-proof-detail h3:first-child { margin-top: 0; }
+.ed-proof-context { margin: 0; padding: 8px 10px; border: 1px solid var(--hairline-strong); border-radius: 6px; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.ed-proof-context mark { background: transparent; color: #C4211B; text-decoration: underline wavy #E0221B; text-underline-offset: 3px; }
+.ed-proof-suggestions { display: grid; gap: 2px; }
+.ed-proof-suggestion { padding: 3px 10px; border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--ink); text-align: start; font-size: 13px; }
+.ed-proof-suggestion:hover:not(:disabled) { background: var(--accent-wash); }
+.ed-proof-suggestion[aria-selected="true"] { border-color: var(--accent); background: var(--accent-wash); font-weight: 600; }
+.ed-proof-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
+.ed-proof-actions .btn { min-height: 32px; font-size: 12px; }
+.ed-statusbar .ed-proofing { padding: 0 4px; }
+.ed-statusbar .ed-proofing[data-state="pending"] svg, .ed-statusbar .ed-proofing[data-state="off"] svg { opacity: .55; }
+.ed-status-language { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; line-height: 24px; color: var(--ed-ink-2); font-size: 12px; }
+@media (max-width: 700px) { .ed-status-language { display: none; } }
+
+/* A large toggle shows its pressed state like a small one (the large rule above sets a transparent background). */
+.ribbon-card button.ribbon-large[aria-pressed="true"], .ribbon-flyout button.ribbon-large[aria-pressed="true"] { background: var(--ed-press); color: var(--ed-ink); }
+
+/* Go To dialog */
+.ed-goto-grid { display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: start; }
+.ed-goto-grid select[size] { height: auto; padding: 4px; }
+@media (max-width: 560px) { .ed-goto-grid { grid-template-columns: 1fr; } }
+
+/* Navigation pane */
+/* Beside the page on wider screens; phones show it as the full-width sheet the other panes are. */
+@media (min-width: 701px) { .nav-pane { flex-basis: 260px; width: 260px; } }
+.nav-search-row { padding: 10px 12px 4px; }
+.nav-search { width: 100%; height: 30px; padding: 4px 8px 4px 28px; font-size: 13px;
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%23666' stroke-width='1.6'%3E%3Ccircle cx='8.5' cy='8.5' r='5.5'/%3E%3Cpath d='M12.5 12.5 17 17'/%3E%3C/svg%3E") no-repeat 8px center; }
+.nav-status { margin: 0; padding: 0 12px; min-height: 18px; font-size: 12px; color: var(--ink-3); }
+.nav-tabs { display: flex; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--hairline); }
+.nav-tab { padding: 6px 8px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--ink-2); font-size: 12.5px; }
+.nav-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.nav-scroll { flex: 1; padding: 8px; }
+.nav-panel[hidden] { display: none; }
+.nav-headings, .nav-results { list-style: none; margin: 0; padding: 0; }
+.nav-heading-row { display: flex; align-items: center; gap: 2px; }
+.nav-twisty, .nav-twisty-space { flex: none; width: 18px; height: 22px; }
+.nav-twisty { display: inline-flex; align-items: center; justify-content: center; border: 0; padding: 0; background: transparent; color: var(--ink-3); border-radius: 3px; }
+.nav-twisty:hover { background: var(--accent-wash); }
+.nav-caret { width: 8px; height: 8px; background: currentColor; clip-path: polygon(15% 25%, 85% 25%, 50% 80%); }
+.nav-caret[data-closed="true"] { transform: rotate(-90deg); }
+.nav-heading { min-height: 28px; padding: 4px 8px; font-size: 12.5px; }
+.nav-pages { display: grid; justify-items: center; gap: 14px; padding: 6px 0 12px; }
+.nav-page { display: grid; justify-items: center; gap: 4px; padding: 4px; border: 2px solid transparent; border-radius: 4px; background: transparent; color: var(--ink-2); font-size: 11px; }
+.nav-page canvas { box-shadow: 0 0 0 1px var(--hairline-strong), 0 1px 3px rgba(0,0,0,.12); background: #fff; }
+.nav-page:hover { border-color: var(--hairline-strong); }
+.nav-page[aria-current="page"] { border-color: var(--accent); }
+.nav-result { display: block; width: 100%; padding: 8px 10px; margin-bottom: 4px; border: 1px solid var(--hairline); border-radius: 5px; background: var(--surface); color: var(--ink); text-align: start; font-size: 12.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.nav-result:hover { background: var(--accent-wash); }
+.nav-result[aria-current="true"] { border-color: var(--accent); }
+.nav-result mark { background: rgba(255, 196, 0, .45); color: inherit; font-weight: 600; }
+
+/* Table Design: style options and the table styles gallery */
+.ribbon-check-grid { display: grid; grid-template-columns: auto auto; gap: 2px 14px; align-content: center; }
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-table-design { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 70px; height: 54px; padding: 3px; border: 1px solid var(--ed-line); border-radius: 4px; background: var(--ed-card); }
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-table-design[aria-selected="true"] { border-color: var(--ed-accent); box-shadow: inset 0 0 0 1px var(--ed-accent); }
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-table-design:disabled canvas { opacity: .45; }
+
+/* Bullet and Numbering libraries */
+.list-library-grid { display: grid; grid-template-columns: repeat(4, 64px); gap: 6px; padding: 4px 8px 8px; }
+.list-library-tile { display: flex; align-items: center; justify-content: center; height: 64px; padding: 4px; border: 1px solid var(--hairline-strong); border-radius: 4px; background: var(--surface); color: var(--ink); }
+.list-library-tile:hover, .list-library-tile:focus-visible { border-color: var(--accent); background: var(--accent-wash); }
+.list-library-tile[aria-checked="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.list-library-none { font-size: 12px; color: var(--ink-2); }
+.list-library-sample { display: grid; gap: 4px; width: 100%; }
+.list-library-sample > span { display: flex; align-items: center; gap: 4px; }
+.list-library-sample b { min-width: 16px; font-weight: 400; font-size: 11px; text-align: right; }
+.list-library-sample[data-kind="bullet"] b { font-size: 14px; line-height: 1; text-align: center; }
+.list-library-sample i { flex: 1; height: 2px; background: var(--hairline-strong); }
+
+/* View → Multiple Pages: pages side by side, wrapping as the window allows. */
+.canvas-pages.is-multipage { flex-direction: row; flex-wrap: wrap; justify-content: center; align-content: flex-start; align-items: flex-start; width: 100%; }
+
+/* Insert → Shapes gallery */
+.shape-gallery { display: grid; grid-template-columns: repeat(8, 30px); gap: 2px; padding: 2px 8px 6px; }
+.shape-gallery-item { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; }
+.shape-gallery-item:hover, .shape-gallery-item:focus-visible { border-color: var(--accent); background: var(--accent-wash); }
+
+/* Windows contrast themes drop the backgrounds and shadows that mark the ribbon's states: the current tab,
+   pressed and open commands and the chosen gallery item take the system highlight instead. */
+@media (forced-colors: active) {
+  .ribbon-tab[aria-selected="true"]::after { forced-color-adjust: none; background: Highlight; }
+  :is(.ribbon-card, .ribbon-flyout) button:is([aria-pressed="true"], [aria-expanded="true"]),
+  :is(.ribbon-card, .ribbon-flyout) button.ribbon-style[aria-selected="true"],
+  :is(.ribbon-card, .ribbon-flyout) button.ribbon-table-design[aria-selected="true"],
+  .ribbon-file[aria-expanded="true"], .ed-status-view[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  .ribbon-card, .ribbon-flyout { border: 1px solid CanvasText; }
+}
+
+/* ---- Glass ribbon commands ----
+   Hover and pressed states are frosted pills, lit along the top edge, that the icons sit in; large
+   commands lift their icon with a soft shadow. Gallery tiles and fields keep their own states. */
+:root {
+  --ribbon-glass: linear-gradient(rgba(255, 255, 255, 0.95), rgba(243, 245, 249, 0.8));
+  --ribbon-glass-pressed: linear-gradient(rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.16));
+  --ribbon-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --ribbon-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 0 0 0.5px rgba(0, 122, 255, 0.3);
+  --ribbon-icon-lift: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --ribbon-glass: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+    --ribbon-glass-pressed: linear-gradient(rgba(10, 132, 255, 0.24), rgba(10, 132, 255, 0.16));
+    --ribbon-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 0.5px rgba(255, 255, 255, 0.12), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --ribbon-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 0.5px rgba(10, 132, 255, 0.45);
+    --ribbon-icon-lift: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+  }
+}
+:root[data-theme="dark"] {
+  --ribbon-glass: linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.07));
+  --ribbon-glass-pressed: linear-gradient(rgba(10, 132, 255, 0.24), rgba(10, 132, 255, 0.16));
+  --ribbon-glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 0.5px rgba(255, 255, 255, 0.12), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --ribbon-glass-pressed-edge: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 0.5px rgba(10, 132, 255, 0.45);
+  --ribbon-icon-lift: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+:is(.ribbon-card, .ribbon-flyout, .ed-quick) :is(button.ribbon-small, button.ribbon-split-arrow, button.canvas-color-tool) { border-radius: 7px; transition: background-color 0.12s, box-shadow 0.12s; }
+:is(.ribbon-card, .ribbon-flyout) button.ribbon-large { border-radius: 10px; transition: background-color 0.12s, box-shadow 0.12s; }
+.ribbon-split.is-small { border-radius: 7px; }
+.ribbon-split.is-large { border-radius: 10px; }
+:is(.ribbon-card, .ribbon-flyout, .ed-quick) :is(button.ribbon-small, button.ribbon-large, button.ribbon-split-arrow, button.canvas-color-tool):is([aria-pressed="true"], [aria-expanded="true"]) {
+  background: var(--ribbon-glass-pressed); box-shadow: var(--ribbon-glass-pressed-edge);
+}
+@media (hover: hover) {
+  :is(.ribbon-card, .ribbon-flyout, .ed-quick) :is(button.ribbon-small, button.ribbon-large, button.ribbon-split-arrow, button.canvas-color-tool):hover:not(:disabled) {
+    background: var(--ribbon-glass); box-shadow: var(--ribbon-glass-edge);
+  }
+  :is(.ribbon-card, .ribbon-flyout, .ed-quick) :is(button.ribbon-small, button.ribbon-large, button.ribbon-split-arrow, button.canvas-color-tool):is([aria-pressed="true"], [aria-expanded="true"]):hover:not(:disabled) {
+    background: var(--ribbon-glass-pressed); box-shadow: var(--ribbon-glass-pressed-edge), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  /* A split button hovers as one pill; the half under the pointer takes the glass. */
+  .ribbon-split:hover { box-shadow: var(--ribbon-glass-edge); }
+  .ribbon-split:hover > button:not(:disabled) { box-shadow: none; }
+}
+:is(.ribbon-card, .ribbon-flyout, .ed-quick) :is(button.ribbon-small, button.ribbon-large, button.ribbon-split-arrow, button.canvas-color-tool):active:not(:disabled) {
+  background: var(--ribbon-glass-pressed); box-shadow: var(--ribbon-glass-pressed-edge);
+}
+:is(.ribbon-card, .ribbon-flyout) .ribbon-large > svg.ico { filter: var(--ribbon-icon-lift); }
+@media (prefers-reduced-motion: reduce) {
+  :is(.ribbon-card, .ribbon-flyout, .ed-quick) button { transition: none; }
+}
+@media (forced-colors: active) {
+  :is(.ribbon-card, .ribbon-flyout, .ed-quick) button, .ribbon-split:hover { box-shadow: none !important; }
+  :is(.ribbon-card, .ribbon-flyout) .ribbon-large > svg.ico { filter: none; }
+}

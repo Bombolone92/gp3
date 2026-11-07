@@ -1,0 +1,51 @@
+# Version updates run monthly, grouped, without automatic rebases (BOFF-10423).
+# Rebasing every open PR whenever main moved re-ran its PR checks many times and
+# was about a quarter of the org's Actions minutes. Security updates are not
+# affected by this schedule. Comment "@dependabot rebase" on a PR to refresh it.
+version: 2
+registries:
+  burdenoff-verdaccio:
+    type: "npm-registry"
+    url: "https://registry.npmjs.org/"
+    username: "ci-publisher"
+    password: "${{secrets.VERDACCIO_CI_PASSWORD}}"
+    replaces-base: true
+updates:
+  - package-ecosystem: "bun"
+    directory: "/"
+    registries:
+      - burdenoff-verdaccio
+    schedule:
+      interval: "monthly"
+      time: "04:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 5
+    rebase-strategy: "disabled"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    groups:
+      bun-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "04:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 5
+    rebase-strategy: "disabled"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

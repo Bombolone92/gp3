@@ -1,0 +1,2703 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "245 controls compare value arrays, computed arrays, range references, individual references and direct arguments. Each was evaluated independently and stored through formula2 in a worksheet; all results agree. Stored formulas were checked and temporary cells cleared with COUNTA zero.",
+  "scriptSha256": "0aa236d7a642760ab40c10341a858257f8f0f6c3ee05361504a97e1c3bf2df86",
+  "captureSha256": "f24b520e4cbc26059066088163f1c20b6829353081087b6be8fec7da232c5c21",
+  "cases": [
+    {
+      "expression": "AVERAGEA({0,\"text\",3})",
+      "formula": "IFERROR((AVERAGEA({0,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA({0,\"text\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "array"
+    },
+    {
+      "expression": "AVERAGEA(VSTACK(0,\"text\",3))",
+      "formula": "IFERROR((AVERAGEA(VSTACK(0,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(VSTACK(0,\"text\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "computed"
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "IFERROR((AVERAGEA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "range"
+    },
+    {
+      "expression": "AVERAGEA(A1,A2,A3)",
+      "formula": "IFERROR((AVERAGEA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "refs"
+    },
+    {
+      "expression": "AVERAGEA(0,\"text\",3)",
+      "formula": "IFERROR((AVERAGEA(0,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(0,\"text\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "AVERAGEA({-2,FALSE,-3})",
+      "formula": "IFERROR((AVERAGEA({-2,FALSE,-3}))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA({-2,FALSE,-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-2.5",
+      "kind": "array"
+    },
+    {
+      "expression": "AVERAGEA(VSTACK(-2,FALSE,-3))",
+      "formula": "IFERROR((AVERAGEA(VSTACK(-2,FALSE,-3)))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(VSTACK(-2,FALSE,-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-2.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "IFERROR((AVERAGEA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-1.66666666666667",
+      "kind": "range"
+    },
+    {
+      "expression": "AVERAGEA(A1,A2,A3)",
+      "formula": "IFERROR((AVERAGEA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-1.66666666666667",
+      "kind": "refs"
+    },
+    {
+      "expression": "AVERAGEA(-2,FALSE,-3)",
+      "formula": "IFERROR((AVERAGEA(-2,FALSE,-3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(-2,FALSE,-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-1.66666666666667",
+      "kind": "direct"
+    },
+    {
+      "expression": "AVERAGEA({0,TRUE,3})",
+      "formula": "IFERROR((AVERAGEA({0,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA({0,TRUE,3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "array"
+    },
+    {
+      "expression": "AVERAGEA(VSTACK(0,TRUE,3))",
+      "formula": "IFERROR((AVERAGEA(VSTACK(0,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(VSTACK(0,TRUE,3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "IFERROR((AVERAGEA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.33333333333333",
+      "kind": "range"
+    },
+    {
+      "expression": "AVERAGEA(A1,A2,A3)",
+      "formula": "IFERROR((AVERAGEA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.33333333333333",
+      "kind": "refs"
+    },
+    {
+      "expression": "AVERAGEA(0,TRUE,3)",
+      "formula": "IFERROR((AVERAGEA(0,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(0,TRUE,3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.33333333333333",
+      "kind": "direct"
+    },
+    {
+      "expression": "AVERAGEA({0,\"2\",3})",
+      "formula": "IFERROR((AVERAGEA({0,\"2\",3}))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA({0,\"2\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "array"
+    },
+    {
+      "expression": "AVERAGEA(VSTACK(0,\"2\",3))",
+      "formula": "IFERROR((AVERAGEA(VSTACK(0,\"2\",3)))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(VSTACK(0,\"2\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "computed"
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "IFERROR((AVERAGEA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "range"
+    },
+    {
+      "expression": "AVERAGEA(A1,A2,A3)",
+      "formula": "IFERROR((AVERAGEA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "refs"
+    },
+    {
+      "expression": "AVERAGEA(0,\"2\",3)",
+      "formula": "IFERROR((AVERAGEA(0,\"2\",3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(0,\"2\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.66666666666667",
+      "kind": "direct"
+    },
+    {
+      "expression": "AVERAGEA({2,\"text\",3})",
+      "formula": "IFERROR((AVERAGEA({2,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA({2,\"text\",3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.66666666666667",
+      "kind": "array"
+    },
+    {
+      "expression": "AVERAGEA(VSTACK(2,\"text\",3))",
+      "formula": "IFERROR((AVERAGEA(VSTACK(2,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(VSTACK(2,\"text\",3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.66666666666667",
+      "kind": "computed"
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "IFERROR((AVERAGEA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.66666666666667",
+      "kind": "range"
+    },
+    {
+      "expression": "AVERAGEA(A1,A2,A3)",
+      "formula": "IFERROR((AVERAGEA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.66666666666667",
+      "kind": "refs"
+    },
+    {
+      "expression": "AVERAGEA(2,\"text\",3)",
+      "formula": "IFERROR((AVERAGEA(2,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(2,\"text\",3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "AVERAGEA({-2,\"text\",-3})",
+      "formula": "IFERROR((AVERAGEA({-2,\"text\",-3}))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA({-2,\"text\",-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-1.66666666666667",
+      "kind": "array"
+    },
+    {
+      "expression": "AVERAGEA(VSTACK(-2,\"text\",-3))",
+      "formula": "IFERROR((AVERAGEA(VSTACK(-2,\"text\",-3)))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(VSTACK(-2,\"text\",-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-1.66666666666667",
+      "kind": "computed"
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "IFERROR((AVERAGEA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-1.66666666666667",
+      "kind": "range"
+    },
+    {
+      "expression": "AVERAGEA(A1,A2,A3)",
+      "formula": "IFERROR((AVERAGEA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-1.66666666666667",
+      "kind": "refs"
+    },
+    {
+      "expression": "AVERAGEA(-2,\"text\",-3)",
+      "formula": "IFERROR((AVERAGEA(-2,\"text\",-3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(-2,\"text\",-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "AVERAGEA({2,TRUE,3})",
+      "formula": "IFERROR((AVERAGEA({2,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA({2,TRUE,3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.5",
+      "kind": "array"
+    },
+    {
+      "expression": "AVERAGEA(VSTACK(2,TRUE,3))",
+      "formula": "IFERROR((AVERAGEA(VSTACK(2,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(VSTACK(2,TRUE,3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "AVERAGEA(A1:A3)",
+      "formula": "IFERROR((AVERAGEA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "range"
+    },
+    {
+      "expression": "AVERAGEA(A1,A2,A3)",
+      "formula": "IFERROR((AVERAGEA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "refs"
+    },
+    {
+      "expression": "AVERAGEA(2,TRUE,3)",
+      "formula": "IFERROR((AVERAGEA(2,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(AVERAGEA(2,TRUE,3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "direct"
+    },
+    {
+      "expression": "MINA({0,\"text\",3})",
+      "formula": "IFERROR((MINA({0,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(MINA({0,\"text\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "array"
+    },
+    {
+      "expression": "MINA(VSTACK(0,\"text\",3))",
+      "formula": "IFERROR((MINA(VSTACK(0,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(MINA(VSTACK(0,\"text\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "computed"
+    },
+    {
+      "expression": "MINA(A1:A3)",
+      "formula": "IFERROR((MINA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "range"
+    },
+    {
+      "expression": "MINA(A1,A2,A3)",
+      "formula": "IFERROR((MINA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "refs"
+    },
+    {
+      "expression": "MINA(0,\"text\",3)",
+      "formula": "IFERROR((MINA(0,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(MINA(0,\"text\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MINA({-2,FALSE,-3})",
+      "formula": "IFERROR((MINA({-2,FALSE,-3}))&\"\",\"ERR\"&ERROR.TYPE(MINA({-2,FALSE,-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "array"
+    },
+    {
+      "expression": "MINA(VSTACK(-2,FALSE,-3))",
+      "formula": "IFERROR((MINA(VSTACK(-2,FALSE,-3)))&\"\",\"ERR\"&ERROR.TYPE(MINA(VSTACK(-2,FALSE,-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "computed"
+    },
+    {
+      "expression": "MINA(A1:A3)",
+      "formula": "IFERROR((MINA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "range"
+    },
+    {
+      "expression": "MINA(A1,A2,A3)",
+      "formula": "IFERROR((MINA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "refs"
+    },
+    {
+      "expression": "MINA(-2,FALSE,-3)",
+      "formula": "IFERROR((MINA(-2,FALSE,-3))&\"\",\"ERR\"&ERROR.TYPE(MINA(-2,FALSE,-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MINA({0,TRUE,3})",
+      "formula": "IFERROR((MINA({0,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(MINA({0,TRUE,3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "array"
+    },
+    {
+      "expression": "MINA(VSTACK(0,TRUE,3))",
+      "formula": "IFERROR((MINA(VSTACK(0,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(MINA(VSTACK(0,TRUE,3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "computed"
+    },
+    {
+      "expression": "MINA(A1:A3)",
+      "formula": "IFERROR((MINA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "range"
+    },
+    {
+      "expression": "MINA(A1,A2,A3)",
+      "formula": "IFERROR((MINA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "refs"
+    },
+    {
+      "expression": "MINA(0,TRUE,3)",
+      "formula": "IFERROR((MINA(0,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(MINA(0,TRUE,3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "direct"
+    },
+    {
+      "expression": "MINA({0,\"2\",3})",
+      "formula": "IFERROR((MINA({0,\"2\",3}))&\"\",\"ERR\"&ERROR.TYPE(MINA({0,\"2\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "array"
+    },
+    {
+      "expression": "MINA(VSTACK(0,\"2\",3))",
+      "formula": "IFERROR((MINA(VSTACK(0,\"2\",3)))&\"\",\"ERR\"&ERROR.TYPE(MINA(VSTACK(0,\"2\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "computed"
+    },
+    {
+      "expression": "MINA(A1:A3)",
+      "formula": "IFERROR((MINA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "range"
+    },
+    {
+      "expression": "MINA(A1,A2,A3)",
+      "formula": "IFERROR((MINA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "refs"
+    },
+    {
+      "expression": "MINA(0,\"2\",3)",
+      "formula": "IFERROR((MINA(0,\"2\",3))&\"\",\"ERR\"&ERROR.TYPE(MINA(0,\"2\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "direct"
+    },
+    {
+      "expression": "MINA({2,\"text\",3})",
+      "formula": "IFERROR((MINA({2,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(MINA({2,\"text\",3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "array"
+    },
+    {
+      "expression": "MINA(VSTACK(2,\"text\",3))",
+      "formula": "IFERROR((MINA(VSTACK(2,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(MINA(VSTACK(2,\"text\",3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "computed"
+    },
+    {
+      "expression": "MINA(A1:A3)",
+      "formula": "IFERROR((MINA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "range"
+    },
+    {
+      "expression": "MINA(A1,A2,A3)",
+      "formula": "IFERROR((MINA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0",
+      "kind": "refs"
+    },
+    {
+      "expression": "MINA(2,\"text\",3)",
+      "formula": "IFERROR((MINA(2,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(MINA(2,\"text\",3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MINA({-2,\"text\",-3})",
+      "formula": "IFERROR((MINA({-2,\"text\",-3}))&\"\",\"ERR\"&ERROR.TYPE(MINA({-2,\"text\",-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "array"
+    },
+    {
+      "expression": "MINA(VSTACK(-2,\"text\",-3))",
+      "formula": "IFERROR((MINA(VSTACK(-2,\"text\",-3)))&\"\",\"ERR\"&ERROR.TYPE(MINA(VSTACK(-2,\"text\",-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "computed"
+    },
+    {
+      "expression": "MINA(A1:A3)",
+      "formula": "IFERROR((MINA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "range"
+    },
+    {
+      "expression": "MINA(A1,A2,A3)",
+      "formula": "IFERROR((MINA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-3",
+      "kind": "refs"
+    },
+    {
+      "expression": "MINA(-2,\"text\",-3)",
+      "formula": "IFERROR((MINA(-2,\"text\",-3))&\"\",\"ERR\"&ERROR.TYPE(MINA(-2,\"text\",-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MINA({2,TRUE,3})",
+      "formula": "IFERROR((MINA({2,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(MINA({2,TRUE,3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "array"
+    },
+    {
+      "expression": "MINA(VSTACK(2,TRUE,3))",
+      "formula": "IFERROR((MINA(VSTACK(2,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(MINA(VSTACK(2,TRUE,3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "computed"
+    },
+    {
+      "expression": "MINA(A1:A3)",
+      "formula": "IFERROR((MINA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "range"
+    },
+    {
+      "expression": "MINA(A1,A2,A3)",
+      "formula": "IFERROR((MINA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MINA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "refs"
+    },
+    {
+      "expression": "MINA(2,TRUE,3)",
+      "formula": "IFERROR((MINA(2,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(MINA(2,TRUE,3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "direct"
+    },
+    {
+      "expression": "MAXA({0,\"text\",3})",
+      "formula": "IFERROR((MAXA({0,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(MAXA({0,\"text\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "array"
+    },
+    {
+      "expression": "MAXA(VSTACK(0,\"text\",3))",
+      "formula": "IFERROR((MAXA(VSTACK(0,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(MAXA(VSTACK(0,\"text\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "computed"
+    },
+    {
+      "expression": "MAXA(A1:A3)",
+      "formula": "IFERROR((MAXA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "range"
+    },
+    {
+      "expression": "MAXA(A1,A2,A3)",
+      "formula": "IFERROR((MAXA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "refs"
+    },
+    {
+      "expression": "MAXA(0,\"text\",3)",
+      "formula": "IFERROR((MAXA(0,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(0,\"text\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MAXA({-2,FALSE,-3})",
+      "formula": "IFERROR((MAXA({-2,FALSE,-3}))&\"\",\"ERR\"&ERROR.TYPE(MAXA({-2,FALSE,-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-2",
+      "kind": "array"
+    },
+    {
+      "expression": "MAXA(VSTACK(-2,FALSE,-3))",
+      "formula": "IFERROR((MAXA(VSTACK(-2,FALSE,-3)))&\"\",\"ERR\"&ERROR.TYPE(MAXA(VSTACK(-2,FALSE,-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "-2",
+      "kind": "computed"
+    },
+    {
+      "expression": "MAXA(A1:A3)",
+      "formula": "IFERROR((MAXA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0",
+      "kind": "range"
+    },
+    {
+      "expression": "MAXA(A1,A2,A3)",
+      "formula": "IFERROR((MAXA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0",
+      "kind": "refs"
+    },
+    {
+      "expression": "MAXA(-2,FALSE,-3)",
+      "formula": "IFERROR((MAXA(-2,FALSE,-3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(-2,FALSE,-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0",
+      "kind": "direct"
+    },
+    {
+      "expression": "MAXA({0,TRUE,3})",
+      "formula": "IFERROR((MAXA({0,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(MAXA({0,TRUE,3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "array"
+    },
+    {
+      "expression": "MAXA(VSTACK(0,TRUE,3))",
+      "formula": "IFERROR((MAXA(VSTACK(0,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(MAXA(VSTACK(0,TRUE,3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "computed"
+    },
+    {
+      "expression": "MAXA(A1:A3)",
+      "formula": "IFERROR((MAXA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "range"
+    },
+    {
+      "expression": "MAXA(A1,A2,A3)",
+      "formula": "IFERROR((MAXA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "refs"
+    },
+    {
+      "expression": "MAXA(0,TRUE,3)",
+      "formula": "IFERROR((MAXA(0,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(0,TRUE,3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MAXA({0,\"2\",3})",
+      "formula": "IFERROR((MAXA({0,\"2\",3}))&\"\",\"ERR\"&ERROR.TYPE(MAXA({0,\"2\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "array"
+    },
+    {
+      "expression": "MAXA(VSTACK(0,\"2\",3))",
+      "formula": "IFERROR((MAXA(VSTACK(0,\"2\",3)))&\"\",\"ERR\"&ERROR.TYPE(MAXA(VSTACK(0,\"2\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "computed"
+    },
+    {
+      "expression": "MAXA(A1:A3)",
+      "formula": "IFERROR((MAXA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "range"
+    },
+    {
+      "expression": "MAXA(A1,A2,A3)",
+      "formula": "IFERROR((MAXA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "refs"
+    },
+    {
+      "expression": "MAXA(0,\"2\",3)",
+      "formula": "IFERROR((MAXA(0,\"2\",3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(0,\"2\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MAXA({2,\"text\",3})",
+      "formula": "IFERROR((MAXA({2,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(MAXA({2,\"text\",3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "array"
+    },
+    {
+      "expression": "MAXA(VSTACK(2,\"text\",3))",
+      "formula": "IFERROR((MAXA(VSTACK(2,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(MAXA(VSTACK(2,\"text\",3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "computed"
+    },
+    {
+      "expression": "MAXA(A1:A3)",
+      "formula": "IFERROR((MAXA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "range"
+    },
+    {
+      "expression": "MAXA(A1,A2,A3)",
+      "formula": "IFERROR((MAXA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "refs"
+    },
+    {
+      "expression": "MAXA(2,\"text\",3)",
+      "formula": "IFERROR((MAXA(2,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(2,\"text\",3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MAXA({-2,\"text\",-3})",
+      "formula": "IFERROR((MAXA({-2,\"text\",-3}))&\"\",\"ERR\"&ERROR.TYPE(MAXA({-2,\"text\",-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-2",
+      "kind": "array"
+    },
+    {
+      "expression": "MAXA(VSTACK(-2,\"text\",-3))",
+      "formula": "IFERROR((MAXA(VSTACK(-2,\"text\",-3)))&\"\",\"ERR\"&ERROR.TYPE(MAXA(VSTACK(-2,\"text\",-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "-2",
+      "kind": "computed"
+    },
+    {
+      "expression": "MAXA(A1:A3)",
+      "formula": "IFERROR((MAXA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0",
+      "kind": "range"
+    },
+    {
+      "expression": "MAXA(A1,A2,A3)",
+      "formula": "IFERROR((MAXA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0",
+      "kind": "refs"
+    },
+    {
+      "expression": "MAXA(-2,\"text\",-3)",
+      "formula": "IFERROR((MAXA(-2,\"text\",-3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(-2,\"text\",-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "MAXA({2,TRUE,3})",
+      "formula": "IFERROR((MAXA({2,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(MAXA({2,TRUE,3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "array"
+    },
+    {
+      "expression": "MAXA(VSTACK(2,TRUE,3))",
+      "formula": "IFERROR((MAXA(VSTACK(2,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(MAXA(VSTACK(2,TRUE,3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "computed"
+    },
+    {
+      "expression": "MAXA(A1:A3)",
+      "formula": "IFERROR((MAXA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "range"
+    },
+    {
+      "expression": "MAXA(A1,A2,A3)",
+      "formula": "IFERROR((MAXA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "refs"
+    },
+    {
+      "expression": "MAXA(2,TRUE,3)",
+      "formula": "IFERROR((MAXA(2,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(MAXA(2,TRUE,3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARA({0,\"text\",3})",
+      "formula": "IFERROR((VARA({0,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(VARA({0,\"text\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "4.5",
+      "kind": "array"
+    },
+    {
+      "expression": "VARA(VSTACK(0,\"text\",3))",
+      "formula": "IFERROR((VARA(VSTACK(0,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(VARA(VSTACK(0,\"text\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "4.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARA(A1:A3)",
+      "formula": "IFERROR((VARA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "range"
+    },
+    {
+      "expression": "VARA(A1,A2,A3)",
+      "formula": "IFERROR((VARA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARA(0,\"text\",3)",
+      "formula": "IFERROR((VARA(0,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(VARA(0,\"text\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARA({-2,FALSE,-3})",
+      "formula": "IFERROR((VARA({-2,FALSE,-3}))&\"\",\"ERR\"&ERROR.TYPE(VARA({-2,FALSE,-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "VARA(VSTACK(-2,FALSE,-3))",
+      "formula": "IFERROR((VARA(VSTACK(-2,FALSE,-3)))&\"\",\"ERR\"&ERROR.TYPE(VARA(VSTACK(-2,FALSE,-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARA(A1:A3)",
+      "formula": "IFERROR((VARA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "range"
+    },
+    {
+      "expression": "VARA(A1,A2,A3)",
+      "formula": "IFERROR((VARA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARA(-2,FALSE,-3)",
+      "formula": "IFERROR((VARA(-2,FALSE,-3))&\"\",\"ERR\"&ERROR.TYPE(VARA(-2,FALSE,-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARA({0,TRUE,3})",
+      "formula": "IFERROR((VARA({0,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(VARA({0,TRUE,3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "4.5",
+      "kind": "array"
+    },
+    {
+      "expression": "VARA(VSTACK(0,TRUE,3))",
+      "formula": "IFERROR((VARA(VSTACK(0,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(VARA(VSTACK(0,TRUE,3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "4.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARA(A1:A3)",
+      "formula": "IFERROR((VARA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "range"
+    },
+    {
+      "expression": "VARA(A1,A2,A3)",
+      "formula": "IFERROR((VARA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARA(0,TRUE,3)",
+      "formula": "IFERROR((VARA(0,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(VARA(0,TRUE,3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARA({0,\"2\",3})",
+      "formula": "IFERROR((VARA({0,\"2\",3}))&\"\",\"ERR\"&ERROR.TYPE(VARA({0,\"2\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "4.5",
+      "kind": "array"
+    },
+    {
+      "expression": "VARA(VSTACK(0,\"2\",3))",
+      "formula": "IFERROR((VARA(VSTACK(0,\"2\",3)))&\"\",\"ERR\"&ERROR.TYPE(VARA(VSTACK(0,\"2\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "4.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARA(A1:A3)",
+      "formula": "IFERROR((VARA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "range"
+    },
+    {
+      "expression": "VARA(A1,A2,A3)",
+      "formula": "IFERROR((VARA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "3",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARA(0,\"2\",3)",
+      "formula": "IFERROR((VARA(0,\"2\",3))&\"\",\"ERR\"&ERROR.TYPE(VARA(0,\"2\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARA({2,\"text\",3})",
+      "formula": "IFERROR((VARA({2,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(VARA({2,\"text\",3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "VARA(VSTACK(2,\"text\",3))",
+      "formula": "IFERROR((VARA(VSTACK(2,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(VARA(VSTACK(2,\"text\",3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARA(A1:A3)",
+      "formula": "IFERROR((VARA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "range"
+    },
+    {
+      "expression": "VARA(A1,A2,A3)",
+      "formula": "IFERROR((VARA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARA(2,\"text\",3)",
+      "formula": "IFERROR((VARA(2,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(VARA(2,\"text\",3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARA({-2,\"text\",-3})",
+      "formula": "IFERROR((VARA({-2,\"text\",-3}))&\"\",\"ERR\"&ERROR.TYPE(VARA({-2,\"text\",-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "VARA(VSTACK(-2,\"text\",-3))",
+      "formula": "IFERROR((VARA(VSTACK(-2,\"text\",-3)))&\"\",\"ERR\"&ERROR.TYPE(VARA(VSTACK(-2,\"text\",-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARA(A1:A3)",
+      "formula": "IFERROR((VARA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "range"
+    },
+    {
+      "expression": "VARA(A1,A2,A3)",
+      "formula": "IFERROR((VARA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "2.33333333333333",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARA(-2,\"text\",-3)",
+      "formula": "IFERROR((VARA(-2,\"text\",-3))&\"\",\"ERR\"&ERROR.TYPE(VARA(-2,\"text\",-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARA({2,TRUE,3})",
+      "formula": "IFERROR((VARA({2,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(VARA({2,TRUE,3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "VARA(VSTACK(2,TRUE,3))",
+      "formula": "IFERROR((VARA(VSTACK(2,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(VARA(VSTACK(2,TRUE,3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARA(A1:A3)",
+      "formula": "IFERROR((VARA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "range"
+    },
+    {
+      "expression": "VARA(A1,A2,A3)",
+      "formula": "IFERROR((VARA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARA(2,TRUE,3)",
+      "formula": "IFERROR((VARA(2,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(VARA(2,TRUE,3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARPA({0,\"text\",3})",
+      "formula": "IFERROR((VARPA({0,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(VARPA({0,\"text\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2.25",
+      "kind": "array"
+    },
+    {
+      "expression": "VARPA(VSTACK(0,\"text\",3))",
+      "formula": "IFERROR((VARPA(VSTACK(0,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(VARPA(VSTACK(0,\"text\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2.25",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARPA(A1:A3)",
+      "formula": "IFERROR((VARPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "range"
+    },
+    {
+      "expression": "VARPA(A1,A2,A3)",
+      "formula": "IFERROR((VARPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARPA(0,\"text\",3)",
+      "formula": "IFERROR((VARPA(0,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(0,\"text\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARPA({-2,FALSE,-3})",
+      "formula": "IFERROR((VARPA({-2,FALSE,-3}))&\"\",\"ERR\"&ERROR.TYPE(VARPA({-2,FALSE,-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.25",
+      "kind": "array"
+    },
+    {
+      "expression": "VARPA(VSTACK(-2,FALSE,-3))",
+      "formula": "IFERROR((VARPA(VSTACK(-2,FALSE,-3)))&\"\",\"ERR\"&ERROR.TYPE(VARPA(VSTACK(-2,FALSE,-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.25",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARPA(A1:A3)",
+      "formula": "IFERROR((VARPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "range"
+    },
+    {
+      "expression": "VARPA(A1,A2,A3)",
+      "formula": "IFERROR((VARPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARPA(-2,FALSE,-3)",
+      "formula": "IFERROR((VARPA(-2,FALSE,-3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(-2,FALSE,-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARPA({0,TRUE,3})",
+      "formula": "IFERROR((VARPA({0,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(VARPA({0,TRUE,3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.25",
+      "kind": "array"
+    },
+    {
+      "expression": "VARPA(VSTACK(0,TRUE,3))",
+      "formula": "IFERROR((VARPA(VSTACK(0,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(VARPA(VSTACK(0,TRUE,3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.25",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARPA(A1:A3)",
+      "formula": "IFERROR((VARPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "range"
+    },
+    {
+      "expression": "VARPA(A1,A2,A3)",
+      "formula": "IFERROR((VARPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARPA(0,TRUE,3)",
+      "formula": "IFERROR((VARPA(0,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(0,TRUE,3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARPA({0,\"2\",3})",
+      "formula": "IFERROR((VARPA({0,\"2\",3}))&\"\",\"ERR\"&ERROR.TYPE(VARPA({0,\"2\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "2.25",
+      "kind": "array"
+    },
+    {
+      "expression": "VARPA(VSTACK(0,\"2\",3))",
+      "formula": "IFERROR((VARPA(VSTACK(0,\"2\",3)))&\"\",\"ERR\"&ERROR.TYPE(VARPA(VSTACK(0,\"2\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "2.25",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARPA(A1:A3)",
+      "formula": "IFERROR((VARPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "range"
+    },
+    {
+      "expression": "VARPA(A1,A2,A3)",
+      "formula": "IFERROR((VARPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "2",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARPA(0,\"2\",3)",
+      "formula": "IFERROR((VARPA(0,\"2\",3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(0,\"2\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARPA({2,\"text\",3})",
+      "formula": "IFERROR((VARPA({2,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(VARPA({2,\"text\",3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.25",
+      "kind": "array"
+    },
+    {
+      "expression": "VARPA(VSTACK(2,\"text\",3))",
+      "formula": "IFERROR((VARPA(VSTACK(2,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(VARPA(VSTACK(2,\"text\",3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.25",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARPA(A1:A3)",
+      "formula": "IFERROR((VARPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "range"
+    },
+    {
+      "expression": "VARPA(A1,A2,A3)",
+      "formula": "IFERROR((VARPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARPA(2,\"text\",3)",
+      "formula": "IFERROR((VARPA(2,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(2,\"text\",3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARPA({-2,\"text\",-3})",
+      "formula": "IFERROR((VARPA({-2,\"text\",-3}))&\"\",\"ERR\"&ERROR.TYPE(VARPA({-2,\"text\",-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.25",
+      "kind": "array"
+    },
+    {
+      "expression": "VARPA(VSTACK(-2,\"text\",-3))",
+      "formula": "IFERROR((VARPA(VSTACK(-2,\"text\",-3)))&\"\",\"ERR\"&ERROR.TYPE(VARPA(VSTACK(-2,\"text\",-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.25",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARPA(A1:A3)",
+      "formula": "IFERROR((VARPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "range"
+    },
+    {
+      "expression": "VARPA(A1,A2,A3)",
+      "formula": "IFERROR((VARPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "1.55555555555556",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARPA(-2,\"text\",-3)",
+      "formula": "IFERROR((VARPA(-2,\"text\",-3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(-2,\"text\",-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "VARPA({2,TRUE,3})",
+      "formula": "IFERROR((VARPA({2,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(VARPA({2,TRUE,3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.25",
+      "kind": "array"
+    },
+    {
+      "expression": "VARPA(VSTACK(2,TRUE,3))",
+      "formula": "IFERROR((VARPA(VSTACK(2,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(VARPA(VSTACK(2,TRUE,3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.25",
+      "kind": "computed"
+    },
+    {
+      "expression": "VARPA(A1:A3)",
+      "formula": "IFERROR((VARPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.666666666666667",
+      "kind": "range"
+    },
+    {
+      "expression": "VARPA(A1,A2,A3)",
+      "formula": "IFERROR((VARPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.666666666666667",
+      "kind": "refs"
+    },
+    {
+      "expression": "VARPA(2,TRUE,3)",
+      "formula": "IFERROR((VARPA(2,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(VARPA(2,TRUE,3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.666666666666667",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVA({0,\"text\",3})",
+      "formula": "IFERROR((STDEVA({0,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVA({0,\"text\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2.12132034355964",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVA(VSTACK(0,\"text\",3))",
+      "formula": "IFERROR((STDEVA(VSTACK(0,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(VSTACK(0,\"text\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "2.12132034355964",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVA(A1:A3)",
+      "formula": "IFERROR((STDEVA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.73205080756888",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.73205080756888",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVA(0,\"text\",3)",
+      "formula": "IFERROR((STDEVA(0,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(0,\"text\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVA({-2,FALSE,-3})",
+      "formula": "IFERROR((STDEVA({-2,FALSE,-3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVA({-2,FALSE,-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVA(VSTACK(-2,FALSE,-3))",
+      "formula": "IFERROR((STDEVA(VSTACK(-2,FALSE,-3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(VSTACK(-2,FALSE,-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVA(A1:A3)",
+      "formula": "IFERROR((STDEVA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVA(-2,FALSE,-3)",
+      "formula": "IFERROR((STDEVA(-2,FALSE,-3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(-2,FALSE,-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVA({0,TRUE,3})",
+      "formula": "IFERROR((STDEVA({0,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVA({0,TRUE,3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.12132034355964",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVA(VSTACK(0,TRUE,3))",
+      "formula": "IFERROR((STDEVA(VSTACK(0,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(VSTACK(0,TRUE,3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "2.12132034355964",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVA(A1:A3)",
+      "formula": "IFERROR((STDEVA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVA(0,TRUE,3)",
+      "formula": "IFERROR((STDEVA(0,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(0,TRUE,3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVA({0,\"2\",3})",
+      "formula": "IFERROR((STDEVA({0,\"2\",3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVA({0,\"2\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "2.12132034355964",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVA(VSTACK(0,\"2\",3))",
+      "formula": "IFERROR((STDEVA(VSTACK(0,\"2\",3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(VSTACK(0,\"2\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "2.12132034355964",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVA(A1:A3)",
+      "formula": "IFERROR((STDEVA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.73205080756888",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.73205080756888",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVA(0,\"2\",3)",
+      "formula": "IFERROR((STDEVA(0,\"2\",3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(0,\"2\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVA({2,\"text\",3})",
+      "formula": "IFERROR((STDEVA({2,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVA({2,\"text\",3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVA(VSTACK(2,\"text\",3))",
+      "formula": "IFERROR((STDEVA(VSTACK(2,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(VSTACK(2,\"text\",3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVA(A1:A3)",
+      "formula": "IFERROR((STDEVA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVA(2,\"text\",3)",
+      "formula": "IFERROR((STDEVA(2,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(2,\"text\",3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVA({-2,\"text\",-3})",
+      "formula": "IFERROR((STDEVA({-2,\"text\",-3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVA({-2,\"text\",-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVA(VSTACK(-2,\"text\",-3))",
+      "formula": "IFERROR((STDEVA(VSTACK(-2,\"text\",-3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(VSTACK(-2,\"text\",-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVA(A1:A3)",
+      "formula": "IFERROR((STDEVA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "1.52752523165195",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVA(-2,\"text\",-3)",
+      "formula": "IFERROR((STDEVA(-2,\"text\",-3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(-2,\"text\",-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVA({2,TRUE,3})",
+      "formula": "IFERROR((STDEVA({2,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVA({2,TRUE,3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVA(VSTACK(2,TRUE,3))",
+      "formula": "IFERROR((STDEVA(VSTACK(2,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(VSTACK(2,TRUE,3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.707106781186548",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVA(A1:A3)",
+      "formula": "IFERROR((STDEVA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVA(2,TRUE,3)",
+      "formula": "IFERROR((STDEVA(2,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(STDEVA(2,TRUE,3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVPA({0,\"text\",3})",
+      "formula": "IFERROR((STDEVPA({0,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA({0,\"text\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVPA(VSTACK(0,\"text\",3))",
+      "formula": "IFERROR((STDEVPA(VSTACK(0,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(VSTACK(0,\"text\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVPA(A1:A3)",
+      "formula": "IFERROR((STDEVPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.4142135623731",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVPA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.4142135623731",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVPA(0,\"text\",3)",
+      "formula": "IFERROR((STDEVPA(0,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(0,\"text\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVPA({-2,FALSE,-3})",
+      "formula": "IFERROR((STDEVPA({-2,FALSE,-3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA({-2,FALSE,-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVPA(VSTACK(-2,FALSE,-3))",
+      "formula": "IFERROR((STDEVPA(VSTACK(-2,FALSE,-3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(VSTACK(-2,FALSE,-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVPA(A1:A3)",
+      "formula": "IFERROR((STDEVPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVPA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVPA(-2,FALSE,-3)",
+      "formula": "IFERROR((STDEVPA(-2,FALSE,-3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(-2,FALSE,-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=FALSE",
+        "A3": "=-3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVPA({0,TRUE,3})",
+      "formula": "IFERROR((STDEVPA({0,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA({0,TRUE,3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVPA(VSTACK(0,TRUE,3))",
+      "formula": "IFERROR((STDEVPA(VSTACK(0,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(VSTACK(0,TRUE,3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVPA(A1:A3)",
+      "formula": "IFERROR((STDEVPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVPA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVPA(0,TRUE,3)",
+      "formula": "IFERROR((STDEVPA(0,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(0,TRUE,3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVPA({0,\"2\",3})",
+      "formula": "IFERROR((STDEVPA({0,\"2\",3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA({0,\"2\",3})))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVPA(VSTACK(0,\"2\",3))",
+      "formula": "IFERROR((STDEVPA(VSTACK(0,\"2\",3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(VSTACK(0,\"2\",3))))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVPA(A1:A3)",
+      "formula": "IFERROR((STDEVPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1:A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.4142135623731",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVPA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.4142135623731",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVPA(0,\"2\",3)",
+      "formula": "IFERROR((STDEVPA(0,\"2\",3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(0,\"2\",3)))",
+      "cells": {
+        "A1": "=0",
+        "A2": "=\"2\"",
+        "A3": "=3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVPA({2,\"text\",3})",
+      "formula": "IFERROR((STDEVPA({2,\"text\",3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA({2,\"text\",3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVPA(VSTACK(2,\"text\",3))",
+      "formula": "IFERROR((STDEVPA(VSTACK(2,\"text\",3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(VSTACK(2,\"text\",3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVPA(A1:A3)",
+      "formula": "IFERROR((STDEVPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVPA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVPA(2,\"text\",3)",
+      "formula": "IFERROR((STDEVPA(2,\"text\",3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(2,\"text\",3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=\"text\"",
+        "A3": "=3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVPA({-2,\"text\",-3})",
+      "formula": "IFERROR((STDEVPA({-2,\"text\",-3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA({-2,\"text\",-3})))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVPA(VSTACK(-2,\"text\",-3))",
+      "formula": "IFERROR((STDEVPA(VSTACK(-2,\"text\",-3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(VSTACK(-2,\"text\",-3))))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVPA(A1:A3)",
+      "formula": "IFERROR((STDEVPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1:A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVPA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "1.24721912892465",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVPA(-2,\"text\",-3)",
+      "formula": "IFERROR((STDEVPA(-2,\"text\",-3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(-2,\"text\",-3)))",
+      "cells": {
+        "A1": "=-2",
+        "A2": "=\"text\"",
+        "A3": "=-3"
+      },
+      "expected": "ERR3",
+      "kind": "direct"
+    },
+    {
+      "expression": "STDEVPA({2,TRUE,3})",
+      "formula": "IFERROR((STDEVPA({2,TRUE,3}))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA({2,TRUE,3})))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "array"
+    },
+    {
+      "expression": "STDEVPA(VSTACK(2,TRUE,3))",
+      "formula": "IFERROR((STDEVPA(VSTACK(2,TRUE,3)))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(VSTACK(2,TRUE,3))))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.5",
+      "kind": "computed"
+    },
+    {
+      "expression": "STDEVPA(A1:A3)",
+      "formula": "IFERROR((STDEVPA(A1:A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1:A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.816496580927726",
+      "kind": "range"
+    },
+    {
+      "expression": "STDEVPA(A1,A2,A3)",
+      "formula": "IFERROR((STDEVPA(A1,A2,A3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(A1,A2,A3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.816496580927726",
+      "kind": "refs"
+    },
+    {
+      "expression": "STDEVPA(2,TRUE,3)",
+      "formula": "IFERROR((STDEVPA(2,TRUE,3))&\"\",\"ERR\"&ERROR.TYPE(STDEVPA(2,TRUE,3)))",
+      "cells": {
+        "A1": "=2",
+        "A2": "=TRUE",
+        "A3": "=3"
+      },
+      "expected": "0.816496580927726",
+      "kind": "direct"
+    }
+  ]
+}

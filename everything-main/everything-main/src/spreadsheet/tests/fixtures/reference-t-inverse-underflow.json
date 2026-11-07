@@ -1,0 +1,2193 @@
+{
+  "application": "16.113",
+  "method": "330 read-only Evaluate controls repeated as matrix-assigned worksheet formulas. Every stored formula and value verified; initially empty scratch range cleared and COUNTA verified zero. Native errors and accurate native finite results are the oracle. For 32 native finite inaccuracies, expected uses an independently inverted 80-digit incomplete beta reference, retained as reference; no native failure is omitted.",
+  "referenceMethod": "Invert log(regularized incomplete beta(df/(df+t^2),df/2,1/2)/2); independent logarithmic starting estimate from df and probability.",
+  "provenance": {
+    "t-inverse-underflow-native.js": "88a123f735179bba87f6362f9c0b2d339a5c2c9a7ee3d29b506fbc770c545014",
+    "t-inverse-underflow-native.json": "5277ea2ddf51cad1b18d736bfe340337b1034ae3d0a2c976ea55a8d1540a7823",
+    "t-inverse-underflow-worksheet.applescript": "350dacc128aecca8a384c805f7dd0c80590faa8d9b264f19001690c2d4136c4b",
+    "t-inverse-underflow-worksheet-native.txt": "d290fa13bf1ba7583fabbec1bc86444044f52aab8fcd81297bd2566ffaa43207",
+    "t-inverse-high-precision.py": "2db7b3001091062d6e88297ea333bd48b2b1cfa50f1c212d98bf7aaa5c3fc7de",
+    "t-inverse-high-precision.json": "506a10c8ac0e7d072fcd65a159de18ea53b8c4a9ad42ecc30a36e48601a51cd3"
+  },
+  "cases": [
+    {
+      "expression": "T.INV(EXP(-709),1)",
+      "native": "-2.6160003436996E+307",
+      "expected": -2.6160003436996e+307
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(0,1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(0,1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),1)",
+      "native": "-2.8338793413631E+307",
+      "expected": -2.8338793413631e+307
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),1)",
+      "native": "-2.8623603022402E+307",
+      "expected": -2.8623603022402e+307
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),1)",
+      "native": "-2.8611174856882E+307",
+      "expected": -2.8611174856882e+307
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),1)",
+      "native": "-2.8611174859744E+307",
+      "expected": -2.8611174859744e+307
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),1)",
+      "native": "-9.623727445445E+306",
+      "expected": -9.623727445445e+306
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,1)",
+      "native": "-1.3839560268861E+307",
+      "expected": -1.3839560268861e+307
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,1)",
+      "native": "ERR2",
+      "expected": {
+        "error": "#DIV/0!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,1)",
+      "native": "-6.3661977236758E+306",
+      "expected": -6.3661977236758e+306
+    },
+    {
+      "expression": "T.INV.2T(5e-308,1)",
+      "native": "1.2732395447352E+307",
+      "expected": 1.2732395447352e+307
+    },
+    {
+      "expression": "TINV(5e-308,1)",
+      "native": "1.2732395447352E+307",
+      "expected": 1.2732395447352e+307
+    },
+    {
+      "expression": "T.INV(EXP(-709),2)",
+      "native": "-6.4103071149345E+153",
+      "expected": -6.4103071149345e+153
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),2)",
+      "native": "-6.6719167111061E+153",
+      "expected": -6.6719167111061e+153
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),2)",
+      "native": "-6.703903964891E+153",
+      "expected": -6.703903964891e+153
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),2)",
+      "native": "-3.8880478033818E+153",
+      "expected": -3.8880478033818e+153
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,2)",
+      "native": "-4.6625240412018E+153",
+      "expected": -4.6625240412018e+153
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,2)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,2)",
+      "native": "-3.1622776601685E+153",
+      "expected": -3.1622776601685e+153
+    },
+    {
+      "expression": "T.INV.2T(5e-308,2)",
+      "native": "4.4721359549996E+153",
+      "expected": 4.4721359549996e+153
+    },
+    {
+      "expression": "TINV(5e-308,2)",
+      "native": "4.4721359549996E+153",
+      "expected": 4.4721359549996e+153
+    },
+    {
+      "expression": "T.INV(EXP(-709),3)",
+      "native": "-4.4916868769452E+102",
+      "expected": -4.4916868769452e+102
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),3)",
+      "native": "-4.6130765289819E+102",
+      "expected": -4.6130765289819e+102
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),3)",
+      "native": "-4.6278091261989E+102",
+      "expected": -4.6278091261989e+102
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),3)",
+      "native": "-3.2184342846246E+102",
+      "expected": -3.2184342846246e+102
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,3)",
+      "native": "-3.6327677889442E+102",
+      "expected": -3.6327677889442e+102
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,3)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,3)",
+      "native": "-2.8042942532548E+102",
+      "expected": -2.8042942532548e+102
+    },
+    {
+      "expression": "T.INV.2T(5e-308,3)",
+      "native": "3.5331893597748E+102",
+      "expected": 3.5331893597748e+102
+    },
+    {
+      "expression": "TINV(5e-308,3)",
+      "native": "3.5331893597748E+102",
+      "expected": 3.5331893597748e+102
+    },
+    {
+      "expression": "T.INV(EXP(-709),4)",
+      "native": "-1.25307547761982E+77",
+      "expected": -1.25307547761982e+77
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),4)",
+      "native": "-1.27838928142242E+77",
+      "expected": -1.27838928142242e+77
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),4)",
+      "native": "-1.28145011602494E+77",
+      "expected": -1.28145011602494e+77
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),4)",
+      "native": "-9.75896163217893E+76",
+      "expected": -9.75896163217893e+76
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,4)",
+      "native": "-1.06868165579856E+77",
+      "expected": -1.06868165579856e+77
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,4)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,4)",
+      "native": "-8.80111736793397E+76",
+      "expected": -8.80111736793397e+76
+    },
+    {
+      "expression": "T.INV.2T(5e-308,4)",
+      "native": "1.0466351393921E+77",
+      "expected": 1.0466351393921e+77
+    },
+    {
+      "expression": "TINV(5e-308,4)",
+      "native": "1.0466351393921E+77",
+      "expected": 1.0466351393921e+77
+    },
+    {
+      "expression": "T.INV(EXP(-709),10)",
+      "native": "-1.58666713353006E+31",
+      "expected": -1.58666713353006e+31
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),10)",
+      "native": "-1.59941137961341E+31",
+      "expected": -1.59941137961341e+31
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),10)",
+      "native": "-1.600942062591E+31",
+      "expected": -1.600942062591e+31
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),10)",
+      "native": "-1.43567579238586E+31",
+      "expected": -1.43567579238586e+31
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,10)",
+      "native": "-1.48879285287495E+31",
+      "expected": -1.48879285287495e+31
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,10)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,10)",
+      "native": "-1.37755852397951E+31",
+      "expected": -1.37755852397951e+31
+    },
+    {
+      "expression": "T.INV.2T(5e-308,10)",
+      "native": "1.4764306690919E+31",
+      "expected": 1.4764306690919e+31
+    },
+    {
+      "expression": "TINV(5e-308,10)",
+      "native": "1.4764306690919E+31",
+      "expected": 1.4764306690919e+31
+    },
+    {
+      "expression": "T.INV(EXP(-709),30)",
+      "native": "-92118017450.7914",
+      "expected": -92118017450.7914
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),30)",
+      "native": "-92363993319.3885",
+      "expected": -92363993319.3885
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),30)",
+      "native": "-92393448929.6422",
+      "expected": -92393448929.6422
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),30)",
+      "native": "-89098029622.888",
+      "expected": -89098029622.888
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,30)",
+      "native": "-90183564975.3607",
+      "expected": -90183564975.3607
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,30)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,30)",
+      "native": "-87879179510.95",
+      "expected": -87879179510.95
+    },
+    {
+      "expression": "T.INV.2T(5e-308,30)",
+      "native": "89933257961.604",
+      "expected": 89933257961.604
+    },
+    {
+      "expression": "TINV(5e-308,30)",
+      "native": "89933257961.604",
+      "expected": 89933257961.604
+    },
+    {
+      "expression": "T.INV(EXP(-709),100)",
+      "native": "-11618.3902341482",
+      "expected": -11618.390276339587,
+      "reference": "-11618.390276339587726701777556831855454361655535996365751397186895"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),100)",
+      "native": "-11627.6886720976",
+      "expected": -11627.688714255311,
+      "reference": "-11627.688714255312015081188719050324713947211851042106773841119381"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),100)",
+      "native": "-11628.800997424",
+      "expected": -11628.801039577633,
+      "reference": "-11628.801039577632801078607983387260624288531406324253523471791806"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),100)",
+      "native": "-11502.7852336795",
+      "expected": -11502.785276294924,
+      "reference": "-11502.785276294924060668307780545672842335761860369582275832988736"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,100)",
+      "native": "-11544.6508313681",
+      "expected": -11544.650873828969,
+      "reference": "-11544.650873828968149378432220060646270557843583592184644167497991"
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,100)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,100)",
+      "native": "-11455.350397013",
+      "expected": -11455.350439804935,
+      "reference": "-11455.350439804935416302108595835745181323021431052810431641240519"
+    },
+    {
+      "expression": "T.INV.2T(5e-308,100)",
+      "native": "11535.0287206258",
+      "expected": 11535.028763122109,
+      "reference": "11535.028763122108879203292543599591846176013983961664149837963972"
+    },
+    {
+      "expression": "TINV(5e-308,100)",
+      "native": "11535.0287206258",
+      "expected": 11535.028763122109,
+      "reference": "11535.028763122108879203292543599591846176013983961664149837963972"
+    },
+    {
+      "expression": "T.INV(EXP(-709),1000)",
+      "native": "-55.6138509645982",
+      "expected": -55.62413302496225,
+      "reference": "-55.62413302496224462880602159864578215417862302238643616495630989"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),1000)",
+      "native": "-55.619738722611",
+      "expected": -55.630019442346196,
+      "reference": "-55.630019442346198665861560241759028582938070261517098114812866142"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),1000)",
+      "native": "-55.6204427514741",
+      "expected": -55.630723310927266,
+      "reference": "-55.630723310927265853622749520933133573405802570524706884199837268"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),1000)",
+      "native": "-55.5402808655184",
+      "expected": -55.55057970758343,
+      "reference": "-55.550579707583428073867942808242168874638247161920531473812735683"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,1000)",
+      "native": "-55.5670030935321",
+      "expected": -55.577295833702195,
+      "reference": "-55.577295833702195423151967001899433185759831051880394516835698848"
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,1000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,1000)",
+      "native": "-55.5098940657925",
+      "expected": -55.520199855464696,
+      "reference": "-55.520199855464694471738255685209967284872385032296777439002880057"
+    },
+    {
+      "expression": "T.INV.2T(5e-308,1000)",
+      "native": "55.5608694405425",
+      "expected": 55.57116358065464,
+      "reference": "55.571163580654641579396906401316475520578323645148234695273497933"
+    },
+    {
+      "expression": "TINV(5e-308,1000)",
+      "native": "55.5608694405425",
+      "expected": 55.57116358065464,
+      "reference": "55.571163580654641579396906401316475520578323645148234695273497933"
+    },
+    {
+      "expression": "T.INV(EXP(-709),10000)",
+      "native": "-95.840241668812",
+      "expected": -38.898223658658615,
+      "reference": "-38.898223658658617395179228319648933325643901782783385811028301221"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),10000)",
+      "native": "-95.8516553766203",
+      "expected": -38.90058987916056,
+      "reference": "-38.900589879160559668157376384909575009731121925566012916225288192"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),10000)",
+      "native": "-95.8530201931179",
+      "expected": -38.90087280439352,
+      "reference": "-38.900872804393523850928097307752847489055530699597837430460421453"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),10000)",
+      "native": "-95.6976500852809",
+      "expected": -38.86863695884468,
+      "reference": "-38.868636958844684850390108474662933573777414494115843325706872498"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,10000)",
+      "native": "-95.7494364703728",
+      "expected": -38.879387709253756,
+      "reference": "-38.879387709253753062203160801404206604118493814878966800482837894"
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,10000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,10000)",
+      "native": "-95.6387701206036",
+      "expected": -38.856406026775474,
+      "reference": "-38.856406026775473583017806087853707053106702472605628092021273121"
+    },
+    {
+      "expression": "T.INV.2T(5e-308,10000)",
+      "native": "95.7375491514429",
+      "expected": 38.87692047623688,
+      "reference": "38.876920476236881905453465848191896658340135965013626471033275731"
+    },
+    {
+      "expression": "TINV(5e-308,10000)",
+      "native": "95.7375491514429",
+      "expected": 38.87692047623688,
+      "reference": "38.876920476236881905453465848191896658340135965013626471033275731"
+    },
+    {
+      "expression": "T.INV(EXP(-709),1000000)",
+      "native": "-79.4610210867079",
+      "expected": -37.54868599179764,
+      "reference": "-37.548685991797642394118500415914877977296916615041757948690886007"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-710),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-710),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-710),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-720),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-720),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-720),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(0,1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(0,1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(0,1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.08),1000000)",
+      "native": "-79.4675260181496",
+      "expected": -37.55081799259133,
+      "reference": "-37.550817992591329137591291574760582309141234662500411557901181649"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.08),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.08),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.09),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.09),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.09),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657128),1000000)",
+      "native": "-79.4683038094613",
+      "expected": -37.55107291086445,
+      "reference": "-37.551072910864445255690333193106924949110982025782886591257093377"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657128),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657128),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-709.0895657129),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV.2T(EXP(-709.0895657129),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-709.0895657129),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(EXP(-708),1000000)",
+      "native": "-79.379693659591",
+      "expected": -37.52202580391399,
+      "reference": "-37.522025803913991515952991694257005555055978115979495380762098354"
+    },
+    {
+      "expression": "T.INV.2T(EXP(-708),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(EXP(-708),1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(2.3e-308,1000000)",
+      "native": "-79.4092432568832",
+      "expected": -37.53171361836497,
+      "reference": "-37.531713618364968055187760125990470001743318989690006480878491749"
+    },
+    {
+      "expression": "T.INV.2T(2.3e-308,1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "TINV(2.3e-308,1000000)",
+      "native": "ERR6",
+      "expected": {
+        "error": "#NUM!"
+      }
+    },
+    {
+      "expression": "T.INV(5e-308,1000000)",
+      "native": "-79.346078243398",
+      "expected": -37.51100352457638,
+      "reference": "-37.511003524576379686355243907493073832631663430125691488721783078"
+    },
+    {
+      "expression": "T.INV.2T(5e-308,1000000)",
+      "native": "79.4024616103374",
+      "expected": 37.52949036861779,
+      "reference": "37.529490368617793742946287015830225246436712066547754088628094635"
+    },
+    {
+      "expression": "TINV(5e-308,1000000)",
+      "native": "79.4024616103374",
+      "expected": 37.52949036861779,
+      "reference": "37.529490368617793742946287015830225246436712066547754088628094635"
+    }
+  ]
+}

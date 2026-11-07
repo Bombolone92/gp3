@@ -1,0 +1,2427 @@
+{
+  "description": "Native reference scope-ordered initial font quantization. Original authored constraints and independent saved drawing results; custom run sizes are inputs, never inferred from expected geometry.",
+  "available": {
+    "w": 200,
+    "h": 200
+  },
+  "cases": [
+    {
+      "name": "diagram-font-quantization:1",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"1.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:2",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"1.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 198000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:3",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"1.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:4",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"1.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 198000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:5",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"1.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 72000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 72000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:6",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"1.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 162000,
+            "cx": 36000,
+            "cy": 72000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:7",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"1.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 72000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 72000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:8",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"1.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 162000,
+            "cx": 36000,
+            "cy": 72000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:9",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"18.6\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 540000
+          },
+          "insets": {
+            "l": 135128,
+            "r": 135128,
+            "t": 135128,
+            "b": 135128
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 270000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:10",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"18.6\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 198000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:11",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"18.6\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 540000
+          },
+          "insets": {
+            "l": 135128,
+            "r": 135128,
+            "t": 135128,
+            "b": 135128
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 270000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:12",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"18.6\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 198000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:13",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"18.6\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 72000,
+            "cx": 6480000,
+            "cy": 540000
+          },
+          "insets": {
+            "l": 135128,
+            "r": 135128,
+            "t": 135128,
+            "b": 135128
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 684000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:14",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"18.6\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 144000,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 684000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:15",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"18.6\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 72000,
+            "cx": 6480000,
+            "cy": 540000
+          },
+          "insets": {
+            "l": 135128,
+            "r": 135128,
+            "t": 135128,
+            "b": 135128
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 684000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization:16",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"18.6\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": 14.3,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 144000,
+            "cx": 6480000,
+            "cy": 396000
+          },
+          "insets": {
+            "l": 99568,
+            "r": 99568,
+            "t": 99568,
+            "b": 99568
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 684000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:1",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"0.2\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:2",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"0.2\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:3",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"0.2\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:4",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.2\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:5",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.2\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:6",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.2\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:7",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"0.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:8",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"0.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:9",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"0.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:10",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 36000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:11",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 36000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:12",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 36000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:13",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"1.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:14",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"1.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:15",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"1.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:16",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"1.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 18000,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 72000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:17",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"1.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 18000,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 72000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:18",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"1.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 72000
+          },
+          "insets": {
+            "l": 14224,
+            "r": 14224,
+            "t": 14224,
+            "b": 14224
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 72000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:19",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"2.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 21336,
+            "r": 21336,
+            "t": 21336,
+            "b": 21336
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:20",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"2.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 21336,
+            "r": 21336,
+            "t": 21336,
+            "b": 21336
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:21",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"2.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 72000
+          },
+          "insets": {
+            "l": 21336,
+            "r": 21336,
+            "t": 21336,
+            "b": 21336
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 36000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:22",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"2.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 36000,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 21336,
+            "r": 21336,
+            "t": 21336,
+            "b": 21336
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 108000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:23",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"2.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 36000,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 21336,
+            "r": 21336,
+            "t": 21336,
+            "b": 21336
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 108000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:24",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"2.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 18000,
+            "cx": 6480000,
+            "cy": 72000
+          },
+          "insets": {
+            "l": 21336,
+            "r": 21336,
+            "t": 21336,
+            "b": 21336
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 108000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:25",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"10.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 78232,
+            "r": 78232,
+            "t": 78232,
+            "b": 78232
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:26",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"10.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 78232,
+            "r": 78232,
+            "t": 78232,
+            "b": 78232
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:27",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" val=\"10.9\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 324000
+          },
+          "insets": {
+            "l": 78232,
+            "r": 78232,
+            "t": 78232,
+            "b": 78232
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 162000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:28",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"10.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.2\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 180000,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 78232,
+            "r": 78232,
+            "t": 78232,
+            "b": 78232
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 396000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:29",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"10.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0.5\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 180000,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 78232,
+            "r": 78232,
+            "t": 78232,
+            "b": 78232
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 396000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-holdout:30",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"10.9\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" refType=\"primFontSz\" fact=\"0.78\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 36000,
+            "cx": 6480000,
+            "cy": 324000
+          },
+          "insets": {
+            "l": 78232,
+            "r": 78232,
+            "t": 78232,
+            "b": 78232
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 396000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:1",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" val=\"0\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:2",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" val=\"0\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:3",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:4",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:5",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:6",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:7",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:8",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:9",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" val=\"0.2\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:10",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" val=\"0.2\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:11",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:12",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:13",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.2\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:14",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.2\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:15",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:16",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.2\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:17",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" val=\"0.49\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:18",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" val=\"0.49\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:19",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:20",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:21",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.49\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:22",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.49\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:23",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:24",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.49\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 0,
+            "r": 0,
+            "t": 0,
+            "b": 0
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:25",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" val=\"0.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:26",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" val=\"0.5\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:27",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 0
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:28",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"0\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" refType=\"userA\" /><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 18000,
+            "cx": 36000,
+            "cy": 0
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:29",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 36000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:30",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" val=\"0.5\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 36000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:31",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 36000
+          },
+          "insets": null
+        }
+      ]
+    },
+    {
+      "name": "diagram-font-quantization-zero:32",
+      "parent": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"userA\" val=\"0.5\" /><ns0:constr type=\"primFontSz\" for=\"ch\" forName=\"text\" refType=\"userA\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" val=\"1\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" refType=\"primFontSz\" refFor=\"ch\" refForName=\"text\" /></ns0:constrLst>",
+      "text": "<ns0:constrLst xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><ns0:constr type=\"w\" val=\"180\" /><ns0:constr type=\"h\" refType=\"secFontSz\" /><ns0:constr type=\"secFontSz\" val=\"0\" /></ns0:constrLst>",
+      "customPrimary": null,
+      "expected": [
+        {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "cx": 6480000,
+            "cy": 36000
+          },
+          "insets": {
+            "l": 7112,
+            "r": 7112,
+            "t": 7112,
+            "b": 7112
+          }
+        },
+        {
+          "bounds": {
+            "x": 6480000,
+            "y": 0,
+            "cx": 36000,
+            "cy": 36000
+          },
+          "insets": null
+        }
+      ]
+    }
+  ]
+}

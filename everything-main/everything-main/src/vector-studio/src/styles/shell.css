@@ -1,0 +1,817 @@
+/* App shell: top bar, tools panel, document area, status bar. */
+.app {
+  display: grid;
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr);
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  /* viewport-fit=cover: keep the UI clear of notches and rounded corners. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  background: var(--bg-topbar);
+}
+
+/* ---- Top bar ---- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  background: var(--bg-topbar);
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.home-btn {
+  margin-right: 2px;
+}
+
+.menubar {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.menubar-item {
+  height: 28px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.menubar-item:hover,
+.menubar-item.open {
+  background: var(--bg-hover);
+}
+
+.compact-menu {
+  display: none;
+  gap: 4px;
+}
+
+.topbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.app-title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.account-btn {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar.initial {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.signin-btn {
+  gap: 4px;
+}
+
+/* ---- Workspace ---- */
+.workspace {
+  display: grid;
+  grid-template-columns: var(--toolbar-w) minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  min-width: 0;
+}
+
+.hide-panels .workspace {
+  grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+
+.hide-panels .toolbar,
+.hide-panels .panels-area,
+.hide-dock .panels-area {
+  display: none;
+}
+
+/* ---- Tools panel ---- */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.toolbar-head {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.toolbar-cols {
+  width: 28px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: var(--text-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-cols:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.tools-two-col {
+  --toolbar-w: 84px;
+}
+
+.toolbar.two-col .tool-section {
+  display: grid;
+  grid-template-columns: repeat(2, 36px);
+  justify-content: center;
+  column-gap: 2px;
+}
+
+.toolbar.two-col .tool-section-label {
+  grid-column: 1 / -1;
+  justify-self: center;
+  max-width: 76px;
+}
+
+.toolbar.two-col .toolbar-bottom {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.toolbar.two-col .toolbar-misc,
+.toolbar.three-col .toolbar-misc {
+  flex-direction: row;
+}
+
+.toolbar.two-col .toolbar-misc .tool-btn {
+  width: 26px;
+}
+
+/* Three columns for short windows. */
+.tools-three-col {
+  --toolbar-w: 108px;
+}
+
+.toolbar.three-col .tool-section {
+  display: grid;
+  grid-template-columns: repeat(3, 32px);
+  justify-content: center;
+  column-gap: 2px;
+}
+
+.toolbar.three-col .tool-btn {
+  width: 32px;
+}
+
+.toolbar.three-col .toolbar-bottom {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Compact: no section labels; a hairline separates the sections instead. */
+.toolbar.compact .tool-section-label {
+  display: none;
+}
+
+.toolbar.compact .tool-section {
+  padding: 3px 0;
+}
+
+.toolbar.compact .tool-section + .tool-section {
+  border-top: 1px solid var(--border);
+  padding-top: 4px;
+}
+
+.toolbar.compact .tool-btn {
+  height: 30px;
+}
+
+/* Still too short: the tools scroll, with a fade showing there is more. */
+.toolbar.overflowing .toolbar-scroll {
+  scrollbar-width: thin;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+}
+
+.toolbar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  padding: 6px 0;
+}
+
+.tool-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 2px 0 6px;
+}
+
+.tool-section-label {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  margin-bottom: 1px;
+  max-width: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-2);
+}
+
+.tool-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.tool-btn.active {
+  background: var(--bg-active);
+  color: var(--text);
+}
+
+.tool-btn.small {
+  height: 28px;
+}
+
+.tool-corner {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-bottom: 4px solid currentColor;
+  opacity: 0.7;
+}
+
+.toolbar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0 8px;
+  border-top: 1px solid var(--border);
+}
+
+.fill-stroke {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.fill-stroke.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.fs-fill,
+.fs-stroke {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.fs-fill {
+  left: 2px;
+  top: 2px;
+  z-index: 2;
+}
+
+.fs-stroke {
+  right: 2px;
+  bottom: 2px;
+  z-index: 1;
+}
+
+.fill-stroke.stroke-front .fs-stroke {
+  z-index: 3;
+}
+
+.fs-fill .paint-swatch,
+.fs-stroke .paint-swatch {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  border: 0;
+}
+
+.fs-stroke-hole {
+  position: absolute;
+  inset: 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+}
+
+.fs-mini {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+}
+
+.fs-swap {
+  right: -4px;
+  top: -2px;
+}
+
+.fs-default {
+  left: -4px;
+  bottom: -2px;
+}
+
+.paint-modes {
+  display: flex;
+  gap: 2px;
+}
+
+.paint-mode {
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+}
+
+.toolbar-misc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tool-flyout {
+  position: fixed;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--bg-elev);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-float);
+}
+
+.flyout-item {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  text-align: left;
+}
+
+.flyout-item:hover,
+.flyout-item:focus-visible {
+  background: var(--bg-hover);
+  outline: none;
+}
+
+.flyout-item[aria-checked='true'] {
+  background: var(--bg-selected);
+}
+
+.flyout-shortcut {
+  color: var(--text-3);
+  font-size: var(--fs-sm);
+}
+
+.flyout-tearoff {
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+
+/* Floating tool strip torn off a flyout. */
+.tool-tearoff {
+  position: fixed;
+  z-index: 850;
+  display: flex;
+  align-items: stretch;
+  padding: 2px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-float);
+}
+
+.tool-tearoff.vertical {
+  flex-direction: column;
+}
+
+.tearoff-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  cursor: move;
+  color: var(--text-3);
+  touch-action: none;
+}
+
+.tearoff-ctrls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tool-tearoff.vertical .tearoff-ctrls {
+  flex-direction: row;
+}
+
+.tearoff-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-2);
+}
+
+.tearoff-mini:hover {
+  background: var(--bg-hover);
+}
+
+.tearoff-tools {
+  display: flex;
+  gap: 1px;
+}
+
+.tool-tearoff.vertical .tearoff-tools {
+  flex-direction: column;
+}
+
+/* Floating strips belong to the editing view: none on the start screen or with panels hidden. */
+body:has(.app.no-doc) .tool-tearoff,
+body:has(.app.hide-panels) .tool-tearoff {
+  display: none;
+}
+
+.tool-tearoff .tool-btn[aria-pressed='true'] {
+  background: var(--bg-active);
+  color: var(--text);
+}
+
+/* ---- Document area ---- */
+.doc-area {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--pasteboard);
+}
+
+.doc-tabs {
+  display: flex;
+  height: var(--tabs-h);
+  background: var(--bg-panel-2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: none;
+}
+
+.doc-tab {
+  display: flex;
+  align-items: center;
+  max-width: 320px;
+  border-right: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+.doc-tab.active {
+  background: var(--bg-panel);
+  color: var(--text);
+}
+
+.doc-tab-btn {
+  height: 100%;
+  padding: 0 12px 0 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 290px;
+}
+
+.doc-tab-close {
+  width: 20px;
+  height: 20px;
+  margin-left: 6px;
+}
+
+.isolation-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+.isolation-bar[hidden] {
+  display: none;
+}
+
+.canvas-stack {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.canvas-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 0 minmax(0, 1fr);
+  grid-template-rows: 0 minmax(0, 1fr);
+}
+
+.canvas-wrap.has-rulers {
+  grid-template-columns: 18px minmax(0, 1fr);
+  grid-template-rows: 18px minmax(0, 1fr);
+}
+
+.ruler {
+  display: none;
+}
+
+.has-rulers .ruler {
+  display: block;
+}
+
+.ruler-top {
+  grid-column: 2;
+  grid-row: 1;
+  border-bottom: 1px solid var(--border);
+  cursor: s-resize;
+}
+
+.ruler-left {
+  grid-column: 1;
+  grid-row: 2;
+  border-right: 1px solid var(--border);
+  cursor: e-resize;
+}
+
+.ruler-tick {
+  position: absolute;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ruler-tick[hidden] {
+  display: none;
+}
+
+.ruler-tick.x {
+  left: 18px;
+  top: 0;
+  width: 1px;
+  height: 18px;
+}
+
+.ruler-tick.y {
+  left: 0;
+  top: 18px;
+  width: 18px;
+  height: 1px;
+}
+
+.ruler-corner {
+  grid-column: 1;
+  grid-row: 1;
+  background: var(--ruler-bg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.canvas-host {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.canvas-host:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+
+.view-host {
+  position: absolute;
+  inset: 0;
+}
+
+.view-host[hidden] {
+  display: none;
+}
+
+.canvas-art,
+.canvas-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.canvas-overlay {
+  pointer-events: none;
+}
+
+/* The home screen uses the whole document area: no empty tab strip or hint line. */
+.no-doc .doc-tabs,
+.no-doc .status-hint {
+  display: none;
+}
+
+.no-doc .canvas-wrap {
+  visibility: hidden;
+}
+
+/* ---- Status bar ---- */
+.statusbar {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+
+.statusbar.no-doc .status-row > :not(.status-panels):not(.status-spacer) {
+  visibility: hidden;
+}
+
+.status-hint {
+  margin: 0;
+  height: 22px;
+  padding: 3px 10px 0;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid var(--border);
+}
+
+.status-hint b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hint-sep {
+  margin: 0 8px;
+  color: var(--text-3);
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+  padding: 0 6px;
+  min-width: 0;
+}
+
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-2);
+}
+
+.status-zoom-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.status-zoom {
+  width: 64px;
+  min-height: 22px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.status-select {
+  min-height: 22px;
+  padding: 1px 4px;
+  max-width: 76px;
+}
+
+.status-zoom-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  min-height: 22px;
+  align-self: stretch;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-left: 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--bg-input);
+  color: var(--text-2);
+}
+
+.status-zoom-menu:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.status-select.rot {
+  width: 64px;
+}
+
+.status-tool {
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.status-spacer {
+  flex: 1;
+}

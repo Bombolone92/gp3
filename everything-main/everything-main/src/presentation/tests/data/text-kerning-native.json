@@ -1,0 +1,277 @@
+{
+  "description": "Native reference local PDF exports of Arial/Times New Roman AVATAR To WA controls. firstAdvance is the exported A-to-V origin distance in points. Normal/none was observed from the kerned pair relative to the matching unkerned control. Holdouts strip kern from every inherited style and include fontScale=50000 and threshold-boundary sizes. PDF encoding slightly perturbs reported glyph sizes; use the authored effective size for threshold evaluation.",
+  "cases": [
+    {
+      "name": "Arial-12-threshold-0",
+      "size": 12,
+      "threshold": 0,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none"
+    },
+    {
+      "name": "Arial-12-threshold-1200",
+      "size": 12,
+      "threshold": 1200,
+      "firstAdvance": 7.1244000000000085,
+      "expected": "normal"
+    },
+    {
+      "name": "Arial-12-threshold-2000",
+      "size": 12,
+      "threshold": 2000,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none"
+    },
+    {
+      "name": "Arial-12-threshold-400000",
+      "size": 12,
+      "threshold": 400000,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none"
+    },
+    {
+      "name": "Arial-18-threshold-0",
+      "size": 18,
+      "threshold": 0,
+      "firstAdvance": 12.000599999999991,
+      "expected": "none"
+    },
+    {
+      "name": "Arial-18-threshold-1200",
+      "size": 18,
+      "threshold": 1200,
+      "firstAdvance": 10.625400000000013,
+      "expected": "normal"
+    },
+    {
+      "name": "Arial-18-threshold-2000",
+      "size": 18,
+      "threshold": 2000,
+      "firstAdvance": 12.000599999999991,
+      "expected": "none"
+    },
+    {
+      "name": "Arial-18-threshold-400000",
+      "size": 18,
+      "threshold": 400000,
+      "firstAdvance": 12.000599999999991,
+      "expected": "none"
+    },
+    {
+      "name": "Arial-24-threshold-0",
+      "size": 24,
+      "threshold": 0,
+      "firstAdvance": 16.000799999999998,
+      "expected": "none"
+    },
+    {
+      "name": "Arial-24-threshold-1200",
+      "size": 24,
+      "threshold": 1200,
+      "firstAdvance": 14.219999999999999,
+      "expected": "normal"
+    },
+    {
+      "name": "Arial-24-threshold-2000",
+      "size": 24,
+      "threshold": 2000,
+      "firstAdvance": 14.248799999999989,
+      "expected": "normal"
+    },
+    {
+      "name": "Arial-24-threshold-400000",
+      "size": 24,
+      "threshold": 400000,
+      "firstAdvance": 16.000799999999998,
+      "expected": "none"
+    },
+    {
+      "name": "Times New Roman-18-threshold-0",
+      "size": 18,
+      "threshold": 0,
+      "firstAdvance": 12.999599999999987,
+      "expected": "none"
+    },
+    {
+      "name": "Times New Roman-18-threshold-1200",
+      "size": 18,
+      "threshold": 1200,
+      "firstAdvance": 10.625400000000013,
+      "expected": "normal"
+    },
+    {
+      "name": "Times New Roman-18-threshold-2000",
+      "size": 18,
+      "threshold": 2000,
+      "firstAdvance": 12.999599999999987,
+      "expected": "none"
+    },
+    {
+      "name": "Times New Roman-18-threshold-400000",
+      "size": 18,
+      "threshold": 400000,
+      "firstAdvance": 12.999599999999987,
+      "expected": "none"
+    },
+    {
+      "name": "holdout-1",
+      "size": 10,
+      "scale": 1,
+      "effectiveSize": 9.999998399999981,
+      "firstAdvance": 6.624998940000012,
+      "expected": "none"
+    },
+    {
+      "name": "holdout-2",
+      "size": 10,
+      "scale": 1,
+      "effectiveSize": 9.999998399999981,
+      "firstAdvance": 6.624998940000012,
+      "expected": "none",
+      "threshold": 0
+    },
+    {
+      "name": "holdout-3",
+      "size": 10,
+      "scale": 1,
+      "effectiveSize": 9.999998399999981,
+      "firstAdvance": 5.874999059999993,
+      "expected": "normal",
+      "threshold": 1
+    },
+    {
+      "name": "holdout-4",
+      "size": 10,
+      "scale": 1,
+      "effectiveSize": 9.999998399999981,
+      "firstAdvance": 6.624998940000012,
+      "expected": "none",
+      "threshold": 1200
+    },
+    {
+      "name": "holdout-5",
+      "size": 10,
+      "scale": 1,
+      "effectiveSize": 9.999998399999981,
+      "firstAdvance": 6.624998940000012,
+      "expected": "none",
+      "threshold": 2000
+    },
+    {
+      "name": "holdout-6",
+      "size": 18,
+      "scale": 1,
+      "effectiveSize": 18.0,
+      "firstAdvance": 10.664999999999992,
+      "expected": "normal"
+    },
+    {
+      "name": "holdout-7",
+      "size": 18,
+      "scale": 1,
+      "effectiveSize": 18.0,
+      "firstAdvance": 12.000599999999991,
+      "expected": "none",
+      "threshold": 0
+    },
+    {
+      "name": "holdout-8",
+      "size": 18,
+      "scale": 1,
+      "effectiveSize": 18.0,
+      "firstAdvance": 10.625400000000013,
+      "expected": "normal",
+      "threshold": 1
+    },
+    {
+      "name": "holdout-9",
+      "size": 18,
+      "scale": 1,
+      "effectiveSize": 18.0,
+      "firstAdvance": 10.625400000000013,
+      "expected": "normal",
+      "threshold": 1200
+    },
+    {
+      "name": "holdout-10",
+      "size": 18,
+      "scale": 1,
+      "effectiveSize": 18.0,
+      "firstAdvance": 12.000599999999991,
+      "expected": "none",
+      "threshold": 2000
+    },
+    {
+      "name": "holdout-11",
+      "size": 24,
+      "scale": 0.5,
+      "effectiveSize": 12.0,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none",
+      "threshold": 0
+    },
+    {
+      "name": "holdout-12",
+      "size": 24,
+      "scale": 0.5,
+      "effectiveSize": 12.0,
+      "firstAdvance": 7.1244000000000085,
+      "expected": "normal",
+      "threshold": 1200
+    },
+    {
+      "name": "holdout-13",
+      "size": 24,
+      "scale": 0.5,
+      "effectiveSize": 12.0,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none",
+      "threshold": 1201
+    },
+    {
+      "name": "holdout-14",
+      "size": 24,
+      "scale": 0.5,
+      "effectiveSize": 12.0,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none",
+      "threshold": 2000
+    },
+    {
+      "name": "holdout-15",
+      "size": 24,
+      "scale": 0.5,
+      "effectiveSize": 12.0,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none",
+      "threshold": 2400
+    },
+    {
+      "name": "holdout-16",
+      "size": 11.99,
+      "scale": 1,
+      "effectiveSize": 12.0,
+      "firstAdvance": 8.000400000000013,
+      "expected": "none",
+      "threshold": 1200
+    },
+    {
+      "name": "holdout-17",
+      "size": 12,
+      "scale": 1,
+      "effectiveSize": 11.999999999999986,
+      "firstAdvance": 7.1244000000000085,
+      "expected": "normal",
+      "threshold": 1200
+    },
+    {
+      "name": "holdout-18",
+      "size": 12.01,
+      "scale": 1,
+      "effectiveSize": 12.0,
+      "firstAdvance": 7.110000000000014,
+      "expected": "normal",
+      "threshold": 1200
+    }
+  ]
+}

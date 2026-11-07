@@ -1,0 +1,135 @@
+import z from 'zod/v4'
+
+import {
+  $getNativeToolCallExampleString,
+  jsonToolResultSchema,
+  repairInput,
+} from '../utils'
+
+import type { $ToolParams } from '../../constants'
+
+/** A number in `flags` is a result cap in the wrong field: drop it rather than refuse the search. */
+function dropNumericFlags(input: Record<string, unknown>) {
+  if (typeof input.flags === 'number') delete input.flags
+  return input
+}
+
+const toolName = 'code_search'
+const endsAgentStep = true
+const searchSchema = z
+  .object({
+    pattern: z
+      .string()
+      .min(1, 'Pattern cannot be empty')
+      .describe(`The pattern to search for.`),
+    flags: z
+      .string()
+      .optional()
+      .describe(
+        `Optional ripgrep flags to customize the search (e.g., "-i" for case-insensitive, "-g *.ts -g *.js" for TypeScript and JavaScript files only, "-g !*.test.ts" to exclude Typescript test files,  "-A 3" for 3 lines after match, "-B 2" for 2 lines before match).`,
+      ),
+    cwd: z
+      .string()
+      .optional()
+      .describe(
+        `Optional working directory to search within, relative to the project root. Defaults to searching the entire project.`,
+      ),
+    maxResults: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .default(15)
+      .describe(
+        `Maximum number of results to return per file. Defaults to 15. There is also a global limit of 250 results across all files.`,
+      ),
+  })
+  .describe(
+    `Search for string patterns in the project's files. This tool uses ripgrep (rg), a fast line-oriented search tool.`,
+  )
+const inputSchema = repairInput(dropNumericFlags, searchSchema)
+const legacyInputSchema = inputSchema.describe(
+  `Search for string patterns in the project's files. This tool uses ripgrep (rg), a fast line-oriented search tool. Use this tool only when read_files is not sufficient to find the files you need.`,
+)
+const buildDescription = (guidance: string) => `
+Purpose: Search through code files to find files with specific text patterns, function names, variable names, and more.
+
+${guidance}
+
+The pattern supports regular expressions and will search recursively through all files in the project by default. Some tips:
+- Use Rust-style regex, not grep-style, PCRE, RE2 or JavaScript regex - you must always escape special characters like { and }
+- Be as constraining as possible to limit results, e.g. use "(function foo|const foo)" or "def foo" instead of merely "foo"
+- Add context to your search with surrounding terms (e.g., "function handleAuth" rather than just "handleAuth")
+- Use word boundaries (\\b) to match whole words only
+- Use the cwd parameter to narrow your search to specific directories
+- For case-sensitive searches like constants (e.g., ERROR vs error), omit the "-i" flag
+- Searches file content and filenames
+- Automatically ignores binary files, hidden files, and files in .gitignore
+- Environment files (.env, .env.local, and the rest of the .env family) are never searched, whatever flags you pass, because a match line would be the secret itself; read_files refuses them for the same reason. Templates (.env.example, .env.sample, .env.template) are searchable. If you need a value from one, ask the user for it
+
+
+Advanced ripgrep flags (use the flags parameter):
+
+- Case sensitivity: "-i" for case-insensitive search
+- File type filtering: "-t ts -t js" (TypeScript and JavaScript), "-t py" (Python), etc.
+- Exclude file types: "--type-not py" to exclude Python files
+- Context lines: "-A 3" (3 lines after), "-B 2" (2 lines before), "-C 2" (2 lines before and after)
+- Count, filenames only, invert: "-c", "-l", "-v"
+- Whole words, literal text: "-w", "-F"
+
+Note: Do not use the end_turn tool after this tool! You will want to see the output of this tool before ending your turn.
+
+Results are limited to maxResults per file (default 15) and 250 across all files; a notice says when results were cut.
+
+Examples:
+${$getNativeToolCallExampleString({
+  toolName,
+  inputSchema,
+  input: { pattern: 'foo\\.bar = 1\\.0' },
+  endsAgentStep,
+})}
+${$getNativeToolCallExampleString({
+  toolName,
+  inputSchema,
+  input: { pattern: 'import.*foo', cwd: 'src' },
+  endsAgentStep,
+})}
+${$getNativeToolCallExampleString({
+  toolName,
+  inputSchema,
+  input: { pattern: 'function.*authenticate', flags: '-i -t ts -t js' },
+  endsAgentStep,
+})}
+`.trim()
+
+const legacyDescription = buildDescription(
+  'Prefer to use read_files instead of code_search unless you need to search for a specific pattern in multiple files.',
+)
+const description = buildDescription(
+  'Matches are returned with their line numbers, so in a large file you can search first and then read a window around a match with read_files { path, offset, limit } instead of reading the whole file.',
+)
+
+export const codeSearchDisplayVariants = {
+  legacy: { description: legacyDescription, inputSchema: legacyInputSchema },
+  windowed: { description, inputSchema },
+}
+
+export const codeSearchParams = {
+  toolName,
+  endsAgentStep,
+  description,
+  inputSchema,
+  outputSchema: jsonToolResultSchema(
+    z.union([
+      z.object({
+        stdout: z.string(),
+        stderr: z.string().optional(),
+        exitCode: z.number().optional(),
+        message: z.string(),
+      }),
+      z.object({
+        errorMessage: z.string(),
+      }),
+    ]),
+  ),
+} satisfies $ToolParams

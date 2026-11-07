@@ -1,0 +1,24 @@
+/* Clone Source panel */
+.clone-source-panel { padding: 8px 10px; display: grid; gap: 8px; align-content: start; font-size: 11px; }
+.cs-slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.cs-slot { position: relative; display: grid; place-items: center; height: 30px; padding: 0; border: 1px solid var(--input-line); color: var(--muted); }
+.cs-slot span { position: absolute; right: 3px; bottom: 1px; font-size: 9px; }
+.cs-slot.set { color: var(--text); }
+.cs-slot.set::after { content: ''; position: absolute; left: 4px; top: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.cs-slot[aria-checked='true'] { background: var(--selected); border-color: var(--accent); color: var(--text); }
+.cs-source { display: flex; gap: 8px; align-items: baseline; margin: 0; min-height: 16px; }
+.cs-source span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-point { color: var(--muted); font-variant-numeric: tabular-nums; }
+.cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.cs-field { display: flex; align-items: center; gap: 5px; color: var(--muted); min-width: 0; }
+.cs-field > span:first-child { min-width: 14px; }
+.cs-field input, .cs-field select { flex: 1; min-width: 0; width: 100%; }
+.cs-unit { font-size: 10px; width: 14px; }
+.cs-buttons { display: flex; gap: 2px; justify-content: flex-end; }
+.cs-overlay { border: 1px solid var(--line-soft); border-radius: 3px; margin: 0; padding: 6px 8px 8px; display: grid; gap: 6px; }
+.cs-overlay legend { padding: 0 4px; }
+.cs-overlay legend label, .cs-checks label { display: inline-flex; align-items: center; gap: 5px; }
+.cs-overlay.off > :not(legend) { opacity: 0.55; }
+.cs-checks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.clone-source-panel .hint { margin: 0; }
+.clone-overlay image { image-rendering: auto; }

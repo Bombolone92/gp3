@@ -1,0 +1,63 @@
+{
+  "application": "Native reference application",
+  "date": "2026-10-03",
+  "method": "Live presenter view of independently authored controls; automatic timings disabled temporarily and restored afterward. Control slides use coordinate gradients and striped shapes rather than content from the audited deck.",
+  "baseControl": [
+    {
+      "slide": 1,
+      "effect": "none",
+      "durationMs": 0
+    },
+    {
+      "slide": 2,
+      "effect": "fade",
+      "durationMs": 8000
+    },
+    {
+      "slide": 3,
+      "effect": "push",
+      "direction": "l",
+      "durationMs": 4000
+    },
+    {
+      "slide": 4,
+      "effect": "zoom",
+      "direction": "out",
+      "durationMs": 6000
+    }
+  ],
+  "observations": [
+    {
+      "from": 2,
+      "to": 1,
+      "command": "Previous (P)",
+      "playbackEffect": "fade",
+      "playbackDurationMs": 8000,
+      "evidence": "Leaving slide remains visible immediately after P; both full slide images blend at approximately four seconds; slide 1 becomes current after the reverse fade completes. The destination is authored None."
+    },
+    {
+      "from": 3,
+      "to": 2,
+      "command": "Numbered jump (2, Return)",
+      "playbackEffect": "fade",
+      "playbackDurationMs": 8000,
+      "evidence": "Slide 3 fades into slide 2 without spatial translation. This uses the arriving slide's Fade, rather than the leaving slide's Push."
+    }
+  ],
+  "presetControl": {
+    "slides": [
+      {
+        "slide": 1,
+        "effect": "none"
+      },
+      {
+        "slide": 2,
+        "effect": "pageCurlDouble",
+        "durationMs": 10000
+      }
+    ],
+    "observation": "Previous from slide 2 reverses its ten-second double curl into slide 1 even though slide 1 is authored None. The reverse deformation is visible midway through the transition.",
+    "directJumpObservation": "Slide 1 appears immediately. A direct jump differs from Previous to the same destination. This Home check uses the double-curl control."
+  },
+  "scope": "This evidence establishes transition ownership and navigation intent. It does not validate the application's curl geometry, other effect trajectories, or timing for every reference application version."
+}

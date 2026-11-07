@@ -1,0 +1,172 @@
+/* ---- Tabs panel and tab rulers ---- */
+.panel-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* Without text the controls dim, but the note saying why stays readable. */
+.panel-body.panel-tabs.disabled {
+  opacity: 1;
+  pointer-events: auto;
+}
+.panel-tabs.disabled .tab-bar,
+.panel-tabs.disabled .tab-fields,
+.panel-tabs.disabled .tab-ruler-wrap {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tab-spacer {
+  flex: 1;
+}
+.tab-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.tab-pos .num-input {
+  width: 72px;
+}
+.tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+.tab-text {
+  width: 56px;
+  height: var(--control-h);
+  padding: 0 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text);
+  font: inherit;
+}
+.tab-text.short {
+  width: 32px;
+  text-align: center;
+}
+.tab-text:disabled {
+  opacity: 0.5;
+}
+.tab-ruler-wrap {
+  overflow-x: auto;
+  padding: 4px 0 2px;
+}
+.tab-ruler {
+  position: relative;
+  height: 30px;
+  min-width: 40px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text-2);
+  user-select: none;
+  touch-action: none;
+}
+.tab-ruler.on-canvas {
+  position: absolute;
+  z-index: 3;
+  box-shadow: var(--shadow-float);
+}
+.tab-ruler.removing {
+  border-color: var(--danger);
+}
+.tab-ticks {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 16px;
+  pointer-events: none;
+}
+.tab-ticks svg {
+  display: block;
+  overflow: visible;
+}
+.tab-ticks path {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.tab-ticks text {
+  fill: currentColor;
+  font-size: 8px;
+  font-family: var(--font-ui);
+}
+.tab-track {
+  position: absolute;
+  inset: 16px 0 0 0;
+  cursor: copy;
+  border-top: 1px solid var(--border);
+}
+.tab-markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tab-stop,
+.tab-indent {
+  position: absolute;
+  pointer-events: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: ew-resize;
+}
+.tab-stop {
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-xs);
+}
+.tab-stop.left {
+  margin-left: -5px;
+}
+.tab-stop.right {
+  margin-left: -9px;
+}
+.tab-stop.selected {
+  background: var(--bg-selected);
+  color: var(--accent);
+}
+.tab-stop:focus-visible,
+.tab-indent:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.tab-indent {
+  width: 10px;
+  height: 7px;
+  margin-left: -5px;
+}
+.tab-indent::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--text-2);
+}
+.tab-indent.first {
+  top: 9px;
+}
+.tab-indent.first::before {
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.tab-indent.left {
+  bottom: 0;
+}
+.tab-indent.left::before {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.tab-indent:hover::before {
+  background: var(--accent);
+}

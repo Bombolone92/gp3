@@ -1,0 +1,197 @@
+/* Design tokens. Light values on :root; dark values both for an explicit
+   [data-theme='dark'] and for the system preference when no theme is
+   forced. Every color pair below meets WCAG AA for its intended use. */
+
+:root {
+  --bg: #f3f5f6;
+  --surface: #ffffff;
+  --surface-2: #f5f7f8;
+  --surface-3: #e9edef;
+  --surface-hover: #f0f3f4;
+  --border: #e1e6e9;
+  --border-strong: #c7cfd4;
+  /* The edge of a field, switch or selected segment: 3:1 against the page. */
+  --control-border: #869399;
+  --text: #142127;
+  --text-2: #44535b;
+  --text-3: #5b6a72;
+  --text-inverse: #ffffff;
+
+  --accent: #0b7a5e;
+  --accent-hover: #09654e;
+  --accent-soft: #e5f3ee;
+  --accent-soft-2: #cce8de;
+  --on-accent: #ffffff;
+  --accent-text: #096a52;
+
+  --link: #1b5fb8;
+
+  --success: #18794e;
+  --success-soft: #e5f4ec;
+  --warning: #8a4b06;
+  --warning-soft: #fdf1dc;
+  --danger: #c0262d;
+  --danger-hover: #a51f25;
+  --danger-soft: #fde9e9;
+  --on-danger: #ffffff;
+  /* Toasts are the inverse of the page (--text background): the error icon
+     needs the opposite theme's red. */
+  --toast-danger: #ff9a9a;
+  --info: #1b5fb8;
+  --info-soft: #e8f0fb;
+  --neutral: #4c5a63;
+  --neutral-soft: #edf1f3;
+
+  /* The navigation rail is dark in both themes. */
+  --rail: #11232b;
+  --rail-border: #1d333c;
+  --rail-text: #b7c5cb;
+  --rail-text-strong: #ffffff;
+  --rail-muted: #85989f;
+  --rail-hover: #1a3039;
+  --rail-active: #20434a;
+  --rail-active-text: #ffffff;
+  --rail-accent: #4fd1a5;
+
+  --scrim: rgba(10, 20, 26, 0.45);
+  --focus: #0b7a5e;
+
+  /* Chart series, validated for color vision deficiency on --surface. */
+  --series-1: #0b7a5e;
+  --series-2: #e3672f;
+  --series-3: #1b5fb8;
+  --grid: #e7ebed;
+
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+
+  --rail-w: 240px;
+  --rail-w-collapsed: 64px;
+  --topbar-h: 56px;
+  --tabbar-h: 60px;
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #0d1316;
+  --surface: #151c20;
+  --surface-2: #1b2328;
+  --surface-3: #243036;
+  --surface-hover: #1f292e;
+  --border: #253137;
+  --border-strong: #38474e;
+  --control-border: #6b7b83;
+  --text: #ebf1f3;
+  --text-2: #a8b6bc;
+  --text-3: #8c9ba2;
+  --text-inverse: #0d1316;
+
+  --accent: #3fc79a;
+  --accent-hover: #63d6ae;
+  --accent-soft: #13302a;
+  --accent-soft-2: #1a4238;
+  --on-accent: #062018;
+  --accent-text: #63d6ae;
+
+  --link: #82b4ff;
+
+  --success: #4cc38a;
+  --success-soft: #132b20;
+  --warning: #f0b45c;
+  --warning-soft: #2e2312;
+  --danger: #ff7b7b;
+  --danger-hover: #ff9a9a;
+  --danger-soft: #341719;
+  --on-danger: #1a0b0b;
+  --toast-danger: #c0262d;
+  --info: #82b4ff;
+  --info-soft: #15243a;
+  --neutral: #a8b6bc;
+  --neutral-soft: #20292e;
+
+  --rail: #0a1114;
+  --rail-border: #18242a;
+  --rail-text: #a9b8be;
+  --rail-text-strong: #ffffff;
+  --rail-muted: #7a8c93;
+  --rail-hover: #142026;
+  --rail-active: #183830;
+  --rail-active-text: #ffffff;
+  --rail-accent: #4fd1a5;
+
+  --scrim: rgba(0, 0, 0, 0.6);
+  --focus: #63d6ae;
+
+  --series-1: #3fc79a;
+  --series-2: #f08a52;
+  --series-3: #6fa6ff;
+  --grid: #243036;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0d1316;
+    --surface: #151c20;
+    --surface-2: #1b2328;
+    --surface-3: #243036;
+    --surface-hover: #1f292e;
+    --border: #253137;
+    --border-strong: #38474e;
+    --control-border: #6b7b83;
+    --text: #ebf1f3;
+    --text-2: #a8b6bc;
+    --text-3: #8c9ba2;
+    --text-inverse: #0d1316;
+
+    --accent: #3fc79a;
+    --accent-hover: #63d6ae;
+    --accent-soft: #13302a;
+    --accent-soft-2: #1a4238;
+    --on-accent: #062018;
+    --accent-text: #63d6ae;
+
+    --link: #82b4ff;
+
+    --success: #4cc38a;
+    --success-soft: #132b20;
+    --warning: #f0b45c;
+    --warning-soft: #2e2312;
+    --danger: #ff7b7b;
+    --danger-hover: #ff9a9a;
+    --danger-soft: #341719;
+    --on-danger: #1a0b0b;
+    --toast-danger: #c0262d;
+    --info: #82b4ff;
+    --info-soft: #15243a;
+    --neutral: #a8b6bc;
+    --neutral-soft: #20292e;
+
+    --rail: #0a1114;
+    --rail-border: #18242a;
+    --rail-text: #a9b8be;
+    --rail-text-strong: #ffffff;
+    --rail-muted: #7a8c93;
+    --rail-hover: #142026;
+    --rail-active: #183830;
+    --rail-active-text: #ffffff;
+    --rail-accent: #4fd1a5;
+
+    --scrim: rgba(0, 0, 0, 0.6);
+    --focus: #63d6ae;
+
+    --series-1: #3fc79a;
+    --series-2: #f08a52;
+    --series-3: #6fa6ff;
+    --grid: #243036;
+
+    color-scheme: dark;
+  }
+}

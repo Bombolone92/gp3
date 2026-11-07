@@ -1,0 +1,30 @@
+name: camera_name
+slug: camera_name
+model: unknown
+app: Wosee_or_iCam365
+mac: "00:00:00:00:00:00"
+ip: 192.168.1.100
+dhcp_reserved: false
+did: record_per_device
+uuid: record_per_device
+firmware_id: record_per_device
+firmware_version: record_per_device
+arch: record_per_device
+sd_mount: record_per_device
+rtsp:
+  port: 8001
+  user: admin
+  password_location: private_device_record
+  main_path: /0/av0
+  sub_path: /0/av1
+ssh:
+  port: 2222
+  client_key: ~/.ssh/<operator_key>
+  host_fingerprint: record_per_device
+frigate:
+  camera_name: camera_name
+  main_stream: camera_name
+  sub_stream: camera_name_sub
+backup:
+  nas_directory: record_per_device
+status: onboarding

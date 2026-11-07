@@ -1,0 +1,3633 @@
+{
+  "application": "Microsoft Excel 16.113 for Mac",
+  "method": "Each expression was evaluated independently and entered through formula2. Numeric text/error probes agree between both paths; stored formulas were checked and temporary cells cleared with COUNTA zero. The main capture also contains 87 T.TEST diagnostics, explicitly excluded because its separate algorithm remains under investigation. Superseded follow-up captures with rejected array literals are not included.",
+  "captures": [
+    {
+      "name": "paired-statistics-controls",
+      "scriptSha256": "a9708fb0e0539271383dbaded1f65c148a39eba0336a34dec8b4c1528dddf087",
+      "captureSha256": "1ae70642db54d0fd709d5447609a4c2535c92b932073170d27ac867ce9fcb9ff"
+    },
+    {
+      "name": "paired-statistics-followup-v2",
+      "scriptSha256": "69dde2be47e50787f3a7f6885ca6dc1a9e98512203349dbfaf09f59eda96a3da",
+      "captureSha256": "c1eb15d16f57d46b3d863785caa228c53214f8d63855f0c632e65e4e63acad3d"
+    },
+    {
+      "name": "paired-statistics-boundaries-v2",
+      "scriptSha256": "1a5efc64c5753a67a0f625ec82d44b7bb552e0ffb661f732cc3ad3a632bbc719",
+      "captureSha256": "419e260c423ebe43a89e74d1742bbaaa3b9c8d43e8a82bfb84702dfbb0d87eed"
+    },
+    {
+      "name": "paired-statistics-normalization",
+      "scriptSha256": "33a9d512295ba8ac3ce5d345bae7aee673ea113a8910b3a6fbdb96637d997eea",
+      "captureSha256": "b39169bbaeaf5b5e5c491178d9509142566c323f8d0b37321fc8f189116868a6"
+    }
+  ],
+  "cases": [
+    {
+      "expression": "COVARIANCE.P({0,1e-155,0},{1e-155,0,1e-155})*1e307",
+      "formula": "LET(v,COVARIANCE.P({0,1e-155,0},{1e-155,0,1e-155})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-155,0},{1e-155,0,1e-155})*1e307",
+      "formula": "LET(v,COVARIANCE.S({0,1e-155,0},{1e-155,0,1e-155})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({0,1e-155,0},{1e-155,0,1e-155})*1e307",
+      "formula": "LET(v,COVAR({0,1e-155,0},{1e-155,0,1e-155})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,1e-155,0},{1e-155,0,1e-155})",
+      "formula": "LET(v,CORREL({0,1e-155,0},{1e-155,0,1e-155}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,1e-155,0},{1e-155,0,1e-155})",
+      "formula": "LET(v,PEARSON({0,1e-155,0},{1e-155,0,1e-155}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,1e-155,0},{1e-155,0,1e-155})",
+      "formula": "LET(v,RSQ({0,1e-155,0},{1e-155,0,1e-155}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,1e-155,0},{1e-155,0,1e-155})",
+      "formula": "LET(v,SLOPE({0,1e-155,0},{1e-155,0,1e-155}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({0,1e-155,0},{1e-155,0,1e-155})",
+      "formula": "LET(v,INTERCEPT({0,1e-155,0},{1e-155,0,1e-155}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({0,1e-155,0},{1e-155,0,1e-155})",
+      "formula": "LET(v,STEYX({0,1e-155,0},{1e-155,0,1e-155}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-154,0},{1e-154,0,1e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.P({0,1e-154,0},{1e-154,0,1e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-154,0},{1e-154,0,1e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.S({0,1e-154,0},{1e-154,0,1e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({0,1e-154,0},{1e-154,0,1e-154})*1e307",
+      "formula": "LET(v,COVAR({0,1e-154,0},{1e-154,0,1e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,1e-154,0},{1e-154,0,1e-154})",
+      "formula": "LET(v,CORREL({0,1e-154,0},{1e-154,0,1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,1e-154,0},{1e-154,0,1e-154})",
+      "formula": "LET(v,PEARSON({0,1e-154,0},{1e-154,0,1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,1e-154,0},{1e-154,0,1e-154})",
+      "formula": "LET(v,RSQ({0,1e-154,0},{1e-154,0,1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,1e-154,0},{1e-154,0,1e-154})",
+      "formula": "LET(v,SLOPE({0,1e-154,0},{1e-154,0,1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({0,1e-154,0},{1e-154,0,1e-154})",
+      "formula": "LET(v,INTERCEPT({0,1e-154,0},{1e-154,0,1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({0,1e-154,0},{1e-154,0,1e-154})",
+      "formula": "LET(v,STEYX({0,1e-154,0},{1e-154,0,1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({0,2e-154,0},{2e-154,0,2e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.P({0,2e-154,0},{2e-154,0,2e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,2e-154,0},{2e-154,0,2e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.S({0,2e-154,0},{2e-154,0,2e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({0,2e-154,0},{2e-154,0,2e-154})*1e307",
+      "formula": "LET(v,COVAR({0,2e-154,0},{2e-154,0,2e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,2e-154,0},{2e-154,0,2e-154})",
+      "formula": "LET(v,CORREL({0,2e-154,0},{2e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,2e-154,0},{2e-154,0,2e-154})",
+      "formula": "LET(v,PEARSON({0,2e-154,0},{2e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,2e-154,0},{2e-154,0,2e-154})",
+      "formula": "LET(v,RSQ({0,2e-154,0},{2e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,2e-154,0},{2e-154,0,2e-154})",
+      "formula": "LET(v,SLOPE({0,2e-154,0},{2e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({0,2e-154,0},{2e-154,0,2e-154})",
+      "formula": "LET(v,INTERCEPT({0,2e-154,0},{2e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({0,2e-154,0},{2e-154,0,2e-154})",
+      "formula": "LET(v,STEYX({0,2e-154,0},{2e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({0,3e-154,0},{3e-154,0,3e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.P({0,3e-154,0},{3e-154,0,3e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,3e-154,0},{3e-154,0,3e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.S({0,3e-154,0},{3e-154,0,3e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({0,3e-154,0},{3e-154,0,3e-154})*1e307",
+      "formula": "LET(v,COVAR({0,3e-154,0},{3e-154,0,3e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,3e-154,0},{3e-154,0,3e-154})",
+      "formula": "LET(v,CORREL({0,3e-154,0},{3e-154,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,3e-154,0},{3e-154,0,3e-154})",
+      "formula": "LET(v,PEARSON({0,3e-154,0},{3e-154,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,3e-154,0},{3e-154,0,3e-154})",
+      "formula": "LET(v,RSQ({0,3e-154,0},{3e-154,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,3e-154,0},{3e-154,0,3e-154})",
+      "formula": "LET(v,SLOPE({0,3e-154,0},{3e-154,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,3e-154,0},{3e-154,0,3e-154})",
+      "formula": "LET(v,INTERCEPT({0,3e-154,0},{3e-154,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-154
+    },
+    {
+      "expression": "STEYX({0,3e-154,0},{3e-154,0,3e-154})",
+      "formula": "LET(v,STEYX({0,3e-154,0},{3e-154,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,4e-154,0},{4e-154,0,4e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.P({0,4e-154,0},{4e-154,0,4e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.237037037037037
+    },
+    {
+      "expression": "COVARIANCE.S({0,4e-154,0},{4e-154,0,4e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.S({0,4e-154,0},{4e-154,0,4e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.355555555555556
+    },
+    {
+      "expression": "COVAR({0,4e-154,0},{4e-154,0,4e-154})*1e307",
+      "formula": "LET(v,COVAR({0,4e-154,0},{4e-154,0,4e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.237037037037037
+    },
+    {
+      "expression": "CORREL({0,4e-154,0},{4e-154,0,4e-154})",
+      "formula": "LET(v,CORREL({0,4e-154,0},{4e-154,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,4e-154,0},{4e-154,0,4e-154})",
+      "formula": "LET(v,PEARSON({0,4e-154,0},{4e-154,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,4e-154,0},{4e-154,0,4e-154})",
+      "formula": "LET(v,RSQ({0,4e-154,0},{4e-154,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,4e-154,0},{4e-154,0,4e-154})",
+      "formula": "LET(v,SLOPE({0,4e-154,0},{4e-154,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,4e-154,0},{4e-154,0,4e-154})",
+      "formula": "LET(v,INTERCEPT({0,4e-154,0},{4e-154,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4e-154
+    },
+    {
+      "expression": "STEYX({0,4e-154,0},{4e-154,0,4e-154})",
+      "formula": "LET(v,STEYX({0,4e-154,0},{4e-154,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,6e-154,0},{6e-154,0,6e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.P({0,6e-154,0},{6e-154,0,6e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.8
+    },
+    {
+      "expression": "COVARIANCE.S({0,6e-154,0},{6e-154,0,6e-154})*1e307",
+      "formula": "LET(v,COVARIANCE.S({0,6e-154,0},{6e-154,0,6e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1.2
+    },
+    {
+      "expression": "COVAR({0,6e-154,0},{6e-154,0,6e-154})*1e307",
+      "formula": "LET(v,COVAR({0,6e-154,0},{6e-154,0,6e-154})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.8
+    },
+    {
+      "expression": "CORREL({0,6e-154,0},{6e-154,0,6e-154})",
+      "formula": "LET(v,CORREL({0,6e-154,0},{6e-154,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,6e-154,0},{6e-154,0,6e-154})",
+      "formula": "LET(v,PEARSON({0,6e-154,0},{6e-154,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,6e-154,0},{6e-154,0,6e-154})",
+      "formula": "LET(v,RSQ({0,6e-154,0},{6e-154,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,6e-154,0},{6e-154,0,6e-154})",
+      "formula": "LET(v,SLOPE({0,6e-154,0},{6e-154,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,6e-154,0},{6e-154,0,6e-154})",
+      "formula": "LET(v,INTERCEPT({0,6e-154,0},{6e-154,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "STEYX({0,6e-154,0},{6e-154,0,6e-154})",
+      "formula": "LET(v,STEYX({0,6e-154,0},{6e-154,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.8989794855664e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-153,0},{1e-153,0,1e-153})*1e307",
+      "formula": "LET(v,COVARIANCE.P({0,1e-153,0},{1e-153,0,1e-153})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.22222222222222
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-153,0},{1e-153,0,1e-153})*1e307",
+      "formula": "LET(v,COVARIANCE.S({0,1e-153,0},{1e-153,0,1e-153})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.33333333333333
+    },
+    {
+      "expression": "COVAR({0,1e-153,0},{1e-153,0,1e-153})*1e307",
+      "formula": "LET(v,COVAR({0,1e-153,0},{1e-153,0,1e-153})*1e307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.22222222222222
+    },
+    {
+      "expression": "CORREL({0,1e-153,0},{1e-153,0,1e-153})",
+      "formula": "LET(v,CORREL({0,1e-153,0},{1e-153,0,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e-153,0},{1e-153,0,1e-153})",
+      "formula": "LET(v,PEARSON({0,1e-153,0},{1e-153,0,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e-153,0},{1e-153,0,1e-153})",
+      "formula": "LET(v,RSQ({0,1e-153,0},{1e-153,0,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e-153,0},{1e-153,0,1e-153})",
+      "formula": "LET(v,SLOPE({0,1e-153,0},{1e-153,0,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e-153,0},{1e-153,0,1e-153})",
+      "formula": "LET(v,INTERCEPT({0,1e-153,0},{1e-153,0,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-153
+    },
+    {
+      "expression": "STEYX({0,1e-153,0},{1e-153,0,1e-153})",
+      "formula": "LET(v,STEYX({0,1e-153,0},{1e-153,0,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.1649658092773e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,COVARIANCE.P({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e-201
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,COVARIANCE.S({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.3333333333333e-201
+    },
+    {
+      "expression": "COVAR({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,COVAR({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e-201
+    },
+    {
+      "expression": "CORREL({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,CORREL({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,PEARSON({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,RSQ({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,SLOPE({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,INTERCEPT({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-100
+    },
+    {
+      "expression": "STEYX({0,1e-100,0},{1e-100,0,1e-100})",
+      "formula": "LET(v,STEYX({0,1e-100,0},{1e-100,0,1e-100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.1649658092773e-101
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,COVARIANCE.P({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e-155
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,COVARIANCE.S({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.3333333333333e-155
+    },
+    {
+      "expression": "COVAR({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,COVAR({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e-155
+    },
+    {
+      "expression": "CORREL({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,CORREL({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,PEARSON({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,RSQ({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,SLOPE({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,INTERCEPT({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-77
+    },
+    {
+      "expression": "STEYX({0,1e-77,0},{1e-77,0,1e-77})",
+      "formula": "LET(v,STEYX({0,1e-77,0},{1e-77,0,1e-77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.16496580927726e-78
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,COVARIANCE.P({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e-101
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,COVARIANCE.S({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.3333333333333e-101
+    },
+    {
+      "expression": "COVAR({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,COVAR({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e-101
+    },
+    {
+      "expression": "CORREL({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,CORREL({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,PEARSON({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,RSQ({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,SLOPE({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,INTERCEPT({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-50
+    },
+    {
+      "expression": "STEYX({0,1e-50,0},{1e-50,0,1e-50})",
+      "formula": "LET(v,STEYX({0,1e-50,0},{1e-50,0,1e-50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.12648609341519e-58
+    },
+    {
+      "expression": "COVARIANCE.P({0,1,0},{1,0,1})",
+      "formula": "LET(v,COVARIANCE.P({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.222222222222222
+    },
+    {
+      "expression": "COVARIANCE.S({0,1,0},{1,0,1})",
+      "formula": "LET(v,COVARIANCE.S({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333
+    },
+    {
+      "expression": "COVAR({0,1,0},{1,0,1})",
+      "formula": "LET(v,COVAR({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.222222222222222
+    },
+    {
+      "expression": "CORREL({0,1,0},{1,0,1})",
+      "formula": "LET(v,CORREL({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1,0},{1,0,1})",
+      "formula": "LET(v,PEARSON({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1,0},{1,0,1})",
+      "formula": "LET(v,RSQ({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1,0},{1,0,1})",
+      "formula": "LET(v,SLOPE({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1,0},{1,0,1})",
+      "formula": "LET(v,INTERCEPT({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "STEYX({0,1,0},{1,0,1})",
+      "formula": "LET(v,STEYX({0,1,0},{1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,COVARIANCE.P({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e+99
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,COVARIANCE.S({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.3333333333333e+99
+    },
+    {
+      "expression": "COVAR({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,COVAR({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e+99
+    },
+    {
+      "expression": "CORREL({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,CORREL({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,PEARSON({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,RSQ({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,SLOPE({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,INTERCEPT({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+50
+    },
+    {
+      "expression": "STEYX({0,1e50,0},{1e50,0,1e50})",
+      "formula": "LET(v,STEYX({0,1e50,0},{1e50,0,1e50}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,COVARIANCE.P({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e+153
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,COVARIANCE.S({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.3333333333333e+153
+    },
+    {
+      "expression": "COVAR({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,COVAR({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e+153
+    },
+    {
+      "expression": "CORREL({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,CORREL({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,PEARSON({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,RSQ({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,SLOPE({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,INTERCEPT({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+77
+    },
+    {
+      "expression": "STEYX({0,1e77,0},{1e77,0,1e77})",
+      "formula": "LET(v,STEYX({0,1e77,0},{1e77,0,1e77}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,COVARIANCE.P({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e+199
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,COVARIANCE.S({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.3333333333333e+199
+    },
+    {
+      "expression": "COVAR({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,COVAR({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.2222222222222e+199
+    },
+    {
+      "expression": "CORREL({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,CORREL({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,PEARSON({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,RSQ({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.999999999999999
+    },
+    {
+      "expression": "SLOPE({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,SLOPE({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,INTERCEPT({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+100
+    },
+    {
+      "expression": "STEYX({0,1e100,0},{1e100,0,1e100})",
+      "formula": "LET(v,STEYX({0,1e100,0},{1e100,0,1e100}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e153,0},{1e153,0,1e153})*1e-307",
+      "formula": "LET(v,COVARIANCE.P({0,1e153,0},{1e153,0,1e153})*1e-307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.0222222222222222
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e153,0},{1e153,0,1e153})*1e-307",
+      "formula": "LET(v,COVARIANCE.S({0,1e153,0},{1e153,0,1e153})*1e-307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.0333333333333333
+    },
+    {
+      "expression": "COVAR({0,1e153,0},{1e153,0,1e153})*1e-307",
+      "formula": "LET(v,COVAR({0,1e153,0},{1e153,0,1e153})*1e-307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.0222222222222222
+    },
+    {
+      "expression": "CORREL({0,1e153,0},{1e153,0,1e153})",
+      "formula": "LET(v,CORREL({0,1e153,0},{1e153,0,1e153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e153,0},{1e153,0,1e153})",
+      "formula": "LET(v,PEARSON({0,1e153,0},{1e153,0,1e153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e153,0},{1e153,0,1e153})",
+      "formula": "LET(v,RSQ({0,1e153,0},{1e153,0,1e153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e153,0},{1e153,0,1e153})",
+      "formula": "LET(v,SLOPE({0,1e153,0},{1e153,0,1e153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e153,0},{1e153,0,1e153})",
+      "formula": "LET(v,INTERCEPT({0,1e153,0},{1e153,0,1e153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+153
+    },
+    {
+      "expression": "STEYX({0,1e153,0},{1e153,0,1e153})",
+      "formula": "LET(v,STEYX({0,1e153,0},{1e153,0,1e153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e154,0},{1e154,0,1e154})*1e-307",
+      "formula": "LET(v,COVARIANCE.P({0,1e154,0},{1e154,0,1e154})*1e-307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.22222222222222
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e154,0},{1e154,0,1e154})*1e-307",
+      "formula": "LET(v,COVARIANCE.S({0,1e154,0},{1e154,0,1e154})*1e-307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.33333333333333
+    },
+    {
+      "expression": "COVAR({0,1e154,0},{1e154,0,1e154})*1e-307",
+      "formula": "LET(v,COVAR({0,1e154,0},{1e154,0,1e154})*1e-307,IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.22222222222222
+    },
+    {
+      "expression": "CORREL({0,1e154,0},{1e154,0,1e154})",
+      "formula": "LET(v,CORREL({0,1e154,0},{1e154,0,1e154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,1e154,0},{1e154,0,1e154})",
+      "formula": "LET(v,PEARSON({0,1e154,0},{1e154,0,1e154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,1e154,0},{1e154,0,1e154})",
+      "formula": "LET(v,RSQ({0,1e154,0},{1e154,0,1e154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,1e154,0},{1e154,0,1e154})",
+      "formula": "LET(v,SLOPE({0,1e154,0},{1e154,0,1e154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,1e154,0},{1e154,0,1e154})",
+      "formula": "LET(v,INTERCEPT({0,1e154,0},{1e154,0,1e154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e+154
+    },
+    {
+      "expression": "STEYX({0,1e154,0},{1e154,0,1e154})",
+      "formula": "LET(v,STEYX({0,1e154,0},{1e154,0,1e154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,3e-154},{0,0,3e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,3e-154},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,3e-154},{0,0,3e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,3e-154},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,0,3e-154},{0,0,3e-154})",
+      "formula": "LET(v,CORREL({0,0,3e-154},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3e-154},{0,0,3e-154})",
+      "formula": "LET(v,RSQ({0,0,3e-154},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,0,3e-154},{0,0,3e-154})",
+      "formula": "LET(v,SLOPE({0,0,3e-154},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "INTERCEPT({0,0,3e-154},{0,0,3e-154})",
+      "formula": "LET(v,INTERCEPT({0,0,3e-154},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,3e-154},{0,0,3e-154})",
+      "formula": "LET(v,STEYX({0,0,3e-154},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,3e-154},{3e-154,0,0})",
+      "formula": "LET(v,COVARIANCE.P({0,0,3e-154},{3e-154,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,3e-154},{3e-154,0,0})",
+      "formula": "LET(v,COVARIANCE.S({0,0,3e-154},{3e-154,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,0,3e-154},{3e-154,0,0})",
+      "formula": "LET(v,CORREL({0,0,3e-154},{3e-154,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3e-154},{3e-154,0,0})",
+      "formula": "LET(v,RSQ({0,0,3e-154},{3e-154,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,0,3e-154},{3e-154,0,0})",
+      "formula": "LET(v,SLOPE({0,0,3e-154},{3e-154,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "INTERCEPT({0,0,3e-154},{3e-154,0,0})",
+      "formula": "LET(v,INTERCEPT({0,0,3e-154},{3e-154,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "STEYX({0,0,3e-154},{3e-154,0,0})",
+      "formula": "LET(v,STEYX({0,0,3e-154},{3e-154,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-154
+    },
+    {
+      "expression": "COVARIANCE.P({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154})",
+      "formula": "LET(v,COVARIANCE.P({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154})",
+      "formula": "LET(v,COVARIANCE.S({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154})",
+      "formula": "LET(v,CORREL({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154})",
+      "formula": "LET(v,RSQ({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154})",
+      "formula": "LET(v,SLOPE({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154})",
+      "formula": "LET(v,INTERCEPT({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154})",
+      "formula": "LET(v,STEYX({1e-154,-1e-154,1e-154,-1e-154},{1e-154,-1e-154,1e-154,-1e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0},{1,2,3})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0},{1,2,3})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,0,0},{1,2,3})",
+      "formula": "LET(v,CORREL({0,0,0},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,0,0},{1,2,3})",
+      "formula": "LET(v,RSQ({0,0,0},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,0,0},{1,2,3})",
+      "formula": "LET(v,SLOPE({0,0,0},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "INTERCEPT({0,0,0},{1,2,3})",
+      "formula": "LET(v,INTERCEPT({0,0,0},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0},{1,2,3})",
+      "formula": "LET(v,STEYX({0,0,0},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3},{0,0,0})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3},{0,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3},{0,0,0})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3},{0,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({1,2,3},{0,0,0})",
+      "formula": "LET(v,CORREL({1,2,3},{0,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({1,2,3},{0,0,0})",
+      "formula": "LET(v,RSQ({1,2,3},{0,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({1,2,3},{0,0,0})",
+      "formula": "LET(v,SLOPE({1,2,3},{0,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({1,2,3},{0,0,0})",
+      "formula": "LET(v,INTERCEPT({1,2,3},{0,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({1,2,3},{0,0,0})",
+      "formula": "LET(v,STEYX({1,2,3},{0,0,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3},{2,3,4})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3},{2,3,4}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3},{2,3,4})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3},{2,3,4}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({1,2,3},{2,3,4})",
+      "formula": "LET(v,CORREL({1,2,3},{2,3,4}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({1,2,3},{2,3,4})",
+      "formula": "LET(v,RSQ({1,2,3},{2,3,4}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({1,2,3},{2,3,4})",
+      "formula": "LET(v,SLOPE({1,2,3},{2,3,4}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "INTERCEPT({1,2,3},{2,3,4})",
+      "formula": "LET(v,INTERCEPT({1,2,3},{2,3,4}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "STEYX({1,2,3},{2,3,4})",
+      "formula": "LET(v,STEYX({1,2,3},{2,3,4}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3},{1,2,3})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.666666666666667
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3},{1,2,3})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({1,2,3},{1,2,3})",
+      "formula": "LET(v,CORREL({1,2,3},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({1,2,3},{1,2,3})",
+      "formula": "LET(v,RSQ({1,2,3},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({1,2,3},{1,2,3})",
+      "formula": "LET(v,SLOPE({1,2,3},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "INTERCEPT({1,2,3},{1,2,3})",
+      "formula": "LET(v,INTERCEPT({1,2,3},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({1,2,3},{1,2,3})",
+      "formula": "LET(v,STEYX({1,2,3},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3},{3,1,2})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3},{3,1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.333333333333333
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3},{3,1,2})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3},{3,1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "CORREL({1,2,3},{3,1,2})",
+      "formula": "LET(v,CORREL({1,2,3},{3,1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "RSQ({1,2,3},{3,1,2})",
+      "formula": "LET(v,RSQ({1,2,3},{3,1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "SLOPE({1,2,3},{3,1,2})",
+      "formula": "LET(v,SLOPE({1,2,3},{3,1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "INTERCEPT({1,2,3},{3,1,2})",
+      "formula": "LET(v,INTERCEPT({1,2,3},{3,1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3
+    },
+    {
+      "expression": "STEYX({1,2,3},{3,1,2})",
+      "formula": "LET(v,STEYX({1,2,3},{3,1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.22474487139159
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3,4},{2,5,3,8})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3,4},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3,4},{2,5,3,8})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3,4},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.66666666666667
+    },
+    {
+      "expression": "CORREL({1,2,3,4},{2,5,3,8})",
+      "formula": "LET(v,CORREL({1,2,3,4},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.780720058358827
+    },
+    {
+      "expression": "RSQ({1,2,3,4},{2,5,3,8})",
+      "formula": "LET(v,RSQ({1,2,3,4},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.609523809523809
+    },
+    {
+      "expression": "SLOPE({1,2,3,4},{2,5,3,8})",
+      "formula": "LET(v,SLOPE({1,2,3,4},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.380952380952381
+    },
+    {
+      "expression": "INTERCEPT({1,2,3,4},{2,5,3,8})",
+      "formula": "LET(v,INTERCEPT({1,2,3,4},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.785714285714286
+    },
+    {
+      "expression": "STEYX({1,2,3,4},{2,5,3,8})",
+      "formula": "LET(v,STEYX({1,2,3,4},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.988023520059354
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3},{1,2})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3},{1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3},{1,2})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3},{1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "CORREL({1,2,3},{1,2})",
+      "formula": "LET(v,CORREL({1,2,3},{1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "RSQ({1,2,3},{1,2})",
+      "formula": "LET(v,RSQ({1,2,3},{1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "SLOPE({1,2,3},{1,2})",
+      "formula": "LET(v,SLOPE({1,2,3},{1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "INTERCEPT({1,2,3},{1,2})",
+      "formula": "LET(v,INTERCEPT({1,2,3},{1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "STEYX({1,2,3},{1,2})",
+      "formula": "LET(v,STEYX({1,2,3},{1,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR7"
+    },
+    {
+      "expression": "COVARIANCE.P({1,TRUE,3},{2,4,1})",
+      "formula": "LET(v,COVARIANCE.P({1,TRUE,3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "COVARIANCE.S({1,TRUE,3},{2,4,1})",
+      "formula": "LET(v,COVARIANCE.S({1,TRUE,3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "CORREL({1,TRUE,3},{2,4,1})",
+      "formula": "LET(v,CORREL({1,TRUE,3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({1,TRUE,3},{2,4,1})",
+      "formula": "LET(v,RSQ({1,TRUE,3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({1,TRUE,3},{2,4,1})",
+      "formula": "LET(v,SLOPE({1,TRUE,3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2
+    },
+    {
+      "expression": "INTERCEPT({1,TRUE,3},{2,4,1})",
+      "formula": "LET(v,INTERCEPT({1,TRUE,3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5
+    },
+    {
+      "expression": "STEYX({1,TRUE,3},{2,4,1})",
+      "formula": "LET(v,STEYX({1,TRUE,3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({1,\"x\",3},{2,4,1})",
+      "formula": "LET(v,COVARIANCE.P({1,\"x\",3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "COVARIANCE.S({1,\"x\",3},{2,4,1})",
+      "formula": "LET(v,COVARIANCE.S({1,\"x\",3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "CORREL({1,\"x\",3},{2,4,1})",
+      "formula": "LET(v,CORREL({1,\"x\",3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({1,\"x\",3},{2,4,1})",
+      "formula": "LET(v,RSQ({1,\"x\",3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({1,\"x\",3},{2,4,1})",
+      "formula": "LET(v,SLOPE({1,\"x\",3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2
+    },
+    {
+      "expression": "INTERCEPT({1,\"x\",3},{2,4,1})",
+      "formula": "LET(v,INTERCEPT({1,\"x\",3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5
+    },
+    {
+      "expression": "STEYX({1,\"x\",3},{2,4,1})",
+      "formula": "LET(v,STEYX({1,\"x\",3},{2,4,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({1},{2})",
+      "formula": "LET(v,COVARIANCE.P({1},{2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({1},{2})",
+      "formula": "LET(v,COVARIANCE.S({1},{2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "CORREL({1},{2})",
+      "formula": "LET(v,CORREL({1},{2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({1},{2})",
+      "formula": "LET(v,RSQ({1},{2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({1},{2})",
+      "formula": "LET(v,SLOPE({1},{2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({1},{2})",
+      "formula": "LET(v,INTERCEPT({1},{2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({1},{2})",
+      "formula": "LET(v,STEYX({1},{2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.25e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.5e-308
+    },
+    {
+      "expression": "COVAR({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,COVAR({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.25e-308
+    },
+    {
+      "expression": "CORREL({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,CORREL({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,PEARSON({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,RSQ({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,SLOPE({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "INTERCEPT({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,INTERCEPT({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,3e-154},{0,3e-154})",
+      "formula": "LET(v,STEYX({0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST(2,{0,3e-154},{0,3e-154})",
+      "formula": "LET(v,FORECAST(2,{0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,3e-154},{0,3e-154})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,3e-154},{0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "COVARIANCE.P({0,3e-154},{0,1})",
+      "formula": "LET(v,COVARIANCE.P({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.5e-155
+    },
+    {
+      "expression": "COVARIANCE.S({0,3e-154},{0,1})",
+      "formula": "LET(v,COVARIANCE.S({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.5e-154
+    },
+    {
+      "expression": "COVAR({0,3e-154},{0,1})",
+      "formula": "LET(v,COVAR({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.5e-155
+    },
+    {
+      "expression": "CORREL({0,3e-154},{0,1})",
+      "formula": "LET(v,CORREL({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,3e-154},{0,1})",
+      "formula": "LET(v,PEARSON({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,3e-154},{0,1})",
+      "formula": "LET(v,RSQ({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,3e-154},{0,1})",
+      "formula": "LET(v,SLOPE({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-154
+    },
+    {
+      "expression": "INTERCEPT({0,3e-154},{0,1})",
+      "formula": "LET(v,INTERCEPT({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,3e-154},{0,1})",
+      "formula": "LET(v,STEYX({0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST(2,{0,3e-154},{0,1})",
+      "formula": "LET(v,FORECAST(2,{0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,3e-154},{0,1})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,3e-154},{0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,COVARIANCE.P({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-155
+    },
+    {
+      "expression": "COVARIANCE.S({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,COVARIANCE.S({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "COVAR({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,COVAR({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-155
+    },
+    {
+      "expression": "CORREL({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,CORREL({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,PEARSON({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,RSQ({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,SLOPE({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-154
+    },
+    {
+      "expression": "INTERCEPT({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,INTERCEPT({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6560843210556e-170
+    },
+    {
+      "expression": "STEYX({0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,STEYX({0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,FORECAST(2,{0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,3e-154,0},{0,1,0})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,3e-154,0},{0,1,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,COVARIANCE.P({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-155
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,COVARIANCE.S({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "COVAR({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,COVAR({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-155
+    },
+    {
+      "expression": "CORREL({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,CORREL({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,PEARSON({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,RSQ({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,SLOPE({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-154
+    },
+    {
+      "expression": "INTERCEPT({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,INTERCEPT({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6560843210556e-170
+    },
+    {
+      "expression": "STEYX({0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,STEYX({0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,FORECAST(2,{0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,0,3e-154},{0,0,1})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,0,3e-154},{0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.625e-155
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.5e-155
+    },
+    {
+      "expression": "COVAR({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,COVAR({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.625e-155
+    },
+    {
+      "expression": "CORREL({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,CORREL({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,PEARSON({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,RSQ({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,SLOPE({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-154
+    },
+    {
+      "expression": "INTERCEPT({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,INTERCEPT({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,STEYX({0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,FORECAST(2,{0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,0,0,3e-154},{0,0,0,1})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,0,0,3e-154},{0,0,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.25e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-308
+    },
+    {
+      "expression": "COVAR({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,COVAR({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.25e-308
+    },
+    {
+      "expression": "CORREL({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,CORREL({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,RSQ({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,SLOPE({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "INTERCEPT({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,INTERCEPT({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,STEYX({0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.1213203435596e-154
+    },
+    {
+      "expression": "FORECAST(2,{0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,FORECAST(2,{0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,0,0,4e-154},{0,0,0,4e-154})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,0,0,4e-154},{0,0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "COVARIANCE.P({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,COVARIANCE.P({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-155
+    },
+    {
+      "expression": "COVARIANCE.S({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,COVARIANCE.S({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "COVAR({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,COVAR({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-155
+    },
+    {
+      "expression": "CORREL({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,CORREL({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,PEARSON({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,RSQ({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,SLOPE({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "INTERCEPT({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,INTERCEPT({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,STEYX({-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,FORECAST(2,{-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-154
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{-1e-154,0,1e-154},{-1,0,1})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{-1e-154,0,1e-154},{-1,0,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.3703703703704e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -3.5555555555556e-308
+    },
+    {
+      "expression": "COVAR({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,COVAR({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2.3703703703704e-308
+    },
+    {
+      "expression": "CORREL({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,CORREL({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,PEARSON({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,RSQ({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,SLOPE({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "INTERCEPT({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,INTERCEPT({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e-154
+    },
+    {
+      "expression": "STEYX({0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,STEYX({0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6666666666667e-154
+    },
+    {
+      "expression": "FORECAST(2,{0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,FORECAST(2,{0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,4e-154,0},{0,0,4e-154})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,4e-154,0},{0,0,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -2
+    },
+    {
+      "expression": "COVARIANCE.P({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,COVAR({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,CORREL({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,PEARSON({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,RSQ({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,SLOPE({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "INTERCEPT({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,INTERCEPT({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "STEYX({0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,STEYX({0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-154
+    },
+    {
+      "expression": "FORECAST(2,{0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,FORECAST(2,{0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,3e-154,0},{0,0,3e-154})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,3e-154,0},{0,0,3e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-154
+    },
+    {
+      "expression": "COVARIANCE.P({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -4e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -6e-308
+    },
+    {
+      "expression": "COVAR({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,COVAR({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -4e-308
+    },
+    {
+      "expression": "CORREL({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,CORREL({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "PEARSON({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,PEARSON({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "RSQ({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,RSQ({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "SLOPE({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,SLOPE({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "INTERCEPT({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,INTERCEPT({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3e-154
+    },
+    {
+      "expression": "STEYX({0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,STEYX({0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.8989794855664e-154
+    },
+    {
+      "expression": "FORECAST(2,{0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,FORECAST(2,{0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,6e-154,0},{0,0,6e-154})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,6e-154,0},{0,0,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,COVAR({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,CORREL({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,PEARSON({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,RSQ({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "SLOPE({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,SLOPE({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.415384615384615
+    },
+    {
+      "expression": "INTERCEPT({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,INTERCEPT({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2269230769231e-154
+    },
+    {
+      "expression": "STEYX({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,STEYX({0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.5e-154
+    },
+    {
+      "expression": "FORECAST(2,{0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,FORECAST(2,{0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.830769230769231
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,1e-154,2e-154,3e-154},{4e-154,1e-154,0,2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.830769230769231
+    },
+    {
+      "expression": "COVARIANCE.P({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,COVARIANCE.P({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,COVARIANCE.S({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,COVAR({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,CORREL({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,PEARSON({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,RSQ({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,SLOPE({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,INTERCEPT({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,STEYX({0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST(2,{0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,FORECAST(2,{0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,3e-154,0},{1,1,1})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,3e-154,0},{1,1,1}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,COVARIANCE.P({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2222222222222e-101
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,COVARIANCE.S({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.3333333333333e-101
+    },
+    {
+      "expression": "COVAR({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,COVAR({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2222222222222e-101
+    },
+    {
+      "expression": "CORREL({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,CORREL({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,PEARSON({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,RSQ({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,SLOPE({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-300
+    },
+    {
+      "expression": "INTERCEPT({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,INTERCEPT({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.4504177599298e-216
+    },
+    {
+      "expression": "STEYX({0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,STEYX({0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,FORECAST(2,{0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.4504177599298e-216
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,1e-200,0},{0,1e100,0})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,1e-200,0},{0,1e100,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.4504177599298e-216
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,COVARIANCE.P({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2222222222222e-101
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,COVARIANCE.S({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.3333333333333e-101
+    },
+    {
+      "expression": "COVAR({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,COVAR({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2222222222222e-101
+    },
+    {
+      "expression": "CORREL({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,CORREL({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,PEARSON({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,RSQ({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,SLOPE({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,INTERCEPT({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,STEYX({0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST(2,{0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,FORECAST(2,{0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,1e100,0},{0,1e-200,0})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,1e100,0},{0,1e-200,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,COVARIANCE.P({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.222222222222222
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,COVARIANCE.S({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "COVAR({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,COVAR({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.222222222222222
+    },
+    {
+      "expression": "CORREL({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,CORREL({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,PEARSON({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,RSQ({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,SLOPE({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "INTERCEPT({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,INTERCEPT({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.3333333333333e-155
+    },
+    {
+      "expression": "STEYX({0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,STEYX({0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,FORECAST(2,{0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.3333333333333e-155
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,1e-154,0},{0,1e154,0})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,1e-154,0},{0,1e154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.3333333333333e-155
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,COVARIANCE.P({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.222222222222222
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,COVARIANCE.S({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.333333333333333
+    },
+    {
+      "expression": "COVAR({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,COVAR({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.222222222222222
+    },
+    {
+      "expression": "CORREL({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,CORREL({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,PEARSON({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,RSQ({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,SLOPE({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,INTERCEPT({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,STEYX({0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST(2,{0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,FORECAST(2,{0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,1e154,0},{0,1e-154,0})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,1e154,0},{0,1e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "COVARIANCE.P({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,COVARIANCE.P({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-308
+    },
+    {
+      "expression": "COVARIANCE.S({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,COVARIANCE.S({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-307
+    },
+    {
+      "expression": "COVAR({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,COVAR({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-308
+    },
+    {
+      "expression": "CORREL({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,CORREL({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,PEARSON({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,RSQ({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,SLOPE({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-307
+    },
+    {
+      "expression": "INTERCEPT({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,INTERCEPT({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "-0"
+    },
+    {
+      "expression": "STEYX({1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,STEYX({1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,FORECAST(2,{1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-307
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{1e-307,2e-307,3e-307},{1,2,3})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{1e-307,2e-307,3e-307},{1,2,3}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2e-307
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-308
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1e-307
+    },
+    {
+      "expression": "COVAR({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,COVAR({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.6666666666667e-308
+    },
+    {
+      "expression": "CORREL({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,CORREL({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "PEARSON({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,PEARSON({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "RSQ({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,RSQ({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "SLOPE({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,SLOPE({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "INTERCEPT({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,INTERCEPT({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "STEYX({1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,STEYX({1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST(2,{1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,FORECAST(2,{1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{1,2,3},{1e-307,2e-307,3e-307})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{1,2,3},{1e-307,2e-307,3e-307}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "CORREL({0,3.2e-154},{0,3.2e-154})",
+      "formula": "LET(v,CORREL({0,3.2e-154},{0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,3.2e-154},{0,3.2e-154})",
+      "formula": "LET(v,PEARSON({0,3.2e-154},{0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,3.2e-154},{0,3.2e-154})",
+      "formula": "LET(v,RSQ({0,3.2e-154},{0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,3.2e-154},{0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,3.2e-154},{0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.56e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,3.2e-154},{0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,3.2e-154},{0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.12e-308
+    },
+    {
+      "expression": "STEYX({0,3.2e-154},{0,3.2e-154})",
+      "formula": "LET(v,STEYX({0,3.2e-154},{0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "CORREL({0,0,3.2e-154},{0,0,3.2e-154})",
+      "formula": "LET(v,CORREL({0,0,3.2e-154},{0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.2e-154},{0,0,3.2e-154})",
+      "formula": "LET(v,PEARSON({0,0,3.2e-154},{0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.2e-154},{0,0,3.2e-154})",
+      "formula": "LET(v,RSQ({0,0,3.2e-154},{0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,3.2e-154},{0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,3.2e-154},{0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,3.2e-154},{0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,3.2e-154},{0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2755555555556e-308
+    },
+    {
+      "expression": "STEYX({0,0,3.2e-154},{0,0,3.2e-154})",
+      "formula": "LET(v,STEYX({0,0,3.2e-154},{0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.1333333333333e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,3.2e-154},{0,0,0,3.2e-154})",
+      "formula": "LET(v,CORREL({0,0,0,3.2e-154},{0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,3.2e-154},{0,0,0,3.2e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,3.2e-154},{0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,3.2e-154},{0,0,0,3.2e-154})",
+      "formula": "LET(v,RSQ({0,0,0,3.2e-154},{0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,3.2e-154},{0,0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,3.2e-154},{0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,3.2e-154},{0,0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,3.2e-154},{0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,3.2e-154},{0,0,0,3.2e-154})",
+      "formula": "LET(v,STEYX({0,0,0,3.2e-154},{0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6970562748477e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,3.2e-154},{0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,0,0,0,3.2e-154},{0,0,0,0,0,0,0,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,3.5e-154},{0,3.5e-154})",
+      "formula": "LET(v,CORREL({0,3.5e-154},{0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,3.5e-154},{0,3.5e-154})",
+      "formula": "LET(v,PEARSON({0,3.5e-154},{0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,3.5e-154},{0,3.5e-154})",
+      "formula": "LET(v,RSQ({0,3.5e-154},{0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,3.5e-154},{0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,3.5e-154},{0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.0625e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,3.5e-154},{0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,3.5e-154},{0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.125e-308
+    },
+    {
+      "expression": "STEYX({0,3.5e-154},{0,3.5e-154})",
+      "formula": "LET(v,STEYX({0,3.5e-154},{0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "CORREL({0,0,3.5e-154},{0,0,3.5e-154})",
+      "formula": "LET(v,CORREL({0,0,3.5e-154},{0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.5e-154},{0,0,3.5e-154})",
+      "formula": "LET(v,PEARSON({0,0,3.5e-154},{0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.5e-154},{0,0,3.5e-154})",
+      "formula": "LET(v,RSQ({0,0,3.5e-154},{0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,3.5e-154},{0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,3.5e-154},{0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,3.5e-154},{0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,3.5e-154},{0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.7222222222222e-308
+    },
+    {
+      "expression": "STEYX({0,0,3.5e-154},{0,0,3.5e-154})",
+      "formula": "LET(v,STEYX({0,0,3.5e-154},{0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.3333333333333e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,3.5e-154},{0,0,0,3.5e-154})",
+      "formula": "LET(v,CORREL({0,0,0,3.5e-154},{0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,3.5e-154},{0,0,0,3.5e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,3.5e-154},{0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,3.5e-154},{0,0,0,3.5e-154})",
+      "formula": "LET(v,RSQ({0,0,0,3.5e-154},{0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,3.5e-154},{0,0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,3.5e-154},{0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,3.5e-154},{0,0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,3.5e-154},{0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.296875e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,3.5e-154},{0,0,0,3.5e-154})",
+      "formula": "LET(v,STEYX({0,0,0,3.5e-154},{0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.8561553006147e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,3.5e-154},{0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.616580753731e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,0,0,0,3.5e-154},{0,0,0,0,0,0,0,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,3.9e-154},{0,3.9e-154})",
+      "formula": "LET(v,CORREL({0,3.9e-154},{0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,3.9e-154},{0,3.9e-154})",
+      "formula": "LET(v,PEARSON({0,3.9e-154},{0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,3.9e-154},{0,3.9e-154})",
+      "formula": "LET(v,RSQ({0,3.9e-154},{0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,3.9e-154},{0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,3.9e-154},{0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.8025e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,3.9e-154},{0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,3.9e-154},{0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.605e-308
+    },
+    {
+      "expression": "STEYX({0,3.9e-154},{0,3.9e-154})",
+      "formula": "LET(v,STEYX({0,3.9e-154},{0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "CORREL({0,0,3.9e-154},{0,0,3.9e-154})",
+      "formula": "LET(v,CORREL({0,0,3.9e-154},{0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,3.9e-154},{0,0,3.9e-154})",
+      "formula": "LET(v,PEARSON({0,0,3.9e-154},{0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,3.9e-154},{0,0,3.9e-154})",
+      "formula": "LET(v,RSQ({0,0,3.9e-154},{0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,3.9e-154},{0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,3.9e-154},{0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.2533333333333e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,3.9e-154},{0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,3.9e-154},{0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.38e-308
+    },
+    {
+      "expression": "STEYX({0,0,3.9e-154},{0,0,3.9e-154})",
+      "formula": "LET(v,STEYX({0,0,3.9e-154},{0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,3.9e-154},{0,0,0,3.9e-154})",
+      "formula": "LET(v,CORREL({0,0,0,3.9e-154},{0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,3.9e-154},{0,0,0,3.9e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,3.9e-154},{0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,3.9e-154},{0,0,0,3.9e-154})",
+      "formula": "LET(v,RSQ({0,0,0,3.9e-154},{0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,3.9e-154},{0,0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,3.9e-154},{0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,3.9e-154},{0,0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,3.9e-154},{0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.851875e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,3.9e-154},{0,0,0,3.9e-154})",
+      "formula": "LET(v,STEYX({0,0,0,3.9e-154},{0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.0682873349707e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.4336e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,3.9e-154},{0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.8013328398716e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,0,0,0,3.9e-154},{0,0,0,0,0,0,0,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({0,5e-154},{0,5e-154})",
+      "formula": "LET(v,CORREL({0,5e-154},{0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,5e-154},{0,5e-154})",
+      "formula": "LET(v,PEARSON({0,5e-154},{0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,5e-154},{0,5e-154})",
+      "formula": "LET(v,RSQ({0,5e-154},{0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,5e-154},{0,5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,5e-154},{0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.25e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,5e-154},{0,5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,5e-154},{0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.25e-307
+    },
+    {
+      "expression": "STEYX({0,5e-154},{0,5e-154})",
+      "formula": "LET(v,STEYX({0,5e-154},{0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "CORREL({0,0,5e-154},{0,0,5e-154})",
+      "formula": "LET(v,CORREL({0,0,5e-154},{0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,5e-154},{0,0,5e-154})",
+      "formula": "LET(v,PEARSON({0,0,5e-154},{0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,5e-154},{0,0,5e-154})",
+      "formula": "LET(v,RSQ({0,0,5e-154},{0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,5e-154},{0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,5e-154},{0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.5555555555556e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,5e-154},{0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,5e-154},{0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 8.3333333333333e-308
+    },
+    {
+      "expression": "STEYX({0,0,5e-154},{0,0,5e-154})",
+      "formula": "LET(v,STEYX({0,0,5e-154},{0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.0824829046386e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,5e-154},{0,0,0,5e-154})",
+      "formula": "LET(v,CORREL({0,0,0,5e-154},{0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,0,5e-154},{0,0,0,5e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,5e-154},{0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,0,5e-154},{0,0,0,5e-154})",
+      "formula": "LET(v,RSQ({0,0,0,5e-154},{0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,5e-154},{0,0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,5e-154},{0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.515625e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,5e-154},{0,0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,5e-154},{0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.6875e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,5e-154},{0,0,0,5e-154})",
+      "formula": "LET(v,STEYX({0,0,0,5e-154},{0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.6516504294496e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,5e-154},{0,0,0,0,5e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,5e-154},{0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,5e-154},{0,0,0,0,5e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,5e-154},{0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,0,0,5e-154},{0,0,0,0,5e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,5e-154},{0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,5e-154},{0,0,0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,5e-154},{0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.2e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,5e-154},{0,0,0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,5e-154},{0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,0,5e-154},{0,0,0,0,5e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,5e-154},{0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.3094010767585e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.392578125e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.734375e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,0,0,0,5e-154},{0,0,0,0,0,0,0,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.7860862707794e-154
+    },
+    {
+      "expression": "CORREL({0,7e-154},{0,7e-154})",
+      "formula": "LET(v,CORREL({0,7e-154},{0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,7e-154},{0,7e-154})",
+      "formula": "LET(v,PEARSON({0,7e-154},{0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,7e-154},{0,7e-154})",
+      "formula": "LET(v,RSQ({0,7e-154},{0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,7e-154},{0,7e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,7e-154},{0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.225e-307
+    },
+    {
+      "expression": "COVARIANCE.S({0,7e-154},{0,7e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,7e-154},{0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.45e-307
+    },
+    {
+      "expression": "STEYX({0,7e-154},{0,7e-154})",
+      "formula": "LET(v,STEYX({0,7e-154},{0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR2"
+    },
+    {
+      "expression": "CORREL({0,0,7e-154},{0,0,7e-154})",
+      "formula": "LET(v,CORREL({0,0,7e-154},{0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,7e-154},{0,0,7e-154})",
+      "formula": "LET(v,PEARSON({0,0,7e-154},{0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,7e-154},{0,0,7e-154})",
+      "formula": "LET(v,RSQ({0,0,7e-154},{0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,7e-154},{0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,7e-154},{0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.0888888888889e-307
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,7e-154},{0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,7e-154},{0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.6333333333333e-307
+    },
+    {
+      "expression": "STEYX({0,0,7e-154},{0,0,7e-154})",
+      "formula": "LET(v,STEYX({0,0,7e-154},{0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.7154760664941e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,7e-154},{0,0,0,7e-154})",
+      "formula": "LET(v,CORREL({0,0,0,7e-154},{0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,0,7e-154},{0,0,0,7e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,7e-154},{0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,0,7e-154},{0,0,0,7e-154})",
+      "formula": "LET(v,RSQ({0,0,0,7e-154},{0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,7e-154},{0,0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,7e-154},{0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 9.1875e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,7e-154},{0,0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,7e-154},{0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.225e-307
+    },
+    {
+      "expression": "STEYX({0,0,0,7e-154},{0,0,0,7e-154})",
+      "formula": "LET(v,STEYX({0,0,0,7e-154},{0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.2866070498706e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,7e-154},{0,0,0,0,7e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,7e-154},{0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,7e-154},{0,0,0,0,7e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,7e-154},{0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,0,0,7e-154},{0,0,0,0,7e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,7e-154},{0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,7e-154},{0,0,0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,7e-154},{0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.272e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,7e-154},{0,0,0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,7e-154},{0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.84e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,0,7e-154},{0,0,0,0,7e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,7e-154},{0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 3.2331615074619e-154
+    },
+    {
+      "expression": "CORREL({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154})",
+      "formula": "LET(v,CORREL({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154})",
+      "formula": "LET(v,PEARSON({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154})",
+      "formula": "LET(v,RSQ({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "COVARIANCE.P({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.P({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.689453125e-308
+    },
+    {
+      "expression": "COVARIANCE.S({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154})",
+      "formula": "LET(v,COVARIANCE.S({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5.359375e-308
+    },
+    {
+      "expression": "STEYX({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154})",
+      "formula": "LET(v,STEYX({0,0,0,0,0,0,0,7e-154},{0,0,0,0,0,0,0,7e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.5005207790912e-154
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.625
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 6.16666666666667
+    },
+    {
+      "expression": "COVAR({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,COVAR({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 4.625
+    },
+    {
+      "expression": "CORREL({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,CORREL({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.886243433815812
+    },
+    {
+      "expression": "PEARSON({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,PEARSON({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.886243433815812
+    },
+    {
+      "expression": "RSQ({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,RSQ({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.785427423981641
+    },
+    {
+      "expression": "SLOPE({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,SLOPE({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.880952380952381
+    },
+    {
+      "expression": "INTERCEPT({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,INTERCEPT({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.714285714285714
+    },
+    {
+      "expression": "STEYX({1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,STEYX({1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.49204238418031
+    },
+    {
+      "expression": "FORECAST(2,{1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,FORECAST(2,{1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.04761904761905
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{1,2,3,7},{2,5,3,8})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{1,2,3,7},{2,5,3,8}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.04761904761905
+    },
+    {
+      "expression": "COVARIANCE.P((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,COVARIANCE.P((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.777777777777778
+    },
+    {
+      "expression": "COVARIANCE.S((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,COVARIANCE.S((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.16666666666667
+    },
+    {
+      "expression": "COVAR((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,COVAR((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.777777777777778
+    },
+    {
+      "expression": "CORREL((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,CORREL((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.499999999733908
+    },
+    {
+      "expression": "PEARSON((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,PEARSON((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.499999999733908
+    },
+    {
+      "expression": "RSQ((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,RSQ((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.249999999733908
+    },
+    {
+      "expression": "SLOPE((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,SLOPE((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "INTERCEPT((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,INTERCEPT((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 999999999999.5
+    },
+    {
+      "expression": "STEYX((1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,STEYX((1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.87082869471447
+    },
+    {
+      "expression": "FORECAST(2,(1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,FORECAST(2,(1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1000000000000.5
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,(1e12+{0,1,3}),{4,2,5})",
+      "formula": "LET(v,FORECAST.LINEAR(2,(1e12+{0,1,3}),{4,2,5}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1000000000000.5
+    },
+    {
+      "expression": "COVARIANCE.P({-2,0,2},{2,0,2})",
+      "formula": "LET(v,COVARIANCE.P({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.S({-2,0,2},{2,0,2})",
+      "formula": "LET(v,COVARIANCE.S({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVAR({-2,0,2},{2,0,2})",
+      "formula": "LET(v,COVAR({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "CORREL({-2,0,2},{2,0,2})",
+      "formula": "LET(v,CORREL({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "PEARSON({-2,0,2},{2,0,2})",
+      "formula": "LET(v,PEARSON({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "RSQ({-2,0,2},{2,0,2})",
+      "formula": "LET(v,RSQ({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "SLOPE({-2,0,2},{2,0,2})",
+      "formula": "LET(v,SLOPE({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "INTERCEPT({-2,0,2},{2,0,2})",
+      "formula": "LET(v,INTERCEPT({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "STEYX({-2,0,2},{2,0,2})",
+      "formula": "LET(v,STEYX({-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2.82842712474619
+    },
+    {
+      "expression": "FORECAST(2,{-2,0,2},{2,0,2})",
+      "formula": "LET(v,FORECAST(2,{-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{-2,0,2},{2,0,2})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{-2,0,2},{2,0,2}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "COVARIANCE.P({1,2,3},{3,5,7})",
+      "formula": "LET(v,COVARIANCE.P({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.33333333333333
+    },
+    {
+      "expression": "COVARIANCE.S({1,2,3},{3,5,7})",
+      "formula": "LET(v,COVARIANCE.S({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 2
+    },
+    {
+      "expression": "COVAR({1,2,3},{3,5,7})",
+      "formula": "LET(v,COVAR({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1.33333333333333
+    },
+    {
+      "expression": "CORREL({1,2,3},{3,5,7})",
+      "formula": "LET(v,CORREL({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({1,2,3},{3,5,7})",
+      "formula": "LET(v,PEARSON({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({1,2,3},{3,5,7})",
+      "formula": "LET(v,RSQ({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "SLOPE({1,2,3},{3,5,7})",
+      "formula": "LET(v,SLOPE({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "INTERCEPT({1,2,3},{3,5,7})",
+      "formula": "LET(v,INTERCEPT({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "STEYX({1,2,3},{3,5,7})",
+      "formula": "LET(v,STEYX({1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0
+    },
+    {
+      "expression": "FORECAST(2,{1,2,3},{3,5,7})",
+      "formula": "LET(v,FORECAST(2,{1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{1,2,3},{3,5,7})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{1,2,3},{3,5,7}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "COVARIANCE.P({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,COVARIANCE.P({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.111111111111111
+    },
+    {
+      "expression": "COVARIANCE.S({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,COVARIANCE.S({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.166666666666667
+    },
+    {
+      "expression": "COVAR({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,COVAR({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.111111111111111
+    },
+    {
+      "expression": "CORREL({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,CORREL({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "PEARSON({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,PEARSON({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "RSQ({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,RSQ({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "SLOPE({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,SLOPE({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "INTERCEPT({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,INTERCEPT({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "STEYX({0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,STEYX({0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.707106781186548
+    },
+    {
+      "expression": "FORECAST(2,{0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,FORECAST(2,{0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,1,0},{1,0,1e-150})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,1,0},{1,0,1e-150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "COVARIANCE.P({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,COVARIANCE.P({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.111111111111111
+    },
+    {
+      "expression": "COVARIANCE.S({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,COVARIANCE.S({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.166666666666667
+    },
+    {
+      "expression": "COVAR({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,COVAR({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.111111111111111
+    },
+    {
+      "expression": "CORREL({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,CORREL({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "PEARSON({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,PEARSON({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "RSQ({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,RSQ({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "SLOPE({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,SLOPE({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -5e-301
+    },
+    {
+      "expression": "INTERCEPT({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,INTERCEPT({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5e-151
+    },
+    {
+      "expression": "STEYX({0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,STEYX({0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 7.0710678118655e-151
+    },
+    {
+      "expression": "FORECAST(2,{0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,FORECAST(2,{0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5e-151
+    },
+    {
+      "expression": "FORECAST.LINEAR(2,{0,1e-150,0},{1,0,1e150})",
+      "formula": "LET(v,FORECAST.LINEAR(2,{0,1e-150,0},{1,0,1e150}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 5e-151
+    },
+    {
+      "expression": "CORREL({0,0,3.2e-154},{3.2e-154,3.2e-154,0})",
+      "formula": "LET(v,CORREL({0,0,3.2e-154},{3.2e-154,3.2e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.2e-154},{3.2e-154,3.2e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,3.2e-154},{3.2e-154,3.2e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.2e-154},{3.2e-154,3.2e-154,0})",
+      "formula": "LET(v,RSQ({0,0,3.2e-154},{3.2e-154,3.2e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.2e-154},{0,3.2e-154,0})",
+      "formula": "LET(v,CORREL({0,0,3.2e-154},{0,3.2e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.2e-154},{0,3.2e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,3.2e-154},{0,3.2e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.2e-154},{0,3.2e-154,0})",
+      "formula": "LET(v,RSQ({0,0,3.2e-154},{0,3.2e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.2e-154},{0,3.2e-154,3.2e-154})",
+      "formula": "LET(v,CORREL({0,0,3.2e-154},{0,3.2e-154,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.2e-154},{0,3.2e-154,3.2e-154})",
+      "formula": "LET(v,PEARSON({0,0,3.2e-154},{0,3.2e-154,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.2e-154},{0,3.2e-154,3.2e-154})",
+      "formula": "LET(v,RSQ({0,0,3.2e-154},{0,3.2e-154,3.2e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.2e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,CORREL({0,0,3.2e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.2e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,PEARSON({0,0,3.2e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.2e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,RSQ({0,0,3.2e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.375
+    },
+    {
+      "expression": "CORREL({0,0,3.5e-154},{3.5e-154,3.5e-154,0})",
+      "formula": "LET(v,CORREL({0,0,3.5e-154},{3.5e-154,3.5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.5e-154},{3.5e-154,3.5e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,3.5e-154},{3.5e-154,3.5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.5e-154},{3.5e-154,3.5e-154,0})",
+      "formula": "LET(v,RSQ({0,0,3.5e-154},{3.5e-154,3.5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.5e-154},{0,3.5e-154,0})",
+      "formula": "LET(v,CORREL({0,0,3.5e-154},{0,3.5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.5e-154},{0,3.5e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,3.5e-154},{0,3.5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.5e-154},{0,3.5e-154,0})",
+      "formula": "LET(v,RSQ({0,0,3.5e-154},{0,3.5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.5e-154},{0,3.5e-154,3.5e-154})",
+      "formula": "LET(v,CORREL({0,0,3.5e-154},{0,3.5e-154,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.5e-154},{0,3.5e-154,3.5e-154})",
+      "formula": "LET(v,PEARSON({0,0,3.5e-154},{0,3.5e-154,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.5e-154},{0,3.5e-154,3.5e-154})",
+      "formula": "LET(v,RSQ({0,0,3.5e-154},{0,3.5e-154,3.5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.5e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,CORREL({0,0,3.5e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "PEARSON({0,0,3.5e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,PEARSON({0,0,3.5e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": "ERR6"
+    },
+    {
+      "expression": "RSQ({0,0,3.5e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,RSQ({0,0,3.5e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.375
+    },
+    {
+      "expression": "CORREL({0,0,3.9e-154},{3.9e-154,3.9e-154,0})",
+      "formula": "LET(v,CORREL({0,0,3.9e-154},{3.9e-154,3.9e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,0,3.9e-154},{3.9e-154,3.9e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,3.9e-154},{3.9e-154,3.9e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,0,3.9e-154},{3.9e-154,3.9e-154,0})",
+      "formula": "LET(v,RSQ({0,0,3.9e-154},{3.9e-154,3.9e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.9e-154},{0,3.9e-154,0})",
+      "formula": "LET(v,CORREL({0,0,3.9e-154},{0,3.9e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,0,3.9e-154},{0,3.9e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,3.9e-154},{0,3.9e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,0,3.9e-154},{0,3.9e-154,0})",
+      "formula": "LET(v,RSQ({0,0,3.9e-154},{0,3.9e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.9e-154},{0,3.9e-154,3.9e-154})",
+      "formula": "LET(v,CORREL({0,0,3.9e-154},{0,3.9e-154,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,3.9e-154},{0,3.9e-154,3.9e-154})",
+      "formula": "LET(v,PEARSON({0,0,3.9e-154},{0,3.9e-154,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,3.9e-154},{0,3.9e-154,3.9e-154})",
+      "formula": "LET(v,RSQ({0,0,3.9e-154},{0,3.9e-154,3.9e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,3.9e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,CORREL({0,0,3.9e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.612372435695795
+    },
+    {
+      "expression": "PEARSON({0,0,3.9e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,PEARSON({0,0,3.9e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.612372435695795
+    },
+    {
+      "expression": "RSQ({0,0,3.9e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,RSQ({0,0,3.9e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.375
+    },
+    {
+      "expression": "CORREL({0,0,4e-154},{4e-154,4e-154,0})",
+      "formula": "LET(v,CORREL({0,0,4e-154},{4e-154,4e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,0,4e-154},{4e-154,4e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,4e-154},{4e-154,4e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,0,4e-154},{4e-154,4e-154,0})",
+      "formula": "LET(v,RSQ({0,0,4e-154},{4e-154,4e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,4e-154},{0,4e-154,0})",
+      "formula": "LET(v,CORREL({0,0,4e-154},{0,4e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,0,4e-154},{0,4e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,4e-154},{0,4e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,0,4e-154},{0,4e-154,0})",
+      "formula": "LET(v,RSQ({0,0,4e-154},{0,4e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,4e-154},{0,4e-154,4e-154})",
+      "formula": "LET(v,CORREL({0,0,4e-154},{0,4e-154,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "PEARSON({0,0,4e-154},{0,4e-154,4e-154})",
+      "formula": "LET(v,PEARSON({0,0,4e-154},{0,4e-154,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "RSQ({0,0,4e-154},{0,4e-154,4e-154})",
+      "formula": "LET(v,RSQ({0,0,4e-154},{0,4e-154,4e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,4e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,CORREL({0,0,4e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.612372435695795
+    },
+    {
+      "expression": "PEARSON({0,0,4e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,PEARSON({0,0,4e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.612372435695795
+    },
+    {
+      "expression": "RSQ({0,0,4e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,RSQ({0,0,4e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.375
+    },
+    {
+      "expression": "CORREL({0,0,5e-154},{5e-154,5e-154,0})",
+      "formula": "LET(v,CORREL({0,0,5e-154},{5e-154,5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,0,5e-154},{5e-154,5e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,5e-154},{5e-154,5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,0,5e-154},{5e-154,5e-154,0})",
+      "formula": "LET(v,RSQ({0,0,5e-154},{5e-154,5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,5e-154},{0,5e-154,0})",
+      "formula": "LET(v,CORREL({0,0,5e-154},{0,5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "PEARSON({0,0,5e-154},{0,5e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,5e-154},{0,5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "RSQ({0,0,5e-154},{0,5e-154,0})",
+      "formula": "LET(v,RSQ({0,0,5e-154},{0,5e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "CORREL({0,0,5e-154},{0,5e-154,5e-154})",
+      "formula": "LET(v,CORREL({0,0,5e-154},{0,5e-154,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "PEARSON({0,0,5e-154},{0,5e-154,5e-154})",
+      "formula": "LET(v,PEARSON({0,0,5e-154},{0,5e-154,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "RSQ({0,0,5e-154},{0,5e-154,5e-154})",
+      "formula": "LET(v,RSQ({0,0,5e-154},{0,5e-154,5e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "CORREL({0,0,5e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,CORREL({0,0,5e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "PEARSON({0,0,5e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,PEARSON({0,0,5e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "RSQ({0,0,5e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,RSQ({0,0,5e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "CORREL({0,0,6e-154},{6e-154,6e-154,0})",
+      "formula": "LET(v,CORREL({0,0,6e-154},{6e-154,6e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "PEARSON({0,0,6e-154},{6e-154,6e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,6e-154},{6e-154,6e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -1
+    },
+    {
+      "expression": "RSQ({0,0,6e-154},{6e-154,6e-154,0})",
+      "formula": "LET(v,RSQ({0,0,6e-154},{6e-154,6e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 1
+    },
+    {
+      "expression": "CORREL({0,0,6e-154},{0,6e-154,0})",
+      "formula": "LET(v,CORREL({0,0,6e-154},{0,6e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "PEARSON({0,0,6e-154},{0,6e-154,0})",
+      "formula": "LET(v,PEARSON({0,0,6e-154},{0,6e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": -0.5
+    },
+    {
+      "expression": "RSQ({0,0,6e-154},{0,6e-154,0})",
+      "formula": "LET(v,RSQ({0,0,6e-154},{0,6e-154,0}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "CORREL({0,0,6e-154},{0,6e-154,6e-154})",
+      "formula": "LET(v,CORREL({0,0,6e-154},{0,6e-154,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "PEARSON({0,0,6e-154},{0,6e-154,6e-154})",
+      "formula": "LET(v,PEARSON({0,0,6e-154},{0,6e-154,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "RSQ({0,0,6e-154},{0,6e-154,6e-154})",
+      "formula": "LET(v,RSQ({0,0,6e-154},{0,6e-154,6e-154}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    },
+    {
+      "expression": "CORREL({0,0,6e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,CORREL({0,0,6e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "PEARSON({0,0,6e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,PEARSON({0,0,6e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.5
+    },
+    {
+      "expression": "RSQ({0,0,6e-154},{0,1e-153,1e-153})",
+      "formula": "LET(v,RSQ({0,0,6e-154},{0,1e-153,1e-153}),IFERROR(v&\"\",\"ERR\"&ERROR.TYPE(v)))",
+      "expected": 0.25
+    }
+  ]
+}

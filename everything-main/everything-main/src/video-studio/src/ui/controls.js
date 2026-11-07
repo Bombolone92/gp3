@@ -1,0 +1,306 @@
+/**
+ * Property controls used by the details panel: labeled sliders with a number
+ * box and keyframe toggle, color fields, switches, selects, segmented
+ * groups and collapsible sections.
+ */
+import { h } from '../lib/dom.js';
+import { icon } from '../lib/icons.js';
+
+let seq = 0;
+const nextId = (p) => `${p}-${++seq}`;
+
+function pct(input) {
+  const min = Number(input.min);
+  const max = Number(input.max);
+  const v = Number(input.value);
+  input.style.setProperty('--pct', `${((v - min) / (max - min || 1)) * 100}%`);
+}
+
+/**
+ * Slider + number box.
+ *  onInput(value, final)  final is true on change/commit (end of drag, Enter)
+ *  read() -> the value now stored, shown after a typed or stepped value
+ *    (the setter may limit it further)
+ *  unchanged(v) -> true when committing v would change nothing, so a typed
+ *    or stepped value is skipped (no undo step); without it, always commits
+ *  keyframe: { onToggle, onPrev, onNext } shows the diamond button group
+ * The number box keeps to the slider's range unless setLimits() widens it.
+ */
+export function sliderField({ label, min = 0, max = 100, step = 1, value = 0, unit = '', decimals, onInput, read, unchanged, keyframe, resetTo, wide = false }) {
+  const id = nextId('sl');
+  const dec = decimals ?? (step < 1 ? Math.max(0, -Math.floor(Math.log10(step))) : 0);
+  const range = h('input', { type: 'range', id, min, max, step, value, 'aria-label': label });
+  const num = h('input.num-input', { type: 'text', inputMode: 'decimal', value: Number(value).toFixed(dec), 'aria-label': `${label} value`, spellcheck: false });
+  const fmt = (v) => Number(v).toFixed(dec);
+  pct(range);
+  let last = Number(value);
+  const emit = (v, final) => {
+    last = v;
+    onInput?.(v, final);
+  };
+  range.addEventListener('input', () => {
+    num.value = fmt(range.value);
+    pct(range);
+    emit(Number(range.value), false);
+  });
+  range.addEventListener('change', () => emit(Number(range.value), true));
+  // The slider's current range (it can change), or the wider limits from setLimits().
+  const limit = (v) => Math.min(Number(range.dataset.hardMax ?? range.max), Math.max(Number(range.dataset.hardMin ?? range.min), v));
+  const show = (v) => {
+    num.value = fmt(v);
+    range.value = String(v);
+    pct(range);
+  };
+  /**
+   * Commit a value from the number box, then show what was stored. A value
+   * that changes nothing (Enter again, an arrow at the end of the range) is no edit.
+   */
+  const commit = (v) => {
+    if (!unchanged?.(v)) emit(v, true);
+    const stored = read?.();
+    if (Number.isFinite(stored)) last = stored;
+    show(last);
+  };
+  const commitNum = () => {
+    const raw = parseFloat(num.value);
+    if (!Number.isFinite(raw)) {
+      num.value = fmt(last);
+      return;
+    }
+    commit(limit(raw));
+  };
+  num.addEventListener('change', commitNum);
+  num.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitNum();
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const delta = (e.key === 'ArrowUp' ? 1 : -1) * Number(step) * (e.shiftKey ? 10 : 1);
+      commit(limit(Number((last + delta).toFixed(Math.max(dec, 6)))));
+    }
+  });
+  let kf = null;
+  let kfBtn = null;
+  if (keyframe) {
+    kfBtn = h('button.icon-btn.small.kf-btn', { type: 'button', 'aria-label': `Add keyframe for ${label}`, 'aria-pressed': 'false', 'data-tip': 'Add keyframe' }, icon('keyframe', 14));
+    const prev = h('button.icon-btn.small.kf-nav', { type: 'button', 'aria-label': `Previous ${label} keyframe`, 'data-tip': 'Previous keyframe' }, icon('chevronLeft', 12));
+    const next = h('button.icon-btn.small.kf-nav', { type: 'button', 'aria-label': `Next ${label} keyframe`, 'data-tip': 'Next keyframe' }, icon('chevronRight', 12));
+    kfBtn.addEventListener('click', () => keyframe.onToggle?.());
+    prev.addEventListener('click', () => keyframe.onPrev?.());
+    next.addEventListener('click', () => keyframe.onNext?.());
+    kf = h('div.kf-group', prev, kfBtn, next);
+  }
+  const reset = resetTo !== undefined ? h('button.icon-btn.small.reset-btn', { type: 'button', 'aria-label': `Reset ${label}`, 'data-tip': 'Reset' }, icon('rotateLeft', 12)) : null;
+  reset?.addEventListener('click', () => {
+    range.value = String(resetTo);
+    num.value = fmt(resetTo);
+    pct(range);
+    emit(resetTo, true);
+  });
+  const el = h(`div.field.slider-field${wide ? '.wide' : ''}`, h('label.field-label', { for: id }, label), h('div.slider-row', range, num, reset, kf));
+  return {
+    el,
+    input: range,
+    /** Show a stored value; a focused control keeps its text but steps from v. */
+    set(v) {
+      last = Number(v);
+      if (document.activeElement === range || document.activeElement === num) return;
+      range.value = String(v);
+      num.value = fmt(v);
+      pct(range);
+    },
+    setKeyframe(state) {
+      if (!kfBtn) return;
+      kfBtn.setAttribute('aria-pressed', state === 'on' ? 'true' : 'false');
+      kfBtn.classList.toggle('has-keys', state !== 'none');
+      kfBtn.setAttribute('aria-label', state === 'on' ? `Remove ${label} keyframe` : `Add keyframe for ${label}`);
+      kfBtn.setAttribute('data-tip', state === 'on' ? 'Remove keyframe' : 'Add keyframe');
+    },
+    setLimits(lo, hi) {
+      range.dataset.hardMin = lo;
+      range.dataset.hardMax = hi;
+    },
+  };
+}
+
+export function colorField({ label, value = '#ffffff', onInput }) {
+  const id = nextId('col');
+  const swatch = h('input.color-swatch', { type: 'color', id, value, 'aria-label': label });
+  const hex = h('input.input.hex-input', { type: 'text', value: value.toUpperCase(), maxLength: 7, 'aria-label': `${label} hex value`, spellcheck: false });
+  swatch.addEventListener('input', () => {
+    hex.value = swatch.value.toUpperCase();
+    onInput?.(swatch.value, false);
+  });
+  swatch.addEventListener('change', () => onInput?.(swatch.value, true));
+  hex.addEventListener('change', () => {
+    let v = hex.value.trim();
+    if (!v.startsWith('#')) v = `#${v}`;
+    if (/^#[0-9a-f]{3}$/i.test(v)) v = `#${v[1]}${v[1]}${v[2]}${v[2]}${v[3]}${v[3]}`;
+    if (!/^#[0-9a-f]{6}$/i.test(v)) {
+      hex.value = swatch.value.toUpperCase();
+      return;
+    }
+    swatch.value = v.toLowerCase();
+    hex.value = v.toUpperCase();
+    onInput?.(swatch.value, true);
+  });
+  const el = h('div.field.color-field', h('label.field-label', { for: id }, label), h('div.color-row', swatch, hex));
+  return {
+    el,
+    /** Show v; force also replaces what is being typed in the hex box. */
+    set(v, force = false) {
+      if (document.activeElement === hex && !force) return;
+      swatch.value = v;
+      hex.value = v.toUpperCase();
+    },
+  };
+}
+
+export function switchField({ label, checked = false, onChange, hint }) {
+  const id = nextId('sw');
+  const sw = h('button.switch', { type: 'button', role: 'switch', id, 'aria-checked': String(checked), 'aria-labelledby': `${id}-l` });
+  sw.addEventListener('click', () => {
+    const v = sw.getAttribute('aria-checked') !== 'true';
+    sw.setAttribute('aria-checked', String(v));
+    onChange?.(v);
+  });
+  const el = h('div.field.switch-field', h('span.field-label', { id: `${id}-l` }, label, hint ? h('span.field-hint', hint) : null), sw);
+  return {
+    el,
+    set(v) {
+      sw.setAttribute('aria-checked', String(Boolean(v)));
+    },
+  };
+}
+
+export function selectField({ label, options, value, onChange }) {
+  const id = nextId('sel');
+  const sel = h('select.select', { id }, options.map((o) => h('option', { value: o.value, selected: o.value === value }, o.label)));
+  sel.addEventListener('change', () => onChange?.(sel.value));
+  const el = h('div.field.select-field', h('label.field-label', { for: id }, label), sel);
+  return {
+    el,
+    select: sel,
+    set(v) {
+      sel.value = v;
+    },
+  };
+}
+
+/** Radio-group style segmented control with arrow-key navigation. */
+export function segmented({ label, options, value, onChange, iconOnly = false, className = '' }) {
+  const group = h(`div.segmented${className ? '.' + className : ''}`, { role: 'radiogroup', 'aria-label': label });
+  const buttons = options.map((o) => {
+    const b = h('button', {
+      type: 'button',
+      role: 'radio',
+      'aria-checked': String(o.value === value),
+      tabindex: o.value === value ? '0' : '-1',
+      'aria-label': iconOnly ? o.label : null,
+      'data-tip': iconOnly ? o.label : null,
+    }, o.icon ? icon(o.icon, 15) : null, iconOnly ? null : o.label);
+    b.addEventListener('click', () => {
+      set(o.value);
+      onChange?.(o.value);
+    });
+    return b;
+  });
+  const set = (v) => {
+    buttons.forEach((b, i) => {
+      const on = options[i].value === v;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+  };
+  group.addEventListener('keydown', (e) => {
+    const i = buttons.indexOf(document.activeElement);
+    if (i < 0) return;
+    let j = -1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % buttons.length;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + buttons.length) % buttons.length;
+    if (j >= 0) {
+      e.preventDefault();
+      buttons[j].focus();
+      buttons[j].click();
+    }
+  });
+  group.append(...buttons);
+  return { el: group, set };
+}
+
+/** Collapsible section with a heading button. */
+export function section(title, children, { open = true, actions = null } = {}) {
+  const id = nextId('sec');
+  const btn = h('button.section-toggle', { type: 'button', 'aria-expanded': String(open), 'aria-controls': id }, icon('chevronDown', 14, 'section-chevron'), h('span', title));
+  const body = h('div.section-body', { id, hidden: !open }, children);
+  btn.addEventListener('click', () => {
+    const o = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(o));
+    body.hidden = !o;
+  });
+  return h('section.prop-section', h('div.section-head', h('h3.section-title', btn), actions), body);
+}
+
+/**
+ * Indexes of the tabs to show in a row avail px wide: as many as fit in
+ * order, with room kept for the More button (moreW) when some don't. The
+ * active tab always shows, taking the last place when it would not fit.
+ */
+export function fitTabs(widths, avail, moreW, active = 0, gap = 0) {
+  const total = widths.reduce((a, w) => a + w, 0) + gap * Math.max(0, widths.length - 1);
+  if (total <= avail + 0.5) return widths.map((_, i) => i);
+  const room = avail - moreW;
+  const shown = [];
+  let used = 0;
+  for (let i = 0; i < widths.length; i++) {
+    const w = widths[i] + (shown.length ? gap : 0);
+    if (used + w > room + 0.5) break;
+    shown.push(i);
+    used += w;
+  }
+  if (active >= 0 && !shown.includes(active)) {
+    // Drop tabs from the end until the active one fits.
+    while (shown.length && used + widths[active] + gap > room + 0.5) used -= widths[shown.pop()] + (shown.length ? gap : 0);
+    shown.push(active);
+  }
+  return shown;
+}
+
+/** Tab list with roving focus; returns { el, select(id) }. */
+export function tabs({ label, items, value, onChange, className = '' }) {
+  const list = h(`div.tablist${className ? '.' + className : ''}`, { role: 'tablist', 'aria-label': label });
+  const btns = items.map((it) => {
+    const b = h('button.tab', { type: 'button', role: 'tab', id: `tab-${it.id}`, 'aria-selected': String(it.id === value), tabindex: it.id === value ? '0' : '-1', 'aria-controls': it.panel || null }, it.icon ? icon(it.icon, 18) : null, h('span.tab-label', it.label));
+    b.addEventListener('click', () => {
+      select(it.id);
+      onChange?.(it.id);
+    });
+    return b;
+  });
+  const select = (id) => {
+    btns.forEach((b, i) => {
+      const on = items[i].id === id;
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+  };
+  // Arrow keys move between the tabs on show (a row may hide some, see panels/index.js).
+  list.addEventListener('keydown', (e) => {
+    const shown = btns.filter((b) => !b.hidden);
+    const i = shown.indexOf(document.activeElement);
+    if (i < 0) return;
+    let j = -1;
+    if (e.key === 'ArrowRight') j = (i + 1) % shown.length;
+    if (e.key === 'ArrowLeft') j = (i - 1 + shown.length) % shown.length;
+    if (e.key === 'Home') j = 0;
+    if (e.key === 'End') j = shown.length - 1;
+    if (j >= 0) {
+      e.preventDefault();
+      shown[j].focus();
+      shown[j].click();
+    }
+  });
+  list.append(...btns);
+  return { el: list, select, buttons: btns };
+}

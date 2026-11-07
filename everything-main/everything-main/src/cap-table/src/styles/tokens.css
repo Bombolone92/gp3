@@ -1,0 +1,165 @@
+/* Design tokens - light is the default; dark overrides via media query (system)
+   and via [data-theme] stamps set by the in-app theme toggle, which must win
+   in both directions. Cool neutrals, hairline elevation, no shadows. */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces & ink */
+  --page: #f7f7f8;
+  --surface: #fdfdfd;
+  --surface-2: #f1f1f3;
+  --surface-3: #e8e8eb;
+  --ink: #101113;
+  --ink-2: #55565c;
+  /* Tertiary ink carries real text (meta lines, labels) - holds 4.5:1 on
+     --page, --surface, and --surface-2. */
+  --ink-3: #66676e;
+  --hairline: rgba(16, 17, 19, 0.1);
+  --hairline-strong: rgba(16, 17, 19, 0.17);
+  /* Form controls sit on the same surface as the sheet around them, so
+     their border is the only thing that says where the box is - and it has
+     to hold 3:1 against that surface (WCAG 1.4.11). The hairlines above run
+     1.4-1.7:1 and are fine for dividers, not for a boundary. #8a8a8d is
+     3.38:1 on --surface and 3.22:1 on --page, where the cap table's as-of
+     date field sits; a shade lighter reads 2.98:1 and 2.83:1. */
+  --control-border: #8a8a8d;
+  --grid: #e4e4e7;
+  --baseline: #c6c6cb;
+  --scrim: rgba(16, 17, 19, 0.44);
+
+  /* Accent - brand teal #17a39e, darkened here so it holds 4.5:1 as text on
+     light surfaces (including over --accent-wash) and under --accent-ink. */
+  --accent: #0c706c;
+  --accent-strong: #0a5a57;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(12, 112, 108, 0.1);
+  --selection: rgba(12, 112, 108, 0.28);
+
+  /* Status (paired with icon/label, never color alone) */
+  --pos: #006300;
+  --neg: #b02a2a;
+  --critical: #d03b3b;
+  --warn: #8a5a00;
+
+  /* Categorical series slots (validated against --surface, fixed order) */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #128f63;
+  --series-4: #b57a00;
+  --series-5: #d5568a;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+  /* De-emphasis slot for "Other" / context series. Still a mark - the
+     dilution chart's "before" dot, the "Other" ownership segment - so it
+     clears 3:1 against the surface (#a2a3a9 sat at 2.5:1). */
+  --series-mute: #8b8c93;
+
+  /* Shape */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-full: 999px;
+
+  /* Type */
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Layout */
+  --sidebar-w: 248px;
+  --content-max: 1120px;
+  --tabbar-h: 64px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  /* viewport-fit=cover hands the app the whole screen, including the strip
+     under a phone's sensor housing when it is held sideways. */
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Dark values, applied by OS preference unless the app stamped light.
+   Screen only: paper is white whichever theme is on screen, so print keeps
+   the light ink above - see the note on the [data-theme="dark"] stamp. */
+@media screen and (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0e0f11;
+    --surface: #1a1b1e;
+    --surface-2: #232428;
+    --surface-3: #2c2d32;
+    --ink: #f5f6f7;
+    --ink-2: #c2c3c9;
+    --ink-3: #94959c;
+    --hairline: rgba(245, 246, 247, 0.1);
+    --hairline-strong: rgba(245, 246, 247, 0.18);
+    --control-border: #66676c;
+    --grid: #2c2d32;
+    --baseline: #3a3b41;
+    --scrim: rgba(0, 0, 0, 0.6);
+
+    --accent: #17a39e;
+    --accent-strong: #45c5bf;
+    --accent-ink: #04201f;
+    --accent-wash: rgba(23, 163, 158, 0.14);
+    --selection: rgba(23, 163, 158, 0.32);
+
+    --pos: #0ca30c;
+    --neg: #e66767;
+    --warn: #e0a63f;
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --series-mute: #6b6c73;
+  }
+}
+
+/* Explicit in-app toggle: dark stamp wins over OS-light.
+   Screen only. The stamp is an attribute, not a media state, so it would
+   otherwise survive into print and lay near-white ink on white paper - and
+   the cap table and holder statement are both meant to be printed. */
+@media screen {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0e0f11;
+    --surface: #1a1b1e;
+    --surface-2: #232428;
+    --surface-3: #2c2d32;
+    --ink: #f5f6f7;
+    --ink-2: #c2c3c9;
+    --ink-3: #94959c;
+    --hairline: rgba(245, 246, 247, 0.1);
+    --hairline-strong: rgba(245, 246, 247, 0.18);
+    --control-border: #66676c;
+    --grid: #2c2d32;
+    --baseline: #3a3b41;
+    --scrim: rgba(0, 0, 0, 0.6);
+
+    --accent: #17a39e;
+    --accent-strong: #45c5bf;
+    --accent-ink: #04201f;
+    --accent-wash: rgba(23, 163, 158, 0.14);
+    --selection: rgba(23, 163, 158, 0.32);
+
+    --pos: #0ca30c;
+    --neg: #e66767;
+    --warn: #e0a63f;
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --series-mute: #6b6c73;
+  }
+}

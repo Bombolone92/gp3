@@ -1,0 +1,385 @@
+/* Export dialog: a still of the current frame beside the settings. */
+.dialog.export-dialog {
+  width: min(860px, calc(100vw - 32px));
+}
+
+.export-dialog .dialog-body {
+  padding: 4px 20px 8px;
+}
+
+.export-dialog .dialog-actions {
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+}
+
+.export-layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) 1fr;
+  gap: 24px;
+  align-items: start;
+  min-height: 360px;
+}
+
+.export-aside {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.export-still {
+  position: relative;
+  width: 100%;
+  max-height: 420px;
+  border-radius: var(--radius);
+  background: var(--bg-player);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-still-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.export-still-spinner {
+  position: absolute;
+}
+
+.export-still.ready .export-still-spinner {
+  display: none;
+}
+
+.export-still-meta {
+  font-size: 12px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+}
+
+/* Form */
+.export-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.export-row {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+}
+
+.export-row[hidden] {
+  display: none;
+}
+
+.export-row.disabled .export-label {
+  color: var(--text-3);
+}
+
+.export-label {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.export-dest-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+}
+
+.export-dest {
+  align-self: flex-start;
+  min-width: 240px;
+}
+
+.export-hint {
+  font-size: 12px;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.export-codec-note {
+  padding-left: 128px;
+  margin: 2px 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.export-codec-note .icon {
+  display: inline-block;
+  color: var(--warning);
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.export-switch-wrap {
+  display: flex;
+}
+
+.export-custom-ctl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.export-custom-value {
+  min-width: 72px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sections with a checkbox heading */
+.export-section {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 8px;
+}
+
+.export-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.export-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.export-check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.export-section-body.off {
+  opacity: 0.45;
+}
+
+/* Footer */
+.export-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.export-footer-info {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+
+.export-footer-info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.export-footer-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.export-footer-buttons .btn {
+  min-width: 88px;
+}
+
+/* Progress */
+.export-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+  min-width: 0;
+}
+
+.export-phase {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.export-pct {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.export-bar {
+  height: 6px;
+  border-radius: 6px;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+
+.export-bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width var(--t) linear;
+}
+
+.export-stats {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 24px;
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.export-stats dt {
+  color: var(--text-2);
+}
+
+.export-stats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Done */
+.export-done-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.export-done-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--success);
+  color: #fff;
+}
+
+.export-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.export-file {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-panel-2);
+}
+
+.export-file-icon {
+  color: var(--accent-text);
+  padding-top: 2px;
+}
+
+.export-file-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.export-file-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.export-file-meta,
+.export-file-status {
+  font-size: 12px;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.export-file-status:empty {
+  display: none;
+}
+
+.export-file-actions {
+  grid-column: 2;
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+/* Error */
+.export-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: var(--text-2);
+}
+
+.export-message .icon {
+  width: 32px;
+  height: 32px;
+  color: var(--danger);
+}
+
+@media (max-width: 680px) {
+  .export-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .export-aside {
+    position: static;
+  }
+
+  .export-still {
+    max-height: 200px;
+  }
+
+  .export-row {
+    grid-template-columns: 96px 1fr;
+  }
+
+  .export-dest {
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  .export-codec-note {
+    padding-left: 108px;
+  }
+}

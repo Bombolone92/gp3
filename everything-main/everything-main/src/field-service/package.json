@@ -1,0 +1,24 @@
+{
+  "name": "field-service",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Field service management: clients, requests, quotes, jobs, scheduling, invoices, and payments.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy:email-worker": "puter worker deploy src/workers/email-worker.js field-service-email"
+  },
+  "dependencies": {
+    "lucide": "^0.545.0"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.0.0",
+    "jsdom": "^26.1.0",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.0"
+  }
+}

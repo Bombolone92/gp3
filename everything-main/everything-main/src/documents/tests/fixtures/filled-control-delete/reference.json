@@ -1,0 +1,23 @@
+{
+  "source": "../inline-control-navigation/inline.docx",
+  "sourceSha256": "cc53b8afde5ba1c882783821fb4542c81eed78b16783a6aa0627361e4660cbc9",
+  "native": "Native reference actual UI: click inside boundary, press Backspace/Delete, type Shift+X, save. Undo marker before next case.",
+  "cases": [
+    {
+      "key": "Backspace",
+      "offset": 1,
+      "result": "native-backspace-typed.docx",
+      "sha256": "f019de68ab0e0f2a2b1a1a4f59dc1148fc2c89d78a2d6c99dfdce20f51b36e17",
+      "text": "AXBCD",
+      "controlText": "XBC"
+    },
+    {
+      "key": "Delete",
+      "offset": 3,
+      "result": "native-delete-typed.docx",
+      "sha256": "7bf1c06be0d88422e03d4f9fea6a9ee5c82350a618bdfa4968836495881f8463",
+      "text": "ABCXD",
+      "controlText": "BCX"
+    }
+  ]
+}

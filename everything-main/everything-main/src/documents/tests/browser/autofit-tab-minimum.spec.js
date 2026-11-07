@@ -1,0 +1,38 @@
+import {test,expect} from '@playwright/test';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {unzipSync} from 'fflate';
+import {reopenDocx} from './helpers/reopen-docx.js';
+const folder='tests/fixtures/autofit-tab-minimum';
+for(const name of ['mode12-720','mode12-360','mode14-720','mode15-720','mode15-360']) test(`${name}: native tab minima, editing and exact undo`,async({page},info)=>{
+ const source=readFileSync(`${folder}/${name}.docx`),reference=JSON.parse(readFileSync(`${folder}/${name}-native.json`));
+ expect(createHash('sha256').update(source).digest('hex')).toBe(reference.sha256);
+ expect(reference.layoutInitialization).toBe('PDF export before cell inspection');
+ expect(createHash('sha256').update(readFileSync(`${folder}/${reference.pdf}`)).digest('hex')).toBe(reference.pdfSha256);
+ await page.goto('/playground.html');
+ const available=await page.evaluate(async()=>{try{await new FontFace('Native check','local("Arial")').load();return true;}catch{return false;}});
+ test.skip(!available,'Native controls require Arial.');
+ const widths=async bytes=>page.evaluate(async bytes=>{
+  const{DocxPackage}=await import('/src/engine/docx.js');const{layoutDocument}=await import('/src/engine/layout.js');
+  const{pageGeometry}=await import('/src/engine/page-settings.js');const{loadCanvasFonts,measureCanvasText}=await import('/src/engine/canvas-text.js');
+  const p=await DocxPackage.open(Uint8Array.from(bytes));await loadCanvasFonts(p);const ctx=document.createElement('canvas').getContext('2d');
+  const l=layoutDocument(p.paragraphs,(t,s)=>measureCanvasText(ctx,t,s),pageGeometry(p.pageSettings),p.numbering,p.tables);
+  return p.tables.map(t=>t.rows[0].cells.map(c=>l.cells.find(b=>b.id===c.id).width*.75));
+ },[...bytes]);
+ const actual=await widths(source);expect(actual).toHaveLength(39);expect(reference.tables).toHaveLength(39);
+ writeFileSync(info.outputPath('actual-widths.json'),JSON.stringify(actual,null,2));
+ for(const[i,cells]of actual.entries())for(const[j,width]of cells.entries())expect(Math.abs(width-reference.tables[i][j].width),`case ${i+1}, cell ${j+1}`).toBeLessThan(j===1?.01:.06);
+ await page.getByLabel('Open DOCX file').setInputFiles(`${folder}/${name}.docx`);
+ const input=page.getByRole('textbox',{name:'Document text'});await expect(input).toHaveValue(/^Case 1/);await expect(input).toHaveJSProperty('readOnly',false);
+ await expect(page.locator('canvas.canvas-page')).toHaveCount(7);
+ const original=await input.inputValue();
+ const download=async suffix=>{const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Download .docx',exact:true}).click();const path=info.outputPath(suffix+'.docx');await(await pending).saveAs(path);return path;};
+ const before=unzipSync(source),checkParts=(bytes,edited=false)=>{const after=unzipSync(bytes);expect(Object.keys(after).sort()).toEqual(Object.keys(before).sort());for(const n of Object.keys(before))if(!edited||n!=='word/document.xml')expect(Buffer.from(after[n]).equals(Buffer.from(before[n])),n).toBe(true);};
+ checkParts(readFileSync(await download('noedit')));
+ for(let i=0;i<7;i++)writeFileSync(info.outputPath(`page${i+1}.png`),Buffer.from(await page.locator('canvas.canvas-page').nth(i).evaluate(c=>c.toDataURL().split(',')[1]),'base64'));
+ await input.focus();await input.evaluate(el=>{const at=el.value.indexOf('\t')+1;el.setSelectionRange(at,at);});await page.keyboard.insertText('X');
+ const editedText=await input.inputValue();expect(editedText).not.toBe(original);const edited=await download('edited'),editedBytes=readFileSync(edited);checkParts(editedBytes,true);
+ const changed=await widths(editedBytes);expect(changed[0][1]).toBeGreaterThan(actual[0][1]);expect(changed.slice(1)).toEqual(actual.slice(1));
+ await input.press('ControlOrMeta+z');await expect(input).toHaveValue(original);checkParts(readFileSync(await download('undo')));
+ await reopenDocx(page,input,edited,editedText);await expect(page.locator('canvas.canvas-page')).toHaveCount(7);await expect(page.locator('#playground-error')).toBeEmpty();
+});

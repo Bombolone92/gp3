@@ -1,0 +1,52 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { positionedImageBounds, positionedImageContains } from '../src/engine/positioned-images.js';
+import { imageAtPoint, selectionRects } from '../src/engine/layout.js';
+import { validateImage } from '../src/engine/images.js';
+const source = readFileSync('tests/fixtures/floating-picture-rotation/control.docx');
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => dom.window.close());
+it('imports all independent angles, flips, crops and zero effect extents without flattening', async () => {
+  const pkg = await DocxPackage.open(source), images = pkg.paragraphs.flatMap(p => p.runs.filter(r => r.image).map(r => r.image));
+  expect(images).toHaveLength(18); expect(images.map(i => i.rotation / 60000)).toEqual([0,30,44.999,45,90,135,180,225,270,315,330,270,30,90,260,30,90,30]);
+  expect(images[15]).toMatchObject({ flipH: true, flipV: true, opacity: .5, crop: { left: 25000, top: 12500 } });
+  expect(images[1].effectExtent).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
+  expect(() => validateImage({ ...images[1], anchor: undefined })).not.toThrow();
+  expect(() => validateImage({ ...images[1], anchor: { ...images[1].anchor, wrap: 'square' } })).toThrow(/Text-wrapped/);
+});
+it('preserves original media and source rotation values through body editing and exact undo', async () => {
+  const pkg = await DocxPackage.open(source), doc = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets);
+  const save = async () => new Uint8Array(await pkg.export(doc.paragraphs, doc.pageSettings, doc.numbering, doc.styles, doc.tables, doc.assets).arrayBuffer());
+  doc.select(0); doc.replace('Edited '); const edited = await save(), parts = unzipSync(edited);
+  for (const name of Object.keys(pkg.parts)) if (name !== 'word/document.xml') expect(parts[name]).toEqual(pkg.parts[name]);
+  expect((await DocxPackage.open(edited)).paragraphs[0].runs[0].text).toMatch(/^Edited /);
+  doc.undo(); expect(unzipSync(await save())).toEqual(pkg.parts);
+});
+it('exports changed rotation and size without losing the floating anchor or original image bytes', async () => {
+  const pkg = await DocxPackage.open(source), doc = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets);
+  const start = doc.text.indexOf('\ufffc'); doc.select(start, start + 1);
+  const original = doc.selectedImage;
+  doc.setImageProperties({ rotation: 90 * 60000, width: original.width * 2, height: original.height * 2 });
+  const bytes = new Uint8Array(await pkg.export(doc.paragraphs, doc.pageSettings, doc.numbering, doc.styles, doc.tables, doc.assets).arrayBuffer());
+  const again = await DocxPackage.open(bytes), image = again.paragraphs.flatMap(p => p.runs).find(r => r.image).image;
+  expect(image).toMatchObject({ rotation: 90 * 60000, width: original.width * 2, height: original.height * 2, anchor: original.anchor });
+  expect(again.parts['word/media/quadrants.png']).toEqual(pkg.parts['word/media/quadrants.png']);
+  doc.undo(); expect(doc.selectedImage).toEqual(original);
+});
+it('hits the actual rotated rectangle and exposes its full selection bounds', () => {
+  const frame = { page: 0, start: 0, end: 1, x: 100, y: 100, width: 120, height: 60, image: { rotation: 90 * 60000 } };
+  const layout = { page: {width:816}, lines: [], floatingObjects: [frame] };
+  expect(imageAtPoint(layout, 0, 160, 180)).toBe(frame);
+  expect(imageAtPoint(layout, 0, 105, 130)).toBe(null);
+  expect(selectionRects(layout, 0, 1)[0]).toMatchObject({ x: 130, y: 70, height: 120 });
+  expect(positionedImageBounds(frame).width).toBeCloseTo(60);
+  const tilted = { ...frame, image: { rotation: 45 * 60000 } }, bounds = positionedImageBounds(tilted);
+  expect(positionedImageContains(tilted, bounds.x + 1, bounds.y + 1)).toBe(false);
+  expect(positionedImageContains(tilted, 160, 130)).toBe(true);
+  expect(imageAtPoint({ ...layout, floatingObjects: [{ ...frame, cellClip: { top: 100, bottom: 160 } }] }, 0, 160, 180)).toBe(null);
+});

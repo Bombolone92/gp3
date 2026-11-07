@@ -1,0 +1,14 @@
+import "@fontsource/noto-sans/latin-400.css";
+import "@fontsource/noto-sans/latin-600.css";
+import "@fontsource/noto-sans/latin-400-italic.css";
+import "@fontsource/noto-sans/latin-600-italic.css";
+import "@fontsource/eb-garamond/latin-400.css";
+import "@fontsource/eb-garamond/latin-600.css";
+import "@fontsource/eb-garamond/latin-400-italic.css";
+import "@fontsource/eb-garamond/latin-600-italic.css";
+import "@fontsource/roboto-mono/latin-400.css";
+import "@fontsource/roboto-mono/latin-600.css";
+import "@fontsource/roboto-mono/latin-400-italic.css";
+import "@fontsource/roboto-mono/latin-600-italic.css";
+import "@fontsource/caveat/latin-400.css";
+import "@fontsource/caveat/latin-600.css";

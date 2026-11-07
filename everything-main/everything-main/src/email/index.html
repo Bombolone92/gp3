@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Puter Mail</title>
+  <meta name="description" content="A fast, private email client for your Puter account." />
+  <link rel="canonical" href="https://email.puter.com/" />
+  <meta name="theme-color" content="#f8fafd" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#131314" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="icon" href="./favicon-16x16.png" type="image/png" sizes="16x16" />
+  <link rel="icon" href="./favicon-32x32.png" type="image/png" sizes="32x32" />
+  <link rel="icon" href="./favicon-48x48.png" type="image/png" sizes="48x48" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
+  <link rel="manifest" href="./manifest.json" />
+  <script>
+    // Apply the saved theme before first paint to avoid a flash.
+    (() => {
+      try {
+        const t = localStorage.getItem('puter-mail:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    })();
+  </script>
+  <!-- defer keeps the SDK ahead of the module script below (same in-order
+       queue) without parser-blocking the first paint. A script that could not
+       load says so, so start-up can report it at once. -->
+  <script src="https://js.puter.com/v2/" defer onerror="window.puterSdkFailed = true"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div id="app" class="app">
+    <div class="gate"><div class="gate-inner">
+      <div class="loading-placeholder loading-boot" role="status" aria-label="Loading Puter Mail">
+        <span class="sr-only">Loading Puter Mail</span>
+        <div class="skeleton-shapes" aria-hidden="true">
+          <span class="skeleton-line skeleton-long"></span>
+          <span class="skeleton-line skeleton-long"></span>
+          <span class="skeleton-line skeleton-short"></span>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "application": "Native reference application",
+  "date": "2026-10-03",
+  "method": "Locally exported to PDF before changing join resolution. PDF line joins and limits were read with q/Q graphic-state restoration; native PNGs were inspected.",
+  "ordinaryJoins": ["round", "round", "miter", "bevel"],
+  "ordinaryMiterLimit": 8,
+  "presetExceptions": [
+    "cube",
+    "moon",
+    "chevron",
+    "ellipseRibbon",
+    "ellipseRibbon2",
+    "plus",
+    "rightArrow",
+    "stripedRightArrow",
+    "notchedRightArrow",
+    "leftArrowCallout",
+    "leftRightArrowCallout",
+    "upDownArrowCallout",
+    "quadArrowCallout",
+    "star4",
+    "star5",
+    "star8",
+    "star10",
+    "star12",
+    "star16",
+    "star24",
+    "star32",
+    "upArrow",
+    "downArrow",
+    "upDownArrow",
+    "leftUpArrow",
+    "bentUpArrow",
+    "mathPlus",
+    "mathMinus",
+    "mathMultiply",
+    "mathEqual",
+    "mathNotEqual"
+  ],
+  "presetOmittedAndRound": {
+    "kind": "miter",
+    "limit": 8
+  },
+  "edgeControls": {
+    "pictureJoins": ["round", "round", "miter", "bevel"],
+    "customPathJoins": ["round", "round", "miter", "bevel"],
+    "star5Joins": ["miter", "miter", "miter", "bevel"],
+    "explicitMiterLimit": 3.5
+  },
+  "source": "https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/562a55ee-ce0a-42b9-a8ef-9df10db1a07e",
+  "interoperability": {
+    "nativeTemplateForwardAndReturn": "Both full eight-control slide exports open without repair. Each complete locally printed page is pixel-identical to the native original.",
+    "applicationObjectClipboard": "Three objects copied into a new deck, then back into a fresh source. Both exports open without repair and retain native round/round/miter joins with limit eight for miter; authored XML remains omitted/omitted/miter.",
+    "applicationTextEdit": "Native opens without repair and displays Native rounded panel on the first rectangle. All eight native joins remain unchanged and the first shape's exported XML still omits the join."
+  },
+  "remaining": "Preset geometry paths at different aspect ratios and shared color quantization remain separate gaps. Join assertions do not claim those paths are native-perfect."
+}

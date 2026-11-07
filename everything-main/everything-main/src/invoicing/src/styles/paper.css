@@ -1,0 +1,284 @@
+/* The document paper. Self-contained (no app tokens) because it is also
+   embedded verbatim into public share pages and print output. Paper stays
+   light in every app theme, like paper. */
+
+.paper {
+  background: #ffffff;
+  color: #17181c;
+  border: 1px solid rgba(23, 24, 28, 0.12);
+  border-radius: 12px;
+  padding: clamp(20px, 5vw, 44px);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+}
+
+.paper .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.paper-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Every column of the two header rows has to be allowed to shrink. A flex
+   item will not go below its longest word, and .paper's overflow-wrap can
+   only break one inside a box that is already narrow enough — so a client's
+   email at a single-word domain, an address line typed without spaces, or a
+   reference number run together sized the column to that word and the paper
+   bled out of its page. The same three surfaces draw this stylesheet: the
+   app's preview, the printed sheet, and the public share page. */
+.paper-head > *,
+.paper-parties > * {
+  min-width: 0;
+}
+
+/* Capped so a tall or very wide logo can never dwarf the paper, and always
+   printed with its real colors rather than a browser's ink-saving pass. */
+.paper-logo {
+  display: block;
+  max-width: min(220px, 100%);
+  max-height: 62px;
+  width: auto;
+  height: auto;
+  margin-bottom: 10px;
+  object-fit: contain;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.paper-biz-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.paper-sub {
+  color: #5b5e66;
+  font-size: 12.5px;
+}
+
+.paper-id {
+  text-align: right;
+}
+
+.paper-kind {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5b5e66;
+}
+
+.paper-number {
+  font-size: 19px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.paper-stamp {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1.5px solid currentColor;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.paper-stamp.tone-ok { color: #0d7a3f; }
+.paper-stamp.tone-bad { color: #c22f2f; }
+.paper-stamp.tone-warn { color: #955f00; }
+.paper-stamp.tone-neutral { color: #5b5e66; }
+
+.paper-parties {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+/* The quiet gray these small caps used to take, #82858d, held only 3.69:1 on
+   the paper — under the 4.5:1 that 11px text needs, and this is the one thing
+   in the app a client reads: the block labels of an invoice and the column
+   headings of its table, on screen, on a share page, on paper, and in the
+   PDF. #6d7078 is 4.92:1 and still sits a clear step behind .paper-sub. */
+.paper-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #6d7078;
+  margin-bottom: 2px;
+}
+
+.paper-label:not(:first-child) {
+  margin-top: 10px;
+}
+
+.paper-client-name {
+  font-weight: 650;
+}
+
+.paper-dates {
+  text-align: right;
+}
+
+/* The numeric columns never wrap, so on a narrow phone a table can be
+   intrinsically wider than the paper; it then scrolls inside its own rail
+   rather than bleeding through the card's edge. Full-width papers (print,
+   desktop) never overflow, so nothing changes there. */
+/* tabindex="0" in the markup, because a scroll container is only scrollable
+   by keyboard while it holds focus, and nothing inside this one is focusable:
+   at a phone's width — or a desktop zoomed to 400% — the Amount column of an
+   invoice and the Balance column of a statement were off the rail's edge with
+   no way to reach them but a pointer. Focus is a real state here, so it says
+   so rather than borrowing the app's ring on a block of paper. */
+.paper-table-scroll {
+  margin-top: 26px;
+  overflow-x: auto;
+}
+
+.paper-table-scroll:focus-visible {
+  outline: 2px solid #2b49c4;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.paper-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.paper-table th {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #6d7078;   /* 4.92:1, like .paper-label above */
+  text-align: left;
+  padding: 0 8px 8px;
+  border-bottom: 1.5px solid #17181c;
+}
+
+.paper-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid rgba(23, 24, 28, 0.1);
+  vertical-align: top;
+}
+
+.paper-table td:first-child {
+  width: 55%;
+}
+
+/* The line's own work description, under the name it belongs to. */
+.paper-item-details {
+  color: #5b5e66;
+  font-size: 11.5px;
+  margin-top: 3px;
+}
+
+/* A statement lists five narrow columns, none of which is a description. */
+.paper-table-statement td:first-child {
+  width: auto;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.paper-late {
+  color: #c22f2f;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.paper-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.paper-notes {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.paper-paylink {
+  color: #2b49c4;
+  text-decoration: underline;
+  word-break: break-all;
+  font-size: 13px;
+}
+
+.paper-totals {
+  flex: 0 1 260px;
+  min-width: 220px;
+}
+
+.paper-trow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 8px;
+  color: #3c3f45;
+}
+
+.paper-trow.strong {
+  color: #17181c;
+  font-weight: 700;
+  border-top: 1.5px solid #17181c;
+  margin-top: 4px;
+  padding-top: 9px;
+  font-size: 15px;
+}
+
+.receipt-amount {
+  margin-top: 28px;
+  padding: 18px;
+  border: 1px solid rgba(23, 24, 28, 0.12);
+  border-radius: 10px;
+}
+
+.receipt-big {
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .paper-id { text-align: left; }
+  .paper-dates { text-align: left; }
+}
+
+/* The statement's aging summary, under the totals it breaks down. Set in the
+   same column so its figures line up with the total above them. */
+.paper-aging {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #d9dbe0;
+}
+
+/* The payment plan under the totals it splits: same column, same figures,
+   the state of each part in quieter ink. */
+.paper-schedule {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #d9dbe0;
+}
+
+.paper-inst-state {
+  color: #6d7078;   /* 4.95:1, like .paper-label */
+}

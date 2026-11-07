@@ -1,0 +1,1590 @@
+import { SHAPES } from "./shapes.js";
+export let language = "en";
+try {
+  language = localStorage.getItem("whiteboard-language") === "fr" ? "fr" : "en";
+} catch {}
+export function setLanguage(value) {
+  language = value === "fr" ? "fr" : "en";
+  try {
+    localStorage.setItem("whiteboard-language", language);
+  } catch {}
+  document.documentElement.lang = language;
+}
+// Without a prototype, text such as "constructor" is never a translation.
+const pairs = {
+  __proto__: null,
+  "Move selection": "Déplacer la sélection",
+  "In frame": "Dans le cadre",
+  Group: "Groupe",
+  Contains: "Contient",
+  "visible object": "objet visible",
+  "visible objects": "objets visibles",
+  "Mind map parent": "Parent de la carte mentale",
+  "Content language": "Langue du contenu",
+  "Whole comment": "Commentaire entier",
+  "Selected text": "Texte sélectionné",
+  "The comment text changed. Reopen Content language to select the passage again.":
+    "Le texte du commentaire a changé. Rouvrez Langue du contenu pour sélectionner à nouveau le passage.",
+  "Apply to": "Appliquer à",
+  "Language tag": "Code de langue",
+  "Selected text or next typed text":
+    "Texte sélectionné ou prochain texte saisi",
+  "Whole object": "Objet entier",
+  "Whole field": "Champ entier",
+  "Select complete characters to set their language.":
+    "Sélectionnez des caractères entiers pour définir leur langue.",
+  "Apply language": "Appliquer la langue",
+  "Enter a language tag, such as en, fr-CA, or es. Leave empty to inherit the surrounding language.":
+    "Saisissez un code de langue, comme en, fr-CA ou es. Laissez vide pour hériter de la langue environnante.",
+  "Enter a valid language tag, such as en or fr-CA.":
+    "Saisissez un code de langue valide, comme en ou fr-CA.",
+  "Select multiple objects": "Sélectionner plusieurs objets",
+  "Turn on Select multiple objects, then click objects to add or remove them. Choose Done to use the selection.":
+    "Activez Sélectionner plusieurs objets, puis cliquez sur les objets pour les ajouter ou les retirer. Choisissez Terminé pour utiliser la sélection.",
+  "Start horizontal position": "Position horizontale du départ",
+  "Start vertical position": "Position verticale du départ",
+  "End horizontal position": "Position horizontale de l’arrivée",
+  "End vertical position": "Position verticale de l’arrivée",
+  "Choose an object for each end, or select Free endpoint and enter its position in board pixels.":
+    "Choisissez un objet pour chaque extrémité, ou sélectionnez Extrémité libre et saisissez sa position en pixels du tableau.",
+  "The endpoints exceed the board limits. Choose closer positions.":
+    "Les extrémités dépassent les limites du tableau. Choisissez des positions plus rapprochées.",
+  "Extend selection": "Étendre la sélection",
+  "Turn on Extend selection, then click another cell to select a range.":
+    "Activez Étendre la sélection, puis cliquez sur une autre cellule pour sélectionner une plage.",
+  "Set export region": "Définir la zone d’exportation",
+  "Use region": "Utiliser la zone",
+  "Enter the top-left position and size of the export region in board pixels.":
+    "Saisissez la position du coin supérieur gauche et la taille de la zone d’exportation en pixels du tableau.",
+  "Move pin": "Déplacer le repère",
+  "Horizontal position": "Position horizontale",
+  "Vertical position": "Position verticale",
+  "Set the pin position in board pixels.":
+    "Définissez la position du repère en pixels du tableau.",
+  "This pin moved. Close and reopen Move pin to use its current position.":
+    "Ce repère a été déplacé. Fermez et rouvrez Déplacer le repère pour utiliser sa position actuelle.",
+  Position: "Position",
+  "Horizontal distance": "Distance horizontale",
+  "Vertical distance": "Distance verticale",
+  "Apply move": "Appliquer le déplacement",
+  "Select objects that can be moved.":
+    "Sélectionnez des objets qui peuvent être déplacés.",
+  "Move exceeds the board limits. Enter a smaller distance.":
+    "Le déplacement dépasse les limites du tableau. Saisissez une distance plus petite.",
+  "Move the selection and its contents by a distance in board pixels. Positive values move right or down; negative values move left or up.":
+    "Déplacez la sélection et son contenu d’une distance en pixels du tableau. Les valeurs positives déplacent vers la droite ou le bas ; les valeurs négatives vers la gauche ou le haut.",
+  "Enable letter and symbol shortcuts":
+    "Activer les raccourcis avec des lettres et des symboles",
+  "Turn off shortcuts such as N, Shift + N, and ? to avoid accidental actions. Ctrl/Cmd and Alt/Option shortcuts remain available. This preference is saved on this device and shared with other open tabs.":
+    "Désactivez les raccourcis tels que N, Maj + N et ? pour éviter les actions accidentelles. Les raccourcis Ctrl/Cmd et Alt/Option restent disponibles. Ce réglage est enregistré sur cet appareil et partagé avec les autres onglets ouverts.",
+  "Image proportions are too extreme to replace.":
+    "Les proportions de l’image sont trop extrêmes pour la remplacer.",
+  "Replace image": "Remplacer l’image",
+  "Replace from board": "Remplacer depuis le tableau",
+  "Upload from device": "Importer depuis l’appareil",
+  "Image URL": "URL de l’image",
+  "Load image": "Charger l’image",
+  "Images on this board": "Images de ce tableau",
+  "Find an image": "Rechercher une image",
+  "Previous images": "Images précédentes",
+  "Next images": "Images suivantes",
+  "Replacement preview": "Aperçu du remplacement",
+  "Choose a replacement image.": "Choisissez une image de remplacement.",
+  "Loading image…": "Chargement de l’image…",
+  "Ready to replace. Undo restores the previous image.":
+    "Prête à remplacer. Annulez pour restaurer l’image précédente.",
+  "This image is already in place.": "Cette image est déjà en place.",
+  "No other images on this board.": "Aucune autre image sur ce tableau.",
+  "Image replaced. Undo restores it.":
+    "Image remplacée. Annulez pour la restaurer.",
+  "Replacement closed because the image changed or is no longer editable.":
+    "Le remplacement a été fermé car l’image a changé ou ne peut plus être modifiée.",
+  "Keep the image’s size, position, rotation, mask, links, and comments. The replacement fills its current area; use Crop image to adjust it.":
+    "Conservez la taille, la position, la rotation, le masque, les liens et les commentaires. L’image de remplacement remplit la zone actuelle ; utilisez Recadrer l’image pour l’ajuster.",
+  "Enter an HTTP or HTTPS image URL.":
+    "Saisissez une URL d’image HTTP ou HTTPS.",
+  "This image could not be loaded. Download it and choose Upload from device.":
+    "Impossible de charger cette image. Téléchargez-la et choisissez Importer depuis l’appareil.",
+  "Loading timed out. Try again or upload from device.":
+    "Le chargement a expiré. Réessayez ou importez depuis l’appareil.",
+  "Clear content": "Effacer le contenu",
+  "Clear content (Ctrl/Cmd Backspace)":
+    "Effacer le contenu (Ctrl/Cmd Retour arrière)",
+  "Clear content of sticky notes and shapes":
+    "Effacer le contenu des notes et des formes",
+  "Select sticky notes or shapes to clear.":
+    "Sélectionnez des notes ou des formes à vider.",
+  "The selected content is already empty.":
+    "Le contenu sélectionné est déjà vide.",
+  "Content cleared. Undo restores it.":
+    "Contenu effacé. Annulez pour le restaurer.",
+  "Select object in group": "Sélectionner un objet du groupe",
+  "Select whole group": "Sélectionner tout le groupe",
+  "Select an object inside a group first.":
+    "Sélectionnez d’abord un objet dans un groupe.",
+  "Inside group · Double-click to edit · Escape selects the group":
+    "Dans le groupe · Double-cliquez pour modifier · Échap sélectionne le groupe",
+  "Double-click an object to select it within this group.":
+    "Double-cliquez sur un objet pour le sélectionner dans ce groupe.",
+  "Lock group": "Verrouiller le groupe",
+  "Select a group member or edit the focused object":
+    "Sélectionner un membre du groupe ou modifier l’objet actif",
+  "Select a group member / whole group":
+    "Sélectionner un membre / tout le groupe",
+  "Selection settings": "Réglages de sélection",
+  "Precise selection": "Sélection précise",
+  "Precise selection: enclose at least 90% of each object.":
+    "Sélection précise : encadrez au moins 90 % de chaque objet.",
+  "Select objects when at least 90% is inside the selection box. Turn off to select touched objects. Tables and mind map nodes always require 90% coverage.":
+    "Sélectionnez les objets dont au moins 90 % est dans le cadre de sélection. Désactivez pour sélectionner les objets touchés. Les tableaux et nœuds de carte mentale nécessitent toujours 90 % de couverture.",
+  "Hold the mouse or your finger still for a moment, then drag to use precise selection over background objects. Hold Shift while dragging to add to your selection. Escape cancels.":
+    "Maintenez la souris ou le doigt immobile un instant, puis faites glisser pour sélectionner précisément par-dessus les objets d’arrière-plan. Maintenez Maj pour ajouter à la sélection. Échap annule.",
+  "Filter selection": "Filtrer la sélection",
+  "Choose the object type to keep selected.":
+    "Choisissez le type d’objet à conserver dans la sélection.",
+  "Groups stay together. Frames keep their contents; mind map nodes keep their branches.":
+    "Les groupes restent entiers. Les cadres conservent leur contenu et les nœuds de carte mentale leurs branches.",
+  "The selection changed. Choose a type again.":
+    "La sélection a changé. Choisissez à nouveau un type.",
+  "This link is no longer on the board.": "Ce lien n’est plus sur le tableau.",
+  "These objects are no longer on the board.":
+    "Ces objets ne sont plus sur le tableau.",
+  "Connection lines": "Lignes de connexion",
+  Drawings: "Dessins",
+  Images: "Images",
+  Tables: "Tableaux de données",
+  Links: "Liens",
+  Attachments: "Pièces jointes",
+  "Mind map nodes": "Nœuds de carte mentale",
+  Groups: "Groupes",
+  Frames: "Cadres",
+  "Object dimensions": "Dimensions des objets",
+  "Show dimensions and matching-size guides":
+    "Afficher les dimensions et les repères de taille identique",
+  "See the selection’s width and height in board pixels. Resize near another object’s width or height to match its size.":
+    "Affichez la largeur et la hauteur de la sélection en pixels du canevas. Redimensionnez près de la largeur ou de la hauteur d’un autre objet pour obtenir la même taille.",
+  "Matching sizes uses Snap to objects. Hold Alt/Option to bypass snapping. Exact numeric dimensions stay precise.":
+    "La correspondance de taille utilise l’alignement sur les objets. Maintenez Alt/Option pour ignorer l’alignement. Les dimensions numériques exactes restent précises.",
+  "Grid and snapping": "Grille et alignement",
+  "Canvas grid": "Grille du canevas",
+  "No grid": "Sans grille",
+  "Line grid": "Grille en lignes",
+  "Dot grid": "Grille en points",
+  "Snap to grid": "Aligner sur la grille",
+  "New objects, moves, and resize edges snap to the visible grid. Object alignment guides take priority.":
+    "Les nouveaux objets, les déplacements et les bords redimensionnés s’alignent sur la grille visible. Les repères d’alignement des objets sont prioritaires.",
+  "Hold Ctrl/Cmd or Alt/Option during a gesture to bypass grid snapping. Keyboard nudges and exact dimensions stay precise.":
+    "Maintenez Ctrl/Cmd ou Alt/Option pendant un geste pour ignorer la grille. Les déplacements au clavier et les dimensions exactes restent précis.",
+  Follow: "Suivre",
+  Following: "Vous suivez",
+  "Following you": "Vous suit",
+  "one|{count} following you": "{count} vous suit",
+  "{count} following you": "{count} vous suivent",
+  "Stop following": "Ne plus suivre",
+  "Bring to me": "Amener vers moi",
+  "Bring everyone to me": "Amener tout le monde vers moi",
+  "Live navigation": "Navigation en direct",
+  Live: "En direct",
+  "Waiting for live view": "En attente de la vue en direct",
+  "Board access": "Accès au tableau",
+  "Find a participant": "Trouver un participant",
+  "Show collaborator cursors": "Afficher les curseurs des collaborateurs",
+  "No other participants are on this board.":
+    "Aucun autre participant sur ce tableau.",
+  "{count} participants": "{count} participants",
+  "{count} participant": "{count} participant",
+  "No participants match your search.":
+    "Aucun participant ne correspond à votre recherche.",
+  "Invited you to follow": "Vous invite à suivre sa vue",
+  Dismiss: "Fermer",
+  "Follow a participant’s view. Pan, zoom, click the board, or press Escape to stop.":
+    "Suivez la vue d’un participant. Déplacez la vue, zoomez, cliquez sur le tableau ou appuyez sur Échap pour arrêter.",
+  "Cannot follow a circular chain.":
+    "Impossible de suivre une chaîne circulaire.",
+  "Following stopped because the live view is unavailable.":
+    "Le suivi est arrêté car la vue en direct est indisponible.",
+  "Following stopped to avoid a loop.":
+    "Le suivi est arrêté pour éviter une boucle.",
+  "Asked participants to follow you.":
+    "Les participants ont été invités à vous suivre.",
+  "A live connection is needed to bring participants to your view.":
+    "Une connexion en direct est nécessaire pour amener les participants vers votre vue.",
+  "Could not send the follow request. Try again.":
+    "Impossible d’envoyer la demande de suivi. Réessayez.",
+
+  "Workshop timer": "Minuteur d’atelier",
+  Timer: "Minuteur",
+  Minimize: "Réduire",
+  "Time remaining": "Temps restant",
+  Minutes: "Minutes",
+  Seconds: "Secondes",
+  min: "min",
+  "Start timer": "Démarrer",
+  "Pause timer": "Mettre en pause",
+  "Resume timer": "Reprendre",
+  "Reset timer": "Réinitialiser",
+  "Play a chime on this device": "Jouer un son sur cet appareil",
+  "Invalid workshop timer.": "Minuteur d’atelier non valide.",
+  "The timer can run for up to 24 hours.":
+    "Le minuteur peut durer jusqu’à 24 heures.",
+  "Set a timer from 1 second to 24 hours.":
+    "Réglez une durée de 1 seconde à 24 heures.",
+  "Time’s up.": "Le temps est écoulé.",
+  Ready: "Prêt",
+  "Counting down": "Décompte en cours",
+  Paused: "En pause",
+  "The timer is shared with everyone on this board. Editors can control it.":
+    "Le minuteur est partagé avec tout le monde sur ce tableau. Les éditeurs peuvent le contrôler.",
+  "The timer keeps counting when minimized or when you leave this board.":
+    "Le décompte continue quand le minuteur est réduit ou que vous quittez ce tableau.",
+
+  "selected note": "note sélectionnée",
+  tag: "étiquette",
+  Tags: "Étiquettes",
+  tags: "étiquettes",
+  Tag: "Étiquette",
+  "All tags": "Toutes les étiquettes",
+  "Tag name": "Nom de l’étiquette",
+  "Tag color": "Couleur de l’étiquette",
+  "Current color": "Couleur actuelle",
+  "Create tag": "Créer une étiquette",
+  "Edit tag": "Modifier l’étiquette",
+  "Save tag": "Enregistrer l’étiquette",
+  "Search tags": "Rechercher des étiquettes",
+  "No matching tags.": "Aucune étiquette correspondante.",
+  "Find tagged notes": "Trouver les notes étiquetées",
+  "Delete tag from board": "Supprimer l’étiquette du tableau",
+  "selected notes": "notes sélectionnées",
+  "This selection is protected.": "Cette sélection est protégée.",
+  "This tag changed. Reopen its settings.":
+    "Cette étiquette a changé. Rouvrez ses paramètres.",
+  "A sticky note can have up to 8 tags.":
+    "Une note peut porter jusqu’à 8 étiquettes.",
+  "A board can contain up to 1,000 tags.":
+    "Un tableau peut contenir jusqu’à 1 000 étiquettes.",
+  "Invalid board tag.": "Étiquette de tableau non valide.",
+  "A tag with this name already exists.":
+    "Une étiquette portant ce nom existe déjà.",
+  "This tag is also used on content hidden from you.":
+    "Cette étiquette sert aussi sur du contenu qui vous est masqué.",
+  "Unlock tagged objects before changing this tag.":
+    "Déverrouillez les objets étiquetés avant de modifier cette étiquette.",
+  "Tags apply to selected sticky notes. Renaming, recoloring, or deleting a tag affects the whole board. Up to 8 tags per note.":
+    "Les étiquettes s’appliquent aux notes sélectionnées. Leur nom, couleur et suppression concernent tout le tableau. Jusqu’à 8 étiquettes par note.",
+  "Column width": "Largeur des colonnes",
+  "Row height": "Hauteur des lignes",
+  "Fit columns to text": "Ajuster les colonnes au texte",
+  "Fit rows to text": "Ajuster les lignes au texte",
+  "Equal column widths": "Uniformiser les largeurs",
+  "Equal row heights": "Uniformiser les hauteurs",
+  "Resize column": "Redimensionner la colonne",
+  "Resize row": "Redimensionner la ligne",
+  "Enter a valid row height or column width.":
+    "Saisissez une hauteur de ligne ou une largeur de colonne valide.",
+  "Collapse branch": "Replier la branche",
+  "Expand branch": "Déplier la branche",
+  "Mind map branches": "Branches de carte mentale",
+  "hidden node": "nœud masqué",
+  "hidden comment": "commentaire masqué",
+  "hidden nodes": "nœuds masqués",
+  "hidden comments": "commentaires masqués",
+  "hidden in collapsed branches": "masqués dans des branches repliées",
+  "Ctrl or Cmd + Enter to finish. Escape to cancel.":
+    "Ctrl ou Cmd + Entrée pour terminer. Échap pour annuler.",
+  "Moving a child without reassignment, or resizing it, switches to manual layout.":
+    "Déplacer un enfant sans le rattacher, ou le redimensionner, active la disposition manuelle.",
+  "Add child node": "Ajouter un nœud enfant",
+  "Release to attach to": "Relâchez pour rattacher à",
+  "Hold Ctrl/Cmd to move without reassigning":
+    "Maintenez Ctrl/Cmd pour déplacer sans rattacher",
+  "Moving branch without reassigning":
+    "Déplacement de la branche sans rattachement",
+  "Drag onto another node to move this branch · Hold Ctrl/Cmd to move freely":
+    "Glissez sur un autre nœud pour rattacher cette branche · Maintenez Ctrl/Cmd pour déplacer librement",
+  "Create mind map branches": "Créer des branches de carte mentale",
+  "Add child above": "Ajouter un enfant au-dessus",
+  "Add child to the right": "Ajouter un enfant à droite",
+  "Add child below": "Ajouter un enfant en dessous",
+  "Add child to the left": "Ajouter un enfant à gauche",
+  "Add sibling node": "Ajouter un nœud frère",
+  "Central idea": "Idée centrale",
+  "New idea": "Nouvelle idée",
+  "Untitled node": "Nœud sans titre",
+  "Mind map controls": "Options de la carte mentale",
+  "Move mind map branch": "Déplacer une branche de carte mentale",
+  "Move branch earlier": "Avancer la branche",
+  "Move branch later": "Reculer la branche",
+  "Select a mind map node first.":
+    "Sélectionnez d’abord un nœud de carte mentale.",
+  "Layout nodes": "Organiser les nœuds",
+  "Branch direction": "Direction des branches",
+  "Branch lines": "Lignes des branches",
+  "Keep current directions": "Conserver les directions actuelles",
+  "Automatically lay out new branches":
+    "Organiser automatiquement les nouvelles branches",
+  "Find parent node": "Rechercher un nœud parent",
+  "Make a separate mind map": "Créer une carte mentale séparée",
+  "This mind map changed. Reopen its controls.":
+    "Cette carte mentale a changé. Rouvrez ses options.",
+  "A branch cannot be moved inside itself.":
+    "Une branche ne peut pas être déplacée dans elle-même.",
+  "The mind map is too large. Move it closer to the center or split a branch.":
+    "La carte mentale est trop grande. Rapprochez-la du centre ou séparez une branche.",
+  "Tab adds a child · Enter adds a sibling · Shift+Enter adds a line · Arrow keys navigate nodes":
+    "Tab : ajouter un enfant · Entrée : ajouter un frère · Maj+Entrée : nouvelle ligne · Flèches : parcourir les nœuds",
+
+  "Object link": "Lien de l’objet",
+  "Edit cell": "Modifier la cellule",
+  "Select one table first.": "Sélectionnez d’abord un tableau.",
+  "Insert row above": "Insérer une ligne au-dessus",
+  "Insert row below": "Insérer une ligne en dessous",
+  "Delete selected rows": "Supprimer les lignes sélectionnées",
+  "Insert column left": "Insérer une colonne à gauche",
+  "Insert column right": "Insérer une colonne à droite",
+  "Delete selected columns": "Supprimer les colonnes sélectionnées",
+  "Clear cells": "Effacer les cellules",
+  "Use latest value": "Utiliser la valeur actuelle",
+  "This table is protected.": "Ce tableau est protégé.",
+  "This table changed. Reopen its properties before applying these edits.":
+    "Ce tableau a changé. Rouvrez ses propriétés avant d’appliquer ces modifications.",
+  "Keep at least one row and one column.":
+    "Conservez au moins une ligne et une colonne.",
+  "Cell draft kept. Reopen the cell to review it.":
+    "Brouillon conservé. Rouvrez la cellule pour le vérifier.",
+  "This cell changed or is protected. Your draft is kept; copy it or use the latest value.":
+    "Cette cellule a changé ou est protégée. Votre brouillon est conservé ; copiez-le ou utilisez la valeur actuelle.",
+  "Arrows select cells · Shift extends selection · Enter edits · Tab moves · Escape cancels":
+    "Flèches : sélectionner · Maj : étendre · Entrée : modifier · Tab : déplacer · Échap : annuler",
+  "Object links": "Liens des objets",
+  "Open object link": "Ouvrir le lien de l’objet",
+  "Copy link to object": "Copier le lien vers l’objet",
+  "Copy link to this object": "Copier le lien vers cet objet",
+  "Object link copied.": "Lien de l’objet copié.",
+  "Unable to create a link to this object.":
+    "Impossible de créer un lien vers cet objet.",
+  "No objects found.": "Aucun objet trouvé.",
+  "Only people with board access can open this link.":
+    "Seules les personnes ayant accès au tableau peuvent ouvrir ce lien.",
+  "This link opens a board saved on this device.":
+    "Ce lien ouvre un tableau enregistré sur cet appareil.",
+  "Click a destination object on the canvas, choose one below, or enter a website URL.":
+    "Cliquez sur un objet de destination, choisissez-en un ci-dessous ou saisissez une adresse Web.",
+  "Link destination": "Destination du lien",
+  "Find destination object": "Rechercher un objet de destination",
+  "No object link.": "Aucun lien pour cet objet.",
+  "The linked object is no longer on this board.":
+    "L’objet lié ne se trouve plus sur ce tableau.",
+  "Choose a valid frame.": "Choisissez un cadre valide.",
+  "Another board is still being shared. Try again in a moment.":
+    "Un autre tableau est encore en cours de partage. Réessayez dans un instant.",
+  "Someone locked this object while you were editing it.":
+    "Quelqu’un a verrouillé cet objet pendant que vous le modifiiez.",
+  "This object changed. Open it again to edit it.":
+    "Cet objet a changé. Rouvrez-le pour le modifier.",
+  "This object changed or is protected. Reopen its link settings.":
+    "Cet objet a changé ou est protégé. Rouvrez les réglages de son lien.",
+  "Choose a different object.": "Choisissez un autre objet.",
+  "This board is unavailable on this device. Check your boards or Trash.":
+    "Ce tableau n’est pas disponible sur cet appareil. Consultez vos tableaux ou la corbeille.",
+  "Go to linked object": "Aller à l’objet lié",
+  "Invalid object link.": "Lien d’objet non valide.",
+
+  Comments: "Commentaires",
+  Comment: "Commentaire",
+  "Comment (C)": "Commentaire (C)",
+  "Add comment": "Ajouter un commentaire",
+  "Board comments": "Commentaires du tableau",
+  "Close comments": "Fermer les commentaires",
+  "Search comments": "Rechercher des commentaires",
+  "Show comments": "Afficher les commentaires",
+  "Open comments": "Commentaires ouverts",
+  "Resolved comments": "Commentaires résolus",
+  "All comments": "Tous les commentaires",
+  "New comment": "Nouveau commentaire",
+  "Show pins": "Afficher les repères",
+  Discussion: "Discussion",
+  "Write a comment": "Rédiger un commentaire",
+  "Write a reply": "Rédiger une réponse",
+  "Enter to post · Shift+Enter for a new line":
+    "Entrée pour publier · Maj+Entrée pour une nouvelle ligne",
+  "Cancel edit": "Annuler la modification",
+  "Post comment": "Publier le commentaire",
+  "Resolve discussion": "Résoudre la discussion",
+  "Reopen discussion": "Rouvrir la discussion",
+  "No comments to show.": "Aucun commentaire à afficher.",
+  "{count} discussion": "{count} discussion",
+  "{count} discussions": "{count} discussions",
+  "Deleted comment": "Commentaire supprimé",
+  "Comment deleted": "Commentaire supprimé",
+  "Edit comment": "Modifier le commentaire",
+  "Delete comment": "Supprimer le commentaire",
+  "Restore comment": "Restaurer le commentaire",
+  "Save comment": "Enregistrer le commentaire",
+  Reply: "Répondre",
+  Edited: "Modifié",
+  Resolved: "Résolu",
+  Open: "Ouvert",
+  "Draft comment": "Brouillon de commentaire",
+  You: "Vous",
+  "Show or hide comment pins": "Afficher ou masquer les repères de commentaire",
+  "This discussion is no longer available.":
+    "Cette discussion n’est plus disponible.",
+  "This comment changed. Reopen it before editing.":
+    "Ce commentaire a changé. Rouvrez-le avant de le modifier.",
+  "This discussion has reached its reply limit.":
+    "Cette discussion a atteint sa limite de réponses.",
+  "This board has reached its comment limit.":
+    "Ce tableau a atteint sa limite de commentaires.",
+  "This comment's time is not valid.":
+    "L’heure de ce commentaire n’est pas valide.",
+  "Only the author can edit this comment.":
+    "Seul l’auteur peut modifier ce commentaire.",
+  "Invalid comment thread.": "Discussion non valide.",
+  "Invalid comment message.": "Commentaire non valide.",
+  "Mouse, trackpad, and touch": "Souris, pavé tactile et écran tactile",
+  "Navigation mode": "Mode de navigation",
+  "Auto-detect": "Détection automatique",
+  Mouse: "Souris",
+  Trackpad: "Pavé tactile",
+  Touch: "Écran tactile",
+  "Auto-detect recognizes wheel steps and smooth scrolling. Choose a device if scrolling feels wrong.":
+    "La détection automatique distingue la molette du défilement fluide. Choisissez un périphérique si le défilement ne convient pas.",
+  "Scroll to zoom. Right-drag, middle-drag, or Space-drag to pan.":
+    "Utilisez la molette pour zoomer. Déplacez la vue avec le bouton droit, le bouton central ou Espace enfoncé.",
+  "Scroll with two fingers to pan. Pinch or Ctrl/Cmd-scroll to zoom. Shift-scroll pans horizontally.":
+    "Faites défiler avec deux doigts pour déplacer la vue. Pincez ou utilisez Ctrl/Cmd et le défilement pour zoomer. Maj et le défilement déplacent la vue horizontalement.",
+  "Drag to pan and pinch to zoom. Tap an object to select it, then drag it to move. Hold for a moment, then drag to select several objects. Drawing tools still draw with one finger.":
+    "Faites glisser pour déplacer la vue et pincez pour zoomer. Touchez un objet pour le sélectionner, puis déplacez-le. Maintenez le doigt un instant, puis faites glisser pour sélectionner plusieurs objets. Les outils de dessin utilisent toujours un doigt.",
+  "This preference is saved on this device and shared with other open tabs.":
+    "Cette préférence est enregistrée sur cet appareil et partagée avec les autres onglets ouverts.",
+
+  Minimap: "Mini-carte",
+  minimap: "mini-carte",
+  "Minimap (M)": "Mini-carte (M)",
+  "Close minimap": "Fermer la mini-carte",
+  "Fit board": "Afficher tout",
+  "Navigate board": "Parcourir le tableau",
+  "Zoom in or out": "Zoom avant ou arrière",
+  "Fit board / zoom to selection": "Afficher tout / zoom sur la sélection",
+  "Click to jump or drag the visible area. Arrow keys pan; plus and minus zoom; Home fits the board; Escape closes the minimap.":
+    "Cliquez pour vous déplacer ou faites glisser la zone visible. Les flèches déplacent la vue ; plus et moins changent le zoom ; Début affiche tout ; Échap ferme la mini-carte.",
+  "Crop image": "Recadrer l’image",
+  "Select one image.": "Sélectionnez une image.",
+  "Invalid image crop.": "Recadrage d’image non valide.",
+  "This crop exceeds the board size limits.":
+    "Ce recadrage dépasse les dimensions maximales du tableau.",
+  "This image has no editable area.": "Cette image n’a pas de zone modifiable.",
+  "Cropping closed because the image changed or is no longer editable.":
+    "Le recadrage a été fermé car l’image a changé ou n’est plus modifiable.",
+  "Move crop area": "Déplacer la zone de recadrage",
+  "Crop top left": "Recadrer en haut à gauche",
+  "Crop top": "Recadrer en haut",
+  "Crop top right": "Recadrer en haut à droite",
+  "Crop right": "Recadrer à droite",
+  "Crop bottom right": "Recadrer en bas à droite",
+  "Crop bottom": "Recadrer en bas",
+  "Crop bottom left": "Recadrer en bas à gauche",
+  "Crop left": "Recadrer à gauche",
+  "Reset original": "Rétablir l’original",
+  "Aspect ratio": "Proportions",
+  Freeform: "Libre",
+  Original: "Original",
+  Oval: "Ovale",
+  Shape: "Forme",
+  Left: "Gauche",
+  Top: "Haut",
+  "Exact crop (pixels)": "Recadrage précis (pixels)",
+  "Apply crop": "Appliquer le recadrage",
+  pixels: "pixels",
+  "Drag the area or its handles. Arrow keys adjust by a pixel; Shift adjusts by ten. Alt/Option bypasses snapping.":
+    "Faites glisser la zone ou ses poignées. Les flèches ajustent d’un pixel ; Maj de dix. Alt/Option désactive l’alignement automatique.",
+  "Auto height": "Hauteur auto",
+  "Automatic text height": "Hauteur automatique du texte",
+  "Adjust height to fit the text. Resize to change its width.":
+    "Adapter la hauteur au texte. Redimensionnez pour changer sa largeur.",
+  "Height adjusts to the text. Change the width to rewrap it.":
+    "La hauteur s’adapte au texte. Modifiez la largeur pour changer les retours à la ligne.",
+  "Drag the corner horizontally to change text width. Alt/Option bypasses snapping.":
+    "Faites glisser le coin horizontalement pour changer la largeur du texte. Alt/Option désactive l’alignement automatique.",
+  "Text exceeds the board height limit. Widen the box or split the text into separate boxes.":
+    "Le texte dépasse la hauteur maximale du tableau. Élargissez la zone ou répartissez le texte dans plusieurs zones.",
+  "Command palette": "Palette de commandes",
+  "Command palette (Ctrl/Cmd K)": "Palette de commandes (Ctrl/Cmd K)",
+  "Search commands and boards": "Rechercher des commandes et des tableaux",
+  "Commands and boards": "Commandes et tableaux",
+  "No matching commands or boards. Try another word.":
+    "Aucune commande ni aucun tableau correspondant. Essayez un autre mot.",
+  "This command is no longer available.":
+    "Cette commande n’est plus disponible.",
+  "↑ ↓ to navigate · Enter to run · Esc to close":
+    "↑ ↓ pour naviguer · Entrée pour exécuter · Échap pour fermer",
+  "Keyboard shortcut": "Raccourci clavier",
+  "Recent boards": "Tableaux récents",
+  Create: "Créer",
+  Edit: "Modifier",
+  Arrange: "Organiser",
+  Navigate: "Naviguer",
+  Board: "Tableau",
+  Help: "Aide",
+  "Zoom to selection": "Zoom sur la sélection",
+  "Nothing to undo.": "Rien à annuler.",
+  "Nothing to redo.": "Rien à rétablir.",
+  "Select shapes, notes, or text boxes.":
+    "Sélectionnez des formes, des notes ou des zones de texte.",
+  "Select an object with editable text.":
+    "Sélectionnez un objet avec du texte modifiable.",
+  "Select at least two objects or groups.":
+    "Sélectionnez au moins deux objets ou groupes.",
+  "Select at least three objects or groups.":
+    "Sélectionnez au moins trois objets ou groupes.",
+  "Select a group first.": "Sélectionnez d’abord un groupe.",
+  "Auto-fit": "Ajustement auto",
+  "Auto-fit text": "Ajuster automatiquement le texte",
+  "Maximum font size": "Taille maximale de police",
+  "Shrink text to fit. The font size is the maximum.":
+    "Réduire le texte pour qu’il tienne. La taille de police est le maximum.",
+  "Some text does not fit at the minimum size. Enlarge the object or shorten the text.":
+    "Une partie du texte ne tient pas à la taille minimale. Agrandissez l’objet ou raccourcissez le texte.",
+  "Quick diagram creation": "Création rapide de diagramme",
+  "Quick connect top": "Connexion rapide en haut",
+  "Quick connect right": "Connexion rapide à droite",
+  "Quick connect bottom": "Connexion rapide en bas",
+  "Quick connect left": "Connexion rapide à gauche",
+  "Click to add a connected object or connect a nearby one. Drag to choose another target. Escape cancels.":
+    "Cliquez pour ajouter un objet connecté ou relier un objet proche. Faites glisser pour choisir une autre cible. Échap annule.",
+  "Add connected object": "Ajouter un objet connecté",
+  "Connect to": "Connecter à",
+  "Select one shape, sticky note, or text box.":
+    "Sélectionnez une forme, une note adhésive ou une zone de texte.",
+  Shapes: "Formes",
+  "Shapes (S)": "Formes (S)",
+  "Change shape": "Changer de forme",
+  Diamond: "Losange",
+  Triangle: "Triangle",
+  Parallelogram: "Parallélogramme",
+  Hexagon: "Hexagone",
+  Star: "Étoile",
+  Cylinder: "Cylindre",
+  Terminator: "Terminaison",
+  Process: "Processus",
+  "Start or end": "Début ou fin",
+  Decision: "Décision",
+  "Input or output": "Entrée ou sortie",
+  Database: "Base de données",
+  Preparation: "Préparation",
+  "Basic shape": "Forme simple",
+  "Invalid shape.": "Forme non valide.",
+  // Board validation, shown when an imported or migrated board is rejected.
+  "The board contains an invalid object.":
+    "Le tableau contient un objet non valide.",
+  "Invalid object rotation.": "Rotation d’objet non valide.",
+  "Unsupported image format.": "Format d’image non pris en charge.",
+  "Invalid drawing.": "Dessin non valide.",
+  "Invalid text highlight.": "Surlignage de texte non valide.",
+  "Invalid font family.": "Police non valide.",
+  "Invalid font size.": "Taille de police non valide.",
+  "Invalid text style.": "Style de texte non valide.",
+  "Invalid text color.": "Couleur de texte non valide.",
+  "Invalid text alignment.": "Alignement du texte non valide.",
+  "Invalid text formatting.": "Mise en forme du texte non valide.",
+  "Invalid text list.": "Liste de texte non valide.",
+  "Invalid object tags.": "Étiquettes d’objet non valides.",
+  "Invalid table.": "Tableau de données non valide.",
+  "Invalid table dimensions.": "Dimensions du tableau de données non valides.",
+  "Invalid attachment.": "Pièce jointe non valide.",
+  "Object dimensions must be positive.":
+    "Les dimensions de l’objet doivent être positives.",
+  "Invalid object relationship.": "Relation entre objets non valide.",
+  "Invalid object lock.": "Verrouillage d’objet non valide.",
+  "Invalid frame order.": "Ordre des cadres non valide.",
+  "Invalid mind map node.": "Nœud de carte mentale non valide.",
+  "Invalid mind map collapse state.":
+    "État replié de la carte mentale non valide.",
+  "Invalid frame membership.": "Appartenance à un cadre non valide.",
+  "Invalid connector.": "Connecteur non valide.",
+  "A board can contain at most 5,000 objects.":
+    "Un tableau peut contenir au maximum 5 000 objets.",
+  "Bulk sticky notes": "Notes adhésives en série",
+  "The table is too tall. Use a smaller font or fewer lines.":
+    "La table est trop haute. Utilisez une police plus petite ou moins de lignes.",
+  "Paste spreadsheet": "Coller des cellules",
+  "Choose how to add these cells. Blank cells keep their positions.":
+    "Choisissez comment ajouter ces cellules. Les cellules vides conservent leur position.",
+  Ideas: "Idées",
+  "One sticky note per line. Empty lines are skipped.":
+    "Une note adhésive par ligne. Les lignes vides sont ignorées.",
+  "Paste as": "Coller en tant que",
+  "Sticky notes": "Notes adhésives",
+  "Plain text": "Texte brut",
+  "Sticky color": "Couleur des notes",
+  "Cluster sticky notes": "Regrouper les notes adhésives",
+  "Cluster by": "Regrouper par",
+  Color: "Couleur",
+  "One named cluster": "Un regroupement nommé",
+  "Cluster name": "Nom du regroupement",
+  Cluster: "Regroupement",
+  "Create clusters": "Créer les regroupements",
+  "No tag": "Sans étiquette",
+  notes: "notes",
+  clusters: "regroupements",
+  "extra copies": "copies supplémentaires",
+  "extra copy": "copie supplémentaire",
+  note: "note",
+  cluster: "regroupement",
+  "Select sticky notes first.": "Sélectionnez d’abord des notes adhésives.",
+  "Choose a clustering method.": "Choisissez une méthode de regroupement.",
+  "The cluster name changed. Reopen clustering.":
+    "Le nom du regroupement a changé. Rouvrez le regroupement.",
+  "The selected notes changed. Reopen clustering.":
+    "Les notes sélectionnées ont changé. Rouvrez le regroupement.",
+  "Select sticky notes outside a mind map.":
+    "Sélectionnez des notes adhésives qui ne font pas partie d’une carte mentale.",
+  "Enter a cluster name of up to 200 characters.":
+    "Saisissez un nom de regroupement de 200 caractères maximum.",
+  "These clusters would exceed the board limit of 5,000 objects.":
+    "Ces regroupements dépasseraient la limite de 5 000 objets du tableau.",
+  "These clusters would exceed the board geometry limit.":
+    "Ces regroupements dépasseraient les limites géométriques du tableau.",
+  "The notes changed. Review the updated clusters and try again.":
+    "Les notes ont changé. Vérifiez les regroupements actualisés, puis réessayez.",
+  "Selected notes move into editable frames. Notes leave their previous groups and frames; other objects stay in place. Notes with several tags are copied into each matching cluster.":
+    "Les notes sélectionnées sont déplacées dans des cadres modifiables. Elles quittent leurs groupes et cadres précédents ; les autres objets restent en place. Les notes portant plusieurs étiquettes sont copiées dans chaque regroupement correspondant.",
+  Yellow: "Jaune",
+  Red: "Rouge",
+  Lime: "Vert citron",
+  Cyan: "Cyan",
+  Pink: "Rose",
+  Gray: "Gris",
+  Violet: "Violet",
+  "Dark green": "Vert foncé",
+  "Dark blue": "Bleu foncé",
+  "Dark gray": "Gris foncé",
+  Black: "Noir",
+  Green: "Vert",
+  Blue: "Bleu",
+  Purple: "Violet",
+  Peach: "Pêche",
+  White: "Blanc",
+  // Sticky note colors, which name clusters grouped by color.
+  Butter: "Beurre",
+  Sage: "Sauge",
+  Lilac: "Lilas",
+  Cells: "Cellules",
+  "Content preview": "Aperçu du contenu",
+  "Cluster preview": "Aperçu des regroupements",
+  "Add to board": "Ajouter au tableau",
+  "Paste up to 50 rows and 100 columns at a time.":
+    "Collez jusqu’à 50 lignes et 100 colonnes à la fois.",
+  "Tables support up to 20 rows, 12 columns, and 2,000 characters per cell.":
+    "Les tables acceptent jusqu’à 20 lignes, 12 colonnes et 2 000 caractères par cellule.",
+  "Paste up to 1 million characters at a time.":
+    "Collez jusqu’à 1 million de caractères à la fois.",
+  "Check the quotes in the pasted spreadsheet cells.":
+    "Vérifiez les guillemets dans les cellules collées.",
+  "Paste one spreadsheet range at a time.":
+    "Collez une plage de cellules à la fois.",
+  "Use up to 20,000 characters per sticky note.":
+    "Utilisez jusqu’à 20 000 caractères par note adhésive.",
+  "Copy as image": "Copier en tant qu’image",
+  "Copy as image (Ctrl/Cmd Shift C)":
+    "Copier en tant qu’image (Ctrl/Cmd Maj C)",
+  "Copy image": "Copier l’image",
+  "Download PNG": "Télécharger le PNG",
+  "Image of selected objects": "Image des objets sélectionnés",
+  "Clipboard access is unavailable. Download the PNG or try copying again.":
+    "L’accès au presse-papiers est indisponible. Téléchargez le PNG ou réessayez de copier.",
+  "Could not copy the image. Use Copy as image to try again.":
+    "Impossible de copier l’image. Utilisez Copier en tant qu’image pour réessayer.",
+  "Image copied. Paste it into another app or board.":
+    "Image copiée. Collez-la dans une autre application ou un tableau.",
+  "An image copy is already in progress.":
+    "Une copie d’image est déjà en cours.",
+  "Select objects to copy as an image.":
+    "Sélectionnez les objets à copier en tant qu’image.",
+  "Copying selection as an image…": "Copie de la sélection en tant qu’image…",
+  "Could not prepare the image. Please try again.":
+    "Impossible de préparer l’image. Veuillez réessayer.",
+  "Your browser cannot copy images here. Download the PNG instead.":
+    "Votre navigateur ne peut pas copier d’images ici. Téléchargez le PNG.",
+
+  "Connection line formatting": "Mise en forme des lignes de connexion",
+  "Copy style": "Copier le style",
+  "Font family": "Police de caractères",
+  "Paste style": "Coller le style",
+  "Copy style (Ctrl/Cmd Alt/Option C)":
+    "Copier le style (Ctrl/Cmd Alt/Option C)",
+  "Paste style (Ctrl/Cmd Alt/Option V)":
+    "Coller le style (Ctrl/Cmd Alt/Option V)",
+  "Select one object with a copyable style.":
+    "Sélectionnez un objet dont le style peut être copié.",
+  "Style copied. Select objects and paste style.":
+    "Style copié. Sélectionnez des objets et collez le style.",
+  "Copy a style first.": "Copiez d’abord un style.",
+  "The copied style does not apply to this selection.":
+    "Le style copié ne s’applique pas à cette sélection.",
+  "This style is already applied.": "Ce style est déjà appliqué.",
+  "Style pasted.": "Style collé.",
+  Path: "Tracé",
+  Straight: "Droit",
+  Elbow: "Coudé",
+  Curved: "Courbe",
+  Stroke: "Trait",
+  Solid: "Continu",
+  Dashed: "Tirets",
+  Dotted: "Pointillé",
+  Thickness: "Épaisseur",
+  Start: "Début",
+  End: "Fin",
+  None: "Aucun",
+  Arrowhead: "Pointe de flèche",
+  Dot: "Point",
+  "Connection endpoints": "Extrémités de connexion",
+  "Free endpoint": "Extrémité libre",
+  "Start object": "Objet de départ",
+  "End object": "Objet d’arrivée",
+  "Drag either round handle to reconnect. Hold Alt/Option to detach, or Shift for a straight angle.":
+    "Faites glisser une poignée ronde pour reconnecter. Maintenez Alt/Option pour détacher, ou Maj pour un angle droit.",
+  "Choose two different objects.": "Choisissez deux objets différents.",
+  "Drag between objects to connect · Alt/Option for a free endpoint":
+    "Reliez les objets par glissement · Alt/Option pour une extrémité libre",
+  "Invalid line style.": "Style de ligne invalide.",
+  "Invalid line thickness.": "Épaisseur de ligne invalide.",
+
+  "Open to rename": "Ouvrir pour renommer",
+  "Share board": "Partager le tableau",
+  "Shared board": "Tableau partagé",
+  Participants: "Participants",
+  Editing: "Modification",
+  "Join shared board": "Rejoindre un tableau partagé",
+  "Board link": "Lien du tableau",
+  "Join board": "Rejoindre le tableau",
+  "Sign in with Puter to join this board.":
+    "Connectez-vous à Puter pour rejoindre ce tableau.",
+  "Can edit": "Peut modifier",
+  "Can view": "Peut consulter",
+  Owner: "Propriétaire",
+  Removed: "Retiré",
+  "Access for": "Accès pour",
+  "Link access": "Accès par lien",
+  "Create invitation": "Créer une invitation",
+  "Copy link": "Copier le lien",
+  "Revoke invitation links": "Révoquer les liens d’invitation",
+  "Link copied.": "Lien copié.",
+  "Copy the selected link.": "Copiez le lien sélectionné.",
+  "This board is read-only.": "Ce tableau est en lecture seule.",
+  "Only the owner or a facilitator can invite new participants.":
+    "Seuls le propriétaire du tableau ou un animateur peuvent inviter de nouveaux participants.",
+  "Anyone signed in with this invitation can join.":
+    "Toute personne connectée disposant de cette invitation peut rejoindre le tableau.",
+  "Create an invitation to share this access.":
+    "Créez une invitation pour partager cet accès.",
+  "Invitation links revoked. Existing members retain access.":
+    "Liens d’invitation révoqués. Les membres actuels conservent leur accès.",
+  "Changes are shared as you type. Escape to finish.":
+    "Les modifications sont partagées pendant la saisie. Échap pour terminer.",
+  "Preparing collaboration…": "Préparation de la collaboration…",
+  "Starting collaboration…": "Démarrage de la collaboration…",
+  "Sharing failed · try again": "Échec du partage · réessayez",
+  "The collaboration server bundle could not load.":
+    "Le module du serveur de collaboration n’a pas pu être chargé.",
+  "Invalid collaboration server bundle.":
+    "Module du serveur de collaboration non valide.",
+  "Could not create a restricted collaboration credential.":
+    "Impossible de créer un identifiant de collaboration restreint.",
+  "Connecting to shared board…": "Connexion au tableau partagé…",
+  "Still connecting to the shared board. Try again in a moment.":
+    "Connexion au tableau partagé en cours. Réessayez dans un instant.",
+  "Sharing update could not finish. Reopen this board to retry.":
+    "La mise à jour du partage n’a pas abouti. Rouvrez ce tableau pour réessayer.",
+  "Saving shared changes…": "Enregistrement des modifications partagées…",
+  "Saved · live": "Enregistré · en direct",
+  "Saved · periodic sync": "Enregistré · synchronisation périodique",
+  "Connected · periodic sync": "Connecté · synchronisation périodique",
+  "Offline · changes saved on this device":
+    "Hors ligne · modifications enregistrées sur cet appareil",
+  "Some changes could not be saved because they conflicted with the shared board.":
+    "Certaines modifications n’ont pas pu être enregistrées, car elles étaient en conflit avec le tableau partagé.",
+  "Board unavailable · local changes retained":
+    "Tableau indisponible · modifications locales conservées",
+  "Access changed · local changes retained":
+    "Accès modifié · modifications locales conservées",
+  "Local recovery failed. Keep this tab open.":
+    "La récupération locale a échoué. Gardez cet onglet ouvert.",
+  "Could not connect · local copy available":
+    "Connexion impossible · copie locale disponible",
+  "Setting up sharing…": "Configuration du partage…",
+  "Uploading the board…": "Envoi du tableau…",
+  "This can take a few seconds. You can close this and keep working.":
+    "Cela peut prendre quelques secondes. Vous pouvez fermer cette fenêtre et continuer à travailler.",
+  "Sharing is ready. Select Share board to invite people.":
+    "Le partage est prêt. Sélectionnez Partager le tableau pour inviter des personnes.",
+  "Invalid board invitation.": "Invitation au tableau non valide.",
+  "Invalid Whiteboard server address.":
+    "Adresse de serveur Whiteboard non valide.",
+  "The collaboration server is still starting. Try Share again shortly.":
+    "Le serveur de collaboration démarre encore. Réessayez Partager dans un instant.",
+  "Your Puter account changed. Reopen the shared board.":
+    "Votre compte Puter a changé. Rouvrez le tableau partagé.",
+  "Could not synchronize this board.": "Impossible de synchroniser ce tableau.",
+  "Could not reach the shared board. Check your connection and try again.":
+    "Impossible de joindre le tableau partagé. Vérifiez votre connexion et réessayez.",
+  "The server did not acknowledge this edit.":
+    "Le serveur n’a pas confirmé cette modification.",
+
+  "Find on board": "Rechercher dans le tableau",
+  "Find on board (Ctrl/Cmd F)": "Rechercher dans le tableau (Ctrl/Cmd F)",
+  "Search this board": "Rechercher dans ce tableau",
+  "Close search": "Fermer la recherche",
+  "All content": "Tout le contenu",
+  "Content type": "Type de contenu",
+  "Previous result": "Résultat précédent",
+  "Next result": "Résultat suivant",
+  "Previous page": "Page précédente",
+  "Next page": "Page suivante",
+  "Select on board": "Sélectionner sur le tableau",
+  "Search text, links, file names, and table cells.":
+    "Recherchez du texte, des liens, des noms de fichiers et des cellules.",
+  "Enter: next result · Shift+Enter: previous · Escape: close":
+    "Entrée : suivant · Maj+Entrée : précédent · Échap : fermer",
+  "Untitled object": "Objet sans titre",
+  Attachment: "Pièce jointe",
+  Drawing: "Dessin",
+  "Adding files…": "Ajout des fichiers…",
+  "Files added.": "Fichiers ajoutés.",
+  "Drop content here": "Déposez le contenu ici",
+  "Images, files, text, and links": "Images, fichiers, texte et liens",
+  "Copy, cut, or paste objects": "Copier, couper ou coller des objets",
+  "Ctrl or Cmd + C / X / V": "Ctrl ou Cmd + C / X / V",
+  "This selection is too large to copy. Export a board file instead.":
+    "Cette sélection est trop volumineuse pour être copiée. Exportez un fichier de tableau.",
+  "This selection is too large to paste.":
+    "Cette sélection est trop volumineuse pour être collée.",
+  "This clipboard content is not supported.":
+    "Ce contenu du presse-papiers n’est pas pris en charge.",
+  "Paste up to 20,000 characters at a time.":
+    "Collez jusqu’à 20 000 caractères à la fois.",
+  "Could not read this file.": "Impossible de lire ce fichier.",
+  "Add up to 20 files and 50 MB at a time.":
+    "Ajoutez jusqu’à 20 fichiers et 50 Mo à la fois.",
+  "Could not decode an image.": "Impossible de décoder une image.",
+  "Choose an image with fewer than 40 million pixels.":
+    "Choisissez une image de moins de 40 millions de pixels.",
+  "A board can contain up to 5,000 objects.":
+    "Un tableau peut contenir jusqu’à 5 000 objets.",
+  "Could not add these files.": "Impossible d’ajouter ces fichiers.",
+  "Could not copy these objects. Your board is unchanged.":
+    "Impossible de copier ces objets. Votre tableau est inchangé.",
+  "Could not paste this content.": "Impossible de coller ce contenu.",
+  "Choose a tool, then click the canvas. Double-click an object to edit its text. Drag a corner to resize. Paste text, links, or images, or drop files onto the canvas.":
+    "Choisissez un outil, puis cliquez sur le tableau. Double-cliquez sur un objet pour modifier son texte. Faites glisser un coin pour le redimensionner. Collez du texte, des liens ou des images, ou déposez des fichiers sur le tableau.",
+  "Editing text": "Modification du texte",
+  Done: "Terminé",
+  "Text formatting": "Mise en forme du texte",
+  Bold: "Gras",
+  Italic: "Italique",
+  Underline: "Souligné",
+  Strikethrough: "Barré",
+  Lists: "Listes",
+  "Text links": "Liens du texte",
+  "Insert or edit text link": "Insérer ou modifier un lien dans le texte",
+  "Link URL": "Adresse du lien",
+  "Apply link": "Appliquer le lien",
+  "Edit link": "Modifier le lien",
+  Previous: "Précédent",
+  Next: "Suivant",
+  "Remove link": "Supprimer le lien",
+  "Open link in new tab": "Ouvrir le lien dans un nouvel onglet",
+  "The selected text changed. Select it again.":
+    "Le texte sélectionné a changé. Sélectionnez-le à nouveau.",
+  "Select one text object.": "Sélectionnez un objet contenant du texte.",
+  "Ctrl/Cmd + Alt/Option + K": "Ctrl/Cmd + Alt/Option + K",
+  "List formatting": "Mise en forme des listes",
+  "Bulleted list": "Liste à puces",
+  "Numbered list": "Liste numérotée",
+  "Increase indent": "Augmenter le retrait",
+  "Decrease indent": "Diminuer le retrait",
+  "In lists, Tab changes indent, Shift+Enter continues an item, and Enter on an empty item exits the list.":
+    "Dans une liste, Tab change le retrait, Maj+Entrée continue un élément et Entrée sur un élément vide quitte la liste.",
+  "Indent / outdent a list item":
+    "Augmenter / diminuer le retrait d’un élément de liste",
+  "Continue a list item on a new line":
+    "Continuer un élément de liste sur une nouvelle ligne",
+  "Tab / Shift + Tab": "Tab / Maj + Tab",
+  "Shift + Enter": "Maj + Entrée",
+  "Shift + C": "Maj + C",
+  "Shift + N": "Maj + N",
+  "Space / right / middle + drag":
+    "Espace / clic droit / clic central + glisser",
+  "Ctrl/Cmd + Plus/Minus": "Ctrl/Cmd + Plus/Moins",
+  "Arrow keys": "Touches fléchées",
+  "Alt / Option + drag": "Alt / Option + glisser",
+  "Alt / Option + Arrow keys": "Alt / Option + touches fléchées",
+  "Alt / Option during drag": "Alt / Option pendant le glissement",
+  Escape: "Échap",
+  "Shift + resize": "Maj + redimensionnement",
+  "Ctrl/Cmd + Alt/Option + Shift + Plus/Minus":
+    "Ctrl/Cmd + Alt/Option + Maj + Plus/Moins",
+  Enter: "Entrée",
+  "Ctrl/Cmd + Shift + Down / Up": "Ctrl/Cmd + Maj + Bas / Haut",
+  "Ctrl/Cmd + Alt/Option + Shift + K": "Ctrl/Cmd + Alt/Option + Maj + K",
+  "Ctrl/Cmd + Alt/Option + Shift + C": "Ctrl/Cmd + Alt/Option + Maj + C",
+  "Ctrl or Cmd + Z": "Ctrl ou Cmd + Z",
+  "Ctrl or Cmd + D": "Ctrl ou Cmd + D",
+  "Ctrl or Cmd + Shift + L": "Ctrl ou Cmd + Maj + L",
+  "Ctrl/Cmd + Shift + C": "Ctrl/Cmd + Maj + C",
+  "Ctrl or Cmd + [ / ]": "Ctrl ou Cmd + [ / ]",
+  "Ctrl or Cmd + Shift + [ / ]": "Ctrl ou Cmd + Maj + [ / ]",
+  "Ctrl/Cmd + Backspace": "Ctrl/Cmd + Retour arrière",
+  "Delete / Backspace": "Suppr / Retour arrière",
+  Find: "Rechercher",
+  Delete: "Supprimer",
+  Share: "Partager",
+  View: "Affichage",
+  Selection: "Sélection",
+  "Previous results": "Résultats précédents",
+  "Next results": "Résultats suivants",
+  "Selected objects": "Objets sélectionnés",
+  "Selected region": "Zone sélectionnée",
+  Row: "Ligne",
+  Column: "Colonne",
+  "Highlight text": "Surligner le texte",
+  "Remove highlight": "Supprimer le surlignage",
+  "No highlight": "Sans surlignage",
+  "Text color": "Couleur du texte",
+  "Custom color": "Couleur personnalisée",
+  "Automatic text color": "Couleur du texte automatique",
+  "Text alignment": "Alignement du texte",
+  "Align text left": "Texte à gauche",
+  "Align text center": "Texte centré",
+  "Align text right": "Texte à droite",
+  "Font size": "Taille du texte",
+  Mixed: "Mixte",
+  "Object properties": "Propriétés de l’objet",
+  "Edit text on canvas": "Modifier le texte sur le tableau",
+  "Finish editing": "Terminer la modification",
+  "Cancel text edit": "Annuler la modification du texte",
+  "Ctrl or Cmd + Enter to finish. Escape to cancel. Enter adds a new line.":
+    "Ctrl ou Cmd + Entrée pour terminer. Échap pour annuler. Entrée ajoute une ligne.",
+  "Board library": "Bibliothèque de tableaux",
+  "Recovered board": "Tableau récupéré",
+  "Space + drag": "Espace + glisser",
+  "Ctrl or Cmd + scroll": "Ctrl ou Cmd + défilement",
+  "Shift + click": "Maj + clic",
+  "Ctrl or Cmd + Shift + Z": "Ctrl ou Cmd + Maj + Z",
+  "Fullscreen is unavailable. Presentation remains open.":
+    "Le plein écran est indisponible. La présentation reste ouverte.",
+  "Could not restore this version.": "Impossible de restaurer cette version.",
+  "Could not export this board.": "Impossible d’exporter ce tableau.",
+  "This area is too large for a readable PDF. Export smaller frames or a selected region.":
+    "Cette zone est trop grande pour un PDF lisible. Exportez des cadres plus petits ou une région sélectionnée.",
+  "Too many PDF pages. Export fewer frames at a time.":
+    "Trop de pages PDF. Exportez moins de cadres à la fois.",
+  "Choose a file smaller than 100 MB.":
+    "Choisissez un fichier de moins de 100 Mo.",
+
+  "Whiteboard home": "Accueil Whiteboard",
+  "PERSONAL WORKSPACE": "ESPACE PERSONNEL",
+  "All boards": "Tous les tableaux",
+  Favorites: "Favoris",
+  Trash: "Corbeille",
+  "Puter cloud": "Nuage Puter",
+  Appearance: "Apparence",
+  System: "Système",
+  Light: "Clair",
+  Dark: "Sombre",
+  "Powered by Puter": "Propulsé par Puter",
+  Workspace: "Espace de travail",
+  "Keyboard shortcuts": "Raccourcis clavier",
+  "Personal workspace": "Espace personnel",
+  "Start with a little inspiration": "Un peu d’inspiration pour commencer",
+  "Make it your own": "À votre image",
+  "Blank board": "Tableau vierge",
+  "A fresh start": "Un nouveau départ",
+  Brainstorm: "Remue-méninges",
+  "Let your ideas wander": "Laissez libre cours à vos idées",
+  "Mind map": "Carte mentale",
+  "Connect the dots": "Reliez vos idées",
+  "Simple planner": "Planificateur simple",
+  "One step at a time": "Une étape à la fois",
+  "Your boards": "Vos tableaux",
+  "Favorite boards": "Tableaux favoris",
+  "New board": "Nouveau tableau",
+  "Search boards": "Rechercher des tableaux",
+  "Search your boards": "Rechercher dans vos tableaux",
+  "Sort boards": "Trier les tableaux",
+  "Last edited": "Dernière modification",
+  Name: "Nom",
+  "Import board file": "Importer un tableau",
+  "A world of possibility": "Un monde de possibilités",
+  "No boards found": "Aucun tableau trouvé",
+  "Keep your best ideas close": "Gardez vos meilleures idées à portée de main",
+  "Your next idea starts here": "Votre prochaine idée commence ici",
+  "Try a different name.": "Essayez un autre nom.",
+  "Star a board to find it here.":
+    "Ajoutez un tableau aux favoris pour le retrouver ici.",
+  "Create a board or choose a template above.":
+    "Créez un tableau ou choisissez un modèle ci-dessus.",
+  "Tips & shortcuts": "Conseils et raccourcis",
+  "Untitled board": "Tableau sans titre",
+  "Back to boards": "Retour aux tableaux",
+  "Board name": "Nom du tableau",
+  "Saved on this device": "Enregistré sur cet appareil",
+  "Save to Puter": "Enregistrer sur Puter",
+  "Export board": "Exporter le tableau",
+  "Drawing tools": "Outils de création",
+  Select: "Sélectionner",
+  Pan: "Déplacer la vue",
+  "Sticky note": "Note adhésive",
+  Text: "Texte",
+  Rectangle: "Rectangle",
+  Ellipse: "Ellipse",
+  Arrow: "Flèche",
+  Draw: "Dessiner",
+  Frame: "Cadre",
+  "Add image": "Ajouter une image",
+  "Personal board": "Tableau personnel",
+  "Board objects": "Objets du tableau",
+  "Zoom out": "Zoom arrière",
+  "Zoom in": "Zoom avant",
+  "Reset zoom to 100 percent": "Rétablir le zoom à 100 %",
+  "Fit board to screen": "Ajuster le tableau à l’écran",
+  "A fresh space for a fresh idea.": "Un nouvel espace pour une nouvelle idée.",
+  "Add a sticky note, sketch a thought, or just start somewhere.":
+    "Ajoutez une note, esquissez une idée ou lancez-vous.",
+  "Add your first note": "Ajouter votre première note",
+  "Butter color": "Couleur beurre",
+  "Sage color": "Couleur sauge",
+  "Blue color": "Couleur bleue",
+  "Lilac color": "Couleur lilas",
+  "Peach color": "Couleur pêche",
+  "White color": "Couleur blanche",
+  "Edit selected object": "Modifier l’objet sélectionné",
+  "Duplicate selection": "Dupliquer la sélection",
+  "Duplicate left": "Dupliquer à gauche",
+  "Duplicate right": "Dupliquer à droite",
+  "Duplicate above": "Dupliquer au-dessus",
+  "Duplicate below": "Dupliquer en dessous",
+  "Drag a copy": "Faire glisser une copie",
+  "Duplicate in a direction": "Dupliquer dans une direction",
+  "The duplicate would be outside the board limits.":
+    "La copie serait en dehors des limites du tableau.",
+  "Bring to front": "Mettre au premier plan",
+  "Delete selection": "Supprimer la sélection",
+  "Select and move · Double-click to edit · Space to pan":
+    "Sélectionner et déplacer · Double-clic pour modifier · Espace pour naviguer",
+  "Drag to move around your board":
+    "Faites glisser pour vous déplacer dans le tableau",
+  "Draw freely on the canvas": "Dessinez librement sur le tableau",
+  "This drawing is full. Draw again to continue.":
+    "Ce dessin est plein. Dessinez de nouveau pour continuer.",
+  "Click the canvas to add a sticky note":
+    "Cliquez sur le tableau pour ajouter une note adhésive",
+  "Click the canvas to add text":
+    "Cliquez sur le tableau pour ajouter du texte",
+  "Click the canvas to add a rectangle":
+    "Cliquez sur le tableau pour ajouter un rectangle",
+  "Click the canvas to add an ellipse":
+    "Cliquez sur le tableau pour ajouter une ellipse",
+  "Click the canvas to add a frame":
+    "Cliquez sur le tableau pour ajouter un cadre",
+  "Click the canvas to add a comment":
+    "Cliquez sur le tableau pour ajouter un commentaire",
+  "Drag across the board to choose the area to export":
+    "Faites glisser sur le tableau pour choisir la zone à exporter",
+  "Drag from start to end": "Faites glisser du début à la fin",
+  "Your text": "Votre texte",
+  "Close dialog": "Fermer la fenêtre",
+  Width: "Largeur",
+  Height: "Hauteur",
+  "Save changes": "Enregistrer les modifications",
+  "Take your ideas with you": "Emportez vos idées",
+  "Export a visual snapshot or a fully editable backup.":
+    "Exportez une image ou une sauvegarde modifiable.",
+  "PNG image": "Image PNG",
+  "JPEG image": "Image JPEG",
+  "PDF document": "Document PDF",
+  "Whiteboard file": "Fichier Whiteboard",
+  "Import it later and keep creating": "Importez-le plus tard pour continuer",
+  "Board options": "Options du tableau",
+  "Delete local board": "Mettre à la corbeille",
+  Duplicate: "Dupliquer",
+  "Save name": "Enregistrer le nom",
+  "Delete this local board?": "Mettre ce tableau à la corbeille?",
+  "Keep board": "Conserver le tableau",
+  "Delete board": "Mettre à la corbeille",
+  "Restore board": "Restaurer le tableau",
+  "Cloud boards": "Tableaux dans le nuage",
+  "Your Puter cloud": "Votre nuage Puter",
+  "Connect to Puter": "Se connecter à Puter",
+  "Disconnect Puter": "Déconnecter Puter",
+  "Loading your boards…": "Chargement de vos tableaux…",
+  "No cloud boards yet. Open a board and choose Save to Puter.":
+    "Aucun tableau dans le nuage. Ouvrez un tableau et choisissez Enregistrer sur Puter.",
+  "Select a file to open its latest saved version.":
+    "Sélectionnez un fichier pour ouvrir sa dernière version.",
+  "Keep boards in your own Puter drive. Connect to open a cloud board, or save a board from its canvas.":
+    "Conservez vos tableaux dans votre espace Puter. Connectez-vous pour ouvrir un tableau, ou enregistrez-le depuis l’éditeur.",
+  "Saving…": "Enregistrement…",
+  "Saved locally": "Enregistré localement",
+  "Storage full": "Stockage plein",
+  "Saving to Puter…": "Enregistrement sur Puter…",
+  "Saved to Puter": "Enregistré sur Puter",
+  "Cloud save failed": "Échec de l’enregistrement dans le nuage",
+  "Could not move this board to the trash.":
+    "Impossible de mettre ce tableau à la corbeille.",
+  // Added to the names of duplicated and imported boards.
+  copy: "copie",
+  imported: "importé",
+  "Could not save the copy on this device.":
+    "Impossible d’enregistrer la copie sur cet appareil.",
+  "Could not save locally. Export your board to keep a copy.":
+    "Enregistrement local impossible. Exportez votre tableau pour en conserver une copie.",
+  "Cloud save failed. Your local copy is safe. Use Save to Puter to retry.":
+    "Échec de l’enregistrement sur Puter. Votre copie locale est conservée. Réessayez avec Enregistrer sur Puter.",
+  "Board imported.": "Tableau importé.",
+  "Disconnected. Your local boards are still available.":
+    "Déconnexion effectuée. Vos tableaux locaux restent disponibles.",
+  "A newer local copy was kept.":
+    "La copie locale plus récente a été conservée.",
+  Language: "Langue",
+  "More tools": "Autres outils",
+  Link: "Lien",
+  Table: "Tableau de données",
+  "File attachment": "Pièce jointe",
+  "Add link": "Ajouter un lien",
+  "Add table": "Ajouter un tableau de données",
+  "Attach file": "Joindre un fichier",
+  "Open link": "Ouvrir le lien",
+  "Download attachment": "Télécharger la pièce jointe",
+  URL: "Adresse URL",
+  Label: "Libellé",
+  Rows: "Lignes",
+  Columns: "Colonnes",
+  "Add row": "Ajouter une ligne",
+  "Add column": "Ajouter une colonne",
+  "Remove last row": "Supprimer la dernière ligne",
+  "Remove last column": "Supprimer la dernière colonne",
+  "Table cells": "Cellules du tableau",
+  "File name": "Nom du fichier",
+  "Choose a file smaller than 10 MB.":
+    "Choisissez un fichier de moins de 10 Mo.",
+  "Enter a valid http or https link.":
+    "Saisissez une adresse http ou https valide.",
+  "Group selection": "Grouper la sélection",
+  "Ungroup selection": "Dissocier la sélection",
+  "Connect selected objects": "Relier les objets sélectionnés",
+  "Select exactly two objects to connect.":
+    "Sélectionnez exactement deux objets à relier.",
+  "Select at least two objects to group.":
+    "Sélectionnez au moins deux objets à grouper.",
+  "Organize selection": "Organiser la sélection",
+  "Lock selection": "Verrouiller la sélection",
+  "Lock frame": "Verrouiller le cadre",
+  "Unlock selection": "Déverrouiller la sélection",
+  "Lock or unlock selection": "Verrouiller ou déverrouiller la sélection",
+  "Unlock all objects": "Déverrouiller tous les objets",
+  "Protected selection": "Sélection protégée",
+  "Unlock to move, edit, or delete.":
+    "Déverrouillez pour déplacer, modifier ou supprimer.",
+  "Unlock protected objects before changing this selection.":
+    "Déverrouillez les objets protégés avant de modifier cette sélection.",
+  "Workshop content hidden from you was left out of the copy.":
+    "Le contenu d’atelier qui vous est masqué n’a pas été inclus dans la copie.",
+  "Hidden object": "Objet masqué",
+  "Choose a visible object.": "Choisissez un objet visible.",
+  "Hidden objects cannot be copied.":
+    "Les objets masqués ne peuvent pas être copiés.",
+  "Selection locked.": "Sélection verrouillée.",
+  "Selection unlocked.": "Sélection déverrouillée.",
+  "All objects unlocked.": "Tous les objets sont déverrouillés.",
+  "No locked objects.": "Aucun objet verrouillé.",
+  "Frame locked. Its contents remain editable.":
+    "Cadre verrouillé. Son contenu reste modifiable.",
+  Locked: "Verrouillé",
+  "Rotated selections keep their proportions. Alt/Option bypasses snapping.":
+    "Les sélections pivotées conservent leurs proportions. Alt/Option désactive l’alignement.",
+  "Rotate selection": "Faire pivoter la sélection",
+  "Angle (degrees)": "Angle (degrés)",
+  "Rotate by (degrees)": "Rotation relative (degrés)",
+  "Reset angle": "Réinitialiser l’angle",
+  "Apply rotation": "Appliquer la rotation",
+  "Select shapes, text, images, cards, or drawings to rotate.":
+    "Sélectionnez des formes, du texte, des images, des cartes ou des dessins à faire pivoter.",
+  "Drag the rotation handle below the left corner. Hold Shift to snap to 15° steps. Escape cancels.":
+    "Faites glisser la poignée de rotation sous le coin gauche. Maintenez Maj pour des pas de 15°. Échap annule.",
+  "Enter a valid angle.": "Saisissez un angle valide.",
+  "This rotation exceeds the board limits.":
+    "Cette rotation dépasse les limites du tableau.",
+  "Keep proportions when resizing rotated objects together.":
+    "Conservez les proportions pour redimensionner ensemble des objets pivotés.",
+  "Resize selection": "Redimensionner la sélection",
+  "Resize frame": "Redimensionner le cadre",
+  "Frame contents stay in place.": "Le contenu du cadre reste en place.",
+  "Resize objects and their spacing together.":
+    "Redimensionnez ensemble les objets et leur espacement.",
+  "Keep proportions": "Conserver les proportions",
+  "Scale text with objects": "Redimensionner le texte avec les objets",
+  "Apply size": "Appliquer les dimensions",
+  "Select objects with a resizable area.":
+    "Sélectionnez des objets ayant une surface redimensionnable.",
+  "Drag the corner to resize. Shift toggles proportions; Alt/Option bypasses snapping.":
+    "Faites glisser le coin pour redimensionner. Maj inverse le maintien des proportions ; Alt/Option désactive temporairement l’alignement magnétique.",
+  "Size adjusted to keep content readable. Review and apply again.":
+    "Dimensions ajustées pour garder le contenu lisible. Vérifiez puis appliquez à nouveau.",
+  "Toggle proportions while resizing":
+    "Inverser le maintien des proportions pendant le redimensionnement",
+  "Enter valid dimensions.": "Saisissez des dimensions valides.",
+  "This size exceeds the board limits.":
+    "Ces dimensions dépassent les limites du tableau.",
+  "Keep text between 8 and 100 pixels.":
+    "Gardez le texte entre 8 et 100 pixels.",
+  "The selection changed. Select it again.":
+    "La sélection a changé. Sélectionnez-la à nouveau.",
+  "Snap to objects": "Alignement magnétique",
+  "Snapping on. Hold Alt/Option to bypass.":
+    "Alignement magnétique activé. Maintenez Alt/Option pour le désactiver temporairement.",
+  "Snapping off.": "Alignement magnétique désactivé.",
+  "Temporarily bypass snapping":
+    "Désactiver temporairement l’alignement magnétique",
+  "Cancel the current move or resize":
+    "Annuler le déplacement ou le redimensionnement en cours",
+  "Create frame around selection": "Créer un cadre autour de la sélection",
+  "Move into frame": "Placer dans un cadre",
+  "No frame": "Aucun cadre",
+  "Align left": "Aligner à gauche",
+  "Align top": "Aligner en haut",
+  "Align right": "Aligner à droite",
+  "Align bottom": "Aligner en bas",
+  "Center vertically": "Centrer verticalement",
+  "Distribute horizontally": "Répartir horizontalement",
+  "Distribute vertically": "Répartir verticalement",
+  "Send to back": "Mettre à l’arrière-plan",
+  "Bring forward": "Avancer d’un plan",
+  "Send backward": "Reculer d’un plan",
+  Alignment: "Alignement",
+  Spacing: "Espacement",
+  "Layer order": "Ordre des plans",
+  "Group and organize": "Grouper et organiser",
+  "Select at least three objects or groups to distribute evenly.":
+    "Sélectionnez au moins trois objets ou groupes pour les répartir uniformément.",
+  "Send backward / bring forward": "Reculer / avancer d’un plan",
+  "Send to back / bring to front": "Mettre à l’arrière-plan / au premier plan",
+  "Center horizontally": "Centrer horizontalement",
+  "Save as reusable content": "Enregistrer comme contenu réutilisable",
+  "Frames and navigation": "Cadres et navigation",
+  "Add a frame to organize content and create presentation slides.":
+    "Ajoutez un cadre pour organiser le contenu et créer des diapositives.",
+  "Go to frame": "Aller au cadre",
+  "Move frame earlier": "Avancer le cadre",
+  "Move frame later": "Reculer le cadre",
+  "Frames can be reordered once the facilitator shows every frame.":
+    "Les cadres pourront être réordonnés quand l’animateur affichera tous les cadres.",
+  Section: "Section",
+  Presentation: "Présentation",
+  Present: "Présenter",
+  "Present board": "Présenter le tableau",
+  "Start presentation": "Démarrer la présentation",
+  "Choose frames in presentation order.":
+    "Choisissez les cadres dans l’ordre de présentation.",
+  "Present selection": "Présenter la sélection",
+  "Previous slide": "Diapositive précédente",
+  "Next slide": "Diapositive suivante",
+  "Exit presentation": "Quitter la présentation",
+  Fullscreen: "Plein écran",
+  "Selected content": "Contenu sélectionné",
+  "Entire board": "Tableau entier",
+  "Export scope": "Zone à exporter",
+  "Selected objects or region": "Objets ou région sélectionnés",
+  "Defined frames": "Cadres définis",
+  "Export format": "Format d’exportation",
+  Export: "Exporter",
+  "Select objects or draw a region first.":
+    "Sélectionnez des objets ou dessinez une région.",
+  "Add a frame before exporting sections.":
+    "Ajoutez un cadre avant d’exporter des sections.",
+  "PDFs include a board overview and readable detail pages for large areas. Images export one region at a time.":
+    "Les PDF comprennent une vue d’ensemble et des pages de détail lisibles pour les grandes zones. Les images exportent une région à la fois.",
+  "Select export region": "Sélectionner une région à exporter",
+  "Region selected. Open Export to use it.":
+    "Région sélectionnée. Ouvrez Exporter pour l’utiliser.",
+  "Clear region": "Effacer la région",
+  "Version history": "Historique des versions",
+  "Create checkpoint": "Créer un point de restauration",
+  "Checkpoint name": "Nom du point de restauration",
+  Checkpoint: "Point de restauration",
+  "Restore version": "Restaurer cette version",
+  "Before restoration": "Avant la restauration",
+  "Board edit": "Modification du tableau",
+  "Before deletion": "Avant la suppression",
+  "No saved versions yet.": "Aucune version enregistrée pour le moment.",
+  "Up to 30 recent versions are kept on this device, subject to a 50 MB limit. Restoring preserves the current version first.":
+    "Jusqu’à 30 versions récentes sont conservées sur cet appareil, dans une limite de 50 Mo. La version actuelle est conservée avant toute restauration.",
+  "Version restored.": "Version restaurée.",
+  "Checkpoint saved.": "Point de restauration enregistré.",
+  "Could not save the checkpoint. Export a backup.":
+    "Impossible d’enregistrer le point de restauration. Exportez une sauvegarde.",
+  "Could not save a recovery version. Export a backup.":
+    "Impossible d’enregistrer une version de récupération. Exportez une sauvegarde.",
+  "Template library": "Bibliothèque de modèles",
+  "Browse all templates": "Parcourir tous les modèles",
+  "Search templates": "Rechercher des modèles",
+  "All categories": "Toutes les catégories",
+  "Use template": "Utiliser ce modèle",
+  "Insert into board": "Insérer dans le tableau",
+  "My reusable content": "Mon contenu réutilisable",
+  "No reusable content yet. Select objects on a board to save your own.":
+    "Aucun contenu réutilisable. Sélectionnez des objets dans un tableau pour créer le vôtre.",
+  "Reusable content saved.": "Contenu réutilisable enregistré.",
+  "Could not save this content on this device.":
+    "Impossible d’enregistrer ce contenu sur cet appareil.",
+  "Delete template": "Supprimer le modèle",
+  "Confirm delete": "Confirmer la suppression",
+  "Use arrow keys to navigate slides. Press Escape to exit.":
+    "Utilisez les touches fléchées pour naviguer. Appuyez sur Échap pour quitter.",
+  Objects: "Objets",
+  "Search objects": "Rechercher des objets",
+  "Select an object to move it with the arrow keys. Press Enter to edit.":
+    "Sélectionnez un objet, déplacez-le avec les flèches, puis appuyez sur Entrée pour le modifier.",
+  "Your board is empty. Add a note or shape to get started.":
+    "Votre tableau est vide. Ajoutez une note ou une forme.",
+  "Canvas objects": "Objets du tableau",
+  "Whiteboard canvas. Use Board objects to select and edit objects with the keyboard.":
+    "Tableau blanc. Utilisez Objets du tableau pour sélectionner et modifier les objets au clavier.",
+  "Undo (Ctrl/Cmd Z)": "Annuler (Ctrl/Cmd Z)",
+  "Redo (Ctrl/Cmd Shift Z)": "Rétablir (Ctrl/Cmd Maj Z)",
+  "A few ways to find your flow": "Quelques conseils pour bien démarrer",
+  "Choose a tool, then click the canvas. Double-click an object to edit its text. Drag a corner to resize.":
+    "Choisissez un outil, puis cliquez sur le tableau. Double-cliquez sur un objet pour modifier son texte. Faites glisser un coin pour le redimensionner.",
+  "Select / pan": "Sélectionner / naviguer",
+  "Sticky note / text": "Note adhésive / texte",
+  "Rectangle / ellipse": "Rectangle / ellipse",
+  "Arrow / draw / frame": "Flèche / dessin / cadre",
+  "Move around the canvas": "Naviguer dans le tableau",
+  "Zoom toward the pointer": "Zoomer vers le pointeur",
+  "Select multiple objects": "Sélectionner plusieurs objets",
+  "Move selected objects": "Déplacer les objets sélectionnés",
+  "Edit the focused object": "Modifier l’objet actif",
+  Undo: "Annuler",
+  Redo: "Rétablir",
+  "Delete selection": "Supprimer la sélection",
+  "Keyboard-only? Use Board objects to select an object. Tool shortcuts add objects in the center of your view.":
+    "Au clavier : utilisez Objets du tableau pour sélectionner un objet. Les raccourcis ajoutent les objets au centre de la vue.",
+  "Drag to move this object. Use the corner handle to resize images.":
+    "Faites glisser cet objet pour le déplacer. Utilisez la poignée d’angle pour redimensionner les images.",
+  "Choose a file smaller than 20 MB.":
+    "Choisissez un fichier de moins de 20 Mo.",
+  "Choose an image smaller than 5 MB.":
+    "Choisissez une image de moins de 5 Mo.",
+  "Choose a PNG, JPEG, or WebP image.":
+    "Choisissez une image PNG, JPEG ou WebP.",
+  "Could not open image.": "Impossible d’ouvrir l’image.",
+  "Could not import this file.": "Impossible d’importer ce fichier.",
+  "Could not open cloud board.":
+    "Impossible d’ouvrir le tableau dans le nuage.",
+  "Puter could not load. Check your connection and try again.":
+    "Puter n’a pas pu être chargé. Vérifiez votre connexion et réessayez.",
+  "Could not connect to Puter.": "Connexion à Puter impossible.",
+  "Could not connect. Please try again.":
+    "Connexion impossible. Veuillez réessayer.",
+  "Export failed. Please try again.":
+    "L’exportation a échoué. Veuillez réessayer.",
+  "This is not a supported Whiteboard file.":
+    "Ce fichier Whiteboard n’est pas pris en charge.",
+  "Your browser storage is unavailable.":
+    "Le stockage de votre navigateur est indisponible.",
+  "Enable site storage and reload to start creating safely.":
+    "Activez le stockage du site et rechargez la page pour commencer.",
+  Reload: "Recharger",
+  Close: "Fermer",
+  Create: "Créer",
+  Cancel: "Annuler",
+  Save: "Enregistrer",
+  "Select objects first.": "Sélectionnez d’abord des objets.",
+  "Select one object first.": "Sélectionnez d’abord un seul objet.",
+  "Trash is empty.": "La corbeille est vide.",
+  "Deleted boards can be restored here.":
+    "Vous pouvez restaurer les tableaux supprimés ici.",
+  "Board moved to Trash.": "Tableau déplacé dans la corbeille.",
+  "Board restored.": "Tableau restauré.",
+  "Reduce the selection to one region for image export.":
+    "Choisissez une seule région pour exporter une image.",
+  "Choose at least one frame.": "Choisissez au moins un cadre.",
+  "No templates found.": "Aucun modèle trouvé.",
+  "No matching objects.": "Aucun objet correspondant.",
+  "Remove from frame": "Retirer du cadre",
+  "Board edit saved": "Modification enregistrée",
+  "action|Open": "Ouvrir",
+  "notification|Reply": "Réponse",
+  "results|Top": "Premiers",
+  "Invite people to edit, comment on, or view this board. Invitations expire after seven days.":
+    "Invitez des personnes à modifier, commenter ou consulter ce tableau. Les invitations expirent après sept jours.",
+  "Your organization has turned off Miro imports.":
+    "Votre organisation a désactivé les importations depuis Miro.",
+  Planning: "Planification",
+  "This export is too large. Export fewer frames at a time.":
+    "Cette exportation est trop volumineuse. Exportez moins de cadres à la fois.",
+  "This feature could not load. Check your connection and try again.":
+    "Cette fonction n’a pas pu se charger. Vérifiez votre connexion et réessayez.",
+};
+// Feature modules register their own French strings next to their code.
+// Existing entries win so a module cannot silently change shared labels.
+export function addTranslations(entries) {
+  for (const [english, french] of Object.entries(entries))
+    if (!Object.hasOwn(pairs, english)) pairs[english] = french;
+}
+const types = {
+  __proto__: null,
+  note: "note adhésive",
+  text: "texte",
+  rect: "rectangle",
+  ellipse: "ellipse",
+  arrow: "flèche",
+  pen: "dessin",
+  frame: "cadre",
+  image: "image",
+  table: "tableau de données",
+  link: "lien",
+  file: "pièce jointe",
+  embed: "intégration",
+};
+// A context tells apart words that translate differently, such as "Open" as
+// a state and as an action: t("Open", "action") uses the "action|Open" entry.
+export function t(text, context) {
+  // Anything other than text, such as a missing error message, passes
+  // through as it does in English.
+  if (language !== "fr" || typeof text !== "string") return text;
+  if (context && pairs[`${context}|${text}`])
+    return pairs[`${context}|${text}`];
+  if (pairs[text]) return pairs[text];
+  let m;
+  if (
+    (m = text.match(
+      /^(Select|Pan|Sticky note|Text|Rectangle|Ellipse|Arrow|Draw|Frame) \((\w)\)$/,
+    ))
+  )
+    return `${pairs[m[1]]} (${m[2]})`;
+  if ((m = text.match(/^Edit (.+)$/)) && types[m[1]])
+    return `Modifier : ${types[m[1]]}`;
+  if ((m = text.match(/^(\d+) results?$/))) return `${m[1]} résultat(s)`;
+  if ((m = text.match(/^(\d+) selected$/))) return `${m[1]} sélectionné(s)`;
+  if (
+    (m = text.match(
+      /^(All boards|Favorites|Your boards|Favorite boards) (\d+)$/,
+    ))
+  )
+    return `${pairs[m[1]]} ${m[2]}`;
+  // The favorite star is a toggle: its name stays put and its pressed state
+  // says whether the board is a favorite.
+  if ((m = text.match(/^(Open|Favorite|Options for) (.+)$/)))
+    return `${{ Open: "Ouvrir", Favorite: "Favori :", "Options for": "Options pour" }[m[1]]} ${m[2]}`;
+  if ((m = text.match(/^(\d+) objects/)))
+    return text.replace(`${m[1]} objects`, `${m[1]} objets`);
+  return text;
+}
+// The message for a count, with {count} filled in: `one` where the language
+// takes its singular, 1 in English and 0 or 1 in French, `other` elsewhere.
+// A singular that English writes like its plural, such as "{count} done",
+// is translated from its "one|" entry.
+const pluralRules = {};
+export function plural(count, one, other) {
+  const locale = language === "fr" ? "fr-CA" : "en-CA";
+  pluralRules[locale] ??= new Intl.PluralRules(locale);
+  const singular = pluralRules[locale].select(count) === "one";
+  return t(singular ? one : other, singular ? "one" : undefined).replace(
+    "{count}",
+    count,
+  );
+}
+// A label and what it names, as "Label: value". French sets the colon apart
+// with a space.
+export const labelled = (label, value) =>
+  `${label}${language === "fr" ? " : " : ": "}${value}`;
+const sources = new WeakMap();
+const attributeSources = new WeakMap();
+export function translateUI(root = document.body) {
+  if (document.documentElement.lang !== language)
+    document.documentElement.lang = language;
+  const skipped =
+    "[data-user-content],textarea,script,style,.cloud-file,.board-info h3,#board-outline";
+  if (root.closest?.(skipped)) return;
+  // Reject excluded subtrees once instead of checking every text node's
+  // ancestors; this runs on each draw.
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+    (node) =>
+      node.nodeType === 3
+        ? NodeFilter.FILTER_ACCEPT
+        : node.matches(skipped)
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_SKIP,
+  );
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    const source = sources.get(node);
+    const raw =
+      source && source.rendered === node.textContent
+        ? source.original
+        : node.textContent;
+    const value = raw.trim();
+    const output = raw.replace(value, () => t(value));
+    if (output !== node.textContent) node.textContent = output;
+    sources.set(node, { original: raw, rendered: output });
+  }
+  root.querySelectorAll("[aria-label],[title],[placeholder]").forEach((el) => {
+    const attributes = attributeSources.get(el) || {};
+    // A title on user content, such as a board card's full name, is the
+    // content itself.
+    const user =
+      el.hasAttribute("title") && !!el.closest("[data-user-content]");
+    for (const attr of ["aria-label", "title", "placeholder"])
+      if (el.hasAttribute(attr) && !(user && attr === "title")) {
+        const current = el.getAttribute(attr);
+        const source = attributes[attr];
+        const original =
+          source?.rendered === current ? source.original : current;
+        const rendered = t(original);
+        if (rendered !== current) el.setAttribute(attr, rendered);
+        attributes[attr] = { original, rendered };
+      }
+    attributeSources.set(el, attributes);
+  });
+}
+// What kind of object this is, in words people use rather than the type
+// names stored in board files.
+const englishTypes = {
+  __proto__: null,
+  note: "Sticky note",
+  text: "Text",
+  rect: "Rectangle",
+  ellipse: "Ellipse",
+  arrow: "Arrow",
+  pen: "Drawing",
+  frame: "Frame",
+  image: "Image",
+  link: "Link",
+  table: "Table",
+  file: "Attachment",
+  embed: "Embedded content",
+};
+export const objectKind = (i) =>
+  i.type === "rect" && i.shape
+    ? t(SHAPES.find((s) => s.key === i.shape)?.name || "Rectangle")
+    : (language === "fr" ? types : englishTypes)[i.type] || i.type;
+// The title of an object's properties dialog.
+export const editTitle = (i) =>
+  language === "fr"
+    ? `Modifier : ${objectKind(i)}`
+    : `Edit ${objectKind(i).toLowerCase()}`;
+export function objectNameContent(i) {
+  const value = i.text || i.alt || i.fileName;
+  if (value || !i.cells) return value || "";
+  const text = i.cells.flat().filter(Boolean).join(" · ");
+  let end = Math.min(300, text.length);
+  const previous = text.charCodeAt(end - 1), next = text.charCodeAt(end);
+  if (previous >= 0xd800 && previous <= 0xdbff && next >= 0xdc00 && next <= 0xdfff) end--;
+  return text.slice(0, end);
+}
+export const objectName = (i) =>
+  `${i.locked ? `${t("Locked")} · ` : ""}${objectKind(i)}: ${objectNameContent(i) || (language === "fr" ? "Objet sans titre" : "Untitled object")}`;

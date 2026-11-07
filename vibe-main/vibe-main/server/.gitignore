@@ -1,0 +1,32 @@
+*.wav
+*.mp3
+.DS_Store
+libs/lib/
+models/
+vibe-server
+!vibe-server/
+ggml-src/
+ggml-build/
+*.tar.gz
+ggml-src/
+ggml-build/
+*.tar.gz
+*.exe
+*.zip
+*.dll
+*.bin
+__pycache__/
+*.pyc
+target/
+*.onnx
+
+# Large model artifacts stay out of git
+# Recorded ONNX reference dumps. Regenerate with baseline/regen.sh (needs the
+# 492 MB ONNX checkpoint and a pinned ort).
+baseline/
+*.nemo
+*.gguf
+*.onnx
+baseline/models/
+# Reference clones for study; each carries its own .git
+plans/

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+  <title>Documents (mock)</title>
+  <meta name="theme-color" content="#375f91" />
+  <link rel="icon" href="./favicon.ico" sizes="16x16 32x32 48x48" />
+  <script>
+    (() => {
+      try {
+        const t = localStorage.getItem('documents:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        if (localStorage.getItem('documents:dark-page') === '1') document.documentElement.dataset.page = 'dark';
+      } catch {}
+    })();
+  </script>
+  <!-- Dev harness: an in-memory Puter SDK so the whole app runs without an account. -->
+  <script src="/dev/puter-mock.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <!-- Glass fills for the command icons (src/styles/command-icons.css): top-lit gradients whose stops are the
+       --ico-* tokens, so every theme retints them. Not display:none, which would disable the gradients. -->
+  <svg class="ico-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <linearGradient id="ico-g-paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0.25" style="stop-color:var(--ico-paper-top)"/><stop offset="1" style="stop-color:var(--ico-paper)"/></linearGradient>
+      <linearGradient id="ico-g-blue-soft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-glass-rim)"/><stop offset="0.3" style="stop-color:var(--ico-blue-soft-top)"/><stop offset="1" style="stop-color:var(--ico-blue-soft)"/></linearGradient>
+      <linearGradient id="ico-g-blue-solid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-blue-top)"/><stop offset="1" style="stop-color:var(--ico-blue-deep)"/></linearGradient>
+      <linearGradient id="ico-g-green-soft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-glass-rim)"/><stop offset="0.3" style="stop-color:var(--ico-green-soft-top)"/><stop offset="1" style="stop-color:var(--ico-green-soft)"/></linearGradient>
+      <linearGradient id="ico-g-green-solid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-green-top)"/><stop offset="1" style="stop-color:var(--ico-green-deep)"/></linearGradient>
+      <linearGradient id="ico-g-red-soft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-glass-rim)"/><stop offset="0.3" style="stop-color:var(--ico-red-soft-top)"/><stop offset="1" style="stop-color:var(--ico-red-soft)"/></linearGradient>
+      <linearGradient id="ico-g-red-solid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-red-top)"/><stop offset="1" style="stop-color:var(--ico-red-deep)"/></linearGradient>
+      <linearGradient id="ico-g-yellow-soft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-glass-rim)"/><stop offset="0.3" style="stop-color:var(--ico-yellow-soft-top)"/><stop offset="1" style="stop-color:var(--ico-yellow-soft)"/></linearGradient>
+      <linearGradient id="ico-g-yellow-solid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-yellow-top)"/><stop offset="1" style="stop-color:var(--ico-yellow-deep)"/></linearGradient>
+      <linearGradient id="ico-g-amber-soft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-glass-rim)"/><stop offset="0.3" style="stop-color:var(--ico-amber-soft-top)"/><stop offset="1" style="stop-color:var(--ico-amber-soft)"/></linearGradient>
+      <linearGradient id="ico-g-amber-solid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-amber-top)"/><stop offset="1" style="stop-color:var(--ico-amber-deep)"/></linearGradient>
+      <linearGradient id="ico-g-purple-soft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-glass-rim)"/><stop offset="0.3" style="stop-color:var(--ico-purple-soft-top)"/><stop offset="1" style="stop-color:var(--ico-purple-soft)"/></linearGradient>
+      <linearGradient id="ico-g-purple-solid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-purple-top)"/><stop offset="1" style="stop-color:var(--ico-purple-deep)"/></linearGradient>
+    </defs>
+  </svg>
+  <div id="app" class="app"></div>
+</body>
+</html>

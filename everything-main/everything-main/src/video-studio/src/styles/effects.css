@@ -1,0 +1,93 @@
+/* Clip effect stack (Effects tab of video, image, text and graphic clips) */
+.clipfx-tools {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.clipfx-add {
+  flex: 1;
+  min-width: 0;
+}
+
+.clipfx-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.clipfx-count {
+  color: var(--text-3);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.clipfx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clipfx-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-2);
+  padding: 6px 8px 8px;
+}
+
+.clipfx-item.off .clipfx-params {
+  opacity: 0.45;
+}
+
+.clipfx-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.clipfx-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clipfx-index {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--bg-active);
+  color: var(--text-2);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.clipfx-params:empty {
+  display: none;
+}
+
+.switch.small.clipfx-on {
+  width: 26px;
+  height: 16px;
+  flex: none;
+}
+
+.switch.small.clipfx-on::after {
+  width: 12px;
+  height: 12px;
+}
+
+.switch.small.clipfx-on[aria-checked='true']::after {
+  transform: translateX(10px);
+}

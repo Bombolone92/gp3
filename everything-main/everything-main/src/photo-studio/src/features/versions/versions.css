@@ -1,0 +1,25 @@
+/* ----- Version History panel and recovery dialog ----- */
+.versions-panel { display: flex; flex-direction: column; min-height: 120px; }
+.versions-head { display: flex; align-items: center; gap: 8px; padding: 8px; border-bottom: 1px solid var(--line-soft); }
+.versions-head .muted { margin-left: auto; color: var(--muted); font-size: 11px; }
+.versions-banner { display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: color-mix(in srgb, var(--accent) 22%, transparent); font-size: 11px; }
+.versions-banner span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.versions-list { display: flex; flex-direction: column; overflow: auto; max-height: 420px; }
+.version-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--line-soft); }
+.version-row:hover { background: var(--hover); }
+.version-row.previewing { background: var(--row-selected); }
+.version-thumb { width: 56px; height: 42px; padding: 0; border: 1px solid var(--line-soft); background: repeating-conic-gradient(var(--checker-a) 0 25%, var(--checker-b) 0 50%) 0 0 / 8px 8px; overflow: hidden; }
+.version-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.version-meta { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.version-meta strong { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.version-meta small { color: var(--muted); font-size: 10.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.version-actions { display: flex; gap: 1px; opacity: 0.55; }
+.version-row:hover .version-actions, .version-row:focus-within .version-actions, .version-row.previewing .version-actions { opacity: 1; }
+.versions-empty { color: var(--muted); padding: 16px 12px; font-size: 11px; line-height: 1.5; margin: 0; }
+dialog:has(.recovery-dialog) { width: 520px; }
+.recovery-list { display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow: auto; margin-bottom: 16px; }
+.recovery-item { display: grid; grid-template-columns: auto 64px minmax(0, 1fr); align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid var(--line-soft); border-radius: 4px; }
+.recovery-thumb { width: 64px; height: 48px; border: 1px solid var(--line-soft); background: repeating-conic-gradient(var(--checker-a) 0 25%, var(--checker-b) 0 50%) 0 0 / 8px 8px; }
+.recovery-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.recovery-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.recovery-meta small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

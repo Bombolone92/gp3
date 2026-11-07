@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#238cfd" />
+    <meta
+      name="description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <title>Whiteboard</title>
+    <meta name="application-name" content="Whiteboard" />
+    <link rel="canonical" href="https://whiteboard.puter.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Whiteboard" />
+    <meta property="og:title" content="Whiteboard" />
+    <meta
+      property="og:description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <meta property="og:url" content="https://whiteboard.puter.com/" />
+    <meta
+      property="og:image"
+      content="https://whiteboard.puter.com/icons/icon-512.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Whiteboard app icon" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Whiteboard" />
+    <meta
+      name="twitter:description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <meta
+      name="twitter:image"
+      content="https://whiteboard.puter.com/icons/icon-512.png"
+    />
+    <meta name="twitter:image:alt" content="Whiteboard app icon" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Whiteboard",
+        "url": "https://whiteboard.puter.com/",
+        "description": "A little space for your next big idea. A personal whiteboard for thinking, planning, and creating.",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "Any"
+      }
+    </script>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <script type="module">
+localStorage.setItem('whiteboard-theme','dark');
+localStorage.setItem('whiteboard-language','en');
+localStorage.setItem('whiteboard-tour-v1',JSON.stringify({done:true}));
+const fixture={"version":1,"id":"95e267ce-cd24-4d83-a609-8a8b000e75c1","title":"Dark CSV chooser verification","updated":1790969604219,"favorite":false,"items":[{"id":"88b72a96-0b91-4f02-8ba2-5a010bb216e9","type":"table","x":0,"y":0,"w":500,"h":200,"text":"Export table","color":"#f6e7a4","lang":"fr-CA","cells":[["Bonjour à tous. Une longue description pour vérifier le retour à la ligne.","Autre colonne"],["Une valeur","42"]]}]};
+await new Promise((resolve,reject)=>{
+ const req=indexedDB.open('whiteboard-v1',3);
+ req.onupgradeneeded=()=>{const db=req.result;
+ for(const name of ['boards','templates'])if(!db.objectStoreNames.contains(name))db.createObjectStore(name,{keyPath:'id'});
+ for(const [name,index]of [['revisions','boardId'],['collaboration','scope']])if(!db.objectStoreNames.contains(name)){const store=db.createObjectStore(name,{keyPath:'id'});store.createIndex(index,index);}
+ };
+ req.onerror=()=>reject(req.error);
+ req.onsuccess=()=>{const db=req.result;const tx=db.transaction('boards','readwrite');const store=tx.objectStore('boards');const existing=store.get(fixture.id);existing.onsuccess=()=>{if(!existing.result)store.put(fixture);};tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>reject(tx.error);};
+});
+await import('/assets/index-tnPrTWHo.js');
+</script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DldWvGvG.css">
+  <style>*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}</style></head>
+  <body>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
+<script>
+function describeFocus(){
+ const el=document.activeElement;
+ const rect=(node)=>{const r=node.getBoundingClientRect();return [r.x,r.y,r.width,r.height].map(n=>Math.round(n*10)/10)};
+ const parents=[];
+ for(let p=el?.parentElement;p;p=p.parentElement){const c=getComputedStyle(p);if(/auto|scroll|hidden|clip/.test(c.overflowY))parents.push({tag:p.tagName,id:p.id,className:p.className,rect:rect(p),scrollTop:p.scrollTop,scrollHeight:p.scrollHeight,clientHeight:p.clientHeight});}
+ parent.postMessage({audit:'csv-focus',description:JSON.stringify({tag:el?.tagName,type:el?.type,label:el?.closest('label')?.textContent.trim(),focusVisible:el?.matches(':focus-visible'),rect:el&&rect(el),viewport:[innerWidth,innerHeight],parents})},location.origin);
+}
+addEventListener('focusin',()=>requestAnimationFrame(describeFocus));
+addEventListener('change',()=>requestAnimationFrame(describeFocus));
+addEventListener('scroll',()=>requestAnimationFrame(describeFocus),true);
+</script>

@@ -1,0 +1,506 @@
+/* Reset, typography, and shared components (buttons, inputs, menus,
+   modal, toast, loading cues). No gradients, no box shadows: separation comes
+   from layered surface colors and hairline borders. */
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body, #app { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* -- buttons ---------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: 0.55; cursor: default; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn-primary:hover:not(:disabled) { opacity: 0.92; }
+.btn-primary:active:not(:disabled) { opacity: 0.85; }
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+}
+.btn-ghost:hover:not(:disabled) { background: var(--hover); border-color: transparent; }
+.btn-ghost:active:not(:disabled) { background: var(--pressed); }
+
+/* An outline rather than a fill: --danger is a light red in the dark theme, so
+   white text on it would be unreadable, and a red-bordered button reads as
+   destructive in both. */
+.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: var(--surface);
+}
+.btn-danger:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+}
+.btn-danger:active:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 20%, var(--surface));
+}
+
+.btn-tonal {
+  background: var(--tonal);
+  border-color: transparent;
+  color: var(--ink);
+}
+.btn-tonal:hover:not(:disabled) { border-color: transparent; opacity: 0.92; }
+.btn-tonal:active:not(:disabled) { opacity: 0.85; }
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--ink-2);
+  padding: 6px 8px;
+}
+.btn-link:hover { color: var(--ink); text-decoration: underline; }
+
+.btn-block { width: 100%; }
+.btn-block + .btn-block { margin-top: 10px; }
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 12.5px;
+}
+
+.btn-icon {
+  display: inline-flex;
+  margin-right: 7px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  font: inherit;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.icon-btn:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
+.icon-btn:active:not(:disabled) { background: var(--pressed); }
+.icon-btn:disabled { opacity: 0.5; cursor: default; }
+.icon-btn[aria-pressed="true"] { background: var(--accent-wash); color: var(--accent); }
+
+.spacer { flex: 1; }
+
+/* Content loads use static skeletons. Actions use a spinner after 500 ms,
+   without changing geometry or holding up completed work. */
+.loading-placeholder,
+.loading-delayed { animation: reveal-loading 0s 180ms both; }
+@keyframes reveal-loading { from { opacity: 0; } to { opacity: 1; } }
+.skeleton-line {
+  display: block;
+  height: 10px;
+  border-radius: 4px;
+  background: var(--hover);
+}
+.loading-body .skeleton-shapes,
+.loading-boot .skeleton-shapes { display: grid; gap: 14px; }
+.loading-body { padding: 16px 0; max-width: 640px; }
+.loading-boot { width: min(240px, 100%); margin: auto; }
+.skeleton-long { width: 100%; }
+.skeleton-short { width: 62%; }
+.is-busy,
+[aria-busy="true"]:disabled { cursor: progress; }
+
+.is-busy.icon-btn,
+.is-busy .btn-icon,
+.is-busy .nav-icon,
+.chip[aria-busy="true"] .chip-icon,
+.btn-more[aria-busy="true"] { position: relative; }
+
+.is-busy.icon-btn::after,
+.is-busy .btn-icon::after,
+.is-busy .nav-icon::after,
+.chip[aria-busy="true"] .chip-icon::after,
+.btn-more[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: reveal-loading 0s 500ms both, loading-spin 800ms linear 500ms infinite;
+}
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+@keyframes hide-loading-icon { from { opacity: 1; } to { opacity: 0; } }
+.is-busy.icon-btn > svg,
+.is-busy .btn-icon > svg,
+.is-busy .nav-icon > svg,
+.chip[aria-busy="true"] .chip-icon > svg {
+  animation: hide-loading-icon 0s 500ms both;
+}
+/* Paging reserves the spinner's space beside its label. */
+.btn-more[aria-busy="true"]::after { left: 18px; }
+
+.boot {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* -- menus -------------------------------------------------------------------- */
+
+.menu-anchor { position: relative; }
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  /* As wide as its longest label wants, within the bounds below. Its
+     containing block is the 40px button it hangs from, so left to shrink to
+     fit it fell to the minimum the moment a label was allowed to wrap. */
+  width: max-content;
+  min-width: 210px;
+  max-width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius);
+  padding: 6px;
+  z-index: 60;
+  /* Held to the room it has (menu.js sets the height) and scrolls past it. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.menu[data-align="end"] { right: 0; }
+.menu[data-align="start"] { left: 0; }
+/* Opened upward, where the room is. */
+.menu[data-flip="up"] { top: auto; bottom: calc(100% + 6px); }
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius) - 4px);
+  cursor: pointer;
+  text-align: left;
+}
+.menu-item:hover { background: var(--hover); }
+/* Keyboard focus needs its own mark: the state layer alone is a ~1.2:1 step,
+   far too faint to read as "focus is here" while arrowing down a menu. */
+.menu-item:focus-visible {
+  background: var(--hover);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.menu-item:active { background: var(--pressed); }
+.menu-item.danger { color: var(--danger); }
+.menu-item-icon { display: flex; color: var(--ink-2); }
+.menu-item.danger .menu-item-icon { color: var(--danger); }
+/* A label wraps rather than being cut short: a menu is at most 280px wide,
+   and a setting whose name ran to "Open the next conversation after ..." was
+   a setting nobody could read before choosing it. */
+.menu-item-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.menu-item-check { display: flex; color: var(--accent); }
+
+.menu-header {
+  padding: 6px 10px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-sep {
+  height: 1px;
+  background: var(--hairline);
+  margin: 6px 4px;
+}
+
+/* Said, not shown: a live region whose whole job is to tell someone who cannot
+   see the change what just changed. Not `display: none`, which would take it
+   out of the accessibility tree along with everything it had to say. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -- modal --------------------------------------------------------------------- */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left));
+}
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.modal-panel {
+  /* Named because a sticky row inside a panel that scrolls has to carry the
+     panel's own bottom padding, or the content scrolls through the gap
+     underneath it. */
+  --panel-pad: 22px;
+  position: relative;
+  width: min(440px, 100%);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 24px;
+  padding: 22px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+@media (max-width: 639px) {
+  .modal-root {
+    align-items: flex-end;
+    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+  .modal-panel {
+    --panel-pad: max(20px, env(safe-area-inset-bottom));
+    width: 100%;
+    max-height: calc(100dvh - 40px);
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    padding-bottom: var(--panel-pad);
+  }
+}
+
+/* -- confirm dialog -------------------------------------------------------------- */
+
+.confirm-text {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* -- keyboard shortcuts sheet ---------------------------------------------------- */
+
+.shortcuts { padding-top: 4px; }
+
+.shortcut-group + .shortcut-group { margin-top: 20px; }
+
+.shortcut-heading {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.shortcut-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The keys in a column of their own, so the eye runs down them looking for a
+   key rather than down a ragged edge of prose. */
+.shortcut {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 13.5px;
+}
+
+.shortcut-keys {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 104px;
+}
+
+.shortcut-join {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.shortcut-label { color: var(--ink-2); }
+
+.shortcut-key {
+  display: inline-block;
+  min-width: 22px;
+  padding: 2px 6px;
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink);
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 5px;
+}
+
+.shortcuts-note {
+  margin: 20px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+/* -- toast ---------------------------------------------------------------------- */
+
+.toast-region {
+  position: fixed;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  /* Both edges rather than left: 50% and a transform: a box placed from the
+     middle shrinks to fit the half of the window right of it, so on a phone
+     every toast longer than ~190px wrapped, "Archived 3 messages." included. */
+  left: max(16px, env(safe-area-inset-left));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 13px;
+  max-width: min(100%, 720px);
+  overflow-wrap: anywhere;
+  transition: opacity 0.25s;
+}
+.toast-icon { display: flex; }
+.toast-out { opacity: 0; }
+
+/* -- centered placeholder --------------------------------------------------------- */
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  min-height: 220px;
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--ink-2);
+}
+.center p { margin: 0; max-width: 46ch; }
+/* A panel with something after it -- the Starred view's "nothing starred in
+   the messages loaded so far", with the Load older messages button under it
+   -- cannot take the whole scroller: the note told the reader to load older
+   messages and the button it meant was below the fold. */
+.msglist > .center:not(:last-child) { height: auto; }
+.center-icon { color: var(--ink-3); display: flex; }
+.center-note { font-size: 13px; color: var(--ink-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: none; }
+  .is-busy.icon-btn::after,
+  .is-busy .btn-icon::after,
+  .is-busy .nav-icon::after,
+  .chip[aria-busy="true"] .chip-icon::after,
+  .btn-more[aria-busy="true"]::after {
+    animation: reveal-loading 0s 500ms both;
+  }
+}
+
+/* -- touch targets -------------------------------------------------------------- */
+
+/* A 40px circle is a comfortable mouse target and a cramped finger one. Grow
+   the shared controls to the 44px minimum where the primary pointer is a
+   finger, and leave the tighter desktop density alone. */
+@media (pointer: coarse) {
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .btn { min-height: 44px; }
+  .menu-item { min-height: 44px; }
+  .menu { padding: 8px; }
+}

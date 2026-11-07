@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Cap Table (mock dev)</title>
+  <meta name="theme-color" content="#f7f7f8" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0e0f11" media="(prefers-color-scheme: dark)" />
+  <script>
+    document.documentElement.classList.add('js');
+    (() => {
+      try {
+        const t = localStorage.getItem('captable:theme');
+        if (t !== 'light' && t !== 'dark') return;
+        document.documentElement.dataset.theme = t;
+        // The browser chrome follows the saved theme too, not the OS one:
+        // applyTheme() only runs after sign-in and the first load, and the
+        // sign-in and error screens sat under a title bar of the other color.
+        for (const m of document.querySelectorAll('meta[name="theme-color"]')) {
+          m.setAttribute('content', t === 'dark' ? '#0e0f11' : '#f7f7f8');
+        }
+      } catch {}
+    })();
+  </script>
+  <script src="./dev/puter-mock.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <div id="app" class="app"></div>
+</body>
+</html>

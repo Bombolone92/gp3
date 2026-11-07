@@ -1,0 +1,522 @@
+/* ---- Project brief: the Overview panel above the board ----------------- */
+
+.brief {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+}
+
+/* With no brief yet the panel is one quiet row, not a framed empty box. */
+.brief.is-empty {
+  padding: 0;
+  gap: 0;
+  border-color: transparent;
+  background: none;
+}
+
+.brief-add {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  margin-left: -8px;
+  align-self: flex-start;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-3);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.brief-add:hover { color: var(--ink); background: var(--surface-2); }
+
+.brief-head { display: flex; align-items: center; gap: 8px; }
+
+.brief-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.brief-body {
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: 2px 6px;
+  margin: 0 -6px;
+  font-size: 13.5px;
+  cursor: text;
+}
+
+.brief-body:hover { border-color: var(--hairline); }
+
+/* Two lines and a "More": the brief informs the board, it does not eat it. */
+.brief-body.collapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.brief-body > :last-child { margin-bottom: 0; }
+
+.brief-more {
+  align-self: flex-start;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.brief-more:hover { text-decoration: underline; }
+.brief-hint { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; }
+.brief-form-input { resize: vertical; }
+
+/* ---- Board layout: horizontal columns, inner vertical scroll ----------- */
+
+.board-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 16px;
+  scrollbar-width: thin;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  width: 282px;
+  flex-shrink: 0;
+  max-height: 100%;
+  background: var(--surface-2);
+  border-radius: var(--r-lg);
+}
+
+.col-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 8px 8px 14px;
+  cursor: grab;
+  touch-action: pan-x pan-y;
+  /* Drag handle: no iOS selection callout during the long-press hold. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.col-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-done-ic { color: var(--ok); display: inline-flex; }
+
+.col-count {
+  font-size: 12px;
+  font-weight: 600;
+  /* --ink-3 is only guaranteed against --page and --surface; on the tinted
+     pill it drops to 4.2:1, and this one carries a number worth reading. */
+  color: var(--ink-2);
+  background: var(--surface-3);
+  border-radius: var(--r-full);
+  padding: 1px 8px;
+}
+
+/* Over its limit: the count says so in the warning tone, and that is all it
+   does — no drop is ever refused. */
+.col-count.over {
+  color: var(--warn);
+  background: var(--warn-wash);
+}
+
+.col-auto-ic { display: inline-flex; color: var(--ink-3); flex-shrink: 0; }
+
+.col-body {
+  flex: 1;
+  min-height: 8px;
+  overflow-y: auto;
+  /* 4px, not 2: a scroll container clips both axes, and the focus ring on a
+     card needs its 2px offset plus 2px of stroke to survive at the ends of
+     the list. */
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scrollbar-width: thin;
+}
+
+.col-foot { padding: 8px; }
+
+.add-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-3);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.add-card-btn:hover { background: var(--surface-3); color: var(--ink); }
+
+.composer .composer-input { margin-bottom: 8px; }
+
+.add-col { flex-shrink: 0; width: 282px; }
+
+.add-col-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r-lg);
+  background: none;
+  color: var(--ink-3);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-col-btn:hover { background: var(--surface-2); color: var(--ink); }
+
+/* ---- Cards -------------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  cursor: pointer;
+  touch-action: pan-x pan-y;
+  /* Drag handle: long-pressing to lift a card must not start a text
+     selection or the iOS callout. Text stays selectable in the sheet. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.card:hover { border-color: var(--hairline-strong); }
+
+.card-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; }
+
+.card-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.card-title.done { color: var(--ink-3); text-decoration: line-through; }
+
+.card-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+/* ---- Drag & drop -------------------------------------------------------- */
+
+.drag-hidden { display: none; }
+
+.drag-ghost {
+  position: fixed;
+  left: 0; top: 0;
+  z-index: 400;
+  pointer-events: none;
+  opacity: 0.95;
+  box-shadow: var(--pop-shadow);
+  will-change: transform;
+}
+
+.drag-ghost.col { background: var(--surface-2); max-height: 70dvh; overflow: hidden; }
+
+.card-placeholder {
+  border-radius: var(--r-md);
+  border: 1.5px dashed var(--hairline-strong);
+  background: var(--accent-wash);
+  flex-shrink: 0;
+}
+
+.col-placeholder {
+  flex-shrink: 0;
+  border-radius: var(--r-lg);
+  border: 1.5px dashed var(--hairline-strong);
+  background: var(--accent-wash);
+  align-self: stretch;
+}
+
+.board.is-dragging .card { cursor: grabbing; }
+
+/* ---- Task sheet ----------------------------------------------------------- */
+
+.sheet-title {
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 19px;
+  font-weight: 700;
+  padding: 4px 0 10px;
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 16px;
+}
+
+.sheet-title:focus-visible { outline: none; border-bottom-color: var(--accent); }
+
+.sheet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 14px;
+}
+
+@media (max-width: 480px) {
+  .sheet-grid { grid-template-columns: 1fr; }
+}
+
+.sheet-desc { line-height: 1.5; }
+
+.repeat-row { gap: 6px; align-items: center; }
+.repeat-interval { width: 74px; flex-shrink: 0; }
+.repeat-note { margin: 6px 0 0; }
+
+/* ---- Rendered Markdown ---------------------------------------------------- */
+
+.md { font-size: 14px; color: var(--ink-2); line-height: 1.55; overflow-wrap: anywhere; }
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+
+.md-p { margin: 0 0 8px; }
+.md-h { font-size: 15px; font-weight: 700; color: var(--ink); margin: 14px 0 6px; }
+.md h3.md-h { font-size: 16px; }
+.md-list { margin: 0 0 8px; padding-left: 22px; }
+.md-list li { margin: 2px 0; }
+
+.md-quote {
+  margin: 0 0 8px;
+  padding: 2px 0 2px 12px;
+  border-left: 3px solid var(--hairline-strong);
+  color: var(--ink-3);
+}
+
+.md-hr { border: none; border-top: 1px solid var(--hairline); margin: 12px 0; }
+
+.md code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  background: var(--surface-2);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.md-pre {
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  overflow-x: auto;
+}
+
+.md-pre code { background: none; padding: 0; font-size: 12.5px; line-height: 1.5; }
+.md a { text-decoration: underline; text-underline-offset: 2px; }
+.md strong { color: var(--ink); }
+
+/* Description: rendered view that behaves like a big editable field. */
+.desc-head { margin-bottom: 6px; }
+
+.desc-view {
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  margin: 0 -10px;
+  cursor: text;
+}
+
+.desc-view:hover { border-color: var(--hairline); }
+.desc-empty { color: var(--ink-3); }
+.desc-hint { margin: 6px 0 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; }
+
+.sheet-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+/* Checklist */
+.checklist-head { gap: 10px; margin-bottom: 6px; }
+.checklist-count { font-size: 12px; font-weight: 700; color: var(--ink-3); }
+.checklist-progress { flex: 1; max-width: 160px; }
+
+.checklist { display: flex; flex-direction: column; }
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+
+.checklist-item.reordering {
+  box-shadow: var(--pop-shadow);
+  position: relative;
+  z-index: 1;
+}
+
+.checklist-grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 28px;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--ink-3);
+  cursor: grab;
+  padding: 0;
+  opacity: 0;
+  touch-action: none;
+}
+
+.checklist-item:hover .checklist-grip,
+.checklist-grip:focus-visible { opacity: 1; }
+
+.checklist-box {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin: 0 2px;
+}
+
+.checklist-text {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  padding: 5px 6px;
+}
+
+.checklist-text:hover { border-color: var(--hairline); }
+.checklist-text:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+.checklist-text.done { color: var(--ink-3); text-decoration: line-through; }
+
+.checklist-del { opacity: 0; flex-shrink: 0; }
+.checklist-item:hover .checklist-del, .checklist-del:focus-visible { opacity: 1; }
+
+/* No hover on touch: the controls must simply be visible. */
+@media (hover: none) {
+  .checklist-grip, .checklist-del { opacity: 1; }
+}
+
+.checklist-add-row { display: flex; gap: 8px; margin-top: 8px; }
+.checklist-add { flex: 1; }
+
+.card-count.complete { color: var(--ok); }
+
+/* Attachments */
+.attach-list { display: flex; flex-direction: column; margin-top: 4px; }
+
+.attach-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 2px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.attach-ic { color: var(--ink-2); display: inline-flex; }
+
+.attach-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.attach-name:hover { text-decoration: underline; }
+.attach-size { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+
+/* Comments */
+.comment-list { display: flex; flex-direction: column; gap: 12px; margin: 6px 0 12px; }
+
+.comment { display: flex; gap: 10px; }
+.comment-body { flex: 1; min-width: 0; }
+
+.comment-head { display: flex; align-items: center; gap: 8px; }
+.comment-author { font-size: 13px; font-weight: 700; }
+.comment-time { font-size: 12px; color: var(--ink-3); flex: 1; }
+.comment-del { opacity: 0; }
+.comment:hover .comment-del, .comment-del:focus-visible { opacity: 1; }
+
+/* No hover on touch: the control must simply be visible. */
+@media (hover: none) {
+  .comment-del { opacity: 1; }
+}
+
+.comment-text {
+  font-size: 14px;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-top: 2px;
+}
+
+.comment-compose { display: flex; gap: 8px; align-items: flex-end; }
+.comment-compose textarea { flex: 1; }

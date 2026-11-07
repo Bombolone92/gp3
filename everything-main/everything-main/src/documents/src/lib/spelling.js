@@ -1,0 +1,168 @@
+/**
+ * Spell checking for documents: which words to check, how to rank suggestions, and the user's own
+ * dictionary. The word list is the vendored en_US Hunspell dictionary (SCOWL), loaded on first use.
+ */
+
+const PERSONAL_KEY = 'documents:dictionary';
+
+/** The default proofing options: skip words in UPPERCASE, words with numbers, and internet and file addresses. */
+const ADDRESS = /^(?:https?:\/\/|www\.|mailto:)|@|\\|\/|\.[a-z]{2,4}$/i;
+
+// Keep source offsets while introducing proofing boundaries at exempt runs.
+// The ordinary fragment of a mixed noProof word is checked independently.
+// The original text/model is never changed; no-exemption documents reuse text.
+const foreignLanguage = language => !!language && !/^(?:en|x-none)(?:-|$)/i.test(language);
+export function proofingText(text, paragraphs) {
+  const pieces = [];
+  let offset = 0, start = 0;
+  for (const paragraph of paragraphs) {
+    for (const run of paragraph.runs) {
+      const end = offset + run.text.length;
+      // No-proofing text, text marked in another language (§17.3.2.20) and text already tracked as deleted are
+      // not checked: correcting a deleted word would bring it back. Deleted text is not there in the edited
+      // document, so the letters around it join (word joiners, which words keep and checking leaves out): with
+      // spaces, "colo[u]r" was checked as "colo" and "r".
+      if ((run.noProof || foreignLanguage(run.fontLanguage) || run.revision?.type === 'del') && end > offset) {
+        const joined = run.revision?.type === 'del' && !run.noProof && !foreignLanguage(run.fontLanguage);
+        pieces.push(text.slice(start, offset), (joined ? '\u2060' : ' ').repeat(end - offset));
+        start = end;
+      }
+      offset = end;
+    }
+    offset++; // Paragraph separators occupy one source offset.
+  }
+  return pieces.length ? pieces.join('') + text.slice(start) : text;
+}
+
+/**
+ * The words spelling checks: [{ start, end, word, wordStart?, wordEnd? }]. Hyphenated compounds are checked part by part;
+ * apostrophes inside a word stay part of it and typographic ones are normalized.
+ */
+const INVISIBLE = /[\u00ad\u200b-\u200d\u2060\ufeff]/;
+export function wordsToCheck(text) {
+  const words = [];
+  const segmenter = new Intl.Segmenter('en', { granularity: 'word' });
+  // The stretch without white space the last word was in: where it ends, and whether it is an address.
+  let token = null;
+  for (const segment of segmenter.segment(text)) {
+    if (!segment.isWordLike) continue;
+    const start = segment.index, end = start + segment.segment.length;
+    // An address or path runs across several segments: skip each piece that sits inside one.
+    // Any whitespace bounds the token, not only a space: paragraphs are joined by line breaks, and an
+    // address ending one paragraph must not exempt the first word of the next. The words of one token
+    // share it: read for each, a paragraph without spaces (Chinese, Thai) took time in its length squared.
+    if (!token || start >= token.end) {
+      let before = start;
+      while (before > 0 && !/\s/.test(text[before - 1])) before--;
+      const after = text.slice(end).search(/\s/), to = after < 0 ? text.length : end + after;
+      token = { end: to, address: ADDRESS.test(text.slice(before, to).replace(/[.,;:!?)"'’”]+$/, '')) };
+    }
+    if (token.address) continue;
+    // Optional hyphens (manual hyphenation) and zero-width joiners and spaces are not letters: the word is checked
+    // without them. `source[i]` is where the checked word's character i is in the segment.
+    const source = [];
+    let word = '';
+    for (let i = 0; i < segment.segment.length; i++) {
+      const c = segment.segment[i];
+      if (INVISIBLE.test(c)) continue;
+      word += c === '’' ? "'" : c; source.push(i);
+    }
+    if (!word) continue;
+    if (/\d/.test(word) || /_/.test(word)) continue;
+    if (word.length > 1 && word === word.toUpperCase() && /\p{Lu}/u.test(word)) continue;
+    // The only dictionary is English: a word with no Latin letter (Thai, Cyrillic, Han...) is not checked.
+    if (!/\p{Script=Latin}/u.test(word)) continue;
+    // Possessive and contraction forms the dictionary may lack: check the word itself. When that is less
+    // than the segment, wordStart and wordEnd say where it is, so a correction keeps the "'s" and apostrophes.
+    const trimmed = word.replace(/'s$/i, '').replace(/^'+|'+$/g, '');
+    if (!trimmed || trimmed === word) { words.push({ start, end, word: trimmed || word }); continue; }
+    const lead = word.match(/^'*/)[0].length;
+    words.push({ start, end, word: trimmed, wordStart: start + source[lead], wordEnd: start + source[lead + trimmed.length - 1] + 1 });
+  }
+  return words;
+}
+
+/** Damerau–Levenshtein distance, and whether the cheapest path is a single swap of neighbours. */
+function distance(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
+const droppedVowel = (a, b) => b.length === a.length + 1 && [...b].some((ch, i) => /[aeiouy]/.test(ch) && b.slice(0, i) + b.slice(i + 1) === a);
+const isSwap = (a, b) => a.length === b.length && [...a].filter((ch, i) => ch !== b[i]).length === 2 && [...a].sort().join() === [...b].sort().join();
+
+/**
+ * Order suggestions as a word processor lists them: closest first, a swapped pair of letters before
+ * other single edits, then the same length and first letter, keeping the word's capitalization.
+ */
+export function rankSuggestions(word, suggestions, limit = 6) {
+  const lower = word.toLowerCase(), capitalized = word[0] === word[0]?.toUpperCase() && word.slice(1) === word.slice(1).toLowerCase() && word[0] !== word[0]?.toLowerCase();
+  const scored = [...new Set(suggestions)].map((s, index) => {
+    const candidate = s.toLowerCase();
+    let score = distance(lower, candidate) * 10;
+    if (isSwap(lower, candidate)) score -= 6;
+    if (droppedVowel(lower, candidate)) score -= 3; // a left-out vowel is the commonest slip after a swap
+    if (candidate.length !== lower.length) score += 2;
+    if (candidate[0] !== lower[0]) score += 3;
+    if (s !== candidate && word === lower) score += 4; // a proper noun for a lowercase word
+    if (!lower.includes("'") && candidate.replaceAll("'", '') === lower) score -= 12; // a left-out apostrophe: dont, wasnt
+    return { s, score, index };
+  }).sort((a, b) => a.score - b.score || a.index - b.index);
+  const out = [];
+  for (const { s } of scored) {
+    const shaped = capitalized && s === s.toLowerCase() ? s[0].toUpperCase() + s.slice(1) : word === word.toUpperCase() && word.length > 1 ? s.toUpperCase() : s;
+    if (!out.includes(shaped)) out.push(shaped);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+export function personalWords() {
+  try { const list = JSON.parse(localStorage.getItem(PERSONAL_KEY) || '[]'); return Array.isArray(list) ? list.filter(w => typeof w === 'string') : []; }
+  catch { return []; }
+}
+export function addPersonalWord(word) {
+  const list = personalWords();
+  if (!list.includes(word)) { list.push(word); try { localStorage.setItem(PERSONAL_KEY, JSON.stringify(list.slice(-5000))); } catch { /* storage full or blocked */ } }
+}
+
+/**
+ * The words a left-out apostrophe makes of `word` (dont → don't, youre → you're, im → I'm), which the
+ * dictionary's own suggestions often miss although it is the commonest slip in a contraction.
+ */
+export function apostropheSuggestions(word, correct) {
+  if (word.includes("'") || word.length < 2 || word.length > 24) return [];
+  const out = [];
+  for (let at = 1; at < word.length; at++) {
+    const candidate = word.slice(0, at) + "'" + word.slice(at);
+    if (correct(candidate)) out.push(candidate);
+    // The pronoun I is always a capital: im → I'm, ive → I've, id → I'd, ill → I'll.
+    else if (at === 1 && word[0] === 'i' && correct('I' + candidate.slice(1))) out.push('I' + candidate.slice(1));
+  }
+  return out;
+}
+
+let speller = null;
+/** Load the dictionary once: { correct(word), suggest(word), add(word) }. */
+export function loadSpeller(base = document.baseURI) {
+  speller ??= (async () => {
+    const [{ default: nspell }, aff, dic] = await Promise.all([
+      import('nspell'),
+      fetch(new URL('dictionaries/en-US.aff', base)).then(r => { if (!r.ok) throw new Error('The spelling dictionary could not be loaded.'); return r.text(); }),
+      fetch(new URL('dictionaries/en-US.dic', base)).then(r => { if (!r.ok) throw new Error('The spelling dictionary could not be loaded.'); return r.text(); }),
+    ]);
+    const engine = nspell(aff, dic);
+    for (const word of personalWords()) engine.add(word);
+    return {
+      correct: word => engine.correct(word) || engine.correct(word.toLowerCase()) && word[0] === word[0].toUpperCase() && word.slice(1) === word.slice(1).toLowerCase(),
+      suggest: word => rankSuggestions(word, [...apostropheSuggestions(word, candidate => engine.correct(candidate)), ...engine.suggest(word)]),
+      add: word => { engine.add(word); addPersonalWord(word); },
+    };
+  })().catch(error => { speller = null; throw error; });
+  return speller;
+}

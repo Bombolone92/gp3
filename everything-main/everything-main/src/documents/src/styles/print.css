@@ -1,0 +1,38 @@
+/* Printing copies the laid-out pages into a print-only stage (src/lib/print.js).
+   On screen the stage is present but invisible; in print the app steps aside
+   and each captured page becomes one sheet. */
+
+.print-stage {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@media print {
+  body.printing { background: #fff; }
+  body.printing > :not(.print-stage) { display: none !important; }
+  body.printing .print-stage {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    opacity: 1;
+    overflow: visible;
+  }
+  .print-stage .document-page {
+    display: block;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    margin: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .print-stage .document-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}

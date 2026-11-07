@@ -1,0 +1,212 @@
+/*
+ * Copyright (C) 2024-present Puter Technologies Inc.
+ *
+ * This file is part of Puter.
+ *
+ * Puter is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import UIWindowDisable2FA from '../Settings/UIWindowDisable2FA.js';
+import UIWindow2FASetup from '../UIWindow2FASetup.js';
+import UIWindowBlockedSenders from '../UIWindowBlockedSenders.js';
+import UIWindowManageSessions from '../UIWindowManageSessions.js';
+import { isOrgSeat } from './orgSeat.js';
+import { openChangePasswordDialog } from './UIAccountDialogs.js';
+
+const TabSecurity = {
+    id: 'security',
+    get label () {
+        return i18n('security');
+    },
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+
+    html () {
+        let h = '';
+        let user = window.user;
+
+        h += '<div class="dashboard-tab-content">';
+
+        // Section header
+        h += '<div class="dashboard-section-header">';
+        h += `<h2>${i18n('security')}</h2>`;
+        h += `<p>${i18n('security_subtitle')}</p>`;
+        h += '</div>';
+
+        // Security settings cards
+        h += '<div class="dashboard-settings-grid">';
+
+        // Password card (only for non-temp users)
+        if ( ! user.is_temp ) {
+            h += '<div class="dashboard-card dashboard-settings-card">';
+            h += '<div class="dashboard-settings-card-content">';
+            h += '<div class="dashboard-settings-card-icon">';
+            h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+            h += '</div>';
+            h += '<div class="dashboard-settings-card-info">';
+            h += `<strong>${i18n('password')}</strong>`;
+            h += '<span>••••••••</span>';
+            h += '</div>';
+            h += '</div>';
+            h += `<button class="button change-password">${i18n('change_password')}</button>`;
+            h += '</div>';
+        }
+
+        // Sessions card
+        h += '<div class="dashboard-card dashboard-settings-card">';
+        h += '<div class="dashboard-settings-card-content">';
+        h += '<div class="dashboard-settings-card-icon">';
+        h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>';
+        h += '</div>';
+        h += '<div class="dashboard-settings-card-info">';
+        h += `<strong>${i18n('sessions')}</strong>`;
+        h += `<span>${i18n('manage_sessions_hint')}</span>`;
+        h += '</div>';
+        h += '</div>';
+        h += `<button class="button manage-sessions">${i18n('manage_sessions')}</button>`;
+        h += '</div>';
+
+        // Blocked senders card
+        h += '<div class="dashboard-card dashboard-settings-card">';
+        h += '<div class="dashboard-settings-card-content">';
+        h += '<div class="dashboard-settings-card-icon">';
+        h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>';
+        h += '</div>';
+        h += '<div class="dashboard-settings-card-info">';
+        h += `<strong>${i18n('blocked_senders')}</strong>`;
+        h += `<span>${i18n('blocked_senders_summary')}</span>`;
+        h += '</div>';
+        h += '</div>';
+        h += `<button class="button manage-blocked-senders">${i18n('manage')}</button>`;
+        h += '</div>';
+
+        // A seat has no address by design, and its team may require 2FA.
+        if ( !user.is_temp && (user.email_confirmed || isOrgSeat(user)) ) {
+            const twoFaStatusClass = user.otp ? 'dashboard-settings-card-success' : 'dashboard-settings-card-warning';
+            h += `<div class="dashboard-card dashboard-settings-card dashboard-settings-card-2fa ${twoFaStatusClass}">`;
+            h += '<div class="dashboard-settings-card-content">';
+            h += '<div class="dashboard-settings-card-icon">';
+            h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+            h += '</div>';
+            h += '<div class="dashboard-settings-card-info">';
+            h += `<strong>${i18n('two_factor')}</strong>`;
+            h += `<span class="user-otp-state">${i18n(user.otp ? 'two_factor_enabled' : 'two_factor_disabled')}</span>`;
+            h += '</div>';
+            h += '</div>';
+            h += '<label class="dashboard-switch toggle-2fa-label">';
+            h += `<input type="checkbox" class="toggle-2fa"${user.otp ? ' checked' : ''} aria-label="${html_encode(i18n('two_factor', [], false))}">`;
+            h += '<span class="dashboard-switch-slider"></span>';
+            h += '</label>';
+            h += '</div>';
+        }
+
+        h += '</div>'; // end settings-grid
+
+        h += '</div>'; // end dashboard-tab-content
+        return h;
+    },
+
+    init ($el_window) {
+        // These dialogs don't hand focus back when they close; a keyboard
+        // user would be left on <body>, at the top of the page.
+        const returnFocus = (el) => {
+            if ( ! document.activeElement || document.activeElement === document.body ) {
+                el?.focus({ preventScroll: true });
+            }
+        };
+
+        $el_window.find('.dashboard-section-security .change-password').on('click', function () {
+            openChangePasswordDialog({ $container: $el_window, returnFocusTo: this });
+        });
+
+        $el_window.find('.dashboard-section-security .manage-sessions').on('click', function (e) {
+            UIWindowManageSessions({
+                window_options: {
+                    parent_uuid: $el_window.attr('data-element_uuid'),
+                    backdrop: true,
+                    close_on_backdrop_click: true,
+                    parent_center: true,
+                    stay_on_top: true,
+                    has_head: false,
+                    parent_center: true,
+                },
+            });
+        });
+
+        $el_window.find('.dashboard-section-security .manage-blocked-senders').on('click', function (e) {
+            const opener = this;
+            UIWindowBlockedSenders({
+                window_options: {
+                    on_close: () => setTimeout(() => returnFocus(opener)),
+                    parent_uuid: $el_window.attr('data-element_uuid'),
+                    backdrop: true,
+                    close_on_backdrop_click: true,
+                    parent_center: true,
+                    stay_on_top: true,
+                },
+            });
+        });
+
+        $el_window.find('.dashboard-section-security .toggle-2fa').on('change', async function (e) {
+            const $toggle = $(this);
+            const $label = $toggle.closest('.dashboard-switch');
+            const enabling = $toggle.is(':checked');
+            $toggle.prop('disabled', true);
+            $label.addClass('dashboard-switch-pending');
+
+            const window_options = {
+                parent_uuid: $el_window.attr('data-element_uuid'),
+                backdrop: true,
+                close_on_backdrop_click: true,
+                parent_center: true,
+                stay_on_top: true,
+                has_head: false,
+            };
+
+            const { promise } = enabling
+                ? await UIWindow2FASetup({ window_options })
+                : await UIWindowDisable2FA({ window_options });
+            const succeeded = await promise;
+
+            $toggle.prop('disabled', false);
+            $label.removeClass('dashboard-switch-pending');
+            // After the dialog has gone, which can trail its answer.
+            setTimeout(() => returnFocus(this), 250);
+
+            const showState = (on) => {
+                $toggle.prop('checked', on);
+                const $card = $el_window.find('.dashboard-section-security .dashboard-settings-card-2fa');
+                $el_window.find('.dashboard-section-security .user-otp-state').text(i18n(on ? 'two_factor_enabled' : 'two_factor_disabled'));
+                $card.toggleClass('dashboard-settings-card-success', on).toggleClass('dashboard-settings-card-warning', ! on);
+            };
+
+            if ( ! succeeded ) {
+                $toggle.prop('checked', ! enabling);
+                // 2FA may have changed regardless: turned on in another tab
+                // (setup then refuses, "already enabled"), or by a code the
+                // server accepted after the dialog was closed.
+                await window.refresh_user_data?.(window.auth_token);
+                if ( typeof window.user?.otp === 'boolean' ) showState(window.user.otp);
+                return;
+            }
+
+            // Keep the in-memory flag in sync so a later re-render reflects the
+            // real 2FA state. The disable dialog already clears window.user.otp;
+            // the enable path never set it, so the two directions disagreed.
+            if ( window.user ) window.user.otp = enabling;
+            showState(enabling);
+        });
+    },
+};
+
+export default TabSecurity;

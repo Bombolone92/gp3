@@ -1,0 +1,61 @@
+from __future__ import annotations
+
+from vibe.core.paths._agents_home import AGENTS_HOME
+from vibe.core.paths._local_config_files import (
+    LocalConfigDirs,
+    dedup_paths,
+    find_local_config_dirs,
+)
+from vibe.core.paths._vibe_home import (
+    CACHE_FILE,
+    CONNECTOR_BOOTSTRAP_CACHE_FILE,
+    DEFAULT_TOOL_DIR,
+    EXPERIMENT_EVAL_CACHE_FILE,
+    GLOBAL_ENV_FILE,
+    HISTORY_FILE,
+    LOCAL_PROJECTS_FILE,
+    LOG_DIR,
+    LOG_FILE,
+    MANAGED_CONFIG_CACHE_FILE,
+    MODEL_CATALOG_CACHE_FILE,
+    PROJECTS_FILE,
+    SESSION_LOG_DIR,
+    TRUSTED_FOLDERS_FILE,
+    UTILITY_MODEL_CACHE_FILE,
+    VIBE_HOME,
+    WHOAMI_CACHE_FILE,
+    WORKTREES_DIR,
+    GlobalPath,
+    bootstrap_vibe_home,
+    restrict_vibe_home_permissions,
+)
+from vibe.core.paths.conventions import AGENTS_MD_FILENAME
+
+__all__ = [
+    "AGENTS_HOME",
+    "AGENTS_MD_FILENAME",
+    "CACHE_FILE",
+    "CONNECTOR_BOOTSTRAP_CACHE_FILE",
+    "DEFAULT_TOOL_DIR",
+    "EXPERIMENT_EVAL_CACHE_FILE",
+    "GLOBAL_ENV_FILE",
+    "HISTORY_FILE",
+    "LOCAL_PROJECTS_FILE",
+    "LOG_DIR",
+    "LOG_FILE",
+    "MANAGED_CONFIG_CACHE_FILE",
+    "MODEL_CATALOG_CACHE_FILE",
+    "PROJECTS_FILE",
+    "SESSION_LOG_DIR",
+    "TRUSTED_FOLDERS_FILE",
+    "UTILITY_MODEL_CACHE_FILE",
+    "VIBE_HOME",
+    "WHOAMI_CACHE_FILE",
+    "WORKTREES_DIR",
+    "GlobalPath",
+    "LocalConfigDirs",
+    "bootstrap_vibe_home",
+    "dedup_paths",
+    "find_local_config_dirs",
+    "restrict_vibe_home_permissions",
+]

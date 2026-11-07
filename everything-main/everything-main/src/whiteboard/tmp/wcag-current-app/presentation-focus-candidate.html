@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#238cfd" />
+    <meta
+      name="description"
+      content="A little space for your next big idea. A personal whiteboard for thinking, planning, and creating."
+    />
+    <title>Whiteboard</title>
+    <meta name="application-name" content="Whiteboard" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <script type="module" crossorigin src="/assets/index-CS7Do88h.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dkz89Sd0.css">
+  <style>.presentation-stage canvas:focus-visible{outline-color:#000;outline-offset:-3px}.presentation-stage:has(canvas:focus-visible){outline:3px solid #fff;outline-offset:-7px;}</style></head>
+  <body>
+    <div id="app"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  <script>
+function report(){
+ const preview=document.getElementById("tasks-title-preview");
+ const focused=document.activeElement;
+ const r=preview?.getBoundingClientRect();
+ const details={viewport:[innerWidth,innerHeight],focus:focused?.id||focused?.className||focused?.tagName,preview:preview&&!preview.hidden?[Math.round(preview.scrollTop),preview.scrollHeight-preview.clientHeight]:null,box:preview&&!preview.hidden?[Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)]:null};
+ parent.postMessage({audit:"actual-task-resize",description:JSON.stringify(details)},"http://127.0.0.1:5181");
+}
+addEventListener("focusin",()=>requestAnimationFrame(report));
+addEventListener("resize",()=>requestAnimationFrame(report));
+addEventListener("scroll",()=>requestAnimationFrame(report),true);
+new MutationObserver(()=>requestAnimationFrame(report)).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden"]});
+</script></body>
+</html>

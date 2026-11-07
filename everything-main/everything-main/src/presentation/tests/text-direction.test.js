@@ -1,0 +1,126 @@
+import { describe, expect, it } from "vitest";
+import { unzipSync } from "fflate";
+import { P, createDeck, parseDeck } from "../src/model.js";
+import { renderSlideToSvg } from "../lib/pptx-preview/src/index.ts";
+import { fixture } from "./text-direction-fixture.js";
+
+const effective = (f) => P.getShapeBodyPrEffective(f.pres, f.shape).vert;
+const render = (f, textLayout = "svg") =>
+  renderSlideToSvg(f.pres, f.slide, {
+    textLayout,
+    stableDefinitionIds: true,
+    resolveFontFamily: () => "Arial",
+    measureText: (text, spec) => ({
+      widthPx: [...text].length * spec.sizePx * 0.5,
+      ascentPx: spec.sizePx * 0.8,
+      descentPx: spec.sizePx * 0.2,
+      lineGapPx: 0,
+    }),
+  });
+
+describe("explicit horizontal text overrides", () => {
+  it.each([
+    "vert",
+    "vert270",
+    "wordArtVert",
+    "eaVert",
+    "mongolianVert",
+    "wordArtVertRtl",
+  ])(
+    "blocks an inherited %s direction without changing the local reader",
+    async (direction) => {
+      const f = await fixture({
+        slideDirection: "horz",
+        layoutDirection: direction,
+      });
+      expect(P.getShapeTextDirection(f.shape)).toBeNull();
+      expect(effective(f)).toBeNull();
+      const inherited = await fixture({ layoutDirection: direction });
+      expect(effective(inherited)).toBe(direction);
+    },
+  );
+  it.each([
+    [null, "horz", "vert270", null],
+    [null, null, "horz", null],
+    ["horz", "vert", "vert270", null],
+    ["vert", "horz", "vert270", "vert"],
+    [null, "vert270", "horz", "vert270"],
+    ["invalid", "horz", "vert", null],
+    ["invalid", "invalid", "vert270", "vert270"],
+    [null, null, null, null],
+  ])(
+    "resolves %s / %s / %s by nearest valid property",
+    async (slideDirection, layoutDirection, masterDirection, expected) => {
+      expect(
+        effective(
+          await fixture({ slideDirection, layoutDirection, masterDirection }),
+        ),
+      ).toBe(expected);
+    },
+  );
+  it("queries and renders without changing authored slide, layout or master XML", async () => {
+    const f = await fixture({ slideDirection: "horz" });
+    const before = unzipSync(await P.savePresentation(f.pres));
+    effective(f);
+    render(f);
+    render(f, "foreignObject");
+    expect(unzipSync(await P.savePresentation(f.pres))).toEqual(before);
+  });
+  it.each(["svg", "foreignObject"])(
+    "paints explicit horizontal text with the same %s layout as a horizontal hierarchy",
+    async (textLayout) => {
+      const override = await fixture({ slideDirection: "horz" }),
+        horizontal = await fixture({
+          slideDirection: "horz",
+          layoutDirection: "horz",
+          masterDirection: "horz",
+        }),
+        vertical = await fixture();
+      expect(render(override, textLayout)).toBe(render(horizontal, textLayout));
+      expect(render(override, textLayout)).not.toBe(
+        render(vertical, textLayout),
+      );
+    },
+  );
+  it("writes horizontal explicitly and uses null to restore inheritance", async () => {
+    const f = await fixture();
+    P.setShapeTextDirection(f.shape, "horz");
+    expect(P.getShapeXmlString(f.shape)).toContain('vert="horz"');
+    expect(effective(f)).toBeNull();
+    const saved = await parseDeck(await P.savePresentation(f.pres));
+    const loaded = {
+      pres: saved,
+      shape: P.getSlideShapes(P.getSlides(saved)[0])[0],
+    };
+    expect(effective(loaded)).toBeNull();
+    P.setShapeTextDirection(f.shape, null);
+    expect(P.getShapeXmlString(f.shape)).not.toContain('vert="');
+    expect(effective(f)).toBe("vert270");
+  });
+  it("preserves horizontal through a clipboard import in each direction, copies and editing", async () => {
+    const original = await fixture({ slideDirection: "horz" }),
+      clip = createDeck("blank");
+    const held = P.importSlide(
+      clip,
+      original.slide,
+      P.getSlideLayouts(clip)[0],
+    );
+    const pasted = P.importSlide(
+      original.pres,
+      held,
+      P.getSlideLayout(original.slide),
+    );
+    const pastedShape = P.getSlideShapes(pasted)[0];
+    const copied = P.copyShape(pasted, pastedShape);
+    P.setShapeText(copied, "Edited horizontal text");
+    const saved = await parseDeck(await P.savePresentation(original.pres));
+    const last = P.getSlides(saved).at(-1);
+    for (const shape of P.getSlideShapes(last)) {
+      expect(P.getShapeXmlString(shape)).toContain('vert="horz"');
+      expect(P.getShapeBodyPrEffective(saved, shape).vert).toBeNull();
+    }
+    expect(P.getShapeText(P.getSlideShapes(last).at(-1))).toBe(
+      "Edited horizontal text",
+    );
+  });
+});

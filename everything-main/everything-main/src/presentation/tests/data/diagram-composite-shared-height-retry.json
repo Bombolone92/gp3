@@ -1,0 +1,787 @@
+{
+  "source": "Authored semantic layout controls with actual Chromium glyph measurements. These assert equal-height membership and text fit after resizing; they are not native reference geometry goldens.",
+  "cases": [
+    {
+      "name": "lin height replay, shared heights, canvas 155x19",
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Arrange across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:height-replay-holdout:3\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"233\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"97\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"64\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"13\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"107\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\".31\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"des\" forName=\"querySecond\" val=\"38\" /><dgm:constr type=\"h\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"l\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".004\" /></dgm:constrLst><dgm:layoutNode name=\"inner\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" val=\"137\" /><dgm:constr type=\"h\" val=\"57\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"querySecond\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "available": {
+        "w": 155,
+        "h": 19
+      },
+      "measurements": {
+        "[\"query\",\"Arrange across regions\",64,6.790000000000001,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,43,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,24.895000000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,15.842500000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,20.368750000000002,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.105625000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,19.237187500000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,19.237187500000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,31.118593750000002,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,25.177890625000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.148242187500003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,26.663066406250003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.405654296875003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,23.692714843750004,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,25.920478515625003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.034360351562505,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.591301269531254,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.86977172851563,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.148242187500003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,1.33,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,43,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,22.165,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,11.7475,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,16.95625,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,19.560625,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.2584375,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,19.560625,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,31.2803125,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,25.42046875,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.350390625000003,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,26.8854296875,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.61791015625,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,23.955507812500002,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,26.152949218750003,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.251669921875003,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.801030273437505,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.075710449218754,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.350390625000003,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.075710449218754,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.350390625,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,1.9845273437500004,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,43,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,22.492263671874998,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520836,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,12.2383955078125,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,17.36532958984375,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,19.928796630859374,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.64706311035156,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520836,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,10.956661987304688,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,15.442729309082031,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,17.685762969970703,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.80727980041504,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.24652138519287,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,1.9845273437500004,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,22.492263671874998,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781254,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,32.7461318359375,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.61919775390625,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,30.182664794921873,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.900931274414063,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,15.442729309082033,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,22.171830291748048,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,25.536380783081057,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.21865602874756,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.05979365158081,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.900931274414063,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.05979365158081,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.900931274414063,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.05979365158081,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.900931274414063,23,18,1.603416780090332,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.05979365158081,23,18,1.603416780090332,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.900931274414063,23,18,1.603416780090332,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.05979365158081,23,18,1.603416780090332,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "lin height replay, shared heights, canvas 155x31",
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Arrange across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:height-replay-holdout:4\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"233\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"97\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"64\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"13\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"107\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\".31\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"des\" forName=\"querySecond\" val=\"38\" /><dgm:constr type=\"h\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"l\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".004\" /></dgm:constrLst><dgm:layoutNode name=\"inner\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" val=\"137\" /><dgm:constr type=\"h\" val=\"57\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"querySecond\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "available": {
+        "w": 155,
+        "h": 31
+      },
+      "measurements": {
+        "[\"query\",\"Arrange across regions\",64,6.790000000000001,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,43,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,24.895000000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,15.842500000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,20.368750000000002,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.105625000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,19.237187500000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,19.237187500000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,31.118593750000002,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,25.177890625000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.148242187500003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,26.663066406250003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.405654296875003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,23.692714843750004,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,25.920478515625003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.034360351562505,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.591301269531254,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.86977172851563,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.148242187500003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "composite height replay, shared heights, canvas 155x19",
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Arrange across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:height-replay-holdout:8\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"233\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"97\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"64\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"13\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"107\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\".31\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"des\" forName=\"querySecond\" val=\"38\" /><dgm:constr type=\"h\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"l\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".004\" /></dgm:constrLst><dgm:layoutNode name=\"inner\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" val=\"137\" /><dgm:constr type=\"h\" val=\"57\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"querySecond\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "available": {
+        "w": 155,
+        "h": 19
+      },
+      "measurements": {
+        "[\"query\",\"Arrange across regions\",137,57,23,18,0.388,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",137,57,23,18,0.388,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,1.33,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,43,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,22.165,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,11.7475,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,6.53875,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,9.143125000000001,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260414,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,10.4453125,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",137,10.4453125,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",137,10.445312500000002,23,18,0.076,0,0,0]": {
+          "requiredHeight": 9.330179850260414,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "composite height replay, shared heights, canvas 155x31",
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Arrange across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<dgm:layoutDef xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:height-replay-holdout:9\"><dgm:title val=\"Equality ancestor controls\" /><dgm:desc val=\"\" /><dgm:layoutNode name=\"root\"><dgm:alg type=\"lin\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"233\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"97\" /></dgm:constrLst><dgm:forEach axis=\"ch\" ptType=\"node\"><dgm:layoutNode name=\"group\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"userA\" refType=\"h\" op=\"equ\" /><dgm:constr type=\"w\" for=\"des\" forName=\"query\" val=\"64\" /><dgm:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"13\" /><dgm:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"107\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".004\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\".31\" /><dgm:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".7\" /><dgm:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><dgm:constr type=\"w\" for=\"des\" forName=\"querySecond\" val=\"38\" /><dgm:constr type=\"h\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".07\" op=\"equ\" /><dgm:constr type=\"l\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"t\" for=\"des\" forName=\"querySecond\" val=\"0\" /><dgm:constr type=\"lMarg\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".004\" /></dgm:constrLst><dgm:layoutNode name=\"inner\"><dgm:alg type=\"composite\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape /><dgm:presOf /><dgm:constrLst><dgm:constr type=\"w\" val=\"137\" /><dgm:constr type=\"h\" val=\"57\" /></dgm:constrLst><dgm:layoutNode name=\"query\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode><dgm:layoutNode name=\"querySecond\"><dgm:alg type=\"tx\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf axis=\"self\" /><dgm:constrLst><dgm:constr type=\"primFontSz\" val=\"23\" /><dgm:constr type=\"rMarg\" val=\"0\" /><dgm:constr type=\"tMarg\" val=\"0\" /><dgm:constr type=\"bMarg\" val=\"0\" /></dgm:constrLst><dgm:ruleLst><dgm:rule type=\"h\" val=\"43\" /></dgm:ruleLst></dgm:layoutNode></dgm:layoutNode><dgm:layoutNode name=\"probe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"referenceProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode><dgm:layoutNode name=\"constantProbe\"><dgm:alg type=\"sp\"><dgm:param type=\"horzAlign\" val=\"none\" /><dgm:param type=\"vertAlign\" val=\"none\" /></dgm:alg><dgm:shape type=\"rect\" /><dgm:presOf /></dgm:layoutNode></dgm:layoutNode></dgm:forEach></dgm:layoutNode></dgm:layoutDef>",
+      "available": {
+        "w": 155,
+        "h": 31
+      },
+      "measurements": {
+        "[\"query\",\"Arrange across regions\",137,57,23,18,0.388,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",137,57,23,18,0.388,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,2.1700000000000004,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,43,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,22.585,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,12.3775,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,7.27375,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,9.825624999999999,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260418,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,8.5496875,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",137,9.825624999999999,23,18,0.124,0,0,0]": {
+          "requiredHeight": 9.330179850260418,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,2.1700000000000004,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,43,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,22.585,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,12.3775,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,7.27375,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,9.825624999999999,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260418,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",137,8.5496875,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260416,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",137,9.825624999999999,23,18,0.12400000000000001,0,0,0]": {
+          "requiredHeight": 9.330179850260418,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "Reversed lin height replay, shared heights, canvas 155x19",
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Arrange across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<ns0:layoutDef xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:height-replay-holdout:3\"><ns0:title val=\"Equality ancestor controls\" /><ns0:desc val=\"\" /><ns0:layoutNode name=\"root\"><ns0:alg type=\"lin\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape /><ns0:presOf /><ns0:constrLst><ns0:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"233\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"97\" /></ns0:constrLst><ns0:forEach axis=\"ch\" ptType=\"node\"><ns0:layoutNode name=\"group\"><ns0:alg type=\"composite\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape /><ns0:presOf /><ns0:constrLst><ns0:constr type=\"userA\" refType=\"h\" op=\"equ\" /><ns0:constr type=\"w\" for=\"des\" forName=\"query\" val=\"64\" /><ns0:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"13\" /><ns0:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><ns0:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><ns0:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"107\" /><ns0:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><ns0:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".004\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".004\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".7\" /><ns0:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><ns0:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\".31\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".7\" /><ns0:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><ns0:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><ns0:constr type=\"w\" for=\"des\" forName=\"querySecond\" val=\"38\" /><ns0:constr type=\"h\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".07\" op=\"equ\" /><ns0:constr type=\"l\" for=\"des\" forName=\"querySecond\" val=\"0\" /><ns0:constr type=\"t\" for=\"des\" forName=\"querySecond\" val=\"0\" /><ns0:constr type=\"lMarg\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".004\" /></ns0:constrLst><ns0:layoutNode name=\"inner\"><ns0:alg type=\"lin\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape /><ns0:presOf /><ns0:constrLst><ns0:constr type=\"w\" val=\"137\" /><ns0:constr type=\"h\" val=\"57\" /></ns0:constrLst><ns0:layoutNode name=\"querySecond\"><ns0:alg type=\"tx\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf axis=\"self\" /><ns0:constrLst><ns0:constr type=\"primFontSz\" val=\"23\" /><ns0:constr type=\"rMarg\" val=\"0\" /><ns0:constr type=\"tMarg\" val=\"0\" /><ns0:constr type=\"bMarg\" val=\"0\" /></ns0:constrLst><ns0:ruleLst><ns0:rule type=\"h\" val=\"43\" /></ns0:ruleLst></ns0:layoutNode><ns0:layoutNode name=\"query\"><ns0:alg type=\"tx\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf axis=\"self\" /><ns0:constrLst><ns0:constr type=\"primFontSz\" val=\"23\" /><ns0:constr type=\"rMarg\" val=\"0\" /><ns0:constr type=\"tMarg\" val=\"0\" /><ns0:constr type=\"bMarg\" val=\"0\" /></ns0:constrLst><ns0:ruleLst><ns0:rule type=\"h\" val=\"43\" /></ns0:ruleLst></ns0:layoutNode></ns0:layoutNode><ns0:layoutNode name=\"probe\"><ns0:alg type=\"sp\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf /></ns0:layoutNode><ns0:layoutNode name=\"referenceProbe\"><ns0:alg type=\"sp\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf /></ns0:layoutNode><ns0:layoutNode name=\"constantProbe\"><ns0:alg type=\"sp\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf /></ns0:layoutNode></ns0:layoutNode></ns0:forEach></ns0:layoutNode></ns0:layoutDef>",
+      "available": {
+        "w": 155,
+        "h": 19
+      },
+      "measurements": {
+        "[\"querySecond\",\"Arrange across regions\",38,6.790000000000001,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,24.895000000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,33.947500000000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781243,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,29.421250000000004,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.158125000000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.289687500000007,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.289687500000007,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,1.33,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,22.165,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,32.582499999999996,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781257,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.373749999999998,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781254,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,29.978125,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.675937499999996,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781254,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.675937499999996,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520836,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,2.007315625,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,43,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,22.503657812500002,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,12.255486718750001,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,17.379572265625,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,19.9416150390625,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520836,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.66059365234375,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520836,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,10.333954638671875,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,14.497274145507813,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,16.578933898925783,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,17.619763775634766,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,18.140178713989258,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,2.007315625,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,22.503657812500002,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,32.75182890625,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781257,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.627743359375,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,30.1897861328125,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.908764746093752,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,15.458040185546876,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,22.183402465820315,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,25.546083605957033,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781254,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.227424176025394,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.990539550781254,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.068094461059573,23,18,2.457142857142857,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.908764746093752,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.068094461059573,23,18,0.076,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.908764746093752,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.068094461059573,23,18,0.076,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.908764746093752,23,18,1.603891112060547,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.068094461059573,23,18,1.603891112060547,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.908764746093752,23,18,1.603891112060547,0,0,0]": {
+          "requiredHeight": 18.66035970052083,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.068094461059573,23,18,1.603891112060547,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        }
+      }
+    },
+    {
+      "name": "Reversed lin height replay, shared heights, canvas 155x31",
+      "data": "<dgm:dataModel xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:dgm=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\"><dgm:ptLst><dgm:pt modelId=\"0\" type=\"doc\" /><dgm:pt modelId=\"1\"><dgm:prSet /><dgm:t><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:lnSpc><a:spcPct val=\"100000\" /></a:lnSpc></a:pPr><a:r><a:rPr sz=\"2300\"><a:latin typeface=\"Arial\" /></a:rPr><a:t>Arrange across regions</a:t></a:r></a:p></dgm:t></dgm:pt></dgm:ptLst><dgm:cxnLst><dgm:cxn modelId=\"10\" srcId=\"0\" destId=\"1\" srcOrd=\"0\" destOrd=\"0\" /></dgm:cxnLst><dgm:bg /><dgm:whole /></dgm:dataModel>",
+      "layout": "<ns0:layoutDef xmlns:ns0=\"http://schemas.openxmlformats.org/drawingml/2006/diagram\" uniqueId=\"urn:height-replay-holdout:4\"><ns0:title val=\"Equality ancestor controls\" /><ns0:desc val=\"\" /><ns0:layoutNode name=\"root\"><ns0:alg type=\"lin\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape /><ns0:presOf /><ns0:constrLst><ns0:constr type=\"w\" for=\"ch\" forName=\"group\" val=\"233\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"group\" val=\"97\" /></ns0:constrLst><ns0:forEach axis=\"ch\" ptType=\"node\"><ns0:layoutNode name=\"group\"><ns0:alg type=\"composite\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape /><ns0:presOf /><ns0:constrLst><ns0:constr type=\"userA\" refType=\"h\" op=\"equ\" /><ns0:constr type=\"w\" for=\"des\" forName=\"query\" val=\"64\" /><ns0:constr type=\"h\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".07\" op=\"equ\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"probe\" refType=\"h\" fact=\"0.05\" op=\"none\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"probe\" val=\"13\" /><ns0:constr type=\"l\" for=\"des\" forName=\"query\" val=\"0\" /><ns0:constr type=\"t\" for=\"des\" forName=\"query\" val=\"0\" /><ns0:constr type=\"l\" for=\"ch\" forName=\"probe\" val=\"107\" /><ns0:constr type=\"t\" for=\"ch\" forName=\"probe\" val=\"0\" /><ns0:constr type=\"lMarg\" for=\"des\" forName=\"query\" refType=\"userA\" fact=\".004\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"referenceProbe\" refType=\"userA\" fact=\".004\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"referenceProbe\" val=\".7\" /><ns0:constr type=\"l\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><ns0:constr type=\"t\" for=\"ch\" forName=\"referenceProbe\" val=\"0\" /><ns0:constr type=\"w\" for=\"ch\" forName=\"constantProbe\" val=\".31\" /><ns0:constr type=\"h\" for=\"ch\" forName=\"constantProbe\" val=\".7\" /><ns0:constr type=\"l\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><ns0:constr type=\"t\" for=\"ch\" forName=\"constantProbe\" val=\"0\" /><ns0:constr type=\"w\" for=\"des\" forName=\"querySecond\" val=\"38\" /><ns0:constr type=\"h\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".07\" op=\"equ\" /><ns0:constr type=\"l\" for=\"des\" forName=\"querySecond\" val=\"0\" /><ns0:constr type=\"t\" for=\"des\" forName=\"querySecond\" val=\"0\" /><ns0:constr type=\"lMarg\" for=\"des\" forName=\"querySecond\" refType=\"userA\" fact=\".004\" /></ns0:constrLst><ns0:layoutNode name=\"inner\"><ns0:alg type=\"lin\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape /><ns0:presOf /><ns0:constrLst><ns0:constr type=\"w\" val=\"137\" /><ns0:constr type=\"h\" val=\"57\" /></ns0:constrLst><ns0:layoutNode name=\"querySecond\"><ns0:alg type=\"tx\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf axis=\"self\" /><ns0:constrLst><ns0:constr type=\"primFontSz\" val=\"23\" /><ns0:constr type=\"rMarg\" val=\"0\" /><ns0:constr type=\"tMarg\" val=\"0\" /><ns0:constr type=\"bMarg\" val=\"0\" /></ns0:constrLst><ns0:ruleLst><ns0:rule type=\"h\" val=\"43\" /></ns0:ruleLst></ns0:layoutNode><ns0:layoutNode name=\"query\"><ns0:alg type=\"tx\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf axis=\"self\" /><ns0:constrLst><ns0:constr type=\"primFontSz\" val=\"23\" /><ns0:constr type=\"rMarg\" val=\"0\" /><ns0:constr type=\"tMarg\" val=\"0\" /><ns0:constr type=\"bMarg\" val=\"0\" /></ns0:constrLst><ns0:ruleLst><ns0:rule type=\"h\" val=\"43\" /></ns0:ruleLst></ns0:layoutNode></ns0:layoutNode><ns0:layoutNode name=\"probe\"><ns0:alg type=\"sp\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf /></ns0:layoutNode><ns0:layoutNode name=\"referenceProbe\"><ns0:alg type=\"sp\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf /></ns0:layoutNode><ns0:layoutNode name=\"constantProbe\"><ns0:alg type=\"sp\"><ns0:param type=\"horzAlign\" val=\"none\" /><ns0:param type=\"vertAlign\" val=\"none\" /></ns0:alg><ns0:shape type=\"rect\" /><ns0:presOf /></ns0:layoutNode></ns0:layoutNode></ns0:forEach></ns0:layoutNode></ns0:layoutDef>",
+      "available": {
+        "w": 155,
+        "h": 31
+      },
+      "measurements": {
+        "[\"querySecond\",\"Arrange across regions\",38,6.790000000000001,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,43,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,24.895000000000003,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781246,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,33.947500000000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.990539550781243,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,29.421250000000004,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,27.158125000000005,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"querySecond\",\"Arrange across regions\",38,28.289687500000007,23,18,0.388,0,0,0]": {
+          "requiredHeight": 27.99053955078125,
+          "wordFits": true
+        },
+        "[\"query\",\"Arrange across regions\",64,28.289687500000007,23,18,0.388,0,0,0]": {
+          "requiredHeight": 18.660359700520832,
+          "wordFits": true
+        }
+      }
+    }
+  ]
+}

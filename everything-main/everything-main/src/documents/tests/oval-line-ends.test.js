@@ -1,0 +1,54 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { readFileSync } from 'node:fs';
+import { unzipSync, zipSync, strFromU8, strToU8 } from 'fflate';
+import { DocxPackage } from '../src/engine/docx.js';
+import { TextDocument } from '../src/engine/model.js';
+import { pathLineEnds } from '../src/engine/drawing-line-ends.js';
+import { flatLineContains, flatLineRect } from '../src/engine/flat-drawing-lines.js';
+import { validateImage } from '../src/engine/images.js';
+const source=readFileSync('tests/fixtures/oval-markers/control.docx'),A='http://schemas.openxmlformats.org/drawingml/2006/main';
+let dom;
+beforeAll(()=>{dom=new JSDOM();globalThis.DOMParser=dom.window.DOMParser;globalThis.XMLSerializer=dom.window.XMLSerializer;});
+afterAll(()=>dom.window.close());
+it('retains marker declarations and all unrelated parts through edits, reopen and undo',async()=>{
+  const pkg=await DocxPackage.open(source);
+  expect(Object.values(pkg.assets)).toHaveLength(36);
+  const collapsed=pkg.paragraphs.flatMap(p=>p.runs).find(r=>r.image?.name==='collapsed-group').image;
+  expect(flatLineContains(collapsed,0,0,144,0,144,3.5)).toBe(true);
+  const doc=new TextDocument(pkg.paragraphs,pkg.pageSettings,pkg.numbering,pkg.styles,pkg.tables,pkg.assets);
+  const save=async()=>new Uint8Array(await pkg.export(doc.paragraphs,doc.pageSettings,doc.numbering,doc.styles,doc.tables,doc.assets).arrayBuffer());
+  expect(unzipSync(await save())).toEqual(unzipSync(source));doc.select(0);doc.replace('Edited ');
+  const edited=await save(),parts=unzipSync(edited),original=unzipSync(source);
+  for(const name of Object.keys(original))if(name!=='word/document.xml')expect(parts[name],name).toEqual(original[name]);
+  const reopened=await DocxPackage.open(edited);
+  expect(Object.values(reopened.assets).map(a=>a.scene)).toEqual(Object.values(pkg.assets).map(a=>a.scene));
+  doc.undo();expect(unzipSync(await save())).toEqual(original);
+});
+it.each(['width','length','empty type','unknown type','attribute','text','child','duplicate'])('rejects invalid or unsupported marker %s',async kind=>{
+  const parts=unzipSync(source),xml=new DOMParser().parseFromString(strFromU8(parts['word/document.xml']),'application/xml');
+  const end=xml.getElementsByTagNameNS(A,'tailEnd')[0];
+  if(kind==='width')end.setAttribute('w','wide');
+  if(kind==='length')end.setAttribute('len','');
+  if(kind==='empty type')end.setAttribute('type','');
+  if(kind==='unknown type')end.setAttribute('type','futureMarker');
+  if(kind==='attribute')end.setAttribute('future','1');
+  if(kind==='text')end.textContent='invalid';
+  if(kind==='child')end.append(xml.createElementNS(A,'a:extLst'));
+  if(kind==='duplicate')end.after(end.cloneNode(true));
+  parts['word/document.xml']=strToU8(new XMLSerializer().serializeToString(xml));
+  await expect(DocxPackage.open(zipSync(parts))).rejects.toMatchObject({name:'UnsupportedDocumentError'});
+});
+it('finds endpoint tangents through repeated curve controls and suppresses closed subpaths',()=>{
+  const path={width:100,height:100,points:[['M',0,0],['C',0,0,50,0,50,50],['L',50,50],['M',10,10],['L',20,20],['Z']]};
+  const ends=pathLineEnds(path,100,100,{a:0,b:2,c:-1,d:0,e:10,f:20});
+  expect(ends).toEqual([{head:{point:[10,20],vector:[0,100]},tail:{point:[-40,120],vector:[-50,0]}}]);
+});
+it('selects visible oval ink beyond a zero-height line frame',()=>{
+  const image={kind:'drawing',retainedDrawing:true,width:1270000,height:0,alt:'',flatLine:{rotation:0,strokeWidth:25400,markerPen:25400,flipH:false,flipV:false,tailEnd:{type:'oval',width:'lg',length:'sm'}}};
+  validateImage(image);
+  expect(flatLineContains(image,0,0,100,0,100,6)).toBe(true);
+  expect(flatLineContains(image,0,0,100,0,50,6)).toBe(false);
+  expect(flatLineRect(image,0,0,100,0).height).toBeCloseTo(40/3);
+  expect(()=>validateImage({...image,flatLine:{...image.flatLine,tailEnd:{type:'oval',width:'huge',length:'sm'}}})).toThrow(/marker/);
+});

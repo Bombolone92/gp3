@@ -1,0 +1,95 @@
+import { beforeAll, afterAll, it, expect } from 'vitest';
+import { JSDOM } from 'jsdom';
+import { DocxPackage, createDocx, WRITING_STYLES } from '../src/engine/docx.js';
+import { TextDocument, paragraph } from '../src/engine/model.js';
+import { DIAGRAM_LAYOUTS, DIAGRAM_COLORS, DEFAULT_OUTLINE, parseOutline, outlineText, diagramShapes, diagramDrawingXml, parseDiagramDescription, hiddenDiagramItems } from '../src/engine/diagram-builder.js';
+import { readDrawingFragment } from '../src/engine/inserted-drawings.js';
+
+let dom;
+beforeAll(() => { dom = new JSDOM(); globalThis.DOMParser = dom.window.DOMParser; globalThis.XMLSerializer = dom.window.XMLSerializer; });
+afterAll(() => dom.window.close());
+const images = p => p.paragraphs.flatMap(q => q.runs.filter(r => r.image).map(r => r.image));
+
+it('parses an indented outline and writes it back', () => {
+  const items = parseOutline('Plan\n  Goals\n\t- Budget\nBuild\n• Ship');
+  expect(items.map(i => i.text)).toEqual(['Plan', 'Build', 'Ship']);
+  expect(items[0].children.map(i => i.text)).toEqual(['Goals', 'Budget']);
+  expect(parseOutline(outlineText(items))).toEqual(items);
+  // A minus sign or an asterisk that starts the text is kept: only one followed by a space is a bullet.
+  expect(parseOutline('-5% churn\n*Note*\n- Item').map(i => i.text)).toEqual(['-5% churn', '*Note*', 'Item']);
+});
+
+it('lays out every diagram inside its frame', () => {
+  const items = parseOutline(DEFAULT_OUTLINE), width = 5486400, height = 2971800;
+  for (const layout of DIAGRAM_LAYOUTS) {
+    const shapes = diagramShapes(layout.id, items, { width, height });
+    expect(shapes.filter(s => s.role === 'node').length, layout.id).toBeGreaterThan(0);
+    for (const s of shapes) {
+      expect(s.x, layout.id).toBeGreaterThanOrEqual(-1); expect(s.y, layout.id).toBeGreaterThanOrEqual(-1);
+      expect(s.x + s.w, layout.id).toBeLessThanOrEqual(width + 2); expect(s.y + s.h, layout.id).toBeLessThanOrEqual(height + 2);
+    }
+  }
+});
+
+it('keeps every item visible when a diagram holds many items', () => {
+  // With 15 to 30 items the fixed gaps used to take the whole frame: Vertical List, Basic Process,
+  // Pyramid and Organization Chart items came out zero high or zero wide.
+  const width = 5486400, height = 3071000;
+  for (const n of [15, 20, 30]) {
+    const items = Array.from({ length: n }, (_, i) => ({ text: `Step ${i + 1}`, children: i % 4 ? [] : [{ text: 'Detail', children: [] }, { text: 'More', children: [] }] }));
+    for (const layout of DIAGRAM_LAYOUTS) {
+      const shapes = diagramShapes(layout.id, items, { width, height }), least = Math.min(width, height) / n / 4;
+      for (const s of shapes.filter(s => s.role === 'node' || s.role === 'detail')) {
+        expect(Math.min(s.w, s.h), `${layout.id} with ${n} items`).toBeGreaterThan(least);
+        expect(s.x + s.w, layout.id).toBeLessThanOrEqual(width + 2); expect(s.y + s.h, layout.id).toBeLessThanOrEqual(height + 2);
+      }
+    }
+  }
+});
+
+it('every layout and color set saves as a group of shapes that reopens editable and regenerates from its description', async () => {
+  const items = parseOutline(DEFAULT_OUTLINE);
+  for (const layout of DIAGRAM_LAYOUTS) for (const colors of [DIAGRAM_COLORS[0].id, 'colorful']) {
+    const pkg = createDocx([paragraph()], undefined, undefined, undefined, [], {}, WRITING_STYLES);
+    const doc = new TextDocument(pkg.paragraphs, pkg.pageSettings, pkg.numbering, pkg.styles, pkg.tables, pkg.assets);
+    const { image, assets } = await readDrawingFragment(diagramDrawingXml({ layout: layout.id, items, colors, id: 1 }), { sourceParts: pkg.parts, assetId: 'drawing:inserted-1' });
+    Object.assign(doc.assets, assets);
+    const { assetId, id, ...properties } = image;
+    doc.insertImage(assetId, properties);
+    const blob = await pkg.export(doc.paragraphs, doc.pageSettings, doc.numbering, doc.styles, doc.tables, doc.assets);
+    const reopened = await DocxPackage.open(new Uint8Array(await blob.arrayBuffer()));
+    expect(reopened.readOnly, `${layout.id} ${colors}`).toBeFalsy();
+    const saved = images(reopened)[0];
+    expect(reopened.assets[saved.assetId].scene.type, layout.id).toBe('group');
+    const parsed = parseDiagramDescription(saved.alt);
+    expect(parsed, layout.id).toMatchObject({ layout: layout.id, colors });
+    expect(parsed.items).toEqual(items);
+  }
+});
+
+it('writes diagram text pasted with line breaks or control characters as readable XML', async () => {
+  // A line break copied from a document arrives as a vertical tab, which XML 1.0 cannot hold.
+  const items = parseOutline('Plan\u000bahead\n  Goals\u0001');
+  const xml = diagramDrawingXml({ layout: DIAGRAM_LAYOUTS[0].id, items, id: 1 });
+  expect(xml).not.toMatch(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/);
+  const fragment = await readDrawingFragment(xml);
+  expect(items.map(i => i.text)).toEqual(['Plan', 'ahead']);
+  expect(parseDiagramDescription(fragment.image.alt).items).toEqual(parseOutline('Plan\nahead\n  Goals'));
+});
+
+it('says how much text a diagram can hold when an outline is too long for it', () => {
+  const items = parseOutline(Array.from({ length: 40 }, (_, i) => `Milestone ${i}: a fairly long description of what happens in this phase`).join('\n'));
+  expect(() => diagramDrawingXml({ layout: DIAGRAM_LAYOUTS[0].id, items, id: 1 })).toThrow(/too much text: it can hold about \d+ characters/);
+});
+
+it('says which items a layout does not show', () => {
+  const deep = parseOutline('A\n  B\n    C\nD\n  E');
+  expect(hiddenDiagramItems('verticalList', deep)).toEqual(['C']);
+  expect(hiddenDiagramItems('basicCycle', deep)).toEqual(['B', 'C', 'E']);
+  expect(hiddenDiagramItems('orgChart', parseOutline('CEO\n  VP\n    Dir\n      Mgr'))).toEqual(['Mgr']);
+  expect(hiddenDiagramItems('venn', parseOutline('a\nb\nc\nd\ne'))).toEqual(['e']);
+  expect(hiddenDiagramItems('matrix', parseOutline('a\nb\nc\nd'))).toEqual([]);
+  // Items with the same text are counted one by one.
+  expect(hiddenDiagramItems('basicCycle', parseOutline('Plan\n  Plan\nDo'))).toEqual(['Plan']);
+  for (const layout of DIAGRAM_LAYOUTS) expect(hiddenDiagramItems(layout.id, parseOutline(DEFAULT_OUTLINE)), layout.id).toEqual(expect.any(Array));
+});

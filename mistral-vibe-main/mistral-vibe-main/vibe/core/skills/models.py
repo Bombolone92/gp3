@@ -1,0 +1,159 @@
+from __future__ import annotations
+
+from enum import StrEnum, auto
+from pathlib import Path
+from typing import Any
+
+from pydantic import BaseModel, Field, field_validator
+
+
+class SkillSource(StrEnum):
+    BUILTIN = auto()
+    LOCAL = auto()
+    REGISTRY = auto()
+    PLUGIN = auto()
+
+
+class SkillScope(StrEnum):
+    BUILTIN = auto()
+    GLOBAL = auto()
+    PROJECT = auto()
+
+
+# The registry's reserved alias that always resolves to the newest version,
+# server-side (see ai-registry versioning.RESERVED_ALIAS). A pin set to this
+# alias auto-resolves to latest and never reports an "update available".
+REGISTRY_LATEST_ALIAS = "latest"
+DISABLE_MODEL_INVOCATION_FIELD = "disable-model-invocation"
+
+
+class RegistryRef(BaseModel):
+    skill_id: str
+    # The concrete, materialized version currently on disk (for display/loading).
+    version: int
+    # The pinned alias (e.g. "latest") when this is an alias pin; None when the
+    # pin is frozen to a specific version number.
+    alias: str | None = None
+
+
+class SkillMetadata(BaseModel):
+    model_config = {"populate_by_name": True}
+
+    name: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$",
+        description="Skill identifier. Lowercase letters, numbers, and hyphens only.",
+    )
+    description: str = Field(
+        ...,
+        min_length=1,
+        max_length=1024,
+        description="What this skill does and when to use it.",
+    )
+    license: str | None = Field(
+        default=None, description="License name or reference to a bundled license file."
+    )
+    compatibility: str | None = Field(
+        default=None,
+        description="Environment requirements (intended product, system packages, etc.).",
+    )
+    metadata: dict[str, str] = Field(
+        default_factory=dict,
+        description="Arbitrary key-value mapping for additional metadata.",
+    )
+    allowed_tools: list[str] = Field(
+        default_factory=list,
+        validation_alias="allowed-tools",
+        description="Space-delimited list of pre-approved tools (experimental).",
+    )
+    user_invocable: bool = Field(
+        default=True,
+        validation_alias="user-invocable",
+        description=(
+            "When false, the skill is model-only: it is hidden from the slash "
+            "command menu and cannot be invoked by the user via /skill-name."
+        ),
+    )
+    disable_model_invocation: bool = Field(
+        default=False,
+        validation_alias=DISABLE_MODEL_INVOCATION_FIELD,
+        description=(
+            "When true, the skill can only be invoked explicitly by the user."
+        ),
+    )
+
+    @field_validator("allowed_tools", mode="before")
+    @classmethod
+    def parse_allowed_tools(cls, v: str | list[str] | None) -> list[str]:
+        if v is None:
+            return []
+        if isinstance(v, str):
+            return v.split()
+        return list(v)
+
+    @field_validator("metadata", mode="before")
+    @classmethod
+    def normalize_metadata(cls, v: dict[str, Any] | None) -> dict[str, str]:
+        if v is None:
+            return {}
+        return {str(k): str(val) for k, val in v.items()}
+
+
+class SkillInfo(BaseModel):
+    name: str
+    description: str
+    license: str | None = None
+    compatibility: str | None = None
+    metadata: dict[str, str] = Field(default_factory=dict)
+    allowed_tools: list[str] = Field(default_factory=list)
+    user_invocable: bool = True
+    model_invocable: bool = True
+    skill_path: Path | None = None
+    prompt: str
+    source: SkillSource = SkillSource.LOCAL
+    scope: SkillScope = SkillScope.GLOBAL
+    registry: RegistryRef | None = None
+
+    model_config = {"arbitrary_types_allowed": True}
+
+    @property
+    def skill_dir(self) -> Path | None:
+        if self.skill_path is None:
+            return None
+        return self.skill_path.parent.resolve()
+
+    @classmethod
+    def from_metadata(
+        cls,
+        meta: SkillMetadata,
+        skill_path: Path,
+        prompt: str,
+        *,
+        source: SkillSource = SkillSource.LOCAL,
+        scope: SkillScope = SkillScope.GLOBAL,
+        registry: RegistryRef | None = None,
+        model_invocable: bool = True,
+    ) -> SkillInfo:
+        return cls(
+            name=meta.name,
+            description=meta.description,
+            license=meta.license,
+            compatibility=meta.compatibility,
+            metadata=meta.metadata,
+            allowed_tools=meta.allowed_tools,
+            user_invocable=meta.user_invocable,
+            model_invocable=(model_invocable and not meta.disable_model_invocation),
+            # Preserve the configured directory when SKILL.md is a symlink.
+            skill_path=skill_path.parent.resolve() / skill_path.name,
+            prompt=prompt,
+            source=source,
+            scope=scope,
+            registry=registry,
+        )
+
+
+class SkillConfigIssue(BaseModel):
+    file: Path
+    message: str

@@ -1,0 +1,166 @@
+/*
+ * Design tokens. Light is the default; dark applies with the system setting
+ * unless the user picked light, and always when they picked dark. Printing
+ * always uses light.
+ */
+:root {
+  color-scheme: light;
+  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  --bg: #f3f4f7;          /* app chrome behind panels */
+  --surface: #ffffff;     /* pages, cards, tables */
+  --surface-2: #f7f8fa;   /* zebra rows, table headers, inset areas */
+  --surface-3: #eef0f3;   /* hover, pressed */
+  --raised: #ffffff;      /* menus, dialogs */
+  --line: #dde1e6;
+  --line-strong: #c3c9d1;
+  --text: #1c2127;
+  --text-2: #4d5661;
+  --text-3: #646d79;     /* 4.5:1 or better on every light surface */
+  --text-inverse: #ffffff;
+
+  --primary: #12694f;
+  --primary-hover: #0e5843;
+  --primary-press: #0b4736;
+  --primary-soft: #e3f2ec;
+  --primary-text: #ffffff;
+  --link: #0a64bc;
+  --focus: #1c7ae0;
+
+  --positive: #1b7a3e;
+  --positive-soft: #e5f4ea;
+  --negative: #b42318;
+  --negative-soft: #fbeaea;
+  --warning: #9a5b00;
+  --warning-soft: #fdf1dc;
+  --info: #0a64bc;
+  --info-soft: #e6f0fb;
+
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #008300;
+  --chart-7: #6250d6;
+  --chart-8: #e34948;
+  --chart-other: #9aa3ad;
+  --chart-grid: #e6e9ed;
+
+  --scrim: rgba(17, 22, 28, 0.42);
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --rail-w: 76px;
+  --panel-w: 236px;
+  --topbar-h: 56px;
+  --tabbar-h: 60px;
+  --row-h: 44px;
+
+  --t-fast: 120ms;
+  --t: 180ms;
+}
+
+/* Dark applies on screen only: paper is always printed with the light tokens. */
+@media screen {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0e1113;
+    --surface: #161a1d;
+    --surface-2: #1b2024;
+    --surface-3: #232a2f;
+    --raised: #1d2226;
+    --line: #2a3137;
+    --line-strong: #3b444c;
+    --text: #e6e9ec;
+    --text-2: #b4bcc4;
+    --text-3: #8d97a1;
+    --text-inverse: #0e1113;
+
+    --primary: #3db487;
+    --primary-hover: #52c497;
+    --primary-press: #2f9a72;
+    --primary-soft: #16302a;
+    --primary-text: #06140f;
+    --link: #6cb1f5;
+    --focus: #6cb1f5;
+
+    --positive: #57c784;
+    --positive-soft: #15301f;
+    --negative: #f17d73;
+    --negative-soft: #3a1b19;
+    --warning: #e7ad55;
+    --warning-soft: #36280f;
+    --info: #6cb1f5;
+    --info-soft: #132a40;
+
+    --chart-1: #3987e5;
+    --chart-2: #d95926;
+    --chart-3: #199e70;
+    --chart-4: #c98500;
+    --chart-5: #d55181;
+    --chart-6: #008300;
+    --chart-7: #9085e9;
+    --chart-8: #e66767;
+    --chart-other: #6e7881;
+    --chart-grid: #262d32;
+
+    --scrim: rgba(0, 0, 0, 0.6);
+  }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1113;
+    --surface: #161a1d;
+    --surface-2: #1b2024;
+    --surface-3: #232a2f;
+    --raised: #1d2226;
+    --line: #2a3137;
+    --line-strong: #3b444c;
+    --text: #e6e9ec;
+    --text-2: #b4bcc4;
+    --text-3: #8d97a1;
+    --text-inverse: #0e1113;
+
+    --primary: #3db487;
+    --primary-hover: #52c497;
+    --primary-press: #2f9a72;
+    --primary-soft: #16302a;
+    --primary-text: #06140f;
+    --link: #6cb1f5;
+    --focus: #6cb1f5;
+
+    --positive: #57c784;
+    --positive-soft: #15301f;
+    --negative: #f17d73;
+    --negative-soft: #3a1b19;
+    --warning: #e7ad55;
+    --warning-soft: #36280f;
+    --info: #6cb1f5;
+    --info-soft: #132a40;
+
+    --chart-1: #3987e5;
+    --chart-2: #d95926;
+    --chart-3: #199e70;
+    --chart-4: #c98500;
+    --chart-5: #d55181;
+    --chart-6: #008300;
+    --chart-7: #9085e9;
+    --chart-8: #e66767;
+    --chart-other: #6e7881;
+    --chart-grid: #262d32;
+
+    --scrim: rgba(0, 0, 0, 0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t: 0ms;
+  }
+}

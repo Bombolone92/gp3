@@ -1,0 +1,6 @@
+# Native reference hashes and package preservation tests require exact bytes.
+# Even font-free PDFs can look like text to Git; CRLF conversion breaks xrefs.
+tests/fixtures/** -text
+tests/fixtures/**/*.pdf binary
+tests/fixtures/**/*.docx binary
+tests/fixtures/**/*.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

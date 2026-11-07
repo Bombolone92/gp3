@@ -1,0 +1,157 @@
+/* Reset & foundations */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+p {
+  overflow-wrap: break-word;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Its own token, not the accent wash: a 10 percent wash is 1.15:1 against
+   the surface, and text selected for copying looked barely selected. */
+::selection {
+  background: var(--selection);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* App scaffold */
+
+/* 100vh first: browsers without dynamic viewport units (Safari < 15.4)
+   drop the dvh declaration entirely, which would leave these boxes with
+   no height at all. The same pairing repeats wherever dvh is used. */
+.app {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Boot splash - replaced as soon as main.js renders. */
+.boot-splash {
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+}
+
+.boot-mark {
+  animation: boot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes boot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* Utility rows */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row-end {
+  justify-content: flex-end;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.muted {
+  color: var(--ink-3);
+}
+
+.small {
+  font-size: 12.5px;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.pos { color: var(--pos); }
+.neg { color: var(--neg); }
+.warn { color: var(--warn); }

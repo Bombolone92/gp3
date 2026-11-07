@@ -1,0 +1,163 @@
+/* Design tokens. Light is the default; dark overrides via media query
+   (system) and via [data-theme] stamps set by the in-app toggle, which must
+   win in both directions. */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces & ink (cool neutrals).
+
+     The shell is two panels — navigation and content — floating on the page,
+     so --page is the ground you see between and around them and --surface is
+     the panel itself. --band is the recessed tone for a strip inside a panel
+     (a table's header row, a side rail, a segmented track): a shade off the
+     surface rather than the page's full step down, so a card sitting on a
+     panel is told apart by its rule, not by its fill. */
+  --page: #f4f4f6;
+  --surface: #ffffff;
+  --band: #f6f6f8;
+  --surface-2: #eeeef2;
+  --surface-3: #e4e4ea;
+  --ink: #131417;
+  --ink-2: #4c4e56;
+  --ink-3: #6c6e77;
+
+  /* Rules are solid, not translucent: the same line has to read the same
+     weight on a panel, on a recessed band, and on an accent wash, and a
+     translucent hairline changes with whatever it happens to sit on. */
+  --hairline: #e6e6eb;
+  --hairline-strong: #d8d8e0;
+  --scrim: rgba(19, 20, 23, 0.44);
+
+  /* Accent. Light must hold 4.5:1 as text on white surfaces (links, active
+     nav labels) and behind --accent-ink (primary buttons): #3b7a72 is
+     4.98:1 on white; the old #4e978e (3.4:1) lives on only in --series-1,
+     where chart fills need 3:1, not text contrast. */
+  --accent: #3b7a72;
+  --accent-strong: #2e6058;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(59, 122, 114, 0.1);
+  /* Accent ink for anything drawn ON --accent-wash. The wash tints the
+     surface toward the accent itself, which costs the pair its contrast:
+     --accent lands at 4.1-4.3:1 there, under the 4.5:1 text minimum, and the
+     active nav item, the active filter chip, the avatars and the sample
+     banner all read on it. This darker ink holds 5.9:1 on the same wash. */
+  --accent-on-wash: #2e6058;
+  /* Selected text needs a highlight that is unmistakably there — the app's
+     own clipboard-failure fallback asks the user to select text. */
+  --selection: rgba(59, 122, 114, 0.28);
+
+  /* Status tones (always paired with a text label, never color alone) */
+  --ok: #17713d;
+  --bad: #bb2e2e;
+  --warn: #8a5900;
+  --info: #2b49c4;
+  --critical: #cf3b3b;
+  /* Text drawn ON a --critical background (the overdue badge): white holds
+     4.8:1 on the light red, but the dark theme's lighter red needs dark
+     ink — white there is 2.8:1. */
+  --critical-ink: #ffffff;
+
+  /* Chart series (validated for colorblind separation and contrast against
+     the card surface in each mode; always paired with a legend and written
+     values, never color alone) */
+  --series-1: #4e978e;
+  --series-2: #17713d;
+
+  /* Shape. One 2px step per rank: controls, then cards, then the panels the
+     shell is built from. Everything is drawn with a rule at its edge, so the
+     radii stay tight enough for the rule to read as a straight line along
+     most of it. */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-full: 999px;
+
+  /* Type */
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Layout */
+  --sidebar-w: 252px;
+  --content-max: 1140px;
+  /* The editor's single column, and the width its action bar lines up with. */
+  --editor-col: 880px;
+  --shell-pad: 10px;
+  --tabbar-h: 60px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Dark values, applied by OS preference unless the app stamped light. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d10;
+    --surface: #17181c;
+    --band: #1e1f24;
+    --surface-2: #232428;
+    --surface-3: #2c2d33;
+    --ink: #f4f4f6;
+    --ink-2: #bcbec6;
+    --ink-3: #8f9199;
+    --hairline: #292a30;
+    --hairline-strong: #3a3b43;
+    --scrim: rgba(0, 0, 0, 0.6);
+
+    --accent: #8bd0c7;
+    --accent-strong: #a4dfd8;
+    --accent-ink: #0d211f;
+    --accent-wash: rgba(139, 208, 199, 0.14);
+    /* Dark's wash sits below its accent rather than above it, so the accent
+       already clears 4.5:1 on it and needs no darker twin. */
+    --accent-on-wash: #8bd0c7;
+    --selection: rgba(139, 208, 199, 0.4);
+
+    --ok: #5cc287;
+    --bad: #ef7676;
+    --warn: #d9a842;
+    --info: #93a7ff;
+    --critical: #ef7676;
+    --critical-ink: #0e0e11;
+
+    --series-1: #6bbcb3;
+    --series-2: #3f9f6b;
+  }
+}
+
+/* Explicit in-app toggle: dark stamp wins over OS-light. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d10;
+  --surface: #17181c;
+  --band: #1e1f24;
+  --surface-2: #232428;
+  --surface-3: #2c2d33;
+  --ink: #f4f4f6;
+  --ink-2: #bcbec6;
+  --ink-3: #8f9199;
+  --hairline: #292a30;
+  --hairline-strong: #3a3b43;
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --accent: #8bd0c7;
+  --accent-strong: #a4dfd8;
+  --accent-ink: #0d211f;
+  --accent-wash: rgba(139, 208, 199, 0.14);
+  --accent-on-wash: #8bd0c7;
+  --selection: rgba(139, 208, 199, 0.4);
+
+  --ok: #5cc287;
+  --bad: #ef7676;
+  --warn: #d9a842;
+  --info: #93a7ff;
+  --critical: #ef7676;
+  --critical-ink: #0e0e11;
+
+  --series-1: #6bbcb3;
+  --series-2: #3f9f6b;
+}
